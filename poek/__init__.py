@@ -15,4 +15,5 @@
 # Plus logic for creating simple expressions
 #
 
+from poek.expr import *
 
