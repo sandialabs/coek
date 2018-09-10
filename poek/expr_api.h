@@ -21,6 +21,9 @@ void* rmul_expr_float(float lhs, void* rhs);
 void print_var(void* self);
 void print_expr(void* self);
 
+int expr_size(void* self);
+
+
 void* create_variable(int binary, int integer);
 int get_variable_index(void* var);
 

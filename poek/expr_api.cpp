@@ -40,6 +40,7 @@ public:
     virtual bool is_variable() { return false; }
     virtual bool is_expression() { return false; }
 
+    virtual int size() {return 1;}
 };
 
 
@@ -95,6 +96,8 @@ public:
         {lhs = _lhs; rhs = _rhs;}
 
     void print(std::ostream& ostr) {AddExpression_print(ostr, this);}
+
+    int size() {return AddExpression_size(this);}
 };
 
 template <typename LHS, typename RHS>
@@ -118,11 +121,31 @@ void AddExpression_print(std::ostream& ostr, AddExpression<float, RHS>* expr)
 { ostr << expr->lhs << " + "; expr->rhs->print(ostr); }
 
 
+template <typename LHS, typename RHS>
+int AddExpression_size(AddExpression<LHS, RHS>* expr)
+{ return expr->lhs->size() + expr->rhs->size() + 1; }
+
+template <typename LHS>
+int AddExpression_size(AddExpression<LHS, int>* expr)
+{ return expr->lhs->size() + 2; }
+
+template <typename LHS>
+int AddExpression_size(AddExpression<LHS, float>* expr)
+{ return expr->lhs->size() + 2; }
+
+template <typename RHS>
+int AddExpression_size(AddExpression<int, RHS>* expr)
+{ return expr->rhs->size() + 2; }
+
+template <typename RHS>
+int AddExpression_size(AddExpression<float, RHS>* expr)
+{ return expr->rhs->size() + 2; }
+
+
 
 template <typename LHS, typename RHS>
 AddExpression<LHS, RHS>* AddExpression_create(LHS lhs, RHS rhs)
 { return new AddExpression<LHS, RHS>(lhs, rhs); }
-
 
 /* __add__ */
 extern "C" void* add_expr_int(void* lhs, int rhs)
@@ -251,6 +274,8 @@ public:
         {lhs = _lhs; rhs = _rhs;}
 
     void print(std::ostream& ostr) {MulExpression_print(ostr, this);}
+
+    int size() {return MulExpression_size(this);}
 };
 
 template <typename LHS, typename RHS>
@@ -316,6 +341,26 @@ else {
     ostr << "("; expr->rhs->print(ostr); ostr << ")";
     }
 }
+
+template <typename LHS, typename RHS>
+int MulExpression_size(MulExpression<LHS, RHS>* expr)
+{ return expr->lhs->size() + expr->rhs->size() + 1; }
+
+template <typename LHS>
+int MulExpression_size(MulExpression<LHS, int>* expr)
+{ return expr->lhs->size() + 2; }
+
+template <typename LHS>
+int MulExpression_size(MulExpression<LHS, float>* expr)
+{ return expr->lhs->size() + 2; }
+
+template <typename RHS>
+int MulExpression_size(MulExpression<int, RHS>* expr)
+{ return expr->rhs->size() + 2; }
+
+template <typename RHS>
+int MulExpression_size(MulExpression<float, RHS>* expr)
+{ return expr->rhs->size() + 2; }
 
 
 
@@ -452,6 +497,12 @@ extern "C" void print_expr(void* expr)
 Expression* _expr = static_cast<Expression*>(expr);
 _expr->print(std::cout);
 std::cout << std::endl;
+}
+
+extern "C" int expr_size(void* expr)
+{
+NumericValue* _expr = static_cast<NumericValue*>(expr);
+return _expr->size();
 }
 
 extern "C" void* create_variable(int binary, int integer)

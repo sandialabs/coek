@@ -48,5 +48,6 @@ print(e8)
 e9 = 0 * e2
 print(e9)
 
-
-
+e1 = 2*v1 + 2*v2 + 3*(v1+2*v2)
+e1.print()
+print(e1.size())

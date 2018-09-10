@@ -24,6 +24,9 @@ class NumericValue(object):
     # This is required because we define __eq__
     __hash__ = None
 
+    def size(self):
+        return lib.expr_size(self.ptr)
+
     def is_expression(self):
         return False
 
