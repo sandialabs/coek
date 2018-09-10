@@ -1,19 +1,3 @@
-#
-# E -> float
-# E -> int
-# E -> param(float/int)
-# E -> var(binary/int/float)
-# E -> E
-#
-# expr_add(float, E*)
-# expr_add(int, E*)
-# expr_add(V*, E*)
-
-# expr_add(E*, float)
-# expr_add(E*, int)
-# expr_add(E*, V*)
-# expr_add(E*, E*)
-
 from _expr.lib import *
 
 
@@ -92,7 +76,7 @@ class NumericValue(object):
         if other.__class__ is int:
             return expression( add_expr_int(self.ptr, other) )
         elif other.__class__ is float:
-            return expression( add_expr_float(self.ptr, other) )
+            return expression( add_expr_double(self.ptr, other) )
         else:
             return expression( add_expr_expression(self.ptr, other.ptr) )
 
@@ -111,7 +95,7 @@ class NumericValue(object):
         elif other.__class__ is float:
             if other == 0.0:
                 return 0.0
-            return expression( mul_expr_float(self.ptr, other) )
+            return expression( mul_expr_double(self.ptr, other) )
         else:
             return expression( mul_expr_expression(self.ptr, other.ptr) )
 
@@ -126,7 +110,7 @@ class NumericValue(object):
         if other.__class__ is int:
             return expression( radd_expr_int(other, self.ptr) )
         elif other.__class__ is float:
-            return expression( radd_expr_float(other, self.ptr) )
+            return expression( radd_expr_double(other, self.ptr) )
 
     def __rmul__(self,other):
         """
@@ -145,7 +129,7 @@ class NumericValue(object):
         elif other.__class__ is float:
             if other == 0.0:
                 return 0.0
-            return expression( rmul_expr_float(other, self.ptr) )
+            return expression( rmul_expr_double(other, self.ptr) )
 
     def __iadd__(self,other):
         """
@@ -158,7 +142,7 @@ class NumericValue(object):
         if other.__class__ is int:
             return expression( add_expr_int(self.ptr, other) )
         elif other.__class__ is float:
-            return expression( add_expr_float(self.ptr, other) )
+            return expression( add_expr_double(self.ptr, other) )
         else:
             return expression( add_expr_expression(self.ptr, other.ptr) )
 
@@ -177,17 +161,20 @@ class NumericValue(object):
         elif other.__class__ is float:
             if other == 0.0:
                 return 0.0
-            return expression( mul_expr_float(self.ptr, other) )
+            return expression( mul_expr_double(self.ptr, other) )
         else:
             return expression( mul_expr_expression(self.ptr, other.ptr) )
 
 
 class parameter(NumericValue):
 
-    __slots__ = ('ptr', 'name', 'value')
+    __slots__ = ('ptr')
 
-    def __str__(self):
-        return self.name
+    def __init__(self, value):
+        if value.__class__ is int:
+            self.ptr = create_parameter_int(value, 0)
+        else:
+            self.ptr = create_parameter_double(value, 0)
 
 
 class variable(object):

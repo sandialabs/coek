@@ -39,8 +39,41 @@ public:
 
     virtual bool is_variable() { return false; }
     virtual bool is_expression() { return false; }
+    virtual bool is_parameter() { return false; }
 
     virtual int size() {return 1;}
+};
+
+
+class Parameter : public NumericValue
+{
+public:
+
+    bool mutable_flag;
+
+    Parameter(bool _mutable_flag) : NumericValue()
+        {
+        mutable_flag = _mutable_flag; 
+        }
+
+    virtual bool is_parameter() { return true; }
+
+};
+
+
+template <typename TYPE>
+class TypedParameter : public Parameter
+{
+public:
+
+    TYPE value;
+
+    TypedParameter(TYPE _value, bool _mutable_flag) : Parameter(_mutable_flag)
+        {value = _value;}
+
+    void print(std::ostream& ostr)
+        { ostr << value; }
+
 };
 
 
@@ -78,7 +111,7 @@ public:
 
 
 std::list<Expression*> expressions;
-/*std::list<Parameter*> parameters;*/
+std::list<Parameter*> parameters;
 std::list<Variable*> variables;
 
 
@@ -109,7 +142,7 @@ void AddExpression_print(std::ostream& ostr, AddExpression<LHS, int>* expr)
 { expr->lhs->print(ostr); ostr << " + " << expr->rhs; }
 
 template <typename LHS>
-void AddExpression_print(std::ostream& ostr, AddExpression<LHS, float>* expr)
+void AddExpression_print(std::ostream& ostr, AddExpression<LHS, double>* expr)
 { expr->lhs->print(ostr); ostr << " + " << expr->rhs; }
 
 template <typename RHS>
@@ -117,7 +150,7 @@ void AddExpression_print(std::ostream& ostr, AddExpression<int, RHS>* expr)
 { ostr << expr->lhs << " + "; expr->rhs->print(ostr); }
 
 template <typename RHS>
-void AddExpression_print(std::ostream& ostr, AddExpression<float, RHS>* expr)
+void AddExpression_print(std::ostream& ostr, AddExpression<double, RHS>* expr)
 { ostr << expr->lhs << " + "; expr->rhs->print(ostr); }
 
 
@@ -130,7 +163,7 @@ int AddExpression_size(AddExpression<LHS, int>* expr)
 { return expr->lhs->size() + 2; }
 
 template <typename LHS>
-int AddExpression_size(AddExpression<LHS, float>* expr)
+int AddExpression_size(AddExpression<LHS, double>* expr)
 { return expr->lhs->size() + 2; }
 
 template <typename RHS>
@@ -138,7 +171,7 @@ int AddExpression_size(AddExpression<int, RHS>* expr)
 { return expr->rhs->size() + 2; }
 
 template <typename RHS>
-int AddExpression_size(AddExpression<float, RHS>* expr)
+int AddExpression_size(AddExpression<double, RHS>* expr)
 { return expr->rhs->size() + 2; }
 
 
@@ -168,14 +201,14 @@ expressions.push_back(tmp);
 return tmp;
 }
 
-extern "C" void* add_expr_float(void* lhs, float rhs)
+extern "C" void* add_expr_double(void* lhs, double rhs)
 {
 if (rhs == 0.0) {
     return lhs;
     }
 Expression* tmp;
 NumericValue* e = static_cast<NumericValue*>(lhs);
-float _rhs = static_cast<float>(rhs);
+double _rhs = static_cast<double>(rhs);
 if (e->is_variable()) {
     Variable* _lhs = static_cast<Variable*>(lhs);
     tmp = AddExpression_create(_lhs, _rhs);
@@ -240,7 +273,7 @@ expressions.push_back(tmp);
 return tmp;
 }
 
-extern "C" void* radd_expr_float(float lhs, void* rhs)
+extern "C" void* radd_expr_double(double lhs, void* rhs)
 {
 if (lhs == 0.0) {
     return rhs;
@@ -249,11 +282,11 @@ Expression* tmp;
 NumericValue* e = static_cast<NumericValue*>(rhs);
 if (e->is_variable()) {
     Variable* _rhs = static_cast<Variable*>(rhs);
-    tmp = new AddExpression<float,Variable*>(lhs, _rhs);
+    tmp = new AddExpression<double,Variable*>(lhs, _rhs);
     }
 else {
     Expression* _rhs = static_cast<Expression*>(rhs);
-    tmp = new AddExpression<float,Expression*>(lhs, _rhs);
+    tmp = new AddExpression<double,Expression*>(lhs, _rhs);
     }
 expressions.push_back(tmp);
 return tmp;
@@ -307,7 +340,7 @@ ostr << expr->rhs;
 }
 
 template <typename LHS>
-void MulExpression_print(std::ostream& ostr, MulExpression<LHS, float>* expr)
+void MulExpression_print(std::ostream& ostr, MulExpression<LHS, double>* expr)
 {
 if (expr->lhs->is_variable())
     expr->lhs->print(ostr);
@@ -331,7 +364,7 @@ else {
 }
 
 template <typename RHS>
-void MulExpression_print(std::ostream& ostr, MulExpression<float, RHS>* expr)
+void MulExpression_print(std::ostream& ostr, MulExpression<double, RHS>* expr)
 {
 ostr << expr->lhs;
 ostr << "*";
@@ -351,7 +384,7 @@ int MulExpression_size(MulExpression<LHS, int>* expr)
 { return expr->lhs->size() + 2; }
 
 template <typename LHS>
-int MulExpression_size(MulExpression<LHS, float>* expr)
+int MulExpression_size(MulExpression<LHS, double>* expr)
 { return expr->lhs->size() + 2; }
 
 template <typename RHS>
@@ -359,7 +392,7 @@ int MulExpression_size(MulExpression<int, RHS>* expr)
 { return expr->rhs->size() + 2; }
 
 template <typename RHS>
-int MulExpression_size(MulExpression<float, RHS>* expr)
+int MulExpression_size(MulExpression<double, RHS>* expr)
 { return expr->rhs->size() + 2; }
 
 
@@ -390,14 +423,14 @@ expressions.push_back(tmp);
 return tmp;
 }
 
-extern "C" void* mul_expr_float(void* lhs, float rhs)
+extern "C" void* mul_expr_double(void* lhs, double rhs)
 {
 if (rhs == 1.0) {
     return lhs;
     }
 Expression* tmp;
 NumericValue* e = static_cast<NumericValue*>(lhs);
-float _rhs = static_cast<float>(rhs);
+double _rhs = static_cast<double>(rhs);
 if (e->is_variable()) {
     Variable* _lhs = static_cast<Variable*>(lhs);
     tmp = MulExpression_create(_lhs, _rhs);
@@ -462,7 +495,7 @@ expressions.push_back(tmp);
 return tmp;
 }
 
-extern "C" void* rmul_expr_float(float lhs, void* rhs)
+extern "C" void* rmul_expr_double(double lhs, void* rhs)
 {
 if (lhs == 1.0) {
     return rhs;
@@ -471,11 +504,11 @@ Expression* tmp;
 NumericValue* e = static_cast<NumericValue*>(rhs);
 if (e->is_variable()) {
     Variable* _rhs = static_cast<Variable*>(rhs);
-    tmp = new MulExpression<float,Variable*>(lhs, _rhs);
+    tmp = new MulExpression<double,Variable*>(lhs, _rhs);
     }
 else {
     Expression* _rhs = static_cast<Expression*>(rhs);
-    tmp = new MulExpression<float,Expression*>(lhs, _rhs);
+    tmp = new MulExpression<double,Expression*>(lhs, _rhs);
     }
 expressions.push_back(tmp);
 return tmp;
@@ -503,6 +536,20 @@ extern "C" int expr_size(void* expr)
 {
 NumericValue* _expr = static_cast<NumericValue*>(expr);
 return _expr->size();
+}
+
+extern "C" void* create_parameter_int(int value, int mutable_flag)
+{
+Parameter* tmp = new TypedParameter<int>(value, mutable_flag);
+parameters.push_back(tmp);
+return tmp;
+}
+
+extern "C" void* create_parameter_double(double value, int mutable_flag)
+{
+Parameter* tmp = new TypedParameter<double>(value, mutable_flag);
+parameters.push_back(tmp);
+return tmp;
 }
 
 extern "C" void* create_variable(int binary, int integer)

@@ -51,14 +51,19 @@ def quicksum(args):
     if first is None:
         return 0
 
+    start = PE.parameter(0)
+    if first is 0:
+        ptr = start.ptr
+    else:
+        estart = start + first
+        ptr = estart.ptr
     const = []
-    try:
-        e = first.ptr
-        for arg in args:
-            e = lib.add_expr_expression(e, arg.ptr)
-    except AttributeError:
-        e = first
-    return PE.expression(e)
+    for arg in args:
+        if hasattr(arg, 'ptr'):
+            ptr = lib.add_expr_expression(ptr, arg.ptr)
+        else:
+            const.append(arg)
+    return PE.expression(ptr) + sum(const)
 
 
 def linear_PE(i):
@@ -86,9 +91,12 @@ def linear_PE(i):
     elif i == 3:
         e = sum(i*v[i] for i in range(N))
 
+    elif i == 300:
+        e = quicksum(i*v[i] for i in range(N))
+
 for i in [0,1,2,3]:
     print((i,timeit.timeit('linear_pe(%d)' % i, "from __main__ import linear_pe", number=1)))
-for i in [0,1,2,200,3]:
+for i in [0,1,2,200,3,300]:
     print((i,timeit.timeit('linear_PE(%d)' % i, "from __main__ import linear_PE", number=1)))
 
 
