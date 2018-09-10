@@ -14,7 +14,7 @@
 # expr_add(E*, V*)
 # expr_add(E*, E*)
 
-from _expr import lib
+from _expr.lib import *
 
 
 class NumericValue(object):
@@ -25,7 +25,7 @@ class NumericValue(object):
     __hash__ = None
 
     def size(self):
-        return lib.expr_size(self.ptr)
+        return expr_size(self.ptr)
 
     def is_expression(self):
         return False
@@ -99,11 +99,11 @@ class NumericValue(object):
             self + other
         """
         if other.__class__ is int:
-            return expression( lib.add_expr_int(self.ptr, other) )
+            return expression( add_expr_int(self.ptr, other) )
         elif other.__class__ is float:
-            return expression( lib.add_expr_float(self.ptr, other) )
+            return expression( add_expr_float(self.ptr, other) )
         else:
-            return expression( lib.add_expr_expression(self.ptr, other.ptr) )
+            return expression( add_expr_expression(self.ptr, other.ptr) )
         raise RuntimeError("Bad expression argument: '%s'" % str(type(other)))
 
     def __mul__(self,other):
@@ -117,13 +117,13 @@ class NumericValue(object):
         if other.__class__ is int:
             if other == 0:
                 return 0
-            return expression( lib.mul_expr_int(self.ptr, other) )
+            return expression( mul_expr_int(self.ptr, other) )
         elif other.__class__ is float:
             if other == 0.0:
                 return 0.0
-            return expression( lib.mul_expr_float(self.ptr, other) )
+            return expression( mul_expr_float(self.ptr, other) )
         else:
-            return expression( lib.mul_expr_expression(self.ptr, other.ptr) )
+            return expression( mul_expr_expression(self.ptr, other.ptr) )
         raise RuntimeError("Bad expression argument: '%s'" % str(type(other)))
 
     def __radd__(self,other):
@@ -135,9 +135,9 @@ class NumericValue(object):
             other + self
         """
         if other.__class__ is int:
-            return expression( lib.radd_expr_int(other, self.ptr) )
+            return expression( radd_expr_int(other, self.ptr) )
         elif other.__class__ is float:
-            return expression( lib.radd_expr_float(other, self.ptr) )
+            return expression( radd_expr_float(other, self.ptr) )
         raise RuntimeError("Bad expression argument: '%s'" % str(type(other)))
 
     def __rmul__(self,other):
@@ -153,11 +153,11 @@ class NumericValue(object):
         if other.__class__ is int:
             if other == 0:
                 return 0
-            return expression( lib.rmul_expr_int(other, self.ptr) )
+            return expression( rmul_expr_int(other, self.ptr) )
         elif other.__class__ is float:
             if other == 0.0:
                 return 0.0
-            return expression( lib.rmul_expr_float(other, self.ptr) )
+            return expression( rmul_expr_float(other, self.ptr) )
         raise RuntimeError("Bad expression argument: '%s'" % str(type(other)))
 
     def __iadd__(self,other):
@@ -169,11 +169,11 @@ class NumericValue(object):
             self += other
         """
         if other.__class__ is int:
-            return expression( lib.add_expr_int(self.ptr, other) )
+            return expression( add_expr_int(self.ptr, other) )
         elif other.__class__ is float:
-            return expression( lib.add_expr_float(self.ptr, other) )
+            return expression( add_expr_float(self.ptr, other) )
         else:
-            return expression( lib.add_expr_expression(self.ptr, other.ptr) )
+            return expression( add_expr_expression(self.ptr, other.ptr) )
         raise RuntimeError("Bad expression argument: '%s'" % str(type(other)))
 
     def __imul__(self,other):
@@ -187,13 +187,13 @@ class NumericValue(object):
         if other.__class__ is int:
             if other == 0:
                 return 0
-            return expression( lib.mul_expr_int(self.ptr, other) )
+            return expression( mul_expr_int(self.ptr, other) )
         elif other.__class__ is float:
             if other == 0.0:
                 return 0.0
-            return expression( lib.mul_expr_float(self.ptr, other) )
+            return expression( mul_expr_float(self.ptr, other) )
         else:
-            return expression( lib.mul_expr_expression(self.ptr, other.ptr) )
+            return expression( mul_expr_expression(self.ptr, other.ptr) )
         raise RuntimeError("Bad expression argument: '%s'" % str(type(other)))
 
 
@@ -222,7 +222,7 @@ class variable_single(NumericValue):
 
     def __init__(self, name=None):
         self.name = name
-        self.ptr = lib.create_variable(0,0)   # TODO: add 'within' argument
+        self.ptr = create_variable(0,0)   # TODO: add 'within' argument
         self.value = None
 
     def is_variable(self):
@@ -230,7 +230,7 @@ class variable_single(NumericValue):
 
     def __str__(self):
         if self.name is None:
-            index = lib.get_variable_index(self.ptr)
+            index = get_variable_index(self.ptr)
             self.name = 'x%d' % index
         return self.name
 
@@ -242,7 +242,7 @@ class variable_array(object):
     def __init__(self, num, name=None):
         self.num = num 
         self.name = name
-        self.ptr = lib.create_variable_array(0,0,num)   # TODO: add 'within' argument
+        self.ptr = create_variable_array(0,0,num)   # TODO: add 'within' argument
 
 
 class expression(NumericValue):
@@ -256,5 +256,5 @@ class expression(NumericValue):
         return True
 
     def print(self):
-        lib.print_expr(self.ptr)
+        print_expr(self.ptr)
 
