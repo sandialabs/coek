@@ -9,45 +9,45 @@ print(v2)
 
 e1 = v1 + 1
 e2 = 2 + v2
-e1.print()
-e2.print()
+e1.show()
+e2.show()
 
 e3 = e1 + e2
-e3.print()
+e3.show()
 e4 = e1 + 3
-e4.print()
+e4.show()
 e5 = 4 + e1
-e5.print()
+e5.show()
 e6 = e1 + v1
-e6.print()
+e6.show()
 e7 = v2 + e2
-e7.print()
+e7.show()
 e8 = e2 + 0
-e8.print()
+e8.show()
 e9 = 0 + e2
-e9.print()
+e9.show()
 
 
 e1 = v1 * 1
 e2 = 2 * v2
-e1.print()
-e2.print()
+e1.show()
+e2.show()
 
 e3 = e1 * e2
-e3.print()
+e3.show()
 e4 = e1 * 3
-e4.print()
+e4.show()
 e5 = 4 * e1
-e5.print()
+e5.show()
 e6 = e1 * v1
-e6.print()
+e6.show()
 e7 = v2 * e2
-e7.print()
+e7.show()
 e8 = e2 * 0
 print(e8)
 e9 = 0 * e2
 print(e9)
 
 e1 = 2*v1 + 2*v2 + 3*(v1+2*v2)
-e1.print()
+e1.show()
 print(e1.size())

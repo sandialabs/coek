@@ -95,7 +95,6 @@ class NumericValue(object):
             return expression( add_expr_float(self.ptr, other) )
         else:
             return expression( add_expr_expression(self.ptr, other.ptr) )
-        raise RuntimeError("Bad expression argument: '%s'" % str(type(other)))
 
     def __mul__(self,other):
         """
@@ -115,7 +114,6 @@ class NumericValue(object):
             return expression( mul_expr_float(self.ptr, other) )
         else:
             return expression( mul_expr_expression(self.ptr, other.ptr) )
-        raise RuntimeError("Bad expression argument: '%s'" % str(type(other)))
 
     def __radd__(self,other):
         """
@@ -129,7 +127,6 @@ class NumericValue(object):
             return expression( radd_expr_int(other, self.ptr) )
         elif other.__class__ is float:
             return expression( radd_expr_float(other, self.ptr) )
-        raise RuntimeError("Bad expression argument: '%s'" % str(type(other)))
 
     def __rmul__(self,other):
         """
@@ -149,7 +146,6 @@ class NumericValue(object):
             if other == 0.0:
                 return 0.0
             return expression( rmul_expr_float(other, self.ptr) )
-        raise RuntimeError("Bad expression argument: '%s'" % str(type(other)))
 
     def __iadd__(self,other):
         """
@@ -165,7 +161,6 @@ class NumericValue(object):
             return expression( add_expr_float(self.ptr, other) )
         else:
             return expression( add_expr_expression(self.ptr, other.ptr) )
-        raise RuntimeError("Bad expression argument: '%s'" % str(type(other)))
 
     def __imul__(self,other):
         """
@@ -185,7 +180,6 @@ class NumericValue(object):
             return expression( mul_expr_float(self.ptr, other) )
         else:
             return expression( mul_expr_expression(self.ptr, other.ptr) )
-        raise RuntimeError("Bad expression argument: '%s'" % str(type(other)))
 
 
 class parameter(NumericValue):
@@ -236,6 +230,6 @@ class expression(NumericValue):
     def __init__(self, ptr):
         self.ptr = ptr
 
-    def print(self):
+    def show(self):
         print_expr(self.ptr)
 
