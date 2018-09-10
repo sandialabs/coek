@@ -27,15 +27,6 @@ class NumericValue(object):
     def size(self):
         return expr_size(self.ptr)
 
-    def is_expression(self):
-        return False
-
-    def is_parameter(self):
-        return False
-
-    def is_variable(self):
-        return False
-
     def __lt__(self,other):
         """
         Less than operator
@@ -201,9 +192,6 @@ class parameter(NumericValue):
 
     __slots__ = ('ptr', 'name', 'value')
 
-    def is_parameter(self):
-        return True
-
     def __str__(self):
         return self.name
 
@@ -218,15 +206,11 @@ class variable(object):
 
 class variable_single(NumericValue):
 
-    __slots__ = ('ptr', 'name', 'value')
+    __slots__ = ('ptr', 'name')
 
     def __init__(self, name=None):
         self.name = name
         self.ptr = create_variable(0,0)   # TODO: add 'within' argument
-        self.value = None
-
-    def is_variable(self):
-        return True
 
     def __str__(self):
         if self.name is None:
@@ -251,9 +235,6 @@ class expression(NumericValue):
 
     def __init__(self, ptr):
         self.ptr = ptr
-
-    def is_expression(self):
-        return True
 
     def print(self):
         print_expr(self.ptr)
