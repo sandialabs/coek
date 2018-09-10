@@ -144,7 +144,7 @@ int AddExpression_size(AddExpression<float, RHS>* expr)
 
 
 template <typename LHS, typename RHS>
-AddExpression<LHS, RHS>* AddExpression_create(LHS lhs, RHS rhs)
+inline AddExpression<LHS, RHS>* AddExpression_create(LHS lhs, RHS rhs)
 { return new AddExpression<LHS, RHS>(lhs, rhs); }
 
 /* __add__ */
@@ -365,7 +365,7 @@ int MulExpression_size(MulExpression<float, RHS>* expr)
 
 
 template <typename LHS, typename RHS>
-MulExpression<LHS, RHS>* MulExpression_create(LHS lhs, RHS rhs)
+inline MulExpression<LHS, RHS>* MulExpression_create(LHS lhs, RHS rhs)
 { return new MulExpression<LHS, RHS>(lhs, rhs); }
 
 
