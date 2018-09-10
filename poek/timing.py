@@ -61,9 +61,9 @@ def quicksum(args):
         ptr = estart.ptr
     const = []
     for arg in args:
-        if hasattr(arg, 'ptr'):
+        try:
             ptr = lib.add_expr_expression(ptr, arg.ptr)
-        else:
+        except AttributeError:
             const.append(arg)
     return PE.expression(ptr) + sum(const)
 
@@ -116,6 +116,11 @@ PE_stats.sort_stats('cumulative')
 PE_stats.print_stats()
 
 cProfile.run('linear_PE(200)','PE.stats')
+PE_stats = pstats.Stats('PE.stats')
+PE_stats.sort_stats('cumulative')
+PE_stats.print_stats()
+
+cProfile.run('linear_PE(300)','PE.stats')
 PE_stats = pstats.Stats('PE.stats')
 PE_stats.sort_stats('cumulative')
 PE_stats.print_stats()

@@ -115,6 +115,38 @@ std::list<Parameter*> parameters;
 std::list<Variable*> variables;
 
 
+class InequalityExpression : public Expression
+{
+public:
+
+    NumericValue* body;
+
+    InequalityExpression(NumericValue* _body)
+        {body = _body;}
+
+    void print(std::ostream& ostr) {body->print(ostr); ostr << "  <=  0";}
+
+    int size() {return body->size();}
+
+};
+
+
+class EqualityExpression : public Expression
+{
+public:
+
+    NumericValue* body;
+
+    EqualityExpression(NumericValue* _body)
+        {body = _body;}
+
+    void print(std::ostream& ostr) {body->print(ostr); ostr << "  ==  0";}
+
+    int size() {return body->size();}
+
+};
+
+
 /*** ADD ***/
 
 template <typename LHS, typename RHS>
@@ -563,5 +595,21 @@ extern "C" int get_variable_index(void* ptr)
 {
 Variable* v = static_cast<Variable*>(ptr);
 return v->index;
+}
+
+extern "C" void* create_inequality(void* expr)
+{
+NumericValue* _expr = static_cast<NumericValue*>(expr);
+InequalityExpression* tmp = new InequalityExpression(_expr);
+expressions.push_back(tmp);
+return tmp;
+}
+
+extern "C" void* create_equality(void* expr)
+{
+NumericValue* _expr = static_cast<NumericValue*>(expr);
+EqualityExpression* tmp = new EqualityExpression(_expr);
+expressions.push_back(tmp);
+return tmp;
 }
 

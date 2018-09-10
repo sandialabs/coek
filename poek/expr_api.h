@@ -30,3 +30,5 @@ void* create_parameter_double(double value, int mutable_flag);
 void* create_variable(int binary, int integer);
 int get_variable_index(void* var);
 
+void* create_inequality(void* self);
+void* create_equality(void* self);
