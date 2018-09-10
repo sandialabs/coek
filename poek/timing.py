@@ -86,10 +86,10 @@ def linear_PE(i):
     elif i == 3:
         e = sum(i*v[i] for i in range(N))
 
-#for i in [0,1,2,20,3]:
-#    print((i,timeit.timeit('linear_pe(%d)' % i, "from __main__ import linear_pe", number=1)))
-#for i in [0,1,2,3]:
-#    print((i,timeit.timeit('linear_PE(%d)' % i, "from __main__ import linear_PE", number=1)))
+for i in [0,1,2,3]:
+    print((i,timeit.timeit('linear_pe(%d)' % i, "from __main__ import linear_pe", number=1)))
+for i in [0,1,2,200,3]:
+    print((i,timeit.timeit('linear_PE(%d)' % i, "from __main__ import linear_PE", number=1)))
 
 
 import cProfile
