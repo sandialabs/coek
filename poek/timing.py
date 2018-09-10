@@ -40,6 +40,8 @@ from _expr import lib
 
 def quicksum(args):
     # A hack.  This assumes that each term is an expression or variable or parameter
+    # NOTE:  We could simplify this logic by having the summation object
+    #   maintain a list of things being summed.
     try:
         first = next(args, None)
     except:
