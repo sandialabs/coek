@@ -36,9 +36,12 @@ def linear_pe(i):
     elif i == 3:
         e = sum(i*model.x[i] for i in model.x)
 
+    elif i == 300:
+        e = pe.quicksum(i*model.x[i] for i in model.x)
+
 from _expr import lib
 
-def quicksum(args):
+def _quicksum(args):
     # A hack.  This assumes that each term is an expression or variable or parameter
     # NOTE:  We could simplify this logic by having the summation object
     #   maintain a list of things being summed.
@@ -94,9 +97,9 @@ def linear_PE(i):
         e = sum(i*v[i] for i in range(N))
 
     elif i == 300:
-        e = quicksum(i*v[i] for i in range(N))
+        e = _quicksum(i*v[i] for i in range(N))
 
-for i in [0,1,2,3]:
+for i in [0,1,2,3,300]:
     print((i,timeit.timeit('linear_pe(%d)' % i, "from __main__ import linear_pe", number=1)))
 for i in [0,1,2,200,3,300]:
     print((i,timeit.timeit('linear_PE(%d)' % i, "from __main__ import linear_PE", number=1)))
