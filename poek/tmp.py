@@ -94,7 +94,14 @@ e.show()
 
 
 m = model()
-m.add( 2*(v1+3*v2+1) )
+e = v1+v2
+m.add( (1-e) + 2*e )
 m.add( v1*v1+1 <= 3*v2 )
 m.add( v1 == 3*v2-3 )
 m.show()
+m.build()
+
+v1.set_value(1)
+v2.set_value(2)
+
+print(m.compute_f())
