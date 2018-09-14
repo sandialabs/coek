@@ -20,6 +20,7 @@ void* rmul_expr_double(double lhs, void* rhs);
 
 void print_var(void* self);
 void print_expr(void* self);
+void print_model(void* self);
 
 int expr_size(void* self);
 
@@ -32,3 +33,8 @@ int get_variable_index(void* var);
 
 void* create_inequality(void* self);
 void* create_equality(void* self);
+void* create_model(void);
+
+void add_objective(void* model, void* expr);
+void add_inequality(void* model, void* ineq);
+void add_equality(void* model, void* eq);

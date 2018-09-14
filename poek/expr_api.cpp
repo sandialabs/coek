@@ -110,11 +110,6 @@ public:
 };
 
 
-std::list<Expression*> expressions;
-std::list<Parameter*> parameters;
-std::list<Variable*> variables;
-
-
 class InequalityExpression : public Expression
 {
 public:
@@ -145,6 +140,50 @@ public:
     int size() {return body->size();}
 
 };
+
+
+class Model 
+{
+public:
+
+    std::list<Expression*> objectives;
+    std::list<Expression*> inequalities;
+    std::list<Expression*> equalities;
+
+    void print(std::ostream& ostr)
+        {
+        ostr << "MODEL" << std::endl;
+
+        ostr << "  Objectives" << std::endl;
+        for (std::list<Expression*>::iterator it=objectives.begin(); it != objectives.end(); ++it) {
+            ostr << "    ";
+            (*it)->print(ostr);
+            ostr << std::endl;
+            }
+        ostr << std::endl;
+
+        ostr << "  Inequality Constraints" << std::endl;
+        for (std::list<Expression*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
+            ostr << "    ";
+            (*it)->print(ostr);
+            ostr << std::endl;
+            }
+        ostr << std::endl;
+
+        ostr << "  Equality Constraints" << std::endl;
+        for (std::list<Expression*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
+            ostr << "    ";
+            (*it)->print(ostr);
+            ostr << std::endl;
+            }
+        }
+};
+
+
+std::list<Model*> models;
+std::list<Expression*> expressions;
+std::list<Parameter*> parameters;
+std::list<Variable*> variables;
 
 
 /*** ADD ***/
@@ -611,5 +650,39 @@ NumericValue* _expr = static_cast<NumericValue*>(expr);
 EqualityExpression* tmp = new EqualityExpression(_expr);
 expressions.push_back(tmp);
 return tmp;
+}
+
+extern "C" void* create_model()
+{
+Model* tmp = new Model();
+models.push_back(tmp);
+return tmp;
+}
+
+extern "C" void add_objective(void* model, void* expr)
+{
+Model* tmp = static_cast<Model*>(model);
+Expression* _expr = static_cast<Expression*>(expr);
+tmp->objectives.push_back(_expr);
+}
+
+extern "C" void add_inequality(void* model, void* ineq)
+{
+Model* tmp = static_cast<Model*>(model);
+Expression* _ineq = static_cast<Expression*>(ineq);
+tmp->inequalities.push_back(_ineq);
+}
+
+extern "C" void add_equality(void* model, void* eq)
+{
+Model* tmp = static_cast<Model*>(model);
+Expression* _eq = static_cast<Expression*>(eq);
+tmp->equalities.push_back(_eq);
+}
+
+extern "C" void print_model(void* expr)
+{
+Model* tmp = static_cast<Model*>(expr);
+tmp->print(std::cout);
 }
 

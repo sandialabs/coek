@@ -299,6 +299,9 @@ class expression(NumericValue):
     def __init__(self, ptr):
         self.ptr = ptr
 
+    def is_expression(self):
+        return True
+
     def show(self):
         print_expr(self.ptr)
 
@@ -312,6 +315,12 @@ class constraint(NumericValue):
 
     def is_constraint(self):
         return True
+
+    def is_inequality(self):
+        return False
+
+    def is_equality(self):
+        return False
 
     def show(self):
         print_expr(self.ptr)
@@ -437,7 +446,68 @@ class inequality_constraint(constraint):
 
     __slots__ = ()
 
+    def is_inequality(self):
+        return True
+
+
 class equality_constraint(constraint):
 
     __slots__ = ()
+
+    def is_equality(self):
+        return True
+
+
+class model(object):
+
+    __slots__ = ('ptr',)
+
+    def __init__(self):
+        self.ptr = create_model()
+
+    def add(self, obj):
+        if obj.is_expression():
+            add_objective(self.ptr, obj.ptr)
+        elif obj.is_constraint():
+            if obj.is_inequality():
+                add_inequality(self.ptr, obj.ptr)
+            elif obj.is_equality():
+                add_equality(self.ptr, obj.ptr)
+            else:
+                raise RuntimeError("Cannot add constraint to model: "+str(type(obj)))
+        else:
+            raise RuntimeError("Cannot add object to model: "+str(type(obj)))
+
+    def show(self):
+        print_model(self.ptr)
+
+
+def quicksum(args):
+    # A hack.  This assumes that each term is an expression or variable or parameter
+    # NOTE:  We could simplify this logic by having the summation object
+    #   maintain a list of things being summed.
+    try:
+        first = next(args, None)
+    except:
+        try:
+            args = args.__iter__()
+            first = next(args, None)
+        except:
+            raise RuntimeError("The argument to quicksum() is not iterable!")
+    if first is None:
+        return 0
+
+    start = parameter(0)
+    if first is 0:
+        ptr = start.ptr
+    else:
+        estart = start + first
+        ptr = estart.ptr
+    const = []
+    for arg in args:
+        try:
+            ptr = add_expr_expression(ptr, arg.ptr)
+        except AttributeError:
+            const.append(arg)
+    return expression(ptr) + sum(const)
 

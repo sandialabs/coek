@@ -92,3 +92,9 @@ e.show()
 e = v1 == 2 + v2
 e.show()
 
+
+m = model()
+m.add( 2*(v1+3*v2+1) )
+m.add( v1*v1+1 <= 3*v2 )
+m.add( v1 == 3*v2-3 )
+m.show()

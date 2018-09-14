@@ -41,35 +41,6 @@ def linear_pe(i):
 
 from _expr import lib
 
-def _quicksum(args):
-    # A hack.  This assumes that each term is an expression or variable or parameter
-    # NOTE:  We could simplify this logic by having the summation object
-    #   maintain a list of things being summed.
-    try:
-        first = next(args, None)
-    except:
-        try:
-            args = args.__iter__()
-            first = next(args, None)
-        except:
-            raise RuntimeError("The argument to quicksum() is not iterable!")
-    if first is None:
-        return 0
-
-    start = PE.parameter(0)
-    if first is 0:
-        ptr = start.ptr
-    else:
-        estart = start + first
-        ptr = estart.ptr
-    const = []
-    for arg in args:
-        try:
-            ptr = lib.add_expr_expression(ptr, arg.ptr)
-        except AttributeError:
-            const.append(arg)
-    return PE.expression(ptr) + sum(const)
-
 
 def linear_PE(i):
     if i == 0:
@@ -97,7 +68,7 @@ def linear_PE(i):
         e = sum(i*v[i] for i in range(N))
 
     elif i == 300:
-        e = _quicksum(i*v[i] for i in range(N))
+        e = PE.quicksum(i*v[i] for i in range(N))
 
 for i in [0,1,2,3,300]:
     print((i,timeit.timeit('linear_pe(%d)' % i, "from __main__ import linear_pe", number=1)))
