@@ -1,6 +1,10 @@
 
+#include <cmath>
+#include <vector>
 #include <string>
 #include <list>
+#include <map>
+#include <set>
 #include <sstream>
 #include <iostream>
 
@@ -10,6 +14,7 @@ extern "C" {
 
 }
 
+double _nan = nan(0);
 
 /*
 class Parameter { };
@@ -28,12 +33,11 @@ public:
 */
 
 
-int nvariables = 0;
-
-
 class NumericValue
 {
 public:
+
+    double _value;
 
     virtual void print(std::ostream& ostr) = 0;
 
@@ -42,6 +46,10 @@ public:
     virtual bool is_parameter() { return false; }
 
     virtual int size() {return 1;}
+
+    virtual double value() = 0;
+
+    virtual double compute_value() = 0;
 };
 
 
@@ -66,13 +74,17 @@ class TypedParameter : public Parameter
 {
 public:
 
-    TYPE value;
+    TYPE _tvalue;
 
-    TypedParameter(TYPE _value, bool _mutable_flag) : Parameter(_mutable_flag)
-        {value = _value;}
+    TypedParameter(TYPE __value, bool _mutable_flag) : Parameter(_mutable_flag)
+        {_value = _tvalue = __value;}
+
+    double value() {return _tvalue;}
+
+    double compute_value() {return _tvalue;}
 
     void print(std::ostream& ostr)
-        { ostr << value; }
+        { ostr << _value; }
 
 };
 
@@ -81,16 +93,24 @@ class Variable : public NumericValue
 {
 public:
 
+    static int nvariables;
+
+    double _value;
     bool binary;
     bool integer;
     int index;
 
     Variable(bool _binary, bool _integer) : NumericValue()
         {
+        _value = _nan;
         binary = _binary; 
         integer = _integer; 
         index = nvariables++;
         }
+
+    virtual double value() {return _value;}
+
+    double compute_value() {return _value;}
 
     void print(std::ostream& ostr)
         { ostr << 'x' << index; }
@@ -99,14 +119,23 @@ public:
 
 };
 
+int Variable::nvariables = 0;
+
 
 class Expression: public NumericValue
 {
 public:
 
+    double _value;
+
     bool is_expression() { return true; }
 
     void print(std::ostream& ostr) {ostr << "ERROR: Undefined print() method.";}
+
+    virtual unsigned int num_sub_expressions() = 0;
+
+    virtual NumericValue* expression(unsigned int i) = 0;
+
 };
 
 
@@ -122,6 +151,14 @@ public:
     void print(std::ostream& ostr) {body->print(ostr); ostr << "  <=  0";}
 
     int size() {return body->size();}
+
+    unsigned int num_sub_expressions() {return 1;}
+
+    NumericValue* expression(unsigned int i) { if (i == 0) return body; else return 0; }
+
+    double value() {return body->value();}
+
+    double compute_value() {_value = body->_value; return _value;}
 
 };
 
@@ -139,7 +176,25 @@ public:
 
     int size() {return body->size();}
 
+    unsigned int num_sub_expressions() {return 1;}
+
+    NumericValue* expression(unsigned int i) { if (i == 0) return body; else return 0; }
+
+    double value() {return body->value();}
+
+    double compute_value() {_value = body->_value; return _value;}
+
 };
+
+
+bool variable_comparator(const Variable* lhs, const Variable* rhs)
+{
+return lhs->index <= rhs->index;
+}
+
+/*
+std::set<MyType, bool(*)(const MyType&, const MyType&)> mySet(&comparator);
+*/
 
 
 class Model 
@@ -149,6 +204,14 @@ public:
     std::list<Expression*> objectives;
     std::list<Expression*> inequalities;
     std::list<Expression*> equalities;
+
+    std::map<Expression*,int> f;
+    std::map<Expression*,int> df;
+    std::vector< std::list<Expression*> > builds;
+    std::set<Variable*, bool(*)(const Variable*, const Variable*)> variables;
+    typedef std::set<Variable*, bool(*)(const Variable*, const Variable*)>::iterator variables_iterator_type;
+
+    Model(void) : variables(variable_comparator) {}
 
     void print(std::ostream& ostr)
         {
@@ -177,8 +240,151 @@ public:
             ostr << std::endl;
             }
         }
+
+    void build();
+
+    void set_variables(std::vector<double>& x);
+
+    double compute_f(std::vector<double>& x)
+        {return compute_f(x, 0);}
+
+    double compute_f(std::vector<double>& x, unsigned int i)
+        {
+        set_variables(x);
+        return _compute_f(i);
+        }
+
+    //void compute_df(std::vector<double>& x, std::vector<double>& df)
+    //    {return compute_df(x, 0);}
+
+    //void compute_df(std::vector<double>& x, std::vector<double>& df, unsigned int i);
+
+    //void compute_c(std::vector<double>& x, std::vector<double>& c);
+
+    //double compute_dc(std::vector<double>& x, unsigned int i);
+
+    //void compute_J(std::vector<double>& x, std::vector<double>& J);
+
+    double _compute_f(unsigned int i);
+
+protected:
+
+    void build_expression(Expression* root, std::list<Expression*>& curr_build);
 };
 
+
+void Model::build_expression(Expression* root, std::list<Expression*>& curr_build)
+{
+//std::cout << "BUILD" << std::endl;
+//root->print(std::cout);
+//std::cout << std::endl;
+//std::cout << std::flush;
+
+//
+// A topological sort to construct the build
+//
+std::list<Expression*> todo;
+std::set<Expression*> seen;
+
+todo.push_back(root);
+while (todo.size() > 0) {
+    //std::cout << "TODO " << todo.size() << std::endl;
+    //
+    // Get the end of the stack
+    //
+    Expression* curr = todo.back();
+    //
+    // If the current node is seen, then append the list.  All nodes that 
+    // this expression depend on are ahead of it in the list.
+    //
+    if (seen.find(curr) != seen.end()) {
+        //std::cout << "SEEN" << std::endl;
+        //curr->print(std::cout);
+        //std::cout << std::endl;
+        curr_build.push_back(curr);
+        todo.pop_back();
+        }
+    //
+    // Otherwise, mark the node as seen and process its children.
+    //
+    else {
+        //std::cout << "CURR " << curr->num_sub_expressions() << std::endl;
+        //root->print(std::cout);
+        //std::cout << std::endl;
+        seen.insert(curr);
+        for (unsigned int i=0; i<curr->num_sub_expressions(); i++) {
+            //std::cout << "i " << i << "  ";
+            //std::cout << std::flush;
+            NumericValue* child = curr->expression(i);
+            //child->print(std::cout);
+            //std::cout << std::endl;
+            //std::cout << child->is_expression() << " " << child->is_variable() << std::endl;
+            //std::cout << std::flush;
+            if (child->is_expression()) {
+                Expression* tmp = static_cast<Expression*>(child);
+                if (seen.find(tmp) == seen.end()) {
+                    todo.push_back(tmp);
+                    }
+                }
+            else if (child->is_variable()) {
+                variables.insert( static_cast<Variable*>(child) );
+                }
+            /// ELSE, ignore constants
+            }
+        }
+    }
+}
+
+
+void Model::build()
+{
+builds.resize(objectives.size() + inequalities.size() + equalities.size());
+int nb=0;
+
+for (std::list<Expression*>::iterator it=objectives.begin(); it != objectives.end(); ++it) {
+    build_expression(*it, builds[nb]);
+    nb++;
+    }
+for (std::list<Expression*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
+    build_expression(*it, builds[nb]);
+    nb++;
+    }
+for (std::list<Expression*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
+    build_expression(*it, builds[nb]);
+    nb++;
+    }
+}
+
+
+void Model::set_variables(std::vector<double>& x)
+{
+assert(x.size() == variables.size());
+int j=0;
+for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
+    (*it)->_value = x[j];
+    j++;
+    }
+}
+
+double Model::_compute_f(unsigned int i)
+{
+assert(i < builds.size());
+std::list<Expression*>& tmp = builds[i];
+
+double ans = 0.0;
+//std::cout << "HERE " << tmp.size() << std::endl << std::endl;
+for (std::list<Expression*>::iterator it=tmp.begin(); it != tmp.end(); it++) {
+    ans = (*it)->compute_value();
+    //std::cout << "ANS " << ans << std::endl;
+    //(*it)->print(std::cout);
+    //std::cout << std::endl;
+    }
+
+return ans;
+}
+
+
+/*** GLOBAL DATA ***/
 
 std::list<Model*> models;
 std::list<Expression*> expressions;
@@ -186,22 +392,127 @@ std::list<Parameter*> parameters;
 std::list<Variable*> variables;
 
 
-/*** ADD ***/
+/*** BINARY ***/
 
 template <typename LHS, typename RHS>
-class AddExpression : public Expression
+class BinaryExpression : public Expression
 {
 public:
 
     LHS lhs;
     RHS rhs;
 
-    AddExpression(LHS _lhs, RHS _rhs) : Expression()
+    BinaryExpression(LHS _lhs, RHS _rhs) : Expression()
         {lhs = _lhs; rhs = _rhs;}
+
+    unsigned int num_sub_expressions() {return BinaryExpression_num_sub_expressions(this);}
+
+    NumericValue* expression(unsigned int i) { return BinaryExpression_expression(i, this); }
+
+    int size() {return BinaryExpression_size(this);}
+};
+
+template <typename LHS, typename RHS>
+int BinaryExpression_size(BinaryExpression<LHS, RHS>* expr)
+{ return expr->lhs->size() + expr->rhs->size() + 1; }
+
+template <typename LHS>
+int BinaryExpression_size(BinaryExpression<LHS, int>* expr)
+{ return expr->lhs->size() + 2; }
+
+template <typename LHS>
+int BinaryExpression_size(BinaryExpression<LHS, double>* expr)
+{ return expr->lhs->size() + 2; }
+
+template <typename RHS>
+int BinaryExpression_size(BinaryExpression<int, RHS>* expr)
+{ return expr->rhs->size() + 2; }
+
+template <typename RHS>
+int BinaryExpression_size(BinaryExpression<double, RHS>* expr)
+{ return expr->rhs->size() + 2; }
+
+
+template <typename LHS, typename RHS>
+unsigned int BinaryExpression_num_sub_expressions(BinaryExpression<LHS, RHS>* expr)
+{ return 2; }
+
+template <typename LHS>
+unsigned int BinaryExpression_num_sub_expressions(BinaryExpression<LHS, int>* expr)
+{ return 1; }
+
+template <typename LHS>
+unsigned int BinaryExpression_num_sub_expressions(BinaryExpression<LHS, double>* expr)
+{ return 1; }
+
+template <typename RHS>
+unsigned int BinaryExpression_num_sub_expressions(BinaryExpression<int, RHS>* expr)
+{ return 1; }
+
+template <typename RHS>
+unsigned int BinaryExpression_num_sub_expressions(BinaryExpression<double, RHS>* expr)
+{ return 1; }
+
+
+template <typename LHS, typename RHS>
+NumericValue* BinaryExpression_expression(unsigned int i, BinaryExpression<LHS, RHS>* expr)
+{
+if (i == 0)
+    return expr->lhs;
+if (i == 1)
+    return expr->rhs;
+return 0;
+}
+
+template <typename LHS>
+NumericValue* BinaryExpression_expression(unsigned int i, BinaryExpression<LHS, int>* expr)
+{
+if (i == 0)
+    return expr->lhs;
+return 0;
+}
+
+template <typename LHS>
+NumericValue* BinaryExpression_expression(unsigned int i, BinaryExpression<LHS, double>* expr)
+{
+if (i == 0)
+    return expr->lhs;
+return 0;
+}
+
+template <typename RHS>
+NumericValue* BinaryExpression_expression(unsigned int i, BinaryExpression<int, RHS>* expr)
+{
+if (i == 0)
+    return expr->rhs;
+return 0;
+}
+
+template <typename RHS>
+NumericValue* BinaryExpression_expression(unsigned int i, BinaryExpression<double, RHS>* expr)
+{
+if (i == 0)
+    return expr->rhs;
+return 0;
+}
+
+
+/*** ADD ***/
+
+template <typename LHS, typename RHS>
+class AddExpression : public BinaryExpression<LHS,RHS>
+{
+public:
+
+    AddExpression(LHS _lhs, RHS _rhs) : BinaryExpression<LHS,RHS>(_lhs,_rhs)
+        {}
 
     void print(std::ostream& ostr) {AddExpression_print(ostr, this);}
 
-    int size() {return AddExpression_size(this);}
+    double value() {return AddExpression_value(this);}
+
+    double compute_value() {this->_value = AddExpression_computevalue(this); return this->_value;}
+
 };
 
 template <typename LHS, typename RHS>
@@ -226,25 +537,45 @@ void AddExpression_print(std::ostream& ostr, AddExpression<double, RHS>* expr)
 
 
 template <typename LHS, typename RHS>
-int AddExpression_size(AddExpression<LHS, RHS>* expr)
-{ return expr->lhs->size() + expr->rhs->size() + 1; }
+double AddExpression_value(AddExpression<LHS, RHS>* expr)
+{ return expr->lhs->value() + expr->rhs->value(); }
 
 template <typename LHS>
-int AddExpression_size(AddExpression<LHS, int>* expr)
-{ return expr->lhs->size() + 2; }
+double AddExpression_value(AddExpression<LHS, int>* expr)
+{ return expr->lhs->value() + expr->rhs; }
 
 template <typename LHS>
-int AddExpression_size(AddExpression<LHS, double>* expr)
-{ return expr->lhs->size() + 2; }
+double AddExpression_value(AddExpression<LHS, double>* expr)
+{ return expr->lhs->value() + expr->rhs; }
 
 template <typename RHS>
-int AddExpression_size(AddExpression<int, RHS>* expr)
-{ return expr->rhs->size() + 2; }
+double AddExpression_value(AddExpression<int, RHS>* expr)
+{ return expr->lhs + expr->rhs->value(); }
 
 template <typename RHS>
-int AddExpression_size(AddExpression<double, RHS>* expr)
-{ return expr->rhs->size() + 2; }
+double AddExpression_value(AddExpression<double, RHS>* expr)
+{ return expr->lhs + expr->rhs->value(); }
 
+
+template <typename LHS, typename RHS>
+double AddExpression_computevalue(AddExpression<LHS, RHS>* expr)
+{ return expr->lhs->_value + expr->rhs->_value; }
+
+template <typename LHS>
+double AddExpression_computevalue(AddExpression<LHS, int>* expr)
+{ return expr->lhs->_value + expr->rhs; }
+
+template <typename LHS>
+double AddExpression_computevalue(AddExpression<LHS, double>* expr)
+{ return expr->lhs->_value + expr->rhs; }
+
+template <typename RHS>
+double AddExpression_computevalue(AddExpression<int, RHS>* expr)
+{ return expr->lhs + expr->rhs->_value; }
+
+template <typename RHS>
+double AddExpression_computevalue(AddExpression<double, RHS>* expr)
+{ return expr->lhs + expr->rhs->_value; }
 
 
 template <typename LHS, typename RHS>
@@ -367,19 +698,19 @@ return tmp;
 /*** MUL ***/
 
 template <typename LHS, typename RHS>
-class MulExpression : public Expression
+class MulExpression : public BinaryExpression<LHS,RHS>
 {
 public:
 
-    LHS lhs;
-    RHS rhs;
-
-    MulExpression(LHS _lhs, RHS _rhs) : Expression()
-        {lhs = _lhs; rhs = _rhs;}
+    MulExpression(LHS _lhs, RHS _rhs) : BinaryExpression<LHS,RHS>(_lhs,_rhs)
+        {}
 
     void print(std::ostream& ostr) {MulExpression_print(ostr, this);}
 
-    int size() {return MulExpression_size(this);}
+    double value() {return MulExpression_value(this); }
+
+    double compute_value() {this->_value = MulExpression_computevalue(this); return this->_value;}
+
 };
 
 template <typename LHS, typename RHS>
@@ -446,25 +777,48 @@ else {
     }
 }
 
+
 template <typename LHS, typename RHS>
-int MulExpression_size(MulExpression<LHS, RHS>* expr)
-{ return expr->lhs->size() + expr->rhs->size() + 1; }
+double MulExpression_value(MulExpression<LHS, RHS>* expr)
+{ return expr->lhs->value() * expr->rhs->value(); }
 
 template <typename LHS>
-int MulExpression_size(MulExpression<LHS, int>* expr)
-{ return expr->lhs->size() + 2; }
+double MulExpression_value(MulExpression<LHS, int>* expr)
+{ return expr->lhs->value() * expr->rhs; }
 
 template <typename LHS>
-int MulExpression_size(MulExpression<LHS, double>* expr)
-{ return expr->lhs->size() + 2; }
+double MulExpression_value(MulExpression<LHS, double>* expr)
+{ return expr->lhs->value() * expr->rhs; }
 
 template <typename RHS>
-int MulExpression_size(MulExpression<int, RHS>* expr)
-{ return expr->rhs->size() + 2; }
+double MulExpression_value(MulExpression<int, RHS>* expr)
+{ return expr->lhs * expr->rhs->value(); }
 
 template <typename RHS>
-int MulExpression_size(MulExpression<double, RHS>* expr)
-{ return expr->rhs->size() + 2; }
+double MulExpression_value(MulExpression<double, RHS>* expr)
+{ return expr->lhs * expr->rhs->value(); }
+
+
+
+template <typename LHS, typename RHS>
+double MulExpression_computevalue(MulExpression<LHS, RHS>* expr)
+{ return expr->lhs->_value * expr->rhs->_value; }
+
+template <typename LHS>
+double MulExpression_computevalue(MulExpression<LHS, int>* expr)
+{ return expr->lhs->_value * expr->rhs; }
+
+template <typename LHS>
+double MulExpression_computevalue(MulExpression<LHS, double>* expr)
+{ return expr->lhs->_value * expr->rhs; }
+
+template <typename RHS>
+double MulExpression_computevalue(MulExpression<int, RHS>* expr)
+{ return expr->lhs * expr->rhs->_value; }
+
+template <typename RHS>
+double MulExpression_computevalue(MulExpression<double, RHS>* expr)
+{ return expr->lhs * expr->rhs->_value; }
 
 
 
@@ -636,6 +990,12 @@ Variable* v = static_cast<Variable*>(ptr);
 return v->index;
 }
 
+extern "C" void set_variable_value(void* ptr, double val)
+{
+Variable* v = static_cast<Variable*>(ptr);
+v->_value = val;
+}
+
 extern "C" void* create_inequality(void* expr)
 {
 NumericValue* _expr = static_cast<NumericValue*>(expr);
@@ -685,4 +1045,17 @@ extern "C" void print_model(void* expr)
 Model* tmp = static_cast<Model*>(expr);
 tmp->print(std::cout);
 }
+
+extern "C" void build_model(void* expr)
+{
+Model* tmp = static_cast<Model*>(expr);
+tmp->build();
+}
+
+extern "C" double compute_objective(void* model, int i)
+{
+Model* tmp = static_cast<Model*>(model);
+return tmp->_compute_f(i);
+}
+
 

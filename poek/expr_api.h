@@ -38,3 +38,8 @@ void* create_model(void);
 void add_objective(void* model, void* expr);
 void add_inequality(void* model, void* ineq);
 void add_equality(void* model, void* eq);
+
+void build_model(void* model);
+
+void set_variable_value(void* variable, double value);
+double compute_objective(void* model, int i);
