@@ -6,6 +6,9 @@ random.seed(1000)
 N = 640
 M = 640
 P = 1
+#N = 7
+#M = 5
+#P = 1
 
 x = {}
 for n in range(N):
@@ -38,3 +41,7 @@ for n in range(N):
 # num_facilities
 pmedian.add( quicksum(y[n] for n in range(N)) == P )
 
+
+
+#pmedian.show()
+#pmedian.build()
