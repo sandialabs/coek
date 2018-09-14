@@ -262,10 +262,10 @@ class parameter(NumericValue):
 class variable(object):
 
     def __new__(cls, *args, **kwds):
-        if len(args) == 0 or args[0] == 1:
+        if len(args) == 0 or args[0] == 1 or type(args[0]) == str:
             return variable_single(**kwds)
         return variable_array(args[0], **kwds)
-            
+
 
 class variable_single(NumericValue):
 
@@ -274,6 +274,9 @@ class variable_single(NumericValue):
     def __init__(self, name=None):
         self.name = name
         self.ptr = create_variable(0,0)   # TODO: add 'within' argument
+
+    def set_value(self, value):
+        set_variable_value(self.ptr, value)
 
     def __str__(self):
         if self.name is None:
@@ -478,12 +481,17 @@ class model(object):
         else:
             raise RuntimeError("Cannot add object to model: "+str(type(obj)))
 
+    def compute_f(self, i=0):
+        return compute_objective(self.ptr, i)
+
     def show(self):
         print_model(self.ptr)
 
+    def build(self):
+        build_model(self.ptr)
+
 
 def quicksum(args):
-    # A hack.  This assumes that each term is an expression or variable or parameter
     # NOTE:  We could simplify this logic by having the summation object
     #   maintain a list of things being summed.
     try:
