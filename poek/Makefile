@@ -3,7 +3,7 @@ all: exprapi
 clean:
 	rm -f *.o *.so
 
-libexprapi.so: expr_api.o
+libexprapi.so: expr_api.o model.o expr_types.o
 	g++ -O3 -shared $^ -o $@
 
 %.o: %.cpp
