@@ -317,7 +317,7 @@ return tmp;
 
 extern "C" void* create_model()
 {
-Model* tmp = new Model();
+Model* tmp = new Model1();
 models.push_back(tmp);
 return tmp;
 }

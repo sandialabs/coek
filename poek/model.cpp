@@ -2,7 +2,27 @@
 #include "model.h"
 
 
-void Model::build_expression(Expression* root, std::list<Expression*>& curr_build)
+///
+/// MODEL
+///
+
+
+void Model::set_variables(std::vector<double>& x)
+{
+assert(x.size() == variables.size());
+int j=0;
+for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
+    (*it)->_value = x[j];
+    j++;
+    }
+}
+
+
+///
+/// MODEL1
+///
+
+void Model1::build_expression(Expression* root, std::list<Expression*>& curr_build)
 {
 //std::cout << "BUILD" << std::endl;
 //root->print(std::cout);
@@ -65,7 +85,7 @@ while (todo.size() > 0) {
 }
 
 
-void Model::build()
+void Model1::build()
 {
 builds.resize(objectives.size() + inequalities.size() + equalities.size());
 int nb=0;
@@ -84,18 +104,7 @@ for (std::list<Expression*>::iterator it=equalities.begin(); it != equalities.en
     }
 }
 
-
-void Model::set_variables(std::vector<double>& x)
-{
-assert(x.size() == variables.size());
-int j=0;
-for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
-    (*it)->_value = x[j];
-    j++;
-    }
-}
-
-double Model::_compute_f(unsigned int i)
+double Model1::_compute_f(unsigned int i)
 {
 assert(i < builds.size());
 std::list<Expression*>& tmp = builds[i];
