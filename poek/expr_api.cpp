@@ -13,26 +13,16 @@ std::list<Variable*> variables;
 
 /*** ADD ***/
 
-template <typename LHS, typename RHS>
-inline AddExpression<LHS, RHS>* AddExpression_create(LHS lhs, RHS rhs)
-{ return new AddExpression<LHS, RHS>(lhs, rhs); }
-
 extern "C" void* add_expr_int(void* lhs, int rhs)
 {
 if (rhs == 0) {
     return lhs;
     }
-Expression* tmp;
-NumericValue* e = static_cast<NumericValue*>(lhs);
-int _rhs = static_cast<int>(rhs);
-if (e->is_variable()) {
-    Variable* _lhs = static_cast<Variable*>(lhs);
-    tmp = AddExpression_create(_lhs, _rhs);
-    }
-else {
-    Expression* _lhs = static_cast<Expression*>(lhs);
-    tmp = AddExpression_create(_lhs, _rhs);
-    }
+NumericValue* _lhs = static_cast<NumericValue*>(lhs);
+Parameter* _rhs = new TypedParameter<int>(rhs,false);
+Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+
+parameters.push_back(_rhs);
 expressions.push_back(tmp);
 return tmp;
 }
@@ -42,48 +32,21 @@ extern "C" void* add_expr_double(void* lhs, double rhs)
 if (rhs == 0.0) {
     return lhs;
     }
-Expression* tmp;
-NumericValue* e = static_cast<NumericValue*>(lhs);
-double _rhs = static_cast<double>(rhs);
-if (e->is_variable()) {
-    Variable* _lhs = static_cast<Variable*>(lhs);
-    tmp = AddExpression_create(_lhs, _rhs);
-    }
-else {
-    Expression* _lhs = static_cast<Expression*>(lhs);
-    tmp = AddExpression_create(_lhs, _rhs);
-    }
+NumericValue* _lhs = static_cast<NumericValue*>(lhs);
+Parameter* _rhs = new TypedParameter<double>(rhs,false);
+Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+
+parameters.push_back(_rhs);
 expressions.push_back(tmp);
 return tmp;
 }
 
 extern "C" void* add_expr_expression(void* lhs, void* rhs)
 {
-Expression* tmp;
 NumericValue* _lhs = static_cast<NumericValue*>(lhs);
 NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-if (_lhs->is_variable()) {
-    Variable* __lhs = static_cast<Variable*>(lhs);
-    if (_rhs->is_variable()) {
-        Variable* __rhs = static_cast<Variable*>(rhs);
-        tmp = AddExpression_create(__lhs, __rhs);
-        }
-    else {
-        Expression* __rhs = static_cast<Expression*>(rhs);
-        tmp = AddExpression_create(__lhs, __rhs);
-        }
-    }
-else {
-    Expression* __lhs = static_cast<Expression*>(lhs);
-    if (_rhs->is_variable()) {
-        Variable* __rhs = static_cast<Variable*>(rhs);
-        tmp = AddExpression_create(__lhs, __rhs);
-        }
-    else {
-        Expression* __rhs = static_cast<Expression*>(rhs);
-        tmp = AddExpression_create(__lhs, __rhs);
-        }
-    }
+Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+
 expressions.push_back(tmp);
 return tmp;
 }
@@ -93,16 +56,11 @@ extern "C" void* radd_expr_int(int lhs, void* rhs)
 if (lhs == 0) {
     return rhs;
     }
-Expression* tmp;
-NumericValue* e = static_cast<NumericValue*>(rhs);
-if (e->is_variable()) {
-    Variable* _rhs = static_cast<Variable*>(rhs);
-    tmp = new AddExpression<int,Variable*>(lhs, _rhs);
-    }
-else {
-    Expression* _rhs = static_cast<Expression*>(rhs);
-    tmp = new AddExpression<int,Expression*>(lhs, _rhs);
-    }
+Parameter* _lhs = new TypedParameter<int>(lhs,false);
+NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+
+parameters.push_back(_lhs);
 expressions.push_back(tmp);
 return tmp;
 }
@@ -112,16 +70,11 @@ extern "C" void* radd_expr_double(double lhs, void* rhs)
 if (lhs == 0.0) {
     return rhs;
     }
-Expression* tmp;
-NumericValue* e = static_cast<NumericValue*>(rhs);
-if (e->is_variable()) {
-    Variable* _rhs = static_cast<Variable*>(rhs);
-    tmp = new AddExpression<double,Variable*>(lhs, _rhs);
-    }
-else {
-    Expression* _rhs = static_cast<Expression*>(rhs);
-    tmp = new AddExpression<double,Expression*>(lhs, _rhs);
-    }
+Parameter* _lhs = new TypedParameter<double>(lhs,false);
+NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+
+parameters.push_back(_lhs);
 expressions.push_back(tmp);
 return tmp;
 }
@@ -129,115 +82,68 @@ return tmp;
 
 /*** MUL ***/
 
-template <typename LHS, typename RHS>
-inline MulExpression<LHS, RHS>* MulExpression_create(LHS lhs, RHS rhs)
-{ return new MulExpression<LHS, RHS>(lhs, rhs); }
-
 extern "C" void* mul_expr_int(void* lhs, int rhs)
 {
-if (rhs == 1) {
+if (rhs == 0) {
     return lhs;
     }
-Expression* tmp;
-NumericValue* e = static_cast<NumericValue*>(lhs);
-int _rhs = static_cast<int>(rhs);
-if (e->is_variable()) {
-    Variable* _lhs = static_cast<Variable*>(lhs);
-    tmp = MulExpression_create(_lhs, _rhs);
-    }
-else {
-    Expression* _lhs = static_cast<Expression*>(lhs);
-    tmp = MulExpression_create(_lhs, _rhs);
-    }
+NumericValue* _lhs = static_cast<NumericValue*>(lhs);
+Parameter* _rhs = new TypedParameter<int>(rhs,false);
+Expression* tmp = new MulExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+
+parameters.push_back(_rhs);
 expressions.push_back(tmp);
 return tmp;
 }
 
 extern "C" void* mul_expr_double(void* lhs, double rhs)
 {
-if (rhs == 1.0) {
+if (rhs == 0.0) {
     return lhs;
     }
-Expression* tmp;
-NumericValue* e = static_cast<NumericValue*>(lhs);
-double _rhs = static_cast<double>(rhs);
-if (e->is_variable()) {
-    Variable* _lhs = static_cast<Variable*>(lhs);
-    tmp = MulExpression_create(_lhs, _rhs);
-    }
-else {
-    Expression* _lhs = static_cast<Expression*>(lhs);
-    tmp = MulExpression_create(_lhs, _rhs);
-    }
+NumericValue* _lhs = static_cast<NumericValue*>(lhs);
+Parameter* _rhs = new TypedParameter<double>(rhs,false);
+Expression* tmp = new MulExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+
+parameters.push_back(_rhs);
 expressions.push_back(tmp);
 return tmp;
 }
 
 extern "C" void* mul_expr_expression(void* lhs, void* rhs)
 {
-Expression* tmp;
 NumericValue* _lhs = static_cast<NumericValue*>(lhs);
 NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-if (_lhs->is_variable()) {
-    Variable* __lhs = static_cast<Variable*>(lhs);
-    if (_rhs->is_variable()) {
-        Variable* __rhs = static_cast<Variable*>(rhs);
-        tmp = MulExpression_create(__lhs, __rhs);
-        }
-    else {
-        Expression* __rhs = static_cast<Expression*>(rhs);
-        tmp = MulExpression_create(__lhs, __rhs);
-        }
-    }
-else {
-    Expression* __lhs = static_cast<Expression*>(lhs);
-    if (_rhs->is_variable()) {
-        Variable* __rhs = static_cast<Variable*>(rhs);
-        tmp = MulExpression_create(__lhs, __rhs);
-        }
-    else {
-        Expression* __rhs = static_cast<Expression*>(rhs);
-        tmp = MulExpression_create(__lhs, __rhs);
-        }
-    }
+Expression* tmp = new MulExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+
 expressions.push_back(tmp);
 return tmp;
 }
 
 extern "C" void* rmul_expr_int(int lhs, void* rhs)
 {
-if (lhs == 1) {
+if (lhs == 0) {
     return rhs;
     }
-Expression* tmp;
-NumericValue* e = static_cast<NumericValue*>(rhs);
-if (e->is_variable()) {
-    Variable* _rhs = static_cast<Variable*>(rhs);
-    tmp = new MulExpression<int,Variable*>(lhs, _rhs);
-    }
-else {
-    Expression* _rhs = static_cast<Expression*>(rhs);
-    tmp = new MulExpression<int,Expression*>(lhs, _rhs);
-    }
+Parameter* _lhs = new TypedParameter<int>(lhs,false);
+NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+Expression* tmp = new MulExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+
+parameters.push_back(_lhs);
 expressions.push_back(tmp);
 return tmp;
 }
 
 extern "C" void* rmul_expr_double(double lhs, void* rhs)
 {
-if (lhs == 1.0) {
+if (lhs == 0.0) {
     return rhs;
     }
-Expression* tmp;
-NumericValue* e = static_cast<NumericValue*>(rhs);
-if (e->is_variable()) {
-    Variable* _rhs = static_cast<Variable*>(rhs);
-    tmp = new MulExpression<double,Variable*>(lhs, _rhs);
-    }
-else {
-    Expression* _rhs = static_cast<Expression*>(rhs);
-    tmp = new MulExpression<double,Expression*>(lhs, _rhs);
-    }
+Parameter* _lhs = new TypedParameter<double>(lhs,false);
+NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+Expression* tmp = new MulExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+
+parameters.push_back(_lhs);
 expressions.push_back(tmp);
 return tmp;
 }
@@ -299,6 +205,12 @@ Variable* v = static_cast<Variable*>(ptr);
 v->_value = val;
 }
 
+extern "C" double get_variable_value(void* ptr)
+{
+Variable* v = static_cast<Variable*>(ptr);
+return v->_value;
+}
+
 extern "C" void* create_inequality(void* expr)
 {
 NumericValue* _expr = static_cast<NumericValue*>(expr);
@@ -355,10 +267,16 @@ Model* tmp = static_cast<Model*>(expr);
 tmp->build();
 }
 
-extern "C" double compute_objective(void* model, int i)
+extern "C" double compute_objective_f(void* model, int i)
 {
 Model* tmp = static_cast<Model*>(model);
 return tmp->_compute_f(i);
+}
+
+extern "C" void compute_objective_df(void* model, int i)
+{
+//Model* tmp = static_cast<Model*>(model);
+//return tmp->_compute_df(i);
 }
 
 

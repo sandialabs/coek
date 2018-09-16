@@ -42,4 +42,6 @@ void add_equality(void* model, void* eq);
 void build_model(void* model);
 
 void set_variable_value(void* variable, double value);
-double compute_objective(void* model, int i);
+double get_variable_value(void* variable);
+double compute_objective_f(void* model, int i);
+double compute_objective_df(void* model, int i);

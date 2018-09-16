@@ -103,5 +103,7 @@ m.build()
 
 v1.set_value(1)
 v2.set_value(2)
+print(v1.get_value())
+print(v2.get_value())
 
 print(m.compute_f())

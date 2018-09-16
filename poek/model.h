@@ -37,10 +37,14 @@ public:
         return _compute_f(i);
         }
 
-    //void compute_df(std::vector<double>& x, std::vector<double>& df)
-    //    {return compute_df(x, 0);}
+    void compute_df(std::vector<double>& x, std::vector<double>& df)
+        {return compute_df(x, df, 0);}
 
-    //void compute_df(std::vector<double>& x, std::vector<double>& df, unsigned int i);
+    void compute_df(std::vector<double>& x, std::vector<double>& df, unsigned int i)
+        {
+        set_variables(x);
+        return _compute_df(df, i);
+        }
 
     //void compute_c(std::vector<double>& x, std::vector<double>& c);
 
@@ -49,6 +53,8 @@ public:
     //void compute_J(std::vector<double>& x, std::vector<double>& J);
 
     virtual double _compute_f(unsigned int i) = 0;
+
+    virtual void _compute_df(std::vector<double>& df, unsigned int i) = 0;
 
     virtual void print(std::ostream& ostr)
         {
@@ -90,7 +96,8 @@ public:
 
     std::map<Expression*,int> f;
     std::map<Expression*,int> df;
-    std::vector< std::list<Expression*> > builds;
+    std::vector< std::list<NumericValue*> > builds_f;
+    std::vector< std::vector< std::list<NumericValue*> > > builds_df;
 
     Model1() : Model() {}
 
@@ -98,9 +105,11 @@ public:
 
     virtual double _compute_f(unsigned int i);
 
+    virtual void _compute_df(std::vector<double>& df, unsigned int i);
+
 protected:
 
-    void build_expression(Expression* root, std::list<Expression*>& curr_build);
+    void build_expression(NumericValue* root, std::list<NumericValue*>& curr_build);
 
     void reverse_ad(Expression* root, std::map<Variable*, NumericValue*>& ad);
 

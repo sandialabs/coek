@@ -50,7 +50,7 @@ public:
     TYPE _tvalue;
 
     TypedParameter(TYPE __value, bool _mutable_flag) : Parameter(_mutable_flag)
-        {_value = _tvalue = __value;}
+        {_value = __value; _tvalue = __value;}
 
     double value() {return _tvalue;}
 
@@ -75,8 +75,6 @@ public:
 
     static double _nan;
     static int nvariables;
-
-    double _value;
     bool binary;
     bool integer;
     int index;
@@ -94,7 +92,7 @@ public:
     double compute_value() {return _value;}
 
     void print(std::ostream& ostr)
-        { ostr << 'x' << index; }
+        { ostr << 'x' << index << "[" << _value << ']'; }
 
     bool is_variable() { return true; }
 
@@ -108,8 +106,6 @@ public:
 class Expression: public NumericValue
 {
 public:
-
-    double _value;
 
     bool is_expression() { return true; }
 
@@ -143,6 +139,7 @@ public:
 
     double compute_value() {_value = body->_value; return _value;}
 
+    virtual NumericValue* partial(unsigned int i) {return 0;}
 };
 
 
@@ -167,6 +164,7 @@ public:
 
     double compute_value() {_value = body->_value; return _value;}
 
+    virtual NumericValue* partial(unsigned int i) {return 0;}
 };
 
 
@@ -292,7 +290,11 @@ public:
 
     double value() {return AddExpression_value(this);}
 
-    double compute_value() {this->_value = AddExpression_computevalue(this); return this->_value;}
+    double compute_value()
+        {
+        this->_value = this->lhs->_value + this->rhs->_value;
+        return this->_value;
+        }
 
     NumericValue* partial(unsigned int i)
         {return &OneParameter;}
@@ -301,7 +303,7 @@ public:
 
 template <typename LHS, typename RHS>
 void AddExpression_print(std::ostream& ostr, AddExpression<LHS, RHS>* expr)
-{ expr->lhs->print(ostr); ostr << " + "; expr->rhs->print(ostr); }
+{expr->lhs->print(ostr); ostr << " + "; expr->rhs->print(ostr); }
 
 template <typename LHS>
 void AddExpression_print(std::ostream& ostr, AddExpression<LHS, int>* expr)
@@ -341,27 +343,6 @@ double AddExpression_value(AddExpression<double, RHS>* expr)
 { return expr->lhs + expr->rhs->value(); }
 
 
-template <typename LHS, typename RHS>
-double AddExpression_computevalue(AddExpression<LHS, RHS>* expr)
-{ return expr->lhs->_value + expr->rhs->_value; }
-
-template <typename LHS>
-double AddExpression_computevalue(AddExpression<LHS, int>* expr)
-{ return expr->lhs->_value + expr->rhs; }
-
-template <typename LHS>
-double AddExpression_computevalue(AddExpression<LHS, double>* expr)
-{ return expr->lhs->_value + expr->rhs; }
-
-template <typename RHS>
-double AddExpression_computevalue(AddExpression<int, RHS>* expr)
-{ return expr->lhs + expr->rhs->_value; }
-
-template <typename RHS>
-double AddExpression_computevalue(AddExpression<double, RHS>* expr)
-{ return expr->lhs + expr->rhs->_value; }
-
-
 /*** MUL ***/
 
 template <typename LHS, typename RHS>
@@ -376,9 +357,20 @@ public:
 
     double value() {return MulExpression_value(this); }
 
-    double compute_value() {this->_value = MulExpression_computevalue(this); return this->_value;}
+    double compute_value()
+        {
+        this->_value = this->lhs->_value * this->rhs->_value;
+        return this->_value;
+        }
 
-    NumericValue* partial(unsigned int i) {return 0;}
+    NumericValue* partial(unsigned int i)
+        {
+        if (i == 0)
+            return this->rhs;
+        else if (i == 1)
+            return this->lhs;
+        return 0;
+        }
 
 };
 
@@ -386,13 +378,13 @@ public:
 template <typename LHS, typename RHS>
 void MulExpression_print(std::ostream& ostr, MulExpression<LHS, RHS>* expr)
 {
-if (expr->lhs->is_variable())
+if (expr->lhs->is_variable() || expr->lhs->is_parameter())
     expr->lhs->print(ostr);
 else {
     ostr << "("; expr->lhs->print(ostr); ostr << ")";
     }
 ostr << "*";
-if (expr->rhs->is_variable())
+if (expr->rhs->is_variable() || expr->rhs->is_parameter())
     expr->rhs->print(ostr);
 else {
     ostr << "("; expr->rhs->print(ostr); ostr << ")";
@@ -402,7 +394,7 @@ else {
 template <typename LHS>
 void MulExpression_print(std::ostream& ostr, MulExpression<LHS, int>* expr)
 { 
-if (expr->lhs->is_variable())
+if (expr->lhs->is_variable() || expr->lhs->is_parameter())
     expr->lhs->print(ostr);
 else {
     ostr << "("; expr->lhs->print(ostr); ostr << ")";
@@ -414,7 +406,7 @@ ostr << expr->rhs;
 template <typename LHS>
 void MulExpression_print(std::ostream& ostr, MulExpression<LHS, double>* expr)
 {
-if (expr->lhs->is_variable())
+if (expr->lhs->is_variable() || expr->lhs->is_parameter())
     expr->lhs->print(ostr);
 else {
     ostr << "("; expr->lhs->print(ostr); ostr << ")";
@@ -428,7 +420,7 @@ void MulExpression_print(std::ostream& ostr, MulExpression<int, RHS>* expr)
 {
 ostr << expr->lhs;
 ostr << "*";
-if (expr->rhs->is_variable())
+if (expr->rhs->is_variable() || expr->rhs->is_parameter())
     expr->rhs->print(ostr);
 else {
     ostr << "("; expr->rhs->print(ostr); ostr << ")";
@@ -440,7 +432,7 @@ void MulExpression_print(std::ostream& ostr, MulExpression<double, RHS>* expr)
 {
 ostr << expr->lhs;
 ostr << "*";
-if (expr->rhs->is_variable())
+if (expr->rhs->is_variable() || expr->rhs->is_parameter())
     expr->rhs->print(ostr);
 else {
     ostr << "("; expr->rhs->print(ostr); ostr << ")";
@@ -469,47 +461,3 @@ double MulExpression_value(MulExpression<double, RHS>* expr)
 { return expr->lhs * expr->rhs->value(); }
 
 
-
-template <typename LHS, typename RHS>
-double MulExpression_computevalue(MulExpression<LHS, RHS>* expr)
-{ return expr->lhs->_value * expr->rhs->_value; }
-
-template <typename LHS>
-double MulExpression_computevalue(MulExpression<LHS, int>* expr)
-{ return expr->lhs->_value * expr->rhs; }
-
-template <typename LHS>
-double MulExpression_computevalue(MulExpression<LHS, double>* expr)
-{ return expr->lhs->_value * expr->rhs; }
-
-template <typename RHS>
-double MulExpression_computevalue(MulExpression<int, RHS>* expr)
-{ return expr->lhs * expr->rhs->_value; }
-
-template <typename RHS>
-double MulExpression_computevalue(MulExpression<double, RHS>* expr)
-{ return expr->lhs * expr->rhs->_value; }
-
-
-/*
-template <typename LHS, typename RHS>
-NumericValue* MulExpression_partial<LHS,RHS>(unsigned int i, NumericValue* this)
-{
-if (i == 0)
-    return rhs;
-elif (i == 1)
-    return lhs;
-return 0;
-}
-
-
-template <typename LHS>
-NumericValue* MulExpression_partial<LHS,int>(unsigned int i, NumericValue* this)
-{
-if (i == 0)
-    return rhs;
-elif (i == 1)
-    return &ZeroParameter;
-return 0;
-}
-*/
