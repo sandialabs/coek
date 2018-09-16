@@ -95,15 +95,17 @@ e.show()
 
 m = model()
 e = v1+v2
-m.add( (1-e) + 2*e )
+m.add( (1-e) + 3*e + e*e)
 m.add( v1*v1+1 <= 3*v2 )
 m.add( v1 == 3*v2-3 )
-m.show()
+m.show(1)
 m.build()
+m.show(1)
 
-v1.set_value(1)
-v2.set_value(2)
+v1.set_value(5)
+v2.set_value(7)
 print(v1.get_value())
 print(v2.get_value())
 
 print(m.compute_f())
+print(m.compute_df())

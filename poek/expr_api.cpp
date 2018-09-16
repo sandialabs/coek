@@ -255,16 +255,22 @@ Expression* _eq = static_cast<Expression*>(eq);
 tmp->equalities.push_back(_eq);
 }
 
-extern "C" void print_model(void* expr)
+extern "C" void print_model(void* model, int df)
 {
-Model* tmp = static_cast<Model*>(expr);
-tmp->print(std::cout);
+Model* tmp = static_cast<Model*>(model);
+tmp->print(std::cout, df);
 }
 
-extern "C" void build_model(void* expr)
+extern "C" void build_model(void* model)
 {
-Model* tmp = static_cast<Model*>(expr);
+Model* tmp = static_cast<Model*>(model);
 tmp->build();
+}
+
+extern "C" int get_nvariables(void* model)
+{
+Model* tmp = static_cast<Model*>(model);
+return tmp->num_variables();
 }
 
 extern "C" double compute_objective_f(void* model, int i)
@@ -273,10 +279,13 @@ Model* tmp = static_cast<Model*>(model);
 return tmp->_compute_f(i);
 }
 
-extern "C" void compute_objective_df(void* model, int i)
+extern "C" void compute_objective_df(void* model, double* df, int n, int i)
 {
-//Model* tmp = static_cast<Model*>(model);
-//return tmp->_compute_df(i);
+std::vector<double> _df(n);
+Model* tmp = static_cast<Model*>(model);
+tmp->_compute_df(_df, i);
+for (int i=0; i<n; i++)
+  df[i] = _df[i];
 }
 
 

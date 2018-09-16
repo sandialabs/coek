@@ -24,6 +24,8 @@ public:
 
     Model(void) : variables(variable_comparator) {}
 
+    int num_variables() {return variables.size();}
+
     virtual void build() = 0;
 
     virtual void set_variables(std::vector<double>& x);
@@ -56,7 +58,7 @@ public:
 
     virtual void _compute_df(std::vector<double>& df, unsigned int i) = 0;
 
-    virtual void print(std::ostream& ostr)
+    virtual void print(std::ostream& ostr, int df)
         {
         ostr << "MODEL" << std::endl;
 
@@ -94,8 +96,8 @@ class Model1 : public Model
 {
 public:
 
-    std::map<Expression*,int> f;
-    std::map<Expression*,int> df;
+    //std::map<int,Expression*,int> f;
+    std::map<std::pair<int,int>,NumericValue*> df_map;
     std::vector< std::list<NumericValue*> > builds_f;
     std::vector< std::vector< std::list<NumericValue*> > > builds_df;
 
@@ -103,9 +105,34 @@ public:
 
     void build();
 
-    virtual double _compute_f(unsigned int i);
+    double _compute_f(unsigned int i);
 
-    virtual void _compute_df(std::vector<double>& df, unsigned int i);
+    void _compute_df(std::vector<double>& df, unsigned int i);
+
+    void print(std::ostream& ostr, int df)
+        {
+        Model::print(ostr, df);
+
+        if ((variables.size() > 0) && df) {
+            ostr << std::endl;
+
+            ostr << "  DF" << std::endl;
+            for (int i=0; i<objectives.size(); i++) {
+                int j=0;
+                for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
+                    ostr << "    ";
+                    (*it)->print(ostr);
+                    ostr << " :  ";
+                    std::pair<int,int> index(i,j);
+                    NumericValue* tmp = df_map[index];
+                    tmp->print(ostr);
+                    ostr << std::endl;
+                    j++;
+                    }
+                ostr << std::endl;
+                }
+            }
+        }
 
 protected:
 

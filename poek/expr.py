@@ -1,4 +1,5 @@
 from _expr.lib import *
+from _expr import ffi
 
 
 class NumericValue(object):
@@ -481,12 +482,16 @@ class equality_constraint(constraint):
 
 class model(object):
 
-    __slots__ = ('ptr',)
+    __slots__ = ('ptr','x','nx')
 
     def __init__(self):
         self.ptr = create_model()
+        self.nx = None
+        self.x = None
 
     def add(self, obj):
+        if self.x is not None:
+            self.x = None
         if obj.is_expression():
             add_objective(self.ptr, obj.ptr)
         elif obj.is_constraint():
@@ -503,10 +508,18 @@ class model(object):
         return compute_objective_f(self.ptr, i)
 
     def compute_df(self, i=0):
-        return compute_objective_df(self.ptr, i)
+        if self.nx is None:
+            self.nx = get_nvariables(self.ptr)
+        if self.x is None:
+            self.x = ffi.new("double []", self.nx)
+        compute_objective_df(self.ptr, self.x, self.nx, i)
+        tmp = []
+        for i in range(self.nx):
+            tmp.append( self.x[i] )
+        return tmp
 
-    def show(self):
-        print_model(self.ptr)
+    def show(self, df=0):
+        print_model(self.ptr, df)
 
     def build(self):
         build_model(self.ptr)

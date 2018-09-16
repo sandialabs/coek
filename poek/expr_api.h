@@ -20,7 +20,7 @@ void* rmul_expr_double(double lhs, void* rhs);
 
 void print_var(void* self);
 void print_expr(void* self);
-void print_model(void* self);
+void print_model(void* self, int df);
 
 int expr_size(void* self);
 
@@ -29,7 +29,10 @@ void* create_parameter_int(int value, int mutable_flag);
 void* create_parameter_double(double value, int mutable_flag);
 
 void* create_variable(int binary, int integer);
-int get_variable_index(void* var);
+int get_variable_index(void* variable);
+void set_variable_value(void* variable, double value);
+double get_variable_value(void* variable);
+
 
 void* create_inequality(void* self);
 void* create_equality(void* self);
@@ -40,8 +43,7 @@ void add_inequality(void* model, void* ineq);
 void add_equality(void* model, void* eq);
 
 void build_model(void* model);
+int get_nvariables(void* model);
 
-void set_variable_value(void* variable, double value);
-double get_variable_value(void* variable);
 double compute_objective_f(void* model, int i);
-double compute_objective_df(void* model, int i);
+void compute_objective_df(void* model, double*, int n, int i);
