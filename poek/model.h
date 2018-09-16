@@ -102,5 +102,7 @@ protected:
 
     void build_expression(Expression* root, std::list<Expression*>& curr_build);
 
+    void reverse_ad(Expression* root, std::map<Variable*, NumericValue*>& ad);
+
 };
 

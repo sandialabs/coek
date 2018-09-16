@@ -122,3 +122,58 @@ return ans;
 }
 
 
+void Model1::reverse_ad(Expression* root, std::map<Variable*, NumericValue*>& ad)
+{
+//
+// Use a breadth-first-search to construct the expressions needed for AD
+//
+// NOTE: We could generalize this to compute AD simultaneously for the Jacobian, simply
+// by passing in a list of "roots".  But for now, let's keep it simple.
+//
+std::map<NumericValue*, NumericValue*> partial;
+std::list<NumericValue*> queue;
+
+partial[root] = &OneParameter;
+queue.push_back(root);
+while (queue.size() > 0) {
+    std::cout << "TODO " << queue.size() << std::endl;
+    //
+    // Get the front of the queue
+    //
+    NumericValue* curr = queue.front();
+    queue.pop_front();
+    //
+    if (! curr->is_expression()) {
+        }
+    else {
+        Expression* _curr = static_cast<Expression*>(curr);
+        //
+        // Iterate over children.  Create partial and add them to the 
+        // queue
+        //
+        for (unsigned int i=0; i<_curr->num_sub_expressions(); i++) {
+            std::cout << "i " << i << "  ";
+            std::cout << std::flush;
+
+            //NumericValue* partial = _curr->partial(i);
+            NumericValue* child = _curr->expression(i);
+
+            child->print(std::cout);
+            std::cout << std::endl;
+            std::cout << child->is_expression() << " " << child->is_variable() << std::endl;
+            std::cout << std::flush;
+
+            if (child->is_expression()) {
+                //Expression* tmp = static_cast<Expression*>(child);
+                }
+            else if (child->is_variable()) {
+                }
+            /// ELSE, ignore constants?
+            }
+        }
+    }
+
+for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
+    ad[*it] = partial[*it];
+    }
+}

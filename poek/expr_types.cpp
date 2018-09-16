@@ -1,6 +1,10 @@
 
 #include "expr_types.h"
 
+TypedParameter<int> ZeroParameter(0,false);
+TypedParameter<int> OneParameter(1,false);
+
+
 int Variable::nvariables = 0;
 double Variable::_nan = nan(0);
 

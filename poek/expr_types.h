@@ -20,6 +20,8 @@ public:
     virtual double value() = 0;
 
     virtual double compute_value() = 0;
+
+    virtual NumericValue* partial(unsigned int i) = 0;
 };
 
 
@@ -36,6 +38,7 @@ public:
 
     virtual bool is_parameter() { return true; }
 
+    NumericValue* partial(unsigned int i);
 };
 
 
@@ -57,6 +60,13 @@ public:
         { ostr << _value; }
 
 };
+
+extern TypedParameter<int> ZeroParameter;
+extern TypedParameter<int> OneParameter;
+
+inline NumericValue* Parameter::partial(unsigned int i)
+{return &ZeroParameter;}
+
 
 
 class Variable : public NumericValue
@@ -87,6 +97,9 @@ public:
         { ostr << 'x' << index; }
 
     bool is_variable() { return true; }
+
+    NumericValue* partial(unsigned int i)
+        {return &OneParameter;}
 
 };
 
@@ -281,6 +294,9 @@ public:
 
     double compute_value() {this->_value = AddExpression_computevalue(this); return this->_value;}
 
+    NumericValue* partial(unsigned int i)
+        {return &OneParameter;}
+
 };
 
 template <typename LHS, typename RHS>
@@ -362,7 +378,10 @@ public:
 
     double compute_value() {this->_value = MulExpression_computevalue(this); return this->_value;}
 
+    NumericValue* partial(unsigned int i) {return 0;}
+
 };
+
 
 template <typename LHS, typename RHS>
 void MulExpression_print(std::ostream& ostr, MulExpression<LHS, RHS>* expr)
@@ -471,3 +490,26 @@ template <typename RHS>
 double MulExpression_computevalue(MulExpression<double, RHS>* expr)
 { return expr->lhs * expr->rhs->_value; }
 
+
+/*
+template <typename LHS, typename RHS>
+NumericValue* MulExpression_partial<LHS,RHS>(unsigned int i, NumericValue* this)
+{
+if (i == 0)
+    return rhs;
+elif (i == 1)
+    return lhs;
+return 0;
+}
+
+
+template <typename LHS>
+NumericValue* MulExpression_partial<LHS,int>(unsigned int i, NumericValue* this)
+{
+if (i == 0)
+    return rhs;
+elif (i == 1)
+    return &ZeroParameter;
+return 0;
+}
+*/
