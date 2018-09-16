@@ -73,7 +73,7 @@ class NumericValue(object):
         
             self == other
         """
-        e = other - self
+        e = self - other
         return equality_constraint(create_equality(e.ptr))
 
     def __add__(self,other):
@@ -121,10 +121,14 @@ class NumericValue(object):
         if other.__class__ is int:
             if other == 0:
                 return 0
+            elif other == 1:
+                return self
             return expression( mul_expr_int(self.ptr, other) )
         elif other.__class__ is float:
             if other == 0.0:
                 return 0.0
+            elif other == 1.0:
+                return self
             return expression( mul_expr_double(self.ptr, other) )
         elif other.is_constraint():
             raise RuntimeError("Cannot create a constraint from another constraint.")
@@ -170,10 +174,14 @@ class NumericValue(object):
         if other.__class__ is int:
             if other == 0:
                 return 0
+            elif other == 1:
+                return self
             return expression( rmul_expr_int(other, self.ptr) )
         elif other.__class__ is float:
             if other == 0.0:
                 return 0.0
+            elif other == 1.0:
+                return self
             return expression( rmul_expr_double(other, self.ptr) )
 
     def __iadd__(self,other):
@@ -217,10 +225,14 @@ class NumericValue(object):
         if other.__class__ is int:
             if other == 0:
                 return 0
+            elif other == 1:
+                return self
             return expression( mul_expr_int(self.ptr, other) )
         elif other.__class__ is float:
             if other == 0.0:
                 return 0.0
+            elif other == 1.0:
+                return self
             return expression( mul_expr_double(self.ptr, other) )
         else:
             return expression( mul_expr_expression(self.ptr, other.ptr) )
@@ -278,11 +290,17 @@ class variable_single(NumericValue):
     def set_value(self, value):
         set_variable_value(self.ptr, value)
 
+    def get_value(self):
+        return get_variable_value(self.ptr)
+
     def __str__(self):
         if self.name is None:
             index = get_variable_index(self.ptr)
             self.name = 'x%d' % index
         return self.name
+
+    def show(self):
+        print(str(self))
 
 
 class variable_array(object):
@@ -482,7 +500,10 @@ class model(object):
             raise RuntimeError("Cannot add object to model: "+str(type(obj)))
 
     def compute_f(self, i=0):
-        return compute_objective(self.ptr, i)
+        return compute_objective_f(self.ptr, i)
+
+    def compute_df(self, i=0):
+        return compute_objective_df(self.ptr, i)
 
     def show(self):
         print_model(self.ptr)
