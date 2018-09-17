@@ -9,6 +9,7 @@
 
 void Model::set_variables(std::vector<double>& x)
 {
+///std::cout << "x=" << x.size() << "  vars=" << variables.size() << std::endl << std::flush;
 assert(x.size() == variables.size());
 int j=0;
 for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
@@ -146,22 +147,50 @@ for (std::list<Expression*>::iterator it=objectives.begin(); it != objectives.en
     reverse_ad(*it, ad);
     builds_df[nb].resize(variables.size());
     unsigned int j=0;
-    for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
+    for (variables_iterator_type IT=variables.begin(); IT != variables.end(); IT++) {
         std::pair<int,int> index(i,j);
-        df_map[index] = ad[*it];
-        build_expression(ad[*it], builds_df[nb][j]);
+        df_map[index] = ad[*IT];
+        build_expression(ad[*IT], builds_df[nb][j]);
         j++;
         }
     nb++;
     i++;
     }
+
 for (std::list<Expression*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
     build_expression(*it, builds_f[nb]);
+
+    InequalityExpression* curr = static_cast<InequalityExpression*>(*it);
+    std::map<Variable*, NumericValue*> ad;
+    reverse_ad(curr->body, ad);
+    builds_df[nb].resize(variables.size());
+    unsigned int j=0;
+    for (variables_iterator_type IT=variables.begin(); IT != variables.end(); IT++) {
+        std::pair<int,int> index(i,j);
+        df_map[index] = ad[*IT];
+        build_expression(ad[*IT], builds_df[nb][j]);
+        j++;
+        }
     nb++;
+    i++;
     }
+
 for (std::list<Expression*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
     build_expression(*it, builds_f[nb]);
+
+    EqualityExpression* curr = static_cast<EqualityExpression*>(*it);
+    std::map<Variable*, NumericValue*> ad;
+    reverse_ad(curr->body, ad);
+    builds_df[nb].resize(variables.size());
+    unsigned int j=0;
+    for (variables_iterator_type IT=variables.begin(); IT != variables.end(); IT++) {
+        std::pair<int,int> index(i,j);
+        df_map[index] = ad[*IT];
+        build_expression(ad[*IT], builds_df[nb][j]);
+        j++;
+        }
     nb++;
+    i++;
     }
 }
 
@@ -204,6 +233,16 @@ for (int j=0; j<builds.size(); j++) {
     df[j] = ans;
     }
 }
+
+
+void Model1::_compute_c(std::vector<double>& c)
+{
+}
+
+void Model1::_compute_dc(std::vector<double>& dc, unsigned int i)
+{
+}
+
 
 //
 // These next two functions probably don't belong in this file
@@ -312,7 +351,8 @@ while (queue.size() > 0) {
             D[child]--;
             if (D[child] == 0) {
                 ///std::cout << "PUSH" << std::endl;
-                queue.push_back(static_cast<Expression*>(child));
+                if (child->is_expression())
+                    queue.push_back(static_cast<Expression*>(child));
                 }
             ///std::cout << "HERE" << std::endl << std::flush;
             if (partial.find(child) == partial.end())
@@ -333,10 +373,10 @@ while (queue.size() > 0) {
 for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
     ad[*it] = partial[*it];
 
-    (*it)->print(std::cout);
-    std::cout << " :  ";
-    ad[*it]->print(std::cout);
-    std::cout << std::endl;
+    ///(*it)->print(std::cout);
+    ///std::cout << " :  ";
+    ///ad[*it]->print(std::cout);
+    ///std::cout << std::endl;
     }
 }
 
@@ -349,9 +389,10 @@ if ((variables.size() > 0) && df) {
     ostr << std::endl;
 
     ostr << "  DF" << std::endl;
-    for (int i=0; i<objectives.size(); i++) {
+    int i=0;
+    for (int k=0; k<objectives.size(); k++) {
         int j=0;
-        ostr << "    (Objective " << i << ")" << std::endl;
+        ostr << "    (Objective " << k << ")" << std::endl;
         for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
             ostr << "    ";
             (*it)->print(ostr);
@@ -363,7 +404,45 @@ if ((variables.size() > 0) && df) {
             j++;
             }
         ostr << std::endl;
+        i++;
         }
+
+    ostr << "  DC" << std::endl;
+    for (int k=0; k<inequalities.size(); k++) {
+        int j=0;
+        ostr << "    (Inequality " << k << ")" << std::endl;
+        for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
+            ostr << "    ";
+            (*it)->print(ostr);
+            ostr << " :  ";
+            std::pair<int,int> index(i,j);
+            NumericValue* tmp = df_map[index];
+            tmp->print(ostr);
+            ostr << std::endl;
+            j++;
+            }
+        ostr << std::endl;
+        i++;
+        }
+
+    ostr << "  DC" << std::endl;
+    for (int k=0; k<equalities.size(); k++) {
+        int j=0;
+        ostr << "    (Equality " << k << ")" << std::endl;
+        for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
+            ostr << "    ";
+            (*it)->print(ostr);
+            ostr << " :  ";
+            std::pair<int,int> index(i,j);
+            NumericValue* tmp = df_map[index];
+            tmp->print(ostr);
+            ostr << std::endl;
+            j++;
+            }
+        ostr << std::endl;
+        i++;
+        }
+
     }
 }
 

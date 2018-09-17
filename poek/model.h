@@ -30,6 +30,8 @@ public:
 
     virtual void set_variables(std::vector<double>& x);
 
+    /// COMPUTE F
+
     virtual double compute_f(std::vector<double>& x)
         {return compute_f(x, 0);}
 
@@ -39,24 +41,44 @@ public:
         return _compute_f(i);
         }
 
-    void compute_df(std::vector<double>& x, std::vector<double>& df)
+    /// COMPUTE DF
+
+    virtual void compute_df(std::vector<double>& x, std::vector<double>& df)
         {return compute_df(x, df, 0);}
 
-    void compute_df(std::vector<double>& x, std::vector<double>& df, unsigned int i)
+    virtual void compute_df(std::vector<double>& x, std::vector<double>& df, unsigned int i)
         {
         set_variables(x);
         return _compute_df(df, i);
         }
 
-    void compute_c(std::vector<double>& x, std::vector<double>& c);
+    /// COMPUTE C
 
-    //double compute_dc(std::vector<double>& x, unsigned int i);
+    virtual void compute_c(std::vector<double>& x, std::vector<double>& c)
+        {
+        set_variables(x);
+        _compute_c(c);
+        }
 
-    //void compute_J(std::vector<double>& x, std::vector<double>& J);
+    /// COMPUTE DC
+
+    virtual void compute_dc(std::vector<double>& x, std::vector<double>& dc, unsigned int i)
+        {
+        set_variables(x);
+        _compute_dc(dc, i);
+        }
+
+    /// COMPUTE J
+
+    //void compute_J(std::vector<double>& x, std::vector<double>& J)
 
     virtual double _compute_f(unsigned int i) = 0;
 
     virtual void _compute_df(std::vector<double>& df, unsigned int i) = 0;
+
+    virtual void _compute_c(std::vector<double>& c) = 0;
+
+    virtual void _compute_dc(std::vector<double>& dc, unsigned int i) = 0;
 
     virtual void print(std::ostream& ostr, int df);
 
@@ -82,6 +104,10 @@ public:
     double _compute_f(unsigned int i);
 
     void _compute_df(std::vector<double>& df, unsigned int i);
+
+    void _compute_c(std::vector<double>& c);
+
+    void _compute_dc(std::vector<double>& dc, unsigned int i);
 
     void print(std::ostream& ostr, int df);
 
