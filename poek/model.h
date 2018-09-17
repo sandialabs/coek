@@ -48,7 +48,7 @@ public:
         return _compute_df(df, i);
         }
 
-    //void compute_c(std::vector<double>& x, std::vector<double>& c);
+    void compute_c(std::vector<double>& x, std::vector<double>& c);
 
     //double compute_dc(std::vector<double>& x, unsigned int i);
 
@@ -58,33 +58,7 @@ public:
 
     virtual void _compute_df(std::vector<double>& df, unsigned int i) = 0;
 
-    virtual void print(std::ostream& ostr, int df)
-        {
-        ostr << "MODEL" << std::endl;
-
-        ostr << "  Objectives" << std::endl;
-        for (std::list<Expression*>::iterator it=objectives.begin(); it != objectives.end(); ++it) {
-            ostr << "    ";
-            (*it)->print(ostr);
-            ostr << std::endl;
-            }
-        ostr << std::endl;
-
-        ostr << "  Inequality Constraints" << std::endl;
-        for (std::list<Expression*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
-            ostr << "    ";
-            (*it)->print(ostr);
-            ostr << std::endl;
-            }
-        ostr << std::endl;
-
-        ostr << "  Equality Constraints" << std::endl;
-        for (std::list<Expression*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
-            ostr << "    ";
-            (*it)->print(ostr);
-            ostr << std::endl;
-            }
-        }
+    virtual void print(std::ostream& ostr, int df);
 
 };
 
@@ -109,36 +83,13 @@ public:
 
     void _compute_df(std::vector<double>& df, unsigned int i);
 
-    void print(std::ostream& ostr, int df)
-        {
-        Model::print(ostr, df);
-
-        if ((variables.size() > 0) && df) {
-            ostr << std::endl;
-
-            ostr << "  DF" << std::endl;
-            for (int i=0; i<objectives.size(); i++) {
-                int j=0;
-                for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
-                    ostr << "    ";
-                    (*it)->print(ostr);
-                    ostr << " :  ";
-                    std::pair<int,int> index(i,j);
-                    NumericValue* tmp = df_map[index];
-                    tmp->print(ostr);
-                    ostr << std::endl;
-                    j++;
-                    }
-                ostr << std::endl;
-                }
-            }
-        }
+    void print(std::ostream& ostr, int df);
 
 protected:
 
     void build_expression(NumericValue* root, std::list<NumericValue*>& curr_build);
 
-    void reverse_ad(Expression* root, std::map<Variable*, NumericValue*>& ad);
+    void reverse_ad(NumericValue* root, std::map<Variable*, NumericValue*>& ad);
 
 };
 
