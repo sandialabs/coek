@@ -49,7 +49,8 @@ public:
     virtual void compute_df(std::vector<double>& x, std::vector<double>& df, unsigned int i)
         {
         set_variables(x);
-        return _compute_df(df, i);
+        double f;
+        return _compute_df(f, df, i);
         }
 
     /// COMPUTE C
@@ -74,7 +75,7 @@ public:
 
     virtual double _compute_f(unsigned int i) = 0;
 
-    virtual void _compute_df(std::vector<double>& df, unsigned int i) = 0;
+    virtual void _compute_df(double& f, std::vector<double>& df, unsigned int i) = 0;
 
     virtual void _compute_c(std::vector<double>& c) = 0;
 
@@ -92,10 +93,7 @@ class Model1 : public Model
 {
 public:
 
-    //std::map<int,Expression*,int> f;
-    std::map<std::pair<int,int>,NumericValue*> df_map;
     std::vector< std::list<NumericValue*> > builds_f;
-    std::vector< std::vector< std::list<NumericValue*> > > builds_df;
 
     Model1() : Model() {}
 
@@ -103,7 +101,7 @@ public:
 
     double _compute_f(unsigned int i);
 
-    void _compute_df(std::vector<double>& df, unsigned int i);
+    void _compute_df(double& f, std::vector<double>& df, unsigned int i);
 
     void _compute_c(std::vector<double>& c);
 
@@ -114,8 +112,6 @@ public:
 protected:
 
     void build_expression(NumericValue* root, std::list<NumericValue*>& curr_build);
-
-    void reverse_ad(NumericValue* root, std::map<Variable*, NumericValue*>& ad);
 
 };
 

@@ -10,6 +10,8 @@ public:
 
     double _value;
 
+    double _dvalue;
+
     virtual void print(std::ostream& ostr) = 0;
 
     virtual bool is_variable() { return false; }
@@ -22,7 +24,11 @@ public:
 
     virtual double compute_value() = 0;
 
+    // Used for symbolic differentiation
     virtual NumericValue* partial(unsigned int i) = 0;
+
+    // Used for reverse_ad
+    virtual void compute_partial() = 0;
 };
 
 
@@ -40,6 +46,8 @@ public:
     virtual bool is_parameter() { return true; }
 
     NumericValue* partial(unsigned int i);
+
+    void compute_partial() {}
 };
 
 
@@ -92,6 +100,8 @@ public:
 
     double compute_value() {return _value;}
 
+    void compute_partial() {}
+
     void print(std::ostream& ostr)
         { ostr << 'x' << index << "[" << _value << ']'; }
 
@@ -141,6 +151,9 @@ public:
     double compute_value() {_value = body->_value; return _value;}
 
     virtual NumericValue* partial(unsigned int i) {return 0;}
+
+    void compute_partial() {body->_dvalue += _dvalue;}
+
 };
 
 
@@ -166,6 +179,9 @@ public:
     double compute_value() {_value = body->_value; return _value;}
 
     virtual NumericValue* partial(unsigned int i) {return 0;}
+
+    void compute_partial() {body->_dvalue += _dvalue;}
+
 };
 
 
@@ -300,6 +316,12 @@ public:
     NumericValue* partial(unsigned int i)
         {return &OneParameter;}
 
+    void compute_partial()
+        {
+        this->lhs->_dvalue += this->_dvalue;
+        this->rhs->_dvalue += this->_dvalue;
+        }
+
 };
 
 template <typename LHS, typename RHS>
@@ -373,6 +395,11 @@ public:
         return 0;
         }
 
+    void compute_partial()
+        {
+        this->lhs->_dvalue += this->_dvalue * this->rhs->_value;
+        this->rhs->_dvalue += this->_dvalue * this->lhs->_value;
+        }
 };
 
 

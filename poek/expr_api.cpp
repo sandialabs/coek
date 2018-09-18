@@ -307,9 +307,10 @@ return tmp->_compute_f(i);
 
 extern "C" void compute_objective_df(void* model, double* df, int n, int i)
 {
-std::vector<double> _df(n);
 Model* tmp = static_cast<Model*>(model);
-tmp->_compute_df(_df, i);
+double f;
+std::vector<double> _df(n);
+tmp->_compute_df(f, _df, i);
 for (int i=0; i<n; i++)
   df[i] = _df[i];
 }
