@@ -315,4 +315,21 @@ for (int i=0; i<n; i++)
   df[i] = _df[i];
 }
 
+extern "C" void compute_constraint_f(void* model, double* c, int n)
+{
+Model* tmp = static_cast<Model*>(model);
+std::vector<double> _c(n);
+tmp->_compute_c(_c);
+for (int i=0; i<n; i++)
+  c[i] = _c[i];
+}
+
+extern "C" void compute_constraint_df(void* model, double* dc, int n, int i)
+{
+Model* tmp = static_cast<Model*>(model);
+std::vector<double> _dc(n);
+tmp->_compute_dc(_dc, i);
+for (int i=0; i<n; i++)
+  dc[i] = _dc[i];
+}
 

@@ -51,3 +51,6 @@ int get_nvariables(void* model);
 
 double compute_objective_f(void* model, int i);
 void compute_objective_df(void* model, double*, int n, int i);
+void compute_constraint_f(void* model, double*, int n);
+void compute_constraint_df(void* model, double*, int n, int i);
+

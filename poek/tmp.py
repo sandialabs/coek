@@ -113,6 +113,10 @@ print(v3.get_value())
 
 print(m.compute_f())
 print(m.compute_df())
+print(m.compute_c())
+for i in range(m.nc):
+    print((i, m.compute_dc(i)))
+print()
 
 E = v1*v1+1-3*v2*v1
 dEdv1 = E.diff(v1)

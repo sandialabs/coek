@@ -175,6 +175,7 @@ return ans;
 void Model1::_compute_df(double& f, std::vector<double>& df, unsigned int i)
 {
 assert(i < builds_f.size());
+assert(variables.size() == df.size());
 
 /// _compute_f + set _dvalue=0
 std::list<NumericValue*>& tmp = builds_f[i];
@@ -185,6 +186,10 @@ for (std::list<NumericValue*>::iterator it=tmp.begin(); it != tmp.end(); it++) {
     tmp->_dvalue = 0;
     }
 f = ans;
+
+/// Set _dvalue for variables
+for (variables_iterator_type it=variables.begin(); it != variables.end(); it++)
+    (*it)->_dvalue = 0;
 
 /// Compute reverse AD
 std::list<NumericValue*>::reverse_iterator rit=tmp.rbegin();
@@ -201,10 +206,49 @@ for (variables_iterator_type it=variables.begin(); it != variables.end(); it++)
 
 void Model1::_compute_c(std::vector<double>& c)
 {
+assert((inequalities.size() + equalities.size()) == c.size());
+
+int i=objectives.size();
+for (int j=0; j<c.size(); j++, i++) {
+    std::list<NumericValue*>& tmp = builds_f[i];
+    double ans = 0.0;
+    for (std::list<NumericValue*>::iterator it=tmp.begin(); it != tmp.end(); it++) {
+        NumericValue* tmp = *it;
+        ans = tmp->compute_value();
+        }
+    c[j] = ans;
+    }
 }
 
 void Model1::_compute_dc(std::vector<double>& dc, unsigned int i)
 {
+assert(variables.size() == dc.size());
+assert(i < (inequalities.size() + equalities.size()));
+
+/// _compute_c + set _dvalue=0
+std::list<NumericValue*>& tmp = builds_f[objectives.size() + i];
+double ans = 0.0;
+for (std::list<NumericValue*>::iterator it=tmp.begin(); it != tmp.end(); it++) {
+    NumericValue* tmp = *it;
+    ans = tmp->compute_value();
+    tmp->_dvalue = 0;
+    }
+//c[i] = ans;
+
+/// Set _dvalue for variables
+for (variables_iterator_type it=variables.begin(); it != variables.end(); it++)
+    (*it)->_dvalue = 0;
+
+/// Compute reverse AD
+std::list<NumericValue*>::reverse_iterator rit=tmp.rbegin();
+(*rit)->_dvalue = 1;    // SEED VALUE FOR AD
+for ( ; rit != tmp.rend(); rit++)
+    (*rit)->compute_partial();
+
+/// Retrieve _dvalue from variables
+int j=0;
+for (variables_iterator_type it=variables.begin(); it != variables.end(); it++)
+    dc[j++] = (*it)->_dvalue;
 }
 
 

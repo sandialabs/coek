@@ -514,12 +514,14 @@ class equality_constraint(constraint):
 
 class model(object):
 
-    __slots__ = ('ptr','x','nx')
+    __slots__ = ('ptr','x','nx','c','nc')
 
     def __init__(self):
         self.ptr = create_model()
         self.nx = None
         self.x = None
+        self.nc = 0
+        self.c = None
 
     def add(self, obj):
         if self.x is not None:
@@ -528,8 +530,10 @@ class model(object):
             add_objective(self.ptr, obj.ptr)
         elif obj.is_constraint():
             if obj.is_inequality():
+                self.nc += 1
                 add_inequality(self.ptr, obj.ptr)
             elif obj.is_equality():
+                self.nc += 1
                 add_equality(self.ptr, obj.ptr)
             else:
                 raise RuntimeError("Cannot add constraint to model: "+str(type(obj)))
@@ -545,6 +549,26 @@ class model(object):
         if self.x is None:
             self.x = ffi.new("double []", self.nx)
         compute_objective_df(self.ptr, self.x, self.nx, i)
+        tmp = []
+        for i in range(self.nx):
+            tmp.append( self.x[i] )
+        return tmp
+
+    def compute_c(self):
+        if self.c is None:
+            self.c = ffi.new("double []", self.nc)
+        compute_constraint_f(self.ptr, self.c, self.nc)
+        tmp = []
+        for i in range(self.nc):
+            tmp.append( self.c[i] )
+        return tmp
+
+    def compute_dc(self, i):
+        if self.nx is None:
+            self.nx = get_nvariables(self.ptr)
+        if self.x is None:
+            self.x = ffi.new("double []", self.nx)
+        compute_constraint_df(self.ptr, self.x, self.nx, i)
         tmp = []
         for i in range(self.nx):
             tmp.append( self.x[i] )
