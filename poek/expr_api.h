@@ -1,6 +1,8 @@
 
 /* Declaration of C expression API functions */
 
+void* misc_getnull(void);
+
 /** EXPRESSIONS **/
 
 /* __add__ */
@@ -18,11 +20,13 @@ void* rmul_expr_int(int lhs, void* rhs);
 void* rmul_expr_double(double lhs, void* rhs);
 
 
+void print_parameter(void* self);
 void print_var(void* self);
 void print_expr(void* self);
 void print_model(void* self, int df);
 
 int expr_size(void* self);
+void* expr_diff(void* expr, void* variable);
 
 
 void* create_parameter_int(int value, int mutable_flag);

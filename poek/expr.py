@@ -2,6 +2,9 @@ from _expr.lib import *
 from _expr import ffi
 
 
+NULL = misc_getnull()
+
+
 class NumericValue(object):
 
     __slots__ = ()
@@ -17,6 +20,30 @@ class NumericValue(object):
 
     def size(self):
         return expr_size(self.ptr)
+
+    def diff(self, var):
+        if self.__class__ is parameter:
+            return ZeroParameter
+        if self.__class__ is variable:
+            if id(self) == id(var):
+                return OneParameter
+            else:
+                return ZeroParameter
+        if var.__class__ is variable_single:
+            tmp = expr_diff(self.ptr, var.ptr)
+            if tmp == NULL:
+                return ZeroParameter
+            return expression(tmp)
+        if var.__class__ is list or var.__class__ is tuple:
+            tmp = []
+            for v in var:
+                ptr = expr_diff(self.ptr, v.ptr)
+                if ptr == NULL:
+                    tmp.append( ZeroParameter )
+                else:
+                    tmp.append( expression(expr_diff(self.ptr, v.ptr)) )
+            return tmp
+        raise RuntimeError("Badly formated argument")
 
     def __lt__(self,other):
         """
@@ -271,6 +298,11 @@ class parameter(NumericValue):
         else:
             self.ptr = create_parameter_double(value, 0)
 
+    def show(self):
+        print_parameter(self.ptr)
+
+ZeroParameter = parameter(0)
+OneParameter = parameter(1)
 
 class variable(object):
 

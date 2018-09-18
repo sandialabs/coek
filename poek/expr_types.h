@@ -1,6 +1,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <map>
 
 
 class NumericValue
@@ -461,3 +462,4 @@ double MulExpression_value(MulExpression<double, RHS>* expr)
 { return expr->lhs * expr->rhs->value(); }
 
 
+void symbolic_diff_all(NumericValue* root, std::map<Variable*, NumericValue*>& diff);

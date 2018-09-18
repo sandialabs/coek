@@ -4,6 +4,8 @@ v1 = variable()
 
 v2 = variable()
 
+v3 = variable()
+
 print(v1)
 print(v2)
 
@@ -95,7 +97,7 @@ e.show()
 
 m = model()
 e = v1+v2
-m.add( (1-e) + 3*e + e*e)
+m.add( (1-e) + 3*e + e*e + v3)
 m.add( v1*v1+1 <= 3*v2 )
 m.add( v1 == 3*v2-3 )
 m.show(1)
@@ -104,8 +106,19 @@ m.show(1)
 
 v1.set_value(5)
 v2.set_value(7)
+v3.set_value(0)
 print(v1.get_value())
 print(v2.get_value())
+print(v3.get_value())
 
 print(m.compute_f())
 print(m.compute_df())
+
+E = v1*v1+1-3*v2*v1
+dEdv1 = E.diff(v1)
+dEdv1.show()
+dEdv2 = E.diff(v2)
+dEdv2.show()
+dEdv3 = E.diff(v3)
+dEdv3.show()
+

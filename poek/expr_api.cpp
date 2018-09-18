@@ -11,6 +11,12 @@ std::list<Parameter*> parameters;
 std::list<Variable*> variables;
 
 
+extern "C" void* misc_getnull(void)
+{
+return 0;
+}
+
+
 /*** ADD ***/
 
 extern "C" void* add_expr_int(void* lhs, int rhs)
@@ -152,6 +158,13 @@ return tmp;
 /*** MISC ***/
 
 
+extern "C" void print_parameter(void* param)
+{
+Parameter* _param = static_cast<Parameter*>(param);
+_param->print(std::cout);
+std::cout << std::endl;
+}
+
 extern "C" void print_var(void* var)
 {
 Variable* _var = static_cast<Variable*>(var);
@@ -170,6 +183,19 @@ extern "C" int expr_size(void* expr)
 {
 NumericValue* _expr = static_cast<NumericValue*>(expr);
 return _expr->size();
+}
+
+extern "C" void* expr_diff(void* expr, void* variable)
+{
+NumericValue* root = static_cast<NumericValue*>(expr);
+Variable* var = static_cast<Variable*>(variable);
+
+std::map<Variable*, NumericValue*> diff;
+symbolic_diff_all(root, diff);
+
+if (diff.find(var) == diff.end())
+    return 0;
+return diff[var];
 }
 
 extern "C" void* create_parameter_int(int value, int mutable_flag)

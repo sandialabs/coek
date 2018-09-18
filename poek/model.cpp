@@ -143,6 +143,7 @@ int i=0;
 for (std::list<Expression*>::iterator it=objectives.begin(); it != objectives.end(); ++it) {
     build_expression(*it, builds_f[nb]);
 
+    /*
     std::map<Variable*, NumericValue*> ad;
     reverse_ad(*it, ad);
     builds_df[nb].resize(variables.size());
@@ -153,6 +154,7 @@ for (std::list<Expression*>::iterator it=objectives.begin(); it != objectives.en
         build_expression(ad[*IT], builds_df[nb][j]);
         j++;
         }
+    */
     nb++;
     i++;
     }
@@ -160,6 +162,7 @@ for (std::list<Expression*>::iterator it=objectives.begin(); it != objectives.en
 for (std::list<Expression*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
     build_expression(*it, builds_f[nb]);
 
+    /*
     InequalityExpression* curr = static_cast<InequalityExpression*>(*it);
     std::map<Variable*, NumericValue*> ad;
     reverse_ad(curr->body, ad);
@@ -171,6 +174,7 @@ for (std::list<Expression*>::iterator it=inequalities.begin(); it != inequalitie
         build_expression(ad[*IT], builds_df[nb][j]);
         j++;
         }
+    */
     nb++;
     i++;
     }
@@ -178,6 +182,7 @@ for (std::list<Expression*>::iterator it=inequalities.begin(); it != inequalitie
 for (std::list<Expression*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
     build_expression(*it, builds_f[nb]);
 
+    /*
     EqualityExpression* curr = static_cast<EqualityExpression*>(*it);
     std::map<Variable*, NumericValue*> ad;
     reverse_ad(curr->body, ad);
@@ -189,6 +194,7 @@ for (std::list<Expression*>::iterator it=equalities.begin(); it != equalities.en
         build_expression(ad[*IT], builds_df[nb][j]);
         j++;
         }
+    */
     nb++;
     i++;
     }
@@ -244,36 +250,9 @@ void Model1::_compute_dc(std::vector<double>& dc, unsigned int i)
 }
 
 
-//
-// These next two functions probably don't belong in this file
-//
-NumericValue* plus(NumericValue* lhs, NumericValue* rhs)
-{
-if (lhs == &ZeroParameter)
-    return rhs;
-if (rhs == &ZeroParameter)
-    return lhs;
-if (lhs->is_parameter() and rhs->is_parameter())
-    return new TypedParameter<double>(lhs->_value + rhs->_value, false);
-return new AddExpression<NumericValue*,NumericValue*>(lhs,rhs);
-}
-
-NumericValue* times(NumericValue* lhs, NumericValue* rhs)
-{
-if ((lhs == &ZeroParameter) || (rhs == &ZeroParameter))
-    return &ZeroParameter;
-if (lhs == &OneParameter)
-    return rhs;
-if (rhs == &OneParameter)
-    return lhs;
-if (lhs->is_parameter() and rhs->is_parameter())
-    return new TypedParameter<double>(lhs->_value * rhs->_value, false);
-return new MulExpression<NumericValue*,NumericValue*>(lhs,rhs);
-}
-
-
 void Model1::reverse_ad(NumericValue* root, std::map<Variable*, NumericValue*>& ad)
 {
+/***
 //
 // Use a topological sort
 //
@@ -378,6 +357,7 @@ for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) 
     ///ad[*it]->print(std::cout);
     ///std::cout << std::endl;
     }
+***/
 }
 
 
@@ -389,58 +369,68 @@ if ((variables.size() > 0) && df) {
     ostr << std::endl;
 
     ostr << "  DF" << std::endl;
-    int i=0;
-    for (int k=0; k<objectives.size(); k++) {
-        int j=0;
+    int k = 0;
+    for (std::list<Expression*>::iterator it=objectives.begin(); it != objectives.end(); ++it) {
+        std::map<Variable*, NumericValue*> diff;
+        symbolic_diff_all(*it,  diff);
         ostr << "    (Objective " << k << ")" << std::endl;
-        for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
+        for (variables_iterator_type IT=variables.begin(); IT != variables.end(); IT++) {
             ostr << "    ";
-            (*it)->print(ostr);
+            (*IT)->print(ostr);
             ostr << " :  ";
-            std::pair<int,int> index(i,j);
-            NumericValue* tmp = df_map[index];
-            tmp->print(ostr);
-            ostr << std::endl;
-            j++;
+            if (diff.find(*IT) == diff.end())
+                ostr << "0" << std::endl;
+            else {
+                diff[*IT]->print(ostr);
+                ostr << std::endl;
+                }
             }
         ostr << std::endl;
-        i++;
+        k++;
         }
 
     ostr << "  DC" << std::endl;
-    for (int k=0; k<inequalities.size(); k++) {
-        int j=0;
+    k = 0;
+    for (std::list<Expression*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
+        std::map<Variable*, NumericValue*> diff;
+        InequalityExpression* tmp = static_cast<InequalityExpression*>(*it);
+        symbolic_diff_all(tmp->body,  diff);
         ostr << "    (Inequality " << k << ")" << std::endl;
-        for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
+        for (variables_iterator_type IT=variables.begin(); IT != variables.end(); IT++) {
             ostr << "    ";
-            (*it)->print(ostr);
+            (*IT)->print(ostr);
             ostr << " :  ";
-            std::pair<int,int> index(i,j);
-            NumericValue* tmp = df_map[index];
-            tmp->print(ostr);
-            ostr << std::endl;
-            j++;
+            if (diff.find(*IT) == diff.end())
+                ostr << "0" << std::endl;
+            else {
+                diff[*IT]->print(ostr);
+                ostr << std::endl;
+                }
             }
         ostr << std::endl;
-        i++;
+        k++;
         }
 
     ostr << "  DC" << std::endl;
-    for (int k=0; k<equalities.size(); k++) {
-        int j=0;
+    k = 0;
+    for (std::list<Expression*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
+        std::map<Variable*, NumericValue*> diff;
+        EqualityExpression* tmp = static_cast<EqualityExpression*>(*it);
+        symbolic_diff_all(tmp->body,  diff);
         ostr << "    (Equality " << k << ")" << std::endl;
-        for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
+        for (variables_iterator_type IT=variables.begin(); IT != variables.end(); IT++) {
             ostr << "    ";
-            (*it)->print(ostr);
+            (*IT)->print(ostr);
             ostr << " :  ";
-            std::pair<int,int> index(i,j);
-            NumericValue* tmp = df_map[index];
-            tmp->print(ostr);
-            ostr << std::endl;
-            j++;
+            if (diff.find(*IT) == diff.end())
+                ostr << "0" << std::endl;
+            else {
+                diff[*IT]->print(ostr);
+                ostr << std::endl;
+                }
             }
         ostr << std::endl;
-        i++;
+        k++;
         }
 
     }
