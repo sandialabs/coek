@@ -314,11 +314,12 @@ class variable(object):
 
 class variable_single(NumericValue):
 
-    __slots__ = ('ptr', 'name')
+    __slots__ = ('ptr', 'name', 'index')
 
     def __init__(self, name=None):
         self.name = name
         self.ptr = create_variable(0,0)   # TODO: add 'within' argument
+        self.index = get_variable_index(self.ptr)
 
     def set_value(self, value):
         set_variable_value(self.ptr, value)
@@ -328,8 +329,7 @@ class variable_single(NumericValue):
 
     def __str__(self):
         if self.name is None:
-            index = get_variable_index(self.ptr)
-            self.name = 'x%d' % index
+            self.name = 'x%d' % self.index
         return self.name
 
     def show(self):
