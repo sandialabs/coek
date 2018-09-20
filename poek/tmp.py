@@ -119,6 +119,11 @@ for i in range(m.nc):
 print()
 
 E = v1*v1+1-3*v2*v1
+print("VALUES")
+print(E.value(compute=False))
+print(E.value())
+
+print("DIFF")
 dEdv1 = E.diff(v1)
 dEdv1.show()
 dEdv2 = E.diff(v2)
@@ -126,3 +131,7 @@ dEdv2.show()
 dEdv3 = E.diff(v3)
 dEdv3.show()
 
+E.show()
+visitor = ValueVisitor()
+visitor.walk(E)
+print(visitor.values)

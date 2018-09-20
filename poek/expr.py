@@ -1,8 +1,9 @@
 from _expr.lib import *
-from _expr import ffi
+from _expr import ffi, lib
 
 
 NULL = misc_getnull()
+BUFFER = ffi.new("char []", 64)
 
 
 class NumericValue(object):
@@ -18,8 +19,17 @@ class NumericValue(object):
     def is_constraint(self):
         return False
 
+    def get_descr(self):
+        return get_numval_str(self.ptr, BUFFER, 64)
+
     def size(self):
         return expr_size(self.ptr)
+
+    def value(self, compute=True):
+        if compute:
+            return compute_numval_value(self.ptr)
+        else:
+            return get_numval_value(self.ptr)
 
     def diff(self, var):
         if self.__class__ is parameter:
@@ -608,4 +618,36 @@ def quicksum(args):
         except AttributeError:
             const.append(arg)
     return expression(ptr) + sum(const)
+
+
+
+class Visitor(object):
+
+    def walk(self, expr):
+        visitor = ffi.new_handle(self)
+        self._visitor = visitor       # keep this object alive
+        lib.visitor_walk(expr.ptr, lib.visitor_callback, visitor)
+
+    def visit(self, ptr, parent):
+        """
+        This method needs to be defined by a subclass.  It is
+        called when a node in an expression tree is visited.
+        """
+        pass
+        
+@ffi.def_extern()
+def visitor_callback(ptr, parent, visitor):
+    self = ffi.from_handle(visitor)
+    self.visit(ptr, parent)
+
+
+class ValueVisitor(Visitor):
+
+    def visit(self, ptr, parent):
+        if parent == NULL:
+            self.values = []
+        #self.values.append(get_numval_value(ptr))
+        get_numval_str(ptr, BUFFER, 64)
+        self.values.append(ffi.string(BUFFER).decode('utf-8'))
+
 

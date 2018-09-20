@@ -37,6 +37,10 @@ int get_variable_index(void* variable);
 void set_variable_value(void* variable, double value);
 double get_variable_value(void* variable);
 
+void get_numval_str(void* numval, char* buf, int n);
+double get_numval_value(void* numval);
+double compute_numval_value(void* numval);
+
 
 void* create_inequality(void* self);
 void* create_equality(void* self);
@@ -53,4 +57,7 @@ double compute_objective_f(void* model, int i);
 void compute_objective_df(void* model, double*, int n, int i);
 void compute_constraint_f(void* model, double*, int n);
 void compute_constraint_df(void* model, double*, int n, int i);
+
+void test_callback(int(*callback)(int, int));
+void visitor_walk(void* expr, void(*callback)(void*, void*, void*), void* visitor);
 

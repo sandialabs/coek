@@ -1,7 +1,10 @@
 
+#include <cstdio>
 #include <cmath>
 #include <iostream>
 #include <map>
+#include <list>
+#include <set>
 
 
 class NumericValue
@@ -29,6 +32,9 @@ public:
 
     // Used for reverse_ad
     virtual void compute_partial() = 0;
+
+    virtual void snprintf(char* buf, int max)
+        {std::snprintf(buf, max, "%.3f", _value);}
 };
 
 
@@ -110,6 +116,8 @@ public:
     NumericValue* partial(unsigned int i)
         {return &OneParameter;}
 
+    void snprintf(char* buf, int max)
+        {std::snprintf(buf, max, "x%d[%.3f]", index, this->_value);}
 };
 
 
@@ -154,6 +162,8 @@ public:
 
     void compute_partial() {body->_dvalue += _dvalue;}
 
+    void snprintf(char* buf, int max)
+        {std::snprintf(buf, max, "<=");}
 };
 
 
@@ -181,6 +191,9 @@ public:
     virtual NumericValue* partial(unsigned int i) {return 0;}
 
     void compute_partial() {body->_dvalue += _dvalue;}
+
+    void snprintf(char* buf, int max)
+        {std::snprintf(buf, max, "==");}
 
 };
 
@@ -322,6 +335,9 @@ public:
         this->rhs->_dvalue += this->_dvalue;
         }
 
+    void snprintf(char* buf, int max)
+        {std::snprintf(buf, max, "+");}
+
 };
 
 template <typename LHS, typename RHS>
@@ -400,6 +416,9 @@ public:
         this->lhs->_dvalue += this->_dvalue * this->rhs->_value;
         this->rhs->_dvalue += this->_dvalue * this->lhs->_value;
         }
+
+    void snprintf(char* buf, int max)
+        {std::snprintf(buf, max, "*");}
 };
 
 
@@ -490,3 +509,11 @@ double MulExpression_value(MulExpression<double, RHS>* expr)
 
 
 void symbolic_diff_all(NumericValue* root, std::map<Variable*, NumericValue*>& diff);
+
+void walk_expression_tree(NumericValue* root, void(*callback)(void*,void*,void*), void* visitor);
+
+double compute_expression_value(NumericValue* root);
+
+typedef std::set<Variable*, bool(*)(const Variable*, const Variable*)> ordered_variable_t;
+typedef ordered_variable_t::iterator ordered_variable_iterator_t;
+void build_expression(NumericValue* root, std::list<NumericValue*>& build, ordered_variable_t& variables);

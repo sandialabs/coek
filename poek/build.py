@@ -6,6 +6,8 @@ import os
 if __name__ == "__main__":
     ffi = cffi.FFI()
 
+    ffi.cdef('extern "Python" void visitor_callback(void*, void*, void*);')
+
     with open(os.path.join(os.path.dirname(__file__), "expr_api.h")) as f:
         ffi.cdef(f.read())
 

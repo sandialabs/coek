@@ -65,8 +65,7 @@ if (root->is_variable()) {
     return;
     }
 
-std::set<Variable*, bool(*)(const Variable*, const Variable*)> variables(variable_comparator);
-typedef std::set<Variable*, bool(*)(const Variable*, const Variable*)>::iterator variables_iterator_type;
+ordered_variable_t variables(variable_comparator);
 
 //
 // Compute in-degree
@@ -148,7 +147,7 @@ while (queue.size() > 0) {
         }
     }
 
-for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
+for (ordered_variable_iterator_t it=variables.begin(); it != variables.end(); it++) {
     diff[*it] = partial[*it];
 
     ///(*it)->print(std::cout);
@@ -158,3 +157,133 @@ for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) 
     }
 }
 
+
+void build_expression(NumericValue* root, std::list<NumericValue*>& build, ordered_variable_t& variables)
+{
+//
+// A topological sort to construct the build
+//
+
+//std::cout << "BUILD" << std::endl;
+//root->print(std::cout);
+//std::cout << std::endl;
+//std::cout << std::flush;
+
+if (root->is_variable() || root->is_parameter()) {
+    if (root->is_variable())
+        variables.insert( static_cast<Variable*>(root) );
+    build.push_back(root);
+    return;
+    }
+
+//
+// Compute in-degree
+//
+std::map<NumericValue*,int> D;
+std::list<Expression*> queue;
+D[root] = 0;
+queue.push_back(static_cast<Expression*>(root));
+while(queue.size() > 0) {
+    Expression* curr = queue.back();
+    queue.pop_back();
+    for (unsigned int i=0; i<curr->num_sub_expressions(); i++) {
+        NumericValue* child = curr->expression(i);
+        if (D.find(child) == D.end())
+            D[child] = 1;
+        else
+            D[child] += 1;
+        if (child->is_expression())
+            queue.push_back(static_cast<Expression*>(child));
+        }
+    }
+
+//
+// Process nodes, and add them to the queue when 
+// they have been reached by all parents.
+//
+queue.push_back(static_cast<Expression*>(root));
+while (queue.size() > 0) {
+    ///std::cout << "TODO " << queue.size() << std::endl;
+    //
+    // Get the front of the queue
+    //
+    Expression* curr = queue.front();
+    queue.pop_front();
+    build.push_front(curr);
+
+    ///std::cout << "CURR " << curr << " ";
+    ///curr->print(std::cout);
+    ///std::cout << std::endl;
+    //
+    for (unsigned int i=0; i<curr->num_sub_expressions(); i++) {
+        NumericValue* child = curr->expression(i);
+        if (child->is_expression()) {
+            ///std::cout << "i " << i << "  ";
+            ///std::cout << std::flush;
+
+            ///child->print(std::cout);
+            ///std::cout << std::endl;
+            ///std::cout << child->is_expression() << " " << child->is_variable() << " " << child << " D=" << D[child] << std::endl;
+            ///std::cout << std::flush;
+
+            D[child]--;
+            if (D[child] == 0) {
+                ///std::cout << "PUSH" << std::endl;
+                queue.push_back(static_cast<Expression*>(child));
+                }
+            }
+        else if (child->is_variable()) {
+            variables.insert( static_cast<Variable*>(child) );
+            }
+        }
+    }
+}
+
+
+double compute_expression_value(NumericValue* root)
+{
+//std::cout << "X1" << std::endl << std::flush;
+std::list<NumericValue*> build;
+ordered_variable_t variables(variable_comparator);
+
+build_expression(root, build, variables);
+//std::cout << "X2" << std::endl << std::flush;
+
+double ans;
+for (std::list<NumericValue*>::iterator it=build.begin(); it != build.end(); it++)
+    ans = (*it)->compute_value();
+//std::cout << "X3" << std::endl << std::flush;
+
+return ans;
+}
+
+
+
+
+void walk_expression_tree(NumericValue* root, void(*callback)(void*,void*,void*), void* visitor)
+{
+if (!root->is_expression()) {
+    (*callback)(root, 0, visitor);
+    return;
+    }
+
+std::map<NumericValue*,NumericValue*> parent;
+std::list<NumericValue*> stack;
+stack.push_back(root);
+parent[root] = 0;
+
+while (stack.size() > 0) {
+    NumericValue* curr = stack.back();
+    stack.pop_back();
+    (*callback)(curr, parent[curr], visitor);
+    if (curr->is_expression()) {
+        Expression* _curr = static_cast<Expression*>(curr);
+        //for (unsigned int i=0; i<curr->num_sub_expressions(); i++) {
+        for (int i=_curr->num_sub_expressions()-1; i>=0; i--) {
+            NumericValue* child = _curr->expression(i);
+            parent[child] = curr;
+            stack.push_back( static_cast<Expression*>(child) );
+            }
+        }
+    }
+}

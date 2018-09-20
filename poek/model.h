@@ -109,9 +109,9 @@ public:
 
     void print(std::ostream& ostr, int df);
 
-protected:
+//protected:
 
-    void build_expression(NumericValue* root, std::list<NumericValue*>& curr_build);
+    //void build_expression(NumericValue* root, std::list<NumericValue*>& curr_build);
 
 };
 

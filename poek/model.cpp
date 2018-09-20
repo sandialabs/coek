@@ -52,6 +52,7 @@ for (std::list<Expression*>::iterator it=equalities.begin(); it != equalities.en
 /// MODEL1
 ///
 
+/*
 void Model1::build_expression(NumericValue* root, std::list<NumericValue*>& curr_build)
 {
 //
@@ -131,6 +132,7 @@ while (queue.size() > 0) {
         }
     }
 }
+*/
 
 
 void Model1::build()
@@ -139,17 +141,17 @@ builds_f.resize(objectives.size() + inequalities.size() + equalities.size());
 int nb=0;
 
 for (std::list<Expression*>::iterator it=objectives.begin(); it != objectives.end(); ++it) {
-    build_expression(*it, builds_f[nb]);
+    build_expression(*it, builds_f[nb], variables);
     nb++;
     }
 
 for (std::list<Expression*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
-    build_expression(*it, builds_f[nb]);
+    build_expression(*it, builds_f[nb], variables);
     nb++;
     }
 
 for (std::list<Expression*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
-    build_expression(*it, builds_f[nb]);
+    build_expression(*it, builds_f[nb], variables);
     nb++;
     }
 }

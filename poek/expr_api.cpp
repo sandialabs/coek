@@ -237,6 +237,24 @@ Variable* v = static_cast<Variable*>(ptr);
 return v->_value;
 }
 
+extern "C" void get_numval_str(void* ptr, char* buf, int max)
+{
+NumericValue* v = static_cast<NumericValue*>(ptr);
+v->snprintf(buf, max);
+}
+
+extern "C" double get_numval_value(void* ptr)
+{
+NumericValue* v = static_cast<NumericValue*>(ptr);
+return v->_value;
+}
+
+extern "C" double compute_numval_value(void* ptr)
+{
+NumericValue* v = static_cast<NumericValue*>(ptr);
+return compute_expression_value(v);
+}
+
 extern "C" void* create_inequality(void* expr)
 {
 NumericValue* _expr = static_cast<NumericValue*>(expr);
@@ -331,5 +349,23 @@ std::vector<double> _dc(n);
 tmp->_compute_dc(_dc, i);
 for (int i=0; i<n; i++)
   dc[i] = _dc[i];
+}
+
+// Used to test callback logic
+extern "C" void test_callback(int(*callback)(int,int))
+{
+int value=0;
+
+value = (*callback)(2,3);
+
+assert(value == 5);
+std::cout << (*callback)(3,5) << std::endl;
+}
+
+// Run a DFS walker
+extern "C" void visitor_walk(void* root, void(*callback)(void*,void*,void*), void* visitor)
+{
+NumericValue* _root = static_cast<NumericValue*>(root);
+walk_expression_tree(_root, callback, visitor);
 }
 
