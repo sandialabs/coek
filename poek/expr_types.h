@@ -13,7 +13,7 @@ public:
 
     double _value;
 
-    double _dvalue;
+    double adjoint;
 
     virtual void print(std::ostream& ostr) = 0;
 
@@ -31,7 +31,7 @@ public:
     virtual NumericValue* partial(unsigned int i) = 0;
 
     // Used for reverse_ad
-    virtual void compute_partial() = 0;
+    virtual void compute_adjoint() = 0;
 
     virtual void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "%.3f", _value);}
@@ -53,7 +53,7 @@ public:
 
     NumericValue* partial(unsigned int i);
 
-    void compute_partial() {}
+    void compute_adjoint() {}
 };
 
 
@@ -106,7 +106,7 @@ public:
 
     double compute_value() {return _value;}
 
-    void compute_partial() {}
+    void compute_adjoint() {}
 
     void print(std::ostream& ostr)
         { ostr << 'x' << index << "[" << _value << ']'; }
@@ -160,7 +160,7 @@ public:
 
     virtual NumericValue* partial(unsigned int i) {return 0;}
 
-    void compute_partial() {body->_dvalue += _dvalue;}
+    void compute_adjoint() {body->adjoint += adjoint;}
 
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "<=");}
@@ -190,7 +190,7 @@ public:
 
     virtual NumericValue* partial(unsigned int i) {return 0;}
 
-    void compute_partial() {body->_dvalue += _dvalue;}
+    void compute_adjoint() {body->adjoint += adjoint;}
 
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "==");}
@@ -329,10 +329,10 @@ public:
     NumericValue* partial(unsigned int i)
         {return &OneParameter;}
 
-    void compute_partial()
+    void compute_adjoint()
         {
-        this->lhs->_dvalue += this->_dvalue;
-        this->rhs->_dvalue += this->_dvalue;
+        this->lhs->adjoint += this->adjoint;
+        this->rhs->adjoint += this->adjoint;
         }
 
     void snprintf(char* buf, int max)
@@ -411,10 +411,10 @@ public:
         return 0;
         }
 
-    void compute_partial()
+    void compute_adjoint()
         {
-        this->lhs->_dvalue += this->_dvalue * this->rhs->_value;
-        this->rhs->_dvalue += this->_dvalue * this->lhs->_value;
+        this->lhs->adjoint += this->adjoint * this->rhs->_value;
+        this->rhs->adjoint += this->adjoint * this->lhs->_value;
         }
 
     void snprintf(char* buf, int max)

@@ -588,6 +588,7 @@ class model(object):
         print_model(self.ptr, df)
 
     def build(self):
+        # TODO: customize build based on AD needs f/g/h
         build_model(self.ptr)
 
 
