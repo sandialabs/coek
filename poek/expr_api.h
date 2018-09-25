@@ -61,3 +61,7 @@ void compute_constraint_df(void* model, double*, int n, int i);
 void test_callback(int(*callback)(int, int));
 void visitor_walk(void* expr, void(*callback)(void*, void*, void*), void* visitor);
 
+void* solver_gurobi_env(void);
+void* solver_gurobi_model(void* model);
+void gurobi_solve(void* model, void* x, int n);
+

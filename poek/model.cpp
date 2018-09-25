@@ -1,4 +1,5 @@
 
+#include <cassert>
 #include "model.h"
 
 
@@ -211,7 +212,7 @@ void Model1::_compute_c(std::vector<double>& c)
 assert((inequalities.size() + equalities.size()) == c.size());
 
 int i=objectives.size();
-for (int j=0; j<c.size(); j++, i++) {
+for (unsigned int j=0; j<c.size(); j++, i++) {
     std::list<NumericValue*>& tmp = builds_f[i];
     double ans = 0.0;
     for (std::list<NumericValue*>::iterator it=tmp.begin(); it != tmp.end(); it++) {
