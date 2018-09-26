@@ -13,7 +13,10 @@ public:
 
     double _value;
 
-    double adjoint;
+    double adjoint; /* aO */
+
+    double dO;  /* deriv of op w.r.t. t in x + t*p */
+    double adO; /* adjoint (in Hv computation) of dO */
 
     virtual void print(std::ostream& ostr) = 0;
 
@@ -32,6 +35,12 @@ public:
 
     // Used for reverse_ad
     virtual void compute_adjoint() = 0;
+
+    // Used for Hv - forward step
+    virtual void compute_hv_fwd() = 0;
+
+    // Used for Hv - backward step
+    virtual void compute_hv_back() = 0;
 
     virtual void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "%.3f", _value);}
@@ -54,6 +63,11 @@ public:
     NumericValue* partial(unsigned int i);
 
     void compute_adjoint() {}
+
+    void compute_hv_fwd() {}
+
+    void compute_hv_back() {}
+
 };
 
 
@@ -107,6 +121,10 @@ public:
     double compute_value() {return _value;}
 
     void compute_adjoint() {}
+
+    void compute_hv_fwd() {}
+
+    void compute_hv_back() {}
 
     void print(std::ostream& ostr)
         { ostr << 'x' << index << "[" << _value << ']'; }
@@ -162,6 +180,10 @@ public:
 
     void compute_adjoint() {body->adjoint += adjoint;}
 
+    void compute_hv_fwd() {adjoint = body->adjoint;}
+
+    void compute_hv_back() {body->adjoint = adjoint;}
+
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "<=");}
 };
@@ -192,6 +214,10 @@ public:
 
     void compute_adjoint() {body->adjoint += adjoint;}
 
+    void compute_hv_fwd() {adjoint = body->adjoint;}
+
+    void compute_hv_back() {body->adjoint = adjoint;}
+
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "==");}
 
@@ -208,6 +234,16 @@ class BinaryExpression : public Expression
 {
 public:
 
+    /// Data used for Hessian calculations
+    //double O;   /* op value */
+    //double aO;  /* adjoint (in Hv computation) of O */
+    //double adO; /* adjoint (in Hv computation) of dO */
+    double dL;  /* deriv of op w.r.t. left operand L */
+    double dL2; /* second partial w.r.t. L,L */
+    double dR;  /* deriv of op w.r.t. right operand R */
+    double dLR; /* second partial w.r.t. L,R */
+    double dR2; /* second partial w.r.t. R,R */
+
     LHS lhs;
     RHS rhs;
 
@@ -219,6 +255,22 @@ public:
     NumericValue* expression(unsigned int i) { return BinaryExpression_expression(i, this); }
 
     int size() {return BinaryExpression_size(this);}
+
+    void compute_hv_back()
+        {
+        //e1 = e->L;
+        //e2 = e->R;
+        //adO = e->adO;
+        std::cout << "HVBACK adjoint=" << this->adjoint << " adO=" << this->adO << std::endl;
+        std::cout << "HVBACK dL=" << this->dL << " dR=" << this->dR << " dL2=" << this->dL2 << " dLR=" << this->dLR << " dR2=" << this->dR2 << std::endl;
+        double t1 = this->adO * this->lhs->dO;
+        double t2 = this->adO * this->rhs->dO;
+        this->lhs->adjoint += this->adjoint*this->dL + t1*this->dL2 + t2*this->dLR;
+        this->rhs->adjoint += this->adjoint*this->dR + t1*this->dLR + t2*this->dR2;
+        this->lhs->adO += this->adO * this->dL;
+        this->rhs->adO += this->adO * this->dR;
+        }
+
 };
 
 template <typename LHS, typename RHS>
@@ -335,6 +387,16 @@ public:
         this->rhs->adjoint += this->adjoint;
         }
 
+    void compute_hv_fwd()
+        {
+        compute_value();
+        this->adjoint = 0;
+        this->adO = 0;
+        this->dL = this->dR = 1;
+        this->dL2 = this->dLR = this->dR2 = 0;
+        this->dO = this->lhs->dO*this->dL + this->rhs->dO*this->dR;
+        }
+
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "+");}
 
@@ -415,6 +477,18 @@ public:
         {
         this->lhs->adjoint += this->adjoint * this->rhs->_value;
         this->rhs->adjoint += this->adjoint * this->lhs->_value;
+        }
+
+    void compute_hv_fwd()
+        {
+        compute_value();
+        this->adjoint = 0;
+        this->adO = 0;
+        this->dL = this->rhs->_value;
+        this->dR = this->lhs->_value;
+        this->dL2 = this->dR2 = 0;
+        this->dLR = 1;
+        this->dO = this->lhs->dO*this->dL + this->rhs->dO*this->dR;
         }
 
     void snprintf(char* buf, int max)

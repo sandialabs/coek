@@ -1,7 +1,7 @@
 all: exprapi
 
 clean:
-	rm -f *.o *.so
+	rm -f *.o *.so tmpexec _expr.c
 
 libexprapi.so: expr_api.o model.o expr_types.o
 	g++ -O3 -shared $^ -o $@

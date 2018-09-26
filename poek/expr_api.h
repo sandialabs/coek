@@ -58,6 +58,8 @@ void compute_objective_df(void* model, double*, int n, int i);
 void compute_constraint_f(void* model, double*, int n);
 void compute_constraint_df(void* model, double*, int n, int i);
 
+void compute_Hv(void* model, double* v, double* Hv, int n, int i);
+
 void test_callback(int(*callback)(int, int));
 void visitor_walk(void* expr, void(*callback)(void*, void*, void*), void* visitor);
 

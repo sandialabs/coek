@@ -524,11 +524,12 @@ class equality_constraint(constraint):
 
 class model(object):
 
-    __slots__ = ('ptr','x','nx','c','nc')
+    __slots__ = ('ptr','x','nx','c','nc', 'v')
 
     def __init__(self):
         self.ptr = create_model()
         self.nx = None
+        self.v = None
         self.x = None
         self.nc = 0
         self.c = None
@@ -582,6 +583,21 @@ class model(object):
         tmp = []
         for i in range(self.nx):
             tmp.append( self.x[i] )
+        return tmp
+
+    def compute_Hv(self, v, i=0):
+        if self.nx is None:
+            self.nx = get_nvariables(self.ptr)
+        if self.x is None:
+            self.x = ffi.new("double []", self.nx)
+        if self.v is None:
+            self.v = ffi.new("double []", self.nx)
+        for j in range(self.nx):
+            self.v[j] = v[j]
+        compute_Hv(self.ptr, self.v, self.x, self.nx, i)
+        tmp = []
+        for j in range(self.nx):
+            tmp.append( self.x[j] )
         return tmp
 
     def show(self, df=0):

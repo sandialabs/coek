@@ -118,8 +118,13 @@ for i in range(m.nc):
     print((i, m.compute_dc(i)))
 print()
 
-E = v1*v1+1-3*v2*v1
+print("HESSIAN")
+print(m.compute_Hv([1,0,0]))
+print(m.compute_Hv([0,1,0]))
+print(m.compute_Hv([0,0,1]))
+
 print("VALUES")
+E = v1*v1+1-3*v2*v1
 print(E.value(compute=False))
 print(E.value())
 

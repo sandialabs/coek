@@ -351,6 +351,18 @@ for (int i=0; i<n; i++)
   dc[i] = _dc[i];
 }
 
+extern "C" void compute_Hv(void* model, double* v, double* Hv, int n, int i)
+{
+Model* tmp = static_cast<Model*>(model);
+std::vector<double> _v(n);
+for (int j=0; j<n; j++)
+  _v[j] = v[j];
+std::vector<double> _Hv(n);
+tmp->_compute_Hv(_v, _Hv, i);
+for (int j=0; j<n; j++)
+  Hv[j] = _Hv[j];
+}
+
 // Used to test callback logic
 extern "C" void test_callback(int(*callback)(int,int))
 {

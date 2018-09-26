@@ -44,13 +44,24 @@ public:
     /// COMPUTE DF
 
     virtual void compute_df(std::vector<double>& x, std::vector<double>& df)
-        {return compute_df(x, df, 0);}
+        {compute_df(x, df, 0);}
 
     virtual void compute_df(std::vector<double>& x, std::vector<double>& df, unsigned int i)
         {
         set_variables(x);
         double f;
-        return _compute_df(f, df, i);
+        _compute_df(f, df, i);
+        }
+
+    /// COMPUTE Hv
+
+    virtual void compute_Hv(std::vector<double>& x, std::vector<double>& v, std::vector<double>& Hv)
+        {compute_Hv(x, v, Hv, 0);}
+
+    virtual void compute_Hv(std::vector<double>& x, std::vector<double>& v, std::vector<double>& Hv, unsigned int i)
+        {
+        set_variables(x);
+        _compute_Hv(v, Hv, 0);
         }
 
     /// COMPUTE C
@@ -81,6 +92,8 @@ public:
 
     virtual void _compute_dc(std::vector<double>& dc, unsigned int i) = 0;
 
+    virtual void _compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i) = 0;
+
     virtual void print(std::ostream& ostr, int df);
 
 };
@@ -106,6 +119,8 @@ public:
     void _compute_c(std::vector<double>& c);
 
     void _compute_dc(std::vector<double>& dc, unsigned int i);
+
+    void _compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i);
 
     void print(std::ostream& ostr, int df);
 
