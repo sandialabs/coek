@@ -9,7 +9,7 @@ TypedParameter<int> OneParameter(1,false);
 
 
 int Variable::nvariables = 0;
-double Variable::_nan = nan(0);
+double Variable::_nan = NAN;
 
 bool variable_comparator(const Variable* lhs, const Variable* rhs)
 {
@@ -249,7 +249,7 @@ ordered_variable_t variables(variable_comparator);
 build_expression(root, build, variables);
 //std::cout << "X2" << std::endl << std::flush;
 
-double ans;
+double ans = 0;
 for (std::list<NumericValue*>::iterator it=build.begin(); it != build.end(); it++)
     ans = (*it)->compute_value();
 //std::cout << "X3" << std::endl << std::flush;

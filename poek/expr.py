@@ -608,6 +608,28 @@ class model(object):
         build_model(self.ptr)
 
 
+class GurobiSolver(object):
+
+    __slots__ = ('env','model', 'x', 'nx')
+
+    def __init__(self):
+        self.envptr = solver_gurobi_env()
+        self.modelptr = None
+        self.x = None
+        self.nx = None
+
+    def solve(self, model):
+        self.modelptr = solver_gurobi_model(model.ptr)
+        if self.nx is None:
+            self.nx = get_nvariables(self.ptr)
+        if self.x is None:
+            self.x = ffi.new("double []", self.nx)
+        gurobi_solve(self.modelptr, self.x, self.nx)
+        tmp = []
+        for i in range(self.nx):
+            tmp.append( self.x[i] )
+        
+
 def quicksum(args):
     # NOTE:  We could simplify this logic by having the summation object
     #   maintain a list of things being summed.
