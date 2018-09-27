@@ -12,6 +12,13 @@ void* add_expr_expression(void* lhs, void* rhs);
 void* radd_expr_int(int lhs, void* rhs);
 void* radd_expr_double(double lhs, void* rhs);
 
+/* __sub__ */
+void* sub_expr_int(void* lhs, int rhs);
+void* sub_expr_double(void* lhs, double rhs);
+void* sub_expr_expression(void* lhs, void* rhs);
+void* rsub_expr_int(int lhs, void* rhs);
+void* rsub_expr_double(double lhs, void* rhs);
+
 /* __mul__ */
 void* mul_expr_int(void* lhs, int rhs);
 void* mul_expr_double(void* lhs, double rhs);
@@ -19,6 +26,19 @@ void* mul_expr_expression(void* lhs, void* rhs);
 void* rmul_expr_int(int lhs, void* rhs);
 void* rmul_expr_double(double lhs, void* rhs);
 
+/* __div__ */
+void* div_expr_int(void* lhs, int rhs);
+void* div_expr_double(void* lhs, double rhs);
+void* div_expr_expression(void* lhs, void* rhs);
+void* rdiv_expr_int(int lhs, void* rhs);
+void* rdiv_expr_double(double lhs, void* rhs);
+
+/* __pow__ */
+void* pow_expr_int(void* lhs, void* rhs);
+void* pow_expr_double(void* lhs, void* rhs);
+void* pow_expr_expression(void* lhs, void* rhs);
+void* rpow_expr_int(void* lhs, void* rhs);
+void* rpow_expr_double(void* lhs, void* rhs);
 
 void print_parameter(void* self);
 void print_var(void* self);
@@ -32,7 +52,7 @@ void* expr_diff(void* expr, void* variable);
 void* create_parameter_int(int value, int mutable_flag);
 void* create_parameter_double(double value, int mutable_flag);
 
-void* create_variable(int binary, int integer);
+void* create_variable(int binary, int integer, char* name);
 int get_variable_index(void* variable);
 void set_variable_value(void* variable, double value);
 double get_variable_value(void* variable);
@@ -61,9 +81,11 @@ void compute_constraint_df(void* model, double*, int n, int i);
 void compute_Hv(void* model, double* v, double* Hv, int n, int i);
 
 void test_callback(int(*callback)(int, int));
-void visitor_walk(void* expr, void(*callback)(void*, void*, void*), void* visitor);
+void visitor_walk(void* expr, void(*enter_callback)(void*, void*, void*), void(*exit_callback)(void*, void*, void*), void* visitor);
 
+/*
 void* solver_gurobi_env(void);
 void* solver_gurobi_model(void* model);
 void gurobi_solve(void* model, void* x, int n);
+*/
 

@@ -1,10 +1,10 @@
 from poek.expr import *
 
-v1 = variable()
+v1 = variable(name='v1')
 
 v2 = variable()
 
-v3 = variable()
+v3 = variable(name='v3')
 
 print(v1)
 print(v2)
@@ -104,12 +104,12 @@ m.show(1)
 m.build()
 m.show(1)
 
-v1.set_value(5)
-v2.set_value(7)
-v3.set_value(0)
-print(v1.get_value())
-print(v2.get_value())
-print(v3.get_value())
+v1.value = 5
+v2.value = 7
+v3.value = 0
+print(v1.value)
+print(v2.value)
+print(v3.value)
 
 print(m.compute_f())
 print(m.compute_df())
@@ -125,8 +125,8 @@ print(m.compute_Hv([0,0,1]))
 
 print("VALUES")
 E = v1*v1+1-3*v2*v1
-print(E.value(compute=False))
-print(E.value())
+print(E.eval())
+print(E.value)
 
 print("DIFF")
 dEdv1 = E.diff(v1)
@@ -138,5 +138,5 @@ dEdv3.show()
 
 E.show()
 visitor = ValueVisitor()
-visitor.walk(E)
-print(visitor.values)
+print(visitor.walk(E))
+print(visitor.walk(E, show=True))

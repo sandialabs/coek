@@ -72,6 +72,18 @@ public:
 
 
 template <typename TYPE>
+inline void TypedParameter_snprintf(char* buf, int max, TYPE _value)
+{
+std::snprintf(buf, max, "%.3f", _value);
+}
+
+template <>
+inline void TypedParameter_snprintf(char* buf, int max, int _value)
+{
+std::snprintf(buf, max, "%d", _value);
+}
+
+template <typename TYPE>
 class TypedParameter : public Parameter
 {
 public:
@@ -88,10 +100,14 @@ public:
     void print(std::ostream& ostr)
         { ostr << _value; }
 
+    void snprintf(char* buf, int max)
+        {TypedParameter_snprintf(buf, max, this->_tvalue);}
 };
+
 
 extern TypedParameter<int> ZeroParameter;
 extern TypedParameter<int> OneParameter;
+extern TypedParameter<int> NegativeOneParameter;
 
 inline NumericValue* Parameter::partial(unsigned int i)
 {return &ZeroParameter;}
@@ -107,13 +123,16 @@ public:
     bool binary;
     bool integer;
     int index;
+    std::string name;
 
-    Variable(bool _binary, bool _integer) : NumericValue()
+    Variable(bool _binary, bool _integer, char* _name) : NumericValue()
         {
         _value = _nan;
         binary = _binary; 
         integer = _integer; 
         index = nvariables++;
+        if (_name)
+            name = _name;
         }
 
     virtual double value() {return _value;}
@@ -127,7 +146,12 @@ public:
     void compute_hv_back() {}
 
     void print(std::ostream& ostr)
-        { ostr << 'x' << index << "[" << _value << ']'; }
+        {
+        if (name.size() == 0)
+            ostr << 'x' << index << "{" << _value << '}';
+        else
+            ostr << name << index << "{" << _value << '}';
+        }
 
     bool is_variable() { return true; }
 
@@ -135,7 +159,12 @@ public:
         {return &OneParameter;}
 
     void snprintf(char* buf, int max)
-        {std::snprintf(buf, max, "x%d[%.3f]", index, this->_value);}
+        {
+        if (name.size() == 0)
+            std::snprintf(buf, max, "x%d{%.3f}", index, this->_value);
+        else
+            std::snprintf(buf, max, "%s{%.3f}", name.c_str(), this->_value);
+        }
 };
 
 
@@ -225,6 +254,349 @@ public:
 
 
 bool variable_comparator(const Variable* lhs, const Variable* rhs);
+
+
+/*** UNARY ***/
+
+class UnaryExpression : public Expression
+{
+public:
+
+    /// Data used for Hessian calculations
+    //double O;   /* op value */
+    //double aO;  /* adjoint (in Hv computation) of O */
+    //double adO; /* adjoint (in Hv computation) of dO */
+    double dL;  /* deriv of op w.r.t. left operand L */
+    double dL2; /* second partial w.r.t. L,L */
+    double dR;  /* deriv of op w.r.t. right operand R */
+    double dLR; /* second partial w.r.t. L,R */
+    double dR2; /* second partial w.r.t. R,R */
+
+    NumericValue* body;
+
+    std::string name;
+
+    UnaryExpression(NumericValue* _body) : Expression()
+        {body = _body;}
+
+    unsigned int num_sub_expressions() 
+        {
+        if (body->is_expression())
+            return 1;
+        return 0;
+        }
+
+    NumericValue* expression(unsigned int i) 
+        {
+        assert(i == 0);
+        return body;
+        }
+
+    int size() 
+        {return 1 + body->size();}
+
+    void compute_hv_back()
+        {
+        // TODO
+        }
+
+    void print(std::ostream& ostr) 
+        {ostr << name << "("; body->print(ostr); ostr << ")";}
+};
+
+
+class AbsExpression : public UnaryExpression
+{
+public:
+
+    AbsExpression(NumericValue* _body) : UnaryExpression(_body)
+        {this->name = "abs";}
+
+    double value() {return fabs(body->value()); }
+
+    double compute_value()
+        { return this->_value = fabs(this->_value); }
+
+    NumericValue* partial(unsigned int i)
+        {
+        if (body->_value < 0) {
+            // TODO - Cache value
+            Parameter* tmp = new TypedParameter<int>(-1, 0);
+            return tmp;
+            }
+        else if (body->_value > 0) {
+            return &OneParameter;
+            }
+        throw std::invalid_argument("Argument is zero");
+        }
+
+    void compute_adjoint()
+        {
+        if (body->_value < 0)
+            this->body->adjoint -= this->adjoint;
+        else if (body->_value > 0)
+            this->body->adjoint += this->adjoint;
+        throw std::invalid_argument("Argument is zero");
+        }
+
+    void compute_hv_fwd()
+        {
+        // TODO
+        }
+
+    void snprintf(char* buf, int max)
+        {std::snprintf(buf, max, "abs");}
+
+};
+
+
+class NegExpression : public AbsExpression
+{
+public:
+
+    NegExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "neg";}
+
+    double value() { return - body->value(); }
+
+    double compute_value()
+        { return this->_value = - this->_value; }
+
+};
+
+class CeilExpression : public AbsExpression
+{
+public:
+
+    CeilExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "ceil";}
+
+    double value() { return ceil(body->value()); }
+
+    double compute_value()
+        { return this->_value = ceil(this->_value); }
+};
+
+class FloorExpression : public AbsExpression
+{
+public:
+
+    FloorExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "floor";}
+
+    double value() {return floor(body->value()); }
+
+    double compute_value()
+        { return this->_value = floor(this->_value); }
+};
+
+class ExpExpression : public AbsExpression
+{
+public:
+
+    ExpExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "exp";}
+
+    double value() {return exp(body->value()); }
+
+    double compute_value()
+        { return this->_value = exp(this->_value); }
+};
+
+class LogExpression : public AbsExpression
+{
+public:
+
+    LogExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "log";}
+
+    double value() {return log(body->value()); }
+
+    double compute_value()
+        { return this->_value = log(this->_value); }
+};
+
+class Log10Expression : public AbsExpression
+{
+public:
+
+    Log10Expression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "log10";}
+
+    double value() {return log10(body->value()); }
+
+    double compute_value()
+        { return this->_value = log10(this->_value); }
+};
+
+class SqrtExpression : public AbsExpression
+{
+public:
+
+    SqrtExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "sqrt";}
+
+    double value() {return sqrt(body->value()); }
+
+    double compute_value()
+        { return this->_value = sqrt(this->_value); }
+};
+
+class SinExpression : public AbsExpression
+{
+public:
+
+    SinExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "sin";}
+
+    double value() {return sin(body->value()); }
+
+    double compute_value()
+        { return this->_value = sin(this->_value); }
+};
+
+class CosExpression : public AbsExpression
+{
+public:
+
+    CosExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "cos";}
+
+    double value() {return cos(body->value()); }
+
+    double compute_value()
+        { return this->_value = cos(this->_value); }
+};
+
+class TanExpression : public AbsExpression
+{
+public:
+
+    TanExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "tan";}
+
+    double value() {return tan(body->value()); }
+
+    double compute_value()
+        { return this->_value = tan(this->_value); }
+};
+
+class AsinExpression : public AbsExpression
+{
+public:
+
+    AsinExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "asin";}
+
+    double value() {return asin(body->value()); }
+
+    double compute_value()
+        { return this->_value = asin(this->_value); }
+};
+
+class AcosExpression : public AbsExpression
+{
+public:
+
+    AcosExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "acos";}
+
+    double value() {return acos(body->value()); }
+
+    double compute_value()
+        { return this->_value = acos(this->_value); }
+};
+
+class AtanExpression : public AbsExpression
+{
+public:
+
+    AtanExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "atan";}
+
+    double value() {return atan(body->value()); }
+
+    double compute_value()
+        { return this->_value = atan(this->_value); }
+};
+
+class SinhExpression : public AbsExpression
+{
+public:
+
+    SinhExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "sinh";}
+
+    double value() {return sinh(body->value()); }
+
+    double compute_value()
+        { return this->_value = sinh(this->_value); }
+};
+
+class CoshExpression : public AbsExpression
+{
+public:
+
+    CoshExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "cosh";}
+
+    double value() {return cosh(body->value()); }
+
+    double compute_value()
+        { return this->_value = cosh(this->_value); }
+};
+
+class TanhExpression : public AbsExpression
+{
+public:
+
+    TanhExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "tanh";}
+
+    double value() {return tanh(body->value()); }
+
+    double compute_value()
+        { return this->_value = tanh(this->_value); }
+};
+
+class AsinhExpression : public AbsExpression
+{
+public:
+
+    AsinhExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "asinh";}
+
+    double value() {return asinh(body->value()); }
+
+    double compute_value()
+        { return this->_value = asinh(this->_value); }
+};
+
+class AcoshExpression : public AbsExpression
+{
+public:
+
+    AcoshExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "acosh";}
+
+    double value() {return acosh(body->value()); }
+
+    double compute_value()
+        { return this->_value = acosh(this->_value); }
+};
+
+class AtanhExpression : public AbsExpression
+{
+public:
+
+    AtanhExpression(NumericValue* _body) : AbsExpression(_body)
+        {this->name = "atanh";}
+
+    double value() {return atanh(body->value()); }
+
+    double compute_value()
+        { return this->_value = atanh(this->_value); }
+};
 
 
 /*** BINARY ***/
@@ -358,6 +730,51 @@ return 0;
 }
 
 
+/*** POW ***/
+
+class PowExpression : public BinaryExpression<NumericValue*,NumericValue*>
+{
+public:
+
+    PowExpression(NumericValue* _lhs, NumericValue* _rhs) : BinaryExpression<NumericValue*,NumericValue*>(_lhs,_rhs)
+        {}
+
+    void print(std::ostream& ostr)
+        {this->lhs->print(ostr); ostr << " ** "; this->rhs->print(ostr); }
+
+    double value()
+        {return pow(lhs->_value, rhs->_value);}
+
+    double compute_value()
+        { return this->_value = this->value(); }
+
+    // TODO
+    NumericValue* partial(unsigned int i)
+        {return &OneParameter;}
+
+    // TODO
+    void compute_adjoint()
+        {
+        this->lhs->adjoint += this->adjoint;
+        this->rhs->adjoint += this->adjoint;
+        }
+
+    // TODO
+    void compute_hv_fwd()
+        {
+        compute_value();
+        this->adjoint = 0;
+        this->adO = 0;
+        this->dL = this->dR = 1;
+        this->dL2 = this->dLR = this->dR2 = 0;
+        this->dO = this->lhs->dO*this->dL + this->rhs->dO*this->dR;
+        }
+
+    void snprintf(char* buf, int max)
+        {std::snprintf(buf, max, "**");}
+
+};
+
 /*** ADD ***/
 
 template <typename LHS, typename RHS>
@@ -442,6 +859,57 @@ double AddExpression_value(AddExpression<int, RHS>* expr)
 template <typename RHS>
 double AddExpression_value(AddExpression<double, RHS>* expr)
 { return expr->lhs + expr->rhs->value(); }
+
+
+/*** SUB ***/
+
+class SubExpression : public BinaryExpression<NumericValue*,NumericValue*>
+{
+public:
+
+    SubExpression(NumericValue* _lhs, NumericValue* _rhs) : BinaryExpression<NumericValue*,NumericValue*>(_lhs,_rhs)
+        {}
+
+    void print(std::ostream& ostr)
+        {this->lhs->print(ostr); ostr << " - "; this->rhs->print(ostr); }
+
+    double value() {return this->lhs->value() - this->rhs->value();}
+
+    double compute_value()
+        {
+        return this->_value = this->lhs->_value - this->rhs->_value;
+        }
+
+    // TODO
+    NumericValue* partial(unsigned int i)
+        {
+        if (i == 0)
+            return &OneParameter;
+        else
+            return &NegativeOneParameter;
+        }
+
+    // TODO
+    void compute_adjoint()
+        {
+        this->lhs->adjoint += this->adjoint;
+        this->rhs->adjoint += this->adjoint;
+        }
+
+    void compute_hv_fwd()
+        {
+        compute_value();
+        this->adjoint = 0;
+        this->adO = 0;
+        this->dL = this->dR = 1;
+        this->dL2 = this->dLR = this->dR2 = 0;
+        this->dO = this->lhs->dO*this->dL + this->rhs->dO*this->dR;
+        }
+
+    void snprintf(char* buf, int max)
+        {std::snprintf(buf, max, "-");}
+
+};
 
 
 /*** MUL ***/
@@ -582,9 +1050,74 @@ double MulExpression_value(MulExpression<double, RHS>* expr)
 { return expr->lhs * expr->rhs->value(); }
 
 
+/*** DIV ***/
+
+class DivExpression : public BinaryExpression<NumericValue*,NumericValue*>
+{
+public:
+
+    DivExpression(NumericValue* _lhs, NumericValue* _rhs) : BinaryExpression<NumericValue*,NumericValue*>(_lhs,_rhs)
+        {}
+
+    void print(std::ostream& ostr)
+        {
+        if (this->lhs->is_variable() || this->lhs->is_parameter())
+            this->lhs->print(ostr);
+        else {
+            ostr << "("; this->lhs->print(ostr); ostr << ")";
+            }
+        ostr << "/";
+        if (this->rhs->is_variable() || this->rhs->is_parameter())
+            this->rhs->print(ostr);
+        else {
+            ostr << "("; this->rhs->print(ostr); ostr << ")";
+            }
+        }
+
+    double value() 
+        {return this->lhs->value() / this->rhs->value(); }
+
+    double compute_value()
+        {return this->_value = this->lhs->_value / this->rhs->_value;}
+
+    // TODO
+    NumericValue* partial(unsigned int i)
+        {
+        if (i == 0)
+            return this->rhs;
+        else if (i == 1)
+            return this->lhs;
+        return 0;
+        }
+
+    // TODO
+    void compute_adjoint()
+        {
+        this->lhs->adjoint += this->adjoint * this->rhs->_value;
+        this->rhs->adjoint += this->adjoint * this->lhs->_value;
+        }
+
+    // TODO
+    void compute_hv_fwd()
+        {
+        compute_value();
+        this->adjoint = 0;
+        this->adO = 0;
+        this->dL = this->rhs->_value;
+        this->dR = this->lhs->_value;
+        this->dL2 = this->dR2 = 0;
+        this->dLR = 1;
+        this->dO = this->lhs->dO*this->dL + this->rhs->dO*this->dR;
+        }
+
+    void snprintf(char* buf, int max)
+        {std::snprintf(buf, max, "*");}
+};
+
+
 void symbolic_diff_all(NumericValue* root, std::map<Variable*, NumericValue*>& diff);
 
-void walk_expression_tree(NumericValue* root, void(*callback)(void*,void*,void*), void* visitor);
+void walk_expression_tree(NumericValue* root, void(*enter_callback)(void*,void*,void*), void(*exit_callback)(void*,void*,void*),void* visitor);
 
 double compute_expression_value(NumericValue* root);
 

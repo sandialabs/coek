@@ -6,6 +6,7 @@
 
 TypedParameter<int> ZeroParameter(0,false);
 TypedParameter<int> OneParameter(1,false);
+TypedParameter<int> NegativeOneParameter(-1,false);
 
 
 int Variable::nvariables = 0;
@@ -260,10 +261,10 @@ return ans;
 
 
 
-void walk_expression_tree(NumericValue* root, void(*callback)(void*,void*,void*), void* visitor)
+void walk_expression_tree(NumericValue* root, void(*enter_callback)(void*,void*,void*), void(*exit_callback)(void*,void*,void*), void* visitor)
 {
 if (!root->is_expression()) {
-    (*callback)(root, 0, visitor);
+    (*enter_callback)(root, 0, visitor);
     return;
     }
 
@@ -275,13 +276,20 @@ parent[root] = 0;
 while (stack.size() > 0) {
     NumericValue* curr = stack.back();
     stack.pop_back();
-    (*callback)(curr, parent[curr], visitor);
+    if (curr == 0) {
+        (*exit_callback)(curr, parent[curr], visitor);
+        continue;
+        }
+    (*enter_callback)(curr, parent[curr], visitor);
     if (curr->is_expression()) {
+        stack.push_back( 0 );
         Expression* _curr = static_cast<Expression*>(curr);
         //for (unsigned int i=0; i<curr->num_sub_expressions(); i++) {
         for (int i=_curr->num_sub_expressions()-1; i>=0; i--) {
             NumericValue* child = _curr->expression(i);
             parent[child] = curr;
+            if (! child->is_expression())
+                stack.push_back( 0 );
             stack.push_back( static_cast<Expression*>(child) );
             }
         }

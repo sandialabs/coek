@@ -87,6 +87,79 @@ return tmp;
 }
 
 
+/*** SUB ***/
+
+extern "C" void* sub_expr_int(void* lhs, int rhs)
+{
+if (rhs == 0) {
+    return lhs;
+    }
+NumericValue* _lhs = static_cast<NumericValue*>(lhs);
+Parameter* _rhs = new TypedParameter<int>(rhs,false);
+Expression* tmp = new SubExpression(_lhs, _rhs);
+
+parameters.push_back(_rhs);
+expressions.push_back(tmp);
+return tmp;
+}
+
+extern "C" void* sub_expr_double(void* lhs, double rhs)
+{
+if (rhs == 0.0) {
+    return lhs;
+    }
+NumericValue* _lhs = static_cast<NumericValue*>(lhs);
+Parameter* _rhs = new TypedParameter<double>(rhs,false);
+Expression* tmp = new SubExpression(_lhs, _rhs);
+
+parameters.push_back(_rhs);
+expressions.push_back(tmp);
+return tmp;
+}
+
+extern "C" void* sub_expr_expression(void* lhs, void* rhs)
+{
+NumericValue* _lhs = static_cast<NumericValue*>(lhs);
+NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+Expression* tmp = new SubExpression(_lhs, _rhs);
+
+expressions.push_back(tmp);
+return tmp;
+}
+
+extern "C" void* rsub_expr_int(int lhs, void* rhs)
+{
+NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+if (lhs == 0) {
+    Expression* tmp = new NegExpression(_rhs);
+    expressions.push_back(tmp);
+    return tmp;
+    }
+Parameter* _lhs = new TypedParameter<int>(lhs,false);
+Expression* tmp = new SubExpression(_lhs, _rhs);
+
+parameters.push_back(_lhs);
+expressions.push_back(tmp);
+return tmp;
+}
+
+extern "C" void* rsub_expr_double(double lhs, void* rhs)
+{
+NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+if (lhs == 0.0) {
+    Expression* tmp = new NegExpression(_rhs);
+    expressions.push_back(tmp);
+    return tmp;
+    }
+Parameter* _lhs = new TypedParameter<double>(lhs,false);
+Expression* tmp = new SubExpression(_lhs, _rhs);
+
+parameters.push_back(_lhs);
+expressions.push_back(tmp);
+return tmp;
+}
+
+
 /*** MUL ***/
 
 extern "C" void* mul_expr_int(void* lhs, int rhs)
@@ -156,6 +229,120 @@ return tmp;
 }
 
 
+/*** DIV ***/
+
+extern "C" void* div_expr_int(void* lhs, int rhs)
+{
+NumericValue* _lhs = static_cast<NumericValue*>(lhs);
+Parameter* _rhs = new TypedParameter<int>(rhs,false);
+Expression* tmp = new DivExpression(_lhs, _rhs);
+
+parameters.push_back(_rhs);
+expressions.push_back(tmp);
+return tmp;
+}
+
+extern "C" void* div_expr_double(void* lhs, double rhs)
+{
+NumericValue* _lhs = static_cast<NumericValue*>(lhs);
+Parameter* _rhs = new TypedParameter<double>(rhs,false);
+Expression* tmp = new DivExpression(_lhs, _rhs);
+
+parameters.push_back(_rhs);
+expressions.push_back(tmp);
+return tmp;
+}
+
+extern "C" void* div_expr_expression(void* lhs, void* rhs)
+{
+NumericValue* _lhs = static_cast<NumericValue*>(lhs);
+NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+Expression* tmp = new DivExpression(_lhs, _rhs);
+
+expressions.push_back(tmp);
+return tmp;
+}
+
+extern "C" void* rdiv_expr_int(int lhs, void* rhs)
+{
+Parameter* _lhs = new TypedParameter<int>(lhs,false);
+NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+Expression* tmp = new DivExpression(_lhs, _rhs);
+
+parameters.push_back(_lhs);
+expressions.push_back(tmp);
+return tmp;
+}
+
+extern "C" void* rdiv_expr_double(double lhs, void* rhs)
+{
+Parameter* _lhs = new TypedParameter<double>(lhs,false);
+NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+Expression* tmp = new DivExpression(_lhs, _rhs);
+
+parameters.push_back(_lhs);
+expressions.push_back(tmp);
+return tmp;
+}
+
+
+/*** POW ***/
+
+extern "C" void* pow_expr_int(void* lhs, int rhs)
+{
+NumericValue* _lhs = static_cast<NumericValue*>(lhs);
+Parameter* _rhs = new TypedParameter<int>(rhs,false);
+Expression* tmp = new PowExpression(_lhs, _rhs);
+
+parameters.push_back(_rhs);
+expressions.push_back(tmp);
+return tmp;
+}
+
+extern "C" void* pow_expr_double(void* lhs, double rhs)
+{
+NumericValue* _lhs = static_cast<NumericValue*>(lhs);
+Parameter* _rhs = new TypedParameter<double>(rhs,false);
+Expression* tmp = new PowExpression(_lhs, _rhs);
+
+parameters.push_back(_rhs);
+expressions.push_back(tmp);
+return tmp;
+}
+
+extern "C" void* pow_expr_expression(void* lhs, void* rhs)
+{
+NumericValue* _lhs = static_cast<NumericValue*>(lhs);
+NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+Expression* tmp = new PowExpression(_lhs, _rhs);
+
+expressions.push_back(tmp);
+return tmp;
+}
+
+extern "C" void* rpow_expr_int(int lhs, void* rhs)
+{
+Parameter* _lhs = new TypedParameter<int>(lhs,false);
+NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+Expression* tmp = new PowExpression(_lhs, _rhs);
+
+parameters.push_back(_lhs);
+expressions.push_back(tmp);
+return tmp;
+}
+
+extern "C" void* rpow_expr_double(double lhs, void* rhs)
+{
+Parameter* _lhs = new TypedParameter<double>(lhs,false);
+NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+Expression* tmp = new PowExpression(_lhs, _rhs);
+
+parameters.push_back(_lhs);
+expressions.push_back(tmp);
+return tmp;
+}
+
+
 /*** MISC ***/
 
 
@@ -213,9 +400,9 @@ parameters.push_back(tmp);
 return tmp;
 }
 
-extern "C" void* create_variable(int binary, int integer)
+extern "C" void* create_variable(int binary, int integer, char* name)
 {
-Variable* tmp = new Variable(binary, integer);
+Variable* tmp = new Variable(binary, integer, name);
 variables.push_back(tmp);
 return tmp;
 }
@@ -253,7 +440,8 @@ return v->_value;
 extern "C" double compute_numval_value(void* ptr)
 {
 NumericValue* v = static_cast<NumericValue*>(ptr);
-return compute_expression_value(v);
+return v->value();
+//return compute_expression_value(v);
 }
 
 extern "C" void* create_inequality(void* expr)
@@ -376,9 +564,9 @@ std::cout << (*callback)(3,5) << std::endl;
 }
 
 // Run a DFS walker
-extern "C" void visitor_walk(void* root, void(*callback)(void*,void*,void*), void* visitor)
+extern "C" void visitor_walk(void* root, void(*enter_callback)(void*,void*,void*), void(*exit_callback)(void*,void*,void*), void* visitor)
 {
 NumericValue* _root = static_cast<NumericValue*>(root);
-walk_expression_tree(_root, callback, visitor);
+walk_expression_tree(_root, enter_callback, exit_callback, visitor);
 }
 
