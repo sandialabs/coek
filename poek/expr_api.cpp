@@ -194,6 +194,24 @@ extern "C" void* mul_expr_expression(void* lhs, void* rhs)
 {
 NumericValue* _lhs = static_cast<NumericValue*>(lhs);
 NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+if (_rhs->is_parameter()) {
+    Parameter* p = static_cast<Parameter*>(rhs);
+    if (!(p->mutable_flag)) {
+        if (p->_value==0)
+            return 0;
+        if (p->_value==1)
+            return lhs;
+        }
+    }
+if (_lhs->is_parameter()) {
+    Parameter* p = static_cast<Parameter*>(lhs);
+    if (!(p->mutable_flag)) {
+        if (p->_value==0)
+            return 0;
+        if (p->_value==1)
+            return rhs;
+        }
+    }
 Expression* tmp = new MulExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
 
 expressions.push_back(tmp);
@@ -257,6 +275,23 @@ extern "C" void* div_expr_expression(void* lhs, void* rhs)
 {
 NumericValue* _lhs = static_cast<NumericValue*>(lhs);
 NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+if (_lhs->is_parameter()) {
+    Parameter* p = static_cast<Parameter*>(lhs);
+    if (!(p->mutable_flag)) {
+        if (p->_value==0)
+            return 0;
+        }
+    }
+if (_rhs->is_parameter()) {
+    Parameter* p = static_cast<Parameter*>(rhs);
+    if (!(p->mutable_flag)) {
+        if (p->_value==0)
+            return rhs;         // Indicate a divide by zero error
+        if (p->_value==1)
+            return lhs;
+        }
+    }
+
 Expression* tmp = new DivExpression(_lhs, _rhs);
 
 expressions.push_back(tmp);
@@ -267,6 +302,15 @@ extern "C" void* rdiv_expr_int(int lhs, void* rhs)
 {
 Parameter* _lhs = new TypedParameter<int>(lhs,false);
 NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+if (_rhs->is_parameter()) {
+    Parameter* p = static_cast<Parameter*>(_rhs);
+    if (!(p->mutable_flag)) {
+        if (p->_value==0)
+            return rhs;         // Indicate a divide by zero error
+        if (p->_value==1)
+            return _lhs;
+        }
+    }
 Expression* tmp = new DivExpression(_lhs, _rhs);
 
 parameters.push_back(_lhs);
@@ -278,6 +322,15 @@ extern "C" void* rdiv_expr_double(double lhs, void* rhs)
 {
 Parameter* _lhs = new TypedParameter<double>(lhs,false);
 NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+if (_rhs->is_parameter()) {
+    Parameter* p = static_cast<Parameter*>(_rhs);
+    if (!(p->mutable_flag)) {
+        if (p->_value==0)
+            return rhs;         // Indicate a divide by zero error
+        if (p->_value==1)
+            return _lhs;
+        }
+    }
 Expression* tmp = new DivExpression(_lhs, _rhs);
 
 parameters.push_back(_lhs);
@@ -343,6 +396,17 @@ return tmp;
 }
 
 
+/*** OTHER ***/
+extern "C" void* neg_expr(void* _expr)
+{
+NumericValue* expr = static_cast<NumericValue*>(_expr);
+Expression* tmp = new NegExpression(expr);
+
+expressions.push_back(tmp);
+return tmp;
+}
+
+
 /*** MISC ***/
 
 
@@ -386,16 +450,16 @@ if (diff.find(var) == diff.end())
 return diff[var];
 }
 
-extern "C" void* create_parameter_int(int value, int mutable_flag)
+extern "C" void* create_parameter_int(int value, int mutable_flag, char* name)
 {
-Parameter* tmp = new TypedParameter<int>(value, mutable_flag);
+Parameter* tmp = new TypedParameter<int>(value, mutable_flag, name);
 parameters.push_back(tmp);
 return tmp;
 }
 
-extern "C" void* create_parameter_double(double value, int mutable_flag)
+extern "C" void* create_parameter_double(double value, int mutable_flag, char* name)
 {
-Parameter* tmp = new TypedParameter<double>(value, mutable_flag);
+Parameter* tmp = new TypedParameter<double>(value, mutable_flag, name);
 parameters.push_back(tmp);
 return tmp;
 }

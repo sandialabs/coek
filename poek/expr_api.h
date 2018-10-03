@@ -40,6 +40,9 @@ void* pow_expr_expression(void* lhs, void* rhs);
 void* rpow_expr_int(void* lhs, void* rhs);
 void* rpow_expr_double(void* lhs, void* rhs);
 
+/* OTHER */
+void* neg_expr(void* expr);
+
 void print_parameter(void* self);
 void print_var(void* self);
 void print_expr(void* self);
@@ -49,8 +52,8 @@ int expr_size(void* self);
 void* expr_diff(void* expr, void* variable);
 
 
-void* create_parameter_int(int value, int mutable_flag);
-void* create_parameter_double(double value, int mutable_flag);
+void* create_parameter_int(int value, int mutable_flag, char* name);
+void* create_parameter_double(double value, int mutable_flag, char* name);
 
 void* create_variable(int binary, int integer, char* name);
 int get_variable_index(void* variable);

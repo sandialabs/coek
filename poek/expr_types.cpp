@@ -265,6 +265,7 @@ void walk_expression_tree(NumericValue* root, void(*enter_callback)(void*,void*,
 {
 if (!root->is_expression()) {
     (*enter_callback)(root, 0, visitor);
+    (*exit_callback)(root, 0, visitor);
     return;
     }
 

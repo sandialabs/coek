@@ -72,15 +72,21 @@ public:
 
 
 template <typename TYPE>
-inline void TypedParameter_snprintf(char* buf, int max, TYPE _value)
+inline void TypedParameter_snprintf(char* buf, int max, TYPE _value, std::string& name)
 {
-std::snprintf(buf, max, "%.3f", _value);
+if (name.size() > 0)
+    std::snprintf(buf, max, "%s{%.3f}", name.c_str(), _value);
+else
+    std::snprintf(buf, max, "%.3f", _value);
 }
 
 template <>
-inline void TypedParameter_snprintf(char* buf, int max, int _value)
+inline void TypedParameter_snprintf(char* buf, int max, int _value, std::string& name)
 {
-std::snprintf(buf, max, "%d", _value);
+if (name.size() > 0)
+    std::snprintf(buf, max, "%s{%d}", name.c_str(), _value);
+else
+    std::snprintf(buf, max, "%d", _value);
 }
 
 template <typename TYPE>
@@ -89,6 +95,10 @@ class TypedParameter : public Parameter
 public:
 
     TYPE _tvalue;
+    std::string name;
+
+    TypedParameter(TYPE __value, bool _mutable_flag, char* _name) : Parameter(_mutable_flag)
+        {_value = __value; _tvalue = __value; name = _name;}
 
     TypedParameter(TYPE __value, bool _mutable_flag) : Parameter(_mutable_flag)
         {_value = __value; _tvalue = __value;}
@@ -101,7 +111,7 @@ public:
         { ostr << _value; }
 
     void snprintf(char* buf, int max)
-        {TypedParameter_snprintf(buf, max, this->_tvalue);}
+        {TypedParameter_snprintf(buf, max, this->_tvalue, name);}
 };
 
 
@@ -281,9 +291,7 @@ public:
 
     unsigned int num_sub_expressions() 
         {
-        if (body->is_expression())
-            return 1;
-        return 0;
+        return 1;
         }
 
     NumericValue* expression(unsigned int i) 
@@ -361,6 +369,9 @@ public:
 
     double compute_value()
         { return this->_value = - this->_value; }
+
+    void snprintf(char* buf, int max)
+        {std::snprintf(buf, max, "-");}
 
 };
 
@@ -1111,7 +1122,7 @@ public:
         }
 
     void snprintf(char* buf, int max)
-        {std::snprintf(buf, max, "*");}
+        {std::snprintf(buf, max, "/");}
 };
 
 

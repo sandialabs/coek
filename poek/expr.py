@@ -2,6 +2,7 @@ from _expr.lib import *
 from _expr import ffi, lib
 
 
+NAN = float('nan')
 NULL = misc_getnull()
 BUFFER = ffi.new("char []", 64)
 
@@ -201,7 +202,14 @@ class NumericValue(object):
                 return self
             return expression( mul_expr_double(self.ptr, other) )
         else:
-            return expression( mul_expr_expression(self.ptr, other.ptr) )
+            tmp = mul_expr_expression(self.ptr, other.ptr)
+            if tmp == NULL:
+                return ZeroParameter
+            elif tmp == self.ptr:
+                return self
+            elif tmp == other.ptr:
+                return other
+            return expression(tmp)
 
     def __div__(self,other):
         """
@@ -213,18 +221,25 @@ class NumericValue(object):
         """
         if other.__class__ is int:
             if other == 0:
-                return NAN
+                raise ZeroDivisionError
             elif other == 1:
                 return self
             return expression( div_expr_int(self.ptr, other) )
         elif other.__class__ is float:
             if other == 0.0:
-                return NAN
+                raise ZeroDivisionError
             elif other == 1.0:
                 return self
-            return expression( div_expr_int(self.ptr, other) )
+            return expression( div_expr_double(self.ptr, other) )
         else:
-            return expression( div_expr_int(self.ptr, other.ptr) )
+            tmp = div_expr_expression(self.ptr, other.ptr)
+            if tmp == NULL:
+                return ZeroParameter
+            elif tmp == self.ptr:
+                return self
+            elif tmp == other.ptr:
+                raise ZeroDivisionError
+            return expression(tmp)
 
     __truediv__ = __div__
 
@@ -319,11 +334,17 @@ class NumericValue(object):
         if other.__class__ is int:
             if other == 0:
                 return 0
-            return expression( rdiv_expr_int(other, self.ptr) )
+            tmp = rdiv_expr_int(other, self.ptr)
+            if tmp == self.ptr:         # This is a hack to catch division by zero errors
+                raise ZeroDivisionError
+            return expression( tmp )
         elif other.__class__ is float:
             if other == 0.0:
                 return 0.0
-            return expression( rdiv_expr_double(other, self.ptr) )
+            tmp = rdiv_expr_double(other, self.ptr)
+            if tmp == self.ptr:
+                raise ZeroDivisionError
+            return expression( tmp )
         else:
             raise RuntimeError("Unexpected type for LHS of rdiv: %s" % str(type(other)))
 
@@ -499,12 +520,16 @@ class parameter(NumericValue):
 
     __slots__ = ('ptr')
 
-    def __init__(self, value, mutable=True):
+    def __init__(self, value, mutable=True, name=None):
         mutable = 0 if not mutable else 1
-        if value.__class__ is int:
-            self.ptr = create_parameter_int(value, mutable)
+        if name is None:
+            tmp = str.encode("")
         else:
-            self.ptr = create_parameter_double(value, mutable)
+            tmp = str.encode(name)
+        if value.__class__ is int:
+            self.ptr = create_parameter_int(value, mutable, tmp)
+        else:
+            self.ptr = create_parameter_double(value, mutable, tmp)
 
     def show(self):
         print_parameter(self.ptr)
