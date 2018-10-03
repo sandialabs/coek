@@ -1,15 +1,5 @@
 from poek._expr import ffi, lib
-
-
-NAN = float('nan')
-NULL = lib.misc_getnull()
-BUFFER = ffi.new("char []", 64)
-
-
-def value(obj):
-    if isinstance(obj, NumericValue):
-        return obj.eval()
-    return obj
+from poek.globals import NAN, NULL, BUFFER
 
 
 class NumericValue(object):
@@ -577,8 +567,6 @@ class NumericValue(object):
         return expression( lib.intrinsic_abs(self.ptr) )
 
 
-
-
 class parameter(NumericValue):
 
     __slots__ = ('ptr','mutable')
@@ -613,6 +601,7 @@ class parameter(NumericValue):
 
 ZeroParameter = parameter(0, False)
 OneParameter = parameter(1, False)
+
 
 class variable(object):
 
@@ -993,208 +982,5 @@ class equality_constraint(constraint):
 
     def is_equality(self):
         return True
-
-
-class model(object):
-
-    __slots__ = ('ptr','x','nx','c','nc', 'v')
-
-    def __init__(self):
-        self.ptr = lib.create_model()
-        self.nx = None
-        self.v = None
-        self.x = None
-        self.nc = 0
-        self.c = None
-
-    def add(self, obj):
-        if obj.is_constraint():
-            if obj.is_inequality():
-                self.nc += 1
-                lib.add_inequality(self.ptr, obj.ptr)
-            else:  
-                self.nc += 1
-                lib.add_equality(self.ptr, obj.ptr)
-        elif obj.is_expression() or obj.is_variable() or obj.is_parameter():
-            lib.add_objective(self.ptr, obj.ptr)
-
-    def compute_f(self, i=0):
-        return lib.compute_objective_f(self.ptr, i)
-
-    def compute_df(self, i=0):
-        if self.nx is None:
-            self.nx = lib.get_nvariables(self.ptr)
-        if self.x is None:
-            self.x = ffi.new("double []", self.nx)
-        lib.compute_objective_df(self.ptr, self.x, self.nx, i)
-        tmp = []
-        for i in range(self.nx):
-            tmp.append( self.x[i] )
-        return tmp
-
-    def compute_c(self):
-        if self.c is None:
-            self.c = ffi.new("double []", self.nc)
-        lib.compute_constraint_f(self.ptr, self.c, self.nc)
-        tmp = []
-        for i in range(self.nc):
-            tmp.append( self.c[i] )
-        return tmp
-
-    def compute_dc(self, i):
-        if self.nx is None:
-            self.nx = lib.get_nvariables(self.ptr)
-        if self.x is None:
-            self.x = ffi.new("double []", self.nx)
-        lib.compute_constraint_df(self.ptr, self.x, self.nx, i)
-        tmp = []
-        for i in range(self.nx):
-            tmp.append( self.x[i] )
-        return tmp
-
-    def compute_Hv(self, v, i=0):
-        if self.nx is None:
-            self.nx = lib.get_nvariables(self.ptr)
-        if self.x is None:
-            self.x = ffi.new("double []", self.nx)
-        if self.v is None:
-            self.v = ffi.new("double []", self.nx)
-        for j in range(self.nx):
-            self.v[j] = v[j]
-        lib.compute_Hv(self.ptr, self.v, self.x, self.nx, i)
-        tmp = []
-        for j in range(self.nx):
-            tmp.append( self.x[j] )
-        return tmp
-
-    def show(self, df=0):
-        lib.print_model(self.ptr, df)
-
-    def build(self):
-        # TODO: customize build based on AD needs f/g/h
-        lib.build_model(self.ptr)
-
-
-class GurobiSolver(object):
-
-    __slots__ = ('env','model', 'x', 'nx')
-
-    def __init__(self):
-        self.envptr = lib.solver_gurobi_env()
-        self.modelptr = None
-        self.x = None
-        self.nx = None
-
-    def solve(self, model):
-        self.modelptr = lib.solver_gurobi_model(model.ptr)
-        if self.nx is None:
-            self.nx = lib.get_nvariables(self.ptr)
-        if self.x is None:
-            self.x = ffi.new("double []", self.nx)
-        lib.gurobi_solve(self.modelptr, self.x, self.nx)
-        tmp = []
-        for i in range(self.nx):
-            tmp.append( self.x[i] )
-        
-
-def quicksum(args):
-    # NOTE:  We could simplify this logic by having the summation object
-    #   maintain a list of things being summed.
-    try:
-        first = next(args, None)
-    except:
-        try:
-            args = args.__iter__()
-            first = next(args, None)
-        except:
-            raise TypeError("The argument to quicksum() is not iterable!")
-    if first is None:
-        return 0
-
-    start = ZeroParameter
-    if first is 0:
-        ptr = start.ptr
-    else:
-        estart = start + first
-        ptr = estart.ptr
-    const = []
-    for arg in args:
-        try:
-            ptr = lib.add_expr_expression(ptr, arg.ptr)
-        except AttributeError:
-            const.append(arg)
-    return expression(ptr) + sum(const)
-
-
-
-class Visitor(object):
-
-    def walk(self, expr):
-        visitor = ffi.new_handle(self)
-        self._visitor = visitor       # keep this object alive
-        lib.visitor_walk(expr.ptr, lib.visitor_enter_callback, lib.visitor_exit_callback, visitor)
-        return self._return()
-
-    def visit_enter(self, ptr, parent):
-        """
-        This method needs to be defined by a subclass.  It is
-        called when a node in an expression tree is visited.
-        """
-        pass
-        
-    def visit_exit(self, ptr, parent):
-        """
-        This method needs to be defined by a subclass.  It is
-        called after all children of a node have been visited.
-        """
-        pass
-        
-@ffi.def_extern()
-def visitor_enter_callback(ptr, parent, visitor):
-    self = ffi.from_handle(visitor)
-    self.visit_enter(ptr, parent)
-
-@ffi.def_extern()
-def visitor_exit_callback(ptr, parent, visitor):
-    self = ffi.from_handle(visitor)
-    self.visit_exit(ptr, parent)
-
-
-class ValueVisitor(Visitor):
-
-    def walk(self, expr, show=False):
-        self.show = show
-        return Visitor.walk(self, expr)
-
-    def _return(self):
-        return self.values[0]
-
-    def visit_enter(self, ptr, parent):
-        if parent == NULL:
-            self.values = [ ]
-            self.curr = [self.values]
-        lib.get_numval_str(ptr, BUFFER, 64)
-        tmp = [ffi.string(BUFFER).decode('utf-8') ]
-        self.curr[-1].append( tmp )
-        self.curr.append( tmp )
-
-    def visit_exit(self, ptr, parent):
-        tmp = self.curr.pop()
-        if type(tmp) is list and len(tmp) == 1:
-            self.curr[-1].pop()
-            if self.show:
-                self.curr[-1].append(tmp[0])
-            else:
-                self.curr[-1].append( tmp[0].split('{')[0] )
-        #
-        # This is a hack for inequality and equalities.  The RHS is implicit in these classe,
-        # but we make it explicit here.
-        #
-        if self.curr[-1][0] == '<=':
-            self.curr[1].append( '0' )
-        elif self.curr[-1][0] == '<':
-            self.curr[1].append( '0' )
-        elif self.curr[-1][0] == '==':
-            self.curr[1].append( '0' )
 
 

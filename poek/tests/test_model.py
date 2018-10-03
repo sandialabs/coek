@@ -1,7 +1,6 @@
 import pyutilib.th as unittest
 
-from poek.expr import *
-from poek.intrinsic import *
+from poek import *
 
 
 class TestModel(unittest.TestCase):

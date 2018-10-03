@@ -19,3 +19,6 @@ In poek we have:
   # e is an expression tree
 
 Need to add logic to control what happens when other is 'junk'
+
+
+TODO: Add support for explicit number types (e.g. numpy), and for numpy data in general

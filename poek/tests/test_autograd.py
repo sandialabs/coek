@@ -1,7 +1,7 @@
 import math
 import pyutilib.th as unittest
 
-from poek.expr import *
+from poek import *
 
 
 class Test_ConditionalValue(unittest.TestCase):

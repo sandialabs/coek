@@ -1,8 +1,7 @@
 import math
 import pyutilib.th as unittest 
 
-from poek.expr import *
-from poek.intrinsic import *
+from poek import *
 
 
 class TestExpression_Intrinsic(unittest.TestCase):
