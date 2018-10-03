@@ -345,6 +345,15 @@ extern "C" void* pow_expr_int(void* lhs, int rhs)
 {
 NumericValue* _lhs = static_cast<NumericValue*>(lhs);
 Parameter* _rhs = new TypedParameter<int>(rhs,false);
+if (_rhs->is_parameter()) {
+    Parameter* p = static_cast<Parameter*>(_rhs);
+    if (!(p->mutable_flag)) {
+        if (p->_value==0)
+            return &OneParameter;
+        if (p->_value==1)
+            return lhs;
+        }
+    }
 Expression* tmp = new PowExpression(_lhs, _rhs);
 
 parameters.push_back(_rhs);
@@ -356,6 +365,15 @@ extern "C" void* pow_expr_double(void* lhs, double rhs)
 {
 NumericValue* _lhs = static_cast<NumericValue*>(lhs);
 Parameter* _rhs = new TypedParameter<double>(rhs,false);
+if (_rhs->is_parameter()) {
+    Parameter* p = static_cast<Parameter*>(_rhs);
+    if (!(p->mutable_flag)) {
+        if (p->_value==0)
+            return &OneParameter;
+        if (p->_value==1)
+            return lhs;
+        }
+    }
 Expression* tmp = new PowExpression(_lhs, _rhs);
 
 parameters.push_back(_rhs);
@@ -367,6 +385,24 @@ extern "C" void* pow_expr_expression(void* lhs, void* rhs)
 {
 NumericValue* _lhs = static_cast<NumericValue*>(lhs);
 NumericValue* _rhs = static_cast<NumericValue*>(rhs);
+if (_lhs->is_parameter()) {
+    Parameter* p = static_cast<Parameter*>(_lhs);
+    if (!(p->mutable_flag)) {
+        if (p->_value==0)
+            return 0;
+        if (p->_value==1)
+            return lhs;
+        }
+    }
+if (_rhs->is_parameter()) {
+    Parameter* p = static_cast<Parameter*>(_rhs);
+    if (!(p->mutable_flag)) {
+        if (p->_value==0)
+            return &OneParameter;
+        if (p->_value==1)
+            return lhs;
+        }
+    }
 Expression* tmp = new PowExpression(_lhs, _rhs);
 
 expressions.push_back(tmp);
@@ -471,6 +507,15 @@ variables.push_back(tmp);
 return tmp;
 }
 
+extern "C" void create_variable_array(void* vars[], int num, int binary, int integer, char* name)
+{
+for (int i=0; i<num; i++) {
+    Variable* tmp = new Variable(binary, integer, name);
+    vars[i] = tmp;
+    variables.push_back(tmp);
+    }
+}
+
 extern "C" int get_variable_index(void* ptr)
 {
 Variable* v = static_cast<Variable*>(ptr);
@@ -505,13 +550,18 @@ extern "C" double compute_numval_value(void* ptr)
 {
 NumericValue* v = static_cast<NumericValue*>(ptr);
 return v->value();
-//return compute_expression_value(v);
 }
 
-extern "C" void* create_inequality(void* expr)
+extern "C" double compute_constraint_value(void* ptr)
+{
+Constraint* v = static_cast<Constraint*>(ptr);
+return v->boolean_value();
+}
+
+extern "C" void* create_inequality(void* expr, int strict_flag)
 {
 NumericValue* _expr = static_cast<NumericValue*>(expr);
-InequalityExpression* tmp = new InequalityExpression(_expr);
+InequalityExpression* tmp = new InequalityExpression(_expr, strict_flag);
 expressions.push_back(tmp);
 return tmp;
 }

@@ -194,16 +194,32 @@ public:
 };
 
 
-class InequalityExpression : public Expression
+class Constraint : public Expression
+{
+public:
+
+    virtual bool boolean_value() = 0;
+};
+
+
+class InequalityExpression : public Constraint
 {
 public:
 
     NumericValue* body;
+    bool strict;
 
-    InequalityExpression(NumericValue* _body)
-        {body = _body;}
+    InequalityExpression(NumericValue* _body, bool _strict)
+        {body = _body; strict=_strict;}
 
-    void print(std::ostream& ostr) {body->print(ostr); ostr << "  <=  0";}
+    void print(std::ostream& ostr) 
+        {
+        body->print(ostr);
+        if (strict)
+            ostr << "  <  0";
+        else
+            ostr << "  <=  0";
+        }
 
     int size() {return body->size();}
 
@@ -212,6 +228,8 @@ public:
     NumericValue* expression(unsigned int i) { if (i == 0) return body; else return 0; }
 
     double value() {return body->value();}
+
+    bool boolean_value() {return strict ? value() < 0 : value() <= 0;}
 
     double compute_value() {_value = body->_value; return _value;}
 
@@ -224,11 +242,16 @@ public:
     void compute_hv_back() {body->adjoint = adjoint;}
 
     void snprintf(char* buf, int max)
-        {std::snprintf(buf, max, "<=");}
+        {
+        if (strict)
+            std::snprintf(buf, max, "<");
+        else
+            std::snprintf(buf, max, "<=");
+        }
 };
 
 
-class EqualityExpression : public Expression
+class EqualityExpression : public Constraint
 {
 public:
 
@@ -246,6 +269,8 @@ public:
     NumericValue* expression(unsigned int i) { if (i == 0) return body; else return 0; }
 
     double value() {return body->value();}
+
+    bool boolean_value() {return value() == 0;}
 
     double compute_value() {_value = body->_value; return _value;}
 

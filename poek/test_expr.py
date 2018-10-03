@@ -1,8 +1,54 @@
 import math
 import pyutilib.th as unittest 
 
-from expr import *
+from poek.expr import *
 
+
+class TestValue(unittest.TestCase):
+
+    def test_var(self):
+        p = variable(initialize=2)
+        self.assertEqual(p.value, 2)
+        p.value = 3
+        self.assertEqual(p.value, 3)
+
+    def test_param(self):
+        p = parameter(-1,True)
+        p.value = 3
+        self.assertEqual(p.value, 3)
+
+        q = parameter(-1,False)
+        try:
+            q.value = 3
+            self.fail("Expected runtime error, but parameter is immutable")
+        except RuntimeError:
+            pass
+        self.assertEqual(q.value, -1)
+
+    def test_float(self):
+        p = parameter(-1)
+        try:
+            float(p)
+            self.fail("Expected TypeError")
+        except:
+            pass
+            
+    def test_int(self):
+        p = parameter(-1)
+        try:
+            int(p)
+            self.fail("Expected TypeError")
+        except:
+            pass
+
+    def test_bool(self):
+        p = parameter(-1)
+        try:
+            bool(p)
+            self.fail("Expected TypeError")
+        except:
+            pass
+            
 
 class TestSumExpression(unittest.TestCase):
 
@@ -526,6 +572,13 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         self.r = parameter(1, False, name='r')
         self.visitor = ValueVisitor()
 
+    def test_errors(self):
+
+        with self.assertRaisesRegex(TypeError,"Unexpected type for LHS of rmul:.*"):
+            class TMP(object): pass
+            TMP() * self.a
+            
+
     def test_simpleProduct(self):
         #
         # Check the structure of a simple product of variables
@@ -919,6 +972,8 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         r = self.r
 
         self.assertRaises(ZeroDivisionError, a.__div__, 0)
+        self.assertRaises(ZeroDivisionError, a.__div__, 0.0)
+        self.assertRaises(ZeroDivisionError, r.__div__, q)
 
         #
         # Check that dividing zero by anything non-zero gives zero
@@ -926,6 +981,14 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         e = 0 / a
         self.assertIs(type(e), int)
         self.assertAlmostEqual(e, 0.0)
+
+        e = 0.0 / a
+        self.assertIs(type(e), float)
+        self.assertAlmostEqual(e, 0.0)
+
+        e = q / a
+        self.assertIs(type(e), parameter)
+        self.assertIs(e, ZeroParameter)
 
         #
         # Check that dividing by one 1 gives the original expression
@@ -963,6 +1026,97 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         e = 1 / r
         self.assertEqual( self.visitor.walk(e), '1' )
         self.assertEqual(e.size(),1)
+
+
+class Test_PowerExpression(unittest.TestCase):
+
+    def setUp(self):
+        self.a = variable(name='a')
+        self.b = variable(name='b')
+        self.c = variable(name='c')
+        self.d = variable(name='d')
+        self.v = variable(name='v')
+        self.p = parameter(0, True, name='p')
+        self.q = parameter(0, False, name='q')
+        self.r = parameter(1, False, name='r')
+        self.visitor = ValueVisitor()
+
+    def test_trivialPow(self):
+        #
+        a = self.a
+        p = self.p
+        q = self.q
+        r = self.r
+
+        #
+        # Check that taking the first power returns the original object
+        #
+        e = a**1
+        self.assertIs(a, e)
+
+        e = a**1.0
+        self.assertIs(a, e)
+
+        e = a**r
+        self.assertIs(a, e)
+
+        #
+        # Check that taking the zeroth power returns one
+        #
+        e = a**0
+        self.assertEqual(e, 1)
+
+        e = a**0.0
+        self.assertEqual(e, 1)
+
+        e = a**q
+        self.assertEqual(e, 1)
+
+        #
+        # Check that taking powers of 0 and 1 are easy
+        #
+        e = 0**a
+        self.assertEqual(e, 0)
+
+        e = 0.0**a
+        self.assertEqual(e, 0.0)
+
+        e = 1**a
+        self.assertEqual(e, 1)
+
+        e = 1.0**a
+        self.assertEqual(e, 1.0)
+
+    def test_trivialRPow(self):
+        #
+        a = self.a
+        p = self.p
+        q = self.q
+        r = self.r
+
+        #
+        # Check that taking any power of 1 is 1
+        #
+        e = 1**a
+        self.assertIs(e, 1)
+
+        e = 1.0**a
+        self.assertAlmostEqual(e, 1.0)
+
+        e = r**a
+        self.assertIs(e, r)
+
+        #
+        # Check that taking the zeroth power returns one
+        #
+        e = 0**a
+        self.assertEqual(e, 0)
+
+        e = 0.0**a
+        self.assertEqual(e, 0)
+
+        e = q**a
+        self.assertEqual(e, 0)
 
 
 class EntangledExpressionErrors(unittest.TestCase):

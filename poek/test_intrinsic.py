@@ -1,8 +1,8 @@
 import math
 import pyutilib.th as unittest 
 
-from expr import *
-from intrinsic import *
+from poek.expr import *
+from poek.intrinsic import *
 
 
 class TestExpression_Intrinsic(unittest.TestCase):
@@ -54,7 +54,7 @@ class TestExpression_Intrinsic(unittest.TestCase):
     def test_pow(self):
         v = self.v
         p = self.p
-        e = pow(v,p)
+        e = v**p
         v.value = 2
         p.value = 0
         self.assertAlmostEqual(value(e), 1.0)

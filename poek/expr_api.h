@@ -34,11 +34,11 @@ void* rdiv_expr_int(int lhs, void* rhs);
 void* rdiv_expr_double(double lhs, void* rhs);
 
 /* __pow__ */
-void* pow_expr_int(void* lhs, void* rhs);
-void* pow_expr_double(void* lhs, void* rhs);
+void* pow_expr_int(void* lhs, int rhs);
+void* pow_expr_double(void* lhs, double rhs);
 void* pow_expr_expression(void* lhs, void* rhs);
-void* rpow_expr_int(void* lhs, void* rhs);
-void* rpow_expr_double(void* lhs, void* rhs);
+void* rpow_expr_int(int lhs, void* rhs);
+void* rpow_expr_double(double lhs, void* rhs);
 
 /* OTHER */
 void* neg_expr(void* expr);
@@ -56,6 +56,7 @@ void* create_parameter_int(int value, int mutable_flag, char* name);
 void* create_parameter_double(double value, int mutable_flag, char* name);
 
 void* create_variable(int binary, int integer, char* name);
+void create_variable_array(void* array[], int num, int binary, int integer, char* name);
 int get_variable_index(void* variable);
 void set_variable_value(void* variable, double value);
 double get_variable_value(void* variable);
@@ -63,9 +64,10 @@ double get_variable_value(void* variable);
 void get_numval_str(void* numval, char* buf, int n);
 double get_numval_value(void* numval);
 double compute_numval_value(void* numval);
+double compute_constraint_value(void* numval, int body_flag);
 
 
-void* create_inequality(void* self);
+void* create_inequality(void* self, int strict_flag);
 void* create_equality(void* self);
 void* create_model(void);
 
