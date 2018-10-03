@@ -15,5 +15,5 @@ tmp: tmp.o
 
 exprapi: export LD_LIBRARY_PATH = $(shell pwd)
 exprapi: libexprapi.so
-	./build.py
+	./Makefile_build.py
 
