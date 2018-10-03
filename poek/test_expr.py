@@ -12,45 +12,49 @@ class TestValue(unittest.TestCase):
         p.value = 3
         self.assertEqual(p.value, 3)
 
-    def test_param(self):
+    def test_expr(self):
+        p = variable(initialize=2)
+        self.assertEqual(p.value, 2)
+        e = p + 3
+        self.assertEqual(e.value, 5)
+        with self.assertRaisesRegex(TypeError, "Cannot set the value of an expression"):
+            e.value = 0
+
+    def test_constraint(self):
+        p = variable(initialize=2)
+        self.assertEqual(p.value, 2)
+        e = p < 3
+        self.assertEqual(e.value, -1)
+        with self.assertRaisesRegex(TypeError, "Cannot set the value of a constraint"):
+            e.value = 0
+
+    def test_param1(self):
         p = parameter(-1,True)
         p.value = 3
         self.assertEqual(p.value, 3)
 
         q = parameter(-1,False)
-        try:
-            q.value = 3
-            self.fail("Expected runtime error, but parameter is immutable")
-        except RuntimeError:
-            pass
         self.assertEqual(q.value, -1)
+        with self.assertRaisesRegex(TypeError, "Cannot set the value of an immutable parameter"):
+            q.value = 3
 
     def test_float(self):
         p = parameter(-1)
-        try:
+        with self.assertRaises(TypeError):
             float(p)
-            self.fail("Expected TypeError")
-        except:
-            pass
             
     def test_int(self):
         p = parameter(-1)
-        try:
+        with self.assertRaises(TypeError):
             int(p)
-            self.fail("Expected TypeError")
-        except:
-            pass
 
     def test_bool(self):
         p = parameter(-1)
-        try:
+        with self.assertRaises(TypeError):
             bool(p)
-            self.fail("Expected TypeError")
-        except:
-            pass
             
 
-class TestSumExpression(unittest.TestCase):
+class Test_SumExpression(unittest.TestCase):
 
     def setUp(self):
         self.a = variable(name='a')
@@ -60,12 +64,27 @@ class TestSumExpression(unittest.TestCase):
         self.p = parameter(0, True, name='p')
         self.visitor = ValueVisitor()
 
+    def test_error1(self):
+        with self.assertRaisesRegex(TypeError,"Unexpected type \(LHS\) .*"):
+            class TMP(object): pass
+            TMP() + self.a
+
+    def test_error2(self):
+        x = variable(10,0,0)
+        with self.assertRaisesRegex(TypeError,"Cannot treat argument as a single numeric value:.*"):
+            self.a + x
+
     def test_simpleSum(self):
         # a + b
         a = self.a
         b = self.b
+
         e = a + b
-        #
+        self.assertEqual( self.visitor.walk(e), ['+','a','b'] )
+        self.assertEqual(e.size(), 3)
+
+        e = a
+        e += b
         self.assertEqual( self.visitor.walk(e), ['+','a','b'] )
         self.assertEqual(e.size(), 3)
 
@@ -79,32 +98,34 @@ class TestSumExpression(unittest.TestCase):
         self.assertEqual( self.visitor.walk(e), ['+', ['+', 'a', 'b'], ['*', '2', 'a']] )
         self.assertEqual(e.size(), 7)
 
-    def test_constSum_int(self):
+    def test_constSum(self):
         # a + 5
         a = self.a
+
         e = a + 5
-        #
         self.assertEqual( self.visitor.walk(e), ['+','a','5'] )
         self.assertEqual(e.size(), 3)
 
-        # 5 + a
         e = 5 + a
-        #
         self.assertEqual( self.visitor.walk(e), ['+','5','a'] )
         self.assertEqual(e.size(), 3)
 
-    def test_constSum_real(self):
-        # a + 5.0
-        a = self.a
+        e = a
+        e += 5
+        self.assertEqual( self.visitor.walk(e), ['+','a','5'] )
+        self.assertEqual(e.size(), 3)
+
         e = a + 5.0
-        #
         self.assertEqual( self.visitor.walk(e), ['+','a','5.000'] )
         self.assertEqual(e.size(), 3)
 
-        # 5.0 + a
         e = 5.0 + a
-        #
         self.assertEqual( self.visitor.walk(e), ['+','5.000','a'] )
+        self.assertEqual(e.size(), 3)
+
+        e = a
+        e += 5.0
+        self.assertEqual( self.visitor.walk(e), ['+','a', '5.000'] )
         self.assertEqual(e.size(), 3)
 
     def test_nestedSum(self):
@@ -214,6 +235,7 @@ class TestSumExpression(unittest.TestCase):
         # Check that adding zero doesn't change the expression
         #
         a = self.a
+
         e = a + 0
         self.assertIs(type(e), type(a))
         self.assertIs(e, a)
@@ -221,6 +243,25 @@ class TestSumExpression(unittest.TestCase):
         e = 0 + a
         self.assertIs(type(e), type(a))
         self.assertIs(e, a)
+
+        e = a + 0.0
+        self.assertIs(type(e), type(a))
+        self.assertIs(e, a)
+
+        e = 0.0 + a
+        self.assertIs(type(e), type(a))
+        self.assertIs(e, a)
+
+        e = a
+        e += 0
+        self.assertIs(type(e), type(a))
+        self.assertIs(e, a)
+
+        e = a
+        e += 0.0
+        self.assertIs(type(e), type(a))
+        self.assertIs(e, a)
+
         #
         # Adding zero to a sum will not change the sum
         #
@@ -291,6 +332,16 @@ class TestDiffExpression(unittest.TestCase):
         self.p = parameter(0, True, name='p')
         self.visitor = ValueVisitor()
 
+    def test_error1(self):
+        with self.assertRaisesRegex(TypeError,"Unexpected type \(LHS\).*"):
+            class TMP(object): pass
+            TMP() - self.a
+
+    def test_error2(self):
+        x = variable(10,0,0)
+        with self.assertRaisesRegex(TypeError,"Cannot treat argument as a single numeric value:.*"):
+            self.a - x
+
     def test_simpleDiff(self):
         #
         # Check the structure of a simple difference with two variables
@@ -302,36 +353,41 @@ class TestDiffExpression(unittest.TestCase):
         #   / \
         #  a   b
         e = a - b
-        #
         self.assertEqual( self.visitor.walk(e), ['-','a','b'] )
         self.assertEqual(e.size(), 3)
 
-    def test_constDiff_int(self):
-        # a - 5
+        e = a
+        e -= b
+        self.assertEqual( self.visitor.walk(e), ['-','a','b'] )
+        self.assertEqual(e.size(), 3)
+
+    def test_constDiff(self):
         a = self.a
+
         e = a - 5
-        #
         self.assertEqual( self.visitor.walk(e), ['-','a','5'] )
         self.assertEqual(e.size(), 3)
 
-        # 5 - a
         e = 5 - a
-        #
         self.assertEqual( self.visitor.walk(e), ['-','5','a'] )
         self.assertEqual(e.size(), 3)
 
-    def test_constDiff_real(self):
-        # a - 5.0
-        a = self.a
+        e = a
+        e -= 5
+        self.assertEqual( self.visitor.walk(e), ['-','a','5'] )
+        self.assertEqual(e.size(), 3)
+
         e = a - 5.0
-        #
         self.assertEqual( self.visitor.walk(e), ['-','a','5.000'] )
         self.assertEqual(e.size(), 3)
 
-        # 5.0 - a
         e = 5.0 - a
-        #
         self.assertEqual( self.visitor.walk(e), ['-','5.000','a'] )
+        self.assertEqual(e.size(), 3)
+
+        e = a
+        e -= 5.0
+        self.assertEqual( self.visitor.walk(e), ['-','a','5.000'] )
         self.assertEqual(e.size(), 3)
 
     def test_paramDiff(self):
@@ -478,8 +534,26 @@ class TestDiffExpression(unittest.TestCase):
         self.assertEqual( self.visitor.walk(e), 'a' )
         self.assertEqual(e.size(),1)
 
+        e = a - 0.0
+        self.assertEqual( self.visitor.walk(e), 'a' )
+        self.assertEqual(e.size(),1)
+
+        e = a
+        e -= 0
+        self.assertEqual( self.visitor.walk(e), 'a' )
+        self.assertEqual(e.size(),1)
+
+        e = a
+        e -= 0.0
+        self.assertEqual( self.visitor.walk(e), 'a' )
+        self.assertEqual(e.size(),1)
+
         # 0 - a
         e = 0 - a
+        self.assertEqual( self.visitor.walk(e), ['-','a'] )
+        self.assertEqual(e.size(),2)
+
+        e = 0.0 - a
         self.assertEqual( self.visitor.walk(e), ['-','a'] )
         self.assertEqual(e.size(),2)
 
@@ -559,7 +633,7 @@ class TestDiffExpression(unittest.TestCase):
         self.assertEqual(e.size(),7)
 
 
-class TestGenerate_ProductExpression(unittest.TestCase):
+class Test_MulExpression(unittest.TestCase):
 
     def setUp(self):
         self.a = variable(name='a')
@@ -572,12 +646,15 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         self.r = parameter(1, False, name='r')
         self.visitor = ValueVisitor()
 
-    def test_errors(self):
-
-        with self.assertRaisesRegex(TypeError,"Unexpected type for LHS of rmul:.*"):
+    def test_error1(self):
+        with self.assertRaisesRegex(TypeError,"Unexpected type \(LHS\).*"):
             class TMP(object): pass
             TMP() * self.a
-            
+
+    def test_error2(self):
+        x = variable(10,0,0)
+        with self.assertRaisesRegex(TypeError,"Cannot treat argument as a single numeric value:.*"):
+            self.a * x
 
     def test_simpleProduct(self):
         #
@@ -590,6 +667,14 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         #   / \
         #  a   b
         e = a * b
+        self.assertEqual( self.visitor.walk(e), ['*','a','b'] )
+        self.assertEqual(e.size(),3)
+
+        #    *
+        #   / \
+        #  a   b
+        e = a
+        e *= b
         self.assertEqual( self.visitor.walk(e), ['*','a','b'] )
         self.assertEqual(e.size(),3)
 
@@ -606,11 +691,29 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         self.assertEqual( self.visitor.walk(e), ['*','a','5'] )
         self.assertEqual(e.size(),3)
 
+        e = a * 5.0
+        self.assertEqual( self.visitor.walk(e), ['*','a','5.000'] )
+        self.assertEqual(e.size(),3)
+
+        e = a
+        e *= 5
+        self.assertEqual( self.visitor.walk(e), ['*','a','5'] )
+        self.assertEqual(e.size(),3)
+
         #    *
         #   / \
         #  5   a
-        e = 5 * a
-        self.assertEqual( self.visitor.walk(e), ['*','5','a'] )
+        e = 5.0 * a
+        self.assertEqual( self.visitor.walk(e), ['*','5.000','a'] )
+        self.assertEqual(e.size(),3)
+
+        e = a
+        e *= 5.0
+        self.assertEqual( self.visitor.walk(e), ['*','a','5.000'] )
+        self.assertEqual(e.size(),3)
+
+        e = 5.0 * a
+        self.assertEqual( self.visitor.walk(e), ['*','5.000','a'] )
         self.assertEqual(e.size(),3)
 
     def test_nestedProduct(self):
@@ -810,9 +913,27 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         self.assertEqual(e, 0)
         self.assertIs(type(e), int)
 
+        e = a * 0.0
+        self.assertEqual(e, 0.0)
+        self.assertIs(type(e), float)
+
+        e = a
+        e *= 0
+        self.assertEqual(e, 0)
+        self.assertIs(type(e), int)
+
+        e = a
+        e *= 0.0
+        self.assertEqual(e, 0.0)
+        self.assertIs(type(e), float)
+
         e = 0 * a
         self.assertEqual(e, 0)
         self.assertIs(type(e), int)
+
+        e = 0.0 * a
+        self.assertEqual(e, 0)
+        self.assertIs(type(e), float)
 
         e = a * p
         self.assertEqual( self.visitor.walk(e), ['*','a','p'] )
@@ -837,7 +958,25 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         self.assertIs(type(e), type(a))
         self.assertIs(e, a)
 
+        e = a * 1.0
+        self.assertIs(type(e), type(a))
+        self.assertIs(e, a)
+
+        e = a
+        e *= 1
+        self.assertIs(type(e), type(a))
+        self.assertIs(e, a)
+
+        e = a
+        e *= 1.0
+        self.assertIs(type(e), type(a))
+        self.assertIs(e, a)
+
         e = 1 * a
+        self.assertIs(type(e), type(a))
+        self.assertIs(e, a)
+
+        e = 1.0 * a
         self.assertIs(type(e), type(a))
         self.assertIs(e, a)
 
@@ -858,6 +997,29 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         #self.assertIs(type(e), int)
         #self.assertEqual(e, 6)
 
+class Test_DivExpression(unittest.TestCase):
+
+    def setUp(self):
+        self.a = variable(name='a')
+        self.b = variable(name='b')
+        self.c = variable(name='c')
+        self.d = variable(name='d')
+        self.v = variable(name='v')
+        self.p = parameter(0, True, name='p')
+        self.q = parameter(0, False, name='q')
+        self.r = parameter(1, False, name='r')
+        self.visitor = ValueVisitor()
+
+    def test_error1(self):
+        with self.assertRaisesRegex(TypeError,"Unexpected type \(LHS\).*"):
+            class TMP(object): pass
+            TMP() / self.a
+
+    def test_error2(self):
+        x = variable(10,0,0)
+        with self.assertRaisesRegex(TypeError,"Cannot treat argument as a single numeric value:.*"):
+            self.a / x
+
     def test_simpleDivision(self):
         #
         # Check the structure of a simple division with variables
@@ -872,24 +1034,41 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         self.assertEqual( self.visitor.walk(e), ['/','a','b'] )
         self.assertEqual(e.size(),3)
 
+        e = a
+        e /= b
+        self.assertEqual( self.visitor.walk(e), ['/','a','b'] )
+        self.assertEqual(e.size(),3)
+
     def test_constDivision(self):
         #
         # Check the structure of a simple division with a constant
         #
         a = self.a
 
-        #    /
-        #   / \
-        #  a   5
         e = a / 5
         self.assertEqual( self.visitor.walk(e), ['/','a','5'] )
         self.assertEqual(e.size(),3)
 
-        #    /
-        #   / \
-        #  5   a
         e = 5 / a
         self.assertEqual( self.visitor.walk(e), ['/','5','a'] )
+        self.assertEqual(e.size(),3)
+
+        e = a
+        e /= 5
+        self.assertEqual( self.visitor.walk(e), ['/','a','5'] )
+        self.assertEqual(e.size(),3)
+
+        e = a / 5.0
+        self.assertEqual( self.visitor.walk(e), ['/','a','5.000'] )
+        self.assertEqual(e.size(),3)
+
+        e = 5.0 / a
+        self.assertEqual( self.visitor.walk(e), ['/','5.000','a'] )
+        self.assertEqual(e.size(),3)
+
+        e = a
+        e /= 5.0
+        self.assertEqual( self.visitor.walk(e), ['/','a','5.000'] )
         self.assertEqual(e.size(),3)
 
     def test_nestedDivision(self):
@@ -973,6 +1152,8 @@ class TestGenerate_ProductExpression(unittest.TestCase):
 
         self.assertRaises(ZeroDivisionError, a.__div__, 0)
         self.assertRaises(ZeroDivisionError, a.__div__, 0.0)
+        self.assertRaises(ZeroDivisionError, a.__idiv__, 0)
+        self.assertRaises(ZeroDivisionError, a.__idiv__, 0.0)
         self.assertRaises(ZeroDivisionError, r.__div__, q)
 
         #
@@ -997,6 +1178,24 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         self.assertIs(type(e), type(a))
         self.assertIs(e, a)
 
+        e = a / 1.0
+        self.assertIs(type(e), type(a))
+        self.assertIs(e, a)
+
+        e = a
+        e /= 1
+        self.assertIs(type(e), type(a))
+        self.assertIs(e, a)
+
+        e = a
+        e /= 1.0
+        self.assertIs(type(e), type(a))
+        self.assertIs(e, a)
+
+        e = a / r
+        self.assertIs(type(e), type(a))
+        self.assertIs(e, a)
+
         #
         # Check the structure dividing 1 by an expression
         #
@@ -1004,11 +1203,19 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         self.assertEqual( self.visitor.walk(e), ['/','1','a'] )
         self.assertEqual(e.size(),3)
 
+        e = 1.0 / a
+        self.assertEqual( self.visitor.walk(e), ['/','1.000','a'] )
+        self.assertEqual(e.size(),3)
+
         #
         # Check the structure dividing 1 by an expression
         #
         e = 1 / p
         self.assertEqual( self.visitor.walk(e), ['/','1','p'] )
+        self.assertEqual(e.size(),3)
+
+        e = 1.0 / p
+        self.assertEqual( self.visitor.walk(e), ['/','1.000','p'] )
         self.assertEqual(e.size(),3)
 
         #
@@ -1020,6 +1227,12 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         except ZeroDivisionError:
             pass
 
+        try:
+            e = 1.0 / q
+            self.fail("Expected division by zero error.")
+        except ZeroDivisionError:
+            pass
+
         #
         # Check the structure dividing 1 by an expression
         #
@@ -1027,8 +1240,12 @@ class TestGenerate_ProductExpression(unittest.TestCase):
         self.assertEqual( self.visitor.walk(e), '1' )
         self.assertEqual(e.size(),1)
 
+        e = 1.0 / r
+        self.assertEqual( self.visitor.walk(e), '1.000' )
+        self.assertEqual(e.size(),1)
 
-class Test_PowerExpression(unittest.TestCase):
+
+class Test_PowExpression(unittest.TestCase):
 
     def setUp(self):
         self.a = variable(name='a')
@@ -1040,6 +1257,61 @@ class Test_PowerExpression(unittest.TestCase):
         self.q = parameter(0, False, name='q')
         self.r = parameter(1, False, name='r')
         self.visitor = ValueVisitor()
+
+    def test_error1(self):
+        with self.assertRaisesRegex(TypeError,"Unexpected type \(LHS\).*"):
+            class TMP(object): pass
+            TMP() ** self.a
+
+    def test_error2(self):
+        x = variable(10,0,0)
+        with self.assertRaisesRegex(TypeError,"Cannot treat argument as a single numeric value:.*"):
+            self.a ** x
+
+    def test_simplePow(self):
+        a = self.a
+        b = self.b
+
+        e = a**b
+        self.assertEqual( self.visitor.walk(e), ['**','a','b'] )
+        self.assertEqual(e.size(),3)
+
+        e = a
+        e **= b
+        self.assertEqual( self.visitor.walk(e), ['**','a','b'] )
+        self.assertEqual(e.size(),3)
+
+    def test_constPow(self):
+        #
+        # Check the structure of a simple power with a constant
+        #
+        a = self.a
+
+        e = a ** 5
+        self.assertEqual( self.visitor.walk(e), ['**','a','5'] )
+        self.assertEqual(e.size(),3)
+
+        e = 5 ** a
+        self.assertEqual( self.visitor.walk(e), ['**','5','a'] )
+        self.assertEqual(e.size(),3)
+
+        e = a
+        e **= 5
+        self.assertEqual( self.visitor.walk(e), ['**','a','5'] )
+        self.assertEqual(e.size(),3)
+
+        e = a ** 5.0
+        self.assertEqual( self.visitor.walk(e), ['**','a','5.000'] )
+        self.assertEqual(e.size(),3)
+
+        e = 5.0 ** a
+        self.assertEqual( self.visitor.walk(e), ['**','5.000','a'] )
+        self.assertEqual(e.size(),3)
+
+        e = a
+        e **= 5.0
+        self.assertEqual( self.visitor.walk(e), ['**','a','5.000'] )
+        self.assertEqual(e.size(),3)
 
     def test_trivialPow(self):
         #
@@ -1057,6 +1329,14 @@ class Test_PowerExpression(unittest.TestCase):
         e = a**1.0
         self.assertIs(a, e)
 
+        e = a
+        e **= 1
+        self.assertIs(a, e)
+
+        e = a
+        e **= 1.0
+        self.assertIs(a, e)
+
         e = a**r
         self.assertIs(a, e)
 
@@ -1067,6 +1347,14 @@ class Test_PowerExpression(unittest.TestCase):
         self.assertEqual(e, 1)
 
         e = a**0.0
+        self.assertEqual(e, 1)
+
+        e = a
+        e **= 0
+        self.assertEqual(e, 1)
+
+        e = a
+        e **= 0.0
         self.assertEqual(e, 1)
 
         e = a**q
@@ -1118,6 +1406,24 @@ class Test_PowerExpression(unittest.TestCase):
         e = q**a
         self.assertEqual(e, 0)
 
+    def test_pow_expresions(self):
+        a = self.a
+        r = self.r
+
+        e = a**r
+        self.assertEqual( self.visitor.walk(e), 'a' )
+
+        e = a**2
+        self.assertEqual( self.visitor.walk(e), ['**','a','2'] )
+
+        e = a**2.0
+        self.assertEqual( self.visitor.walk(e), ['**','a','2.000'] )
+
+        e = 2**a
+        self.assertEqual( self.visitor.walk(e), ['**','2','a'] )
+
+        e = 2.0**a
+        self.assertEqual( self.visitor.walk(e), ['**','2.000','a'] )
 
 class EntangledExpressionErrors(unittest.TestCase):
 

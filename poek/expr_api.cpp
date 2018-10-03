@@ -552,9 +552,11 @@ NumericValue* v = static_cast<NumericValue*>(ptr);
 return v->value();
 }
 
-extern "C" double compute_constraint_value(void* ptr)
+extern "C" double compute_constraint_value(void* ptr, int body)
 {
 Constraint* v = static_cast<Constraint*>(ptr);
+if (body)
+    return v->value();
 return v->boolean_value();
 }
 

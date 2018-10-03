@@ -231,6 +231,90 @@ class Test_Expr(unittest.TestCase):
         with self.assertRaisesRegex(TypeError, "Cannot treat argument as a single numeric value: .*"):
             x == a
 
+    def test_error_nested(self):
+        #
+        # Verify that constraints are not allow to be nested.
+        #
+        a = self.a
+        b = self.b
+        
+        e = a == b
+        E = a
+
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            a + e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e + a
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            E += e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            2 + e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e += 2
+
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            a - e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e - a
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            E -= e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            2 - e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e -= 2
+
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            a * e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e * a
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            E *= e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            2 * e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e *= 2
+
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            a / e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e / a
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            E /= e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            2 / e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e /= 2
+
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            a ** e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e ** a
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            E **= e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            2 ** e
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e **= 2
+
+    def test_error_chained(self):
+        #
+        # Verify that constraints are not allow to be nested.
+        #
+        a = self.a
+        b = self.b
+        
+        e = a == b
+
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e < a
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e <= a
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e > a
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e >= a
+        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+            e == a
 
 if __name__ == "__main__":
     unittest.main()

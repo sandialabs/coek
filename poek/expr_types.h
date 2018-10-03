@@ -912,9 +912,7 @@ public:
     double value() {return this->lhs->value() - this->rhs->value();}
 
     double compute_value()
-        {
-        return this->_value = this->lhs->_value - this->rhs->_value;
-        }
+        { return this->_value = this->lhs->_value - this->rhs->_value; }
 
     // TODO
     NumericValue* partial(unsigned int i)

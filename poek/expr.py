@@ -25,6 +25,12 @@ class NumericValue(object):
     def is_constraint(self):
         return False
 
+    def is_variable(self):
+        return False
+
+    def is_parameter(self):
+        return False
+
     #def get_descr(self):
     #    return lib.get_numval_str(self.ptr, BUFFER, 64)
 
@@ -229,7 +235,7 @@ class NumericValue(object):
             return expression( lib.mul_expr_double(self.ptr, other) )
         elif other.is_constraint():
             raise TypeError("Cannot create a constraint with a relational subexpression.")
-        else:
+        try:
             tmp = lib.mul_expr_expression(self.ptr, other.ptr)
             if tmp == NULL:
                 return ZeroParameter
@@ -238,6 +244,8 @@ class NumericValue(object):
             elif tmp == other.ptr:
                 return other
             return expression(tmp)
+        except AttributeError as e:
+            raise TypeError("Cannot treat argument as a single numeric value: "+str(e))
 
     def __div__(self,other):
         """
@@ -261,7 +269,7 @@ class NumericValue(object):
             return expression( lib.div_expr_double(self.ptr, other) )
         elif other.is_constraint():
             raise TypeError("Cannot create a constraint with a relational subexpression.")
-        else:
+        try:
             tmp = lib.div_expr_expression(self.ptr, other.ptr)
             if tmp == NULL:
                 return ZeroParameter
@@ -270,6 +278,8 @@ class NumericValue(object):
             elif tmp == other.ptr:
                 raise ZeroDivisionError
             return expression(tmp)
+        except AttributeError as e:
+            raise TypeError("Cannot treat argument as a single numeric value: "+str(e))
 
     __truediv__ = __div__
 
@@ -295,12 +305,15 @@ class NumericValue(object):
             return expression( lib.pow_expr_double(self.ptr, other) )
         elif other.is_constraint():
             raise TypeError("Cannot create a constraint with a relational subexpression.")
-        tmp = lib.pow_expr_expression(self.ptr, other.ptr)
-        if tmp == NULL:
-            return ZeroParameter
-        elif tmp == self.ptr:
-            return self
-        return expression(tmp)
+        try:
+            tmp = lib.pow_expr_expression(self.ptr, other.ptr)
+            if tmp == NULL:
+                return ZeroParameter
+            elif tmp == self.ptr:
+                return self
+            return expression(tmp)
+        except AttributeError as e:
+            raise TypeError("Cannot treat argument as a single numeric value: "+str(e))
 
     def __radd__(self,other):
         """
@@ -318,6 +331,8 @@ class NumericValue(object):
             if other == 0.0:
                 return self
             return expression( lib.radd_expr_double(other, self.ptr) )
+        else:
+            raise TypeError("Unexpected type (LHS) when adding: %s" % str(type(other)))
 
     def __rsub__(self,other):
         """
@@ -331,6 +346,8 @@ class NumericValue(object):
             return expression( lib.rsub_expr_int(other, self.ptr) )
         elif other.__class__ is float:
             return expression( lib.rsub_expr_double(other, self.ptr) )
+        else:
+            raise TypeError("Unexpected type (LHS) when subtracting: %s" % str(type(other)))
 
     def __rmul__(self,other):
         """
@@ -355,7 +372,7 @@ class NumericValue(object):
                 return self
             return expression( lib.rmul_expr_double(other, self.ptr) )
         else:
-            raise TypeError("Unexpected type for LHS of rmul: %s" % str(type(other)))
+            raise TypeError("Unexpected type (LHS) when multiplying: %s" % str(type(other)))
 
     def __rdiv__(self,other):
         """
@@ -382,7 +399,7 @@ class NumericValue(object):
                 raise ZeroDivisionError
             return expression( tmp )
         else:
-            raise TypeError("Unexpected type for LHS of rdiv: %s" % str(type(other)))
+            raise TypeError("Unexpected type (LHS) when dividing: %s" % str(type(other)))
 
     __rtruediv__ = __rdiv__
 
@@ -408,10 +425,8 @@ class NumericValue(object):
             elif other == 1.0:
                 return 1.0
             return expression( lib.rpow_expr_double(other, self.ptr) )
-        elif other.is_constraint():
-            raise TypeError("Cannot create a constraint with a relational subexpression.")
         else:
-            raise TypeError("Unexpected type for LHS of rpow: %s" % str(type(other)))
+            raise TypeError("Unexpected type (LHS) in a power expression: %s" % str(type(other)))
 
     def __iadd__(self,other):
         """
@@ -490,20 +505,20 @@ class NumericValue(object):
         """
         if other.__class__ is int:
             if other == 0:
-                return NAN
+                raise ZeroDivisionError
             elif other == 1:
                 return self
-            return expression( lib.idiv_expr_int(self.ptr, other) )
+            return expression( lib.div_expr_int(self.ptr, other) )
         elif other.__class__ is float:
             if other == 0.0:
-                return NAN
+                raise ZeroDivisionError
             elif other == 1.0:
                 return self
-            return expression( lib.idiv_expr_double(self.ptr, other) )
+            return expression( lib.div_expr_double(self.ptr, other) )
         elif other.is_constraint():
             raise TypeError("Cannot create a constraint with a relational subexpression.")
         else:
-            return expression( lib.idiv_expr_expression(self.ptr, other.ptr) )
+            return expression( lib.div_expr_expression(self.ptr, other.ptr) )
 
     __itruediv__ = __idiv__
 
@@ -520,17 +535,17 @@ class NumericValue(object):
                 return 1
             elif other == 1:
                 return self
-            return expression( lib.ipow_expr_int(self.ptr, other) )
+            return expression( lib.pow_expr_int(self.ptr, other) )
         elif other.__class__ is float:
             if other == 0.0:
                 return 1.0
             elif other == 1.0:
                 return self
-            return expression( lib.ipow_expr_double(self.ptr, other) )
+            return expression( lib.pow_expr_double(self.ptr, other) )
         elif other.is_constraint():
             raise TypeError("Cannot create a constraint with a relational subexpression.")
         else:
-            return expression( lib.ipow_expr_expression(self.ptr, other.ptr) )
+            return expression( lib.pow_expr_expression(self.ptr, other.ptr) )
 
     def __neg__(self):
         """
@@ -579,7 +594,7 @@ class parameter(NumericValue):
         else:
             self.ptr = lib.create_parameter_double(value, self.mutable, tmp)
 
-    def show(self):
+    def show(self):             #pragma:nocover
         lib.print_parameter(self.ptr)
 
     @property
@@ -590,7 +605,10 @@ class parameter(NumericValue):
         if self.mutable:
             lib.set_variable_value(self.ptr, value)
         else:
-            raise RuntimeError("Cannot set the value of an immutable parameter")
+            raise TypeError("Cannot set the value of an immutable parameter")
+
+    def is_parameter(self):  #pragma:nocover
+        return True
 
 
 ZeroParameter = parameter(0, False)
@@ -625,13 +643,16 @@ class variable_single(NumericValue):
     def value(self, value):
         lib.set_variable_value(self.ptr, value)
 
-    def __str__(self):
+    def __str__(self):      #pragma:nocover
         if self.name is None:
             self.name = 'x%d' % self.index
         return self.name
 
-    def show(self):
+    def show(self):         #pragma:nocover
         print(str(self))
+
+    def is_variable(self):  #pragma:nocover
+        return True
 
 
 class variable_array(object):
@@ -645,10 +666,10 @@ class variable_array(object):
         tmp = ffi.new("void* []", num)
         self.ptrs = lib.create_variable_array(tmp,num,0,0,prefix)
 
-    def is_expression(self):
+    def is_expression(self):        #pragma:nocover
         return False
 
-    def is_constraint(self):
+    def is_constraint(self):        #pragma:nocover
         return False
 
 
@@ -664,12 +685,12 @@ class expression(NumericValue):
         return self.eval()
     @value.setter
     def value(self, value):
-        raise RuntimeError("Cannot set value of an expression")
+        raise TypeError("Cannot set the value of an expression")
 
-    def is_expression(self):
+    def is_expression(self):        #pragma:nocover
         return True
 
-    def show(self):
+    def show(self):                 #pragma:nocover
         lib.print_expr(self.ptr)
 
 
@@ -700,24 +721,24 @@ class constraint(NumericValue):
         return self.eval()
     @value.setter
     def value(self, value):
-        raise RuntimeError("Cannot set value of a constraint")
+        raise TypeError("Cannot set the value of a constraint")
 
     #
     # TODO: Reassess whether this should be TRUE
     #
-    def is_expression(self):
+    def is_expression(self):    #pragma:nocover
         return True
 
-    def is_constraint(self):
+    def is_constraint(self):    #pragma:nocover
         return True
 
-    def is_inequality(self):
+    def is_inequality(self):    #pragma:nocover
         return False
 
-    def is_equality(self):
+    def is_equality(self):      #pragma:nocover
         return False
 
-    def show(self):
+    def show(self):             #pragma:nocover
         lib.print_expr(self.ptr)
 
     def __lt__(self,other):
@@ -908,6 +929,28 @@ class constraint(NumericValue):
         """
         raise TypeError("Cannot create a constraint with a relational subexpression.")
 
+    def __idiv__(self,other):
+        """
+        Binary division
+
+        This method is called when Python processes the statement::
+
+            self /= other
+        """
+        raise TypeError("Cannot create a constraint with a relational subexpression.")
+
+    __itruediv__ = __idiv__
+
+    def __ipow__(self,other):
+        """
+        Binary power
+
+        This method is called when Python processes the statement::
+
+            self **= other
+        """
+        raise TypeError("Cannot create a constraint with a relational subexpression.")
+
 
 class inequality_constraint(constraint):
 
@@ -938,20 +981,14 @@ class model(object):
         self.c = None
 
     def add(self, obj):
-        if self.x is not None:
-            self.x = None
         if obj.is_constraint():
             if obj.is_inequality():
                 self.nc += 1
                 lib.add_inequality(self.ptr, obj.ptr)
-            elif obj.is_equality():
+            else:  
                 self.nc += 1
                 lib.add_equality(self.ptr, obj.ptr)
-            else:
-                raise TypeError("Cannot add constraint to model: "+str(type(obj)))
-        elif obj.is_expression():
-            lib.add_objective(self.ptr, obj.ptr)
-        else:
+        elif obj.is_expression() or obj.is_variable() or obj.is_parameter():
             lib.add_objective(self.ptr, obj.ptr)
 
     def compute_f(self, i=0):
