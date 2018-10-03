@@ -140,3 +140,10 @@ E.show()
 visitor = ValueVisitor()
 print(visitor.walk(E))
 print(visitor.walk(E, show=True))
+
+Y = variable(10, name='Y', initialize=3)
+for var in Y:
+  print((var.name, var.value))
+Z = variable(10, initialize=3)
+for var in Z:
+  print((var.name, var.value))

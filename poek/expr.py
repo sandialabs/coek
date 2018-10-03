@@ -655,22 +655,49 @@ class variable_single(NumericValue):
         return True
 
 
+class variable_view(variable_single):
+
+    def __init__(self, name=None, ptr=None, initialize=None):
+        self.ptr = ptr
+        if name is None:
+            self.index = lib.get_variable_index(self.ptr)
+            self.name = 'x%d' % self.index
+        else:
+            self.name = name
+        if not initialize is None:
+            self.value = initialize
+
+
 class variable_array(object):
 
-    __slots__ = ('ptrs', 'name', 'num')
+    __slots__ = ('ptrs', 'name', 'num', 'views', 'initialize')
 
-    def __init__(self, num, name=None):
+    def __init__(self, num, name=None, initialize=None):
         self.num = num 
         self.name = name
+        self.initialize = initialize
         prefix = str.encode("") if name is None else str.encode(name)
-        tmp = ffi.new("void* []", num)
-        self.ptrs = lib.create_variable_array(tmp,num,0,0,prefix)
+        ptrs = ffi.new("void* []", num)
+        lib.create_variable_array(ptrs,num,0,0,prefix)
+        self.ptrs = ptrs
+        self.views = {}
 
     def is_expression(self):        #pragma:nocover
         return False
 
     def is_constraint(self):        #pragma:nocover
         return False
+
+    def __getitem__(self, key):
+        if key in self.views:
+            return self.views[key]
+        if self.name is None:
+            return variable_view(initialize=self.initialize, ptr=self.ptrs[key])
+        return variable_view(name=self.name + str(key), initialize=self.initialize, ptr=self.ptrs[key])
+
+    def __iter__(self):
+        for i in range(self.num):
+            yield self.__getitem__(i)
 
 
 class expression(NumericValue):
