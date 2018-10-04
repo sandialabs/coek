@@ -1460,5 +1460,39 @@ class EntangledExpressionErrors(unittest.TestCase):
         self.assertEqual( self.visitor.walk(e3), ['+','d',['+','a','b']] )
 
 
+class TestVariables(unittest.TestCase):
+
+    def test_default_value(self):
+        v = variable(3, name='v')
+        self.assertTrue(math.isnan(v[0].value))
+        self.assertTrue(math.isnan(v[1].value))
+        self.assertTrue(math.isnan(v[2].value))
+
+    def test_initialize(self):
+        v = variable(3, name='v', initialize=3)
+        self.assertEqual(v[0].value,3)
+        self.assertEqual(v[1].value,3)
+        self.assertEqual(v[2].value,3)
+
+    def test_iterator(self):
+        v = variable(3, name='v')
+        for v_ in v:
+            math.isnan(v_.value)
+
+    def test_getitem1(self):
+        v = variable(3, name='v')
+        v1 = v[0]
+        v2 = v[0]
+        self.assertIs(v1, v2)
+    
+    def test_getitem2(self):
+        v = variable(3)
+        v1 = v[0]
+        v2 = v[0]
+        self.assertIs(v1, v2)
+
+    
+
+
 if __name__ == "__main__":
     unittest.main()

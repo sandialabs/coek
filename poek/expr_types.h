@@ -784,16 +784,9 @@ public:
     double compute_value()
         { return this->_value = this->value(); }
 
-    // TODO
-    NumericValue* partial(unsigned int i)
-        {return &OneParameter;}
+    NumericValue* partial(unsigned int i);
 
-    // TODO
-    void compute_adjoint()
-        {
-        this->lhs->adjoint += this->adjoint;
-        this->rhs->adjoint += this->adjoint;
-        }
+    void compute_adjoint();
 
     // TODO
     void compute_hv_fwd()
@@ -914,7 +907,6 @@ public:
     double compute_value()
         { return this->_value = this->lhs->_value - this->rhs->_value; }
 
-    // TODO
     NumericValue* partial(unsigned int i)
         {
         if (i == 0)
@@ -923,11 +915,10 @@ public:
             return &NegativeOneParameter;
         }
 
-    // TODO
     void compute_adjoint()
         {
         this->lhs->adjoint += this->adjoint;
-        this->rhs->adjoint += this->adjoint;
+        this->rhs->adjoint -= this->adjoint;
         }
 
     void compute_hv_fwd()

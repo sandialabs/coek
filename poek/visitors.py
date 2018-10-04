@@ -1,6 +1,8 @@
 from poek._expr import ffi, lib
 from poek.globals import NULL, BUFFER
 
+__all__ = ['Visitor', 'ValueVisitor']
+
 
 class Visitor(object):
 

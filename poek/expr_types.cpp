@@ -1,6 +1,7 @@
 
 #include <set>
 #include <list>
+#include <cmath>
 
 #include "expr_types.h"
 
@@ -15,6 +16,27 @@ double Variable::_nan = NAN;
 bool variable_comparator(const Variable* lhs, const Variable* rhs)
 {
 return lhs->index < rhs->index;
+}
+
+
+NumericValue* PowExpression::partial(unsigned int i)
+{
+NumericValue* base = this->lhs;
+NumericValue* exp =  this->rhs;
+if (i==0)
+    return new MulExpression<NumericValue*,NumericValue*>( exp, new PowExpression( base, new SubExpression(exp, &OneParameter) ) );
+else
+    return new MulExpression<NumericValue*,NumericValue*>( new LogExpression( base ), this );
+}
+
+
+void PowExpression::compute_adjoint()
+{
+double base = this->lhs->_value;
+double exp = this->rhs->_value;
+
+this->lhs->adjoint += this->adjoint * exp * pow(base, exp-1);
+this->rhs->adjoint += this->adjoint * log(base) * this->_value;
 }
 
 
@@ -153,7 +175,7 @@ for (ordered_variable_iterator_t it=variables.begin(); it != variables.end(); it
 
     ///(*it)->print(std::cout);
     ///std::cout << " :  ";
-    ///ad[*it]->print(std::cout);
+    ///diff[*it]->print(std::cout);
     ///std::cout << std::endl;
     }
 }

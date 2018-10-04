@@ -1,6 +1,8 @@
 from poek._expr import ffi, lib
 from poek.expr import *
 
+__all__ = ['value', 'quicksum']
+
 
 def value(obj):
     if isinstance(obj, NumericValue):

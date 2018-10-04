@@ -1,4 +1,7 @@
 
+__all__ = ['GurobiSolver']
+
+
 class GurobiSolver(object):
 
     __slots__ = ('env','model', 'x', 'nx')

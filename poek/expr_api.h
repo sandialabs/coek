@@ -2,6 +2,7 @@
 /* Declaration of C expression API functions */
 
 void* misc_getnull(void);
+double misc_getnan(void);
 
 /** EXPRESSIONS **/
 

@@ -6,9 +6,10 @@ from poek import *
 class TestModel(unittest.TestCase):
 
     def test_model1(self):
-        v1 = variable(name="v1")
-        v2 = variable(name="v2")
-        v3 = variable(name="v3")
+        v1 = variable(name="v1", initialize=1)
+        v2 = variable(name="v2", initialize=2)
+        v3 = variable(name="v3", initialize=3)
+
         m = model()
         e = v1+v2
         m.add( (1-e) + 3*e + e*e + v3 )
@@ -17,9 +18,18 @@ class TestModel(unittest.TestCase):
         m.add( 1 < v2 )
         m.add( v1 > 1 )
         m.add( v1 == 3*v2-3 )
-        m.show(1)
+
         m.build()
-        m.show(1)
+        #m.show(True)
+
+        self.assertEqual(m.compute_f(), 19)
+        self.assertEqual(m.compute_c(), [-4, 5, -1, 0, -2])
+        self.assertEqual(m.compute_df(), [8,8,1])
+        self.assertEqual(m.compute_dc(0), [2,-3,0])
+        self.assertEqual(m.compute_dc(1), [-2,3,0])
+        self.assertEqual(m.compute_dc(2), [0,-1,0])
+        self.assertEqual(m.compute_dc(3), [-1,0,0])
+        self.assertEqual(m.compute_dc(4), [1,-3,0])
 
     def test_error1(self):
         p = parameter(2,False)

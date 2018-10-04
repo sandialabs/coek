@@ -1,6 +1,10 @@
 from poek._expr import ffi, lib
 from poek.globals import NAN, NULL, BUFFER
 
+__all__ = ['NumericValue', 'parameter', 'ZeroParameter', 'OneParameter',
+    'variable', 'variable_single', 'variable_array', 'expression',
+    'constraint', 'inequality_constraint', 'equality_constraint']
+
 
 class NumericValue(object):
 
@@ -9,20 +13,17 @@ class NumericValue(object):
     # This is required because we define __eq__
     __hash__ = None
 
-    def is_expression(self):
+    def is_parameter(self):             #pragma:nocover
         return False
 
-    def is_constraint(self):
+    def is_expression(self):            #pragma:nocover
         return False
 
-    def is_variable(self):
+    def is_constraint(self):            #pragma:nocover
         return False
 
-    def is_parameter(self):
+    def is_variable(self):              #pragma:nocover
         return False
-
-    #def get_descr(self):
-    #    return lib.get_numval_str(self.ptr, BUFFER, 64)
 
     def size(self):
         return lib.expr_size(self.ptr)
@@ -50,17 +51,17 @@ class NumericValue(object):
     def diff(self, var):
         if self.__class__ is parameter:
             return ZeroParameter
-        if self.__class__ is variable:
-            if id(self) == id(var):
-                return OneParameter
-            else:
-                return ZeroParameter
-        if var.__class__ is variable_single:
+        elif var.__class__ is variable_single:
+            if self.__class__ is variable_single:
+                if id(self) == id(var):
+                    return OneParameter
+                else:
+                    return ZeroParameter
             tmp = lib.expr_diff(self.ptr, var.ptr)
             if tmp == NULL:
                 return ZeroParameter
             return expression(tmp)
-        if var.__class__ is list or var.__class__ is tuple:
+        elif var.__class__ is list or var.__class__ is tuple:
             tmp = []
             for v in var:
                 ptr = lib.expr_diff(self.ptr, v.ptr)
@@ -69,7 +70,8 @@ class NumericValue(object):
                 else:
                     tmp.append( expression(lib.expr_diff(self.ptr, v.ptr)) )
             return tmp
-        raise TypeError("Badly formated argument")
+        else:
+            raise TypeError("Badly formated argument")
 
     def __float__(self):
         """
@@ -678,11 +680,14 @@ class variable_array(object):
         return False
 
     def __getitem__(self, key):
-        if key in self.views:
-            return self.views[key]
+        views = self.views
+        if key in views:
+            return views[key]
         if self.name is None:
-            return variable_view(initialize=self.initialize, ptr=self.ptrs[key])
-        return variable_view(name=self.name + str(key), initialize=self.initialize, ptr=self.ptrs[key])
+            views[key] = variable_view(initialize=self.initialize, ptr=self.ptrs[key])
+        else:
+            views[key] = variable_view(name=self.name + str(key), initialize=self.initialize, ptr=self.ptrs[key])
+        return views[key]
 
     def __iter__(self):
         for i in range(self.num):
@@ -980,7 +985,7 @@ class equality_constraint(constraint):
 
     __slots__ = ()
 
-    def is_equality(self):
+    def is_equality(self):  #pragma:nocover
         return True
 
 

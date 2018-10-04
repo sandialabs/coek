@@ -1,4 +1,4 @@
-from poek.expr import *
+from poek import *
 
 v1 = variable(name='v1')
 

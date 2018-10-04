@@ -1,7 +1,7 @@
 all: exprapi
 
 clean:
-	rm -f *.o *.so tmpexec _expr.c
+	rm -f *.o *.so tmpexec _expr.c .coverage
 
 libexprapi.so: expr_api.o model.o expr_types.o intrinsic.cpp #solvers.o
 	g++ -O3 -shared $^ -o $@ #-L$(GUROBI_HOME)/lib -lgurobi_c++ -lgurobi80

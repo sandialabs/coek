@@ -1,4 +1,5 @@
 
+#include <cmath>
 #include <cassert>
 #include <sstream>
 
@@ -13,9 +14,10 @@ std::list<Variable*> variables;
 
 
 extern "C" void* misc_getnull(void)
-{
-return 0;
-}
+{ return 0; }
+
+extern "C" double misc_getnan(void)
+{ return NAN; }
 
 
 /*** ADD ***/
