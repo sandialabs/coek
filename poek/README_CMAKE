@@ -1,0 +1,14 @@
+Instructions to build POEK expression api library:
+
+1) get recent version of cmake
+   conda install -c anaconda cmake
+
+2) make a build directory
+   mkdir build
+
+3) within the build directory run cmake
+   cmake ..
+   make VERBOSE=1
+
+If gurobi is available add -DGUROBI_HOME=<PATH_TO_GUROBI_HOME> and cmake will include it in the compilation
+
