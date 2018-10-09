@@ -56,11 +56,15 @@ void* expr_diff(void* expr, void* variable);
 void* create_parameter_int(int value, int mutable_flag, char* name);
 void* create_parameter_double(double value, int mutable_flag, char* name);
 
-void* create_variable(int binary, int integer, char* name);
-void create_variable_array(void* array[], int num, int binary, int integer, char* name);
+void* create_variable(int binary, int integer, double lb, double ub, double init, char* name);
+void create_variable_array(void* array[], int num, int binary, int integer, double lb, double ub, double init, char* name);
 int get_variable_index(void* variable);
 void set_variable_value(void* variable, double value);
 double get_variable_value(void* variable);
+void set_variable_lb(void* variable, double value);
+double get_variable_lb(void* variable);
+void set_variable_ub(void* variable, double value);
+double get_variable_ub(void* variable);
 
 void get_numval_str(void* numval, char* buf, int n);
 double get_numval_value(void* numval);

@@ -1,10 +1,14 @@
-
+#include <cassert>
 #include <cstdio>
 #include <cmath>
 #include <iostream>
 #include <map>
 #include <list>
 #include <set>
+
+#define POSITIVE_INFINITY 1.0e19
+#define NEGATIVE_INFINITY -1.0e19
+
 
 
 class NumericValue
@@ -135,14 +139,30 @@ public:
     int index;
     std::string name;
 
-    Variable(bool _binary, bool _integer, char* _name) : NumericValue()
+    double lb;
+    double ub;
+
+    Variable(bool _binary, bool _integer, double _lb, double _ub, double init, char* _name) : NumericValue()
         {
-        _value = _nan;
+        _value = init;
         binary = _binary; 
         integer = _integer; 
         index = nvariables++;
         if (_name)
             name = _name;
+        if (binary) {
+            lb = 0;
+            ub = 1;
+        } else {
+            if (isnan(_lb))
+                lb = NEGATIVE_INFINITY;
+            else
+                lb = _lb;
+            if (isnan(_ub))
+                ub = POSITIVE_INFINITY;
+            else
+                ub = _ub;
+        }
         }
 
     virtual double value() {return _value;}
@@ -360,7 +380,7 @@ public:
         else if (body->_value > 0) {
             return &OneParameter;
             }
-        throw std::invalid_argument("Argument is zero");
+        throw std::logic_error("Argument is zero");       // std::invalid_argument
         }
 
     void compute_adjoint()
@@ -369,7 +389,7 @@ public:
             this->body->adjoint -= this->adjoint;
         else if (body->_value > 0)
             this->body->adjoint += this->adjoint;
-        throw std::invalid_argument("Argument is zero");
+        throw std::logic_error("Argument is zero");       // std::invalid_argument
         }
 
     void compute_hv_fwd()

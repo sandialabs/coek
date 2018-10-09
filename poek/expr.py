@@ -617,14 +617,12 @@ class variable_single(NumericValue):
 
     __slots__ = ('ptr', 'name', 'index')
 
-    def __init__(self, name=None, initialize=None):
+    def __init__(self, name=None, initialize=NAN, lb=NAN, ub=NAN):
         self.name = name
         if name is None:
-            self.ptr = lib.create_variable(0,0,str.encode(""))   # TODO: add 'within' argument
+            self.ptr = lib.create_variable(0,0,lb,ub,initialize,str.encode(""))   # TODO: add 'within' argument
         else:
-            self.ptr = lib.create_variable(0,0, str.encode(name))   # TODO: add 'within' argument
-        if not initialize is None:
-            self.value = initialize
+            self.ptr = lib.create_variable(0,0,lb,ub,initialize,str.encode(name))   # TODO: add 'within' argument
         self.index = lib.get_variable_index(self.ptr)
 
     @property
@@ -633,6 +631,20 @@ class variable_single(NumericValue):
     @value.setter
     def value(self, value):
         lib.set_variable_value(self.ptr, value)
+
+    @property
+    def lb(self):
+        return lib.get_variable_lb(self.ptr)
+    @lb.setter
+    def lb(self, value):
+        lib.set_variable_lb(self.ptr, value)
+
+    @property
+    def ub(self):
+        return lib.get_variable_ub(self.ptr)
+    @ub.setter
+    def ub(self, value):
+        lib.set_variable_ub(self.ptr, value)
 
     def __str__(self):      #pragma:nocover
         if self.name is None:
@@ -648,28 +660,48 @@ class variable_single(NumericValue):
 
 class variable_view(variable_single):
 
-    def __init__(self, name=None, ptr=None, initialize=None):
+    def __init__(self, name=None, ptr=None):
         self.ptr = ptr
         if name is None:
             self.index = lib.get_variable_index(self.ptr)
             self.name = 'x%d' % self.index
         else:
             self.name = name
-        if not initialize is None:
-            self.value = initialize
+
+    @property
+    def value(self):
+        return lib.get_numval_value(self.ptr)
+    @value.setter
+    def value(self, value):
+        lib.set_variable_value(self.ptr, value)
+
+    @property
+    def lb(self):
+        return lib.get_variable_lb(self.ptr)
+    @lb.setter
+    def lb(self, value):
+        lib.set_variable_lb(self.ptr, value)
+
+    @property
+    def ub(self):
+        return lib.get_variable_ub(self.ptr)
+    @ub.setter
+    def ub(self, value):
+        lib.set_variable_ub(self.ptr, value)
+
 
 
 class variable_array(object):
 
     __slots__ = ('ptrs', 'name', 'num', 'views', 'initialize')
 
-    def __init__(self, num, name=None, initialize=None):
+    def __init__(self, num, name=None, initialize=NAN, lb=NAN, ub=NAN):
         self.num = num 
         self.name = name
         self.initialize = initialize
         prefix = str.encode("") if name is None else str.encode(name)
         ptrs = ffi.new("void* []", num)
-        lib.create_variable_array(ptrs,num,0,0,prefix)
+        lib.create_variable_array(ptrs,num,0,0,lb,ub,initialize,prefix)
         self.ptrs = ptrs
         self.views = {}
 
@@ -684,9 +716,9 @@ class variable_array(object):
         if key in views:
             return views[key]
         if self.name is None:
-            views[key] = variable_view(initialize=self.initialize, ptr=self.ptrs[key])
+            views[key] = variable_view(ptr=self.ptrs[key])
         else:
-            views[key] = variable_view(name=self.name + str(key), initialize=self.initialize, ptr=self.ptrs[key])
+            views[key] = variable_view(name=self.name + str(key), ptr=self.ptrs[key])
         return views[key]
 
     def __iter__(self):

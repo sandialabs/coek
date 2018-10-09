@@ -502,17 +502,17 @@ parameters.push_back(tmp);
 return tmp;
 }
 
-extern "C" void* create_variable(int binary, int integer, char* name)
+extern "C" void* create_variable(int binary, int integer, double lb, double ub, double init, char* name)
 {
-Variable* tmp = new Variable(binary, integer, name);
+Variable* tmp = new Variable(binary, integer, lb, ub, init, name);
 variables.push_back(tmp);
 return tmp;
 }
 
-extern "C" void create_variable_array(void* vars[], int num, int binary, int integer, char* name)
+extern "C" void create_variable_array(void* vars[], int num, int binary, int integer, double lb, double ub, double init, char* name)
 {
 for (int i=0; i<num; i++) {
-    Variable* tmp = new Variable(binary, integer, name);
+    Variable* tmp = new Variable(binary, integer, lb, ub, init, name);
     vars[i] = tmp;
     variables.push_back(tmp);
     }
@@ -534,6 +534,30 @@ extern "C" double get_variable_value(void* ptr)
 {
 Variable* v = static_cast<Variable*>(ptr);
 return v->_value;
+}
+
+extern "C" void set_variable_lb(void* ptr, double val)
+{
+Variable* v = static_cast<Variable*>(ptr);
+v->lb = val;
+}
+
+extern "C" double get_variable_lb(void* ptr)
+{
+Variable* v = static_cast<Variable*>(ptr);
+return v->lb;
+}
+
+extern "C" void set_variable_ub(void* ptr, double val)
+{
+Variable* v = static_cast<Variable*>(ptr);
+v->ub = val;
+}
+
+extern "C" double get_variable_ub(void* ptr)
+{
+Variable* v = static_cast<Variable*>(ptr);
+return v->ub;
 }
 
 extern "C" void get_numval_str(void* ptr, char* buf, int max)

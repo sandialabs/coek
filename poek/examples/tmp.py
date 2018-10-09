@@ -144,6 +144,9 @@ print(visitor.walk(E, show=True))
 Y = variable(10, name='Y', initialize=3)
 for var in Y:
   print((var.name, var.value))
-Z = variable(10, initialize=3)
+Z = variable(10, initialize=4)
+Z[1].lb = 0;
+Z[2].ub = 1;
+Z[3].value = -1;
 for var in Z:
-  print((var.name, var.value))
+  print((var.name, var.value, var.lb, var.ub))
