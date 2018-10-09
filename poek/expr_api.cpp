@@ -713,19 +713,19 @@ walk_expression_tree(_root, enter_callback, exit_callback, visitor);
 }
 
 
-void* get_solver(char* name)
+extern "C" void* get_solver(char* name)
 {
 return create_solver(name);
 }
 
-void set_solver_model(void* solver, void* model)
+extern "C" void set_solver_model(void* solver, void* model)
 {
 Solver* _solver = static_cast<Solver*>(solver);
 Model* _model = static_cast<Model*>(model);
 _solver->set_model(_model);
 }
 
-int solver_solve(void* solver)
+extern "C" int solver_solve(void* solver)
 {
 Solver* _solver = static_cast<Solver*>(solver);
 return _solver->solve();

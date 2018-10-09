@@ -67,10 +67,11 @@ void Model1::build()
 builds_f.resize(objectives.size() + inequalities.size() + equalities.size());
 int nb=0;
 
-std::vector< std::set<Variable*, bool(*)(const Variable*, const Variable*)> > vars;
+typedef std::set<Variable*, bool(*)(const Variable*, const Variable*)> ordered_set_t;
+std::vector< ordered_set_t* > vars;
+vars.resize(inequalities.size() + equalities.size());
 J_rc.resize(inequalities.size() + equalities.size());
 J.resize(inequalities.size() + equalities.size());
-vars.resize(inequalities.size() + equalities.size());
     
 std::set<Variable*, bool(*)(const Variable*, const Variable*)> vset(variable_comparator);
 
@@ -81,18 +82,22 @@ for (std::list<Expression*>::iterator it=objectives.begin(); it != objectives.en
 
 size_t i=0;
 for (std::list<Expression*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
-    build_expression(*it, builds_f[nb], vars[i++]);
+    vars[i] = new std::set<Variable*, bool(*)(const Variable*, const Variable*)>(variable_comparator);
+    build_expression(*it, builds_f[nb], *vars[i]);
+    i++;
     nb++;
     }
 
 for (std::list<Expression*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
-    build_expression(*it, builds_f[nb], vars[i++]);
+    vars[i] = new std::set<Variable*, bool(*)(const Variable*, const Variable*)>(variable_comparator);
+    build_expression(*it, builds_f[nb], *vars[i]);
+    i++;
     nb++;
     }
 
 // Add variables from Jacobian
 for (size_t i = 0; i<vars.size(); i++)
-    for (ordered_variable_iterator_t it=vars[i].begin(); it != vars[i].end(); it++) {
+    for (ordered_variable_iterator_t it=vars[i]->begin(); it != vars[i]->end(); it++) {
         vset.insert( *it );
         }
 
@@ -110,13 +115,17 @@ for (ordered_variable_iterator_t it=vset.begin(); it != vset.end(); it++) {
 // Setup Jacobian data structures
 for (size_t i = 0; i<vars.size(); i++) {
     size_t j=0;
-    J_rc[i].resize( vars[i].size() );
-    J[i].resize( vars[i].size() );
-    for (ordered_variable_iterator_t it=vars[i].begin(); it != vars[i].end(); it++) {
+    J_rc[i].resize( vars[i]->size() );
+    J[i].resize( vars[i]->size() );
+    for (ordered_variable_iterator_t it=vars[i]->begin(); it != vars[i]->end(); it++) {
         J_rc[i][j] = index_to_id[ (*it)->index ];
         J[i][j] = *it;
         }
     }
+
+// Free memory
+for (size_t i=0; i<vars.size(); i++)
+    delete vars[i];
 }
 
 double Model1::compute_f(unsigned int i)
