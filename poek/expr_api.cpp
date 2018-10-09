@@ -3,7 +3,7 @@
 #include <cassert>
 #include <sstream>
 
-#include "model.h"
+#include "solver.h"
 
 /*** GLOBAL DATA ***/
 
@@ -651,7 +651,7 @@ return tmp->num_variables();
 extern "C" double compute_objective_f(void* model, int i)
 {
 Model* tmp = static_cast<Model*>(model);
-return tmp->_compute_f(i);
+return tmp->compute_f(i);
 }
 
 extern "C" void compute_objective_df(void* model, double* df, int n, int i)
@@ -659,7 +659,7 @@ extern "C" void compute_objective_df(void* model, double* df, int n, int i)
 Model* tmp = static_cast<Model*>(model);
 double f;
 std::vector<double> _df(n);
-tmp->_compute_df(f, _df, i);
+tmp->compute_df(f, _df, i);
 for (int i=0; i<n; i++)
   df[i] = _df[i];
 }
@@ -668,7 +668,7 @@ extern "C" void compute_constraint_f(void* model, double* c, int n)
 {
 Model* tmp = static_cast<Model*>(model);
 std::vector<double> _c(n);
-tmp->_compute_c(_c);
+tmp->compute_c(_c);
 for (int i=0; i<n; i++)
   c[i] = _c[i];
 }
@@ -677,7 +677,7 @@ extern "C" void compute_constraint_df(void* model, double* dc, int n, int i)
 {
 Model* tmp = static_cast<Model*>(model);
 std::vector<double> _dc(n);
-tmp->_compute_dc(_dc, i);
+tmp->compute_dc(_dc, i);
 for (int i=0; i<n; i++)
   dc[i] = _dc[i];
 }
@@ -689,7 +689,7 @@ std::vector<double> _v(n);
 for (int j=0; j<n; j++)
   _v[j] = v[j];
 std::vector<double> _Hv(n);
-tmp->_compute_Hv(_v, _Hv, i);
+tmp->compute_Hv(_v, _Hv, i);
 for (int j=0; j<n; j++)
   Hv[j] = _Hv[j];
 }
@@ -710,5 +710,24 @@ extern "C" void visitor_walk(void* root, void(*enter_callback)(void*,void*,void*
 {
 NumericValue* _root = static_cast<NumericValue*>(root);
 walk_expression_tree(_root, enter_callback, exit_callback, visitor);
+}
+
+
+void* get_solver(char* name)
+{
+return create_solver(name);
+}
+
+void set_solver_model(void* solver, void* model)
+{
+Solver* _solver = static_cast<Solver*>(solver);
+Model* _model = static_cast<Model*>(model);
+_solver->set_model(_model);
+}
+
+int solver_solve(void* solver)
+{
+Solver* _solver = static_cast<Solver*>(solver);
+return _solver->solve();
 }
 

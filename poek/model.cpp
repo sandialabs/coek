@@ -8,12 +8,21 @@
 ///
 
 
+void Model::set_variables(const double* x, int n)
+{
+assert(n == variables.size());
+int j=0;
+for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++) {
+    (*it)->_value = x[j];
+    j++;
+    }
+}
+
 void Model::set_variables(std::vector<double>& x)
 {
-///std::cout << "x=" << x.size() << "  vars=" << variables.size() << std::endl << std::flush;
 assert(x.size() == variables.size());
 int j=0;
-for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
+for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++) {
     (*it)->_value = x[j];
     j++;
     }
@@ -58,23 +67,59 @@ void Model1::build()
 builds_f.resize(objectives.size() + inequalities.size() + equalities.size());
 int nb=0;
 
+std::vector< std::set<Variable*, bool(*)(const Variable*, const Variable*)> > vars;
+J_rc.resize(inequalities.size() + equalities.size());
+J.resize(inequalities.size() + equalities.size());
+vars.resize(inequalities.size() + equalities.size());
+    
+std::set<Variable*, bool(*)(const Variable*, const Variable*)> vset(variable_comparator);
+
 for (std::list<Expression*>::iterator it=objectives.begin(); it != objectives.end(); ++it) {
-    build_expression(*it, builds_f[nb], variables);
+    build_expression(*it, builds_f[nb], vset);
     nb++;
     }
 
+size_t i=0;
 for (std::list<Expression*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
-    build_expression(*it, builds_f[nb], variables);
+    build_expression(*it, builds_f[nb], vars[i++]);
     nb++;
     }
 
 for (std::list<Expression*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
-    build_expression(*it, builds_f[nb], variables);
+    build_expression(*it, builds_f[nb], vars[i++]);
     nb++;
+    }
+
+// Add variables from Jacobian
+for (size_t i = 0; i<vars.size(); i++)
+    for (ordered_variable_iterator_t it=vars[i].begin(); it != vars[i].end(); it++) {
+        vset.insert( *it );
+        }
+
+// Create the vector of all variables
+std::map<int,int> index_to_id;
+variables.resize(vset.size());
+std::vector<Variable*>::iterator IT=variables.begin();
+i=0;
+for (ordered_variable_iterator_t it=vset.begin(); it != vset.end(); it++) {
+    index_to_id[ (*it)->index ] = i++;
+    *IT = *it;
+    IT++;
+    }
+
+// Setup Jacobian data structures
+for (size_t i = 0; i<vars.size(); i++) {
+    size_t j=0;
+    J_rc[i].resize( vars[i].size() );
+    J[i].resize( vars[i].size() );
+    for (ordered_variable_iterator_t it=vars[i].begin(); it != vars[i].end(); it++) {
+        J_rc[i][j] = index_to_id[ (*it)->index ];
+        J[i][j] = *it;
+        }
     }
 }
 
-double Model1::_compute_f(unsigned int i)
+double Model1::compute_f(unsigned int i)
 {
 assert(i < builds_f.size());
 std::list<NumericValue*>& tmp = builds_f[i];
@@ -92,13 +137,13 @@ for (std::list<NumericValue*>::iterator it=tmp.begin(); it != tmp.end(); it++) {
 return ans;
 }
 
-void Model1::_compute_df(double& f, std::vector<double>& df, unsigned int i)
+void Model1::compute_df(double& f, std::vector<double>& df, unsigned int i)
 {
 assert(i < builds_f.size());
 assert(variables.size() == df.size());
 std::list<NumericValue*>& build = builds_f[i];
 
-/// _compute_f + set adjoint=0
+/// compute_f + set adjoint=0
 double ans = 0.0;
 for (std::list<NumericValue*>::iterator it=build.begin(); it != build.end(); it++) {
     NumericValue* tmp = *it;
@@ -108,7 +153,7 @@ for (std::list<NumericValue*>::iterator it=build.begin(); it != build.end(); it+
 f = ans;
 
 /// Set adjoint for variables
-for (variables_iterator_type it=variables.begin(); it != variables.end(); it++)
+for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++)
     (*it)->adjoint = 0;
 
 /// Compute reverse AD
@@ -119,12 +164,12 @@ for ( ; rit != build.rend(); rit++)
 
 /// Retrieve adjoint from variables
 int j=0;
-for (variables_iterator_type it=variables.begin(); it != variables.end(); it++)
+for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++)
     df[j++] = (*it)->adjoint;
 }
 
 
-void Model1::_compute_c(std::vector<double>& c)
+void Model1::compute_c(std::vector<double>& c)
 {
 assert((inequalities.size() + equalities.size()) == c.size());
 
@@ -140,13 +185,13 @@ for (unsigned int j=0; j<c.size(); j++, i++) {
     }
 }
 
-void Model1::_compute_dc(std::vector<double>& dc, unsigned int i)
+void Model1::compute_dc(std::vector<double>& dc, unsigned int i)
 {
 assert(variables.size() == dc.size());
 assert(i < (inequalities.size() + equalities.size()));
 std::list<NumericValue*>& build = builds_f[objectives.size() + i];
 
-/// _compute_c + set adjoint=0
+/// compute_c + set adjoint=0
 double ans = 0.0;
 for (std::list<NumericValue*>::iterator it=build.begin(); it != build.end(); it++) {
     NumericValue* tmp = *it;
@@ -156,7 +201,7 @@ for (std::list<NumericValue*>::iterator it=build.begin(); it != build.end(); it+
 //c[i] = ans;
 
 /// Set adjoint for variables
-for (variables_iterator_type it=variables.begin(); it != variables.end(); it++)
+for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++)
     (*it)->adjoint = 0;
 
 /// Compute reverse AD
@@ -167,12 +212,12 @@ for ( ; rit != build.rend(); rit++)
 
 /// Retrieve adjoint from variables
 int j=0;
-for (variables_iterator_type it=variables.begin(); it != variables.end(); it++)
+for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++)
     dc[j++] = (*it)->adjoint;
 }
 
 
-void Model1::_compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i)
+void Model1::compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i)
 {
 assert(i < builds_f.size());
 assert(variables.size() == v.size());
@@ -181,7 +226,7 @@ std::list<NumericValue*>& build = builds_f[i];
 
 /// Set adjoint for variables
 int j=0;
-for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
+for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++) {
     (*it)->adjoint = 0;
     (*it)->dO = v[j++];
     std::cout << "Value " << (*it)->_value << std::endl;
@@ -207,7 +252,7 @@ for ( ; rit != build.rend(); rit++) {
 
 /// Retrieve adjoint from variables
 j=0;
-for (variables_iterator_type it=variables.begin(); it != variables.end(); it++) {
+for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++) {
     Hv[j++] = (*it)->adjoint;
     std::cout << "x[" << (*it)->index << "]  adjoint=" << (*it)->adjoint << " adO=" << (*it)->adO << std::endl;
     }
@@ -227,7 +272,7 @@ if ((variables.size() > 0) && df) {
         std::map<Variable*, NumericValue*> diff;
         symbolic_diff_all(*it,  diff);
         ostr << "    (Objective " << k << ")" << std::endl;
-        for (variables_iterator_type IT=variables.begin(); IT != variables.end(); IT++) {
+        for (std::vector<Variable*>::iterator IT=variables.begin(); IT != variables.end(); IT++) {
             ostr << "    ";
             (*IT)->print(ostr);
             ostr << " :  ";
@@ -249,7 +294,7 @@ if ((variables.size() > 0) && df) {
         InequalityExpression* tmp = static_cast<InequalityExpression*>(*it);
         symbolic_diff_all(tmp->body,  diff);
         ostr << "    (Inequality " << k << ")" << std::endl;
-        for (variables_iterator_type IT=variables.begin(); IT != variables.end(); IT++) {
+        for (std::vector<Variable*>::iterator IT=variables.begin(); IT != variables.end(); IT++) {
             ostr << "    ";
             (*IT)->print(ostr);
             ostr << " :  ";
@@ -271,7 +316,7 @@ if ((variables.size() > 0) && df) {
         EqualityExpression* tmp = static_cast<EqualityExpression*>(*it);
         symbolic_diff_all(tmp->body,  diff);
         ostr << "    (Equality " << k << ")" << std::endl;
-        for (variables_iterator_type IT=variables.begin(); IT != variables.end(); IT++) {
+        for (std::vector<Variable*>::iterator IT=variables.begin(); IT != variables.end(); IT++) {
             ostr << "    ";
             (*IT)->print(ostr);
             ostr << " :  ";

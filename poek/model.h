@@ -19,16 +19,21 @@ public:
     std::list<Expression*> inequalities;
     std::list<Expression*> equalities;
 
-    std::set<Variable*, bool(*)(const Variable*, const Variable*)> variables;
+    //std::set<Variable*, bool(*)(const Variable*, const Variable*)> variables;
+    std::vector<Variable*> variables;
     typedef std::set<Variable*, bool(*)(const Variable*, const Variable*)>::iterator variables_iterator_type;
+    std::vector<std::vector<int> > J_rc;
+    std::vector<std::vector<Variable*> > J;
 
-    Model(void) : variables(variable_comparator) {}
+    Model(void) {}
 
     int num_variables() {return variables.size();}
 
     virtual void build() = 0;
 
     virtual void set_variables(std::vector<double>& x);
+
+    virtual void set_variables(const double* x, int n);
 
     /// COMPUTE F
 
@@ -38,8 +43,10 @@ public:
     virtual double compute_f(std::vector<double>& x, unsigned int i)
         {
         set_variables(x);
-        return _compute_f(i);
+        return compute_f(i);
         }
+
+    virtual double compute_f(unsigned int i) = 0;
 
     /// COMPUTE DF
 
@@ -50,8 +57,10 @@ public:
         {
         set_variables(x);
         double f;
-        _compute_df(f, df, i);
+        compute_df(f, df, i);
         }
+
+    virtual void compute_df(double& f, std::vector<double>& df, unsigned int i) = 0;
 
     /// COMPUTE Hv
 
@@ -61,7 +70,7 @@ public:
     virtual void compute_Hv(std::vector<double>& x, std::vector<double>& v, std::vector<double>& Hv, unsigned int i)
         {
         set_variables(x);
-        _compute_Hv(v, Hv, 0);
+        compute_Hv(v, Hv, 0);
         }
 
     /// COMPUTE C
@@ -69,30 +78,26 @@ public:
     virtual void compute_c(std::vector<double>& x, std::vector<double>& c)
         {
         set_variables(x);
-        _compute_c(c);
+        compute_c(c);
         }
+
+    virtual void compute_c(std::vector<double>& c) = 0;
 
     /// COMPUTE DC
 
     virtual void compute_dc(std::vector<double>& x, std::vector<double>& dc, unsigned int i)
         {
         set_variables(x);
-        _compute_dc(dc, i);
+        compute_dc(dc, i);
         }
+
+    virtual void compute_dc(std::vector<double>& dc, unsigned int i) = 0;
 
     /// COMPUTE J
 
     //void compute_J(std::vector<double>& x, std::vector<double>& J)
 
-    virtual double _compute_f(unsigned int i) = 0;
-
-    virtual void _compute_df(double& f, std::vector<double>& df, unsigned int i) = 0;
-
-    virtual void _compute_c(std::vector<double>& c) = 0;
-
-    virtual void _compute_dc(std::vector<double>& dc, unsigned int i) = 0;
-
-    virtual void _compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i) = 0;
+    virtual void compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i) = 0;
 
     virtual void print(std::ostream& ostr, int df);
 
@@ -112,15 +117,15 @@ public:
 
     void build();
 
-    double _compute_f(unsigned int i);
+    double compute_f(unsigned int i);
 
-    void _compute_df(double& f, std::vector<double>& df, unsigned int i);
+    void compute_df(double& f, std::vector<double>& df, unsigned int i);
 
-    void _compute_c(std::vector<double>& c);
+    void compute_c(std::vector<double>& c);
 
-    void _compute_dc(std::vector<double>& dc, unsigned int i);
+    void compute_dc(std::vector<double>& dc, unsigned int i);
 
-    void _compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i);
+    void compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i);
 
     void print(std::ostream& ostr, int df);
 

@@ -93,9 +93,7 @@ void compute_Hv(void* model, double* v, double* Hv, int n, int i);
 void test_callback(int(*callback)(int, int));
 void visitor_walk(void* expr, void(*enter_callback)(void*, void*, void*), void(*exit_callback)(void*, void*, void*), void* visitor);
 
-/*
-void* solver_gurobi_env(void);
-void* solver_gurobi_model(void* model);
-void gurobi_solve(void* model, void* x, int n);
-*/
+void* get_solver(char* name);
+int solver_solve(void* solver);
+void set_solver_model(void* solver, void* model);
 
