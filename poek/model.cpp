@@ -201,8 +201,24 @@ void Model1::compute_dc(std::vector<double>& dc, unsigned int i)
 {
 assert(variables.size() == dc.size());
 assert(i < (inequalities.size() + equalities.size()));
-std::list<NumericValue*>& build = builds_f[objectives.size() + i];
 
+/// Set adjoint for variables
+for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++)
+    (*it)->adjoint = 0;
+
+compute_adjoints(i);
+
+/// Retrieve adjoint from variables
+int j=0;
+for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++)
+    dc[j++] = (*it)->adjoint;
+}
+
+
+void Model1::compute_adjoints(unsigned int i)
+{
+std::list<NumericValue*>& build = builds_f[objectives.size() + i];
+//
 /// compute_c + set adjoint=0
 double ans = 0.0;
 for (std::list<NumericValue*>::iterator it=build.begin(); it != build.end(); it++) {
@@ -210,11 +226,6 @@ for (std::list<NumericValue*>::iterator it=build.begin(); it != build.end(); it+
     ans = tmp->compute_value();
     tmp->adjoint = 0;
     }
-//c[i] = ans;
-
-/// Set adjoint for variables
-for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++)
-    (*it)->adjoint = 0;
 
 /// Compute reverse AD
 std::list<NumericValue*>::reverse_iterator rit=build.rbegin();
@@ -224,11 +235,6 @@ for ( ; rit != build.rend(); rit++) {
     //std::cout << std::endl;
     (*rit)->compute_adjoint();
     }
-
-/// Retrieve adjoint from variables
-int j=0;
-for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++)
-    dc[j++] = (*it)->adjoint;
 }
 
 

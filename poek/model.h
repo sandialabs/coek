@@ -93,6 +93,8 @@ public:
 
     virtual void compute_dc(std::vector<double>& dc, unsigned int i) = 0;
 
+    virtual void compute_adjoints(unsigned int i) = 0;
+
     /// COMPUTE J
 
     //void compute_J(std::vector<double>& x, std::vector<double>& J)
@@ -124,6 +126,8 @@ public:
     void compute_c(std::vector<double>& c);
 
     void compute_dc(std::vector<double>& dc, unsigned int i);
+
+    void compute_adjoints(unsigned int i);
 
     void compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i);
 
