@@ -14,4 +14,4 @@ solver = Solver('ipopt')
 solver.solve(m)
 print("HERE")
 
-m.show(1)
+m.show()
