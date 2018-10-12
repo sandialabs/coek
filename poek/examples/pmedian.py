@@ -1,4 +1,4 @@
-from poek.expr import *
+from poek import *
 
 import random
 random.seed(1000)
@@ -13,11 +13,11 @@ P = 1
 x = {}
 for n in range(N):
     for m in range(M):
-        x[n,m] = variable()
+        x[n,m] = variable(lb=0, ub=1, initialize=0)
 
 y = {}
 for n in range(N):
-    y[n] = variable()
+    y[n] = variable(lb=0, ub=1, initialize=0)
 
 d = {}
 for n in range(N):
