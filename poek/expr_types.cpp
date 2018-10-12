@@ -35,8 +35,10 @@ void PowExpression::compute_adjoint()
 double base = this->lhs->_value;
 double exp = this->rhs->_value;
 
+std::cout << base << " " << exp << " " << this->adjoint << " " << pow(base,exp-1) << std::endl;
 this->lhs->adjoint += this->adjoint * exp * pow(base, exp-1);
 this->rhs->adjoint += this->adjoint * log(base) * this->_value;
+std::cout << "PowExpression::compute_adjoint " << this->adjoint << " " << this->lhs->adjoint << " " << this->rhs->adjoint << std::endl;
 }
 
 

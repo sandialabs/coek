@@ -368,14 +368,12 @@ public:
     double value() {return fabs(body->value()); }
 
     double compute_value()
-        { return this->_value = fabs(this->_value); }
+        { return this->_value = fabs(body->_value); }
 
     NumericValue* partial(unsigned int i)
         {
         if (body->_value < 0) {
-            // TODO - Cache value
-            Parameter* tmp = new TypedParameter<int>(-1, 0);
-            return tmp;
+            return &NegativeOneParameter;
             }
         else if (body->_value > 0) {
             return &OneParameter;
@@ -389,6 +387,7 @@ public:
             this->body->adjoint -= this->adjoint;
         else if (body->_value > 0)
             this->body->adjoint += this->adjoint;
+        //std::cout << "AbsExpression::compute_adjoint " << this->adjoint << " " << this->body->adjoint << std::endl;
         throw std::logic_error("Argument is zero");       // std::invalid_argument
         }
 
@@ -403,17 +402,33 @@ public:
 };
 
 
-class NegExpression : public AbsExpression
+class NegExpression : public UnaryExpression
 {
 public:
 
-    NegExpression(NumericValue* _body) : AbsExpression(_body)
+    NegExpression(NumericValue* _body) : UnaryExpression(_body)
         {this->name = "neg";}
 
     double value() { return - body->value(); }
 
     double compute_value()
-        { return this->_value = - this->_value; }
+        { return this->_value = - body->_value; }
+
+    NumericValue* partial(unsigned int i)
+        {
+        return &NegativeOneParameter;
+        }
+
+    void compute_adjoint()
+        {
+        this->body->adjoint -= this->adjoint;
+        //std::cout << "NegExpression::compute_adjoint " << this->adjoint << " " << this->body->adjoint << std::endl;
+        }
+
+    void compute_hv_fwd()
+        {
+        // TODO
+        }
 
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "-");}
@@ -430,7 +445,7 @@ public:
     double value() { return ceil(body->value()); }
 
     double compute_value()
-        { return this->_value = ceil(this->_value); }
+        { return this->_value = ceil(body->_value); }
 };
 
 class FloorExpression : public AbsExpression
@@ -443,7 +458,7 @@ public:
     double value() {return floor(body->value()); }
 
     double compute_value()
-        { return this->_value = floor(this->_value); }
+        { return this->_value = floor(body->_value); }
 };
 
 class ExpExpression : public AbsExpression
@@ -456,7 +471,7 @@ public:
     double value() {return exp(body->value()); }
 
     double compute_value()
-        { return this->_value = exp(this->_value); }
+        { return this->_value = exp(body->_value); }
 };
 
 class LogExpression : public AbsExpression
@@ -469,7 +484,7 @@ public:
     double value() {return log(body->value()); }
 
     double compute_value()
-        { return this->_value = log(this->_value); }
+        { return this->_value = log(body->_value); }
 };
 
 class Log10Expression : public AbsExpression
@@ -482,7 +497,7 @@ public:
     double value() {return log10(body->value()); }
 
     double compute_value()
-        { return this->_value = log10(this->_value); }
+        { return this->_value = log10(body->_value); }
 };
 
 class SqrtExpression : public AbsExpression
@@ -495,7 +510,7 @@ public:
     double value() {return sqrt(body->value()); }
 
     double compute_value()
-        { return this->_value = sqrt(this->_value); }
+        { return this->_value = sqrt(body->_value); }
 };
 
 class SinExpression : public AbsExpression
@@ -508,7 +523,7 @@ public:
     double value() {return sin(body->value()); }
 
     double compute_value()
-        { return this->_value = sin(this->_value); }
+        { return this->_value = sin(body->_value); }
 };
 
 class CosExpression : public AbsExpression
@@ -521,7 +536,7 @@ public:
     double value() {return cos(body->value()); }
 
     double compute_value()
-        { return this->_value = cos(this->_value); }
+        { return this->_value = cos(body->_value); }
 };
 
 class TanExpression : public AbsExpression
@@ -534,7 +549,7 @@ public:
     double value() {return tan(body->value()); }
 
     double compute_value()
-        { return this->_value = tan(this->_value); }
+        { return this->_value = tan(body->_value); }
 };
 
 class AsinExpression : public AbsExpression
@@ -547,7 +562,7 @@ public:
     double value() {return asin(body->value()); }
 
     double compute_value()
-        { return this->_value = asin(this->_value); }
+        { return this->_value = asin(body->_value); }
 };
 
 class AcosExpression : public AbsExpression
@@ -560,7 +575,7 @@ public:
     double value() {return acos(body->value()); }
 
     double compute_value()
-        { return this->_value = acos(this->_value); }
+        { return this->_value = acos(body->_value); }
 };
 
 class AtanExpression : public AbsExpression
@@ -573,7 +588,7 @@ public:
     double value() {return atan(body->value()); }
 
     double compute_value()
-        { return this->_value = atan(this->_value); }
+        { return this->_value = atan(body->_value); }
 };
 
 class SinhExpression : public AbsExpression
@@ -586,7 +601,7 @@ public:
     double value() {return sinh(body->value()); }
 
     double compute_value()
-        { return this->_value = sinh(this->_value); }
+        { return this->_value = sinh(body->_value); }
 };
 
 class CoshExpression : public AbsExpression
@@ -599,7 +614,7 @@ public:
     double value() {return cosh(body->value()); }
 
     double compute_value()
-        { return this->_value = cosh(this->_value); }
+        { return this->_value = cosh(body->_value); }
 };
 
 class TanhExpression : public AbsExpression
@@ -612,7 +627,7 @@ public:
     double value() {return tanh(body->value()); }
 
     double compute_value()
-        { return this->_value = tanh(this->_value); }
+        { return this->_value = tanh(body->_value); }
 };
 
 class AsinhExpression : public AbsExpression
@@ -625,7 +640,7 @@ public:
     double value() {return asinh(body->value()); }
 
     double compute_value()
-        { return this->_value = asinh(this->_value); }
+        { return this->_value = asinh(body->_value); }
 };
 
 class AcoshExpression : public AbsExpression
@@ -638,7 +653,7 @@ public:
     double value() {return acosh(body->value()); }
 
     double compute_value()
-        { return this->_value = acosh(this->_value); }
+        { return this->_value = acosh(body->_value); }
 };
 
 class AtanhExpression : public AbsExpression
@@ -651,7 +666,7 @@ public:
     double value() {return atanh(body->value()); }
 
     double compute_value()
-        { return this->_value = atanh(this->_value); }
+        { return this->_value = atanh(body->_value); }
 };
 
 
@@ -689,8 +704,8 @@ public:
         //e1 = e->L;
         //e2 = e->R;
         //adO = e->adO;
-        std::cout << "HVBACK adjoint=" << this->adjoint << " adO=" << this->adO << std::endl;
-        std::cout << "HVBACK dL=" << this->dL << " dR=" << this->dR << " dL2=" << this->dL2 << " dLR=" << this->dLR << " dR2=" << this->dR2 << std::endl;
+        //std::cout << "HVBACK adjoint=" << this->adjoint << " adO=" << this->adO << std::endl;
+        //std::cout << "HVBACK dL=" << this->dL << " dR=" << this->dR << " dL2=" << this->dL2 << " dLR=" << this->dLR << " dR2=" << this->dR2 << std::endl;
         double t1 = this->adO * this->lhs->dO;
         double t2 = this->adO * this->rhs->dO;
         this->lhs->adjoint += this->adjoint*this->dL + t1*this->dL2 + t2*this->dLR;
@@ -796,13 +811,16 @@ public:
         {}
 
     void print(std::ostream& ostr)
-        {this->lhs->print(ostr); ostr << " ** "; this->rhs->print(ostr); }
+        {ostr << "("; this->lhs->print(ostr); ostr << ")**("; this->rhs->print(ostr); ostr << ")"; }
 
     double value()
-        {return pow(lhs->_value, rhs->_value);}
+        {return pow(lhs->value(), rhs->value());}
 
     double compute_value()
-        { return this->_value = this->value(); }
+        {
+        this->_value = pow(lhs->_value, rhs->_value);
+        return this->_value;
+        }
 
     NumericValue* partial(unsigned int i);
 
@@ -851,6 +869,7 @@ public:
         {
         this->lhs->adjoint += this->adjoint;
         this->rhs->adjoint += this->adjoint;
+        //std::cout << "AddExpression::compute_adjoint " << this->adjoint << " " << this->lhs->adjoint << " " << this->rhs->adjoint << std::endl;
         }
 
     void compute_hv_fwd()
@@ -939,6 +958,7 @@ public:
         {
         this->lhs->adjoint += this->adjoint;
         this->rhs->adjoint -= this->adjoint;
+        //std::cout << "SubExpression::compute_adjoint " << this->adjoint << " " << this->lhs->adjoint << " " << this->rhs->adjoint << std::endl;
         }
 
     void compute_hv_fwd()
@@ -990,6 +1010,7 @@ public:
         {
         this->lhs->adjoint += this->adjoint * this->rhs->_value;
         this->rhs->adjoint += this->adjoint * this->lhs->_value;
+        //std::cout << "MulExpression::compute_adjoint " << this->adjoint << " " << this->lhs->adjoint << " " << this->rhs->adjoint << std::endl;
         }
 
     void compute_hv_fwd()
@@ -1140,6 +1161,7 @@ public:
         {
         this->lhs->adjoint += this->adjoint * this->rhs->_value;
         this->rhs->adjoint += this->adjoint * this->lhs->_value;
+        //std::cout << "DivExpression::compute_adjoint " << this->adjoint << " " << this->lhs->adjoint << " " << this->rhs->adjoint << std::endl;
         }
 
     // TODO

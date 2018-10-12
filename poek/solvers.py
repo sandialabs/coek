@@ -1,8 +1,21 @@
+from poek._expr import ffi, lib
+__all__ = ['Solver']
 
-__all__ = ['GurobiSolver']
+
+class Solver(object):
+
+    __slots__ = ('ptr')
+
+    def __init__(self, name):
+        self.ptr = lib.get_solver(str.encode(name))
+
+    def solve(self, model):
+        lib.set_solver_model(self.ptr, model.ptr)
+        lib.solver_solve(self.ptr)
 
 
-class GurobiSolver(object):
+
+class XGurobiSolver(object):
 
     __slots__ = ('env','model', 'x', 'nx')
 

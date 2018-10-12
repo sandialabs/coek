@@ -120,12 +120,14 @@ for (size_t i = 0; i<vars.size(); i++) {
     for (ordered_variable_iterator_t it=vars[i]->begin(); it != vars[i]->end(); it++) {
         J_rc[i][j] = index_to_id[ (*it)->index ];
         J[i][j] = *it;
+        //std::cout << "J i,j " << i << " " << j << " " << *it << std::endl;
+        j++;
         }
     }
 
 // Free memory
-for (size_t i=0; i<vars.size(); i++)
-    delete vars[i];
+//for (size_t i=0; i<vars.size(); i++)
+//    delete vars[i];
 }
 
 double Model1::compute_f(unsigned int i)
@@ -133,14 +135,14 @@ double Model1::compute_f(unsigned int i)
 assert(i < builds_f.size());
 std::list<NumericValue*>& tmp = builds_f[i];
 
-///std::cout << "NVAR " << variables.size() << std::endl;
+//std::cout << "NVAR " << variables.size() << std::endl;
 double ans = 0.0;
-///std::cout << "HERE " << tmp.size() << std::endl << std::endl;
+//std::cout << "HERE " << tmp.size() << std::endl << std::endl;
 for (std::list<NumericValue*>::iterator it=tmp.begin(); it != tmp.end(); it++) {
     ans = (*it)->compute_value();
-    ///std::cout << "ANS " << ans << std::endl;
-    ///(*it)->print(std::cout);
-    ///std::cout << std::endl;
+    //std::cout << "ANS " << ans << std::endl;
+    //(*it)->print(std::cout);
+    //std::cout << std::endl;
     }
 
 return ans;
@@ -168,8 +170,9 @@ for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(
 /// Compute reverse AD
 std::list<NumericValue*>::reverse_iterator rit=build.rbegin();
 (*rit)->adjoint = 1;    // SEED VALUE FOR AD
-for ( ; rit != build.rend(); rit++)
+for ( ; rit != build.rend(); rit++) {
     (*rit)->compute_adjoint();
+    }
 
 /// Retrieve adjoint from variables
 int j=0;
@@ -216,8 +219,11 @@ for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(
 /// Compute reverse AD
 std::list<NumericValue*>::reverse_iterator rit=build.rbegin();
 (*rit)->adjoint = 1;    // SEED VALUE FOR AD
-for ( ; rit != build.rend(); rit++)
+for ( ; rit != build.rend(); rit++) {
+    //(*rit)->print(std::cout);
+    //std::cout << std::endl;
     (*rit)->compute_adjoint();
+    }
 
 /// Retrieve adjoint from variables
 int j=0;
@@ -238,15 +244,15 @@ int j=0;
 for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++) {
     (*it)->adjoint = 0;
     (*it)->dO = v[j++];
-    std::cout << "Value " << (*it)->_value << std::endl;
-    std::cout << "  v[" << (j-1) << "] = " << v[j-1] << std::endl;
+    //std::cout << "Value " << (*it)->_value << std::endl;
+    //std::cout << "  v[" << (j-1) << "] = " << v[j-1] << std::endl;
     }
 
 /// Compute forward AD
 for (std::list<NumericValue*>::iterator it=build.begin(); it != build.end(); it++) {
     (*it)->compute_hv_fwd();
-    (*it)->print(std::cout);
-    std::cout << std::endl << (*it)->dO << std::endl;
+    //(*it)->print(std::cout);
+    //std::cout << std::endl << (*it)->dO << std::endl;
     }
 
 /// Compute reverse AD
@@ -254,8 +260,8 @@ std::list<NumericValue*>::reverse_iterator rit=build.rbegin();
 (*rit)->adjoint = 1;    // SEED VALUE FOR AD
 (*rit)->adO = 1;    // SEED VALUE FOR AD
 for ( ; rit != build.rend(); rit++) {
-    (*rit)->print(std::cout);
-    std::cout << std::endl << "adjoint=" << (*rit)->adjoint << " adO=" << (*rit)->adO << std::endl;
+    //(*rit)->print(std::cout);
+    //std::cout << std::endl << "adjoint=" << (*rit)->adjoint << " adO=" << (*rit)->adO << std::endl;
     (*rit)->compute_hv_back();
     }
 
@@ -263,7 +269,7 @@ for ( ; rit != build.rend(); rit++) {
 j=0;
 for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++) {
     Hv[j++] = (*it)->adjoint;
-    std::cout << "x[" << (*it)->index << "]  adjoint=" << (*it)->adjoint << " adO=" << (*it)->adO << std::endl;
+    //std::cout << "x[" << (*it)->index << "]  adjoint=" << (*it)->adjoint << " adO=" << (*it)->adO << std::endl;
     }
 }
 
