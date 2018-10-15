@@ -15,9 +15,7 @@ for n in range(N):
     for m in range(M):
         x[n,m] = variable(lb=0, ub=1, initialize=0)
 
-y = {}
-for n in range(N):
-    y[n] = variable(lb=0, ub=1, initialize=0)
+y = variable(N, lb=0, ub=1, initialize=0)
 
 d = {}
 for n in range(N):
