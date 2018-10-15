@@ -3,12 +3,12 @@ from pyomo.environ import *
 import random
 random.seed(1000)
 
-#N = 640
-#M = 640
-#P = 1
-N = 7
-M = 5
+N = 640
+M = 640
 P = 1
+#N = 7
+#M = 5
+#P = 1
 
 model = ConcreteModel()
 
@@ -67,3 +67,5 @@ model.num_facilities = Constraint(rule=rule)
 
 #pmedian.show()
 #pmedian.build()
+
+pmedian = model
