@@ -1476,8 +1476,8 @@ class TestVariables(unittest.TestCase):
 
     def test_iterator(self):
         v = variable(3, name='v')
-        for v_ in v:
-            math.isnan(v_.value)
+        for i in v:
+            math.isnan(v[i].value)
 
     def test_getitem1(self):
         v = variable(3, name='v')

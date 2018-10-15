@@ -723,7 +723,7 @@ class variable_array(object):
 
     def __iter__(self):
         for i in range(self.num):
-            yield self.__getitem__(i)
+            yield i #self.__getitem__(i)
 
 
 class expression(NumericValue):
