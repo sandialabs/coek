@@ -696,6 +696,7 @@ class variable_array(object):
     __slots__ = ('ptrs', 'name', 'num', 'views', 'initialize')
 
     def __init__(self, num, name=None, initialize=NAN, lb=NAN, ub=NAN):
+        # TODO: Allow for 'num' to be a shape tuple.  (How would this be written?)
         self.num = num 
         self.name = name
         self.initialize = initialize
