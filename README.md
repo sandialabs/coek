@@ -1,3 +1,3 @@
-# poek
+# poeklib
 
-Python Optimization Expression Kernel
+The C/C++ library that supports POEK: A Python Optimization Expression Kernel
