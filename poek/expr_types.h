@@ -341,7 +341,7 @@ public:
 
     NumericValue* expression(unsigned int i) 
         {
-        assert(i == 0);
+	  //assert(i == 0);
         return body;
         }
 
