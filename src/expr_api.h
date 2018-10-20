@@ -53,11 +53,11 @@ int expr_size(void* self);
 void* expr_diff(void* expr, void* variable);
 
 
-void* create_parameter_int(int value, int mutable_flag, char* name);
-void* create_parameter_double(double value, int mutable_flag, char* name);
+void* create_parameter_int(int value, int mutable_flag, const char* name);
+void* create_parameter_double(double value, int mutable_flag, const char* name);
 
-void* create_variable(int binary, int integer, double lb, double ub, double init, char* name);
-void create_variable_array(void* array[], int num, int binary, int integer, double lb, double ub, double init, char* name);
+void* create_variable(int binary, int integer, double lb, double ub, double init, const char* name);
+void create_variable_array(void* array[], int num, int binary, int integer, double lb, double ub, double init, const char* name);
 int get_variable_index(void* variable);
 void set_variable_value(void* variable, double value);
 double get_variable_value(void* variable);
@@ -93,7 +93,7 @@ void compute_Hv(void* model, double* v, double* Hv, int n, int i);
 void test_callback(int(*callback)(int, int));
 void visitor_walk(void* expr, void(*enter_callback)(void*, void*, void*), void(*exit_callback)(void*, void*, void*), void* visitor);
 
-void* get_solver(char* name);
+void* get_solver(const char* name);
 int solver_solve(void* solver);
 void set_solver_model(void* solver, void* model);
 

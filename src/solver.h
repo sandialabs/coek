@@ -18,20 +18,5 @@ public:
 };
 
 
-class IpoptSolver : public Solver
-{
-public:
-
-    Model* model;
-
-    IpoptSolver() : Solver() {}
-
-    void set_model(Model* _model)
-        {model = _model;}
-
-    int solve();
-};
-
-
 Solver* create_solver(const char* name);
 

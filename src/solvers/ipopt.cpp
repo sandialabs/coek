@@ -1,7 +1,7 @@
 #include "IpIpoptApplication.hpp"
 #include "IpSolveStatistics.hpp"
 #include "IpTNLP.hpp"
-#include "solver.h"
+#include "ipopt.h"
 
 using namespace Ipopt;
 

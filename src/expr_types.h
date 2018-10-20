@@ -104,7 +104,7 @@ public:
     TYPE _tvalue;
     std::string name;
 
-    TypedParameter(TYPE __value, bool _mutable_flag, char* _name) : Parameter(_mutable_flag)
+    TypedParameter(TYPE __value, bool _mutable_flag, const char* _name) : Parameter(_mutable_flag)
         {_value = __value; _tvalue = __value; name = _name;}
 
     TypedParameter(TYPE __value, bool _mutable_flag) : Parameter(_mutable_flag)
@@ -145,7 +145,7 @@ public:
     double lb;
     double ub;
 
-    Variable(bool _binary, bool _integer, double _lb, double _ub, double init, char* _name) : NumericValue()
+    Variable(bool _binary, bool _integer, double _lb, double _ub, double init, const char* _name) : NumericValue()
         {
         _value = init;
         binary = _binary; 

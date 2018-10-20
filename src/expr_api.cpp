@@ -489,28 +489,28 @@ if (diff.find(var) == diff.end())
 return diff[var];
 }
 
-extern "C" void* create_parameter_int(int value, int mutable_flag, char* name)
+extern "C" void* create_parameter_int(int value, int mutable_flag, const char* name)
 {
 Parameter* tmp = new TypedParameter<int>(value, mutable_flag, name);
 parameters.push_back(tmp);
 return tmp;
 }
 
-extern "C" void* create_parameter_double(double value, int mutable_flag, char* name)
+extern "C" void* create_parameter_double(double value, int mutable_flag, const char* name)
 {
 Parameter* tmp = new TypedParameter<double>(value, mutable_flag, name);
 parameters.push_back(tmp);
 return tmp;
 }
 
-extern "C" void* create_variable(int binary, int integer, double lb, double ub, double init, char* name)
+extern "C" void* create_variable(int binary, int integer, double lb, double ub, double init, const char* name)
 {
 Variable* tmp = new Variable(binary, integer, lb, ub, init, name);
 variables.push_back(tmp);
 return tmp;
 }
 
-extern "C" void create_variable_array(void* vars[], int num, int binary, int integer, double lb, double ub, double init, char* name)
+extern "C" void create_variable_array(void* vars[], int num, int binary, int integer, double lb, double ub, double init, const char* name)
 {
 for (int i=0; i<num; i++) {
     Variable* tmp = new Variable(binary, integer, lb, ub, init, name);
@@ -714,7 +714,7 @@ walk_expression_tree(_root, enter_callback, exit_callback, visitor);
 }
 
 
-extern "C" void* get_solver(char* name)
+extern "C" void* get_solver(const char* name)
 {
 return create_solver(name);
 }

@@ -10,8 +10,10 @@ PROJECT( Coek )
 option(with_cppad "Use the CppAD Autograd Library" OFF)
 option(with_asl "Use the ASL Autograd Library" OFF)
 
+
 # Solver Dependencies
-option(USE_GUROBI OFF)
+option(with_ipopt "Use the Ipopt Solver" OFF)
+option(with_gurobi "Use the Gurobi Solver" OFF)
 set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
 
 
@@ -21,6 +23,19 @@ set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
 set(CMAKE_BUILD_TYPE release)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
+
+if(with_ipopt)
+  list(APPEND solver_flags "-DWITH_IPOPT")
+  MESSAGE("-- With Ipopt Solver: on")
+else()
+  MESSAGE("-- With Ipopt Solver: off")
+endif()
+if(with_gurobi)
+  list(APPEND solver_flags "-DWITH_GUROBI")
+  MESSAGE("-- With Gurobi Solver: on")
+else()
+  MESSAGE("-- With Gurobi Solver: off")
+endif()
 
 ##################### Checks for compiler #####################
 
@@ -72,6 +87,7 @@ SET(sources
     expr_types.cpp
     intrinsic.cpp
     model.cpp
+    solver.cpp
     autograd/simple_model.cpp
    )
 
@@ -101,5 +117,10 @@ if($GUROBI_HOME)
 else()
     MESSAGE("-- GUROBI_HOME Not provided")
 endif()
-TARGET_LINK_LIBRARIES(coek ${PYTHON_LIBRARIES})
+#TARGET_LINK_LIBRARIES(coek ${PYTHON_LIBRARIES})
+TARGET_COMPILE_OPTIONS(coek PRIVATE ${solver_flags})
 
+
+# Dummy executable
+add_executable(blah blah.cpp)
+target_link_libraries(blah coek)
