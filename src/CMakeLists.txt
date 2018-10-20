@@ -71,7 +71,6 @@ SET(sources
     expr_api.h
     expr_types.cpp
     intrinsic.cpp
-    expr_intrinsic.h
     model.cpp
    )
 
