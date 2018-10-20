@@ -1,3 +1,6 @@
+#ifndef __expr_types_h
+#define __expr_types_h
+
 #include <cassert>
 #include <cstdio>
 #include <cmath>
@@ -9,6 +12,7 @@
 #define POSITIVE_INFINITY 1.0e19
 #define NEGATIVE_INFINITY -1.0e19
 
+inline bool isnan(double x) {return 1;}
 
 
 class NumericValue
@@ -1191,3 +1195,6 @@ double compute_expression_value(NumericValue* root);
 typedef std::set<Variable*, bool(*)(const Variable*, const Variable*)> ordered_variable_t;
 typedef ordered_variable_t::iterator ordered_variable_iterator_t;
 void build_expression(NumericValue* root, std::list<NumericValue*>& build, ordered_variable_t& variables);
+
+
+#endif
