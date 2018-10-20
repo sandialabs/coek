@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.10)
 
 PROJECT( Poek )
 
@@ -50,10 +50,10 @@ SET(POEK_SRC
    )
 
 #look for python
-find_package(PythonLibs REQUIRED)
-include_directories(${PYTHON_INCLUDE_PATH})
-MESSAGE("-- PYTHON_INCLUDE_PATH ${PYTHON_INCLUDE_PATH}")
-MESSAGE("-- PYTHON_LIBRARIES ${PYTHON_LIBRARIES}")
+#find_package(PythonLibs REQUIRED)
+#include_directories(${PYTHON_INCLUDE_PATH})
+#MESSAGE("-- PYTHON_INCLUDE_PATH ${PYTHON_INCLUDE_PATH}")
+#MESSAGE("-- PYTHON_LIBRARIES ${PYTHON_LIBRARIES}")
 
 # build library
 ADD_LIBRARY(poeklib SHARED ${POEK_SRC})
