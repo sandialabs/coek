@@ -3,12 +3,24 @@ cmake_minimum_required(VERSION 3.10)
 
 PROJECT( Coek )
 
+
+##################### Options #####################
+
+# Autograd Dependencies
+option(with_cppad "Use the CppAD Autograd Library" OFF)
+option(with_asl "Use the ASL Autograd Library" OFF)
+
+# Solver Dependencies
+option(USE_GUROBI OFF)
+set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
+
+
+##################### Build Configurations #####################
+
 # define build type
 set(CMAKE_BUILD_TYPE release)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
-set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
-
 
 ##################### Checks for compiler #####################
 
@@ -54,7 +66,7 @@ endif()
 
 OPTION(STATIC_LINK "STATIC_LINK" OFF)
 
-SET(COEK_SRC
+SET(sources
     expr_api.cpp
     expr_api.h
     expr_types.cpp
@@ -63,8 +75,26 @@ SET(COEK_SRC
     model.cpp
    )
 
+# CppAD LIBRARY
+if(with_cppad)
+  MESSAGE("-- With CppAd Library: on")
+  list(APPEND sources
+	autograd/cppad_model.cpp)
+else()
+  MESSAGE("-- With CppAd Library: off")
+endif()
+
+# ASL LIBRARY
+if(with_asl)
+  MESSAGE("-- With ASL Library: on")
+  list(APPEND sources
+	autograd/asl_model.cpp)
+else()
+  MESSAGE("-- With ASL Library: off")
+endif()
+
 # build library
-ADD_LIBRARY(coek SHARED ${COEK_SRC})
+ADD_LIBRARY(coek SHARED ${sources})
 if($GUROBI_HOME)
     MESSAGE("-- GUROBI_HOME ${GUROBI_HOME}")
     TARGET_INCLUDE_DIRECTORIES(coek ${GUROBI_HOME}/include)
