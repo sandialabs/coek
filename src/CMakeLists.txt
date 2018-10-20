@@ -72,6 +72,7 @@ SET(sources
     expr_types.cpp
     intrinsic.cpp
     model.cpp
+    autograd/simple_model.cpp
    )
 
 # CppAD LIBRARY

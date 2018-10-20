@@ -1,5 +1,4 @@
-#ifndef __expr_types_h
-#define __expr_types_h
+#pragma once
 
 #include <cassert>
 #include <cstdio>
@@ -1196,5 +1195,3 @@ typedef std::set<Variable*, bool(*)(const Variable*, const Variable*)> ordered_v
 typedef ordered_variable_t::iterator ordered_variable_iterator_t;
 void build_expression(NumericValue* root, std::list<NumericValue*>& build, ordered_variable_t& variables);
 
-
-#endif

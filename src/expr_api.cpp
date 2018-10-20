@@ -3,6 +3,7 @@
 #include <cassert>
 #include <sstream>
 
+#include "autograd/simple_model.h"
 #include "solver.h"
 
 /*** GLOBAL DATA ***/
@@ -604,7 +605,7 @@ return tmp;
 
 extern "C" void* create_model()
 {
-Model* tmp = new Model1();
+Model* tmp = new Simple_Model();
 models.push_back(tmp);
 return tmp;
 }
