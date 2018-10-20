@@ -1,14 +1,18 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-PROJECT( Poek )
+PROJECT( Coek )
 
 # define build type
 set(CMAKE_BUILD_TYPE release)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
 set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
+
+
 ##################### Checks for compiler #####################
+
+# TODO: Verify these minimum requirements
 
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
@@ -36,11 +40,21 @@ else()
   endif()
 endif()
 
+
+##################### Configure Python #####################
+
+#look for python
+#find_package(PythonLibs REQUIRED)
+#include_directories(${PYTHON_INCLUDE_PATH})
+#MESSAGE("-- PYTHON_INCLUDE_PATH ${PYTHON_INCLUDE_PATH}")
+#MESSAGE("-- PYTHON_LIBRARIES ${PYTHON_LIBRARIES}")
+
+
 ##################### Build Shared Library  #####################
 
 OPTION(STATIC_LINK "STATIC_LINK" OFF)
 
-SET(POEK_SRC
+SET(COEK_SRC
     expr_api.cpp
     expr_api.h
     expr_types.cpp
@@ -49,18 +63,13 @@ SET(POEK_SRC
     model.cpp
    )
 
-#look for python
-#find_package(PythonLibs REQUIRED)
-#include_directories(${PYTHON_INCLUDE_PATH})
-#MESSAGE("-- PYTHON_INCLUDE_PATH ${PYTHON_INCLUDE_PATH}")
-#MESSAGE("-- PYTHON_LIBRARIES ${PYTHON_LIBRARIES}")
-
 # build library
-ADD_LIBRARY(poeklib SHARED ${POEK_SRC})
+ADD_LIBRARY(coek SHARED ${COEK_SRC})
 if($GUROBI_HOME)
     MESSAGE("-- GUROBI_HOME ${GUROBI_HOME}")
-    TARGET_INCLUDE_DIRECTORIES(poeklib ${GUROBI_HOME}/include)
+    TARGET_INCLUDE_DIRECTORIES(coek ${GUROBI_HOME}/include)
 else()
     MESSAGE("-- GUROBI_HOME Not provided")
 endif()
-TARGET_LINK_LIBRARIES(poeklib ${PYTHON_LIBRARIES})
+TARGET_LINK_LIBRARIES(coek ${PYTHON_LIBRARIES})
+
