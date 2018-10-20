@@ -1,12 +1,12 @@
 Instructions to build POEK expression api library:
 
-1) get recent version of cmake
-   conda install -c anaconda cmake
+1) make a build directory
 
-2) make a build directory
    mkdir build
 
-3) within the build directory run cmake
+2) within the build directory run cmake
+
+   cd build
    cmake ..
    make VERBOSE=1
 
