@@ -120,6 +120,17 @@ endif()
 #TARGET_LINK_LIBRARIES(coek ${PYTHON_LIBRARIES})
 TARGET_COMPILE_OPTIONS(coek PRIVATE ${solver_flags})
 
+# make install
+INSTALL(TARGETS coek
+        DESTINATION lib
+       )
+INSTALL(FILES expr_api.h
+        DESTINATION include
+       )
+INSTALL(FILES expr_intrinsic.h
+        DESTINATION include
+       )
+       
 
 # Dummy executable
 add_executable(blah blah.cpp)
