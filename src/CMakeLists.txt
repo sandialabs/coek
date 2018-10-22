@@ -135,3 +135,7 @@ INSTALL(FILES expr_intrinsic.h
 # Dummy executable
 add_executable(blah blah.cpp)
 target_link_libraries(blah coek)
+
+# testing
+add_subdirectory(tests)
+
