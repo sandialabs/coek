@@ -356,6 +356,44 @@ TEST_CASE( "Test DiffExpression", "[smoke]" ) {
     }
   }
 
+  SECTION( "Test sumOf_nestedTrivialProduct2" ) {
+    TypedParameter<int> q( 5, false);
+
+    WHEN( "a*5 - b" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&a,&q);
+      SubExpression e(&e1,&b);
+      
+      static std::list<std::string> baseline = {"[", "-", "[", "*", "a", "5", "]", "b", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "b - a*5" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&a,&q);
+      SubExpression e(&b,&e1);
+      
+      static std::list<std::string> baseline = {"[", "-", "b", "[", "*", "a", "5", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "a*5 - (b-c)" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&a,&q);
+      SubExpression e2(&b,&c);
+      SubExpression e(&e1,&e2);
+      
+      static std::list<std::string> baseline = {"[", "-", "[", "*", "a", "5", "]", "[", "-", "b", "c", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "(b-c) - a*5" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&a,&q);
+      SubExpression e2(&b,&c);
+      SubExpression e(&e2,&e1);
+      
+      static std::list<std::string> baseline = {"[", "-", "[", "-", "b", "c", "]", "[", "*", "a", "5", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+  }
+
 }
 
 
@@ -422,6 +460,298 @@ TEST_CASE( "Test NegExpression", "[smoke]" ) {
 
   //SECTION( "Test trivialDiff" ) {
   // TODO: test the minus() method?
+  //}
+
+}
+
+
+TEST_CASE( "Test MulExpression", "[smoke]" ) {
+
+  Variable a( false, false, 0.0, 1.0, 0.0, "a");
+  Variable b( false, false, 0.0, 1.0, 0.0, "b");
+  Variable c( false, false, 0.0, 1.0, 0.0, "c");
+  Variable d( false, false, 0.0, 1.0, 0.0, "d");
+
+  SECTION( "Test simpleProduct" ) {
+    MulExpression<NumericValue*,NumericValue*> e(&a, &b);
+
+    static std::list<std::string> baseline = {"[", "*", "a", "b", "]"};
+    REQUIRE( expr_to_list(&e) == baseline );
+  }
+
+  SECTION( "Test constProduct" ) {
+    TypedParameter<int> q(5, false);
+    TypedParameter<double> Q(5.0, false);
+
+    WHEN( "e = a*5" ) {
+      MulExpression<NumericValue*,NumericValue*> e(&a, &q);
+
+      static std::list<std::string> baseline = {"[", "*", "a", "5", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = 5*a" ) {
+      MulExpression<NumericValue*,NumericValue*> e(&q, &a);
+
+      static std::list<std::string> baseline = {"[", "*", "5", "a", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = a*5.0" ) {
+      MulExpression<NumericValue*,NumericValue*> e(&a, &Q);
+
+      static std::list<std::string> baseline = {"[", "*", "a", "5.000", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = 5.0*a" ) {
+      MulExpression<NumericValue*,NumericValue*> e(&Q, &a);
+
+      static std::list<std::string> baseline = {"[", "*", "5.000", "a", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+  }
+
+  SECTION( "Test nestedProduct" ) {
+    TypedParameter<int> q(5, false);
+
+    WHEN( "e = (a*b)*5" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&a, &b);
+      MulExpression<NumericValue*,NumericValue*> e(&e1, &q);
+
+      static std::list<std::string> baseline = {"[", "*", "[", "*", "a", "b", "]", "5", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = 5*(a*b)" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&a, &b);
+      MulExpression<NumericValue*,NumericValue*> e(&q, &e1);
+
+      static std::list<std::string> baseline = {"[", "*", "5", "[", "*", "a", "b", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = (a*b)*c" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&a, &b);
+      MulExpression<NumericValue*,NumericValue*> e(&e1, &c);
+
+      static std::list<std::string> baseline = {"[", "*", "[", "*", "a", "b", "]", "c", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = c*(a*b)" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&a, &b);
+      MulExpression<NumericValue*,NumericValue*> e(&c, &e1);
+
+      static std::list<std::string> baseline = {"[", "*", "c", "[", "*", "a", "b", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = (a*b)*(c*d)" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&a, &b);
+      MulExpression<NumericValue*,NumericValue*> e2(&c, &d);
+      MulExpression<NumericValue*,NumericValue*> e(&e1, &e2);
+
+      static std::list<std::string> baseline = {"[", "*", "[", "*", "a", "b", "]", "[", "*", "c", "d", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+  }
+
+  SECTION( "Test nestedProduct2" ) {
+
+    WHEN( "e = (c+(a+b)) * ((a+b)+d)" ) {
+      AddExpression<NumericValue*,NumericValue*> e1(&a, &b);
+      AddExpression<NumericValue*,NumericValue*> e2(&c, &e1);
+      AddExpression<NumericValue*,NumericValue*> e3(&e1, &d);
+      MulExpression<NumericValue*,NumericValue*> e(&e2, &e3);
+
+      static std::list<std::string> baseline = {"[", "*", "[", "+", "c", "[", "+", "a", "b", "]", "]", "[", "+", "[", "+", "a", "b", "]", "d", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = (c*(a+b)) * ((a+b)*d)" ) {
+      AddExpression<NumericValue*,NumericValue*> e1(&a, &b);
+      MulExpression<NumericValue*,NumericValue*> e2(&c, &e1);
+      MulExpression<NumericValue*,NumericValue*> e3(&e1, &d);
+      MulExpression<NumericValue*,NumericValue*> e(&e2, &e3);
+
+      static std::list<std::string> baseline = {"[", "*", "[", "*", "c", "[", "+", "a", "b", "]", "]", "[", "*", "[", "+", "a", "b", "]", "d", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+  }
+
+  SECTION( "Test nestedProduct3" ) {
+    TypedParameter<int> q(3, false);
+    TypedParameter<int> Q(5, false);
+
+    WHEN( "e = (3*b)*5" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&q, &b);
+      MulExpression<NumericValue*,NumericValue*> e(&e1, &Q);
+
+      static std::list<std::string> baseline = {"[", "*", "[", "*", "3", "b", "]", "5", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = (a*b)*5" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&a, &b);
+      MulExpression<NumericValue*,NumericValue*> e(&e1, &Q);
+
+      static std::list<std::string> baseline = {"[", "*", "[", "*", "a", "b", "]", "5", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = 5*(3*b)" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&q, &b);
+      MulExpression<NumericValue*,NumericValue*> e(&Q, &e1);
+
+      static std::list<std::string> baseline = {"[", "*", "5", "[", "*", "3", "b", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = 5*(a*b)" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&a, &b);
+      MulExpression<NumericValue*,NumericValue*> e(&Q, &e1);
+
+      static std::list<std::string> baseline = {"[", "*", "5", "[", "*", "a", "b", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = (3*b)*c" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&q, &b);
+      MulExpression<NumericValue*,NumericValue*> e(&e1, &c);
+
+      static std::list<std::string> baseline = {"[", "*", "[", "*", "3", "b", "]", "c", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = c*(a*b)" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&a, &b);
+      MulExpression<NumericValue*,NumericValue*> e(&c, &e1);
+
+      static std::list<std::string> baseline = {"[", "*", "c", "[", "*", "a", "b", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = (a*b)*(c*d)" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&a, &b);
+      MulExpression<NumericValue*,NumericValue*> e2(&c, &d);
+      MulExpression<NumericValue*,NumericValue*> e(&e1, &e2);
+
+      static std::list<std::string> baseline = {"[", "*", "[", "*", "a", "b", "]", "[", "*", "c", "d", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+  }
+
+  //SECTION( "Test trivialProduct" ) {
+  // TODO: test the multiply() method?
+  //}
+
+}
+
+
+TEST_CASE( "Test DivExpression", "[smoke]" ) {
+
+  Variable a( false, false, 0.0, 1.0, 0.0, "a");
+  Variable b( false, false, 0.0, 1.0, 0.0, "b");
+  Variable c( false, false, 0.0, 1.0, 0.0, "c");
+  Variable d( false, false, 0.0, 1.0, 0.0, "d");
+
+  SECTION( "Test simpleDivision" ) {
+    DivExpression e(&a, &b);
+
+    static std::list<std::string> baseline = {"[", "/", "a", "b", "]"};
+    REQUIRE( expr_to_list(&e) == baseline );
+  }
+
+  SECTION( "Test constDivision" ) {
+    TypedParameter<int> q(5, false);
+    TypedParameter<double> Q(5.0, false);
+
+    WHEN( "e = a/5" ) {
+      DivExpression e(&a, &q);
+
+      static std::list<std::string> baseline = {"[", "/", "a", "5", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = 5/a" ) {
+      DivExpression e(&q, &a);
+
+      static std::list<std::string> baseline = {"[", "/", "5", "a", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = a/5.0" ) {
+      DivExpression e(&a, &Q);
+
+      static std::list<std::string> baseline = {"[", "/", "a", "5.000", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = 5.0/a" ) {
+      DivExpression e(&Q, &a);
+
+      static std::list<std::string> baseline = {"[", "/", "5.000", "a", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+  }
+
+  SECTION( "Test constDivision" ) {
+    TypedParameter<int> p(3, false);
+    TypedParameter<int> q(5, false);
+
+    WHEN( "e = (3*b)/5" ) {
+      MulExpression<NumericValue*,NumericValue*> e1(&p, &b);
+      DivExpression e(&e1, &q);
+
+      static std::list<std::string> baseline = {"[", "/", "[", "*", "3", "b", "]", "5", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = (a/b)/5" ) {
+      DivExpression e1(&a, &b);
+      DivExpression e(&e1, &q);
+
+      static std::list<std::string> baseline = {"[", "/", "[", "/", "a", "b", "]", "5", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = 5/(a/b)" ) {
+      DivExpression e1(&a, &b);
+      DivExpression e(&q, &e1);
+
+      static std::list<std::string> baseline = {"[", "/", "5", "[", "/", "a", "b", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = (a/b)/c" ) {
+      DivExpression e1(&a, &b);
+      DivExpression e(&e1, &c);
+
+      static std::list<std::string> baseline = {"[", "/", "[", "/", "a", "b", "]", "c", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = c/(a/b)" ) {
+      DivExpression e1(&a, &b);
+      DivExpression e(&c, &e1);
+
+      static std::list<std::string> baseline = {"[", "/", "c", "[", "/", "a", "b", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = (a/b)/(c/d)" ) {
+      DivExpression e1(&a, &b);
+      DivExpression e2(&c, &d);
+      DivExpression e(&e1, &e2);
+
+      static std::list<std::string> baseline = {"[", "/", "[", "/", "a", "b", "]", "[", "/", "c", "d", "]", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+  }
+
+  //SECTION( "Test trivialDivision" ) {
+  // TODO: test the division() method?
   //}
 
 }
