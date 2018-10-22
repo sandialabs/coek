@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model.h"
+#include "model.hpp"
 
 //
 // The base solver class that defines the API used by Python

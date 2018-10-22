@@ -320,3 +320,77 @@ while (stack.size() > 0) {
         }
     }
 }
+
+
+void _expr_to_list(NumericValue* e, std::list<std::string>& tmp, bool values)
+{
+char str[64];
+if (e->is_parameter()) {
+   e->snprintf(str, 64);
+   if (!values) {
+     int i=0;
+     while (str[i] != 0) {
+       if (str[i] == '{') {
+	  str[i] = 0;
+          break;
+          }
+       i++;
+       }
+     }
+   tmp.push_back( str );
+   return;
+   }
+
+else if (e->is_variable()) {
+   e->snprintf(str, 64);
+   if (!values) {
+     int i=0;
+     while (str[i] != 0) {
+       if (str[i] == '{') {
+	  str[i] = 0;
+          break;
+          }
+       i++;
+       }
+     }
+   tmp.push_back( str );
+   return;
+   }
+
+else if (e->is_expression()) {
+   Expression* e_ = static_cast<Expression*>(e);
+
+   str[0] = '[';
+   str[1] = 0;
+   tmp.push_back( str );
+
+   e->snprintf(str, 64);
+   tmp.push_back( str );
+
+   for (unsigned int i=0; i<e_->num_sub_expressions(); i++) {
+     _expr_to_list( e_->expression(i), tmp, values );
+     }
+
+   str[0] = ']';
+   str[1] = 0;
+   tmp.push_back( str );
+   } 
+}
+
+
+std::list<std::string> expr_to_list(NumericValue* e)
+{
+std::list<std::string> tmp;
+_expr_to_list(e, tmp, false);
+return tmp;
+}
+
+
+std::list<std::string> expr_to_list(NumericValue* e, bool values)
+{
+std::list<std::string> tmp;
+_expr_to_list(e, tmp, values);
+return tmp;
+}
+
+
