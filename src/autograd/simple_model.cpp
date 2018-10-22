@@ -1,5 +1,4 @@
-
-#include "simple_model.h"
+#include "simple_model.hpp"
 
 
 void Simple_Model::build()

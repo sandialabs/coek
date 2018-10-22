@@ -1,14 +1,16 @@
-#include "../model.h"
+#include "../model.hpp"
 
 //
-// An extension model that uses the ASL library for autograd.
+// A model that uses a simple AD implementation
 //
 
-class ASL_Model : public Model
+class Simple_Model : public Model
 {
 public:
 
-    ASL_Model() : Model() {}
+    std::vector< std::list<NumericValue*> > builds_f;
+
+    Simple_Model() : Model() {}
 
     void build();
 

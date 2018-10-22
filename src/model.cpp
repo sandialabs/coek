@@ -1,6 +1,6 @@
 
 #include <cassert>
-#include "model.h"
+#include "model.hpp"
 
 
 void Model::set_variables(const double* x, int n)

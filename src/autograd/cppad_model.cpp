@@ -1,4 +1,4 @@
-#include "cppad_model.h"
+#include "cppad_model.hpp"
 
 void CppAD_Model::build()
 {}

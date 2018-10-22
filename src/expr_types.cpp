@@ -3,7 +3,7 @@
 #include <list>
 #include <cmath>
 
-#include "expr_types.h"
+#include "expr_types.hpp"
 
 TypedParameter<int> ZeroParameter(0,false);
 TypedParameter<int> OneParameter(1,false);

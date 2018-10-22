@@ -3,8 +3,8 @@
 #include <cassert>
 #include <sstream>
 
-#include "autograd/simple_model.h"
-#include "solver.h"
+#include "autograd/simple_model.hpp"
+#include "solver.hpp"
 
 /*** GLOBAL DATA ***/
 

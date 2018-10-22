@@ -1,4 +1,4 @@
-#include "../model.h"
+#include "../model.hpp"
 
 //
 // An extension model that uses the CppAD library for autograd.
