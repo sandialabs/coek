@@ -41,5 +41,5 @@ pmedian.add( quicksum(y[n] for n in range(N)) == P )
 
 
 
-#pmedian.show()
 pmedian.build()
+#pmedian.show()

@@ -14,10 +14,9 @@ if __name__ == "__main__":
     with open(os.path.join(os.path.dirname(__file__), "poeklib/expr_intrinsic.h")) as f:
         ffi.cdef(f.read())
 
-    ffi.set_source("_poek",
+    ffi.set_source("_coek",
         '#include "poeklib/expr_api.h"\n#include "poeklib/expr_intrinsic.h"',
-        libraries=["poeklib"],
-        #library_dirs=[os.path.dirname(__file__),],
+        libraries=["coek"],
     )
 
     ffi.compile(verbose=True)
