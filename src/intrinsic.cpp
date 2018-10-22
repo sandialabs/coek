@@ -1,7 +1,6 @@
 #include <list> 
 #include "expr_types.h"
 
-
 extern std::list<Expression*> expressions;
 
 extern "C" void* intrinsic_abs(void* expr)
