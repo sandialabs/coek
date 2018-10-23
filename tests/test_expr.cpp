@@ -755,3 +755,57 @@ TEST_CASE( "Test DivExpression", "[smoke]" ) {
   //}
 
 }
+
+
+TEST_CASE( "Test PowExpression", "[smoke]" ) {
+
+  Variable a( false, false, 0.0, 1.0, 0.0, "a");
+  Variable b( false, false, 0.0, 1.0, 0.0, "b");
+  Variable c( false, false, 0.0, 1.0, 0.0, "c");
+  Variable d( false, false, 0.0, 1.0, 0.0, "d");
+
+  SECTION( "Test simplePow" ) {
+    PowExpression e(&a, &b);
+
+    static std::list<std::string> baseline = {"[", "**", "a", "b", "]"};
+    REQUIRE( expr_to_list(&e) == baseline );
+  }
+
+  SECTION( "Test constPow" ) {
+    TypedParameter<int> q(5, false);
+    TypedParameter<double> Q(5.0, false);
+
+    WHEN( "e = a**5" ) {
+      PowExpression e(&a, &q);
+
+      static std::list<std::string> baseline = {"[", "**", "a", "5", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = 5**a" ) {
+      PowExpression e(&q, &a);
+
+      static std::list<std::string> baseline = {"[", "**", "5", "a", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = a**5.0" ) {
+      PowExpression e(&a, &Q);
+
+      static std::list<std::string> baseline = {"[", "**", "a", "5.000", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+
+    WHEN( "e = 5.0**a" ) {
+      PowExpression e(&Q, &a);
+
+      static std::list<std::string> baseline = {"[", "**", "5.000", "a", "]"};
+      REQUIRE( expr_to_list(&e) == baseline );
+    }
+  }
+
+  //SECTION( "Test trivialPow" ) {
+  // TODO: test the pow() method?
+  //}
+
+}
