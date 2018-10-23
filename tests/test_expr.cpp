@@ -2,6 +2,9 @@
 #include "expr_types.hpp"
 #include "catch.hpp"
 
+const double PI = 3.141592653589793238463;
+const double E = exp(1.0);
+
 
 TEST_CASE( "Test Values", "[smoke]" ) {
 
@@ -807,5 +810,166 @@ TEST_CASE( "Test PowExpression", "[smoke]" ) {
   //SECTION( "Test trivialPow" ) {
   // TODO: test the pow() method?
   //}
+
+}
+
+
+TEST_CASE( "Test Intrinsics", "[smoke]" ) {
+
+  Variable v( false, false, 0.0, 1.0, 0.0, "v");
+  TypedParameter<int> p( 0, true, "p");
+
+  SECTION( "Test ceil" ) {
+    CeilExpression e(&v);
+    v._value = 1.5;
+    REQUIRE( e.value() == 2.0 );
+    v._value = -1.5;
+    REQUIRE( e.value() == -1.0 );
+  }
+
+  SECTION( "Test floor" ) {
+    FloorExpression e(&v);
+    v._value = 1.5;
+    REQUIRE( e.value() == 1.0 );
+    v._value = -1.5;
+    REQUIRE( e.value() == -2.0 );
+  }
+
+  SECTION( "Test exp" ) {
+    ExpExpression e(&v);
+    v._value = 1;
+    REQUIRE( e.value() == Approx( E ) );
+    v._value = 0;
+    REQUIRE( e.value() == 1 );
+  }
+
+  SECTION( "Test log" ) {
+    LogExpression e(&v);
+    v._value = 1;
+    REQUIRE( e.value() == Approx( 0.0 ) );
+    v._value = exp(1.0);
+    REQUIRE( e.value() == Approx( 1.0 ) );
+  }
+
+  SECTION( "Test log10" ) {
+    Log10Expression e(&v);
+    v._value = 1;
+    REQUIRE( e.value() == Approx( 0.0 ) );
+    v._value = 10;
+    REQUIRE( e.value() == Approx( 1.0 ) );
+  }
+
+  SECTION( "Test pow" ) {
+    PowExpression e(&v,&p);
+    v._value = 2;
+    p._value = 0;
+    REQUIRE( e.value() == Approx( 1.0 ) );
+    p._tvalue = 1;
+    REQUIRE( e.value() == Approx( 2.0 ) );
+  }
+
+  SECTION( "Test sqrt" ) {
+    SqrtExpression e(&v);
+    v._value = 1;
+    REQUIRE( e.value() == Approx( 1.0 ) );
+    v._value = 4;
+    REQUIRE( e.value() == Approx( 2.0 ) );
+  }
+
+  SECTION( "Test sin" ) {
+    SinExpression e(&v);
+    v._value = 0;
+    REQUIRE( e.value() == Approx( 0.0 ) );
+    v._value = PI/2.0;
+    REQUIRE( e.value() == Approx( 1.0 ) );
+  }
+
+  SECTION( "Test cos" ) {
+    CosExpression e(&v);
+    v._value = 0;
+    REQUIRE( e.value() == Approx( 1.0 ) );
+    v._value = PI/2.0;
+    REQUIRE( e.value() == Approx( 0.0 ).margin(1e-7) );
+  }
+
+  SECTION( "Test tan" ) {
+    TanExpression e(&v);
+    v._value = 0;
+    REQUIRE( e.value() == Approx( 0.0 ) );
+    v._value = PI/4.0;
+    REQUIRE( e.value() == Approx( 1.0 ) );
+  }
+
+  SECTION( "Test asin" ) {
+    AsinExpression e(&v);
+    v._value = 0;
+    REQUIRE( e.value() == Approx( 0.0 ) );
+    v._value = 1.0;
+    REQUIRE( e.value() == Approx( PI/2.0 ) );
+  }
+
+  SECTION( "Test acos" ) {
+    AcosExpression e(&v);
+    v._value = 1;
+    REQUIRE( e.value() == Approx( 0.0 ) );
+    v._value = 0;
+    REQUIRE( e.value() == Approx( PI/2.0 ) );
+  }
+
+  SECTION( "Test atan" ) {
+    AtanExpression e(&v);
+    v._value = 0;
+    REQUIRE( e.value() == Approx( 0.0 ) );
+    v._value = 1;
+    REQUIRE( e.value() == Approx( PI/4.0 ) );
+  }
+
+  SECTION( "Test sinh" ) {
+    SinhExpression e(&v);
+    v._value = 0;
+    REQUIRE( e.value() == Approx( 0.0 ) );
+    v._value = 1;
+    REQUIRE( e.value() == Approx( (E-1/E)/2.0 ) );
+  }
+
+  SECTION( "Test cosh" ) {
+    CoshExpression e(&v);
+    v._value = 0;
+    REQUIRE( e.value() == Approx( 1.0 ) );
+    v._value = 1;
+    REQUIRE( e.value() == Approx( (E+1/E)/2.0 ) );
+  }
+
+  SECTION( "Test tanh" ) {
+    TanhExpression e(&v);
+    v._value = 0;
+    REQUIRE( e.value() == Approx( 0.0 ) );
+    v._value = 1;
+    REQUIRE( e.value() == Approx( (E-1/E)/(E+1/E) ) );
+  }
+
+  SECTION( "Test asinh" ) {
+    AsinhExpression e(&v);
+    v._value = 0;
+    REQUIRE( e.value() == Approx( 0.0 ) );
+    v._value = (E-1/E)/2.0;
+    REQUIRE( e.value() == Approx( 1.0 ) );
+  }
+
+  SECTION( "Test acosh" ) {
+    AcoshExpression e(&v);
+    v._value = 1;
+    REQUIRE( e.value() == Approx( 0.0 ) );
+    v._value = (E+1/E)/2.0;
+    REQUIRE( e.value() == Approx( 1.0 ) );
+  }
+
+  SECTION( "Test atanh" ) {
+    AtanhExpression e(&v);
+    v._value = 0;
+    REQUIRE( e.value() == Approx( 0.0 ) );
+    v._value = (E-1/E)/(E+1/E);
+    REQUIRE( e.value() == Approx( 1.0 ) );
+  }
 
 }
