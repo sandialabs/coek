@@ -3,11 +3,14 @@ cmake_minimum_required(VERSION 3.10)
 
 PROJECT( Coek )
 
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
 
 ##################### Options #####################
 
 # Configuration options
 option(with_tests "Build tests" OFF)
+option(with_gcov "Add code coverage using gcov" OFF)
 
 # Autograd Dependencies
 option(with_cppad "Use the CppAD Autograd Library" OFF)
@@ -23,7 +26,11 @@ set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
 ##################### Build Configurations #####################
 
 # define build type
-set(CMAKE_BUILD_TYPE release)
+if(${with_gcov})
+  set(CMAKE_BUILD_TYPE debug)
+else()
+  set(CMAKE_BUILD_TYPE release)
+endif()
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
 
@@ -39,6 +46,7 @@ if(with_gurobi)
 else()
   MESSAGE("-- With Gurobi Solver: off")
 endif()
+
 
 ##################### Checks for compiler #####################
 
@@ -70,6 +78,26 @@ else()
   endif()
 endif()
 
+if (with_gcov)
+  if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
+    MESSAGE("-- With gcov code coverage: on")
+  else()
+    MESSAGE("-- With gcov code coverage: off")
+    set(with_gcov OFF)
+  endif()
+else()
+  MESSAGE("-- With gcov code coverage: off")
+endif()
+if (with_tests)
+  find_package(gcovr)
+  if (gcovr_FOUND)
+    MESSAGE("-- With gcovr code coverage: on")
+  else()
+    MESSAGE("-- With gcovr code coverage: off")
+  endif()
+endif()
+
+
 
 ##################### SubDirectories #####################
 
@@ -78,8 +106,17 @@ add_subdirectory(src)
 
 # testing
 if(with_tests)
-  add_subdirectory(tests)
   MESSAGE("-- With Tests: on")
+
+  add_subdirectory(tests)
+  enable_testing()
+
+  add_custom_target(test_verbose
+    COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
+  if (gcovr_FOUND)
+    add_custom_target(gcovr 
+      COMMAND ${GCOVR_EXECUTABLE} -r ${CMAKE_CURRENT_SOURCE_DIR} -e ${CMAKE_CURRENT_SOURCE_DIR}/catch)
+  endif()
 else()
   MESSAGE("-- With Tests: off")
 endif()

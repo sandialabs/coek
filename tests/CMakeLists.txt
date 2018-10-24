@@ -12,13 +12,23 @@ SET(sources
     test_expr.cpp
    )
 
-# testing binary
+#
+# Create a testing binary for Catch2 tests
+#
 add_executable(runner ${sources})
 target_link_libraries(runner Catch)
 target_link_libraries(runner coek)
+if(${with_gcov})
+  TARGET_COMPILE_OPTIONS(runner PUBLIC -fprofile-arcs -ftest-coverage -g)
+  TARGET_LINK_LIBRARIES(runner gcov)
+endif()
 
+#
+# Execute the Catch2 tests using CTest
+#
 add_test(
   NAME runner
-  COMMAND $<TARGET_FILE:runner> --success
+  COMMAND $<TARGET_FILE:runner> -d yes
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
