@@ -33,14 +33,18 @@ endif()
 
 # build library
 ADD_LIBRARY(coek SHARED ${sources})
-if($GUROBI_HOME)
+if(${GUROBI_HOME})
     MESSAGE("-- GUROBI_HOME ${GUROBI_HOME}")
     TARGET_INCLUDE_DIRECTORIES(coek ${GUROBI_HOME}/include)
 else()
     MESSAGE("-- GUROBI_HOME Not provided")
 endif()
-#TARGET_LINK_LIBRARIES(coek ${PYTHON_LIBRARIES})
 TARGET_COMPILE_OPTIONS(coek PRIVATE ${solver_flags})
+if(${with_gcov})
+  TARGET_COMPILE_OPTIONS(coek PUBLIC -fprofile-arcs -ftest-coverage -g)
+  TARGET_LINK_LIBRARIES(coek PUBLIC gcov)
+endif()
+
 
 # make install
 INSTALL(TARGETS coek
@@ -52,8 +56,4 @@ INSTALL(FILES expr_api.h
 INSTALL(FILES expr_intrinsic.h
         DESTINATION include
        )
-
-# Dummy executable
-add_executable(blah blah.cpp)
-target_link_libraries(blah coek)
 
