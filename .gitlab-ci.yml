@@ -1,6 +1,7 @@
 coek:
   script:
-    - cd apps/coek
+    - pwd
+    - cd coek
     - mkdir build
     - cd build
     - cmake ..
