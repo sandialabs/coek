@@ -1,0 +1,8 @@
+coek:
+  script:
+    cd apps/coek
+    mkdir build
+    cd build
+    cmake ..
+    make
+
