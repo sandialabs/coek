@@ -6,7 +6,7 @@ const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
 
-TEST_CASE( "Test Values", "[smoke]" ) {
+TEST_CASE( "expr_values", "[smoke]" ) {
 
   SECTION( "Test Immutable Parameter" ) {
 
@@ -74,7 +74,7 @@ TEST_CASE( "Test Values", "[smoke]" ) {
 }
 
 
-TEST_CASE( "Test AddExpression", "[smoke]" ) {
+TEST_CASE( "add_expression", "[smoke]" ) {
 
   Variable a( false, false, 0.0, 1.0, 0.0, "a");
   Variable b( false, false, 0.0, 1.0, 0.0, "b");
@@ -246,7 +246,7 @@ TEST_CASE( "Test AddExpression", "[smoke]" ) {
 }
 
 
-TEST_CASE( "Test DiffExpression", "[smoke]" ) {
+TEST_CASE( "diff_expression", "[smoke]" ) {
 
   Variable a( false, false, 0.0, 1.0, 0.0, "a");
   Variable b( false, false, 0.0, 1.0, 0.0, "b");
@@ -400,7 +400,7 @@ TEST_CASE( "Test DiffExpression", "[smoke]" ) {
 }
 
 
-TEST_CASE( "Test NegExpression", "[smoke]" ) {
+TEST_CASE( "neg_expression", "[smoke]" ) {
 
   SECTION( "Test negation_param" ) {
     TypedParameter<int> p( 2, false, "p");
@@ -468,7 +468,7 @@ TEST_CASE( "Test NegExpression", "[smoke]" ) {
 }
 
 
-TEST_CASE( "Test MulExpression", "[smoke]" ) {
+TEST_CASE( "mul_expression", "[smoke]" ) {
 
   Variable a( false, false, 0.0, 1.0, 0.0, "a");
   Variable b( false, false, 0.0, 1.0, 0.0, "b");
@@ -652,7 +652,7 @@ TEST_CASE( "Test MulExpression", "[smoke]" ) {
 }
 
 
-TEST_CASE( "Test DivExpression", "[smoke]" ) {
+TEST_CASE( "div_expression", "[smoke]" ) {
 
   Variable a( false, false, 0.0, 1.0, 0.0, "a");
   Variable b( false, false, 0.0, 1.0, 0.0, "b");
@@ -760,7 +760,7 @@ TEST_CASE( "Test DivExpression", "[smoke]" ) {
 }
 
 
-TEST_CASE( "Test PowExpression", "[smoke]" ) {
+TEST_CASE( "pow_expression", "[smoke]" ) {
 
   Variable a( false, false, 0.0, 1.0, 0.0, "a");
   Variable b( false, false, 0.0, 1.0, 0.0, "b");
@@ -814,7 +814,7 @@ TEST_CASE( "Test PowExpression", "[smoke]" ) {
 }
 
 
-TEST_CASE( "Test Intrinsics", "[smoke]" ) {
+TEST_CASE( "intrinsics", "[smoke]" ) {
 
   Variable v( false, false, 0.0, 1.0, 0.0, "v");
   TypedParameter<int> p( 0, true, "p");

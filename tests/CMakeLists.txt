@@ -23,12 +23,7 @@ if(${with_gcov})
   TARGET_LINK_LIBRARIES(runner gcov)
 endif()
 
-#
-# Execute the Catch2 tests using CTest
-#
-add_test(
-  NAME runner
-  COMMAND $<TARGET_FILE:runner> -d yes
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
+include(CTest)
+include(Catch)
+catch_discover_tests(runner)
 

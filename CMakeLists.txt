@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.7)
 PROJECT( Coek )
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/catch/contrib;${CMAKE_MODULE_PATH})
 
 
 ##################### Options #####################
@@ -109,10 +110,15 @@ if(with_tests)
   MESSAGE("-- With Tests: on")
 
   add_subdirectory(tests)
-  enable_testing()
+  include(CTest)
+  #enable_testing()
 
   add_custom_target(test_verbose
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
+  add_custom_target(test_memcheck
+    COMMAND ${CMAKE_CTEST_COMMAND} --force-new-ctest-process --test-action memcheck
+    COMMAND cat "${CMAKE_BINARY_DIR}/Testing/Temporary/MemoryChecker.*.log")
+
   if (gcovr_FOUND)
     add_custom_target(gcovr 
       COMMAND ${GCOVR_EXECUTABLE} -r ${CMAKE_CURRENT_SOURCE_DIR} -e ${CMAKE_CURRENT_SOURCE_DIR}/catch)
