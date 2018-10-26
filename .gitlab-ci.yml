@@ -4,12 +4,12 @@ coek:
     - apt-get install -y g++ cmake gcovr git
     - git clone https://github.com/catchorg/Catch2 catch
     - cd catch
-    - git branch
-    - git checkout v2.4.1
+    - git checkout -b v2.4.1
     - git branch
     - cd ..
     - mkdir build
     - cd build
-    - cmake ..
+    - cmake -D with_tests=ON --with_gcov=ON ..
     - make
     - make test_verbose
+    - make gcovr
