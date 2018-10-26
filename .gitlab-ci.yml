@@ -9,7 +9,7 @@ coek:
     - cd ..
     - mkdir build
     - cd build
-    - cmake -D with_tests=ON --with_gcov=ON ..
+    - cmake -D with_tests=ON -D with_gcov=ON ..
     - make
     - make test_verbose
     - make gcovr
