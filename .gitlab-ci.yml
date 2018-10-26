@@ -3,6 +3,11 @@ coek:
     - apt-get update
     - apt-get install -y g++ cmake gcovr git
     - git clone --branch v2.4.1 https://github.com/catchorg/Catch2 catch
+    - cd catch
+    - git branch
+    - get checkout v2.4.1
+    - git branch
+    - cd ..
     - mkdir build
     - cd build
     - cmake ..
