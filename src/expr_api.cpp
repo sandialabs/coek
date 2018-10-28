@@ -12,6 +12,7 @@ std::list<Model*> models;
 std::list<Expression*> expressions;
 std::list<Parameter*> parameters;
 std::list<Variable*> variables;
+ExpressionContext_Objects context;
 
 
 extern "C" void* misc_getnull(void)
@@ -30,7 +31,7 @@ if (rhs == 0) {
     }
 NumericValue* _lhs = static_cast<NumericValue*>(lhs);
 Parameter* _rhs = new TypedParameter<int>(rhs,false);
-Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(&context, _lhs, _rhs);
 
 parameters.push_back(_rhs);
 expressions.push_back(tmp);
@@ -44,7 +45,7 @@ if (rhs == 0.0) {
     }
 NumericValue* _lhs = static_cast<NumericValue*>(lhs);
 Parameter* _rhs = new TypedParameter<double>(rhs,false);
-Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(&context, _lhs, _rhs);
 
 parameters.push_back(_rhs);
 expressions.push_back(tmp);
@@ -55,7 +56,7 @@ extern "C" void* add_expr_expression(void* lhs, void* rhs)
 {
 NumericValue* _lhs = static_cast<NumericValue*>(lhs);
 NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(&context, _lhs, _rhs);
 
 expressions.push_back(tmp);
 return tmp;
@@ -68,7 +69,7 @@ if (lhs == 0) {
     }
 Parameter* _lhs = new TypedParameter<int>(lhs,false);
 NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(&context, _lhs, _rhs);
 
 parameters.push_back(_lhs);
 expressions.push_back(tmp);
@@ -82,7 +83,7 @@ if (lhs == 0.0) {
     }
 Parameter* _lhs = new TypedParameter<double>(lhs,false);
 NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
+Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(&context, _lhs, _rhs);
 
 parameters.push_back(_lhs);
 expressions.push_back(tmp);
