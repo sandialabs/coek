@@ -4,10 +4,11 @@
 OPTION(STATIC_LINK "STATIC_LINK" OFF)
 
 SET(sources
-    expr_api.cpp
-    expr_api.h
+    #expr_api.cpp
+    #expr_api.h
     expr_types.cpp
     intrinsic.cpp
+    context_objects.cpp
     model.cpp
     solver.cpp
     autograd/simple_model.cpp

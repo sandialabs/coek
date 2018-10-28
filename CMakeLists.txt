@@ -11,6 +11,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/catch/contrib;${CMAKE_MODULE_PATH})
 
 # Configuration options
 option(with_tests "Build tests" OFF)
+option(with_debug "Debug build" OFF)
 option(with_gcov "Add code coverage using gcov" OFF)
 
 # Autograd Dependencies
@@ -31,6 +32,9 @@ if(${with_gcov})
   set(CMAKE_BUILD_TYPE debug)
 else()
   set(CMAKE_BUILD_TYPE release)
+endif()
+if(${with_debug})
+  set(CMAKE_BUILD_TYPE debug)
 endif()
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")

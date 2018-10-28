@@ -5,10 +5,6 @@
 
 #include "expr_types.hpp"
 
-TypedParameter<int> ZeroParameter(0,false);
-TypedParameter<int> OneParameter(1,false);
-TypedParameter<int> NegativeOneParameter(-1,false);
-
 
 int Variable::nvariables = 0;
 double Variable::_nan = NAN;
@@ -24,9 +20,9 @@ NumericValue* PowExpression::partial(unsigned int i)
 NumericValue* base = this->lhs;
 NumericValue* exp =  this->rhs;
 if (i==0)
-    return new MulExpression<NumericValue*,NumericValue*>( exp, new PowExpression( base, new SubExpression(exp, &OneParameter) ) );
+    return static_cast<NumericValue*>(context->times(exp, context->pow(base, context->minus(exp, context->one))));
 else
-    return new MulExpression<NumericValue*,NumericValue*>( new LogExpression( base ), this );
+    return static_cast<NumericValue*>(context->times(context->log(base), this));
 }
 
 
@@ -39,34 +35,6 @@ std::cout << base << " " << exp << " " << this->adjoint << " " << pow(base,exp-1
 this->lhs->adjoint += this->adjoint * exp * pow(base, exp-1);
 this->rhs->adjoint += this->adjoint * log(base) * this->_value;
 std::cout << "PowExpression::compute_adjoint " << this->adjoint << " " << this->lhs->adjoint << " " << this->rhs->adjoint << std::endl;
-}
-
-
-//
-// Should these functions be included in the header?
-//
-NumericValue* plus(NumericValue* lhs, NumericValue* rhs)
-{
-if (lhs == &ZeroParameter)
-    return rhs;
-if (rhs == &ZeroParameter)
-    return lhs;
-if (lhs->is_parameter() and rhs->is_parameter())
-    return new TypedParameter<double>(lhs->_value + rhs->_value, false);
-return new AddExpression<NumericValue*,NumericValue*>(lhs,rhs);
-}
-
-NumericValue* times(NumericValue* lhs, NumericValue* rhs)
-{
-if ((lhs == &ZeroParameter) || (rhs == &ZeroParameter))
-    return &ZeroParameter;
-if (lhs == &OneParameter)
-    return rhs;
-if (rhs == &OneParameter)
-    return lhs;
-if (lhs->is_parameter() and rhs->is_parameter())
-    return new TypedParameter<double>(lhs->_value * rhs->_value, false);
-return new MulExpression<NumericValue*,NumericValue*>(lhs,rhs);
 }
 
 
@@ -86,7 +54,7 @@ if (root->is_parameter())
     return;
 
 if (root->is_variable()) {
-    diff[static_cast<Variable*>(root)] = &OneParameter;
+    diff[static_cast<Variable*>(root)] = static_cast<NumericValue*>(root->context->one);
     return;
     }
 
@@ -120,8 +88,10 @@ while(queue.size() > 0) {
 // they have been reached by all parents.
 //
 std::map<NumericValue*, NumericValue*> partial;
-partial[root] = &OneParameter;
+partial[root] = static_cast<NumericValue*>(root->context->one);
 queue.push_back(static_cast<Expression*>(root));
+
+ExpressionContext* context = static_cast<NumericValue*>(root)->context;
 
 while (queue.size() > 0) {
     ///std::cout << "TODO " << queue.size() << std::endl;
@@ -158,9 +128,9 @@ while (queue.size() > 0) {
                 }
             ///std::cout << "HERE" << std::endl << std::flush;
             if (partial.find(child) == partial.end())
-                partial[child] = times(partial[curr], _partial);
+                partial[child] = static_cast<NumericValue*>(context->times(partial[curr], _partial));
             else
-                partial[child] = plus(partial[child], times(partial[curr], _partial));
+                partial[child] = static_cast<NumericValue*>(context->plus(partial[child], context->times(partial[curr], _partial)));
 
             ///std::cout << "PARTIAL" << std::endl << std::flush;
             ///child->print(std::cout);

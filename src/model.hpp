@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "expr_types.hpp"
+#include "context.hpp"
 
 
 //
@@ -16,11 +17,12 @@ class Model
 {
 public:
 
+    ExpressionContext* context;
+
     std::list<Expression*> objectives;
     std::list<Expression*> inequalities;
     std::list<Expression*> equalities;
 
-    //std::set<Variable*, bool(*)(const Variable*, const Variable*)> variables;
     std::vector<Variable*> variables;
     typedef std::set<Variable*, bool(*)(const Variable*, const Variable*)>::iterator variables_iterator_type;
     std::vector<std::vector<int> > J_rc;

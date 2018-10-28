@@ -10,6 +10,7 @@ enable_testing()
 SET(sources
     runner.cpp
     test_expr.cpp
+    test_context_objects.cpp
    )
 
 #
