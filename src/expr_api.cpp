@@ -3,16 +3,17 @@
 #include <cassert>
 #include <sstream>
 
+//#include "expr_types.hpp"
 #include "autograd/simple_model.hpp"
 #include "solver.hpp"
+#include "context_objects.hpp"
+
 
 /*** GLOBAL DATA ***/
 
+Model* model = 0;
+ExpressionContext* context = 0;
 std::list<Model*> models;
-std::list<Expression*> expressions;
-std::list<Parameter*> parameters;
-std::list<Variable*> variables;
-ExpressionContext_Objects context;
 
 
 extern "C" void* misc_getnull(void)
@@ -24,426 +25,226 @@ extern "C" double misc_getnan(void)
 
 /*** ADD ***/
 
-extern "C" void* add_expr_int(void* lhs, int rhs)
+extern "C" void* expr_plus_int(void* lhs, int rhs)
 {
 if (rhs == 0) {
     return lhs;
     }
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-Parameter* _rhs = new TypedParameter<int>(rhs,false);
-Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(&context, _lhs, _rhs);
-
-parameters.push_back(_rhs);
-expressions.push_back(tmp);
-return tmp;
+return context->plus( lhs, context->param(rhs, false, "") );
 }
 
-extern "C" void* add_expr_double(void* lhs, double rhs)
+extern "C" void* expr_plus_double(void* lhs, double rhs)
 {
 if (rhs == 0.0) {
     return lhs;
     }
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-Parameter* _rhs = new TypedParameter<double>(rhs,false);
-Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(&context, _lhs, _rhs);
-
-parameters.push_back(_rhs);
-expressions.push_back(tmp);
-return tmp;
+return context->plus( lhs, context->param(rhs, false, "") );
 }
 
-extern "C" void* add_expr_expression(void* lhs, void* rhs)
+extern "C" void* expr_plus_expression(void* lhs, void* rhs)
 {
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(&context, _lhs, _rhs);
-
-expressions.push_back(tmp);
-return tmp;
+return context->plus( lhs, rhs );
 }
 
-extern "C" void* radd_expr_int(int lhs, void* rhs)
+extern "C" void* expr_rplus_int(int lhs, void* rhs)
 {
 if (lhs == 0) {
     return rhs;
     }
-Parameter* _lhs = new TypedParameter<int>(lhs,false);
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(&context, _lhs, _rhs);
-
-parameters.push_back(_lhs);
-expressions.push_back(tmp);
-return tmp;
+return context->plus( context->param(lhs, false, ""), rhs );
 }
 
-extern "C" void* radd_expr_double(double lhs, void* rhs)
+extern "C" void* expr_rplus_double(double lhs, void* rhs)
 {
 if (lhs == 0.0) {
     return rhs;
     }
-Parameter* _lhs = new TypedParameter<double>(lhs,false);
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-Expression* tmp = new AddExpression<NumericValue*,NumericValue*>(&context, _lhs, _rhs);
-
-parameters.push_back(_lhs);
-expressions.push_back(tmp);
-return tmp;
+return context->plus( context->param(lhs, false, ""), rhs );
 }
 
 
 /*** SUB ***/
 
-extern "C" void* sub_expr_int(void* lhs, int rhs)
+extern "C" void* expr_minus_int(void* lhs, int rhs)
 {
 if (rhs == 0) {
     return lhs;
     }
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-Parameter* _rhs = new TypedParameter<int>(rhs,false);
-Expression* tmp = new SubExpression(_lhs, _rhs);
-
-parameters.push_back(_rhs);
-expressions.push_back(tmp);
-return tmp;
+return context->minus( lhs, context->param(rhs, false, "") );
 }
 
-extern "C" void* sub_expr_double(void* lhs, double rhs)
+extern "C" void* expr_minus_double(void* lhs, double rhs)
 {
 if (rhs == 0.0) {
     return lhs;
     }
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-Parameter* _rhs = new TypedParameter<double>(rhs,false);
-Expression* tmp = new SubExpression(_lhs, _rhs);
-
-parameters.push_back(_rhs);
-expressions.push_back(tmp);
-return tmp;
+return context->minus( lhs, context->param(rhs, false, "") );
 }
 
-extern "C" void* sub_expr_expression(void* lhs, void* rhs)
+extern "C" void* expr_minus_expression(void* lhs, void* rhs)
 {
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-Expression* tmp = new SubExpression(_lhs, _rhs);
-
-expressions.push_back(tmp);
-return tmp;
+return context->minus( lhs, rhs );
 }
 
-extern "C" void* rsub_expr_int(int lhs, void* rhs)
+extern "C" void* expr_rminus_int(int lhs, void* rhs)
 {
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
 if (lhs == 0) {
-    Expression* tmp = new NegExpression(_rhs);
-    expressions.push_back(tmp);
-    return tmp;
+    return context->negate( rhs );
     }
-Parameter* _lhs = new TypedParameter<int>(lhs,false);
-Expression* tmp = new SubExpression(_lhs, _rhs);
-
-parameters.push_back(_lhs);
-expressions.push_back(tmp);
-return tmp;
+return context->minus( context->param(lhs, false, ""), rhs );
 }
 
-extern "C" void* rsub_expr_double(double lhs, void* rhs)
+extern "C" void* expr_rminus_double(double lhs, void* rhs)
 {
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
 if (lhs == 0.0) {
-    Expression* tmp = new NegExpression(_rhs);
-    expressions.push_back(tmp);
-    return tmp;
+    return context->negate( rhs );
     }
-Parameter* _lhs = new TypedParameter<double>(lhs,false);
-Expression* tmp = new SubExpression(_lhs, _rhs);
-
-parameters.push_back(_lhs);
-expressions.push_back(tmp);
-return tmp;
+return context->minus( context->param(lhs, false, ""), rhs );
 }
 
 
 /*** MUL ***/
 
-extern "C" void* mul_expr_int(void* lhs, int rhs)
+extern "C" void* expr_times_int(void* lhs, int rhs)
 {
 if (rhs == 0) {
+    return context->zero;
+    }
+if (rhs == 1) {
     return lhs;
     }
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-Parameter* _rhs = new TypedParameter<int>(rhs,false);
-Expression* tmp = new MulExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
-
-parameters.push_back(_rhs);
-expressions.push_back(tmp);
-return tmp;
+if (rhs == -1) {
+    return context->negate( lhs );
+    }
+return context->times( lhs, context->param(rhs, false, "") );
 }
 
-extern "C" void* mul_expr_double(void* lhs, double rhs)
+extern "C" void* expr_times_double(void* lhs, double rhs)
 {
 if (rhs == 0.0) {
+    return context->zero;
+    }
+if (rhs == 1.0) {
     return lhs;
     }
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-Parameter* _rhs = new TypedParameter<double>(rhs,false);
-Expression* tmp = new MulExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
-
-parameters.push_back(_rhs);
-expressions.push_back(tmp);
-return tmp;
+if (rhs == -1.0) {
+    return context->negate( lhs );
+    }
+return context->times( lhs, context->param(rhs, false, "") );
 }
 
-extern "C" void* mul_expr_expression(void* lhs, void* rhs)
+extern "C" void* expr_times_expression(void* lhs, void* rhs)
 {
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-if (_rhs->is_parameter()) {
-    Parameter* p = static_cast<Parameter*>(rhs);
-    if (!(p->mutable_flag)) {
-        if (p->_value==0)
-            return 0;
-        if (p->_value==1)
-            return lhs;
-        }
-    }
-if (_lhs->is_parameter()) {
-    Parameter* p = static_cast<Parameter*>(lhs);
-    if (!(p->mutable_flag)) {
-        if (p->_value==0)
-            return 0;
-        if (p->_value==1)
-            return rhs;
-        }
-    }
-Expression* tmp = new MulExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
-
-expressions.push_back(tmp);
-return tmp;
+return context->times( lhs, rhs );
 }
 
-extern "C" void* rmul_expr_int(int lhs, void* rhs)
+extern "C" void* expr_rtimes_int(int lhs, void* rhs)
 {
 if (lhs == 0) {
+    return context->zero;
+    }
+if (lhs == 1) {
     return rhs;
     }
-Parameter* _lhs = new TypedParameter<int>(lhs,false);
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-Expression* tmp = new MulExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
-
-parameters.push_back(_lhs);
-expressions.push_back(tmp);
-return tmp;
+if (lhs == -1) {
+    return context->negate( rhs );
+    }
+return context->times( context->param(lhs, false, ""), rhs );
 }
 
-extern "C" void* rmul_expr_double(double lhs, void* rhs)
+extern "C" void* expr_rtimes_double(double lhs, void* rhs)
 {
 if (lhs == 0.0) {
+    return context->zero;
+    }
+if (lhs == 1.0) {
     return rhs;
     }
-Parameter* _lhs = new TypedParameter<double>(lhs,false);
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-Expression* tmp = new MulExpression<NumericValue*,NumericValue*>(_lhs, _rhs);
-
-parameters.push_back(_lhs);
-expressions.push_back(tmp);
-return tmp;
+if (lhs == -1.0) {
+    return context->negate( rhs );
+    }
+return context->times( context->param(lhs, false, ""), rhs );
 }
 
 
 /*** DIV ***/
 
-extern "C" void* div_expr_int(void* lhs, int rhs)
+extern "C" void* expr_divide_int(void* lhs, int rhs)
 {
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-Parameter* _rhs = new TypedParameter<int>(rhs,false);
-Expression* tmp = new DivExpression(_lhs, _rhs);
-
-parameters.push_back(_rhs);
-expressions.push_back(tmp);
-return tmp;
+if (rhs == 1) {
+    return lhs;
+    }
+if (rhs == -1) {
+    return context->negate( lhs );
+    }
+return context->divide( lhs, context->param(rhs, false, "") );
 }
 
-extern "C" void* div_expr_double(void* lhs, double rhs)
+extern "C" void* expr_divide_double(void* lhs, double rhs)
 {
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-Parameter* _rhs = new TypedParameter<double>(rhs,false);
-Expression* tmp = new DivExpression(_lhs, _rhs);
-
-parameters.push_back(_rhs);
-expressions.push_back(tmp);
-return tmp;
+if (rhs == 1.0) {
+    return lhs;
+    }
+if (rhs == -1.0) {
+    return context->negate( lhs );
+    }
+return context->divide( lhs, context->param(rhs, false, "") );
 }
 
-extern "C" void* div_expr_expression(void* lhs, void* rhs)
+extern "C" void* expr_divide_expression(void* lhs, void* rhs)
 {
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-if (_lhs->is_parameter()) {
-    Parameter* p = static_cast<Parameter*>(lhs);
-    if (!(p->mutable_flag)) {
-        if (p->_value==0)
-            return 0;
-        }
-    }
-if (_rhs->is_parameter()) {
-    Parameter* p = static_cast<Parameter*>(rhs);
-    if (!(p->mutable_flag)) {
-        if (p->_value==0)
-            return rhs;         // Indicate a divide by zero error
-        if (p->_value==1)
-            return lhs;
-        }
-    }
-
-Expression* tmp = new DivExpression(_lhs, _rhs);
-
-expressions.push_back(tmp);
-return tmp;
+return context->divide( lhs, rhs );
 }
 
-extern "C" void* rdiv_expr_int(int lhs, void* rhs)
+extern "C" void* expr_rdivide_int(int lhs, void* rhs)
 {
-Parameter* _lhs = new TypedParameter<int>(lhs,false);
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-if (_rhs->is_parameter()) {
-    Parameter* p = static_cast<Parameter*>(_rhs);
-    if (!(p->mutable_flag)) {
-        if (p->_value==0)
-            return rhs;         // Indicate a divide by zero error
-        if (p->_value==1)
-            return _lhs;
-        }
+if (lhs == 0) {
+    return context->zero;
     }
-Expression* tmp = new DivExpression(_lhs, _rhs);
-
-parameters.push_back(_lhs);
-expressions.push_back(tmp);
-return tmp;
+return context->divide( context->param(lhs, false, ""), rhs );
 }
 
-extern "C" void* rdiv_expr_double(double lhs, void* rhs)
+extern "C" void* expr_rdivide_double(double lhs, void* rhs)
 {
-Parameter* _lhs = new TypedParameter<double>(lhs,false);
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-if (_rhs->is_parameter()) {
-    Parameter* p = static_cast<Parameter*>(_rhs);
-    if (!(p->mutable_flag)) {
-        if (p->_value==0)
-            return rhs;         // Indicate a divide by zero error
-        if (p->_value==1)
-            return _lhs;
-        }
+if (lhs == 0.0) {
+    return context->zero;
     }
-Expression* tmp = new DivExpression(_lhs, _rhs);
-
-parameters.push_back(_lhs);
-expressions.push_back(tmp);
-return tmp;
+return context->divide( context->param(lhs, false, ""), rhs );
 }
 
 
 /*** POW ***/
 
-extern "C" void* pow_expr_int(void* lhs, int rhs)
+extern "C" void* expr_pow_int(void* lhs, int rhs)
 {
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-Parameter* _rhs = new TypedParameter<int>(rhs,false);
-if (_rhs->is_parameter()) {
-    Parameter* p = static_cast<Parameter*>(_rhs);
-    if (!(p->mutable_flag)) {
-        if (p->_value==0)
-            return &OneParameter;
-        if (p->_value==1)
-            return lhs;
-        }
-    }
-Expression* tmp = new PowExpression(_lhs, _rhs);
-
-parameters.push_back(_rhs);
-expressions.push_back(tmp);
-return tmp;
+return context->pow( lhs, context->param(rhs, false, "") );
 }
 
-extern "C" void* pow_expr_double(void* lhs, double rhs)
+extern "C" void* expr_pow_double(void* lhs, double rhs)
 {
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-Parameter* _rhs = new TypedParameter<double>(rhs,false);
-if (_rhs->is_parameter()) {
-    Parameter* p = static_cast<Parameter*>(_rhs);
-    if (!(p->mutable_flag)) {
-        if (p->_value==0)
-            return &OneParameter;
-        if (p->_value==1)
-            return lhs;
-        }
-    }
-Expression* tmp = new PowExpression(_lhs, _rhs);
-
-parameters.push_back(_rhs);
-expressions.push_back(tmp);
-return tmp;
+return context->pow( lhs, context->param(rhs, false, "") );
 }
 
-extern "C" void* pow_expr_expression(void* lhs, void* rhs)
+extern "C" void* expr_pow_expression(void* lhs, void* rhs)
 {
-NumericValue* _lhs = static_cast<NumericValue*>(lhs);
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-if (_lhs->is_parameter()) {
-    Parameter* p = static_cast<Parameter*>(_lhs);
-    if (!(p->mutable_flag)) {
-        if (p->_value==0)
-            return 0;
-        if (p->_value==1)
-            return lhs;
-        }
-    }
-if (_rhs->is_parameter()) {
-    Parameter* p = static_cast<Parameter*>(_rhs);
-    if (!(p->mutable_flag)) {
-        if (p->_value==0)
-            return &OneParameter;
-        if (p->_value==1)
-            return lhs;
-        }
-    }
-Expression* tmp = new PowExpression(_lhs, _rhs);
-
-expressions.push_back(tmp);
-return tmp;
+return context->pow( lhs, rhs );
 }
 
-extern "C" void* rpow_expr_int(int lhs, void* rhs)
+extern "C" void* expr_rpow_int(int lhs, void* rhs)
 {
-Parameter* _lhs = new TypedParameter<int>(lhs,false);
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-Expression* tmp = new PowExpression(_lhs, _rhs);
-
-parameters.push_back(_lhs);
-expressions.push_back(tmp);
-return tmp;
+return context->pow( context->param(lhs, false, ""), rhs );
 }
 
-extern "C" void* rpow_expr_double(double lhs, void* rhs)
+extern "C" void* expr_rpow_double(double lhs, void* rhs)
 {
-Parameter* _lhs = new TypedParameter<double>(lhs,false);
-NumericValue* _rhs = static_cast<NumericValue*>(rhs);
-Expression* tmp = new PowExpression(_lhs, _rhs);
-
-parameters.push_back(_lhs);
-expressions.push_back(tmp);
-return tmp;
+return context->pow( context->param(lhs, false, ""), rhs );
 }
 
 
 /*** OTHER ***/
-extern "C" void* neg_expr(void* _expr)
+extern "C" void* expr_negate(void* _expr)
 {
-NumericValue* expr = static_cast<NumericValue*>(_expr);
-Expression* tmp = new NegExpression(expr);
-
-expressions.push_back(tmp);
-return tmp;
+return context->negate( _expr );
 }
 
 
@@ -492,32 +293,23 @@ return diff[var];
 
 extern "C" void* create_parameter_int(int value, int mutable_flag, const char* name)
 {
-Parameter* tmp = new TypedParameter<int>(value, mutable_flag, name);
-parameters.push_back(tmp);
-return tmp;
+return context->param(value, mutable_flag, name);
 }
 
 extern "C" void* create_parameter_double(double value, int mutable_flag, const char* name)
 {
-Parameter* tmp = new TypedParameter<double>(value, mutable_flag, name);
-parameters.push_back(tmp);
-return tmp;
+return context->param(value, mutable_flag, name);
 }
 
 extern "C" void* create_variable(int binary, int integer, double lb, double ub, double init, const char* name)
 {
-Variable* tmp = new Variable(binary, integer, lb, ub, init, name);
-variables.push_back(tmp);
-return tmp;
+return context->var(binary, integer, lb, ub, init, name);
 }
 
 extern "C" void create_variable_array(void* vars[], int num, int binary, int integer, double lb, double ub, double init, const char* name)
 {
-for (int i=0; i<num; i++) {
-    Variable* tmp = new Variable(binary, integer, lb, ub, init, name);
-    vars[i] = tmp;
-    variables.push_back(tmp);
-    }
+for (int i=0; i<num; i++)
+    vars[i] =  context->var(binary, integer, lb, ub, init, name);
 }
 
 extern "C" int get_variable_index(void* ptr)
@@ -526,37 +318,37 @@ Variable* v = static_cast<Variable*>(ptr);
 return v->index;
 }
 
-extern "C" void set_variable_value(void* ptr, double val)
+extern "C" void variable_set_value(void* ptr, double val)
 {
 Variable* v = static_cast<Variable*>(ptr);
 v->_value = val;
 }
 
-extern "C" double get_variable_value(void* ptr)
+extern "C" double variable_get_value(void* ptr)
 {
 Variable* v = static_cast<Variable*>(ptr);
 return v->_value;
 }
 
-extern "C" void set_variable_lb(void* ptr, double val)
+extern "C" void variable_set_lb(void* ptr, double val)
 {
 Variable* v = static_cast<Variable*>(ptr);
 v->lb = val;
 }
 
-extern "C" double get_variable_lb(void* ptr)
+extern "C" double variable_get_lb(void* ptr)
 {
 Variable* v = static_cast<Variable*>(ptr);
 return v->lb;
 }
 
-extern "C" void set_variable_ub(void* ptr, double val)
+extern "C" void variable_set_ub(void* ptr, double val)
 {
 Variable* v = static_cast<Variable*>(ptr);
 v->ub = val;
 }
 
-extern "C" double get_variable_ub(void* ptr)
+extern "C" double variable_get_ub(void* ptr)
 {
 Variable* v = static_cast<Variable*>(ptr);
 return v->ub;
@@ -568,10 +360,10 @@ NumericValue* v = static_cast<NumericValue*>(ptr);
 v->snprintf(buf, max);
 }
 
-extern "C" double get_numval_value(void* ptr)
+extern "C" double expr_get_value(void* ptr)
 {
 NumericValue* v = static_cast<NumericValue*>(ptr);
-return v->_value;
+return v->value();
 }
 
 extern "C" double compute_numval_value(void* ptr)
@@ -590,24 +382,20 @@ return v->boolean_value();
 
 extern "C" void* create_inequality(void* expr, int strict_flag)
 {
-NumericValue* _expr = static_cast<NumericValue*>(expr);
-InequalityExpression* tmp = new InequalityExpression(_expr, strict_flag);
-expressions.push_back(tmp);
-return tmp;
+return context->inequality(expr, strict_flag);
 }
 
 extern "C" void* create_equality(void* expr)
 {
-NumericValue* _expr = static_cast<NumericValue*>(expr);
-EqualityExpression* tmp = new EqualityExpression(_expr);
-expressions.push_back(tmp);
-return tmp;
+return context->equality(expr);
 }
 
 extern "C" void* create_model()
 {
-Model* tmp = new Simple_Model();
+Model* tmp = new Simple_Model(new ExpressionContext_Objects());
 models.push_back(tmp);
+model = tmp;
+context = tmp->context;
 return tmp;
 }
 
@@ -731,5 +519,133 @@ extern "C" int solver_solve(void* solver)
 {
 Solver* _solver = static_cast<Solver*>(solver);
 return _solver->solve();
+}
+
+
+
+/*** INTRINSIC ***/
+
+
+
+
+extern "C" void* intrinsic_abs(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->abs(e);
+}
+
+extern "C" void* intrinsic_pow(void* base, void* exponent)
+{
+NumericValue* b = static_cast<NumericValue*>(base);
+NumericValue* e = static_cast<NumericValue*>(exponent);
+return e->context->pow(b, e);
+}
+
+extern "C" void* intrinsic_ceil(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->ceil(e);
+}
+
+extern "C" void* intrinsic_floor(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->floor(e);
+}
+
+extern "C" void* intrinsic_exp(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->exp(e);
+}
+
+extern "C" void* intrinsic_log(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->log(e);
+}
+
+extern "C" void* intrinsic_log10(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->log10(e);
+}
+
+extern "C" void* intrinsic_sqrt(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->sqrt(e);
+}
+
+extern "C" void* intrinsic_sin(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->sin(e);
+}
+
+extern "C" void* intrinsic_cos(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->cos(e);
+}
+
+extern "C" void* intrinsic_tan(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->tan(e);
+}
+
+extern "C" void* intrinsic_sinh(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->sinh(e);
+}
+
+extern "C" void* intrinsic_cosh(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->cosh(e);
+}
+
+extern "C" void* intrinsic_tanh(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->tanh(e);
+}
+
+extern "C" void* intrinsic_asin(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->asin(e);
+}
+
+extern "C" void* intrinsic_acos(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->acos(e);
+}
+
+extern "C" void* intrinsic_atan(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->atan(e);
+}
+
+extern "C" void* intrinsic_asinh(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->asinh(e);
+}
+
+extern "C" void* intrinsic_acosh(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->acosh(e);
+}
+
+extern "C" void* intrinsic_atanh(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->context->atanh(e);
 }
 

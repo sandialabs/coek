@@ -1,4 +1,10 @@
 
+#ifndef __expr_api_h
+#define __expr_api_h
+
+
+typedef void* apival_t;
+
 /* Declaration of C expression API functions */
 
 void* misc_getnull(void);
@@ -7,42 +13,42 @@ double misc_getnan(void);
 /** EXPRESSIONS **/
 
 /* __add__ */
-void* add_expr_int(void* lhs, int rhs);
-void* add_expr_double(void* lhs, double rhs);
-void* add_expr_expression(void* lhs, void* rhs);
-void* radd_expr_int(int lhs, void* rhs);
-void* radd_expr_double(double lhs, void* rhs);
+void* expr_plus_int(void* lhs, int rhs);
+void* expr_plus_double(void* lhs, double rhs);
+void* expr_plus_expression(void* lhs, void* rhs);
+void* expr_rplus_int(int lhs, void* rhs);
+void* expr_rplus_double(double lhs, void* rhs);
 
 /* __sub__ */
-void* sub_expr_int(void* lhs, int rhs);
-void* sub_expr_double(void* lhs, double rhs);
-void* sub_expr_expression(void* lhs, void* rhs);
-void* rsub_expr_int(int lhs, void* rhs);
-void* rsub_expr_double(double lhs, void* rhs);
+void* expr_minus_int(void* lhs, int rhs);
+void* expr_minus_double(void* lhs, double rhs);
+void* expr_minus_expression(void* lhs, void* rhs);
+void* expr_rminus_int(int lhs, void* rhs);
+void* expr_rminus_double(double lhs, void* rhs);
 
 /* __mul__ */
-void* mul_expr_int(void* lhs, int rhs);
-void* mul_expr_double(void* lhs, double rhs);
-void* mul_expr_expression(void* lhs, void* rhs);
-void* rmul_expr_int(int lhs, void* rhs);
-void* rmul_expr_double(double lhs, void* rhs);
+void* expr_times_int(void* lhs, int rhs);
+void* expr_times_double(void* lhs, double rhs);
+void* expr_times_expression(void* lhs, void* rhs);
+void* expr_rtimes_int(int lhs, void* rhs);
+void* expr_rtimes_double(double lhs, void* rhs);
 
 /* __div__ */
-void* div_expr_int(void* lhs, int rhs);
-void* div_expr_double(void* lhs, double rhs);
-void* div_expr_expression(void* lhs, void* rhs);
-void* rdiv_expr_int(int lhs, void* rhs);
-void* rdiv_expr_double(double lhs, void* rhs);
+void* expr_divide_int(void* lhs, int rhs);
+void* expr_divide_double(void* lhs, double rhs);
+void* expr_divide_expression(void* lhs, void* rhs);
+void* expr_rdivide_int(int lhs, void* rhs);
+void* expr_rdivide_double(double lhs, void* rhs);
 
 /* __pow__ */
-void* pow_expr_int(void* lhs, int rhs);
-void* pow_expr_double(void* lhs, double rhs);
-void* pow_expr_expression(void* lhs, void* rhs);
-void* rpow_expr_int(int lhs, void* rhs);
-void* rpow_expr_double(double lhs, void* rhs);
+void* expr_pow_int(void* lhs, int rhs);
+void* expr_pow_double(void* lhs, double rhs);
+void* expr_pow_expression(void* lhs, void* rhs);
+void* expr_rpow_int(int lhs, void* rhs);
+void* expr_rpow_double(double lhs, void* rhs);
 
 /* OTHER */
-void* neg_expr(void* expr);
+void* expr_negate(void* expr);
 
 void print_parameter(void* self);
 void print_var(void* self);
@@ -56,18 +62,18 @@ void* expr_diff(void* expr, void* variable);
 void* create_parameter_int(int value, int mutable_flag, const char* name);
 void* create_parameter_double(double value, int mutable_flag, const char* name);
 
-void* create_variable(int binary, int integer, double lb, double ub, double init, const char* name);
-void create_variable_array(void* array[], int num, int binary, int integer, double lb, double ub, double init, const char* name);
-int get_variable_index(void* variable);
-void set_variable_value(void* variable, double value);
-double get_variable_value(void* variable);
-void set_variable_lb(void* variable, double value);
-double get_variable_lb(void* variable);
-void set_variable_ub(void* variable, double value);
-double get_variable_ub(void* variable);
+void*  create_variable(int binary, int integer, double lb, double ub, double init, const char* name);
+void   create_variable_array(void* array[], int num, int binary, int integer, double lb, double ub, double init, const char* name);
+int    variable_get_index(void* variable);
+void   variable_set_value(void* variable, double value);
+double variable_get_value(void* variable);
+void   variable_set_lb(void* variable, double value);
+double variable_get_lb(void* variable);
+void   variable_set_ub(void* variable, double value);
+double variable_get_ub(void* variable);
 
 void get_numval_str(void* numval, char* buf, int n);
-double get_numval_value(void* numval);
+double expr_get_value(void* numval);
 double compute_numval_value(void* numval);
 double compute_constraint_value(void* numval, int body_flag);
 
@@ -103,7 +109,7 @@ void set_solver_model(void* solver, void* model);
 /* Intrinsic Expression Functions */
 
 void* intrinsic_abs(void* expr);
-void* intrinsic_pow(void* expr);
+void* intrinsic_pow(void* lhs, void* rhs);
 void* intrinsic_ceil(void* expr);
 void* intrinsic_floor(void* expr);
 void* intrinsic_exp(void* expr);
@@ -123,3 +129,5 @@ void* intrinsic_asinh(void* expr);
 void* intrinsic_acosh(void* expr);
 void* intrinsic_atanh(void* expr);
 
+
+#endif

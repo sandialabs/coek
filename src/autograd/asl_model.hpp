@@ -8,7 +8,7 @@ class ASL_Model : public Model
 {
 public:
 
-    ASL_Model() : Model() {}
+    ASL_Model(ExpressionContext* context) : Model(context) {}
 
     void build();
 

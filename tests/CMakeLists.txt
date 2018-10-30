@@ -11,6 +11,7 @@ SET(sources
     runner.cpp
     test_expr.cpp
     test_context_objects.cpp
+    test_capi.cpp
    )
 
 #

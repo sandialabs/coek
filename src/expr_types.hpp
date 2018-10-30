@@ -372,6 +372,19 @@ public:
 
     void print(std::ostream& ostr) 
         {ostr << name << "("; body->print(ostr); ostr << ")";}
+
+    NumericValue* partial(unsigned int i)
+	{ assert(0); }
+
+    void compute_adjoint()
+	{ assert(0); }
+
+    void compute_hv_fwd()
+	{ assert(0); }
+
+    void snprintf(char* buf, int max)
+        {std::snprintf(buf, max, "%s", this->name.c_str());}
+
 };
 
 
@@ -414,9 +427,6 @@ public:
         // TODO
         }
 
-    void snprintf(char* buf, int max)
-        {std::snprintf(buf, max, "abs");}
-
 };
 
 
@@ -454,12 +464,12 @@ public:
 
 };
 
-class CeilExpression : public AbsExpression
+class CeilExpression : public UnaryExpression
 {
 public:
 
     CeilExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "ceil";}
 
     double value() { return ceil(body->value()); }
@@ -468,12 +478,12 @@ public:
         { return this->_value = ceil(body->_value); }
 };
 
-class FloorExpression : public AbsExpression
+class FloorExpression : public UnaryExpression
 {
 public:
 
     FloorExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "floor";}
 
     double value() {return floor(body->value()); }
@@ -482,12 +492,12 @@ public:
         { return this->_value = floor(body->_value); }
 };
 
-class ExpExpression : public AbsExpression
+class ExpExpression : public UnaryExpression
 {
 public:
 
     ExpExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "exp";}
 
     double value() {return exp(body->value()); }
@@ -496,12 +506,12 @@ public:
         { return this->_value = exp(body->_value); }
 };
 
-class LogExpression : public AbsExpression
+class LogExpression : public UnaryExpression
 {
 public:
 
     LogExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "log";}
 
     double value() {return log(body->value()); }
@@ -510,12 +520,12 @@ public:
         { return this->_value = log(body->_value); }
 };
 
-class Log10Expression : public AbsExpression
+class Log10Expression : public UnaryExpression
 {
 public:
 
     Log10Expression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "log10";}
 
     double value() {return log10(body->value()); }
@@ -524,12 +534,12 @@ public:
         { return this->_value = log10(body->_value); }
 };
 
-class SqrtExpression : public AbsExpression
+class SqrtExpression : public UnaryExpression
 {
 public:
 
     SqrtExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "sqrt";}
 
     double value() {return sqrt(body->value()); }
@@ -538,12 +548,12 @@ public:
         { return this->_value = sqrt(body->_value); }
 };
 
-class SinExpression : public AbsExpression
+class SinExpression : public UnaryExpression
 {
 public:
 
     SinExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "sin";}
 
     double value() {return sin(body->value()); }
@@ -552,12 +562,12 @@ public:
         { return this->_value = sin(body->_value); }
 };
 
-class CosExpression : public AbsExpression
+class CosExpression : public UnaryExpression
 {
 public:
 
     CosExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "cos";}
 
     double value() {return cos(body->value()); }
@@ -566,12 +576,12 @@ public:
         { return this->_value = cos(body->_value); }
 };
 
-class TanExpression : public AbsExpression
+class TanExpression : public UnaryExpression
 {
 public:
 
     TanExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "tan";}
 
     double value() {return tan(body->value()); }
@@ -580,12 +590,12 @@ public:
         { return this->_value = tan(body->_value); }
 };
 
-class AsinExpression : public AbsExpression
+class AsinExpression : public UnaryExpression
 {
 public:
 
     AsinExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "asin";}
 
     double value() {return asin(body->value()); }
@@ -594,12 +604,12 @@ public:
         { return this->_value = asin(body->_value); }
 };
 
-class AcosExpression : public AbsExpression
+class AcosExpression : public UnaryExpression
 {
 public:
 
     AcosExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "acos";}
 
     double value() {return acos(body->value()); }
@@ -608,12 +618,12 @@ public:
         { return this->_value = acos(body->_value); }
 };
 
-class AtanExpression : public AbsExpression
+class AtanExpression : public UnaryExpression
 {
 public:
 
     AtanExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "atan";}
 
     double value() {return atan(body->value()); }
@@ -622,12 +632,12 @@ public:
         { return this->_value = atan(body->_value); }
 };
 
-class SinhExpression : public AbsExpression
+class SinhExpression : public UnaryExpression
 {
 public:
 
     SinhExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "sinh";}
 
     double value() {return sinh(body->value()); }
@@ -636,12 +646,12 @@ public:
         { return this->_value = sinh(body->_value); }
 };
 
-class CoshExpression : public AbsExpression
+class CoshExpression : public UnaryExpression
 {
 public:
 
     CoshExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "cosh";}
 
     double value() {return cosh(body->value()); }
@@ -650,12 +660,12 @@ public:
         { return this->_value = cosh(body->_value); }
 };
 
-class TanhExpression : public AbsExpression
+class TanhExpression : public UnaryExpression
 {
 public:
 
     TanhExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "tanh";}
 
     double value() {return tanh(body->value()); }
@@ -664,12 +674,12 @@ public:
         { return this->_value = tanh(body->_value); }
 };
 
-class AsinhExpression : public AbsExpression
+class AsinhExpression : public UnaryExpression
 {
 public:
 
     AsinhExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "asinh";}
 
     double value() {return asinh(body->value()); }
@@ -678,12 +688,12 @@ public:
         { return this->_value = asinh(body->_value); }
 };
 
-class AcoshExpression : public AbsExpression
+class AcoshExpression : public UnaryExpression
 {
 public:
 
     AcoshExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "acosh";}
 
     double value() {return acosh(body->value()); }
@@ -692,12 +702,12 @@ public:
         { return this->_value = acosh(body->_value); }
 };
 
-class AtanhExpression : public AbsExpression
+class AtanhExpression : public UnaryExpression
 {
 public:
 
     AtanhExpression(ExpressionContext* _context, NumericValue* _body) 
-        : AbsExpression(_context, _body)
+        : UnaryExpression(_context, _body)
         {this->name = "atanh";}
 
     double value() {return atanh(body->value()); }

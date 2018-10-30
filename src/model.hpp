@@ -28,7 +28,9 @@ public:
     std::vector<std::vector<int> > J_rc;
     std::vector<std::vector<Variable*> > J;
 
-    Model(void) {}
+    Model(ExpressionContext* _context) : context(_context) {}
+
+    virtual ~Model() {delete context;}
 
     int num_variables() {return variables.size();}
 
