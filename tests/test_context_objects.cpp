@@ -13,7 +13,6 @@ TEST_CASE( "add_expression", "[smoke]" ) {
   numval_t b = context._var(false, false, 0.0, 1.0, 0.0, "b");
   numval_t c = context._var(false, false, 0.0, 1.0, 0.0, "c");
   numval_t d = context._var(false, false, 0.0, 1.0, 0.0, "d");
-  numval_t _q  = context._param(2, true);
 
   SECTION( "Test simpleSum" ) {
     numval_t e = context.plus(a, b);
@@ -36,6 +35,12 @@ TEST_CASE( "add_expression", "[smoke]" ) {
     numval_t q = context._param(5, true);
     numval_t Q = context._param(5.0, true);
 
+    WHEN( "e = 5 + 5.0" ) {
+      numval_t e = context.plus(q, Q);
+
+      static std::list<std::string> baseline = {"10.000"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
     WHEN( "e = a + 5" ) {
       numval_t e = context.plus(a, q);
 
@@ -124,9 +129,39 @@ TEST_CASE( "add_expression", "[smoke]" ) {
     }
   }
 
-  //SECTION( "Test trivialSum" ) {
-  // TODO: test the plus() method?
-  //}
+  SECTION( "Test trivialSum" ) {
+
+    numval_t q = context._param(0, true);
+    numval_t Q = context._param(0.0, true);
+
+    WHEN( "e = a + 0" ) {
+      numval_t e = context.plus(a, q);
+
+      static std::list<std::string> baseline = {"a"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = 0 + a" ) {
+      numval_t e = context.plus(q, a);
+
+      static std::list<std::string> baseline = {"a"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = a + 0.0" ) {
+      numval_t e = context.plus(a, Q);
+
+      static std::list<std::string> baseline = {"a"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = 0.0 + a" ) {
+      numval_t e = context.plus(Q, a);
+
+      static std::list<std::string> baseline = {"a"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+  }
 
   SECTION( "Test nestedTrivialProduct" ) {
     numval_t q = context._param(5, true);
@@ -181,6 +216,14 @@ TEST_CASE( "diff_expression", "[smoke]" ) {
   SECTION( "Test constDiff" ) {
     numval_t q = context._param(5, true);
     numval_t Q = context._param(5.0, true);
+
+    WHEN( "e = 5 - 1.0" ) {
+      numval_t R = context._param(1.0, true);
+      numval_t e = context.minus(q, R);
+
+      static std::list<std::string> baseline = {"4.000"};
+      REQUIRE( expr_to_list(e) == baseline );
+      }
 
     WHEN( "e = a - 5" ) {
       numval_t e = context.minus(a, q);
@@ -303,6 +346,41 @@ TEST_CASE( "diff_expression", "[smoke]" ) {
     }
   }
 
+  SECTION( "Test trivialDiff" ) {
+
+    numval_t q = context._param(0, true);
+    numval_t Q = context._param(0.0, true);
+
+    WHEN( "e = a - 0" ) {
+      numval_t e = context.minus(a, q);
+
+      static std::list<std::string> baseline = {"a"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = 0 - a" ) {
+      numval_t e = context.minus(q, a);
+
+      static std::list<std::string> baseline = {"[", "-", "a", "]"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = a - 0.0" ) {
+      numval_t e = context.minus(a, Q);
+
+      static std::list<std::string> baseline = {"a"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = 0.0 - a" ) {
+      numval_t e = context.minus(Q, a);
+
+      static std::list<std::string> baseline = {"[", "-", "a", "]"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+  }
+
+
 }
 
 
@@ -362,10 +440,6 @@ TEST_CASE( "neg_expression", "[smoke]" ) {
     }
   }
 
-  //SECTION( "Test trivialDiff" ) {
-  // TODO: test the minus() method?
-  //}
-
 }
 
 
@@ -388,6 +462,13 @@ TEST_CASE( "mul_expression", "[smoke]" ) {
   SECTION( "Test constProduct" ) {
     numval_t q = context._param(5, false);
     numval_t Q = context._param(5.0, false);
+
+    WHEN( "e = 5*5.0" ) {
+      numval_t e = context.times(q,Q);
+
+      static std::list<std::string> baseline = {"25.000"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
 
     WHEN( "e = a*5" ) {
       numval_t e = context.times(a,q);
@@ -530,9 +611,69 @@ TEST_CASE( "mul_expression", "[smoke]" ) {
     }
   }
 
-  //SECTION( "Test trivialProduct" ) {
-  // TODO: test the multiply() method?
-  //}
+  SECTION( "Test trivialProduct" ) {
+
+    numval_t q = context._param(0, true);
+    numval_t Q = context._param(0.0, true);
+    numval_t r = context._param(1, true);
+    numval_t R = context._param(1.0, true);
+
+    WHEN( "e = a * 0" ) {
+      numval_t e = context.times(a, q);
+
+      static std::list<std::string> baseline = {"0"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = 0 * a" ) {
+      numval_t e = context.times(q, a);
+
+      static std::list<std::string> baseline = {"0"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = a * 0.0" ) {
+      numval_t e = context.times(a, Q);
+
+      static std::list<std::string> baseline = {"0"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = 0.0 * a" ) {
+      numval_t e = context.times(Q, a);
+
+      static std::list<std::string> baseline = {"0"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = a * 1" ) {
+      numval_t e = context.times(a, r);
+
+      static std::list<std::string> baseline = {"a"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = 1 * a" ) {
+      numval_t e = context.times(r, a);
+
+      static std::list<std::string> baseline = {"a"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = a * 1.0" ) {
+      numval_t e = context.times(a, R);
+
+      static std::list<std::string> baseline = {"a"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = 1.0 * a" ) {
+      numval_t e = context.times(R, a);
+
+      static std::list<std::string> baseline = {"a"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+  }
 
 }
 
@@ -556,6 +697,13 @@ TEST_CASE( "div_expression", "[smoke]" ) {
   SECTION( "Test constDivision" ) {
     numval_t q = context._param(5, false);
     numval_t Q = context._param(5.0, false);
+
+    WHEN( "e = 5/5.0" ) {
+      numval_t e = context.divide(q,Q);
+
+      static std::list<std::string> baseline = {"1.000"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
 
     WHEN( "e = a/5" ) {
       numval_t e = context.divide(a,q);
@@ -586,7 +734,7 @@ TEST_CASE( "div_expression", "[smoke]" ) {
     }
   }
 
-  SECTION( "Test constDivision" ) {
+  SECTION( "Test nestedDivision" ) {
     numval_t p = context._param(3, false);
     numval_t q = context._param(5, false);
 
@@ -633,9 +781,56 @@ TEST_CASE( "div_expression", "[smoke]" ) {
     }
   }
 
-  //SECTION( "Test trivialDivision" ) {
-  // TODO: test the division() method?
-  //}
+  SECTION( "Test trivialDivision" ) {
+    numval_t q = context._param(0, true);
+    numval_t Q = context._param(0.0, true);
+    numval_t r = context._param(1, true);
+    numval_t R = context._param(1.0, true);
+    numval_t s = context._param(-1, true);
+    numval_t S = context._param(-1.0, true);
+
+    WHEN( "e = 0 / a" ) {
+      numval_t e = context.divide(q, a);
+
+      static std::list<std::string> baseline = {"0"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = 0.0 / a" ) {
+      numval_t e = context.divide(Q, a);
+
+      static std::list<std::string> baseline = {"0"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = a / 1" ) {
+      numval_t e = context.divide(a, r);
+
+      static std::list<std::string> baseline = {"a"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = a / 1.0" ) {
+      numval_t e = context.divide(a, R);
+
+      static std::list<std::string> baseline = {"a"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = a / -1" ) {
+      numval_t e = context.divide(a, s);
+
+      static std::list<std::string> baseline = {"[", "-", "a", "]"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = a / -1.0" ) {
+      numval_t e = context.divide(a, S);
+
+      static std::list<std::string> baseline = {"[", "-", "a", "]"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+  }
 
 }
 
@@ -687,10 +882,69 @@ TEST_CASE( "pow_expression", "[smoke]" ) {
     }
   }
 
-  //SECTION( "Test trivialPow" ) {
-  // TODO: test the pow() method?
-  //}
+  SECTION( "Test trivialPow" ) {
 
+    numval_t q = context._param(0, true);
+    numval_t Q = context._param(0.0, true);
+    numval_t r = context._param(1, true);
+    numval_t R = context._param(1.0, true);
+
+    WHEN( "e = 0 ** a" ) {
+      numval_t e = context.pow(q, a);
+
+      static std::list<std::string> baseline = {"0"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = 0.0 ** a" ) {
+      numval_t e = context.pow(Q, a);
+
+      static std::list<std::string> baseline = {"0"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = 1 ** a" ) {
+      numval_t e = context.pow(r, a);
+
+      static std::list<std::string> baseline = {"1"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = 1.0 ** a" ) {
+      numval_t e = context.pow(R, a);
+
+      static std::list<std::string> baseline = {"1"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = a ** 0" ) {
+      numval_t e = context.pow(a, q);
+
+      static std::list<std::string> baseline = {"1"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = a ** 0.0" ) {
+      numval_t e = context.pow(a, Q);
+
+      static std::list<std::string> baseline = {"1"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = a ** 1" ) {
+      numval_t e = context.pow(a, r);
+
+      static std::list<std::string> baseline = {"a"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+
+    WHEN( "e = a ** 1.0" ) {
+      numval_t e = context.pow(a, R);
+
+      static std::list<std::string> baseline = {"a"};
+      REQUIRE( expr_to_list(e) == baseline );
+    }
+  }
 }
 
 

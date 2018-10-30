@@ -60,6 +60,10 @@ if (lhs == &OneParameter)
     return rhs;
 if (rhs == &OneParameter)
     return lhs;
+if (lhs == &NegativeOneParameter)
+    return this->negate(rhs);
+if (rhs == &NegativeOneParameter)
+    return this->negate(lhs);
 
 assert(lhs->context == rhs->context);
 
@@ -101,6 +105,14 @@ return tmp;
 
 numval_t ExpressionContext_Objects::pow(numval_t lhs, numval_t rhs)
 {
+if (lhs == &ZeroParameter)
+    return &ZeroParameter;
+if (lhs == &OneParameter)
+    return &OneParameter;
+if (rhs == &ZeroParameter)
+    return &OneParameter;
+if (rhs == &OneParameter)
+    return lhs;
 assert(lhs->context == rhs->context);
 
 Expression* tmp = new PowExpression(lhs->context, lhs, rhs);
@@ -257,6 +269,13 @@ return tmp;
 
 numval_t ExpressionContext_Objects::_param(int _value, bool _mutable, const char* name)
 {
+if (_value == 0)
+   return &ZeroParameter;
+if (_value == 1)
+   return &OneParameter;
+if (_value == -1)
+   return &NegativeOneParameter;
+
 Parameter* tmp = new TypedParameter<int>(this, _value, _mutable, name);
 owned.push_back(tmp);
 return tmp;
@@ -264,8 +283,21 @@ return tmp;
 
 numval_t ExpressionContext_Objects::_param(double _value, bool _mutable, const char* name)
 {
+if (_value == 0.0)
+   return &ZeroParameter;
+if (_value == 1.0)
+   return &OneParameter;
+if (_value == -1.0)
+   return &NegativeOneParameter;
+
 Parameter* tmp = new TypedParameter<double>(this, _value, _mutable, name);
 owned.push_back(tmp);
 return tmp;
+}
+
+std::list<std::string> ExpressionContext_Objects::expr_to_list(apival_t e, bool values)
+{
+NumericValue* tmp = static_cast<NumericValue*>(e);
+return ::expr_to_list(tmp, values);
 }
 

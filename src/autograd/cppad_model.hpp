@@ -8,7 +8,7 @@ class CppAD_Model : public Model
 {
 public:
 
-    CppAD_Model() : Model() {}
+    CppAD_Model(ExpressionContext* context) : Model(context) {}
 
     void build();
 

@@ -10,7 +10,7 @@ public:
 
     std::vector< std::list<NumericValue*> > builds_f;
 
-    Simple_Model() : Model() {}
+    Simple_Model(ExpressionContext* context) : Model(context) {}
 
     void build();
 
