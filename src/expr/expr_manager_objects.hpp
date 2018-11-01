@@ -1,22 +1,23 @@
 #pragma once
 
 #include <list>
-#include "context.hpp"
-#include "expr_types.hpp"
+#include "expr/expr_manager.hpp"
+#include "expr/expr_types.hpp"
 
-
-typedef NumericValue* numval_t;
 
 //
 // Class that manages expressions with dynamically created objects
 //
-class ExpressionContext_Objects : public ExpressionContext 
+class ExprManager_Objects : public ExprManager 
 {
 public:
 
+    typedef NumericValue* numval_t;
+    typedef numval_t expr_t;
+
     std::list<numval_t> owned;
 
-    ExpressionContext_Objects() 
+    ExprManager_Objects() 
        : OneParameter(this,1,false),
          ZeroParameter(this,0,false),
          NegativeOneParameter(this,-1,false)
@@ -26,7 +27,7 @@ public:
        negative_one = &NegativeOneParameter;
        }
 
-    ~ExpressionContext_Objects();
+    ~ExprManager_Objects();
 
     //
     //----- CORE EXPRESSION METHODS -----

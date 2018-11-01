@@ -3,7 +3,7 @@
 #include <list>
 #include <cmath>
 
-#include "expr_types.hpp"
+#include "expr/expr_types.hpp"
 
 
 int Variable::nvariables = 0;
@@ -20,9 +20,9 @@ NumericValue* PowExpression::partial(unsigned int i)
 NumericValue* base = this->lhs;
 NumericValue* exp =  this->rhs;
 if (i==0)
-    return static_cast<NumericValue*>(context->times(exp, context->pow(base, context->minus(exp, context->one))));
+    return static_cast<NumericValue*>(manager->times(exp, manager->pow(base, manager->minus(exp, manager->one))));
 else
-    return static_cast<NumericValue*>(context->times(context->log(base), this));
+    return static_cast<NumericValue*>(manager->times(manager->log(base), this));
 }
 
 
@@ -54,7 +54,7 @@ if (root->is_parameter())
     return;
 
 if (root->is_variable()) {
-    diff[static_cast<Variable*>(root)] = static_cast<NumericValue*>(root->context->one);
+    diff[static_cast<Variable*>(root)] = static_cast<NumericValue*>(root->manager->one);
     return;
     }
 
@@ -88,10 +88,10 @@ while(queue.size() > 0) {
 // they have been reached by all parents.
 //
 std::map<NumericValue*, NumericValue*> partial;
-partial[root] = static_cast<NumericValue*>(root->context->one);
+partial[root] = static_cast<NumericValue*>(root->manager->one);
 queue.push_back(static_cast<Expression*>(root));
 
-ExpressionContext* context = static_cast<NumericValue*>(root)->context;
+ExprManager* manager = static_cast<NumericValue*>(root)->manager;
 
 while (queue.size() > 0) {
     ///std::cout << "TODO " << queue.size() << std::endl;
@@ -128,9 +128,9 @@ while (queue.size() > 0) {
                 }
             ///std::cout << "HERE" << std::endl << std::flush;
             if (partial.find(child) == partial.end())
-                partial[child] = static_cast<NumericValue*>(context->times(partial[curr], _partial));
+                partial[child] = static_cast<NumericValue*>(manager->times(partial[curr], _partial));
             else
-                partial[child] = static_cast<NumericValue*>(context->plus(partial[child], context->times(partial[curr], _partial)));
+                partial[child] = static_cast<NumericValue*>(manager->plus(partial[child], manager->times(partial[curr], _partial)));
 
             ///std::cout << "PARTIAL" << std::endl << std::flush;
             ///child->print(std::cout);

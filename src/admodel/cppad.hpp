@@ -1,16 +1,24 @@
-#include "../model.hpp"
+#pragma once
+
+#include "model.hpp"
+#include "model/simple.hpp"
+
 
 //
 // An extension model that uses the CppAD library for autograd.
 //
-
-class CppAD_Model : public Model
+class CppAD_ADModel : public ADModel
 {
 public:
 
-    CppAD_Model(ExpressionContext* context) : Model(context) {}
+    int num_variables();
 
-    void build();
+    void set_variables(std::vector<double>& x);
+
+    void set_variables(const double* x, int n);
+
+    void print(std::ostream& ostr);
+
 
     double compute_f(unsigned int i);
 
@@ -24,7 +32,8 @@ public:
 
     void compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i);
 
-    void print(std::ostream& ostr, int df);
-
 };
+
+template <>
+void initialize_admodel(CppAD_ADModel& admodel, Simple_ExprModel& model);
 

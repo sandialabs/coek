@@ -1,44 +1,63 @@
 #pragma once
 
 #include <vector>
-#include <list>
-#include <map>
-#include <set>
 #include <iostream>
 
-#include "expr_types.hpp"
-#include "context.hpp"
+
+//
+// Model base class used to manage global data
+//
+class Model
+{
+protected:
+
+  virtual ~Model() {}
+
+};
 
 
 //
-// The base model class that defines the API used by Python
+// The base class of models defined with expressions
 //
-class Model 
+template <class ExprManager>
+class ExprModel : public Model
 {
 public:
 
-    ExpressionContext* context;
+  typedef typename ExprManager::expr_t expr_t;
 
-    std::list<Expression*> objectives;
-    std::list<Expression*> inequalities;
-    std::list<Expression*> equalities;
+  ExprManager manager;
+  
+  virtual ~ExprModel() {}
 
-    std::vector<Variable*> variables;
-    typedef std::set<Variable*, bool(*)(const Variable*, const Variable*)>::iterator variables_iterator_type;
-    std::vector<std::vector<int> > J_rc;
-    std::vector<std::vector<Variable*> > J;
+  virtual void add_objective(expr_t expr) = 0;
 
-    Model(ExpressionContext* _context) : context(_context) {}
+  virtual void add_inequality(expr_t expr) = 0;
 
-    virtual ~Model() {delete context;}
+  virtual void add_equality(expr_t expr) = 0;
 
-    int num_variables() {return variables.size();}
+  virtual void print(std::ostream& ostr) = 0;
 
-    virtual void build() = 0;
+};
 
-    virtual void set_variables(std::vector<double>& x);
 
-    virtual void set_variables(const double* x, int n);
+
+//
+// The base class of a model that uses AD
+//
+class ADModel : public Model
+{
+public:
+
+    virtual ~ADModel() {}
+
+    virtual int num_variables() = 0;
+
+    virtual void set_variables(std::vector<double>& x) = 0;
+
+    virtual void set_variables(const double* x, int n) =0;
+
+    virtual void print(std::ostream& ostr) = 0;
 
     /// COMPUTE F
 
@@ -106,7 +125,12 @@ public:
 
     virtual void compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i) = 0;
 
-    virtual void print(std::ostream& ostr, int df);
-
 };
+
+
+template <class ADModelType, class ExprModelType>
+void initialize_admodel(ADModelType& admodel, ExprModelType& model)
+{
+throw std::runtime_error("Undefined initialization logic.");
+}
 

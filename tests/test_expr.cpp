@@ -1,17 +1,17 @@
 
 #include "catch.hpp"
-#include "expr_types.hpp"
-#include "context_objects.hpp"
+#include "expr/expr_types.hpp"
+#include "expr/expr_manager_objects.hpp"
 
 
 TEST_CASE( "expr_values", "[smoke]" ) {
 
-  ExpressionContext_Objects context;
+  ExprManager_Objects manager;
   
   SECTION( "Test Immutable Parameter" ) {
 
     // Create an immutable parameter
-    TypedParameter<int> q( &context, 2, false, "q");
+    TypedParameter<int> q( &manager, 2, false, "q");
     REQUIRE( q._value == 2 );
     REQUIRE( q._tvalue == 2 );
     REQUIRE( q.value() == 2 );
@@ -26,7 +26,7 @@ TEST_CASE( "expr_values", "[smoke]" ) {
   SECTION( "Test Mutable Parameter" ) {
 
     // Create an mutable parameter
-    TypedParameter<int> q( &context, 2, true, "q");
+    TypedParameter<int> q( &manager, 2, true, "q");
     REQUIRE( q._value == 2 );
     REQUIRE( q._tvalue == 2 );
     REQUIRE( q.value() == 2 );
@@ -41,7 +41,7 @@ TEST_CASE( "expr_values", "[smoke]" ) {
   SECTION( "Test Variable" ) {
 
     // Create a variable parameter
-    Variable p( &context, false, false, 0.0, 1.0, 2.0, "p");
+    Variable p( &manager, false, false, 0.0, 1.0, 2.0, "p");
     REQUIRE( p._value == 2.0 );
     REQUIRE( p.value() == 2.0 );
 
@@ -53,9 +53,9 @@ TEST_CASE( "expr_values", "[smoke]" ) {
     }
 
   SECTION( "Test Expression" ) {
-    Variable p( &context, false, false, 0.0, 1.0, 2.0, "p");
-    TypedParameter<int> q( &context, 3, true, "q");
-    AddExpression<NumericValue*, NumericValue*> e(&context, &p, &q);
+    Variable p( &manager, false, false, 0.0, 1.0, 2.0, "p");
+    TypedParameter<int> q( &manager, 3, true, "q");
+    AddExpression<NumericValue*, NumericValue*> e(&manager, &p, &q);
 
     REQUIRE( p.value() == 2.0 );
     REQUIRE( q.value() == 3.0 );
@@ -63,9 +63,9 @@ TEST_CASE( "expr_values", "[smoke]" ) {
     }
 
   SECTION( "Test Constraint" ) {
-    Variable p( &context, false, false, 0.0, 1.0, 2.0, "p");
-    TypedParameter<int> q( &context, 3, true, "q");
-    InequalityExpression e(&context, &p, false);
+    Variable p( &manager, false, false, 0.0, 1.0, 2.0, "p");
+    TypedParameter<int> q( &manager, 3, true, "q");
+    InequalityExpression e(&manager, &p, false);
 
     REQUIRE( p.value() == 2.0 );
     REQUIRE( e.value() == 2.0 );

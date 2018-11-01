@@ -4,14 +4,16 @@
 OPTION(STATIC_LINK "STATIC_LINK" OFF)
 
 SET(sources
-    expr_api.cpp
-    expr_api.h
-    expr_types.cpp
-    context_objects.cpp
-    model.cpp
+    coek_capi.cpp
+    expr/expr_types.cpp
+    expr/expr_manager_objects.cpp
+    model/simple.cpp
     solver.cpp
-    autograd/simple_model.cpp
+    admodel/simple.cpp
+    admodel/cppad.cpp
    )
+
+include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # CppAD LIBRARY
 if(with_cppad)
@@ -50,10 +52,7 @@ endif()
 INSTALL(TARGETS coek
         DESTINATION lib
        )
-INSTALL(FILES expr_api.h
-        DESTINATION include
-       )
-INSTALL(FILES expr_intrinsic.h
+INSTALL(FILES coek_capi.h
         DESTINATION include
        )
 
