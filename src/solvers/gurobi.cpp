@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "gurobi_c++.h"
-#include "expr_types.hpp"
+#include "expr/expr_types.hpp"
 
 GRBEnv* env = 0;
 GRBModel* model = 0;

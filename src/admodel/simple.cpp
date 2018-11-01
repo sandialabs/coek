@@ -1,33 +1,33 @@
-#include "simple_model.hpp"
+#include "admodel/simple.hpp"
 
 
-void Simple_Model::build()
+void Simple_ADModel::build()
 {
-builds_f.resize(objectives.size() + inequalities.size() + equalities.size());
+builds_f.resize(expr_model->objectives.size() + expr_model->inequalities.size() + expr_model->equalities.size());
 int nb=0;
 
 typedef std::set<Variable*, bool(*)(const Variable*, const Variable*)> ordered_set_t;
 std::vector< ordered_set_t* > vars;
-vars.resize(inequalities.size() + equalities.size());
-J_rc.resize(inequalities.size() + equalities.size());
-J.resize(inequalities.size() + equalities.size());
+vars.resize(expr_model->inequalities.size() + expr_model->equalities.size());
+J_rc.resize(expr_model->inequalities.size() + expr_model->equalities.size());
+J.resize(expr_model->inequalities.size() + expr_model->equalities.size());
     
 std::set<Variable*, bool(*)(const Variable*, const Variable*)> vset(variable_comparator);
 
-for (std::list<Expression*>::iterator it=objectives.begin(); it != objectives.end(); ++it) {
+for (std::list<NumericValue*>::iterator it=expr_model->objectives.begin(); it != expr_model->objectives.end(); ++it) {
     build_expression(*it, builds_f[nb], vset);
     nb++;
     }
 
 size_t i=0;
-for (std::list<Expression*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
+for (std::list<NumericValue*>::iterator it=expr_model->inequalities.begin(); it != expr_model->inequalities.end(); ++it) {
     vars[i] = new std::set<Variable*, bool(*)(const Variable*, const Variable*)>(variable_comparator);
     build_expression(*it, builds_f[nb], *vars[i]);
     i++;
     nb++;
     }
 
-for (std::list<Expression*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
+for (std::list<NumericValue*>::iterator it=expr_model->equalities.begin(); it != expr_model->equalities.end(); ++it) {
     vars[i] = new std::set<Variable*, bool(*)(const Variable*, const Variable*)>(variable_comparator);
     build_expression(*it, builds_f[nb], *vars[i]);
     i++;
@@ -70,7 +70,29 @@ for (size_t i = 0; i<vars.size(); i++) {
 }
 
 
-double Simple_Model::compute_f(unsigned int i)
+void Simple_ADModel::set_variables(const double* x, int n)
+{
+assert(n == variables.size());
+int j=0;
+for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++) {
+    (*it)->_value = x[j];
+    j++;
+    }
+}
+
+
+void Simple_ADModel::set_variables(std::vector<double>& x)
+{
+assert(x.size() == variables.size());
+int j=0;
+for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++) {
+    (*it)->_value = x[j];
+    j++;
+    }
+}
+
+
+double Simple_ADModel::compute_f(unsigned int i)
 {
 assert(i < builds_f.size());
 std::list<NumericValue*>& tmp = builds_f[i];
@@ -89,7 +111,7 @@ return ans;
 }
 
 
-void Simple_Model::compute_df(double& f, std::vector<double>& df, unsigned int i)
+void Simple_ADModel::compute_df(double& f, std::vector<double>& df, unsigned int i)
 {
 assert(i < builds_f.size());
 assert(variables.size() == df.size());
@@ -122,11 +144,11 @@ for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(
 }
 
 
-void Simple_Model::compute_c(std::vector<double>& c)
+void Simple_ADModel::compute_c(std::vector<double>& c)
 {
-assert((inequalities.size() + equalities.size()) == c.size());
+assert((expr_model->inequalities.size() + expr_model->equalities.size()) == c.size());
 
-int i=objectives.size();
+int i=expr_model->objectives.size();
 for (unsigned int j=0; j<c.size(); j++, i++) {
     std::list<NumericValue*>& build = builds_f[i];
     double ans = 0.0;
@@ -139,10 +161,10 @@ for (unsigned int j=0; j<c.size(); j++, i++) {
 }
 
 
-void Simple_Model::compute_dc(std::vector<double>& dc, unsigned int i)
+void Simple_ADModel::compute_dc(std::vector<double>& dc, unsigned int i)
 {
 assert(variables.size() == dc.size());
-assert(i < (inequalities.size() + equalities.size()));
+assert(i < (expr_model->inequalities.size() + expr_model->equalities.size()));
 
 /// Set adjoint for variables
 for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++)
@@ -157,9 +179,9 @@ for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(
 }
 
 
-void Simple_Model::compute_adjoints(unsigned int i)
+void Simple_ADModel::compute_adjoints(unsigned int i)
 {
-std::list<NumericValue*>& build = builds_f[objectives.size() + i];
+std::list<NumericValue*>& build = builds_f[expr_model->objectives.size() + i];
 //
 /// compute_c + set adjoint=0
 double ans = 0.0;
@@ -180,7 +202,7 @@ for ( ; rit != build.rend(); rit++) {
 }
 
 
-void Simple_Model::compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i)
+void Simple_ADModel::compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i)
 {
 assert(i < builds_f.size());
 assert(variables.size() == v.size());
@@ -222,16 +244,16 @@ for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(
 }
 
 
-void Simple_Model::print(std::ostream& ostr, int df)
+void Simple_ADModel::print(std::ostream& ostr)
 {
-Model::print(ostr, df);
+Simple_ExprModel::print(ostr);
 
-if ((variables.size() > 0) && df) {
+if (variables.size() > 0) {
     ostr << std::endl;
 
     ostr << "  DF" << std::endl;
     int k = 0;
-    for (std::list<Expression*>::iterator it=objectives.begin(); it != objectives.end(); ++it) {
+    for (std::list<NumericValue*>::iterator it=expr_model->objectives.begin(); it != expr_model->objectives.end(); ++it) {
         std::map<Variable*, NumericValue*> diff;
         symbolic_diff_all(*it,  diff);
         ostr << "    (Objective " << k << ")" << std::endl;
@@ -252,7 +274,7 @@ if ((variables.size() > 0) && df) {
 
     ostr << "  DC" << std::endl;
     k = 0;
-    for (std::list<Expression*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
+    for (std::list<NumericValue*>::iterator it=expr_model->inequalities.begin(); it != expr_model->inequalities.end(); ++it) {
         std::map<Variable*, NumericValue*> diff;
         InequalityExpression* tmp = static_cast<InequalityExpression*>(*it);
         symbolic_diff_all(tmp->body,  diff);
@@ -274,7 +296,7 @@ if ((variables.size() > 0) && df) {
 
     ostr << "  DC" << std::endl;
     k = 0;
-    for (std::list<Expression*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
+    for (std::list<NumericValue*>::iterator it=expr_model->equalities.begin(); it != expr_model->equalities.end(); ++it) {
         std::map<Variable*, NumericValue*> diff;
         EqualityExpression* tmp = static_cast<EqualityExpression*>(*it);
         symbolic_diff_all(tmp->body,  diff);

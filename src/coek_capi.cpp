@@ -4,16 +4,16 @@
 #include <sstream>
 
 //#include "expr_types.hpp"
-#include "autograd/simple_model.hpp"
+#include "expr/expr_manager.hpp"
+#include "admodel/simple.hpp"
 #include "solver.hpp"
-#include "context_objects.hpp"
 
 
 /*** GLOBAL DATA ***/
 
-Model* model = 0;
-ExpressionContext* context = 0;
-std::list<Model*> models;
+Simple_ExprModel* model = 0;
+ExprManager* manager = 0;
+std::list<Simple_ExprModel*> models;
 
 
 extern "C" void* misc_getnull(void)
@@ -30,7 +30,7 @@ extern "C" void* expr_plus_int(void* lhs, int rhs)
 if (rhs == 0) {
     return lhs;
     }
-return context->plus( lhs, context->param(rhs, false, "") );
+return manager->plus( lhs, manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_plus_double(void* lhs, double rhs)
@@ -38,12 +38,12 @@ extern "C" void* expr_plus_double(void* lhs, double rhs)
 if (rhs == 0.0) {
     return lhs;
     }
-return context->plus( lhs, context->param(rhs, false, "") );
+return manager->plus( lhs, manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_plus_expression(void* lhs, void* rhs)
 {
-return context->plus( lhs, rhs );
+return manager->plus( lhs, rhs );
 }
 
 extern "C" void* expr_rplus_int(int lhs, void* rhs)
@@ -51,7 +51,7 @@ extern "C" void* expr_rplus_int(int lhs, void* rhs)
 if (lhs == 0) {
     return rhs;
     }
-return context->plus( context->param(lhs, false, ""), rhs );
+return manager->plus( manager->param(lhs, false, ""), rhs );
 }
 
 extern "C" void* expr_rplus_double(double lhs, void* rhs)
@@ -59,7 +59,7 @@ extern "C" void* expr_rplus_double(double lhs, void* rhs)
 if (lhs == 0.0) {
     return rhs;
     }
-return context->plus( context->param(lhs, false, ""), rhs );
+return manager->plus( manager->param(lhs, false, ""), rhs );
 }
 
 
@@ -70,7 +70,7 @@ extern "C" void* expr_minus_int(void* lhs, int rhs)
 if (rhs == 0) {
     return lhs;
     }
-return context->minus( lhs, context->param(rhs, false, "") );
+return manager->minus( lhs, manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_minus_double(void* lhs, double rhs)
@@ -78,28 +78,28 @@ extern "C" void* expr_minus_double(void* lhs, double rhs)
 if (rhs == 0.0) {
     return lhs;
     }
-return context->minus( lhs, context->param(rhs, false, "") );
+return manager->minus( lhs, manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_minus_expression(void* lhs, void* rhs)
 {
-return context->minus( lhs, rhs );
+return manager->minus( lhs, rhs );
 }
 
 extern "C" void* expr_rminus_int(int lhs, void* rhs)
 {
 if (lhs == 0) {
-    return context->negate( rhs );
+    return manager->negate( rhs );
     }
-return context->minus( context->param(lhs, false, ""), rhs );
+return manager->minus( manager->param(lhs, false, ""), rhs );
 }
 
 extern "C" void* expr_rminus_double(double lhs, void* rhs)
 {
 if (lhs == 0.0) {
-    return context->negate( rhs );
+    return manager->negate( rhs );
     }
-return context->minus( context->param(lhs, false, ""), rhs );
+return manager->minus( manager->param(lhs, false, ""), rhs );
 }
 
 
@@ -108,62 +108,62 @@ return context->minus( context->param(lhs, false, ""), rhs );
 extern "C" void* expr_times_int(void* lhs, int rhs)
 {
 if (rhs == 0) {
-    return context->zero;
+    return manager->zero;
     }
 if (rhs == 1) {
     return lhs;
     }
 if (rhs == -1) {
-    return context->negate( lhs );
+    return manager->negate( lhs );
     }
-return context->times( lhs, context->param(rhs, false, "") );
+return manager->times( lhs, manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_times_double(void* lhs, double rhs)
 {
 if (rhs == 0.0) {
-    return context->zero;
+    return manager->zero;
     }
 if (rhs == 1.0) {
     return lhs;
     }
 if (rhs == -1.0) {
-    return context->negate( lhs );
+    return manager->negate( lhs );
     }
-return context->times( lhs, context->param(rhs, false, "") );
+return manager->times( lhs, manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_times_expression(void* lhs, void* rhs)
 {
-return context->times( lhs, rhs );
+return manager->times( lhs, rhs );
 }
 
 extern "C" void* expr_rtimes_int(int lhs, void* rhs)
 {
 if (lhs == 0) {
-    return context->zero;
+    return manager->zero;
     }
 if (lhs == 1) {
     return rhs;
     }
 if (lhs == -1) {
-    return context->negate( rhs );
+    return manager->negate( rhs );
     }
-return context->times( context->param(lhs, false, ""), rhs );
+return manager->times( manager->param(lhs, false, ""), rhs );
 }
 
 extern "C" void* expr_rtimes_double(double lhs, void* rhs)
 {
 if (lhs == 0.0) {
-    return context->zero;
+    return manager->zero;
     }
 if (lhs == 1.0) {
     return rhs;
     }
 if (lhs == -1.0) {
-    return context->negate( rhs );
+    return manager->negate( rhs );
     }
-return context->times( context->param(lhs, false, ""), rhs );
+return manager->times( manager->param(lhs, false, ""), rhs );
 }
 
 
@@ -175,9 +175,9 @@ if (rhs == 1) {
     return lhs;
     }
 if (rhs == -1) {
-    return context->negate( lhs );
+    return manager->negate( lhs );
     }
-return context->divide( lhs, context->param(rhs, false, "") );
+return manager->divide( lhs, manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_divide_double(void* lhs, double rhs)
@@ -186,30 +186,30 @@ if (rhs == 1.0) {
     return lhs;
     }
 if (rhs == -1.0) {
-    return context->negate( lhs );
+    return manager->negate( lhs );
     }
-return context->divide( lhs, context->param(rhs, false, "") );
+return manager->divide( lhs, manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_divide_expression(void* lhs, void* rhs)
 {
-return context->divide( lhs, rhs );
+return manager->divide( lhs, rhs );
 }
 
 extern "C" void* expr_rdivide_int(int lhs, void* rhs)
 {
 if (lhs == 0) {
-    return context->zero;
+    return manager->zero;
     }
-return context->divide( context->param(lhs, false, ""), rhs );
+return manager->divide( manager->param(lhs, false, ""), rhs );
 }
 
 extern "C" void* expr_rdivide_double(double lhs, void* rhs)
 {
 if (lhs == 0.0) {
-    return context->zero;
+    return manager->zero;
     }
-return context->divide( context->param(lhs, false, ""), rhs );
+return manager->divide( manager->param(lhs, false, ""), rhs );
 }
 
 
@@ -217,34 +217,34 @@ return context->divide( context->param(lhs, false, ""), rhs );
 
 extern "C" void* expr_pow_int(void* lhs, int rhs)
 {
-return context->pow( lhs, context->param(rhs, false, "") );
+return manager->pow( lhs, manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_pow_double(void* lhs, double rhs)
 {
-return context->pow( lhs, context->param(rhs, false, "") );
+return manager->pow( lhs, manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_pow_expression(void* lhs, void* rhs)
 {
-return context->pow( lhs, rhs );
+return manager->pow( lhs, rhs );
 }
 
 extern "C" void* expr_rpow_int(int lhs, void* rhs)
 {
-return context->pow( context->param(lhs, false, ""), rhs );
+return manager->pow( manager->param(lhs, false, ""), rhs );
 }
 
 extern "C" void* expr_rpow_double(double lhs, void* rhs)
 {
-return context->pow( context->param(lhs, false, ""), rhs );
+return manager->pow( manager->param(lhs, false, ""), rhs );
 }
 
 
 /*** OTHER ***/
 extern "C" void* expr_negate(void* _expr)
 {
-return context->negate( _expr );
+return manager->negate( _expr );
 }
 
 
@@ -293,23 +293,23 @@ return diff[var];
 
 extern "C" void* create_parameter_int(int value, int mutable_flag, const char* name)
 {
-return context->param(value, mutable_flag, name);
+return manager->param(value, mutable_flag, name);
 }
 
 extern "C" void* create_parameter_double(double value, int mutable_flag, const char* name)
 {
-return context->param(value, mutable_flag, name);
+return manager->param(value, mutable_flag, name);
 }
 
 extern "C" void* create_variable(int binary, int integer, double lb, double ub, double init, const char* name)
 {
-return context->var(binary, integer, lb, ub, init, name);
+return manager->var(binary, integer, lb, ub, init, name);
 }
 
 extern "C" void create_variable_array(void* vars[], int num, int binary, int integer, double lb, double ub, double init, const char* name)
 {
 for (int i=0; i<num; i++)
-    vars[i] =  context->var(binary, integer, lb, ub, init, name);
+    vars[i] =  manager->var(binary, integer, lb, ub, init, name);
 }
 
 extern "C" int get_variable_index(void* ptr)
@@ -382,71 +382,71 @@ return v->boolean_value();
 
 extern "C" void* create_inequality(void* expr, int strict_flag)
 {
-return context->inequality(expr, strict_flag);
+return manager->inequality(expr, strict_flag);
 }
 
 extern "C" void* create_equality(void* expr)
 {
-return context->equality(expr);
+return manager->equality(expr);
 }
 
 extern "C" void* create_model()
 {
-Model* tmp = new Simple_Model(new ExpressionContext_Objects());
+Simple_ExprModel* tmp = new Simple_ExprModel();
 models.push_back(tmp);
 model = tmp;
-context = tmp->context;
+manager = &(model->manager);
 return tmp;
 }
 
 extern "C" void add_objective(void* model, void* expr)
 {
-Model* tmp = static_cast<Model*>(model);
-Expression* _expr = static_cast<Expression*>(expr);
+Simple_ExprModel* tmp = static_cast<Simple_ExprModel*>(model);
+NumericValue* _expr = static_cast<NumericValue*>(expr);
 tmp->objectives.push_back(_expr);
 }
 
 extern "C" void add_inequality(void* model, void* ineq)
 {
-Model* tmp = static_cast<Model*>(model);
-Expression* _ineq = static_cast<Expression*>(ineq);
+Simple_ExprModel* tmp = static_cast<Simple_ExprModel*>(model);
+NumericValue* _ineq = static_cast<NumericValue*>(ineq);
 tmp->inequalities.push_back(_ineq);
 }
 
 extern "C" void add_equality(void* model, void* eq)
 {
-Model* tmp = static_cast<Model*>(model);
-Expression* _eq = static_cast<Expression*>(eq);
+Simple_ExprModel* tmp = static_cast<Simple_ExprModel*>(model);
+NumericValue* _eq = static_cast<NumericValue*>(eq);
 tmp->equalities.push_back(_eq);
 }
 
-extern "C" void print_model(void* model, int df)
+extern "C" void print_model(void* model, int /*df*/)
 {
-Model* tmp = static_cast<Model*>(model);
-tmp->print(std::cout, df);
+Simple_ExprModel* tmp = static_cast<Simple_ExprModel*>(model);
+tmp->print(std::cout);  // df?
 }
 
-extern "C" void build_model(void* model)
+extern "C" void build_model(void* /*model*/)
 {
-Model* tmp = static_cast<Model*>(model);
-tmp->build();
+//Simple_ExprModel* tmp = static_cast<Simple_ExprModel*>(model);
+//tmp->build();
 }
 
 extern "C" int get_nvariables(void* model)
 {
-Model* tmp = static_cast<Model*>(model);
+ADModel* tmp = static_cast<ADModel*>(model);
 return tmp->num_variables();
 }
 
 extern "C" double compute_objective_f(void* model, int i)
 {
-Model* tmp = static_cast<Model*>(model);
+ADModel* tmp = static_cast<ADModel*>(model);
 return tmp->compute_f(i);
 }
 
 extern "C" void compute_objective_df(void* model, double* df, int n, int i)
 {
-Model* tmp = static_cast<Model*>(model);
+ADModel* tmp = static_cast<ADModel*>(model);
 double f;
 std::vector<double> _df(n);
 tmp->compute_df(f, _df, i);
@@ -456,7 +456,7 @@ for (int i=0; i<n; i++)
 
 extern "C" void compute_constraint_f(void* model, double* c, int n)
 {
-Model* tmp = static_cast<Model*>(model);
+ADModel* tmp = static_cast<ADModel*>(model);
 std::vector<double> _c(n);
 tmp->compute_c(_c);
 for (int i=0; i<n; i++)
@@ -465,7 +465,7 @@ for (int i=0; i<n; i++)
 
 extern "C" void compute_constraint_df(void* model, double* dc, int n, int i)
 {
-Model* tmp = static_cast<Model*>(model);
+ADModel* tmp = static_cast<ADModel*>(model);
 std::vector<double> _dc(n);
 tmp->compute_dc(_dc, i);
 for (int i=0; i<n; i++)
@@ -474,7 +474,7 @@ for (int i=0; i<n; i++)
 
 extern "C" void compute_Hv(void* model, double* v, double* Hv, int n, int i)
 {
-Model* tmp = static_cast<Model*>(model);
+ADModel* tmp = static_cast<ADModel*>(model);
 std::vector<double> _v(n);
 for (int j=0; j<n; j++)
   _v[j] = v[j];
@@ -511,7 +511,7 @@ return create_solver(name);
 extern "C" void set_solver_model(void* solver, void* model)
 {
 Solver* _solver = static_cast<Solver*>(solver);
-Model* _model = static_cast<Model*>(model);
+ADModel* _model = static_cast<ADModel*>(model);
 _solver->set_model(_model);
 }
 
@@ -531,121 +531,121 @@ return _solver->solve();
 extern "C" void* intrinsic_abs(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->abs(e);
+return e->manager->abs(e);
 }
 
 extern "C" void* intrinsic_pow(void* base, void* exponent)
 {
 NumericValue* b = static_cast<NumericValue*>(base);
 NumericValue* e = static_cast<NumericValue*>(exponent);
-return e->context->pow(b, e);
+return e->manager->pow(b, e);
 }
 
 extern "C" void* intrinsic_ceil(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->ceil(e);
+return e->manager->ceil(e);
 }
 
 extern "C" void* intrinsic_floor(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->floor(e);
+return e->manager->floor(e);
 }
 
 extern "C" void* intrinsic_exp(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->exp(e);
+return e->manager->exp(e);
 }
 
 extern "C" void* intrinsic_log(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->log(e);
+return e->manager->log(e);
 }
 
 extern "C" void* intrinsic_log10(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->log10(e);
+return e->manager->log10(e);
 }
 
 extern "C" void* intrinsic_sqrt(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->sqrt(e);
+return e->manager->sqrt(e);
 }
 
 extern "C" void* intrinsic_sin(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->sin(e);
+return e->manager->sin(e);
 }
 
 extern "C" void* intrinsic_cos(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->cos(e);
+return e->manager->cos(e);
 }
 
 extern "C" void* intrinsic_tan(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->tan(e);
+return e->manager->tan(e);
 }
 
 extern "C" void* intrinsic_sinh(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->sinh(e);
+return e->manager->sinh(e);
 }
 
 extern "C" void* intrinsic_cosh(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->cosh(e);
+return e->manager->cosh(e);
 }
 
 extern "C" void* intrinsic_tanh(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->tanh(e);
+return e->manager->tanh(e);
 }
 
 extern "C" void* intrinsic_asin(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->asin(e);
+return e->manager->asin(e);
 }
 
 extern "C" void* intrinsic_acos(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->acos(e);
+return e->manager->acos(e);
 }
 
 extern "C" void* intrinsic_atan(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->atan(e);
+return e->manager->atan(e);
 }
 
 extern "C" void* intrinsic_asinh(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->asinh(e);
+return e->manager->asinh(e);
 }
 
 extern "C" void* intrinsic_acosh(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->acosh(e);
+return e->manager->acosh(e);
 }
 
 extern "C" void* intrinsic_atanh(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
-return e->context->atanh(e);
+return e->manager->atanh(e);
 }
 

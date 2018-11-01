@@ -3,17 +3,17 @@
 #include <list>
 #include <string>
 extern "C" {
-#include "expr_api.h"
+#include "coek_capi.h"
 };
 
 //
 // Class used to own expression objects that are dynamically constructed
 //
-class ExpressionContext 
+class ExprManager 
 {
 public:
 
-    virtual ~ExpressionContext() {}
+    virtual ~ExprManager() {}
 
     //
     //----- CORE EXPRESSION METHODS -----

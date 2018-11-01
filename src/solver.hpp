@@ -11,7 +11,7 @@ public:
 
     Solver(void) {}
 
-    virtual void set_model(Model* model) = 0;
+    virtual void set_model(ADModel* model) = 0;
 
     virtual int solve() = 0;
 

@@ -9,7 +9,7 @@
 #include <set>
 #include <string>
 
-#include "context.hpp"
+#include "expr/expr_manager.hpp"
 
 
 #define POSITIVE_INFINITY 1.0e19
@@ -22,9 +22,9 @@ class NumericValue
 {
 public:
 
-    ExpressionContext* context;
+    ExprManager* manager;
 
-    NumericValue(ExpressionContext* _context) : context(_context) {}
+    NumericValue(ExprManager* _manager) : manager(_manager) {}
 
     virtual ~NumericValue() {}
 
@@ -70,8 +70,8 @@ public:
 
     bool mutable_flag;
 
-    Parameter(ExpressionContext* _context, bool _mutable_flag)
-        : NumericValue(_context), mutable_flag(_mutable_flag) {}
+    Parameter(ExprManager* _manager, bool _mutable_flag)
+        : NumericValue(_manager), mutable_flag(_mutable_flag) {}
 
     virtual bool is_parameter() { return true; }
 
@@ -112,12 +112,12 @@ public:
     TYPE _tvalue;
     std::string name;
 
-    TypedParameter(ExpressionContext* _context, TYPE __value, bool _mutable_flag, const char* _name) 
-        : Parameter(_context, _mutable_flag)
+    TypedParameter(ExprManager* _manager, TYPE __value, bool _mutable_flag, const char* _name) 
+        : Parameter(_manager, _mutable_flag)
         {_value = __value; _tvalue = __value; name = _name;}
 
-    TypedParameter(ExpressionContext* _context, TYPE __value, bool _mutable_flag) 
-        : Parameter(_context, _mutable_flag)
+    TypedParameter(ExprManager* _manager, TYPE __value, bool _mutable_flag) 
+        : Parameter(_manager, _mutable_flag)
         {_value = __value; _tvalue = __value;}
 
     double value() {return _tvalue;}
@@ -133,7 +133,7 @@ public:
 
 
 inline NumericValue* Parameter::partial(unsigned int i)
-{return static_cast<NumericValue*>(context->zero);}
+{return static_cast<NumericValue*>(manager->zero);}
 
 
 
@@ -151,8 +151,8 @@ public:
     double lb;
     double ub;
 
-    Variable(ExpressionContext* _context, bool _binary, bool _integer, double _lb, double _ub, double init, const char* _name) 
-        : NumericValue(_context)
+    Variable(ExprManager* _manager, bool _binary, bool _integer, double _lb, double _ub, double init, const char* _name) 
+        : NumericValue(_manager)
         {
         _value = init;
         binary = _binary; 
@@ -196,7 +196,7 @@ public:
     bool is_variable() { return true; }
 
     NumericValue* partial(unsigned int i)
-        {return static_cast<NumericValue*>(context->one);}
+        {return static_cast<NumericValue*>(manager->one);}
 
     void snprintf(char* buf, int max)
         {
@@ -213,7 +213,7 @@ class Expression: public NumericValue
 {
 public:
 
-    Expression(ExpressionContext* _context) : NumericValue(_context) {}
+    Expression(ExprManager* _manager) : NumericValue(_manager) {}
 
     bool is_expression() { return true; }
 
@@ -230,7 +230,7 @@ class Constraint : public Expression
 {
 public:
 
-    Constraint(ExpressionContext* _context) : Expression(_context) {}
+    Constraint(ExprManager* _manager) : Expression(_manager) {}
 
     virtual bool boolean_value() = 0;
 };
@@ -243,8 +243,8 @@ public:
     NumericValue* body;
     bool strict;
 
-    InequalityExpression(ExpressionContext* _context, NumericValue* _body, bool _strict)
-        : Constraint(_context)
+    InequalityExpression(ExprManager* _manager, NumericValue* _body, bool _strict)
+        : Constraint(_manager)
         {body = _body; strict=_strict;}
 
     void print(std::ostream& ostr) 
@@ -292,8 +292,8 @@ public:
 
     NumericValue* body;
 
-    EqualityExpression(ExpressionContext* _context, NumericValue* _body)
-        : Constraint(_context)
+    EqualityExpression(ExprManager* _manager, NumericValue* _body)
+        : Constraint(_manager)
         {body = _body;}
 
     void print(std::ostream& ostr) {body->print(ostr); ostr << "  ==  0";}
@@ -347,8 +347,8 @@ public:
 
     std::string name;
 
-    UnaryExpression(ExpressionContext* _context, NumericValue* _body) 
-        : Expression(_context)
+    UnaryExpression(ExprManager* _manager, NumericValue* _body) 
+        : Expression(_manager)
         {body = _body;}
 
     unsigned int num_sub_expressions() 
@@ -392,8 +392,8 @@ class AbsExpression : public UnaryExpression
 {
 public:
 
-    AbsExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    AbsExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "abs";}
 
     double value() {return fabs(body->value()); }
@@ -404,10 +404,10 @@ public:
     NumericValue* partial(unsigned int i)
         {
         if (body->_value < 0) {
-            return static_cast<NumericValue*>(context->negative_one);
+            return static_cast<NumericValue*>(manager->negative_one);
             }
         else if (body->_value > 0) {
-            return static_cast<NumericValue*>(context->one);
+            return static_cast<NumericValue*>(manager->one);
             }
         throw std::logic_error("Argument is zero");       // std::invalid_argument
         }
@@ -434,8 +434,8 @@ class NegExpression : public UnaryExpression
 {
 public:
 
-    NegExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    NegExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "neg";}
 
     double value() { return - body->value(); }
@@ -445,7 +445,7 @@ public:
 
     NumericValue* partial(unsigned int i)
         {
-        return static_cast<NumericValue*>(context->negative_one);
+        return static_cast<NumericValue*>(manager->negative_one);
         }
 
     void compute_adjoint()
@@ -468,8 +468,8 @@ class CeilExpression : public UnaryExpression
 {
 public:
 
-    CeilExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    CeilExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "ceil";}
 
     double value() { return ceil(body->value()); }
@@ -482,8 +482,8 @@ class FloorExpression : public UnaryExpression
 {
 public:
 
-    FloorExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    FloorExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "floor";}
 
     double value() {return floor(body->value()); }
@@ -496,8 +496,8 @@ class ExpExpression : public UnaryExpression
 {
 public:
 
-    ExpExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    ExpExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "exp";}
 
     double value() {return exp(body->value()); }
@@ -510,8 +510,8 @@ class LogExpression : public UnaryExpression
 {
 public:
 
-    LogExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    LogExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "log";}
 
     double value() {return log(body->value()); }
@@ -524,8 +524,8 @@ class Log10Expression : public UnaryExpression
 {
 public:
 
-    Log10Expression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    Log10Expression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "log10";}
 
     double value() {return log10(body->value()); }
@@ -538,8 +538,8 @@ class SqrtExpression : public UnaryExpression
 {
 public:
 
-    SqrtExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    SqrtExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "sqrt";}
 
     double value() {return sqrt(body->value()); }
@@ -552,8 +552,8 @@ class SinExpression : public UnaryExpression
 {
 public:
 
-    SinExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    SinExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "sin";}
 
     double value() {return sin(body->value()); }
@@ -566,8 +566,8 @@ class CosExpression : public UnaryExpression
 {
 public:
 
-    CosExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    CosExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "cos";}
 
     double value() {return cos(body->value()); }
@@ -580,8 +580,8 @@ class TanExpression : public UnaryExpression
 {
 public:
 
-    TanExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    TanExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "tan";}
 
     double value() {return tan(body->value()); }
@@ -594,8 +594,8 @@ class AsinExpression : public UnaryExpression
 {
 public:
 
-    AsinExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    AsinExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "asin";}
 
     double value() {return asin(body->value()); }
@@ -608,8 +608,8 @@ class AcosExpression : public UnaryExpression
 {
 public:
 
-    AcosExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    AcosExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "acos";}
 
     double value() {return acos(body->value()); }
@@ -622,8 +622,8 @@ class AtanExpression : public UnaryExpression
 {
 public:
 
-    AtanExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    AtanExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "atan";}
 
     double value() {return atan(body->value()); }
@@ -636,8 +636,8 @@ class SinhExpression : public UnaryExpression
 {
 public:
 
-    SinhExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    SinhExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "sinh";}
 
     double value() {return sinh(body->value()); }
@@ -650,8 +650,8 @@ class CoshExpression : public UnaryExpression
 {
 public:
 
-    CoshExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    CoshExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "cosh";}
 
     double value() {return cosh(body->value()); }
@@ -664,8 +664,8 @@ class TanhExpression : public UnaryExpression
 {
 public:
 
-    TanhExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    TanhExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "tanh";}
 
     double value() {return tanh(body->value()); }
@@ -678,8 +678,8 @@ class AsinhExpression : public UnaryExpression
 {
 public:
 
-    AsinhExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    AsinhExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "asinh";}
 
     double value() {return asinh(body->value()); }
@@ -692,8 +692,8 @@ class AcoshExpression : public UnaryExpression
 {
 public:
 
-    AcoshExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    AcoshExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "acosh";}
 
     double value() {return acosh(body->value()); }
@@ -706,8 +706,8 @@ class AtanhExpression : public UnaryExpression
 {
 public:
 
-    AtanhExpression(ExpressionContext* _context, NumericValue* _body) 
-        : UnaryExpression(_context, _body)
+    AtanhExpression(ExprManager* _manager, NumericValue* _body) 
+        : UnaryExpression(_manager, _body)
         {this->name = "atanh";}
 
     double value() {return atanh(body->value()); }
@@ -737,8 +737,8 @@ public:
     LHS lhs;
     RHS rhs;
 
-    BinaryExpression(ExpressionContext* _context, LHS _lhs, RHS _rhs)
-        : Expression(_context)
+    BinaryExpression(ExprManager* _manager, LHS _lhs, RHS _rhs)
+        : Expression(_manager)
         {lhs = _lhs; rhs = _rhs;}
 
     unsigned int num_sub_expressions() {return BinaryExpression_num_sub_expressions(this);}
@@ -855,8 +855,8 @@ class PowExpression : public BinaryExpression<NumericValue*,NumericValue*>
 {
 public:
 
-    PowExpression(ExpressionContext* _context, NumericValue* _lhs, NumericValue* _rhs) 
-        : BinaryExpression<NumericValue*,NumericValue*>(_context,_lhs,_rhs)
+    PowExpression(ExprManager* _manager, NumericValue* _lhs, NumericValue* _rhs) 
+        : BinaryExpression<NumericValue*,NumericValue*>(_manager,_lhs,_rhs)
         {}
 
     void print(std::ostream& ostr)
@@ -898,8 +898,8 @@ class AddExpression : public BinaryExpression<LHS,RHS>
 {
 public:
 
-    AddExpression(ExpressionContext* _context, LHS _lhs, RHS _rhs) 
-        : BinaryExpression<LHS,RHS>(_context,_lhs,_rhs)
+    AddExpression(ExprManager* _manager, LHS _lhs, RHS _rhs) 
+        : BinaryExpression<LHS,RHS>(_manager,_lhs,_rhs)
         {}
 
     void print(std::ostream& ostr) {AddExpression_print(ostr, this);}
@@ -913,7 +913,7 @@ public:
         }
 
     NumericValue* partial(unsigned int i)
-        {return static_cast<NumericValue*>(this->context->one);}
+        {return static_cast<NumericValue*>(this->manager->one);}
 
     void compute_adjoint()
         {
@@ -985,8 +985,8 @@ class SubExpression : public BinaryExpression<NumericValue*,NumericValue*>
 {
 public:
 
-    SubExpression(ExpressionContext* _context, NumericValue* _lhs, NumericValue* _rhs) 
-        : BinaryExpression<NumericValue*,NumericValue*>(_context,_lhs,_rhs)
+    SubExpression(ExprManager* _manager, NumericValue* _lhs, NumericValue* _rhs) 
+        : BinaryExpression<NumericValue*,NumericValue*>(_manager,_lhs,_rhs)
         {}
 
     void print(std::ostream& ostr)
@@ -1000,9 +1000,9 @@ public:
     NumericValue* partial(unsigned int i)
         {
         if (i == 0)
-            return static_cast<NumericValue*>(context->one);
+            return static_cast<NumericValue*>(manager->one);
         else
-            return static_cast<NumericValue*>(context->negative_one);
+            return static_cast<NumericValue*>(manager->negative_one);
         }
 
     void compute_adjoint()
@@ -1035,8 +1035,8 @@ class MulExpression : public BinaryExpression<LHS,RHS>
 {
 public:
 
-    MulExpression(ExpressionContext* _context, LHS _lhs, RHS _rhs) 
-        : BinaryExpression<LHS,RHS>(_context,_lhs,_rhs)
+    MulExpression(ExprManager* _manager, LHS _lhs, RHS _rhs) 
+        : BinaryExpression<LHS,RHS>(_manager,_lhs,_rhs)
         {}
 
     void print(std::ostream& ostr) {MulExpression_print(ostr, this);}
@@ -1174,8 +1174,8 @@ class DivExpression : public BinaryExpression<NumericValue*,NumericValue*>
 {
 public:
 
-    DivExpression(ExpressionContext* _context, NumericValue* _lhs, NumericValue* _rhs) 
-        : BinaryExpression<NumericValue*,NumericValue*>(_context,_lhs,_rhs)
+    DivExpression(ExprManager* _manager, NumericValue* _lhs, NumericValue* _rhs) 
+        : BinaryExpression<NumericValue*,NumericValue*>(_manager,_lhs,_rhs)
         {}
 
     void print(std::ostream& ostr)
