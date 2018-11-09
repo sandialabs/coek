@@ -1,6 +1,6 @@
 
 from poek.expr import expression
-from poek._coek import lib
+from poek.coek_cffi import lib
 
 __all__ = ['ceil', 'floor', 'exp', 'log', 'log10', 'sqrt', 'sin',
     'cos', 'tan', 'sinh', 'cosh', 'tanh', 'asin', 'acos', 'atan',

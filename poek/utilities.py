@@ -1,4 +1,4 @@
-from poek._coek import ffi, lib
+from poek.coek_cffi import ffi, lib
 from poek.expr import *
 
 __all__ = ['value', 'quicksum']

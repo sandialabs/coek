@@ -1,46 +1,36 @@
 #  _________________________________________________________________________
 #
 #  POEK: A Python Optimization Expression Kernel
-#  Copyright (c) 2008 Sandia Corporation.
+#  Copyright (c) 2019 Sandia Corporation.
 #  This software is distributed under the BSD License.
 #  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
 #  the U.S. Government retains certain rights in this software.
 #  _________________________________________________________________________
 
-"""
-Setup for poek package
-"""
-
 import sys
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
+
+base_dir = os.path.dirname(__file__)
 
 
-def _find_packages(path):
-    """
-    Generate a list of nested packages
-    """
-    pkg_list=[]
-    if not os.path.exists(path):
-        return []
-    if not os.path.exists(path+os.sep+"__init__.py"):
-        return []
-    else:
-        pkg_list.append(path)
-    for root, dirs, files in os.walk(path, topdown=True):
-        if root in pkg_list and "__init__.py" in files:
-            for name in dirs:
-                if os.path.exists(root+os.sep+name+os.sep+"__init__.py"):
-                    pkg_list.append(root+os.sep+name)
-    return [pkg for pkg in map(lambda x:x.replace(os.sep,"."), pkg_list)]
 
-def read(*rnames):
-    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+#
+# Manage setup() options
+#
+requires=['cffi>=1.0.0']
+ext_modules = []
+readme = os.path.join(base_dir, "README.rst")
+with open(readme) as f:
+    long_description = f.read()
+about = {}
+with open(os.path.join(base_dir, "poek", "__about__.py")) as f:
+    exec(f.read(), about)
+packages = find_packages(exclude=["test*", "*test*", "example*"])
 
-packages = _find_packages('poek')
-
-requires=[ ]
-
+#
+# MANAGE CYTHON
+#
 if 'develop' in sys.argv:
     using_cython = False
 else:
@@ -49,7 +39,6 @@ if '--with-cython' in sys.argv:
     using_cython = True
     sys.argv.remove('--with-cython')
 
-ext_modules = []
 if using_cython:
     try:
         import platform
@@ -69,15 +58,26 @@ if using_cython:
         ext_modules = []
         using_cython = False
 
-setup(name="poek",
-    version='1.0',
-    maintainer='William E. Hart',
-    maintainer_email='wehart@sandia.gov',
-    #url = 'https://github.com/PyUtilib/pyutilib',
-    license = 'BSD',
-    platforms = ["any"],
-    description = 'POEK: Python Optimization Expression Kernel',
+setup(
+    name = about['__title__'],
+    version = about['__version__'],
+    description = about['__summary__'],
+    long_description = long_description,
+    author = about['__author__'],
+    author_email = about['__email__'],
+    url = about['__url__'],
+    license = about['__license__'],
+
+    #name="poek",
+    #version='1.0',
+    #maintainer='William E. Hart',
+    #maintainer_email='wehart@sandia.gov',
+    ##url = 'https://github.com/PyUtilib/pyutilib',
+    #license = 'BSD',
+    #platforms = ["any"],
+    #description = 'POEK: Python Optimization Expression Kernel',
     #long_description = read('README.md'),
+
     classifiers = [
         #'Development Status :: 5 - Production/Stable',
         'Intended Audience :: End Users/Desktop',
@@ -93,9 +93,13 @@ setup(name="poek",
         'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Utilities'],
-      packages=packages,
-      ext_modules = ext_modules,
+
       keywords=['utility'],
+      zip_safe = False,
+      packages = packages,
+      ext_modules = ext_modules,
       install_requires=requires,
+      setup_requires=requires,
+      cffi_modules=[ 'poek/coek_build.py:ffi' ],
       )
 
