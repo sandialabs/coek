@@ -13,14 +13,13 @@ const double E = exp(1.0);
 
 TEST_CASE( "capi_add_expression", "[smoke]" ) {
 
-  apival_t _model = create_model();
-  std::unique_ptr<Simple_ExprModel> model( static_cast<Simple_ExprModel*>(_model) );
-  ExprManager* manager = &(model.get()->manager);
+  apival_t model = create_model();
+  ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
-  apival_t a = create_variable(false, false, 0.0, 1.0, 0.0, "a");
-  apival_t b = create_variable(false, false, 0.0, 1.0, 0.0, "b");
-  apival_t c = create_variable(false, false, 0.0, 1.0, 0.0, "c");
-  apival_t d = create_variable(false, false, 0.0, 1.0, 0.0, "d");
+  apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
+  apival_t b = create_variable(0, false, false, 0.0, 1.0, 0.0, "b");
+  apival_t c = create_variable(0, false, false, 0.0, 1.0, 0.0, "c");
+  apival_t d = create_variable(0, false, false, 0.0, 1.0, 0.0, "d");
 
   SECTION( "Test simpleSum" ) {
     apival_t e = expr_plus_expression(a, b);
@@ -125,11 +124,20 @@ TEST_CASE( "capi_add_expression", "[smoke]" ) {
   }
 
   SECTION( "Test trivialSum" ) {
-    apival_t q = create_parameter_int(0, true, "");
-    apival_t Q = create_parameter_double(0.0, true, "");
+    apival_t q = create_parameter_int(0, 0, true, "q");
+    apival_t Q = create_parameter_double(0, 0.0, true, "Q");
+    apival_t q_ = create_parameter_int(0, 0, false, "");
+    apival_t Q_ = create_parameter_double(0, 0.0, false, "");
 
     WHEN( "e = a + q{0}" ) {
       apival_t e = expr_plus_expression(a, q);
+
+      static std::list<std::string> baseline = {"[","+","a","q","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a + q_{0}" ) {
+      apival_t e = expr_plus_expression(a, q_);
 
       static std::list<std::string> baseline = {"a"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -145,6 +153,13 @@ TEST_CASE( "capi_add_expression", "[smoke]" ) {
     WHEN( "e = q{0} + a" ) {
       apival_t e = expr_plus_expression(q, a);
 
+      static std::list<std::string> baseline = {"[","+","q","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = q_{0} + a" ) {
+      apival_t e = expr_plus_expression(q_, a);
+
       static std::list<std::string> baseline = {"a"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -159,6 +174,13 @@ TEST_CASE( "capi_add_expression", "[smoke]" ) {
     WHEN( "e = a + Q{0.0}" ) {
       apival_t e = expr_plus_expression(a, Q);
 
+      static std::list<std::string> baseline = {"[","+","a","Q","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a + Q_{0.0}" ) {
+      apival_t e = expr_plus_expression(a, Q_);
+
       static std::list<std::string> baseline = {"a"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -172,6 +194,13 @@ TEST_CASE( "capi_add_expression", "[smoke]" ) {
 
     WHEN( "e = Q{0.0} + a" ) {
       apival_t e = expr_plus_expression(Q, a);
+
+      static std::list<std::string> baseline = {"[","+","Q","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = Q_{0.0} + a" ) {
+      apival_t e = expr_plus_expression(Q_, a);
 
       static std::list<std::string> baseline = {"a"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -221,14 +250,13 @@ TEST_CASE( "capi_add_expression", "[smoke]" ) {
 
 TEST_CASE( "capi_diff_expression", "[smoke]" ) {
 
-  apival_t _model = create_model();
-  std::unique_ptr<Simple_ExprModel> model( static_cast<Simple_ExprModel*>(_model) );
-  ExprManager* manager = &(model.get()->manager);
+  apival_t model = create_model();
+  ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
-  apival_t a = create_variable(false, false, 0.0, 1.0, 0.0, "a");
-  apival_t b = create_variable(false, false, 0.0, 1.0, 0.0, "b");
-  apival_t c = create_variable(false, false, 0.0, 1.0, 0.0, "c");
-  apival_t d = create_variable(false, false, 0.0, 1.0, 0.0, "d");
+  apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
+  apival_t b = create_variable(0, false, false, 0.0, 1.0, 0.0, "b");
+  apival_t c = create_variable(0, false, false, 0.0, 1.0, 0.0, "c");
+  apival_t d = create_variable(0, false, false, 0.0, 1.0, 0.0, "d");
 
   SECTION( "Test simpleDiff" ) {
     apival_t e = expr_minus_expression(a, b);
@@ -270,7 +298,7 @@ TEST_CASE( "capi_diff_expression", "[smoke]" ) {
   }
 
   SECTION( "Test paramDiff" ) {
-    apival_t p = create_parameter_int(5, true, "p");
+    apival_t p = create_parameter_int(0, 5, true, "p");
 
     WHEN( "e = a - p" ) {
       apival_t e = expr_minus_expression(a, p);
@@ -357,11 +385,20 @@ TEST_CASE( "capi_diff_expression", "[smoke]" ) {
   }
 
   SECTION( "Test trivialDiff" ) {
-    apival_t q = create_parameter_int(0, true, "");
-    apival_t Q = create_parameter_double(0.0, true, "");
+    apival_t q = create_parameter_int(0, 0, true, "q");
+    apival_t Q = create_parameter_double(0, 0.0, true, "Q");
+    apival_t q_ = create_parameter_int(0, 0, false, "");
+    apival_t Q_ = create_parameter_double(0, 0.0, false, "");
 
     WHEN( "e = a - q{0}" ) {
       apival_t e = expr_minus_expression(a, q);
+
+      static std::list<std::string> baseline = {"[","-","a","q","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a - q_{0}" ) {
+      apival_t e = expr_minus_expression(a, q_);
 
       static std::list<std::string> baseline = {"a"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -377,6 +414,13 @@ TEST_CASE( "capi_diff_expression", "[smoke]" ) {
     WHEN( "e = q{0} - a" ) {
       apival_t e = expr_minus_expression(q, a);
 
+      static std::list<std::string> baseline = {"[","-","q","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = q_{0} - a" ) {
+      apival_t e = expr_minus_expression(q_, a);
+
       static std::list<std::string> baseline = {"[", "-", "a", "]"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -391,6 +435,13 @@ TEST_CASE( "capi_diff_expression", "[smoke]" ) {
     WHEN( "e = a - Q{0.0}" ) {
       apival_t e = expr_minus_expression(a, Q);
 
+      static std::list<std::string> baseline = {"[","-","a","Q","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a - Q_{0.0}" ) {
+      apival_t e = expr_minus_expression(a, Q_);
+
       static std::list<std::string> baseline = {"a"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -404,6 +455,13 @@ TEST_CASE( "capi_diff_expression", "[smoke]" ) {
 
     WHEN( "e = Q{0.0} - a" ) {
       apival_t e = expr_minus_expression(Q, a);
+
+      static std::list<std::string> baseline = {"[","-","Q","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = Q_{0.0} - a" ) {
+      apival_t e = expr_minus_expression(Q_, a);
 
       static std::list<std::string> baseline = {"[", "-", "a", "]"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -422,12 +480,11 @@ TEST_CASE( "capi_diff_expression", "[smoke]" ) {
 
 TEST_CASE( "capi_neg_expression", "[smoke]" ) {
 
-  apival_t _model = create_model();
-  std::unique_ptr<Simple_ExprModel> model( static_cast<Simple_ExprModel*>(_model) );
-  ExprManager* manager = &(model.get()->manager);
+  apival_t model = create_model();
+  ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
   SECTION( "Test negation_param" ) {
-    apival_t p = create_parameter_int(2, false, "p");
+    apival_t p = create_parameter_int(0, 2, false, "p");
 
     WHEN( "e = -p" ) {
       apival_t e = expr_negate(p);
@@ -445,8 +502,8 @@ TEST_CASE( "capi_neg_expression", "[smoke]" ) {
   }
 
   SECTION( "Test negation_terms" ) {
-    apival_t p = create_parameter_int(2, false, "p");
-    apival_t v = create_variable(false, false, 0.0, 1.0, 0.0, "v");
+    apival_t p = create_parameter_int(0, 2, false, "p");
+    apival_t v = create_variable(0, false, false, 0.0, 1.0, 0.0, "v");
 
     WHEN( "e = - p*v" ) {
       apival_t e = expr_negate( expr_times_expression(p,v) );
@@ -482,14 +539,13 @@ TEST_CASE( "capi_neg_expression", "[smoke]" ) {
 
 TEST_CASE( "capi_mul_expression", "[smoke]" ) {
 
-  apival_t _model = create_model();
-  std::unique_ptr<Simple_ExprModel> model( static_cast<Simple_ExprModel*>(_model) );
-  ExprManager* manager = &(model.get()->manager);
+  apival_t model = create_model();
+  ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
-  apival_t a = create_variable(false, false, 0.0, 1.0, 0.0, "a");
-  apival_t b = create_variable(false, false, 0.0, 1.0, 0.0, "b");
-  apival_t c = create_variable(false, false, 0.0, 1.0, 0.0, "c");
-  apival_t d = create_variable(false, false, 0.0, 1.0, 0.0, "d");
+  apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
+  apival_t b = create_variable(0, false, false, 0.0, 1.0, 0.0, "b");
+  apival_t c = create_variable(0, false, false, 0.0, 1.0, 0.0, "c");
+  apival_t d = create_variable(0, false, false, 0.0, 1.0, 0.0, "d");
 
   SECTION( "Test simpleProduct" ) {
     apival_t e = expr_times_expression(a,b);
@@ -638,15 +694,28 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
   }
 
   SECTION( "Test trivialProduct" ) {
-    apival_t q = create_parameter_int(0, true, "");
-    apival_t Q = create_parameter_double(0.0, true, "");
-    apival_t r = create_parameter_int(1, true, "");
-    apival_t R = create_parameter_double(1.0, true, "");
-    apival_t s = create_parameter_int(-1, true, "");
-    apival_t S = create_parameter_double(-1.0, true, "");
+    apival_t q = create_parameter_int(0, 0, true, "q");
+    apival_t Q = create_parameter_double(0, 0.0, true, "Q");
+    apival_t r = create_parameter_int(0, 1, true, "r");
+    apival_t R = create_parameter_double(0, 1.0, true, "R");
+    apival_t s = create_parameter_int(0, -1, true, "s");
+    apival_t S = create_parameter_double(0, -1.0, true, "S");
+    apival_t q_ = create_parameter_int(0, 0, false, "");
+    apival_t Q_ = create_parameter_double(0, 0.0, false, "");
+    apival_t r_ = create_parameter_int(0, 1, false, "");
+    apival_t R_ = create_parameter_double(0, 1.0, false, "");
+    apival_t s_ = create_parameter_int(0, -1, false, "");
+    apival_t S_ = create_parameter_double(0, -1.0, false, "");
 
     WHEN( "e = a * q{0}" ) {
       apival_t e = expr_times_expression(a, q);
+
+      static std::list<std::string> baseline = {"[","*","a","q","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a * q_{0}" ) {
+      apival_t e = expr_times_expression(a, q_);
 
       static std::list<std::string> baseline = {"0"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -662,6 +731,13 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
     WHEN( "e = q{0} * a" ) {
       apival_t e = expr_times_expression(q, a);
 
+      static std::list<std::string> baseline = {"[","*","q","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = q_{0} * a" ) {
+      apival_t e = expr_times_expression(q_, a);
+
       static std::list<std::string> baseline = {"0"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -675,6 +751,13 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
 
     WHEN( "e = a * Q{0.0}" ) {
       apival_t e = expr_times_expression(a, Q);
+
+      static std::list<std::string> baseline = {"[","*","a","Q","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a * Q_{0.0}" ) {
+      apival_t e = expr_times_expression(a, Q_);
 
       static std::list<std::string> baseline = {"0"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -690,6 +773,13 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
     WHEN( "e = Q{0.0} * a" ) {
       apival_t e = expr_times_expression(Q, a);
 
+      static std::list<std::string> baseline = {"[","*","Q","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = Q_{0.0} * a" ) {
+      apival_t e = expr_times_expression(Q_, a);
+
       static std::list<std::string> baseline = {"0"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -703,6 +793,13 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
 
     WHEN( "e = a * r{1}" ) {
       apival_t e = expr_times_expression(a, r);
+
+      static std::list<std::string> baseline = {"[","*","a","r","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a * r_{1}" ) {
+      apival_t e = expr_times_expression(a, r_);
 
       static std::list<std::string> baseline = {"a"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -718,6 +815,13 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
     WHEN( "e = r{1} * a" ) {
       apival_t e = expr_times_expression(r, a);
 
+      static std::list<std::string> baseline = {"[","*","r","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = r_{1} * a" ) {
+      apival_t e = expr_times_expression(r_, a);
+
       static std::list<std::string> baseline = {"a"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -731,6 +835,13 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
 
     WHEN( "e = a * R{1.0}" ) {
       apival_t e = expr_times_expression(a, R);
+
+      static std::list<std::string> baseline = {"[","*","a","R","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a * R_{1.0}" ) {
+      apival_t e = expr_times_expression(a, R_);
 
       static std::list<std::string> baseline = {"a"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -746,6 +857,13 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
     WHEN( "e = R{1.0} * a" ) {
       apival_t e = expr_times_expression(R, a);
 
+      static std::list<std::string> baseline = {"[","*","R","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = R_{1.0} * a" ) {
+      apival_t e = expr_times_expression(R_, a);
+
       static std::list<std::string> baseline = {"a"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -759,6 +877,13 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
 
     WHEN( "e = a * s{-1}" ) {
       apival_t e = expr_times_expression(a, s);
+
+      static std::list<std::string> baseline = {"[","*","a","s","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a * s_{-1}" ) {
+      apival_t e = expr_times_expression(a, s_);
 
       static std::list<std::string> baseline = {"[", "-", "a", "]"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -774,6 +899,13 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
     WHEN( "e = s{-1} * a" ) {
       apival_t e = expr_times_expression(s, a);
 
+      static std::list<std::string> baseline = {"[","*","s","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = s_{-1} * a" ) {
+      apival_t e = expr_times_expression(s_, a);
+
       static std::list<std::string> baseline = {"[", "-", "a", "]"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -788,6 +920,13 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
     WHEN( "e = a * S{-1.0}" ) {
       apival_t e = expr_times_expression(a, S);
 
+      static std::list<std::string> baseline = {"[","*","a","S","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a * S_{-1.0}" ) {
+      apival_t e = expr_times_expression(a, S_);
+
       static std::list<std::string> baseline = {"[", "-", "a", "]"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -801,6 +940,13 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
 
     WHEN( "e = S{-1.0} * a" ) {
       apival_t e = expr_times_expression(S, a);
+
+      static std::list<std::string> baseline = {"[","*","S","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = S_{-1.0} * a" ) {
+      apival_t e = expr_times_expression(S_, a);
 
       static std::list<std::string> baseline = {"[", "-", "a", "]"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -819,14 +965,13 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
 
 TEST_CASE( "capi_div_expression", "[smoke]" ) {
 
-  apival_t _model = create_model();
-  std::unique_ptr<Simple_ExprModel> model( static_cast<Simple_ExprModel*>(_model) );
-  ExprManager* manager = &(model.get()->manager);
+  apival_t model = create_model();
+  ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
-  apival_t a = create_variable(false, false, 0.0, 1.0, 0.0, "a");
-  apival_t b = create_variable(false, false, 0.0, 1.0, 0.0, "b");
-  apival_t c = create_variable(false, false, 0.0, 1.0, 0.0, "c");
-  apival_t d = create_variable(false, false, 0.0, 1.0, 0.0, "d");
+  apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
+  apival_t b = create_variable(0, false, false, 0.0, 1.0, 0.0, "b");
+  apival_t c = create_variable(0, false, false, 0.0, 1.0, 0.0, "c");
+  apival_t d = create_variable(0, false, false, 0.0, 1.0, 0.0, "d");
 
   SECTION( "Test simpleDivision" ) {
     apival_t e = expr_divide_expression(a,b);
@@ -912,15 +1057,28 @@ TEST_CASE( "capi_div_expression", "[smoke]" ) {
   }
 
   SECTION( "Test trivialDivision" ) {
-    apival_t q = create_parameter_int(0, true, "");
-    apival_t Q = create_parameter_double(0.0, true, "");
-    apival_t r = create_parameter_int(1, true, "");
-    apival_t R = create_parameter_double(1.0, true, "");
-    apival_t s = create_parameter_int(-1, true, "");
-    apival_t S = create_parameter_double(-1.0, true, "");
+    apival_t q = create_parameter_int(0, 0, true, "q");
+    apival_t Q = create_parameter_double(0, 0.0, true, "Q");
+    apival_t r = create_parameter_int(0, 1, true, "r");
+    apival_t R = create_parameter_double(0, 1.0, true, "R");
+    apival_t s = create_parameter_int(0, -1, true, "s");
+    apival_t S = create_parameter_double(0, -1.0, true, "S");
+    apival_t q_ = create_parameter_int(0, 0, false, "");
+    apival_t Q_ = create_parameter_double(0, 0.0, false, "");
+    apival_t r_ = create_parameter_int(0, 1, false, "");
+    apival_t R_ = create_parameter_double(0, 1.0, false, "");
+    apival_t s_ = create_parameter_int(0, -1, false, "");
+    apival_t S_ = create_parameter_double(0, -1.0, false, "");
 
     WHEN( "e = q{0} / a" ) {
       apival_t e = expr_divide_expression(q, a);
+
+      static std::list<std::string> baseline = {"[","/","q","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = q_{0} / a" ) {
+      apival_t e = expr_divide_expression(q_, a);
 
       static std::list<std::string> baseline = {"0"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -936,6 +1094,13 @@ TEST_CASE( "capi_div_expression", "[smoke]" ) {
     WHEN( "e = Q{0.0} / a" ) {
       apival_t e = expr_divide_expression(Q, a);
 
+      static std::list<std::string> baseline = {"[","/","Q","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = Q_{0.0} / a" ) {
+      apival_t e = expr_divide_expression(Q_, a);
+
       static std::list<std::string> baseline = {"0"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -949,6 +1114,13 @@ TEST_CASE( "capi_div_expression", "[smoke]" ) {
 
     WHEN( "e = a/ r{1}" ) {
       apival_t e = expr_divide_expression(a, r);
+
+      static std::list<std::string> baseline = {"[","/","a","r","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a/ r_{1}" ) {
+      apival_t e = expr_divide_expression(a, r_);
 
       static std::list<std::string> baseline = {"a"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -964,6 +1136,13 @@ TEST_CASE( "capi_div_expression", "[smoke]" ) {
     WHEN( "e = a / R{1.0}" ) {
       apival_t e = expr_divide_expression(a, R);
 
+      static std::list<std::string> baseline = {"[","/","a","R","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a / R_{1.0}" ) {
+      apival_t e = expr_divide_expression(a, R_);
+
       static std::list<std::string> baseline = {"a"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -978,6 +1157,13 @@ TEST_CASE( "capi_div_expression", "[smoke]" ) {
     WHEN( "e = a/ s{-1}" ) {
       apival_t e = expr_divide_expression(a, s);
 
+      static std::list<std::string> baseline = {"[","/","a","s","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a/ s_{-1}" ) {
+      apival_t e = expr_divide_expression(a, s_);
+
       static std::list<std::string> baseline = {"[", "-", "a", "]"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -991,6 +1177,13 @@ TEST_CASE( "capi_div_expression", "[smoke]" ) {
 
     WHEN( "e = a / S{-1.0}" ) {
       apival_t e = expr_divide_expression(a, S);
+
+      static std::list<std::string> baseline = {"[","/","a","S","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a / S_{-1.0}" ) {
+      apival_t e = expr_divide_expression(a, S_);
 
       static std::list<std::string> baseline = {"[", "-", "a", "]"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -1009,12 +1202,11 @@ TEST_CASE( "capi_div_expression", "[smoke]" ) {
 
 TEST_CASE( "capi_pow_expression", "[smoke]" ) {
 
-  apival_t _model = create_model();
-  std::unique_ptr<Simple_ExprModel> model( static_cast<Simple_ExprModel*>(_model) );
-  ExprManager* manager = &(model.get()->manager);
+  apival_t model = create_model();
+  ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
-  apival_t a = create_variable(false, false, 0.0, 1.0, 0.0, "a");
-  apival_t b = create_variable(false, false, 0.0, 1.0, 0.0, "b");
+  apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
+  apival_t b = create_variable(0, false, false, 0.0, 1.0, 0.0, "b");
 
   SECTION( "Test simplePow" ) {
     apival_t e = expr_pow_expression(a,b);
@@ -1055,13 +1247,24 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
   }
 
   SECTION( "Test trivialPow" ) {
-    apival_t q = create_parameter_int(0, true, "");
-    apival_t Q = create_parameter_double(0.0, true, "");
-    apival_t r = create_parameter_int(1, true, "");
-    apival_t R = create_parameter_double(1.0, true, "");
+    apival_t q = create_parameter_int(0, 0, true, "q");
+    apival_t Q = create_parameter_double(0, 0.0, true, "Q");
+    apival_t r = create_parameter_int(0, 1, true, "r");
+    apival_t R = create_parameter_double(0, 1.0, true, "R");
+    apival_t q_ = create_parameter_int(0, 0, false, "");
+    apival_t Q_ = create_parameter_double(0, 0.0, false, "");
+    apival_t r_ = create_parameter_int(0, 1, false, "");
+    apival_t R_ = create_parameter_double(0, 1.0, false, "");
 
     WHEN( "e = q{0} ** a" ) {
       apival_t e = expr_pow_expression(q, a);
+
+      static std::list<std::string> baseline = {"[","**","q","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = q_{0} ** a" ) {
+      apival_t e = expr_pow_expression(q_, a);
 
       static std::list<std::string> baseline = {"0"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -1077,6 +1280,13 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
     WHEN( "e = Q{0.0} ** a" ) {
       apival_t e = expr_pow_expression(Q, a);
 
+      static std::list<std::string> baseline = {"[","**","Q","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = Q_{0.0} ** a" ) {
+      apival_t e = expr_pow_expression(Q_, a);
+
       static std::list<std::string> baseline = {"0"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -1090,6 +1300,13 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
 
     WHEN( "e = r{1} ** a" ) {
       apival_t e = expr_pow_expression(r, a);
+
+      static std::list<std::string> baseline = {"[","**","r","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = r_{1} ** a" ) {
+      apival_t e = expr_pow_expression(r_, a);
 
       static std::list<std::string> baseline = {"1"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -1105,6 +1322,13 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
     WHEN( "e = R{1.0} ** a" ) {
       apival_t e = expr_pow_expression(R, a);
 
+      static std::list<std::string> baseline = {"[","**","R","a","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = R_{1.0} ** a" ) {
+      apival_t e = expr_pow_expression(R_, a);
+
       static std::list<std::string> baseline = {"1"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -1118,6 +1342,13 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
 
     WHEN( "e = a ** q{0}" ) {
       apival_t e = expr_pow_expression(a, q);
+
+      static std::list<std::string> baseline = {"[","**","a","q","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a ** q_{0}" ) {
+      apival_t e = expr_pow_expression(a, q_);
 
       static std::list<std::string> baseline = {"1"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -1133,6 +1364,13 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
     WHEN( "e = a ** Q{0.0}" ) {
       apival_t e = expr_pow_expression(a, Q);
 
+      static std::list<std::string> baseline = {"[","**","a","Q","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a ** Q_{0.0}" ) {
+      apival_t e = expr_pow_expression(a, Q_);
+
       static std::list<std::string> baseline = {"1"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -1147,6 +1385,13 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
     WHEN( "e = a ** r{1}" ) {
       apival_t e = expr_pow_expression(a, r);
 
+      static std::list<std::string> baseline = {"[","**","a","r","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a ** r_{1}" ) {
+      apival_t e = expr_pow_expression(a, r_);
+
       static std::list<std::string> baseline = {"a"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
@@ -1160,6 +1405,13 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
 
     WHEN( "e = a ** R{1.0}" ) {
       apival_t e = expr_pow_expression(a, R);
+
+      static std::list<std::string> baseline = {"[","**","a","R","]"};
+      REQUIRE( manager->expr_to_list(e,false) == baseline );
+    }
+
+    WHEN( "e = a ** R_{1.0}" ) {
+      apival_t e = expr_pow_expression(a, R_);
 
       static std::list<std::string> baseline = {"a"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
@@ -1178,12 +1430,11 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
 
 TEST_CASE( "capi_intrinsics", "[smoke]" ) {
 
-  apival_t _model = create_model();
-  std::unique_ptr<Simple_ExprModel> model( static_cast<Simple_ExprModel*>(_model) );
-  ExprManager* manager = &(model.get()->manager);
+  apival_t model = create_model();
+  ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
-  apival_t v = create_variable(false, false, 0.0, 1.0, 0.0, "v");
-  apival_t p = create_variable(false, false, 0.0, 1.0, 0.0, "p");
+  apival_t v = create_variable(0, false, false, 0.0, 1.0, 0.0, "v");
+  apival_t p = create_variable(0, false, false, 0.0, 1.0, 0.0, "p");
 
   SECTION( "Test abs" ) {
     apival_t e = intrinsic_abs(v);
@@ -1411,12 +1662,11 @@ TEST_CASE( "capi_intrinsics", "[smoke]" ) {
 
 TEST_CASE( "capi_constraint", "[smoke]" ) {
 
-  apival_t _model = create_model();
-  std::unique_ptr<Simple_ExprModel> model( static_cast<Simple_ExprModel*>(_model) );
-  ExprManager* manager = &(model.get()->manager);
+  apival_t model = create_model();
+  ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
-  apival_t v = create_variable(false, false, 0.0, 1.0, 0.0, "v");
-  apival_t p = create_variable(false, false, 0.0, 1.0, 0.0, "p");
+  apival_t v = create_variable(0, false, false, 0.0, 1.0, 0.0, "v");
+  apival_t p = create_variable(0, false, false, 0.0, 1.0, 0.0, "p");
 
   SECTION( "Test inequality" ) {
 

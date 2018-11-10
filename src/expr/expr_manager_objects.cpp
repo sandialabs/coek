@@ -26,7 +26,7 @@ if (rhs == &ZeroParameter)
 assert(lhs->manager == rhs->manager);
 
 NumericValue* tmp;
-if (lhs->is_parameter() and rhs->is_parameter())
+if (lhs->is_parameter() and !lhs->is_mutable_parameter() and rhs->is_parameter() and !rhs->is_mutable_parameter())
     tmp = new TypedParameter<double>(lhs->manager, lhs->_value + rhs->_value, false);
 else
     tmp = new AddExpression<NumericValue*,NumericValue*>(lhs->manager, lhs,rhs);
@@ -44,7 +44,7 @@ if (rhs == &ZeroParameter)
 assert(lhs->manager == rhs->manager);
 
 NumericValue* tmp;
-if (lhs->is_parameter() and rhs->is_parameter())
+if (lhs->is_parameter() and !lhs->is_mutable_parameter() and rhs->is_parameter() and !rhs->is_mutable_parameter())
     tmp = new TypedParameter<double>(lhs->manager, lhs->_value - rhs->_value, false);
 else
     tmp = new SubExpression(lhs->manager, lhs, rhs);
@@ -68,7 +68,7 @@ if (rhs == &NegativeOneParameter)
 assert(lhs->manager == rhs->manager);
 
 NumericValue* tmp;
-if (lhs->is_parameter() and rhs->is_parameter())
+if (lhs->is_parameter() and !lhs->is_mutable_parameter() and rhs->is_parameter() and !rhs->is_mutable_parameter())
     tmp = new TypedParameter<double>(lhs->manager, lhs->_value * rhs->_value, false);
 else
     tmp = new MulExpression<NumericValue*,NumericValue*>(lhs->manager, lhs, rhs);
@@ -87,11 +87,16 @@ if (rhs == &NegativeOneParameter)
 
 assert(lhs->manager == rhs->manager);
 
+if (rhs->is_parameter() and !rhs->is_mutable_parameter() and (rhs->_value==0.0))
+   return 0;
+
 NumericValue* tmp;
-if (lhs->is_parameter() and rhs->is_parameter())
+if (lhs->is_parameter() and !lhs->is_mutable_parameter() and rhs->is_parameter() and !rhs->is_mutable_parameter()) {
     tmp = new TypedParameter<double>(lhs->manager, lhs->_value / rhs->_value, false);
-else
+    }
+else {
     tmp = new DivExpression(lhs->manager, lhs, rhs);
+    }
 owned.push_back(tmp);
 return tmp;
 }
@@ -269,12 +274,14 @@ return tmp;
 
 ExprManager_Objects::numval_t ExprManager_Objects::_param(int _value, bool _mutable, const char* name)
 {
-if (_value == 0)
-   return &ZeroParameter;
-if (_value == 1)
-   return &OneParameter;
-if (_value == -1)
-   return &NegativeOneParameter;
+if (! _mutable) {
+    if (_value == 0)
+       return &ZeroParameter;
+    if (_value == 1)
+       return &OneParameter;
+    if (_value == -1)
+       return &NegativeOneParameter;
+    }
 
 Parameter* tmp = new TypedParameter<int>(this, _value, _mutable, name);
 owned.push_back(tmp);
@@ -283,12 +290,14 @@ return tmp;
 
 ExprManager_Objects::numval_t ExprManager_Objects::_param(double _value, bool _mutable, const char* name)
 {
-if (_value == 0.0)
-   return &ZeroParameter;
-if (_value == 1.0)
-   return &OneParameter;
-if (_value == -1.0)
-   return &NegativeOneParameter;
+if (! _mutable) {
+    if (_value == 0.0)
+       return &ZeroParameter;
+    if (_value == 1.0)
+       return &OneParameter;
+    if (_value == -1.0)
+       return &NegativeOneParameter;
+    }
 
 Parameter* tmp = new TypedParameter<double>(this, _value, _mutable, name);
 owned.push_back(tmp);

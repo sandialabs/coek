@@ -3,10 +3,16 @@
 #include <cassert>
 #include <sstream>
 
-//#include "expr_types.hpp"
 #include "expr/expr_manager.hpp"
 #include "admodel/simple.hpp"
 #include "solver.hpp"
+
+#define runtime_assert(flag, descr)\
+{\
+bool condition= flag ;\
+if (!condition)\
+    throw std::runtime_error(descr);\
+}
 
 
 /*** GLOBAL DATA ***/
@@ -30,7 +36,8 @@ extern "C" void* expr_plus_int(void* lhs, int rhs)
 if (rhs == 0) {
     return lhs;
     }
-return manager->plus( lhs, manager->param(rhs, false, "") );
+NumericValue* e = static_cast<NumericValue*>(lhs);
+return e->manager->plus( lhs, e->manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_plus_double(void* lhs, double rhs)
@@ -38,12 +45,15 @@ extern "C" void* expr_plus_double(void* lhs, double rhs)
 if (rhs == 0.0) {
     return lhs;
     }
-return manager->plus( lhs, manager->param(rhs, false, "") );
+NumericValue* e = static_cast<NumericValue*>(lhs);
+return e->manager->plus( lhs, e->manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_plus_expression(void* lhs, void* rhs)
 {
-return manager->plus( lhs, rhs );
+NumericValue* lhs_ = static_cast<NumericValue*>(lhs);
+NumericValue* rhs_ = static_cast<NumericValue*>(rhs);
+return lhs_->manager->plus( lhs_, rhs_ );
 }
 
 extern "C" void* expr_rplus_int(int lhs, void* rhs)
@@ -51,7 +61,8 @@ extern "C" void* expr_rplus_int(int lhs, void* rhs)
 if (lhs == 0) {
     return rhs;
     }
-return manager->plus( manager->param(lhs, false, ""), rhs );
+NumericValue* e = static_cast<NumericValue*>(rhs);
+return e->manager->plus( e->manager->param(lhs, false, ""), rhs );
 }
 
 extern "C" void* expr_rplus_double(double lhs, void* rhs)
@@ -59,7 +70,8 @@ extern "C" void* expr_rplus_double(double lhs, void* rhs)
 if (lhs == 0.0) {
     return rhs;
     }
-return manager->plus( manager->param(lhs, false, ""), rhs );
+NumericValue* e = static_cast<NumericValue*>(rhs);
+return e->manager->plus( e->manager->param(lhs, false, ""), rhs );
 }
 
 
@@ -70,7 +82,8 @@ extern "C" void* expr_minus_int(void* lhs, int rhs)
 if (rhs == 0) {
     return lhs;
     }
-return manager->minus( lhs, manager->param(rhs, false, "") );
+NumericValue* e = static_cast<NumericValue*>(lhs);
+return e->manager->minus( lhs, e->manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_minus_double(void* lhs, double rhs)
@@ -78,28 +91,33 @@ extern "C" void* expr_minus_double(void* lhs, double rhs)
 if (rhs == 0.0) {
     return lhs;
     }
-return manager->minus( lhs, manager->param(rhs, false, "") );
+NumericValue* e = static_cast<NumericValue*>(lhs);
+return e->manager->minus( lhs, e->manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_minus_expression(void* lhs, void* rhs)
 {
-return manager->minus( lhs, rhs );
+NumericValue* lhs_ = static_cast<NumericValue*>(lhs);
+NumericValue* rhs_ = static_cast<NumericValue*>(rhs);
+return lhs_->manager->minus( lhs_, rhs_ );
 }
 
 extern "C" void* expr_rminus_int(int lhs, void* rhs)
 {
+NumericValue* e = static_cast<NumericValue*>(rhs);
 if (lhs == 0) {
-    return manager->negate( rhs );
+    return e->manager->negate( rhs );
     }
-return manager->minus( manager->param(lhs, false, ""), rhs );
+return e->manager->minus( e->manager->param(lhs, false, ""), rhs );
 }
 
 extern "C" void* expr_rminus_double(double lhs, void* rhs)
 {
+NumericValue* e = static_cast<NumericValue*>(rhs);
 if (lhs == 0.0) {
-    return manager->negate( rhs );
+    return e->manager->negate( rhs );
     }
-return manager->minus( manager->param(lhs, false, ""), rhs );
+return e->manager->minus( e->manager->param(lhs, false, ""), rhs );
 }
 
 
@@ -107,63 +125,73 @@ return manager->minus( manager->param(lhs, false, ""), rhs );
 
 extern "C" void* expr_times_int(void* lhs, int rhs)
 {
-if (rhs == 0) {
-    return manager->zero;
-    }
 if (rhs == 1) {
     return lhs;
     }
-if (rhs == -1) {
-    return manager->negate( lhs );
+
+NumericValue* e = static_cast<NumericValue*>(lhs);
+if (rhs == 0) {
+    return e->manager->zero;
     }
-return manager->times( lhs, manager->param(rhs, false, "") );
+if (rhs == -1) {
+    return e->manager->negate( lhs );
+    }
+return e->manager->times( lhs, e->manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_times_double(void* lhs, double rhs)
 {
-if (rhs == 0.0) {
-    return manager->zero;
-    }
 if (rhs == 1.0) {
     return lhs;
     }
-if (rhs == -1.0) {
-    return manager->negate( lhs );
+
+NumericValue* e = static_cast<NumericValue*>(lhs);
+if (rhs == 0.0) {
+    return e->manager->zero;
     }
-return manager->times( lhs, manager->param(rhs, false, "") );
+if (rhs == -1.0) {
+    return e->manager->negate( lhs );
+    }
+return e->manager->times( lhs, e->manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_times_expression(void* lhs, void* rhs)
 {
-return manager->times( lhs, rhs );
+NumericValue* lhs_ = static_cast<NumericValue*>(lhs);
+NumericValue* rhs_ = static_cast<NumericValue*>(rhs);
+return lhs_->manager->times( lhs_, rhs_ );
 }
 
 extern "C" void* expr_rtimes_int(int lhs, void* rhs)
 {
-if (lhs == 0) {
-    return manager->zero;
-    }
 if (lhs == 1) {
     return rhs;
     }
-if (lhs == -1) {
-    return manager->negate( rhs );
+
+NumericValue* e = static_cast<NumericValue*>(rhs);
+if (lhs == 0) {
+    return e->manager->zero;
     }
-return manager->times( manager->param(lhs, false, ""), rhs );
+if (lhs == -1) {
+    return e->manager->negate( rhs );
+    }
+return e->manager->times( e->manager->param(lhs, false, ""), rhs );
 }
 
 extern "C" void* expr_rtimes_double(double lhs, void* rhs)
 {
-if (lhs == 0.0) {
-    return manager->zero;
-    }
 if (lhs == 1.0) {
     return rhs;
     }
-if (lhs == -1.0) {
-    return manager->negate( rhs );
+
+NumericValue* e = static_cast<NumericValue*>(rhs);
+if (lhs == 0.0) {
+    return e->manager->zero;
     }
-return manager->times( manager->param(lhs, false, ""), rhs );
+if (lhs == -1.0) {
+    return e->manager->negate( rhs );
+    }
+return e->manager->times( e->manager->param(lhs, false, ""), rhs );
 }
 
 
@@ -174,10 +202,12 @@ extern "C" void* expr_divide_int(void* lhs, int rhs)
 if (rhs == 1) {
     return lhs;
     }
+
+NumericValue* e = static_cast<NumericValue*>(lhs);
 if (rhs == -1) {
-    return manager->negate( lhs );
+    return e->manager->negate( lhs );
     }
-return manager->divide( lhs, manager->param(rhs, false, "") );
+return e->manager->divide( lhs, e->manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_divide_double(void* lhs, double rhs)
@@ -185,31 +215,41 @@ extern "C" void* expr_divide_double(void* lhs, double rhs)
 if (rhs == 1.0) {
     return lhs;
     }
+
+NumericValue* e = static_cast<NumericValue*>(lhs);
 if (rhs == -1.0) {
-    return manager->negate( lhs );
+    return e->manager->negate( lhs );
     }
-return manager->divide( lhs, manager->param(rhs, false, "") );
+return e->manager->divide( lhs, e->manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_divide_expression(void* lhs, void* rhs)
 {
-return manager->divide( lhs, rhs );
+NumericValue* lhs_ = static_cast<NumericValue*>(lhs);
+NumericValue* rhs_ = static_cast<NumericValue*>(rhs);
+return lhs_->manager->divide( lhs_, rhs_ );
 }
 
 extern "C" void* expr_rdivide_int(int lhs, void* rhs)
 {
+NumericValue* e = static_cast<NumericValue*>(rhs);
 if (lhs == 0) {
-    return manager->zero;
+    return e->manager->zero;
     }
-return manager->divide( manager->param(lhs, false, ""), rhs );
+if (e->is_parameter() and !e->is_mutable_parameter() and (e->_value==0.0))
+   return 0;
+return e->manager->divide( e->manager->param(lhs, false, ""), rhs );
 }
 
 extern "C" void* expr_rdivide_double(double lhs, void* rhs)
 {
+NumericValue* e = static_cast<NumericValue*>(rhs);
 if (lhs == 0.0) {
-    return manager->zero;
+    return e->manager->zero;
     }
-return manager->divide( manager->param(lhs, false, ""), rhs );
+if (e->is_parameter() and !e->is_mutable_parameter() and (e->_value==0.0))
+   return 0;
+return e->manager->divide( e->manager->param(lhs, false, ""), rhs );
 }
 
 
@@ -217,34 +257,41 @@ return manager->divide( manager->param(lhs, false, ""), rhs );
 
 extern "C" void* expr_pow_int(void* lhs, int rhs)
 {
-return manager->pow( lhs, manager->param(rhs, false, "") );
+NumericValue* e = static_cast<NumericValue*>(lhs);
+return e->manager->pow( lhs, e->manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_pow_double(void* lhs, double rhs)
 {
-return manager->pow( lhs, manager->param(rhs, false, "") );
+NumericValue* e = static_cast<NumericValue*>(lhs);
+return e->manager->pow( lhs, e->manager->param(rhs, false, "") );
 }
 
 extern "C" void* expr_pow_expression(void* lhs, void* rhs)
 {
-return manager->pow( lhs, rhs );
+NumericValue* lhs_ = static_cast<NumericValue*>(lhs);
+NumericValue* rhs_ = static_cast<NumericValue*>(rhs);
+return lhs_->manager->pow( lhs_, rhs_ );
 }
 
 extern "C" void* expr_rpow_int(int lhs, void* rhs)
 {
-return manager->pow( manager->param(lhs, false, ""), rhs );
+NumericValue* e = static_cast<NumericValue*>(rhs);
+return e->manager->pow( e->manager->param(lhs, false, ""), rhs );
 }
 
 extern "C" void* expr_rpow_double(double lhs, void* rhs)
 {
-return manager->pow( manager->param(lhs, false, ""), rhs );
+NumericValue* e = static_cast<NumericValue*>(rhs);
+return e->manager->pow( e->manager->param(lhs, false, ""), rhs );
 }
 
 
 /*** OTHER ***/
 extern "C" void* expr_negate(void* _expr)
 {
-return manager->negate( _expr );
+NumericValue* e = static_cast<NumericValue*>(_expr);
+return e->manager->negate( e );
 }
 
 
@@ -291,28 +338,88 @@ if (diff.find(var) == diff.end())
 return diff[var];
 }
 
-extern "C" void* create_parameter_int(int value, int mutable_flag, const char* name)
+extern "C" void* create_parameter_int(void* model, int value, int mutable_flag, const char* name)
 {
-return manager->param(value, mutable_flag, name);
+if (model == 0) {
+    runtime_assert(manager != 0, "Error calling create_parameter_int().  An optimization model must be created before a parameter can be created!");
+    return manager->param(value, mutable_flag, name);
+    }
+Simple_ExprModel* tmp = static_cast<Simple_ExprModel*>(model);
+return tmp->manager.param(value, mutable_flag, name);
 }
 
-extern "C" void* create_parameter_double(double value, int mutable_flag, const char* name)
+extern "C" void* create_parameter_double(void* model, double value, int mutable_flag, const char* name)
 {
-return manager->param(value, mutable_flag, name);
+if (model == 0) {
+    runtime_assert(manager != 0, "Error calling create_parameter_double().  An optimization model must be created before a parameter can be created!");
+    return manager->param(value, mutable_flag, name);
+    }
+Simple_ExprModel* tmp = static_cast<Simple_ExprModel*>(model);
+return tmp->manager.param(value, mutable_flag, name);
 }
 
-extern "C" void* create_variable(int binary, int integer, double lb, double ub, double init, const char* name)
+extern "C" void parameter_set_value(void* ptr, double val)
 {
-return manager->var(binary, integer, lb, ub, init, name);
+Parameter* v = static_cast<Parameter*>(ptr);
+v->set_value(val);
 }
 
-extern "C" void create_variable_array(void* vars[], int num, int binary, int integer, double lb, double ub, double init, const char* name)
+extern "C" void* get_parameter_zero(void* model)
 {
+if (model == 0) {
+    runtime_assert(manager != 0, "Error calling get_parameter_zero().  An optimization model must be created before a parameter can be created!");
+    return manager->zero;
+    }
+Simple_ExprModel* tmp = static_cast<Simple_ExprModel*>(model);
+return tmp->manager.zero;
+}
+
+extern "C" void* get_parameter_one(void* model)
+{
+if (model == 0) {
+    runtime_assert(manager != 0, "Error calling get_parameter_one().  An optimization model must be created before a parameter can be created!");
+    return manager->one;
+    }
+Simple_ExprModel* tmp = static_cast<Simple_ExprModel*>(model);
+return tmp->manager.one;
+}
+
+extern "C" void* get_parameter_negative_one(void* model)
+{
+if (model == 0) {
+    runtime_assert(manager != 0, "Error calling get_parameter_negative_one().  An optimization model must be created before a parameter can be created!");
+    return manager->negative_one;
+    }
+Simple_ExprModel* tmp = static_cast<Simple_ExprModel*>(model);
+return tmp->manager.negative_one;
+}
+
+extern "C" void* create_variable(void* model, int binary, int integer, double lb, double ub, double init, const char* name)
+{
+if (model == 0) {
+    runtime_assert(manager != 0, "Error calling create_variable().  An optimization model must be created before a variable can be created!");
+    return manager->var(binary, integer, lb, ub, init, name);
+    }
+Simple_ExprModel* tmp = static_cast<Simple_ExprModel*>(model);
+return tmp->manager.var(binary, integer, lb, ub, init, name);
+}
+
+extern "C" void create_variable_array(void* model, void* vars[], int num, int binary, int integer, double lb, double ub, double init, const char* name)
+{
+ExprManager* _manager;
+if (model == 0) {
+    runtime_assert(manager != 0, "Error calling create_variable_array().  An optimization model must be created before a variable can be created!");
+    _manager = manager;
+    }
+else {
+    Simple_ExprModel* tmp = static_cast<Simple_ExprModel*>(model);
+    _manager = &(tmp->manager);
+    }
 for (int i=0; i<num; i++)
-    vars[i] =  manager->var(binary, integer, lb, ub, init, name);
+    vars[i] =  _manager->var(binary, integer, lb, ub, init, name);
 }
 
-extern "C" int get_variable_index(void* ptr)
+extern "C" int variable_get_index(void* ptr)
 {
 Variable* v = static_cast<Variable*>(ptr);
 return v->index;
@@ -382,16 +489,26 @@ return v->boolean_value();
 
 extern "C" void* create_inequality(void* expr, int strict_flag)
 {
-return manager->inequality(expr, strict_flag);
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->manager->inequality(e, strict_flag);
 }
 
 extern "C" void* create_equality(void* expr)
 {
-return manager->equality(expr);
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->manager->equality(e);
 }
 
 extern "C" void* create_model()
 {
+// We always create a default model, so after creating it,
+// the first call to this function simply returns the 
+// default model.
+if (models.size() == 1) {
+   Simple_ExprModel* tmp = models.front();
+   return tmp;
+   }
+
 Simple_ExprModel* tmp = new Simple_ExprModel();
 models.push_back(tmp);
 model = tmp;
@@ -649,3 +766,28 @@ NumericValue* e = static_cast<NumericValue*>(expr);
 return e->manager->atanh(e);
 }
 
+extern "C" void coek_initialize(void)
+{
+create_model();
+}
+
+extern "C" void coek_finalize(void)
+{
+for (std::list<Simple_ExprModel*>::iterator it = models.begin(); it != models.end(); it++)
+  delete *it;
+}
+
+
+class COEK_CAPI_INITIALIZE
+{
+  COEK_CAPI_INITIALIZE(void) {
+    // Create the default model
+    coek_initialize();
+    }
+
+  ~COEK_CAPI_INITIALIZE(void) {
+    coek_finalize();
+    }
+};
+
+COEK_CAPI_INITIALIZE _init();

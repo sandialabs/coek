@@ -40,6 +40,7 @@ public:
     virtual bool is_variable() { return false; }
     virtual bool is_expression() { return false; }
     virtual bool is_parameter() { return false; }
+    virtual bool is_mutable_parameter() { return false; }
 
     virtual int size() {return 1;}
 
@@ -75,6 +76,8 @@ public:
 
     virtual bool is_parameter() { return true; }
 
+    virtual bool is_mutable_parameter() { return mutable_flag; }
+
     NumericValue* partial(unsigned int i);
 
     void compute_adjoint() {}
@@ -83,6 +86,7 @@ public:
 
     void compute_hv_back() {}
 
+    virtual void set_value(double val) = 0;
 };
 
 
@@ -129,8 +133,19 @@ public:
 
     void snprintf(char* buf, int max)
         {TypedParameter_snprintf(buf, max, this->_tvalue, name);}
+
+    void set_value(double val) 
+        { TypedParameter_set_value(this, val); }
+
 };
 
+
+template <typename TYPE>
+inline void TypedParameter_set_value(TypedParameter<TYPE>* param, double val)
+{
+param->_tvalue = static_cast<TYPE>(val);
+param->_value = val;
+}
 
 inline NumericValue* Parameter::partial(unsigned int i)
 {return static_cast<NumericValue*>(manager->zero);}

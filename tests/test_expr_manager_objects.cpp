@@ -34,8 +34,8 @@ TEST_CASE( "add_expression", "[smoke]" ) {
   }
 
   SECTION( "Test constSum" ) {
-    numval_t q = manager._param(5, true);
-    numval_t Q = manager._param(5.0, true);
+    numval_t q = manager._param(5, false);
+    numval_t Q = manager._param(5.0, false);
 
     WHEN( "e = 5 + 5.0" ) {
       numval_t e = manager.plus(q, Q);
@@ -133,8 +133,8 @@ TEST_CASE( "add_expression", "[smoke]" ) {
 
   SECTION( "Test trivialSum" ) {
 
-    numval_t q = manager._param(0, true);
-    numval_t Q = manager._param(0.0, true);
+    numval_t q = manager._param(0, false);
+    numval_t Q = manager._param(0.0, false);
 
     WHEN( "e = a + 0" ) {
       numval_t e = manager.plus(a, q);
@@ -216,11 +216,11 @@ TEST_CASE( "diff_expression", "[smoke]" ) {
   }
 
   SECTION( "Test constDiff" ) {
-    numval_t q = manager._param(5, true);
-    numval_t Q = manager._param(5.0, true);
+    numval_t q = manager._param(5, false);
+    numval_t Q = manager._param(5.0, false);
 
     WHEN( "e = 5 - 1.0" ) {
-      numval_t R = manager._param(1.0, true);
+      numval_t R = manager._param(1.0, false);
       numval_t e = manager.minus(q, R);
 
       static std::list<std::string> baseline = {"4.000"};
@@ -350,8 +350,8 @@ TEST_CASE( "diff_expression", "[smoke]" ) {
 
   SECTION( "Test trivialDiff" ) {
 
-    numval_t q = manager._param(0, true);
-    numval_t Q = manager._param(0.0, true);
+    numval_t q = manager._param(0, false);
+    numval_t Q = manager._param(0.0, false);
 
     WHEN( "e = a - 0" ) {
       numval_t e = manager.minus(a, q);
@@ -615,10 +615,10 @@ TEST_CASE( "mul_expression", "[smoke]" ) {
 
   SECTION( "Test trivialProduct" ) {
 
-    numval_t q = manager._param(0, true);
-    numval_t Q = manager._param(0.0, true);
-    numval_t r = manager._param(1, true);
-    numval_t R = manager._param(1.0, true);
+    numval_t q = manager._param(0, false);
+    numval_t Q = manager._param(0.0, false);
+    numval_t r = manager._param(1, false);
+    numval_t R = manager._param(1.0, false);
 
     WHEN( "e = a * 0" ) {
       numval_t e = manager.times(a, q);
@@ -784,12 +784,12 @@ TEST_CASE( "div_expression", "[smoke]" ) {
   }
 
   SECTION( "Test trivialDivision" ) {
-    numval_t q = manager._param(0, true);
-    numval_t Q = manager._param(0.0, true);
-    numval_t r = manager._param(1, true);
-    numval_t R = manager._param(1.0, true);
-    numval_t s = manager._param(-1, true);
-    numval_t S = manager._param(-1.0, true);
+    numval_t q = manager._param(0, false);
+    numval_t Q = manager._param(0.0, false);
+    numval_t r = manager._param(1, false);
+    numval_t R = manager._param(1.0, false);
+    numval_t s = manager._param(-1, false);
+    numval_t S = manager._param(-1.0, false);
 
     WHEN( "e = 0 / a" ) {
       numval_t e = manager.divide(q, a);
@@ -886,10 +886,10 @@ TEST_CASE( "pow_expression", "[smoke]" ) {
 
   SECTION( "Test trivialPow" ) {
 
-    numval_t q = manager._param(0, true);
-    numval_t Q = manager._param(0.0, true);
-    numval_t r = manager._param(1, true);
-    numval_t R = manager._param(1.0, true);
+    numval_t q = manager._param(0, false);
+    numval_t Q = manager._param(0.0, false);
+    numval_t r = manager._param(1, false);
+    numval_t R = manager._param(1.0, false);
 
     WHEN( "e = 0 ** a" ) {
       numval_t e = manager.pow(q, a);
