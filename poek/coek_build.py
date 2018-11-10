@@ -32,7 +32,8 @@ with open(header) as f:
 ffi.set_source("poek.coek_cffi",
   '#include "%s"' % header,
   libraries=['coek'],
-  library_dirs=library_dirs
+  library_dirs=library_dirs,
+  extra_compile_args=['-g']
   )
 
 

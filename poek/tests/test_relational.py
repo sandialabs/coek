@@ -8,10 +8,14 @@ from poek import *
 class Test_ConditionalValue(unittest.TestCase):
 
     def setUp(self):
+        self.model = model()
         # Do we expect arithmetic operations to return expressions?
         self.expectExpression = True
         # Do we expect relational tests to return constant expressions?
         self.expectConstExpression = True
+
+    def tearDown(self):
+        self.model = None
 
     def create(self, val):
         # Create the type of expression term that we are testing
@@ -148,6 +152,7 @@ class Test_ConditionalValue(unittest.TestCase):
 class Test_VarValue(Test_ConditionalValue):
 
     def setUp(self):
+        self.model = model()
         #
         # Create Model
         #
@@ -158,6 +163,9 @@ class Test_VarValue(Test_ConditionalValue):
         self.expectExpression = True
         self.expectConstExpression = False
 
+    def tearDown(self):
+        self.model = None
+
     def create(self, val):
         tmp=variable()
         tmp.value=val
@@ -167,11 +175,15 @@ class Test_VarValue(Test_ConditionalValue):
 class Test_Expr(unittest.TestCase):
 
     def setUp(self):
+        self.model = model()
         self.a = variable(name='a')
         self.b = variable(name='b')
         self.c = variable(name='c')
         self.visitor = ValueVisitor()
         self.x = variable(10, name='x')
+
+    def tearDown(self):
+        self.model = None
 
     def test_simpleEquality(self):
         #

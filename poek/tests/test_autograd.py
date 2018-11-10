@@ -6,6 +6,12 @@ from poek import *
 
 class Test_Diff(unittest.TestCase):
 
+    def setUp(self):
+        self.model = model()
+
+    def tearDown(self):
+        self.model = None
+
     def test_param(self):
         p = parameter(2.0)
         v = variable(name='v')

@@ -7,8 +7,12 @@ from poek import *
 class TestExpression_Intrinsic(unittest.TestCase):
 
     def setUp(self):
+        self.model = model()
         self.v = variable()
         self.p = parameter(0, True)
+
+    def tearDown(self):
+        self.model = None
 
     def test_ceil(self):
         v = self.v

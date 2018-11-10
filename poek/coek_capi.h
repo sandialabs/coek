@@ -61,6 +61,9 @@ void* expr_diff(void* expr, void* variable);
 
 void* create_parameter_int(int value, int mutable_flag, const char* name);
 void* create_parameter_double(double value, int mutable_flag, const char* name);
+void* get_parameter_zero();
+void* get_parameter_one();
+void* get_parameter_negative_one();
 
 void*  create_variable(int binary, int integer, double lb, double ub, double init, const char* name);
 void   create_variable_array(void* array[], int num, int binary, int integer, double lb, double ub, double init, const char* name);

@@ -6,11 +6,11 @@ from poek import *
 class TestModel(unittest.TestCase):
 
     def test_model1(self):
+        m = model()
         v1 = variable(name="v1", initialize=1)
         v2 = variable(name="v2", initialize=2)
         v3 = variable(name="v3", initialize=3)
 
-        m = model()
         e = v1+v2
         m.add( (1-e) + 3*e + e*e + v3 )
         m.add( v1*v1+1 <= 3*v2 )
@@ -32,8 +32,8 @@ class TestModel(unittest.TestCase):
         self.assertEqual(m.compute_dc(4), [1,-3,0])
 
     def test_error1(self):
-        p = parameter(2,False)
         m = model()
+        p = parameter(2,False)
         m.add(p)
 
 

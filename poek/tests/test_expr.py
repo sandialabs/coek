@@ -6,6 +6,12 @@ from poek import *
 
 class TestValue(unittest.TestCase):
 
+    def setUp(self):
+        self.model = model()
+
+    def tearDown(self):
+        self.model = None
+
     def test_var(self):
         p = variable(initialize=2)
         self.assertEqual(p.value, 2)
@@ -57,12 +63,16 @@ class TestValue(unittest.TestCase):
 class Test_SumExpression(unittest.TestCase):
 
     def setUp(self):
+        self.model = model()
         self.a = variable(name='a')
         self.b = variable(name='b')
         self.c = variable(name='c')
         self.d = variable(name='d')
         self.p = parameter(0, True, name='p')
         self.visitor = ValueVisitor()
+
+    def tearDown(self):
+        self.model = None
 
     def test_error1(self):
         with self.assertRaisesRegex(TypeError,"Unexpected type \(LHS\) .*"):
@@ -324,6 +334,7 @@ class Test_SumExpression(unittest.TestCase):
 class TestDiffExpression(unittest.TestCase):
 
     def setUp(self):
+        self.model = model()
         self.a = variable(name='a')
         self.b = variable(name='b')
         self.c = variable(name='c')
@@ -331,6 +342,9 @@ class TestDiffExpression(unittest.TestCase):
         self.v = variable(name='v')
         self.p = parameter(0, True, name='p')
         self.visitor = ValueVisitor()
+
+    def tearDown(self):
+        self.model = None
 
     def test_error1(self):
         with self.assertRaisesRegex(TypeError,"Unexpected type \(LHS\).*"):
@@ -636,6 +650,7 @@ class TestDiffExpression(unittest.TestCase):
 class Test_MulExpression(unittest.TestCase):
 
     def setUp(self):
+        self.model = model()
         self.a = variable(name='a')
         self.b = variable(name='b')
         self.c = variable(name='c')
@@ -645,6 +660,9 @@ class Test_MulExpression(unittest.TestCase):
         self.q = parameter(0, False, name='q')
         self.r = parameter(1, False, name='r')
         self.visitor = ValueVisitor()
+
+    def tearDown(self):
+        self.model = None
 
     def test_error1(self):
         with self.assertRaisesRegex(TypeError,"Unexpected type \(LHS\).*"):
@@ -1000,6 +1018,7 @@ class Test_MulExpression(unittest.TestCase):
 class Test_DivExpression(unittest.TestCase):
 
     def setUp(self):
+        self.model = model()
         self.a = variable(name='a')
         self.b = variable(name='b')
         self.c = variable(name='c')
@@ -1009,6 +1028,9 @@ class Test_DivExpression(unittest.TestCase):
         self.q = parameter(0, False, name='q')
         self.r = parameter(1, False, name='r')
         self.visitor = ValueVisitor()
+
+    def tearDown(self):
+        self.model = None
 
     def test_error1(self):
         with self.assertRaisesRegex(TypeError,"Unexpected type \(LHS\).*"):
@@ -1169,7 +1191,7 @@ class Test_DivExpression(unittest.TestCase):
 
         e = q / a
         self.assertIs(type(e), parameter)
-        self.assertIs(e, ZeroParameter)
+        self.assertEqual(e.ptr, self.model.zero.ptr)
 
         #
         # Check that dividing by one 1 gives the original expression
@@ -1204,22 +1226,22 @@ class Test_DivExpression(unittest.TestCase):
         self.assertEqual(e.size(),3)
 
         e = 1.0 / a
-        self.assertEqual( self.visitor.walk(e), ['/','1.000','a'] )
+        self.assertEqual( self.visitor.walk(e), ['/','1','a'] )
         self.assertEqual(e.size(),3)
 
         #
-        # Check the structure dividing 1 by an expression
+        # Check the structure dividing 1 by a mutable zero
         #
         e = 1 / p
         self.assertEqual( self.visitor.walk(e), ['/','1','p'] )
         self.assertEqual(e.size(),3)
 
         e = 1.0 / p
-        self.assertEqual( self.visitor.walk(e), ['/','1.000','p'] )
+        self.assertEqual( self.visitor.walk(e), ['/','1','p'] )
         self.assertEqual(e.size(),3)
 
         #
-        # Check the structure dividing 1 by an expression
+        # Check the structure dividing 1 by an immutable zero
         #
         try:
             e = 1 / q
@@ -1234,20 +1256,21 @@ class Test_DivExpression(unittest.TestCase):
             pass
 
         #
-        # Check the structure dividing 1 by an expression
+        # Check the structure dividing 1 by an immutable param
         #
         e = 1 / r
         self.assertEqual( self.visitor.walk(e), '1' )
         self.assertEqual(e.size(),1)
 
         e = 1.0 / r
-        self.assertEqual( self.visitor.walk(e), '1.000' )
+        self.assertEqual( self.visitor.walk(e), '1' )
         self.assertEqual(e.size(),1)
 
 
 class Test_PowExpression(unittest.TestCase):
 
     def setUp(self):
+        self.model = model()
         self.a = variable(name='a')
         self.b = variable(name='b')
         self.c = variable(name='c')
@@ -1257,6 +1280,9 @@ class Test_PowExpression(unittest.TestCase):
         self.q = parameter(0, False, name='q')
         self.r = parameter(1, False, name='r')
         self.visitor = ValueVisitor()
+
+    def tearDown(self):
+        self.model = None
 
     def test_error1(self):
         with self.assertRaisesRegex(TypeError,"Unexpected type \(LHS\).*"):
@@ -1428,6 +1454,7 @@ class Test_PowExpression(unittest.TestCase):
 class EntangledExpressionErrors(unittest.TestCase):
 
     def setUp(self):
+        self.model = model()
         self.a = variable(name='a')
         self.b = variable(name='b')
         self.c = variable(name='c')
@@ -1437,6 +1464,9 @@ class EntangledExpressionErrors(unittest.TestCase):
         self.q = parameter(0, False, name='q')
         self.r = parameter(1, False, name='r')
         self.visitor = ValueVisitor()
+
+    def tearDown(self):
+        self.model = None
 
     def test_sumexpr_add_entangled(self):
         a = self.a
@@ -1463,10 +1493,14 @@ class EntangledExpressionErrors(unittest.TestCase):
 class TestVariables(unittest.TestCase):
 
     def test_default_value(self):
+        self.model = model()
         v = variable(3, name='v')
         self.assertTrue(math.isnan(v[0].value))
         self.assertTrue(math.isnan(v[1].value))
         self.assertTrue(math.isnan(v[2].value))
+
+    def tearDown(self):
+        self.model = None
 
     def test_initialize(self):
         v = variable(3, name='v', initialize=3)
