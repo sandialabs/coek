@@ -9,6 +9,8 @@ typedef void* apival_t;
 
 void* misc_getnull(void);
 double misc_getnan(void);
+void coek_initialize(void);
+void coek_finalize(void);
 
 /** EXPRESSIONS **/
 
@@ -59,14 +61,15 @@ int expr_size(void* self);
 void* expr_diff(void* expr, void* variable);
 
 
-void* create_parameter_int(int value, int mutable_flag, const char* name);
-void* create_parameter_double(double value, int mutable_flag, const char* name);
-void* get_parameter_zero();
-void* get_parameter_one();
-void* get_parameter_negative_one();
+void* create_parameter_int(void* model, int value, int mutable_flag, const char* name);
+void* create_parameter_double(void* model, double value, int mutable_flag, const char* name);
+void* get_parameter_zero(void* model);
+void* get_parameter_one(void* model);
+void* get_parameter_negative_one(void* model);
+void parameter_set_value(void* parameter, double value);
 
-void*  create_variable(int binary, int integer, double lb, double ub, double init, const char* name);
-void   create_variable_array(void* array[], int num, int binary, int integer, double lb, double ub, double init, const char* name);
+void*  create_variable(void* model, int binary, int integer, double lb, double ub, double init, const char* name);
+void   create_variable_array(void* model, void* array[], int num, int binary, int integer, double lb, double ub, double init, const char* name);
 int    variable_get_index(void* variable);
 void   variable_set_value(void* variable, double value);
 double variable_get_value(void* variable);

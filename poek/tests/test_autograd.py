@@ -16,17 +16,17 @@ class Test_Diff(unittest.TestCase):
         p = parameter(2.0)
         v = variable(name='v')
         diff = p.diff(v)
-        self.assertEqual(diff, ZeroParameter)
+        self.assertEqual(diff.ptr, ZeroParameter.ptr)
 
     def test_var(self):
         v = variable(name='v')
         w = variable(name='w')
 
         diff = w.diff(v)
-        self.assertEqual(diff, ZeroParameter)
+        self.assertEqual(diff.ptr, ZeroParameter.ptr)
 
         diff = v.diff(v)
-        self.assertEqual(diff, OneParameter)
+        self.assertEqual(diff.ptr, OneParameter.ptr)
 
     def test_expression(self):
         v = variable(name='v')
@@ -36,21 +36,21 @@ class Test_Diff(unittest.TestCase):
 
         e = w*v**2
         diff = e.diff(v)
-        self.assertEqual( visitor.walk(diff), ['*','w',['*','2',['**','v',['-','2','1']]]] )
+        self.assertEqual( visitor.walk(diff), ['*','w',['*','2',['**','v','1.000']]] )
         diff = e.diff(w)
         self.assertEqual( visitor.walk(diff), ['**','v','2'] )
         diff = e.diff(z)
         self.assertEqual( visitor.walk(diff), '0' )
         diffs = e.diff([v,w,z])
-        self.assertEqual( visitor.walk(diffs[0]), ['*','w',['*','2',['**','v',['-','2','1']]]] )
+        self.assertEqual( visitor.walk(diffs[0]), ['*','w',['*','2',['**','v','1.000']]] )
         self.assertEqual( visitor.walk(diffs[1]), ['**','v','2'] )
         self.assertEqual( visitor.walk(diffs[2]), '0' )
 
         e = w*v**2 + w**3
         diff = e.diff(v)
-        self.assertEqual( visitor.walk(diff), ['*','w',['*','2',['**','v',['-','2','1']]]] )
+        self.assertEqual( visitor.walk(diff), ['*','w',['*','2',['**','v','1.000']]] )
         diff = e.diff(w)
-        self.assertEqual( visitor.walk(diff), ['+',['**','v','2'],['*','3',['**','w',['-','3','1']]]] )
+        self.assertEqual( visitor.walk(diff), ['+',['**','v','2'],['*','3',['**','w','2.000']]] )
 
     def test_error1(self):
         v = variable(name='v')

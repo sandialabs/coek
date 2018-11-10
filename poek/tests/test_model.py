@@ -18,6 +18,7 @@ class TestModel(unittest.TestCase):
         m.add( 1 < v2 )
         m.add( v1 > 1 )
         m.add( v1 == 3*v2-3 )
+        m.show(True)
 
         m.build()
         #m.show(True)

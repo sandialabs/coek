@@ -3,7 +3,8 @@ from poek.globals import NAN, NULL, BUFFER
 
 __all__ = ['NumericValue', 'parameter', 
     'variable', 'variable_single', 'variable_array', 'expression',
-    'constraint', 'inequality_constraint', 'equality_constraint']
+    'constraint', 'inequality_constraint', 'equality_constraint',
+    'ZeroParameter', 'OneParameter', 'NegativeOneParameter']
 
 
 class NumericValue(object):
@@ -12,15 +13,6 @@ class NumericValue(object):
 
     # This is required because we define __eq__
     __hash__ = None
-
-    def zero(self):
-        return _model.zero
-
-    def one(self):
-        return _model.one
-
-    def negative_one(self):
-        return _model.negative_one
 
     def is_parameter(self):             #pragma:nocover
         return False
@@ -59,23 +51,23 @@ class NumericValue(object):
     #
     def diff(self, var):
         if self.__class__ is parameter:
-            return self.zero()
+            return ZeroParameter
         elif var.__class__ is variable_single:
             if self.__class__ is variable_single:
                 if id(self) == id(var):
-                    return self.one()
+                    return OneParameter
                 else:
-                    return self.zero()
+                    return ZeroParameter
             tmp = lib.expr_diff(self.ptr, var.ptr)
             if tmp == NULL:
-                return self.zero()
+                return ZeroParameter
             return expression(tmp)
         elif var.__class__ is list or var.__class__ is tuple:
             tmp = []
             for v in var:
                 ptr = lib.expr_diff(self.ptr, v.ptr)
                 if ptr == NULL:
-                    tmp.append( self.zero() )
+                    tmp.append( ZeroParameter )
                 else:
                     tmp.append( expression(lib.expr_diff(self.ptr, v.ptr)) )
             return tmp
@@ -239,7 +231,7 @@ class NumericValue(object):
         try:
             tmp = lib.expr_times_expression(self.ptr, other.ptr)
             if tmp == NULL:
-                return self.zero()
+                return ZeroParameter
             elif tmp == self.ptr:
                 return self
             elif tmp == other.ptr:
@@ -273,7 +265,7 @@ class NumericValue(object):
         try:
             tmp = lib.expr_divide_expression(self.ptr, other.ptr)
             if tmp == 0:
-                return self.zero()
+                return ZeroParameter
             elif tmp == self.ptr:
                 return self
             elif tmp == NULL:
@@ -309,7 +301,7 @@ class NumericValue(object):
         try:
             tmp = lib.expr_pow_expression(self.ptr, other.ptr)
             if tmp == NULL:
-                return self.zero()
+                return ZeroParameter
             elif tmp == self.ptr:
                 return self
             return expression(tmp)
@@ -587,13 +579,13 @@ class parameter(NumericValue):
             self.mutable = 0
             if name is None:
                 if value == 0:
-                    self.ptr = lib.get_parameter_zero()
+                    self.ptr = lib.get_parameter_zero(NULL)
                     return
                 elif value == 1:
-                    self.ptr = lib.get_parameter_one()
+                    self.ptr = lib.get_parameter_one(NULL)
                     return
                 elif value == -1:
-                    self.ptr = lib.get_parameter_negative_one()
+                    self.ptr = lib.get_parameter_negative_one(NULL)
                     return
         else:
             self.mutable = 1
@@ -602,9 +594,9 @@ class parameter(NumericValue):
         else:
             tmp = str.encode(name)
         if value.__class__ is int:
-            self.ptr = lib.create_parameter_int(value, self.mutable, tmp)
+            self.ptr = lib.create_parameter_int(NULL, value, self.mutable, tmp)
         else:
-            self.ptr = lib.create_parameter_double(value, self.mutable, tmp)
+            self.ptr = lib.create_parameter_double(NULL, value, self.mutable, tmp)
 
     def show(self):             #pragma:nocover
         lib.print_parameter(self.ptr)
@@ -638,9 +630,9 @@ class variable_single(NumericValue):
     def __init__(self, name=None, initialize=NAN, lb=NAN, ub=NAN):
         self.name = name
         if name is None:
-            self.ptr = lib.create_variable(0,0,lb,ub,initialize,str.encode(""))   # TODO: add 'within' argument
+            self.ptr = lib.create_variable(NULL,0,0,lb,ub,initialize,str.encode(""))   # TODO: add 'within' argument
         else:
-            self.ptr = lib.create_variable(0,0,lb,ub,initialize,str.encode(name))   # TODO: add 'within' argument
+            self.ptr = lib.create_variable(NULL,0,0,lb,ub,initialize,str.encode(name))   # TODO: add 'within' argument
         self.index = lib.variable_get_index(self.ptr)
 
     @property
@@ -720,7 +712,7 @@ class variable_array(object):
         self.initialize = initialize
         prefix = str.encode("") if name is None else str.encode(name)
         ptrs = ffi.new("void* []", num)
-        lib.create_variable_array(ptrs,num,0,0,lb,ub,initialize,prefix)
+        lib.create_variable_array(NULL,ptrs,num,0,0,lb,ub,initialize,prefix)
         self.ptrs = ptrs
         self.views = {}
 
@@ -1039,4 +1031,9 @@ class equality_constraint(constraint):
     def is_equality(self):  #pragma:nocover
         return True
 
+
+lib.coek_initialize()
+ZeroParameter = parameter(0, False, "")
+OneParameter = parameter(1, False, "")
+NegativeOneParameter = parameter(-1, False, "")
 

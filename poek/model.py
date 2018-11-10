@@ -1,23 +1,23 @@
 __all__ = ['model']
 
 from poek.coek_cffi import ffi, lib
-from poek.expr import parameter
+import poek.expr 
 
 
 class model(object):
 
-    __slots__ = ('ptr','x','nx','c','nc', 'v', 'zero', 'one', 'negative_one')
+    __slots__ = ('ptr','x','nx','c','nc', 'v')
 
     def __init__(self):
         self.ptr = lib.create_model()
+        poek.expr.ZeroParameter = poek.expr.parameter(0,False)
+        poek.expr.OneParameter = poek.expr.parameter(1,False)
+        poek.expr.NegativeOneParameter = poek.expr.parameter(-1,False)
         self.nx = None
         self.v = None
         self.x = None
         self.nc = 0
         self.c = None
-        self.zero = parameter(0,False)
-        self.one = parameter(1,False)
-        self.negative_one = parameter(1,False)
 
     def add(self, obj):
         if obj.is_constraint():
