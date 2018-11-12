@@ -9,7 +9,7 @@ setup_gitlab:
   script:
     - apt-get update
     - apt-get install -y g++ cmake git
-    - apt-get install -y miniconda
+    - apt-get install -y anaconda
 
 build_coek:
   stage: build
