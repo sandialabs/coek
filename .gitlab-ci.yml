@@ -1,5 +1,4 @@
 poek:
-  stage: setup
   script:
     - apt-get update -yqq
     - apt-get install -yq g++ cmake git
