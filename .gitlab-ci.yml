@@ -1,14 +1,17 @@
+before_script:
+    - apt-get update
+    - apt-get install -y g++ cmake git
+    - apt-get install -y miniconda
+
 stages:
-  - build
-  - test
+    - build
+    - test
 
 build_coek:
   stage: build
   script:
-    - apt-get update
-    - apt-get install -y g++ cmake git
-    - pwd
     - cd ..
+    - pwd
     - ls
     - git clone whart222@https://gitlab.com/coopr/coek.git
     - cd coek
@@ -22,7 +25,6 @@ build_coek:
 install_poek:
   stage: build
   script:
-    - apt-get miniconda
     - which python
     - python --version
 
