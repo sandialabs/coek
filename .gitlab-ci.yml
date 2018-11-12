@@ -1,10 +1,10 @@
-coek:
+poek:
   script:
     - apt-get update
     - apt-get install -y g++ cmake git
     - pwd
     - cd ..
-    - git clone git@gitlab.com:coopr/coek.git
+    - git clone https://gitlab.com:coopr/coek.git
     - cd coek
     - mkdir build
     - cd build
