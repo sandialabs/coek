@@ -7,7 +7,7 @@ poek:
     - mkdir -p ~/.ssh
     - eval $(ssh-agent -s)
     - "[[ -f /.dockerenv ]] && echo -e \"Host *\n\tStrictHostKeyChecking no\n\n\" > ~/.ssh/config"
-    - echo "$SSH_PRIVATE_KEY" >> ~/.ssh/id_rsa && chmod 0600 ~/.ssh/id_rsa
+    - "echo \"$SSH_PRIVATE_KEY\" >> ~/.ssh/id_rsa && chmod 0600 ~/.ssh/id_rsa"
     - cd ..
     - pwd
     - ls
@@ -19,15 +19,12 @@ poek:
     - make
     - make test_verbose
     - cd ../..
-    - # TEST COEK
     - cd ../coek/build
     - make test_verbose
-    - # INSTALL POEK
     - which python
     - python --version
     - virtualenv tmp
     - tmp/bin/python setup.py develop
     - tmp/bin/pip install nose
-    - # TEST POEK
     - tmp/bin/nose
 
