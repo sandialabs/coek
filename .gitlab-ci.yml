@@ -1,0 +1,16 @@
+coek:
+  script:
+    - apt-get update
+    - apt-get install -y g++ cmake git
+    - pwd
+    - cd ..
+    - git clone git@gitlab.com:coopr/coek.git
+    - cd coek
+    - mkdir build
+    - cd build
+    - cmake -D with_tests=ON ..
+    - make
+    - make test_verbose
+    - cd ../..
+    - cd poek
+    - nose
