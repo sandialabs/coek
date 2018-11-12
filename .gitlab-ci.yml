@@ -8,7 +8,6 @@ poek:
     - eval $(ssh-agent -s)
     - [[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
     - echo "$SSH_PRIVATE_KEY" >> ~/.ssh/id_rsa && chmod 0600 ~/.ssh/id_rsa
-    - # INSTALL COEK
     - cd ..
     - pwd
     - ls
