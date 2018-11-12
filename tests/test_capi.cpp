@@ -1,5 +1,8 @@
 
+#include <cmath>
 #include <memory>
+#include <sstream>
+#include <iostream>
 extern "C" {
 #include "coek_capi.h"
 };
@@ -11,15 +14,209 @@ const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
 
+TEST_CASE( "capi_misc", "[smoke]" ) {
+  coek_initialize();
+
+  SECTION( "Misc API functions" ) {
+    REQUIRE( misc_getnull() == 0 );
+    REQUIRE( isnan(misc_getnan()) );
+  }
+
+  SECTION( "API printing" ) {
+      std::stringstream os;
+      std::streambuf* coutbuf = std::cout.rdbuf();
+      std::cout.rdbuf(os.rdbuf());
+
+      WHEN( "variable" ) {
+        apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
+        Variable* v = static_cast<Variable*>(a);
+        v->index = 1;
+        print_var(a);
+
+        std::string tmp = os.str();
+        REQUIRE( tmp == "a1{0}\n" );
+        REQUIRE( variable_get_index(v) == 1 );
+      }
+
+      WHEN( "parameter" ) {
+        apival_t q = create_parameter_int(0, 2, true, "q");
+        print_parameter(q);
+
+        std::string tmp = os.str();
+        REQUIRE( tmp == "q{2}\n" );
+      }
+
+      WHEN( "parameter" ) {
+        apival_t q = create_parameter_double(0, 2.0, true, "q");
+        print_parameter(q);
+
+        std::string tmp = os.str();
+        REQUIRE( tmp == "q{2}\n" );
+      }
+
+      WHEN( "expression" ) {
+        apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
+        Variable* v = static_cast<Variable*>(a);
+        v->index = 1;
+        apival_t q = create_parameter_int(0, 0, true, "q");
+        apival_t e = expr_plus_expression(a,q);
+        print_expr(e);
+
+        std::string tmp = os.str();
+        REQUIRE( tmp == "a1{0} + q{0}\n" );
+      }
+
+      std::cout.rdbuf(coutbuf);
+  }
+
+  SECTION( "API expressions" ) {
+      WHEN( "size" ) {
+        apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
+        apival_t q = create_parameter_int(0, 0, true, "q");
+        apival_t e = expr_plus_expression(a,q);
+
+        REQUIRE( expr_size(e) == 3 );
+      }
+  }
+
+  coek_finalize();
+}
+
+
+TEST_CASE( "capi_parameter", "[smoke]" ) {
+  coek_initialize();
+
+  SECTION( "constants" ) {
+      apival_t model = create_model();
+
+      WHEN( "parameter - 0" ) {
+        apival_t q = get_parameter_zero(model);
+
+        REQUIRE( expr_get_value(q) == 0 );
+      }
+
+      WHEN( "parameter - 1" ) {
+        apival_t q = get_parameter_one(model);
+
+        REQUIRE( expr_get_value(q) == 1 );
+      }
+
+      WHEN( "parameter - -1" ) {
+        apival_t q = get_parameter_negative_one(model);
+
+        REQUIRE( expr_get_value(q) == -1 );
+      }
+  }
+
+  SECTION( "values" ) {
+      WHEN( "parameter - 0" ) {
+        apival_t q = get_parameter_zero(0);
+
+        REQUIRE( expr_get_value(q) == 0 );
+      }
+
+      WHEN( "parameter - 1" ) {
+        apival_t q = get_parameter_one(0);
+
+        REQUIRE( expr_get_value(q) == 1 );
+      }
+
+      WHEN( "parameter - -1" ) {
+        apival_t q = get_parameter_negative_one(0);
+
+        REQUIRE( expr_get_value(q) == -1 );
+      }
+
+      WHEN( "parameter - 3" ) {
+        apival_t q = create_parameter_int(0, 2, true, "q");
+        parameter_set_value(q, 3);
+
+        REQUIRE( expr_get_value(q) == 3 );
+      }
+  }
+
+  coek_finalize();
+}
+
+
+TEST_CASE( "capi_variables", "[smoke]" ) {
+  coek_initialize();
+
+  SECTION( "values" ) {
+      WHEN( "variable - 3" ) {
+        apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
+        variable_set_value(a, 3);
+
+        REQUIRE( variable_get_value(a) == 3 );
+      }
+
+      WHEN( "variable array - 3" ) {
+        void* a[2];
+        create_variable_array(0, a, 2, false, false, 0.0, 1.0, 0.0, "a");
+        variable_set_value(a[0], 3);
+
+        REQUIRE( variable_get_value(a[0]) == 3 );
+        REQUIRE( variable_get_value(a[1]) == 0 );
+      }
+
+      WHEN( "variable array (2) - 3" ) {
+        apival_t model = create_model();
+
+        void* a[2];
+        create_variable_array(model, a, 2, false, false, 0.0, 1.0, 0.0, "a");
+        variable_set_value(a[0], 3);
+
+        REQUIRE( variable_get_value(a[0]) == 3 );
+        REQUIRE( variable_get_value(a[1]) == 0 );
+      }
+  }
+
+  SECTION( "bounds" ) {
+      WHEN( "lb" ) {
+        apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
+        REQUIRE( variable_get_lb(a) == 0.0 );
+        variable_set_lb(a, 3.0);
+        REQUIRE( variable_get_lb(a) == 3.0 );
+      }
+
+      WHEN( "ub" ) {
+        apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
+        REQUIRE( variable_get_ub(a) == 1.0 );
+        variable_set_ub(a, 3.0);
+        REQUIRE( variable_get_ub(a) == 3.0 );
+      }
+  }
+
+}
+
+
+TEST_CASE( "capi_errors", "[smoke]" ) {
+    coek_finalize();
+
+    SECTION( "parameter" ) {
+        REQUIRE_THROWS_AS( create_parameter_int(0, 0, true, "q"), std::runtime_error );
+        REQUIRE_THROWS_AS( create_parameter_double(0, 0, true, "q"), std::runtime_error );
+        REQUIRE_THROWS_AS( get_parameter_zero(0), std::runtime_error );
+        REQUIRE_THROWS_AS( get_parameter_one(0), std::runtime_error );
+        REQUIRE_THROWS_AS( get_parameter_negative_one(0), std::runtime_error );
+    }
+
+    SECTION( "variable" ) {
+        REQUIRE_THROWS_AS( create_variable(0, false, false, 0.0, 1.0, 0.0, "a"), std::runtime_error );
+        REQUIRE_THROWS_AS( create_variable_array(0, 0, 0, false, false, 0.0, 1.0, 0.0, "a"), std::runtime_error );
+    }
+}
+
+
 TEST_CASE( "capi_add_expression", "[smoke]" ) {
 
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
-  apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
-  apival_t b = create_variable(0, false, false, 0.0, 1.0, 0.0, "b");
-  apival_t c = create_variable(0, false, false, 0.0, 1.0, 0.0, "c");
-  apival_t d = create_variable(0, false, false, 0.0, 1.0, 0.0, "d");
+  apival_t a = create_variable(model, false, false, 0.0, 1.0, 0.0, "a");
+  apival_t b = create_variable(model, false, false, 0.0, 1.0, 0.0, "b");
+  apival_t c = create_variable(model, false, false, 0.0, 1.0, 0.0, "c");
+  apival_t d = create_variable(model, false, false, 0.0, 1.0, 0.0, "d");
 
   SECTION( "Test simpleSum" ) {
     apival_t e = expr_plus_expression(a, b);
@@ -124,10 +321,10 @@ TEST_CASE( "capi_add_expression", "[smoke]" ) {
   }
 
   SECTION( "Test trivialSum" ) {
-    apival_t q = create_parameter_int(0, 0, true, "q");
-    apival_t Q = create_parameter_double(0, 0.0, true, "Q");
-    apival_t q_ = create_parameter_int(0, 0, false, "");
-    apival_t Q_ = create_parameter_double(0, 0.0, false, "");
+    apival_t q = create_parameter_int(model, 0, true, "q");
+    apival_t Q = create_parameter_double(model, 0.0, true, "Q");
+    apival_t q_ = create_parameter_int(model, 0, false, "");
+    apival_t Q_ = create_parameter_double(model, 0.0, false, "");
 
     WHEN( "e = a + q{0}" ) {
       apival_t e = expr_plus_expression(a, q);
@@ -248,15 +445,15 @@ TEST_CASE( "capi_add_expression", "[smoke]" ) {
 }
 
 
-TEST_CASE( "capi_diff_expression", "[smoke]" ) {
+TEST_CASE( "capi_minus_expression", "[smoke]" ) {
 
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
-  apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
-  apival_t b = create_variable(0, false, false, 0.0, 1.0, 0.0, "b");
-  apival_t c = create_variable(0, false, false, 0.0, 1.0, 0.0, "c");
-  apival_t d = create_variable(0, false, false, 0.0, 1.0, 0.0, "d");
+  apival_t a = create_variable(model, false, false, 0.0, 1.0, 0.0, "a");
+  apival_t b = create_variable(model, false, false, 0.0, 1.0, 0.0, "b");
+  apival_t c = create_variable(model, false, false, 0.0, 1.0, 0.0, "c");
+  apival_t d = create_variable(model, false, false, 0.0, 1.0, 0.0, "d");
 
   SECTION( "Test simpleDiff" ) {
     apival_t e = expr_minus_expression(a, b);
@@ -298,7 +495,7 @@ TEST_CASE( "capi_diff_expression", "[smoke]" ) {
   }
 
   SECTION( "Test paramDiff" ) {
-    apival_t p = create_parameter_int(0, 5, true, "p");
+    apival_t p = create_parameter_int(model, 5, true, "p");
 
     WHEN( "e = a - p" ) {
       apival_t e = expr_minus_expression(a, p);
@@ -385,10 +582,10 @@ TEST_CASE( "capi_diff_expression", "[smoke]" ) {
   }
 
   SECTION( "Test trivialDiff" ) {
-    apival_t q = create_parameter_int(0, 0, true, "q");
-    apival_t Q = create_parameter_double(0, 0.0, true, "Q");
-    apival_t q_ = create_parameter_int(0, 0, false, "");
-    apival_t Q_ = create_parameter_double(0, 0.0, false, "");
+    apival_t q = create_parameter_int(model, 0, true, "q");
+    apival_t Q = create_parameter_double(model, 0.0, true, "Q");
+    apival_t q_ = create_parameter_int(model, 0, false, "");
+    apival_t Q_ = create_parameter_double(model, 0.0, false, "");
 
     WHEN( "e = a - q{0}" ) {
       apival_t e = expr_minus_expression(a, q);
@@ -484,7 +681,7 @@ TEST_CASE( "capi_neg_expression", "[smoke]" ) {
   ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
   SECTION( "Test negation_param" ) {
-    apival_t p = create_parameter_int(0, 2, false, "p");
+    apival_t p = create_parameter_int(model, 2, false, "p");
 
     WHEN( "e = -p" ) {
       apival_t e = expr_negate(p);
@@ -502,8 +699,8 @@ TEST_CASE( "capi_neg_expression", "[smoke]" ) {
   }
 
   SECTION( "Test negation_terms" ) {
-    apival_t p = create_parameter_int(0, 2, false, "p");
-    apival_t v = create_variable(0, false, false, 0.0, 1.0, 0.0, "v");
+    apival_t p = create_parameter_int(model, 2, false, "p");
+    apival_t v = create_variable(model, false, false, 0.0, 1.0, 0.0, "v");
 
     WHEN( "e = - p*v" ) {
       apival_t e = expr_negate( expr_times_expression(p,v) );
@@ -542,10 +739,10 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
-  apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
-  apival_t b = create_variable(0, false, false, 0.0, 1.0, 0.0, "b");
-  apival_t c = create_variable(0, false, false, 0.0, 1.0, 0.0, "c");
-  apival_t d = create_variable(0, false, false, 0.0, 1.0, 0.0, "d");
+  apival_t a = create_variable(model, false, false, 0.0, 1.0, 0.0, "a");
+  apival_t b = create_variable(model, false, false, 0.0, 1.0, 0.0, "b");
+  apival_t c = create_variable(model, false, false, 0.0, 1.0, 0.0, "c");
+  apival_t d = create_variable(model, false, false, 0.0, 1.0, 0.0, "d");
 
   SECTION( "Test simpleProduct" ) {
     apival_t e = expr_times_expression(a,b);
@@ -694,18 +891,18 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
   }
 
   SECTION( "Test trivialProduct" ) {
-    apival_t q = create_parameter_int(0, 0, true, "q");
-    apival_t Q = create_parameter_double(0, 0.0, true, "Q");
-    apival_t r = create_parameter_int(0, 1, true, "r");
-    apival_t R = create_parameter_double(0, 1.0, true, "R");
-    apival_t s = create_parameter_int(0, -1, true, "s");
-    apival_t S = create_parameter_double(0, -1.0, true, "S");
-    apival_t q_ = create_parameter_int(0, 0, false, "");
-    apival_t Q_ = create_parameter_double(0, 0.0, false, "");
-    apival_t r_ = create_parameter_int(0, 1, false, "");
-    apival_t R_ = create_parameter_double(0, 1.0, false, "");
-    apival_t s_ = create_parameter_int(0, -1, false, "");
-    apival_t S_ = create_parameter_double(0, -1.0, false, "");
+    apival_t q = create_parameter_int(model, 0, true, "q");
+    apival_t Q = create_parameter_double(model, 0.0, true, "Q");
+    apival_t r = create_parameter_int(model, 1, true, "r");
+    apival_t R = create_parameter_double(model, 1.0, true, "R");
+    apival_t s = create_parameter_int(model, -1, true, "s");
+    apival_t S = create_parameter_double(model, -1.0, true, "S");
+    apival_t q_ = create_parameter_int(model, 0, false, "");
+    apival_t Q_ = create_parameter_double(model, 0.0, false, "");
+    apival_t r_ = create_parameter_int(model, 1, false, "");
+    apival_t R_ = create_parameter_double(model, 1.0, false, "");
+    apival_t s_ = create_parameter_int(model, -1, false, "");
+    apival_t S_ = create_parameter_double(model, -1.0, false, "");
 
     WHEN( "e = a * q{0}" ) {
       apival_t e = expr_times_expression(a, q);
@@ -968,10 +1165,10 @@ TEST_CASE( "capi_div_expression", "[smoke]" ) {
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
-  apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
-  apival_t b = create_variable(0, false, false, 0.0, 1.0, 0.0, "b");
-  apival_t c = create_variable(0, false, false, 0.0, 1.0, 0.0, "c");
-  apival_t d = create_variable(0, false, false, 0.0, 1.0, 0.0, "d");
+  apival_t a = create_variable(model, false, false, 0.0, 1.0, 0.0, "a");
+  apival_t b = create_variable(model, false, false, 0.0, 1.0, 0.0, "b");
+  apival_t c = create_variable(model, false, false, 0.0, 1.0, 0.0, "c");
+  apival_t d = create_variable(model, false, false, 0.0, 1.0, 0.0, "d");
 
   SECTION( "Test simpleDivision" ) {
     apival_t e = expr_divide_expression(a,b);
@@ -1057,18 +1254,18 @@ TEST_CASE( "capi_div_expression", "[smoke]" ) {
   }
 
   SECTION( "Test trivialDivision" ) {
-    apival_t q = create_parameter_int(0, 0, true, "q");
-    apival_t Q = create_parameter_double(0, 0.0, true, "Q");
-    apival_t r = create_parameter_int(0, 1, true, "r");
-    apival_t R = create_parameter_double(0, 1.0, true, "R");
-    apival_t s = create_parameter_int(0, -1, true, "s");
-    apival_t S = create_parameter_double(0, -1.0, true, "S");
-    apival_t q_ = create_parameter_int(0, 0, false, "");
-    apival_t Q_ = create_parameter_double(0, 0.0, false, "");
-    apival_t r_ = create_parameter_int(0, 1, false, "");
-    apival_t R_ = create_parameter_double(0, 1.0, false, "");
-    apival_t s_ = create_parameter_int(0, -1, false, "");
-    apival_t S_ = create_parameter_double(0, -1.0, false, "");
+    apival_t q = create_parameter_int(model, 0, true, "q");
+    apival_t Q = create_parameter_double(model, 0.0, true, "Q");
+    apival_t r = create_parameter_int(model, 1, true, "r");
+    apival_t R = create_parameter_double(model, 1.0, true, "R");
+    apival_t s = create_parameter_int(model, -1, true, "s");
+    apival_t S = create_parameter_double(model, -1.0, true, "S");
+    apival_t q_ = create_parameter_int(model, 0, false, "");
+    apival_t Q_ = create_parameter_double(model, 0.0, false, "");
+    apival_t r_ = create_parameter_int(model, 1, false, "");
+    apival_t R_ = create_parameter_double(model, 1.0, false, "");
+    apival_t s_ = create_parameter_int(model, -1, false, "");
+    apival_t S_ = create_parameter_double(model, -1.0, false, "");
 
     WHEN( "e = q{0} / a" ) {
       apival_t e = expr_divide_expression(q, a);
@@ -1195,6 +1392,19 @@ TEST_CASE( "capi_div_expression", "[smoke]" ) {
       static std::list<std::string> baseline = {"[", "-", "a", "]"};
       REQUIRE( manager->expr_to_list(e,false) == baseline );
     }
+
+    WHEN( "e = 3 / q_" ) {
+      apival_t e = expr_rdivide_int(3, q_);
+
+      REQUIRE( e == 0 );
+    }
+
+    WHEN( "e = 3.0 / q_" ) {
+      apival_t e = expr_rdivide_double(3.0, q_);
+
+      REQUIRE( e == 0 );
+    }
+
   }
 
 }
@@ -1205,8 +1415,8 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
-  apival_t a = create_variable(0, false, false, 0.0, 1.0, 0.0, "a");
-  apival_t b = create_variable(0, false, false, 0.0, 1.0, 0.0, "b");
+  apival_t a = create_variable(model, false, false, 0.0, 1.0, 0.0, "a");
+  apival_t b = create_variable(model, false, false, 0.0, 1.0, 0.0, "b");
 
   SECTION( "Test simplePow" ) {
     apival_t e = expr_pow_expression(a,b);
@@ -1247,14 +1457,14 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
   }
 
   SECTION( "Test trivialPow" ) {
-    apival_t q = create_parameter_int(0, 0, true, "q");
-    apival_t Q = create_parameter_double(0, 0.0, true, "Q");
-    apival_t r = create_parameter_int(0, 1, true, "r");
-    apival_t R = create_parameter_double(0, 1.0, true, "R");
-    apival_t q_ = create_parameter_int(0, 0, false, "");
-    apival_t Q_ = create_parameter_double(0, 0.0, false, "");
-    apival_t r_ = create_parameter_int(0, 1, false, "");
-    apival_t R_ = create_parameter_double(0, 1.0, false, "");
+    apival_t q = create_parameter_int(model, 0, true, "q");
+    apival_t Q = create_parameter_double(model, 0.0, true, "Q");
+    apival_t r = create_parameter_int(model, 1, true, "r");
+    apival_t R = create_parameter_double(model, 1.0, true, "R");
+    apival_t q_ = create_parameter_int(model, 0, false, "");
+    apival_t Q_ = create_parameter_double(model, 0.0, false, "");
+    apival_t r_ = create_parameter_int(model, 1, false, "");
+    apival_t R_ = create_parameter_double(model, 1.0, false, "");
 
     WHEN( "e = q{0} ** a" ) {
       apival_t e = expr_pow_expression(q, a);
@@ -1433,8 +1643,8 @@ TEST_CASE( "capi_intrinsics", "[smoke]" ) {
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
-  apival_t v = create_variable(0, false, false, 0.0, 1.0, 0.0, "v");
-  apival_t p = create_variable(0, false, false, 0.0, 1.0, 0.0, "p");
+  apival_t v = create_variable(model, false, false, 0.0, 1.0, 0.0, "v");
+  apival_t p = create_variable(model, false, false, 0.0, 1.0, 0.0, "p");
 
   SECTION( "Test abs" ) {
     apival_t e = intrinsic_abs(v);
@@ -1665,8 +1875,8 @@ TEST_CASE( "capi_constraint", "[smoke]" ) {
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ExprModel*>(model)->manager);
 
-  apival_t v = create_variable(0, false, false, 0.0, 1.0, 0.0, "v");
-  apival_t p = create_variable(0, false, false, 0.0, 1.0, 0.0, "p");
+  apival_t v = create_variable(model, false, false, 0.0, 1.0, 0.0, "v");
+  apival_t p = create_variable(model, false, false, 0.0, 1.0, 0.0, "p");
 
   SECTION( "Test inequality" ) {
 

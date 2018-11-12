@@ -775,6 +775,7 @@ extern "C" void coek_finalize(void)
 {
 for (std::list<Simple_ExprModel*>::iterator it = models.begin(); it != models.end(); it++)
   delete *it;
+models.resize(0);
 }
 
 

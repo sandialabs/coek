@@ -5,14 +5,16 @@
 
 The C/C++ library that supports the definition of expressions used to formulate and solve optimization problems.
 
-## Install
-
-Using cmake, do the following
+## Build
 
 * mkdir build
 * cd build
 * make
 * make test
+
+## Install
+
+* cd build
 * make -DCMAKE\_INSTALL\_PREFIX:PATH=../\_install
 * make install
 

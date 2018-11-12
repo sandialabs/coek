@@ -129,7 +129,12 @@ public:
     double compute_value() {return _tvalue;}
 
     void print(std::ostream& ostr)
-        { ostr << _tvalue; }
+        {
+        if (name.size() == 0)
+            ostr << 'x' << "{" << _tvalue << '}';
+        else
+            ostr << name << "{" << _tvalue << '}';
+        }
 
     void snprintf(char* buf, int max)
         {TypedParameter_snprintf(buf, max, this->_tvalue, name);}
