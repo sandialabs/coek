@@ -1,14 +1,18 @@
 poek:
   stage: setup
   script:
-    - apt-get update -qy
-    - apt-get install -y g++ cmake git
-    - apt-get install -y python-pip python-virtualenv
+    - apt-get update -yqq
+    - apt-get install -yq g++ cmake git
+    - apt-get install -yq python-pip python-virtualenv
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - [[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - echo "$SSH_PRIVATE_KEY" >> ~/.ssh/id_rsa && chmod 0600 ~/.ssh/id_rsa
     - # INSTALL COEK
     - cd ..
     - pwd
     - ls
-    - git clone whart222@https://gitlab.com/coopr/coek.git
+    - git clone https://gitlab.com/coopr/coek.git
     - cd coek
     - mkdir build
     - cd build
