@@ -10,7 +10,7 @@ build_coek:
     - pwd
     - cd ..
     - ls
-    - git clone https://gitlab.com/coopr/coek.git
+    - git clone whart222@https://gitlab.com/coopr/coek.git
     - cd coek
     - mkdir build
     - cd build
