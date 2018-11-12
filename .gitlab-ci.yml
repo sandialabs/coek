@@ -6,7 +6,7 @@ poek:
     - apt-get install -yq python-pip python-virtualenv
     - mkdir -p ~/.ssh
     - eval $(ssh-agent -s)
-    - [[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - "[[ -f /.dockerenv ]] && echo -e \"Host *\n\tStrictHostKeyChecking no\n\n\" > ~/.ssh/config"
     - echo "$SSH_PRIVATE_KEY" >> ~/.ssh/id_rsa && chmod 0600 ~/.ssh/id_rsa
     - cd ..
     - pwd
