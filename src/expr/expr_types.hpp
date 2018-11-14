@@ -15,8 +15,6 @@
 #define POSITIVE_INFINITY 1.0e19
 #define NEGATIVE_INFINITY -1.0e19
 
-inline bool isnan(double x) {return 1;}
-
 
 class NumericValue
 {
@@ -184,11 +182,11 @@ public:
             lb = 0;
             ub = 1;
         } else {
-            if (isnan(_lb))
+            if (std::isnan(_lb))
                 lb = NEGATIVE_INFINITY;
             else
                 lb = _lb;
-            if (isnan(_ub))
+            if (std::isnan(_ub))
                 ub = POSITIVE_INFINITY;
             else
                 ub = _ub;
@@ -210,7 +208,7 @@ public:
         if (name.size() == 0)
             ostr << 'x' << index << "{" << _value << '}';
         else
-            ostr << name << index << "{" << _value << '}';
+            ostr << name << "{" << _value << '}';
         }
 
     bool is_variable() { return true; }

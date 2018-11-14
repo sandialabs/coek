@@ -9,7 +9,6 @@ The C/C++ library that supports the definition of expressions used to formulate 
 
 * mkdir build
 * cd build
-* cmake ..
 * make
 * make test
 

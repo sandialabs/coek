@@ -19,6 +19,7 @@ public:
 
     void print(std::ostream& ostr);
 
+    void build(void);
 
     double compute_f(unsigned int i);
 

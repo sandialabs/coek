@@ -21,6 +21,9 @@ void CppAD_ADModel::set_variables(const double* x, int n)
 void CppAD_ADModel::print(std::ostream& ostr)
 {}
 
+void CppAD_ADModel::build(void)
+{}
+
 
 double CppAD_ADModel::compute_f(unsigned int i)
 {

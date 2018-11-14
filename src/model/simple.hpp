@@ -27,7 +27,6 @@ public:
     void add_equality(expr_t expr)
         { equalities.push_back(expr); }
 
-
     expr_t var(bool _binary, bool _integer, double lb, double ub, double init)
       { return var(_binary, _integer, lb, ub, init, ""); }
     expr_t var(bool _binary, bool _integer, double lb, double ub, double init, const char* name)
