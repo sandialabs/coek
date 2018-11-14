@@ -2028,16 +2028,16 @@ TEST_CASE( "capi_model", "[smoke]" ) {
 
   }
 
-  SECTION( "print" ) {
+  SECTION( "model setup" ) {
+    apival_t e = expr_plus_expression( expr_rtimes_int(3, b), q);
+    add_objective(model, e);
+    e = create_inequality(expr_plus_expression( expr_rtimes_int(3, b), q), false);
+    add_inequality(model, e);
+    e = create_equality(expr_plus_expression( expr_rtimes_int(3, b), q));
+    add_equality(model, e);
 
-    WHEN( "df == 0" ) {
-        apival_t e = expr_plus_expression( expr_rtimes_int(3, b), q);
-        add_objective(model, e);
-        e = create_inequality(expr_plus_expression( expr_rtimes_int(3, b), q), false);
-        add_inequality(model, e);
-        e = create_equality(expr_plus_expression( expr_rtimes_int(3, b), q));
-        add_equality(model, e);
 
+    WHEN( "print (df == 0)" ) {
         std::stringstream os;
         std::streambuf* coutbuf = std::cout.rdbuf();
         std::cout.rdbuf(os.rdbuf());
@@ -2057,6 +2057,12 @@ TEST_CASE( "capi_model", "[smoke]" ) {
 
         std::cout.rdbuf(coutbuf);
     }
+
+    WHEN( "build" ) {
+        build_model(model);
+        REQUIRE( get_nvariables(model) == 1 );
+    }
+
   }
 
 }
