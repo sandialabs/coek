@@ -699,6 +699,13 @@ TEST_CASE( "div_expression", "[smoke]" ) {
   SECTION( "Test constDivision" ) {
     numval_t q = manager._param(5, false);
     numval_t Q = manager._param(5.0, false);
+    numval_t z = manager._param(0.0, false);
+
+    WHEN( "e = 5/0.0" ) {
+      numval_t e = manager.divide(q,z);
+
+      REQUIRE( e == 0 );
+    }
 
     WHEN( "e = 5/5.0" ) {
       numval_t e = manager.divide(q,Q);
