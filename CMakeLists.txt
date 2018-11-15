@@ -115,7 +115,6 @@ if(with_tests)
 
   add_subdirectory(tests)
   include(CTest)
-  #enable_testing()
 
   add_custom_target(test_verbose
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
