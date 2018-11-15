@@ -3,6 +3,7 @@
 #include "admodel/cppad.hpp"
 #include "model/simple.hpp"
 
+#ifdef WITH_CPPAD
 
 TEST_CASE( "cppad_admodel", "[smoke]" ) {
 
@@ -19,3 +20,5 @@ TEST_CASE( "cppad_admodel", "[smoke]" ) {
     }
 
 }
+
+#endif
