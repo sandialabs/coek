@@ -10,7 +10,6 @@ SET(sources
     model/simple.cpp
     solver.cpp
     admodel/simple.cpp
-    admodel/cppad.cpp
    )
 
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -19,7 +18,7 @@ include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 if(with_cppad)
   MESSAGE("-- With CppAd Library: on")
   list(APPEND sources
-	autograd/cppad_model.cpp)
+    admodel/cppad.cpp)
 else()
   MESSAGE("-- With CppAd Library: off")
 endif()
