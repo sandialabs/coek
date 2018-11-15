@@ -5,7 +5,7 @@
 
 TEST_CASE( "simple_admodel", "[smoke]" ) {
 
-  Simple_ExprModel model;
+  Simple_ADModel model;
   
   SECTION( "Test Objective" ) {
 
@@ -14,13 +14,11 @@ TEST_CASE( "simple_admodel", "[smoke]" ) {
 
     model.add_objective( model.manager.plus(x,y) );
 
-    Simple_ADModel admodel;
+    REQUIRE( model.num_variables() == 0 );
 
-    REQUIRE( admodel.num_variables() == 0 );
+    model.build();
 
-    initialize_admodel(admodel, model);
-
-    REQUIRE( admodel.num_variables() == 2 );
+    REQUIRE( model.num_variables() == 2 );
     }
 
 }

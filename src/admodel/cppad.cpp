@@ -2,13 +2,6 @@
 #include "admodel/cppad.hpp"
 
 
-template <>
-void initialize_admodel(CppAD_ADModel& admodel, Simple_ExprModel& model)
-{
-// TODO: Walk the coek expression tree, and create a CPPAD expression
-}
-
-
 int CppAD_ADModel::num_variables()
 { return 0; }
 

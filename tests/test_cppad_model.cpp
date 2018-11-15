@@ -6,7 +6,7 @@
 
 TEST_CASE( "cppad_admodel", "[smoke]" ) {
 
-  Simple_ExprModel model;
+  CppAD_ADModel model;
   
   SECTION( "Test Objective" ) {
 
@@ -15,14 +15,7 @@ TEST_CASE( "cppad_admodel", "[smoke]" ) {
 
     model.add_objective( model.manager.plus(x,y) );
 
-    CppAD_ADModel admodel;
-
-    REQUIRE( admodel.num_variables() == 0 );
-
-    initialize_admodel(admodel, model);
-
-    // NOTE: This is an expected failure
-    REQUIRE( admodel.num_variables() == 0 );
+    REQUIRE( model.num_variables() == 0 );
     }
 
 }

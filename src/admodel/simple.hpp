@@ -8,7 +8,6 @@ class Simple_ADModel : public Simple_ExprModel, public ADModel
 {
 public:
 
-    Simple_ExprModel* expr_model;
     std::vector<Variable*> variables;
     typedef std::set<Variable*, bool(*)(const Variable*, const Variable*)>::iterator variables_iterator_type;
     std::vector<std::vector<int> > J_rc;
@@ -40,12 +39,4 @@ public:
     void compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i);
 
 };
-
-template <>
-inline void initialize_admodel(Simple_ADModel& admodel, Simple_ExprModel& model)
-{
-admodel.expr_model = &model;
-admodel.build();
-}
-
 

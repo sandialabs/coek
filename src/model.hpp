@@ -127,10 +127,3 @@ public:
 
 };
 
-
-template <class ADModelType, class ExprModelType>
-void initialize_admodel(ADModelType& admodel, ExprModelType& model)
-{
-throw std::runtime_error("Undefined initialization logic.");
-}
-

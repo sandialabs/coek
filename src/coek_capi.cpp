@@ -5,14 +5,8 @@
 
 #include "expr/expr_manager.hpp"
 #include "admodel/simple.hpp"
+#include "coek_util.hpp"
 #include "solver.hpp"
-
-#define runtime_assert(flag, descr)\
-{\
-bool condition= flag ;\
-if (!condition)\
-    throw std::runtime_error(descr);\
-}
 
 
 /*** GLOBAL DATA ***/

@@ -7,7 +7,7 @@
 //
 // An extension model that uses the CppAD library for autograd.
 //
-class CppAD_ADModel : public ADModel
+class CppAD_ADModel : public ADModel, public Simple_ExprModel
 {
 public:
 
@@ -34,7 +34,4 @@ public:
     void compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i);
 
 };
-
-template <>
-void initialize_admodel(CppAD_ADModel& admodel, Simple_ExprModel& model);
 
