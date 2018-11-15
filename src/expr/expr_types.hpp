@@ -129,7 +129,7 @@ public:
     void print(std::ostream& ostr)
         {
         if (name.size() == 0)
-            ostr << 'x' << "{" << _tvalue << '}';
+            ostr << _tvalue;
         else
             ostr << name << "{" << _tvalue << '}';
         }

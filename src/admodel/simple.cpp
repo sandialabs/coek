@@ -4,8 +4,6 @@
 
 void Simple_ADModel::build()
 {
-//runtime_assert( expr_model != 0, "Uninitialized expr_model value!");
-
 builds_f.resize(objectives.size() + inequalities.size() + equalities.size());
 int nb=0;
 
@@ -68,25 +66,28 @@ for (size_t i = 0; i<vars.size(); i++) {
     }
 
 // Free memory
-//for (size_t i=0; i<vars.size(); i++)
-//    delete vars[i];
+for (size_t i=0; i<vars.size(); i++)
+    delete vars[i];
 }
 
 
+/*
 void Simple_ADModel::set_variables(const double* x, int n)
 {
-assert(n == variables.size());
+runtime_assert( n == variables.size(), "Calling set_variables() with " << n << " variables when the model has " << variables.size() << " variables!");
 int j=0;
 for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++) {
     (*it)->_value = x[j];
     j++;
     }
 }
+*/
 
 
 void Simple_ADModel::set_variables(std::vector<double>& x)
 {
-assert(x.size() == variables.size());
+runtime_assert( x.size() == variables.size(), "Calling set_variables() with " << x.size() << " variables when the model has " << variables.size() << " variables!");
+
 int j=0;
 for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++) {
     (*it)->_value = x[j];
@@ -95,13 +96,13 @@ for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(
 }
 
 
-double Simple_ADModel::compute_f(unsigned int i)
+double Simple_ADModel::_compute_f(unsigned int i)
 {
-assert(i < builds_f.size());
-std::list<NumericValue*>& tmp = builds_f[i];
+runtime_assert( i < builds_f.size(), "Attempting to compute objective " << i << ".  Only " << builds_f.size() << " objectives have been setup!");
 
-//std::cout << "NVAR " << variables.size() << std::endl;
+std::list<NumericValue*>& tmp = builds_f[i];
 double ans = 0.0;
+//std::cout << "NVAR " << variables.size() << std::endl;
 //std::cout << "HERE " << tmp.size() << std::endl << std::endl;
 for (std::list<NumericValue*>::iterator it=tmp.begin(); it != tmp.end(); it++) {
     ans = (*it)->compute_value();
@@ -114,14 +115,15 @@ return ans;
 }
 
 
-void Simple_ADModel::compute_df(double& f, std::vector<double>& df, unsigned int i)
+void Simple_ADModel::_compute_df(double& f, std::vector<double>& df, unsigned int i)
 {
-assert(i < builds_f.size());
-assert(variables.size() == df.size());
+runtime_assert( i < builds_f.size(), "Attempting to compute derivative for objective " << i << ".  Only " << builds_f.size() << " objectives have been setup!");
+runtime_assert( variables.size() == df.size(), "Calling _compute_df() with badly sized array: df (" << df.size() << " vs variables (" << variables.size() << ")!");
+
 std::list<NumericValue*>& build = builds_f[i];
+double ans = 0.0;
 
 /// compute_f + set adjoint=0
-double ans = 0.0;
 for (std::list<NumericValue*>::iterator it=build.begin(); it != build.end(); it++) {
     NumericValue* tmp = *it;
     ans = tmp->compute_value();
@@ -147,9 +149,9 @@ for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(
 }
 
 
-void Simple_ADModel::compute_c(std::vector<double>& c)
+void Simple_ADModel::_compute_c(std::vector<double>& c)
 {
-assert((inequalities.size() + equalities.size()) == c.size());
+runtime_assert( (inequalities.size() + equalities.size()) == c.size(), "Calling _compute_c() with badly sized array: c (" << c.size() << " vs # constraints (" << (inequalities.size() + equalities.size()) << ")!");
 
 int i=objectives.size();
 for (unsigned int j=0; j<c.size(); j++, i++) {
@@ -164,10 +166,10 @@ for (unsigned int j=0; j<c.size(); j++, i++) {
 }
 
 
-void Simple_ADModel::compute_dc(std::vector<double>& dc, unsigned int i)
+void Simple_ADModel::_compute_dc(std::vector<double>& dc, unsigned int i)
 {
-assert(variables.size() == dc.size());
-assert(i < (inequalities.size() + equalities.size()));
+runtime_assert( variables.size() == dc.size(), "Calling _compute_dc() with badly sized array: dc (" << dc.size() << " vs variables (" << variables.size() << ")!");
+runtime_assert( i < (inequalities.size() + equalities.size()), "Attempting to compute derivative for constraint " << i << ".  Only " << (inequalities.size() + equalities.size()) << " constraints have been setup!");
 
 /// Set adjoint for variables
 for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++)
@@ -205,8 +207,9 @@ for ( ; rit != build.rend(); rit++) {
 }
 
 
-void Simple_ADModel::compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i)
+void Simple_ADModel::_compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i)
 {
+/*
 assert(i < builds_f.size());
 assert(variables.size() == v.size());
 assert(variables.size() == Hv.size());
@@ -244,6 +247,7 @@ for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(
     Hv[j++] = (*it)->adjoint;
     //std::cout << "x[" << (*it)->index << "]  adjoint=" << (*it)->adjoint << " adO=" << (*it)->adO << std::endl;
     }
+*/
 }
 
 

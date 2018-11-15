@@ -328,7 +328,7 @@ std::map<Variable*, NumericValue*> diff;
 symbolic_diff_all(root, diff);
 
 if (diff.find(var) == diff.end())
-    return 0;
+    return root->manager->zero;
 return diff[var];
 }
 

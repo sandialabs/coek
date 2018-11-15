@@ -203,6 +203,7 @@ TEST_CASE( "capi_variables", "[smoke]" ) {
       }
   }
 
+  coek_finalize();
 }
 
 
@@ -225,6 +226,7 @@ TEST_CASE( "capi_errors", "[smoke]" ) {
 
 
 TEST_CASE( "capi_add_expression", "[smoke]" ) {
+  coek_initialize();
 
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
@@ -458,10 +460,12 @@ TEST_CASE( "capi_add_expression", "[smoke]" ) {
     }
   }
 
+  coek_finalize();
 }
 
 
 TEST_CASE( "capi_minus_expression", "[smoke]" ) {
+  coek_initialize();
 
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
@@ -688,10 +692,12 @@ TEST_CASE( "capi_minus_expression", "[smoke]" ) {
     }
   }
 
+  coek_finalize();
 }
 
 
 TEST_CASE( "capi_neg_expression", "[smoke]" ) {
+  coek_initialize();
 
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
@@ -747,10 +753,12 @@ TEST_CASE( "capi_neg_expression", "[smoke]" ) {
     }
   }
 
+  coek_finalize();
 }
 
 
 TEST_CASE( "capi_mul_expression", "[smoke]" ) {
+  coek_initialize();
 
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
@@ -1173,10 +1181,12 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
     }
   }
 
+  coek_finalize();
 }
 
 
 TEST_CASE( "capi_div_expression", "[smoke]" ) {
+  coek_initialize();
 
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
@@ -1423,10 +1433,12 @@ TEST_CASE( "capi_div_expression", "[smoke]" ) {
 
   }
 
+  coek_finalize();
 }
 
 
 TEST_CASE( "capi_pow_expression", "[smoke]" ) {
+  coek_initialize();
 
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
@@ -1651,10 +1663,12 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
     }
   }
 
+  coek_finalize();
 }
 
 
 TEST_CASE( "capi_intrinsics", "[smoke]" ) {
+  coek_initialize();
 
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
@@ -1883,10 +1897,12 @@ TEST_CASE( "capi_intrinsics", "[smoke]" ) {
     REQUIRE( manager->expr_to_list(e,false) == baseline );
   }
 
+  coek_finalize();
 }
 
 
 TEST_CASE( "capi_constraint", "[smoke]" ) {
+  coek_initialize();
 
   apival_t model = create_model();
   ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
@@ -1943,10 +1959,13 @@ TEST_CASE( "capi_constraint", "[smoke]" ) {
       }
 
     }
+
+  coek_finalize();
 }
 
 
 TEST_CASE( "capi_compute", "[smoke]" ) {
+  coek_initialize();
 
   apival_t model = create_model();
 
@@ -1994,14 +2013,14 @@ TEST_CASE( "capi_compute", "[smoke]" ) {
 
 
 TEST_CASE( "capi_model", "[smoke]" ) {
+  coek_initialize();
 
-  coek_finalize();
   apival_t model = create_model();
   Simple_ExprModel* _model = static_cast<Simple_ADModel*>(model);
 
-  //apival_t a = create_variable(model, false, false, 0.0, 1.0, 0.0, "a");
+  apival_t a = create_variable(model, false, false, 0.0, 1.0, 0.0, "a");
   apival_t b = create_variable(model, false, false, 0.0, 1.0, 1.0, "b");
-  apival_t q = create_parameter_int(0, 2, true, "q");
+  apival_t q = create_parameter_int(model, 2, true, "q");
 
   SECTION( "add" ) {
 
@@ -2029,12 +2048,14 @@ TEST_CASE( "capi_model", "[smoke]" ) {
   }
 
   SECTION( "model setup" ) {
-    apival_t e = expr_plus_expression( expr_rtimes_int(3, b), q);
-    add_objective(model, e);
-    e = create_inequality(expr_plus_expression( expr_rtimes_int(3, b), q), false);
-    add_inequality(model, e);
-    e = create_equality(expr_plus_expression( expr_rtimes_int(3, b), q));
-    add_equality(model, e);
+    apival_t e1 = expr_plus_expression( expr_rtimes_int(3, b), q);
+    add_objective(model, e1);
+    apival_t e0 = expr_plus_expression( expr_rtimes_int(3, a), q);
+    add_objective(model, e0);
+    apival_t e2 = create_inequality(expr_plus_expression( expr_rtimes_int(3, b), q), false);
+    add_inequality(model, e2);
+    apival_t e3 = create_equality(expr_plus_expression( expr_rtimes_int(3, b), q));
+    add_equality(model, e3);
 
 
     WHEN( "print (df == 0)" ) {
@@ -2046,23 +2067,147 @@ TEST_CASE( "capi_model", "[smoke]" ) {
         std::string tmp = os.str();
         REQUIRE( tmp == "MODEL\n\
   Objectives\n\
-    x{3}*b{1} + q{2}\n\
+    3*b{1} + q{2}\n\
+    3*a{0} + q{2}\n\
 \n\
   Inequality Constraints\n\
-    x{3}*b{1} + q{2}  <=  0\n\
+    3*b{1} + q{2}  <=  0\n\
 \n\
   Equality Constraints\n\
-    x{3}*b{1} + q{2}  ==  0\n\
+    3*b{1} + q{2}  ==  0\n\
 " );
 
         std::cout.rdbuf(coutbuf);
     }
 
+    WHEN( "print (df == 1)" ) {
+        std::stringstream os;
+        std::streambuf* coutbuf = std::cout.rdbuf();
+        std::cout.rdbuf(os.rdbuf());
+
+        build_model(model);
+        print_model(model, 0);
+        std::string tmp = os.str();
+        REQUIRE( tmp == "MODEL\n\
+  Objectives\n\
+    3*b{1} + q{2}\n\
+    3*a{0} + q{2}\n\
+\n\
+  Inequality Constraints\n\
+    3*b{1} + q{2}  <=  0\n\
+\n\
+  Equality Constraints\n\
+    3*b{1} + q{2}  ==  0\n\
+\n\
+  DF\n\
+    (Objective 0)\n\
+    a{0} :  0\n\
+    b{1} :  3\n\
+\n\
+    (Objective 1)\n\
+    a{0} :  3\n\
+    b{1} :  0\n\
+\n\
+  DC\n\
+    (Inequality 0)\n\
+    a{0} :  0\n\
+    b{1} :  3\n\
+\n\
+  DC\n\
+    (Equality 0)\n\
+    a{0} :  0\n\
+    b{1} :  3\n\
+\n" );
+
+        std::cout.rdbuf(coutbuf);
+    }
+
+    WHEN( "expr diff - a" ) {
+        std::stringstream os;
+        std::streambuf* coutbuf = std::cout.rdbuf();
+        std::cout.rdbuf(os.rdbuf());
+
+        std::string tmp;
+        auto diff = expr_diff(e1, a);
+        print_expr(diff);
+        std::cout.rdbuf(coutbuf);
+
+        tmp = os.str();
+        REQUIRE( tmp == "0\n" );
+    }
+
+    WHEN( "expr diff - b" ) {
+        std::stringstream os;
+        std::streambuf* coutbuf = std::cout.rdbuf();
+        std::cout.rdbuf(os.rdbuf());
+
+        std::string tmp;
+        auto diff = expr_diff(e1, b);
+        print_expr(diff);
+        std::cout.rdbuf(coutbuf);
+
+        tmp = os.str();
+        REQUIRE( tmp == "3\n" );
+    }
+
     WHEN( "build" ) {
         build_model(model);
-        REQUIRE( get_nvariables(model) == 1 );
+        REQUIRE( get_nvariables(model) == 2 );
+    }
+  }
+
+  SECTION( "model ad" ) {
+    apival_t e = expr_plus_expression( expr_rtimes_int(3, b), q);
+    add_objective(model, e);
+    e = expr_plus_expression( expr_rtimes_int(3, a), q);
+    add_objective(model, e);
+    e = create_inequality(expr_plus_expression( expr_times_expression(a, b), q), false);
+    add_inequality(model, e);
+    e = create_equality(expr_plus_expression( expr_times_expression(a, b), a));
+    add_equality(model, e);
+
+    build_model(model);
+    variable_set_value(a, 4.0);
+    variable_set_value(b, 5.0);
+
+
+    WHEN( "f" ) {
+        REQUIRE( compute_objective_f(model, 0) == 17.0);
+        REQUIRE( compute_objective_f(model, 1) == 14.0);
+    }
+
+    WHEN( "df" ) {
+        double df[2];
+
+        compute_objective_df(model, df, 2, 0);
+        REQUIRE( df[0] == 0.0 );
+        REQUIRE( df[1] == 3.0 );
+        compute_objective_df(model, df, 2, 1);
+        REQUIRE( df[0] == 3.0 );
+        REQUIRE( df[1] == 0.0 );
+    }
+
+    WHEN( "c" ) {
+        double c[2];
+
+        compute_constraint_f(model, c, 2);
+        REQUIRE( c[0] == 22.0 );
+        REQUIRE( c[1] == 24.0 );
+    }
+
+    WHEN( "dc" ) {
+        double dc[2];
+
+        compute_constraint_df(model, dc, 2, 0);
+        REQUIRE( dc[0] == 5.0 );
+        REQUIRE( dc[1] == 4.0 );
+        compute_constraint_df(model, dc, 2, 1);
+        REQUIRE( dc[0] == 6.0 );
+        REQUIRE( dc[1] == 4.0 );
     }
 
   }
 
+  coek_finalize();
 }
+

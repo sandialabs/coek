@@ -137,8 +137,12 @@ public:
     //----- CONSTRAINT METHODS -----
     //
 
+    apival_t inequality(apival_t expr)
+        {return inequality(static_cast<numval_t>(expr), false);}
     apival_t inequality(apival_t expr, bool strict)
         {return inequality(static_cast<numval_t>(expr), strict);}
+    numval_t inequality(numval_t expr)
+        {return inequality(expr, false);}
     numval_t inequality(numval_t expr, bool strict);
 
     apival_t equality(apival_t expr)
