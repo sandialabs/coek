@@ -189,10 +189,10 @@ void Simple_ADModel::compute_adjoints(unsigned int i)
 std::list<NumericValue*>& build = builds_f[objectives.size() + i];
 //
 /// compute_c + set adjoint=0
-double ans = 0.0;
+//double ans = 0.0;
 for (std::list<NumericValue*>::iterator it=build.begin(); it != build.end(); it++) {
     NumericValue* tmp = *it;
-    ans = tmp->compute_value();
+    tmp->compute_value();
     tmp->adjoint = 0;
     }
 

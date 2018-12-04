@@ -392,7 +392,7 @@ public:
         {ostr << name << "("; body->print(ostr); ostr << ")";}
 
     NumericValue* partial(unsigned int i)
-	{ assert(0); }
+	{ assert(0); return 0; }
 
     void compute_adjoint()
 	{ assert(0); }
