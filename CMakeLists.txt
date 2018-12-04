@@ -128,7 +128,7 @@ if(with_tests)
 
   if (gcovr_FOUND)
     add_custom_target(gcovr 
-      COMMAND ${GCOVR_EXECUTABLE} -r ${CMAKE_CURRENT_SOURCE_DIR} -e ${CMAKE_CURRENT_SOURCE_DIR}/catch -e ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+      COMMAND ${GCOVR_EXECUTABLE} -r ${CMAKE_CURRENT_SOURCE_DIR} -e ${CMAKE_CURRENT_SOURCE_DIR}/third_party -e ${CMAKE_CURRENT_SOURCE_DIR}/tests)
   endif()
 else()
   MESSAGE("-- With Tests: off")
