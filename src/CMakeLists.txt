@@ -16,11 +16,11 @@ include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # CppAD LIBRARY
 if(with_cppad)
-  MESSAGE("-- With CppAd Library: on")
+  MESSAGE("-- Building Source with CppAd Library: on")
   list(APPEND sources
     admodel/cppad.cpp)
 else()
-  MESSAGE("-- With CppAd Library: off")
+  MESSAGE("-- Building Source with CppAd Library: off")
 endif()
 
 # ASL LIBRARY
