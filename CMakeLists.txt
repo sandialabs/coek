@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.7)
 PROJECT( Coek )
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/catch/contrib;${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/third_party/Catch2/contrib;${CMAKE_MODULE_PATH})
 
 
 ##################### Options #####################
@@ -16,6 +16,7 @@ option(with_gcov "Add code coverage using gcov" OFF)
 
 # Autograd Dependencies
 option(with_cppad "Use the CppAD Autograd Library" OFF)
+option(with_sacado "Use the Sacado Autograd Library" OFF)
 option(with_asl "Use the ASL Autograd Library" OFF)
 
 
@@ -105,6 +106,9 @@ endif()
 
 
 ##################### SubDirectories #####################
+
+# third_party
+add_subdirectory(third_party)
 
 # src
 add_subdirectory(src)

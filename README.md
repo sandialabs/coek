@@ -7,7 +7,9 @@ The C/C++ library that supports the definition of expressions used to formulate 
 
 ## Build
 
-* git clone https://github.com/catchorg/Catch2.git catch
+* cd third\_party
+* ./getCatch2.sh
+* cd ..
 * mkdir build
 * cd build
 * make
@@ -16,6 +18,6 @@ The C/C++ library that supports the definition of expressions used to formulate 
 ## Install
 
 * cd build
-* make -DCMAKE\_INSTALL\_PREFIX:PATH=../\_install
+* cmake -DCMAKE\_INSTALL\_PREFIX=../\_install ..
 * make install
 
