@@ -11,6 +11,7 @@ The C/C++ library that supports the definition of expressions used to formulate 
 * ./getCatch2.sh
 * cd ..
 * mkdir build
+* cmake -Dwith\_tests=ON ..
 * cd build
 * make
 * make test
