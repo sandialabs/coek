@@ -1,6 +1,7 @@
 #include "model/simple.hpp"
 #include "admodel/cppad.hpp"
 
+#include <cppad/cppad.hpp>
 
 int CppAD_ADModel::num_variables()
 { return 0; }

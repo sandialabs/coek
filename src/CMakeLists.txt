@@ -19,6 +19,7 @@ if(with_cppad)
   MESSAGE("-- Building Source with CppAd Library: on")
   list(APPEND sources
     admodel/cppad.cpp)
+  include_directories(BEFORE ${CPPAD_INCLUDE_DIR})
 else()
   MESSAGE("-- Building Source with CppAd Library: off")
 endif()
