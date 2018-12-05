@@ -13,6 +13,7 @@
 
 Simple_ADModel* model = 0;
 ExprManager* manager = 0;
+bool default_model = true;
 std::list<Simple_ADModel*> models;
 
 
@@ -498,8 +499,9 @@ extern "C" void* create_model()
 // We always create a default model, so after creating it,
 // the first call to this function simply returns the 
 // default model.
-if (models.size() == 1) {
+if (default_model and (models.size() == 1)) {
    Simple_ADModel* tmp = models.front();
+   default_model = false;
    return tmp;
    }
 
@@ -514,7 +516,7 @@ extern "C" void add_objective(void* _model, void* expr)
 {
 Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
 NumericValue* _expr = static_cast<NumericValue*>(expr);
-tmp->objectives.push_back(_expr);
+tmp->add_objective(_expr);
 }
 
 extern "C" void add_inequality(void* _model, void* ineq)
