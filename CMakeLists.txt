@@ -103,6 +103,11 @@ if (with_tests)
   endif()
 endif()
 
+if(with_debug)
+  MESSAGE("-- With Debug: on")
+else()
+  MESSAGE("-- With Debug: off")
+endif()
 
 
 ##################### SubDirectories #####################

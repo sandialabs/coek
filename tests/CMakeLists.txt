@@ -3,18 +3,29 @@ set(CATCH_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/Catch2/single_i
 add_library(Catch INTERFACE)
 target_include_directories(Catch INTERFACE ${CATCH_INCLUDE_DIR})
 
-include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/../src)
-
-enable_testing()
-
 SET(sources
     runner.cpp
     test_expr.cpp
     test_expr_manager_objects.cpp
     test_capi.cpp
     test_simple_model.cpp
-    test_cppad_model.cpp
    )
+
+#
+# Setup include directories and customize the sources built
+#
+include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/../src)
+if(with_cppad)
+  MESSAGE("-- Testing Source with CppAd Library: on")
+  list(APPEND sources
+    test_cppad_model.cpp)
+  include_directories(BEFORE ${CPPAD_INCLUDE_DIR})
+else()
+  MESSAGE("-- Testing Source with CppAd Library: off")
+endif()
+
+
+enable_testing()
 
 #
 # Create a testing binary for Catch2 tests

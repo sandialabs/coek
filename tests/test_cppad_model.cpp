@@ -3,8 +3,6 @@
 #include "admodel/cppad.hpp"
 
 
-#ifdef WITH_CPPAD
-
 TEST_CASE( "cppad_admodel add", "[smoke]" ) {
 
   coek_finalize();
@@ -178,4 +176,3 @@ TEST_CASE( "cppad_admodel ad", "[smoke]" ) {
   coek_finalize();
 }
 
-#endif

@@ -3,9 +3,9 @@
 # If so, then configure Coek to build with CMake.
 #
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/CppAD)
+  MESSAGE("-- With CppAD Library: on")
   set(with_cppad ON PARENT_SCOPE)
   set(CPPAD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/CppAD PARENT_SCOPE)
-  MESSAGE("-- With CppAD Library: on")
 else()
   MESSAGE("-- With CppAD Library: off")
 endif()
