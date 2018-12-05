@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+#include <cppad/cppad.hpp>
 #include "model.hpp"
 #include "model/simple.hpp"
 
@@ -35,5 +37,6 @@ protected:
 
     void _compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i);
 
+    std::vector< CppAD::AD<double> > ax;
 };
 

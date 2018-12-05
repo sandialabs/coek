@@ -4,10 +4,15 @@
 #include <cppad/cppad.hpp>
 
 int CppAD_ADModel::num_variables()
-{ return 0; }
+{ return ax.size(); }
 
 void CppAD_ADModel::set_variables(std::vector<double>& x)
-{}
+{
+std::vector<double>::iterator xit = x.begin();
+std::vector< CppAD::AD<double> >::iterator axit = ax.begin();
+for ( ; xit != x.end(); xit++, axit++)
+    *axit = *xit;
+}
 
 /*
 void CppAD_ADModel::set_variables(const double* x, int n)
