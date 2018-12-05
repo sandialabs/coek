@@ -31,10 +31,14 @@ packages = find_packages(exclude=["test*", "*test*", "example*"])
 #
 # MANAGE CYTHON
 #
-if 'develop' in sys.argv:
-    using_cython = False
-else:
-    using_cython = True
+##
+## NOTE: For now, I'm disabling cython by default
+##
+##if 'develop' in sys.argv:
+##    using_cython = False
+##else:
+##    using_cython = True
+using_cython=False
 if '--with-cython' in sys.argv:
     using_cython = True
     sys.argv.remove('--with-cython')
