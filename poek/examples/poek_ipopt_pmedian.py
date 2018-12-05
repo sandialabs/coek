@@ -4,7 +4,7 @@ sys.stdout.flush()
 import math
 from poek import *
 
-print("Impored POEK")
+print("Imported POEK")
 sys.stdout.flush()
 import poek_pmedian
 print("Created PMEDIAN Model")
