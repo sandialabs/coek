@@ -1191,7 +1191,7 @@ class Test_DivExpression(unittest.TestCase):
 
         e = q / a
         self.assertIs(type(e), parameter)
-        self.assertEqual(e.ptr, self.model.zero.ptr)
+        self.assertEqual(e.ptr, ZeroParameter.ptr)
 
         #
         # Check that dividing by one 1 gives the original expression
