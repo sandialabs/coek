@@ -10,14 +10,19 @@ class model(object):
 
     def __init__(self):
         self.ptr = lib.create_model()
-        poek.expr.ZeroParameter = poek.expr.parameter(0,False)
-        poek.expr.OneParameter = poek.expr.parameter(1,False)
-        poek.expr.NegativeOneParameter = poek.expr.parameter(-1,False)
         self.nx = None
         self.v = None
         self.x = None
         self.nc = 0
         self.c = None
+        #
+        # We should not normally change data in a class like this, but
+        # the *Parameter objects are treated as global constants.  Since they
+        # may have been imported, we need to change their class values.
+        #
+        poek.expr.ZeroParameter.ptr = lib.get_parameter_zero(poek.expr.NULL)
+        poek.expr.OneParameter.ptr = lib.get_parameter_one(poek.expr.NULL)
+        poek.expr.NegativeOneParameter = lib.get_parameter_negative_one(poek.expr.NULL)
 
     def add(self, obj):
         if obj.is_constraint():
