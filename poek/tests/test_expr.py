@@ -1191,6 +1191,7 @@ class Test_DivExpression(unittest.TestCase):
 
         e = q / a
         self.assertIs(type(e), parameter)
+        self.assertAlmostEqual(e, 0.0)
         self.assertEqual(e.ptr, ZeroParameter.ptr)
 
         #

@@ -4,7 +4,7 @@ import pyutilib.th as unittest
 from poek import *
 
 
-class Test_Diff(unittest.TestCase):
+class Test_SymbolicDiff(unittest.TestCase):
 
     def setUp(self):
         self.model = model()
