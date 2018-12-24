@@ -625,15 +625,14 @@ class variable(object):
 
 class variable_single(NumericValue):
 
-    __slots__ = ('ptr', 'name', 'index')
+    __slots__ = ('ptr', '_name')
 
     def __init__(self, name=None, initialize=NAN, lb=NAN, ub=NAN):
-        self.name = name
+        self._name = name
         if name is None:
             self.ptr = lib.create_variable(NULL,0,0,lb,ub,initialize,str.encode(""))   # TODO: add 'within' argument
         else:
             self.ptr = lib.create_variable(NULL,0,0,lb,ub,initialize,str.encode(name))   # TODO: add 'within' argument
-        self.index = lib.variable_get_index(self.ptr)
 
     @property
     def value(self):
@@ -656,9 +655,23 @@ class variable_single(NumericValue):
     def ub(self, value):
         lib.variable_set_ub(self.ptr, value)
 
+    @property
+    def index(self):
+        return lib.variable_get_index(self.ptr)
+    @index.setter
+    def index(self, value):
+        raise TypeError("Cannot set the index of a variable")
+
+    @property
+    def name(self):
+        if self._name is None:
+            return 'x%d' % lib.variable_get_index(self.ptr)
+        return self._name
+    @name.setter
+    def name(self, value):
+        self._name = name
+
     def __str__(self):      #pragma:nocover
-        if self.name is None:
-            self.name = 'x%d' % self.index
         return self.name
 
     def show(self):         #pragma:nocover
@@ -670,13 +683,12 @@ class variable_single(NumericValue):
 
 class variable_view(variable_single):
 
-    def __init__(self, name=None, ptr=None):
+    __slots__ = ('_index')
+
+    def __init__(self, index=None, name=None, ptr=None):
         self.ptr = ptr
-        if name is None:
-            self.index = lib.variable_get_index(self.ptr)
-            self.name = 'x%d' % self.index
-        else:
-            self.name = name
+        self._name = name
+        self._index = index
 
     @property
     def value(self):
@@ -699,6 +711,21 @@ class variable_view(variable_single):
     def ub(self, value):
         lib.variable_set_ub(self.ptr, value)
 
+    @property
+    def index(self):
+        return self._index
+    @index.setter
+    def index(self, value):
+        raise TypeError("Cannot set the index of a variable array element")
+
+    @property
+    def name(self):
+        if self._name is None:
+            return 'x[%d]' % self._index
+        return '%s[%d]' % (self._name, self._index)
+    @name.setter
+    def name(self, value):
+        raise TypeError("Cannot set the name of a variable array element")
 
 
 class variable_array(object):
@@ -726,15 +753,32 @@ class variable_array(object):
         views = self.views
         if key in views:
             return views[key]
-        if self.name is None:
-            views[key] = variable_view(ptr=self.ptrs[key])
-        else:
-            views[key] = variable_view(name=self.name + str(key), ptr=self.ptrs[key])
+        views[key] = variable_view(index=key, name=self.name, ptr=self.ptrs[key])
         return views[key]
 
+    def __str__(self):      #pragma:nocover
+        if self.name is None:
+            return 'x'
+        return self.name
+
     def __iter__(self):
-        for i in range(self.num):
-            yield i #self.__getitem__(i)
+        for key in range(self.num):
+            yield key
+
+    def items(self):
+        for key in range(self.num):
+            if key in views:
+                yield key, views[key]
+            views[key] = variable_view(index=key, name=self.name, ptr=self.ptrs[key])
+            yield key, views[key]
+
+    def values(self):
+        views = self.views
+        for key in range(self.num):
+            if key in views:
+                yield views[key]
+            views[key] = variable_view(index=key, name=self.name, ptr=self.ptrs[key])
+            yield views[key]
 
 
 class expression(NumericValue):

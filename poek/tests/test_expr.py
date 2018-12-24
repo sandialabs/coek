@@ -1015,6 +1015,7 @@ class Test_MulExpression(unittest.TestCase):
         #self.assertIs(type(e), int)
         #self.assertEqual(e, 6)
 
+
 class Test_DivExpression(unittest.TestCase):
 
     def setUp(self):
@@ -1452,6 +1453,7 @@ class Test_PowExpression(unittest.TestCase):
         e = 2.0**a
         self.assertEqual( self.visitor.walk(e), ['**','2.000','a'] )
 
+
 class EntangledExpressionErrors(unittest.TestCase):
 
     def setUp(self):
@@ -1526,7 +1528,21 @@ class TestVariables(unittest.TestCase):
         v2 = v[0]
         self.assertIs(v1, v2)
 
-    
+    def test_name1(self):
+        v = variable(3, name='v', initialize=3)
+        self.assertEqual(v.name, 'v')
+        self.assertEqual(v[0].name, 'v[0]')
+
+    def test_name2(self):
+        v = variable(3, initialize=3)
+        self.assertEqual(v.name, None)
+        self.assertEqual(v[0].name, 'x[0]')
+
+    def test_name_single(self):
+        v = variable(initialize=3, name='y')
+        self.assertEqual(v.name, 'y')
+        v = variable(initialize=3)
+        self.assertEqual(v.name[0], 'x')
 
 
 if __name__ == "__main__":
