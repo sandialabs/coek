@@ -38,10 +38,10 @@ packages = find_packages(exclude=["test*", "*test*", "example*"])
 ##    using_cython = False
 ##else:
 ##    using_cython = True
-using_cython=False
 if '--with-cython' in sys.argv:
     using_cython = True
     sys.argv.remove('--with-cython')
+using_cython=False
 
 if using_cython:
     try:
