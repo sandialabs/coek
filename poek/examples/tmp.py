@@ -142,11 +142,11 @@ print(visitor.walk(E))
 print(visitor.walk(E, show=True))
 
 Y = variable(10, name='Y', initialize=3)
-for var in Y:
-  print((var.name, var.value))
+for i in Y:
+  print((Y[i].name, Y[i].value))
 Z = variable(10, initialize=4)
 Z[1].lb = 0;
 Z[2].ub = 1;
 Z[3].value = -1;
-for var in Z:
-  print((var.name, var.value, var.lb, var.ub))
+for i in Z:
+  print((Z[i].name, Z[i].value, Z[i].lb, Z[i].ub))
