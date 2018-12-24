@@ -25,11 +25,11 @@ for n in range(N):
 pmedian = model()
 
 # objective
-pmedian.add( quicksum(d[n,m]*x[n,m] for n in range(N) for m in range(M)) )
+pmedian.add( sum(d[n,m]*x[n,m] for n in range(N) for m in range(M)) )
 
 # single_x
 for m in range(M):
-    pmedian.add( quicksum(x[n,m] for n in range(N)) == 1 )
+    pmedian.add( sum(x[n,m] for n in range(N)) == 1 )
 
 # bound_y
 for n in range(N):
@@ -37,7 +37,7 @@ for n in range(N):
         pmedian.add( x[n,m] - y[n] <= 0 )
 
 # num_facilities
-pmedian.add( quicksum(y[n] for n in range(N)) == P )
+pmedian.add( sum(y[n] for n in range(N)) == P )
 
 
 
