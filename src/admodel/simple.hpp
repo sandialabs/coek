@@ -19,9 +19,14 @@ public:
     int num_variables()
         { return variables.size(); }
 
+    int num_constraints()
+        { return inequalities.size() + equalities.size(); }
+
+    int num_nonzeros_Jacobian();
+
     void set_variables(std::vector<double>& x);
 
-    //void set_variables(const double* x, int n);
+    void set_variables(const double* x, int n);
 
     void print(std::ostream& ostr);
 

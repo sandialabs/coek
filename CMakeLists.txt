@@ -22,6 +22,7 @@ option(with_asl "Use the ASL Autograd Library" OFF)
 
 # Solver Dependencies
 option(with_ipopt "Use the Ipopt Solver" OFF)
+#set(IPOPT_HOME "" CACHE FILEPATH "Set the path to ipopt")
 option(with_gurobi "Use the Gurobi Solver" OFF)
 set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
 

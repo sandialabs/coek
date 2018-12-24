@@ -2,7 +2,7 @@
 #include "solver.hpp"
 
 #ifdef WITH_IPOPT
-#include "solvers/ipopt.h"
+#include "solvers/ipopt.hpp"
 #endif
 
 //int i;

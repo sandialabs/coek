@@ -53,9 +53,13 @@ public:
 
     virtual int num_variables() = 0;
 
+    virtual int num_constraints() = 0;
+
+    virtual int num_nonzeros_Jacobian() = 0;
+
     virtual void set_variables(std::vector<double>& x) = 0;
 
-    //virtual void set_variables(const double* x, int n) =0;
+    virtual void set_variables(const double* x, int n) =0;
 
     virtual void print(std::ostream& ostr) = 0;
 
@@ -84,7 +88,6 @@ public:
         double f;
         _compute_df(f, df, 0);
         }
-
 
     void compute_df(std::vector<double>& x, std::vector<double>& df, unsigned int i)
         {

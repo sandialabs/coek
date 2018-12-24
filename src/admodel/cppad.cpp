@@ -6,6 +6,9 @@
 int CppAD_ADModel::num_variables()
 { return ax.size(); }
 
+int CppAD_ADModel::num_constraints()
+{ return 0; }
+
 void CppAD_ADModel::set_variables(std::vector<double>& x)
 {
 std::vector<double>::iterator xit = x.begin();
