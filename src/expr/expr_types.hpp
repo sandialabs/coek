@@ -1259,9 +1259,9 @@ void walk_expression_tree(NumericValue* root, void(*enter_callback)(void*,void*,
 
 double compute_expression_value(NumericValue* root);
 
-typedef std::set<Variable*, bool(*)(const Variable*, const Variable*)> ordered_variable_t;
-typedef ordered_variable_t::iterator ordered_variable_iterator_t;
-void build_expression(NumericValue* root, std::list<NumericValue*>& build, ordered_variable_t& variables);
+typedef std::set<Variable*, bool(*)(const Variable*, const Variable*)> ordered_variableset_t;
+typedef ordered_variableset_t::iterator ordered_variableset_iterator_t;
+void build_expression(NumericValue* root, std::list<NumericValue*>& build, ordered_variableset_t& variables);
 std::list<std::string> expr_to_list(NumericValue* e, bool values);
 std::list<std::string> expr_to_list(NumericValue* e);
 

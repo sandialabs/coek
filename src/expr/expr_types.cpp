@@ -9,6 +9,7 @@
 int Variable::nvariables = 0;
 double Variable::_nan = NAN;
 
+
 bool variable_comparator(const Variable* lhs, const Variable* rhs)
 {
 return lhs->index < rhs->index;
@@ -58,7 +59,7 @@ if (root->is_variable()) {
     return;
     }
 
-ordered_variable_t variables(variable_comparator);
+ordered_variableset_t variables(variable_comparator);
 
 //
 // Compute in-degree
@@ -142,7 +143,7 @@ while (queue.size() > 0) {
         }
     }
 
-for (ordered_variable_iterator_t it=variables.begin(); it != variables.end(); it++) {
+for (ordered_variableset_iterator_t it=variables.begin(); it != variables.end(); it++) {
     diff[*it] = partial[*it];
 
     ///(*it)->print(std::cout);
@@ -153,7 +154,7 @@ for (ordered_variable_iterator_t it=variables.begin(); it != variables.end(); it
 }
 
 
-void build_expression(NumericValue* root, std::list<NumericValue*>& build, ordered_variable_t& variables)
+void build_expression(NumericValue* root, std::list<NumericValue*>& build, ordered_variableset_t& variables)
 {
 //
 // A topological sort to construct the build
@@ -239,7 +240,7 @@ double compute_expression_value(NumericValue* root)
 {
 //std::cout << "X1" << std::endl << std::flush;
 std::list<NumericValue*> build;
-ordered_variable_t variables(variable_comparator);
+ordered_variableset_t variables(variable_comparator);
 
 build_expression(root, build, variables);
 //std::cout << "X2" << std::endl << std::flush;
