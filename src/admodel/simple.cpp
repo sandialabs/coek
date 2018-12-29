@@ -37,7 +37,7 @@ for (std::list<NumericValue*>::iterator it=equalities.begin(); it != equalities.
 
 // Add variables from Jacobian
 for (size_t i = 0; i<vars.size(); i++)
-    for (ordered_variable_iterator_t it=vars[i]->begin(); it != vars[i]->end(); it++) {
+    for (ordered_variableset_iterator_t it=vars[i]->begin(); it != vars[i]->end(); it++) {
         vset.insert( *it );
         }
 
@@ -46,7 +46,7 @@ std::map<int,int> index_to_id;
 variables.resize(vset.size());
 std::vector<Variable*>::iterator IT=variables.begin();
 i=0;
-for (ordered_variable_iterator_t it=vset.begin(); it != vset.end(); it++) {
+for (ordered_variableset_iterator_t it=vset.begin(); it != vset.end(); it++) {
     index_to_id[ (*it)->index ] = i++;
     *IT = *it;
     IT++;
@@ -57,7 +57,7 @@ for (size_t i = 0; i<vars.size(); i++) {
     size_t j=0;
     J_rc[i].resize( vars[i]->size() );
     J[i].resize( vars[i]->size() );
-    for (ordered_variable_iterator_t it=vars[i]->begin(); it != vars[i]->end(); it++) {
+    for (ordered_variableset_iterator_t it=vars[i]->begin(); it != vars[i]->end(); it++) {
         J_rc[i][j] = index_to_id[ (*it)->index ];
         J[i][j] = *it;
         //std::cout << "J i,j " << i << " " << j << " " << *it << std::endl;
