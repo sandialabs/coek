@@ -50,11 +50,11 @@ model.d = Param(model.N, model.M, initialize=lambda  n, m, model : random.unifor
 
 
 def rule(model):
-    return quicksum(model.d[n,m]*model.x[n,m] for n in model.N for m in model.M)
+    return sum(model.d[n,m]*model.x[n,m] for n in model.N for m in model.M)
 model.obj = Objective(rule=rule)
 
 def rule(model, m):
-    return quicksum(model.x[n,m] for n in model.N) ==  1.0
+    return sum(model.x[n,m] for n in model.N) ==  1.0
 model.single_x = Constraint(model.M, rule=rule)
 
 def rule(model, n,m):
@@ -62,7 +62,7 @@ def rule(model, n,m):
 model.bound_y = Constraint(model.N, model.M, rule=rule)
 
 def rule(model):
-    return quicksum(model.y[n] for n in model.N) == P
+    return sum(model.y[n] for n in model.N) == P
 model.num_facilities = Constraint(rule=rule)
 
 
