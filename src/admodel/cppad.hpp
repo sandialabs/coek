@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 #include <cppad/cppad.hpp>
 #include "model.hpp"
 #include "model/simple.hpp"
@@ -27,6 +28,8 @@ public:
 
 protected:
 
+    void build_expression(NumericValue* root, int nb, ordered_variableset_t& vars, std::map<int, CppAD::AD<double> >& vmap);
+
     double _compute_f(unsigned int i);
 
     void _compute_df(double& f, std::vector<double>& df, unsigned int i);
@@ -38,5 +41,11 @@ protected:
     void _compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i);
 
     std::vector< CppAD::AD<double> > ax;
+
+    std::vector< CppAD::AD<double> > builds_f;
+    std::vector< CppAD::AD<double> > variables;
+    std::vector<std::vector<int> > J_rc;
+    std::vector<std::vector<CppAD::AD<double> > > J;
+
 };
 
