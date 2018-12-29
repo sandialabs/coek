@@ -2,6 +2,16 @@
 #include "admodel/simple.hpp"
 
 
+int Simple_ADModel::num_nonzeros_Jacobian()
+{
+// The number of nonzeros in the jacobian
+int nnz_jac_g = 0;
+for (size_t i=0; i<J.size(); i++) {
+    nnz_jac_g += J[i].size();
+    }
+return nnz_jac_g;
+}
+
 void Simple_ADModel::build()
 {
 builds_f.resize(objectives.size() + inequalities.size() + equalities.size());
@@ -71,17 +81,15 @@ for (size_t i=0; i<vars.size(); i++)
 }
 
 
-/*
 void Simple_ADModel::set_variables(const double* x, int n)
 {
-runtime_assert( n == variables.size(), "Calling set_variables() with " << n << " variables when the model has " << variables.size() << " variables!");
+runtime_assert( static_cast<size_t>(n) == variables.size(), "Calling set_variables() with " << n << " variables when the model has " << variables.size() << " variables!");
 int j=0;
 for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(); it++) {
     (*it)->_value = x[j];
     j++;
     }
 }
-*/
 
 
 void Simple_ADModel::set_variables(std::vector<double>& x)

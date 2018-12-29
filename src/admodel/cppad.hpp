@@ -16,6 +16,8 @@ public:
 
     int num_variables();
 
+    int num_contraints();
+
     void set_variables(std::vector<double>& x);
 
     //void set_variables(const double* x, int n);

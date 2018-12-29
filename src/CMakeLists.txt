@@ -33,14 +33,28 @@ else()
   MESSAGE("-- With ASL Library: off")
 endif()
 
-# build library
-ADD_LIBRARY(coek SHARED ${sources})
+# GUROBI LIBRARY
 if(${GUROBI_HOME})
     MESSAGE("-- GUROBI_HOME ${GUROBI_HOME}")
-    TARGET_INCLUDE_DIRECTORIES(coek ${GUROBI_HOME}/include)
+    INCLUDE_DIRECTORIES(${GUROBI_HOME}/include)
 else()
     MESSAGE("-- GUROBI_HOME Not provided")
 endif()
+
+# IPOPT LIBRARY
+if(with_ipopt)
+    list(APPEND sources
+        solvers/ipopt.cpp)
+    if(NOT "$ENV{IPOPT_HOME}" STREQUAL "")
+        MESSAGE("-- IPOPT_HOME=$ENV{IPOPT_HOME}")
+        INCLUDE_DIRECTORIES(PUBLIC $ENV{IPOPT_HOME}/include/coin)
+    else()
+        MESSAGE("-- IPOPT_HOME Not provided")
+    endif()
+endif()
+
+# build library
+ADD_LIBRARY(coek SHARED ${sources})
 TARGET_COMPILE_OPTIONS(coek PRIVATE ${solver_flags})
 if(${with_gcov})
   TARGET_COMPILE_OPTIONS(coek PUBLIC -fprofile-arcs -ftest-coverage -g)

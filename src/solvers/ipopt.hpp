@@ -1,14 +1,18 @@
 #pragma once
 
+#include "model.hpp"
+#include "solver.hpp"
+
+
 class IpoptSolver : public Solver
 {
 public:
 
-    Model* model;
+    ADModel* model;
 
     IpoptSolver() : Solver() {}
 
-    void set_model(Model* _model)
+    void set_model(ADModel* _model)
         {model = _model;}
 
     int solve();
