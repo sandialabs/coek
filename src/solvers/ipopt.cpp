@@ -3,6 +3,8 @@
 #include "IpTNLP.hpp"
 #include "ipopt.hpp"
 
+#include "admodel/simple.hpp"
+
 using namespace Ipopt;
 
 
@@ -18,14 +20,14 @@ class IpoptProblem : public TNLP
 {
 public:
 
-    ADModel* model;
+    Simple_ADModel* model;
     std::vector<double> tmp_grad;
     std::vector<double> tmp_c;
 
     // default constructor
     IpoptProblem(ADModel* _model)
         {
-        model=_model;
+        model=dynamic_cast<Simple_ADModel*>(_model);
         }
 
     void build()
