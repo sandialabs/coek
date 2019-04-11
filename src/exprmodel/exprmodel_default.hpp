@@ -1,17 +1,17 @@
 #pragma once
 
-#include "model.hpp"
 #include "expr/expr_manager_objects.hpp"
+#include "exprmodel/exprmodel_base.hpp"
 
 namespace coek {
 
-namespace modelexpr_default {
+namespace exprmodel_default {
 
 //
 // An object that manages model expressions
 //
 
-class ModelExpr_default : public coek::ModelExpr<ExprManager_Objects>
+class ExprModel : public coek::base::ExprModel<ExprManager_Objects>
 {
 public:
 

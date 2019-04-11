@@ -1,10 +1,14 @@
 #pragma once
 
-#include "model.hpp"
-#include "model/simple.hpp"
+#include "admodel/admodel_base.hpp"
+#include "exprmodel/exprmodel_default.hpp"
 
 
-class Simple_ADModel : public Simple_ExprModel, public ADModel
+namespace coek {
+
+namespace simplead {
+
+class ADModel : public coek::exprmodel_default::ExprModel, public coek::base::ADModel
 {
 public:
 
@@ -46,3 +50,6 @@ protected:
 
 };
 
+}
+
+}

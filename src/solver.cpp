@@ -7,6 +7,8 @@
 
 //int i;
 
+namespace coek {
+
 Solver* create_solver(const char* _name)
 {
 std::string name = _name;
@@ -19,4 +21,5 @@ if (name == "ipopt")
 return 0;
 }
 
+}
 

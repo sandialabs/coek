@@ -2,6 +2,8 @@
 
 #include "model.hpp"
 
+namespace coek {
+
 //
 // The base solver class that defines the API used by Python
 //
@@ -20,3 +22,4 @@ public:
 
 Solver* create_solver(const char* name);
 
+}

@@ -1,11 +1,11 @@
-#include "modelexpr/modelexpr_default.hpp"
+#include "exprmodel/exprmodel_default.hpp"
 
 namespace coek {
 
-namespace modelexpr_default {
+namespace exprmodel_default {
 
 
-void ModelExpr::print(std::ostream& ostr)
+void ExprModel::print(std::ostream& ostr)
 {
 ostr << "MODEL" << std::endl;
 

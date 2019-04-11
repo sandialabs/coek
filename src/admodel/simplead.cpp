@@ -1,8 +1,12 @@
 #include "coek_util.hpp"
-#include "admodel/simple.hpp"
+#include "admodel/simplead.hpp"
 
 
-int Simple_ADModel::num_nonzeros_Jacobian()
+namespace coek {
+
+namespace simplead {
+
+int ADModel::num_nonzeros_Jacobian()
 {
 // The number of nonzeros in the jacobian
 int nnz_jac_g = 0;
@@ -12,7 +16,7 @@ for (size_t i=0; i<J.size(); i++) {
 return nnz_jac_g;
 }
 
-void Simple_ADModel::build()
+void ADModel::build()
 {
 builds_f.resize(objectives.size() + inequalities.size() + equalities.size());
 int nb=0;
@@ -81,7 +85,7 @@ for (size_t i=0; i<vars.size(); i++)
 }
 
 
-void Simple_ADModel::set_variables(const double* x, int n)
+void ADModel::set_variables(const double* x, int n)
 {
 runtime_assert( static_cast<size_t>(n) == variables.size(), "Calling set_variables() with " << n << " variables when the model has " << variables.size() << " variables!");
 int j=0;
@@ -92,7 +96,7 @@ for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(
 }
 
 
-void Simple_ADModel::set_variables(std::vector<double>& x)
+void ADModel::set_variables(std::vector<double>& x)
 {
 runtime_assert( x.size() == variables.size(), "Calling set_variables() with " << x.size() << " variables when the model has " << variables.size() << " variables!");
 
@@ -104,7 +108,7 @@ for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(
 }
 
 
-double Simple_ADModel::_compute_f(unsigned int i)
+double ADModel::_compute_f(unsigned int i)
 {
 runtime_assert( i < builds_f.size(), "Attempting to compute objective " << i << ".  Only " << builds_f.size() << " objectives have been setup!");
 
@@ -123,7 +127,7 @@ return ans;
 }
 
 
-void Simple_ADModel::_compute_df(double& f, std::vector<double>& df, unsigned int i)
+void ADModel::_compute_df(double& f, std::vector<double>& df, unsigned int i)
 {
 runtime_assert( i < builds_f.size(), "Attempting to compute derivative for objective " << i << ".  Only " << builds_f.size() << " objectives have been setup!");
 runtime_assert( variables.size() == df.size(), "Calling _compute_df() with badly sized array: df (" << df.size() << " vs variables (" << variables.size() << ")!");
@@ -157,7 +161,7 @@ for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(
 }
 
 
-void Simple_ADModel::_compute_c(std::vector<double>& c)
+void ADModel::_compute_c(std::vector<double>& c)
 {
 runtime_assert( (inequalities.size() + equalities.size()) == c.size(), "Calling _compute_c() with badly sized array: c (" << c.size() << " vs # constraints (" << (inequalities.size() + equalities.size()) << ")!");
 
@@ -174,7 +178,7 @@ for (unsigned int j=0; j<c.size(); j++, i++) {
 }
 
 
-void Simple_ADModel::_compute_dc(std::vector<double>& dc, unsigned int i)
+void ADModel::_compute_dc(std::vector<double>& dc, unsigned int i)
 {
 runtime_assert( variables.size() == dc.size(), "Calling _compute_dc() with badly sized array: dc (" << dc.size() << " vs variables (" << variables.size() << ")!");
 runtime_assert( i < (inequalities.size() + equalities.size()), "Attempting to compute derivative for constraint " << i << ".  Only " << (inequalities.size() + equalities.size()) << " constraints have been setup!");
@@ -192,7 +196,7 @@ for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(
 }
 
 
-void Simple_ADModel::compute_adjoints(unsigned int i)
+void ADModel::compute_adjoints(unsigned int i)
 {
 std::list<NumericValue*>& build = builds_f[objectives.size() + i];
 //
@@ -215,7 +219,7 @@ for ( ; rit != build.rend(); rit++) {
 }
 
 
-void Simple_ADModel::_compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i)
+void ADModel::_compute_Hv(std::vector<double>& v, std::vector<double>& Hv, unsigned int i)
 {
 /*
 assert(i < builds_f.size());
@@ -259,9 +263,9 @@ for (std::vector<Variable*>::iterator it=variables.begin(); it != variables.end(
 }
 
 
-void Simple_ADModel::print(std::ostream& ostr)
+void ADModel::print(std::ostream& ostr)
 {
-Simple_ExprModel::print(ostr);
+coek::exprmodel_default::ExprModel::print(ostr);
 
 if (variables.size() > 0) {
     ostr << std::endl;
@@ -334,3 +338,6 @@ if (variables.size() > 0) {
     }
 }
 
+}
+
+}

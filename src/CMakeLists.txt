@@ -7,31 +7,48 @@ SET(sources
     coek_capi.cpp
     expr/expr_types.cpp
     expr/expr_manager_objects.cpp
-    model/simple.cpp
     solver.cpp
-    admodel/simple.cpp
    )
 
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 
+#
+# EXPRMODEL OPTIONS
+#
+
+MESSAGE("-- Building Source with ExprModel: Default")
+list(APPEND sources exprmodel/exprmodel_default.cpp)
+
+#
+# ADMODEL OPTIONS
+#
+
 # CppAD LIBRARY
 if(with_cppad)
-  MESSAGE("-- Building Source with CppAd Library: on")
+  MESSAGE("-- Building Source with AD:        CppAd")
   list(APPEND sources
     admodel/cppad.cpp)
   include_directories(BEFORE ${CPPAD_INCLUDE_DIR})
-else()
-  MESSAGE("-- Building Source with CppAd Library: off")
 endif()
 
 # ASL LIBRARY
-if(with_asl)
-  MESSAGE("-- With ASL Library: on")
+if(NOT with_cppad AND with_asl)
+  MESSAGE("-- Building Source with AD:        ASL")
   list(APPEND sources
 	autograd/asl_model.cpp)
-else()
-  MESSAGE("-- With ASL Library: off")
 endif()
+
+# Default AD LIBRARY
+if(NOT with_cppad AND NOT with_asl)
+  MESSAGE("-- Building Source with AD:        Simple")
+  list(APPEND sources
+    admodel/simplead.cpp)
+  add_definitions(-DWITH_ADMODEL_SIMPLEAD)
+endif()
+
+#
+# SOLVER OPTIONS
+#
 
 # GUROBI LIBRARY
 if(${GUROBI_HOME})

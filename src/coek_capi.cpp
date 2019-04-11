@@ -4,17 +4,19 @@
 #include <sstream>
 
 #include "expr/expr_manager.hpp"
-#include "admodel/simple.hpp"
+#include "model.hpp"
 #include "coek_util.hpp"
 #include "solver.hpp"
+
+using namespace coek;
 
 
 /*** GLOBAL DATA ***/
 
-Simple_ADModel* model = 0;
+ADModel* model = 0;
 ExprManager* manager = 0;
 bool default_model = true;
-std::list<Simple_ADModel*> models;
+std::list<ADModel*> models;
 
 
 extern "C" void* misc_getnull(void)
@@ -339,7 +341,7 @@ if (_model == 0) {
     runtime_assert(manager != 0, "Error calling create_parameter_int().  An optimization model must be created before a parameter can be created!");
     return manager->param(value, mutable_flag, name);
     }
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 return tmp->manager.param(value, mutable_flag, name);
 }
 
@@ -349,7 +351,7 @@ if (_model == 0) {
     runtime_assert(manager != 0, "Error calling create_parameter_double().  An optimization model must be created before a parameter can be created!");
     return manager->param(value, mutable_flag, name);
     }
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 return tmp->manager.param(value, mutable_flag, name);
 }
 
@@ -365,7 +367,7 @@ if (_model == 0) {
     runtime_assert(manager != 0, "Error calling get_parameter_zero().  An optimization model must be created before a parameter can be created!");
     return manager->zero;
     }
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 return tmp->manager.zero;
 }
 
@@ -375,7 +377,7 @@ if (_model == 0) {
     runtime_assert(manager != 0, "Error calling get_parameter_one().  An optimization model must be created before a parameter can be created!");
     return manager->one;
     }
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 return tmp->manager.one;
 }
 
@@ -385,7 +387,7 @@ if (_model == 0) {
     runtime_assert(manager != 0, "Error calling get_parameter_negative_one().  An optimization model must be created before a parameter can be created!");
     return manager->negative_one;
     }
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 return tmp->manager.negative_one;
 }
 
@@ -395,7 +397,7 @@ if (_model == 0) {
     runtime_assert(manager != 0, "Error calling create_variable().  An optimization model must be created before a variable can be created!");
     return manager->var(binary, integer, lb, ub, init, name);
     }
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 return tmp->manager.var(binary, integer, lb, ub, init, name);
 }
 
@@ -407,7 +409,7 @@ if (_model == 0) {
     _manager = manager;
     }
 else {
-    Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+    ADModel* tmp = static_cast<ADModel*>(_model);
     _manager = &(tmp->manager);
     }
 for (int i=0; i<num; i++)
@@ -500,12 +502,12 @@ extern "C" void* create_model()
 // the first call to this function simply returns the 
 // default model.
 if (default_model and (models.size() == 1)) {
-   Simple_ADModel* tmp = models.front();
+   ADModel* tmp = models.front();
    default_model = false;
    return tmp;
    }
 
-Simple_ADModel* tmp = new Simple_ADModel();
+ADModel* tmp = new ADModel();
 models.push_back(tmp);
 model = tmp;
 manager = &(model->manager);
@@ -514,52 +516,52 @@ return tmp;
 
 extern "C" void add_objective(void* _model, void* expr)
 {
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 NumericValue* _expr = static_cast<NumericValue*>(expr);
 tmp->add_objective(_expr);
 }
 
 extern "C" void add_inequality(void* _model, void* ineq)
 {
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 NumericValue* _ineq = static_cast<NumericValue*>(ineq);
 tmp->inequalities.push_back(_ineq);
 }
 
 extern "C" void add_equality(void* _model, void* eq)
 {
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 NumericValue* _eq = static_cast<NumericValue*>(eq);
 tmp->equalities.push_back(_eq);
 }
 
 extern "C" void print_model(void* _model, int /*df*/)
 {
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 tmp->print(std::cout);  // df?
 }
 
 extern "C" void build_model(void* _model)
 {
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 tmp->build();
 }
 
 extern "C" int get_nvariables(void* _model)
 {
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 return tmp->num_variables();
 }
 
 extern "C" double compute_objective_f(void* _model, int i)
 {
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 return tmp->compute_f(i);
 }
 
 extern "C" void compute_objective_df(void* _model, double* df, int n, int i)
 {
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 double f;
 std::vector<double> _df(n);
 tmp->compute_df(f, _df, i);
@@ -569,7 +571,7 @@ for (int i=0; i<n; i++)
 
 extern "C" void compute_constraint_f(void* _model, double* c, int n)
 {
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 std::vector<double> _c(n);
 tmp->compute_c(_c);
 for (int i=0; i<n; i++)
@@ -578,7 +580,7 @@ for (int i=0; i<n; i++)
 
 extern "C" void compute_constraint_df(void* _model, double* dc, int n, int i)
 {
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 std::vector<double> _dc(n);
 tmp->compute_dc(_dc, i);
 for (int i=0; i<n; i++)
@@ -587,7 +589,7 @@ for (int i=0; i<n; i++)
 
 extern "C" void compute_Hv(void* _model, double* v, double* Hv, int n, int i)
 {
-Simple_ADModel* tmp = static_cast<Simple_ADModel*>(_model);
+ADModel* tmp = static_cast<ADModel*>(_model);
 std::vector<double> _v(n);
 for (int j=0; j<n; j++)
   _v[j] = v[j];
@@ -624,7 +626,7 @@ return create_solver(name);
 extern "C" void set_solver_model(void* solver, void* _model)
 {
 Solver* _solver = static_cast<Solver*>(solver);
-Simple_ADModel* admodel = static_cast<Simple_ADModel*>(_model);
+ADModel* admodel = static_cast<ADModel*>(_model);
 _solver->set_model(admodel);
 }
 
@@ -769,7 +771,7 @@ create_model();
 
 extern "C" void coek_finalize(void)
 {
-for (std::list<Simple_ADModel*>::iterator it = models.begin(); it != models.end(); it++)
+for (std::list<ADModel*>::iterator it = models.begin(); it != models.end(); it++)
   delete *it;
 models.resize(0);
 model = 0;
