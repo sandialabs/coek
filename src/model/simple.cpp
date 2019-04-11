@@ -1,5 +1,7 @@
 #include "model/simple.hpp"
 
+namespace coek {
+
 
 void Simple_ExprModel::print(std::ostream& ostr)
 {
@@ -29,3 +31,4 @@ for (std::list<NumericValue*>::iterator it=equalities.begin(); it != equalities.
     }
 }
 
+}

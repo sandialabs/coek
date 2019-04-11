@@ -3,12 +3,15 @@
 #include "model.hpp"
 #include "expr/expr_manager_objects.hpp"
 
+namespace coek {
+
+namespace modelexpr_default {
 
 //
-// A model that uses a simple AD implementation
+// An object that manages model expressions
 //
 
-class Simple_ExprModel : public ExprModel<ExprManager_Objects>
+class ModelExpr_default : public coek::ModelExpr<ExprManager_Objects>
 {
 public:
 
@@ -44,3 +47,6 @@ public:
 
 };
 
+}
+
+}
