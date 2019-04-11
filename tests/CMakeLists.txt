@@ -30,6 +30,11 @@ enable_testing()
 #
 # Create a testing binary for Catch2 tests
 #
+if(${with_ipopt})
+  MESSAGE("HERE")
+  LINK_DIRECTORIES(${IPOPT_HOME}/lib)
+endif()
+
 add_executable(runner ${sources})
 target_link_libraries(runner Catch)
 target_link_libraries(runner coek)
@@ -42,7 +47,6 @@ if(${with_cppad})
 endif()
 if(${with_ipopt})
   TARGET_LINK_LIBRARIES(runner ipopt)
-  LINK_DIRECTORIES(${IPOPT_HOME}/lib)
 endif()
 
 include(CTest)
