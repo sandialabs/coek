@@ -23,6 +23,23 @@ class TestModel(unittest.TestCase):
         m.build()
         #m.show(True)
 
+        self.assertEqual(m.num_objectives(), 1)
+        self.assertEqual(m.num_constraints(), 5)
+
+        visitor = ValueVisitor()
+        e = m.get_objective()
+        self.assertEqual( visitor.walk(e), ['+', ['+', ['+', ['-', '1', ['+', 'v1', 'v2']], ['*', '3', ['+', 'v1', 'v2']]], ['*', ['+', 'v1', 'v2'], ['+', 'v1', 'v2']]], 'v3'] )
+        e = m.get_constraint(0)
+        self.assertEqual( e.value, -4 )
+        e = m.get_constraint(1)
+        self.assertEqual( e.value, 5 )
+        e = m.get_constraint(2)
+        self.assertEqual( e.value, -1 )
+        e = m.get_constraint(3)
+        self.assertEqual( e.value, 0 )
+        e = m.get_constraint(4)
+        self.assertEqual( e.value, -2 )
+
         self.assertEqual(m.compute_f(), 19)
         self.assertEqual(m.compute_c(), [-4, 5, -1, 0, -2])
         self.assertEqual(m.compute_df(), [8,8,1])

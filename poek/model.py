@@ -35,6 +35,18 @@ class model(object):
         elif obj.is_expression() or obj.is_variable() or obj.is_parameter():
             lib.add_objective(self.ptr, obj.ptr)
 
+    def num_objectives(self):
+        return lib.get_nobjectives(self.ptr)
+
+    def num_constraints(self):
+        return lib.get_nconstraints(self.ptr)
+
+    def get_objective(self, i=0):
+        return poek.expr.expression( lib.get_objective(self.ptr, i) )
+
+    def get_constraint(self, i):
+        return poek.expr.constraint( lib.get_constraint(self.ptr, i) )
+
     def compute_f(self, i=0):
         return lib.compute_objective_f(self.ptr, i)
 
