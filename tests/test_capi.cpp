@@ -6,7 +6,7 @@
 extern "C" {
 #include "coek_capi.h"
 };
-#include "admodel/simple.hpp"
+#include "model.hpp"
 #include "expr/expr_types.hpp"
 
 #include "catch.hpp"
@@ -229,7 +229,7 @@ TEST_CASE( "capi_add_expression", "[smoke]" ) {
   coek_initialize();
 
   apival_t model = create_model();
-  ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
+  ExprManager* manager = &(static_cast<coek::ADModel*>(model)->manager);
 
   apival_t a = create_variable(model, false, false, 0.0, 1.0, 0.0, "a");
   apival_t b = create_variable(model, false, false, 0.0, 1.0, 0.0, "b");
@@ -468,7 +468,7 @@ TEST_CASE( "capi_minus_expression", "[smoke]" ) {
   coek_initialize();
 
   apival_t model = create_model();
-  ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
+  ExprManager* manager = &(static_cast<coek::ADModel*>(model)->manager);
 
   apival_t a = create_variable(model, false, false, 0.0, 1.0, 0.0, "a");
   apival_t b = create_variable(model, false, false, 0.0, 1.0, 0.0, "b");
@@ -700,7 +700,7 @@ TEST_CASE( "capi_neg_expression", "[smoke]" ) {
   coek_initialize();
 
   apival_t model = create_model();
-  ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
+  ExprManager* manager = &(static_cast<coek::ADModel*>(model)->manager);
 
   SECTION( "Test negation_param" ) {
     apival_t p = create_parameter_int(model, 2, false, "p");
@@ -761,7 +761,7 @@ TEST_CASE( "capi_mul_expression", "[smoke]" ) {
   coek_initialize();
 
   apival_t model = create_model();
-  ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
+  ExprManager* manager = &(static_cast<coek::ADModel*>(model)->manager);
 
   apival_t a = create_variable(model, false, false, 0.0, 1.0, 0.0, "a");
   apival_t b = create_variable(model, false, false, 0.0, 1.0, 0.0, "b");
@@ -1189,7 +1189,7 @@ TEST_CASE( "capi_div_expression", "[smoke]" ) {
   coek_initialize();
 
   apival_t model = create_model();
-  ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
+  ExprManager* manager = &(static_cast<coek::ADModel*>(model)->manager);
 
   apival_t a = create_variable(model, false, false, 0.0, 1.0, 0.0, "a");
   apival_t b = create_variable(model, false, false, 0.0, 1.0, 0.0, "b");
@@ -1441,7 +1441,7 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
   coek_initialize();
 
   apival_t model = create_model();
-  ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
+  ExprManager* manager = &(static_cast<coek::ADModel*>(model)->manager);
 
   apival_t a = create_variable(model, false, false, 0.0, 1.0, 0.0, "a");
   apival_t b = create_variable(model, false, false, 0.0, 1.0, 0.0, "b");
@@ -1671,7 +1671,7 @@ TEST_CASE( "capi_intrinsics", "[smoke]" ) {
   coek_initialize();
 
   apival_t model = create_model();
-  ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
+  ExprManager* manager = &(static_cast<coek::ADModel*>(model)->manager);
 
   apival_t v = create_variable(model, false, false, 0.0, 1.0, 0.0, "v");
   apival_t p = create_variable(model, false, false, 0.0, 1.0, 0.0, "p");
@@ -1905,7 +1905,7 @@ TEST_CASE( "capi_constraint", "[smoke]" ) {
   coek_initialize();
 
   apival_t model = create_model();
-  ExprManager* manager = &(static_cast<Simple_ADModel*>(model)->manager);
+  ExprManager* manager = &(static_cast<coek::ADModel*>(model)->manager);
 
   apival_t v = create_variable(model, false, false, 0.0, 1.0, 0.0, "v");
   apival_t p = create_variable(model, false, false, 0.0, 1.0, 0.0, "p");
@@ -2016,7 +2016,7 @@ TEST_CASE( "capi_model", "[smoke]" ) {
   coek_initialize();
 
   apival_t model = create_model();
-  Simple_ExprModel* _model = static_cast<Simple_ADModel*>(model);
+  coek::ADModel* _model = static_cast<coek::ADModel*>(model);
 
   apival_t a = create_variable(model, false, false, 0.0, 1.0, 0.0, "a");
   apival_t b = create_variable(model, false, false, 0.0, 1.0, 1.0, "b");

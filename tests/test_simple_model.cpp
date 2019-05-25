@@ -1,12 +1,12 @@
 
 #include "catch.hpp"
-#include "admodel/simple.hpp"
+#include "model.hpp"
 
 
 TEST_CASE( "simple_admodel add", "[smoke]" ) {
 
   coek_finalize();
-  Simple_ADModel model;
+  coek::ADModel model;
   
   SECTION( "Add Objective" ) {
     auto x = model.var(0,0,0.0,0.0,1.0,"x");
@@ -53,7 +53,7 @@ TEST_CASE( "simple_admodel add", "[smoke]" ) {
 TEST_CASE( "simple_admodel ad", "[smoke]" ) {
 
   coek_finalize();
-  Simple_ADModel model;
+  coek::ADModel model;
   
   SECTION( "f" ) {
     auto a = model.var(0,0,0.0,0.0,1.0,"a");

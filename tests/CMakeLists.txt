@@ -8,20 +8,35 @@ SET(sources
     test_expr.cpp
     test_expr_manager_objects.cpp
     test_capi.cpp
-    test_simple_model.cpp
    )
 
-#
-# Setup include directories and customize the sources built
-#
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/../src)
+
+#
+# ADMODEL OPTIONS
+#
+
+# CppAD LIBRARY
 if(with_cppad)
-  MESSAGE("-- Testing Source with CppAd Library: on")
+  MESSAGE("-- Building Test with AD:        CppAd")
   list(APPEND sources
     test_cppad_model.cpp)
   include_directories(BEFORE ${CPPAD_INCLUDE_DIR})
-else()
-  MESSAGE("-- Testing Source with CppAd Library: off")
+endif()
+
+# ASL LIBRARY
+if(NOT with_cppad AND with_asl)
+  MESSAGE("-- Building Test with AD:        ASL")
+  list(APPEND sources
+    test_asl_model.cpp)
+endif()
+
+# Default AD LIBRARY
+if(NOT with_cppad AND NOT with_asl)
+  MESSAGE("-- Building Test with AD:        Simple")
+  list(APPEND sources
+    test_simple_model.cpp)
+  add_definitions(-DWITH_ADMODEL_SIMPLEAD)
 endif()
 
 
@@ -36,11 +51,11 @@ if(${with_ipopt})
 endif()
 
 add_executable(runner ${sources})
-target_link_libraries(runner Catch)
-target_link_libraries(runner coek)
+target_link_libraries(runner PUBLIC Catch)
+target_link_libraries(runner PUBLIC coek)
 if(${with_gcov})
   TARGET_COMPILE_OPTIONS(runner PUBLIC -fprofile-arcs -ftest-coverage -g)
-  TARGET_LINK_LIBRARIES(runner gcov)
+  TARGET_LINK_LIBRARIES(runner PUBLIC gcov)
 endif()
 if(${with_cppad})
   TARGET_COMPILE_OPTIONS(runner PUBLIC -DWITH_CPPAD)
