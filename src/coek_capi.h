@@ -92,8 +92,13 @@ void add_objective(void* model, void* expr);
 void add_inequality(void* model, void* ineq);
 void add_equality(void* model, void* eq);
 
+void* get_objective(void* model, int n);
+void* get_constraint(void* model, int n);
+
 void build_model(void* model);
 int get_nvariables(void* model);
+int get_nobjectives(void* model);
+int get_nconstraints(void* model);
 
 double compute_objective_f(void* model, int i);
 void compute_objective_df(void* model, double*, int n, int i);

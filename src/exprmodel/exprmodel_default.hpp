@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "expr/expr_manager_objects.hpp"
 #include "exprmodel/exprmodel_base.hpp"
 
@@ -15,9 +16,9 @@ class ExprModel : public coek::base::ExprModel<ExprManager_Objects>
 {
 public:
 
-    std::list<expr_t> objectives;
-    std::list<expr_t> inequalities;
-    std::list<expr_t> equalities;
+    std::vector<expr_t> objectives;
+    std::vector<expr_t> inequalities;
+    std::vector<expr_t> equalities;
 
     void print(std::ostream& ostr);
 
@@ -29,6 +30,16 @@ public:
 
     void add_equality(expr_t expr)
         { equalities.push_back(expr); }
+
+    expr_t get_objective(unsigned int n)
+        { return objectives[n]; }
+
+    expr_t get_constraint(unsigned int n)
+        {
+        if (n < inequalities.size())
+            return inequalities[n];
+        return equalities[n - inequalities.size()];
+        }
 
     expr_t var(bool _binary, bool _integer, double lb, double ub, double init)
       { return var(_binary, _integer, lb, ub, init, ""); }

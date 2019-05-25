@@ -18,6 +18,8 @@ public:
 
     virtual int num_variables() = 0;
 
+    virtual int num_objectives() = 0;
+
     virtual int num_constraints() = 0;
 
     virtual int num_nonzeros_Jacobian() = 0;

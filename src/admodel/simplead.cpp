@@ -29,20 +29,20 @@ J.resize(inequalities.size() + equalities.size());
     
 std::set<Variable*, bool(*)(const Variable*, const Variable*)> vset(variable_comparator);
 
-for (std::list<NumericValue*>::iterator it=objectives.begin(); it != objectives.end(); ++it) {
+for (std::vector<NumericValue*>::iterator it=objectives.begin(); it != objectives.end(); ++it) {
     build_expression(*it, builds_f[nb], vset);
     nb++;
     }
 
 size_t i=0;
-for (std::list<NumericValue*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
+for (std::vector<NumericValue*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
     vars[i] = new std::set<Variable*, bool(*)(const Variable*, const Variable*)>(variable_comparator);
     build_expression(*it, builds_f[nb], *vars[i]);
     i++;
     nb++;
     }
 
-for (std::list<NumericValue*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
+for (std::vector<NumericValue*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
     vars[i] = new std::set<Variable*, bool(*)(const Variable*, const Variable*)>(variable_comparator);
     build_expression(*it, builds_f[nb], *vars[i]);
     i++;
@@ -272,7 +272,7 @@ if (variables.size() > 0) {
 
     ostr << "  DF" << std::endl;
     int k = 0;
-    for (std::list<NumericValue*>::iterator it=objectives.begin(); it != objectives.end(); ++it) {
+    for (std::vector<NumericValue*>::iterator it=objectives.begin(); it != objectives.end(); ++it) {
         std::map<Variable*, NumericValue*> diff;
         symbolic_diff_all(*it,  diff);
         ostr << "    (Objective " << k << ")" << std::endl;
@@ -293,7 +293,7 @@ if (variables.size() > 0) {
 
     ostr << "  DC" << std::endl;
     k = 0;
-    for (std::list<NumericValue*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
+    for (std::vector<NumericValue*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
         std::map<Variable*, NumericValue*> diff;
         InequalityExpression* tmp = static_cast<InequalityExpression*>(*it);
         symbolic_diff_all(tmp->body,  diff);
@@ -315,7 +315,7 @@ if (variables.size() > 0) {
 
     ostr << "  DC" << std::endl;
     k = 0;
-    for (std::list<NumericValue*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
+    for (std::vector<NumericValue*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
         std::map<Variable*, NumericValue*> diff;
         EqualityExpression* tmp = static_cast<EqualityExpression*>(*it);
         symbolic_diff_all(tmp->body,  diff);

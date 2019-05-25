@@ -26,6 +26,10 @@ public:
 
   virtual void add_equality(expr_t expr) = 0;
 
+  virtual expr_t get_objective(unsigned int n) = 0;
+
+  virtual expr_t get_constraint(unsigned int n) = 0;
+
   virtual void print(std::ostream& ostr) = 0;
 
 };

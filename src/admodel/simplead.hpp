@@ -23,6 +23,9 @@ public:
     int num_variables()
         { return variables.size(); }
 
+    int num_objectives()
+        { return objectives.size(); }
+
     int num_constraints()
         { return inequalities.size() + equalities.size(); }
 

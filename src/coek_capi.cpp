@@ -535,6 +535,18 @@ NumericValue* _eq = static_cast<NumericValue*>(eq);
 tmp->equalities.push_back(_eq);
 }
 
+extern "C" void* get_objective(void* _model, int n)
+{
+ADModel* tmp = static_cast<ADModel*>(_model);
+return tmp->get_objective(n);
+}
+
+extern "C" void* get_constraint(void* _model, int n)
+{
+ADModel* tmp = static_cast<ADModel*>(_model);
+return tmp->get_constraint(n);
+}
+
 extern "C" void print_model(void* _model, int /*df*/)
 {
 ADModel* tmp = static_cast<ADModel*>(_model);
@@ -551,6 +563,18 @@ extern "C" int get_nvariables(void* _model)
 {
 ADModel* tmp = static_cast<ADModel*>(_model);
 return tmp->num_variables();
+}
+
+extern "C" int get_nobjectives(void* _model)
+{
+ADModel* tmp = static_cast<ADModel*>(_model);
+return tmp->num_objectives();
+}
+
+extern "C" int get_nconstraints(void* _model)
+{
+ADModel* tmp = static_cast<ADModel*>(_model);
+return tmp->num_constraints();
 }
 
 extern "C" double compute_objective_f(void* _model, int i)
