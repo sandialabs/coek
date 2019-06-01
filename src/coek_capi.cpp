@@ -458,6 +458,18 @@ Variable* v = static_cast<Variable*>(ptr);
 return v->ub;
 }
 
+extern "C" int variable_is_binary(void* ptr)
+{
+Variable* v = static_cast<Variable*>(ptr);
+return v->binary;
+}
+
+extern "C" int variable_is_integer(void* ptr)
+{
+Variable* v = static_cast<Variable*>(ptr);
+return v->integer;
+}
+
 extern "C" void get_numval_str(void* ptr, char* buf, int max)
 {
 NumericValue* v = static_cast<NumericValue*>(ptr);

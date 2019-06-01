@@ -77,6 +77,8 @@ void   variable_set_lb(void* variable, double value);
 double variable_get_lb(void* variable);
 void   variable_set_ub(void* variable, double value);
 double variable_get_ub(void* variable);
+int    variable_is_binary(void* variable);
+int    variable_is_integer(void* variable);
 
 void get_numval_str(void* numval, char* buf, int n);
 double expr_get_value(void* numval);
