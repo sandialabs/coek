@@ -92,5 +92,11 @@ public:
     apival_t negative_one;
 
     virtual std::list<std::string> expr_to_list(apival_t e, bool values) = 0;
+
+    virtual int nlinear_vars(apival_t e) = 0;
+
+    virtual apival_t linear_var(apival_t e, int i) = 0;
+
+    virtual double linear_coef(apival_t e, int i) = 0;
 };
 

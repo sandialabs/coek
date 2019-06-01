@@ -83,6 +83,9 @@ double expr_get_value(void* numval);
 double compute_numval_value(void* numval);
 double compute_constraint_value(void* numval, int body_flag);
 
+int expr_repn_nlinear_vars(void* expr);
+void* expr_repn_linear_var(void* expr, int i);
+double expr_repn_linear_coef(void* expr, int i);
 
 void* create_inequality(void* self, int strict_flag);
 void* create_equality(void* self);

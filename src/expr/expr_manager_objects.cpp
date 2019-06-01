@@ -1,3 +1,4 @@
+#include <sstream>
 #include "expr/expr_types.hpp"
 #include "expr/expr_manager_objects.hpp"
 
@@ -6,6 +7,8 @@ ExprManager_Objects::~ExprManager_Objects(void)
 {
 for (std::list<NumericValue*>::iterator it=owned.begin(); it != owned.end(); it++)
     delete *it;
+for (std::map<numval_t,ExprRepn*>::iterator it=repn.begin(); it != repn.end(); it++)
+    delete it->second;
 }
 
 ExprManager_Objects::numval_t ExprManager_Objects::negate(numval_t expr)
@@ -29,7 +32,7 @@ NumericValue* tmp;
 if (lhs->is_parameter() and !lhs->is_mutable_parameter() and rhs->is_parameter() and !rhs->is_mutable_parameter())
     tmp = new TypedParameter<double>(lhs->manager, lhs->_value + rhs->_value, false);
 else
-    tmp = new AddExpression<NumericValue*,NumericValue*>(lhs->manager, lhs,rhs);
+    tmp = new AddExpression(lhs->manager, lhs,rhs);
 owned.push_back(tmp);
 return tmp;
 }
@@ -71,7 +74,7 @@ NumericValue* tmp;
 if (lhs->is_parameter() and !lhs->is_mutable_parameter() and rhs->is_parameter() and !rhs->is_mutable_parameter())
     tmp = new TypedParameter<double>(lhs->manager, lhs->_value * rhs->_value, false);
 else
-    tmp = new MulExpression<NumericValue*,NumericValue*>(lhs->manager, lhs, rhs);
+    tmp = new MulExpression(lhs->manager, lhs, rhs);
 owned.push_back(tmp);
 return tmp;
 }
@@ -308,5 +311,186 @@ std::list<std::string> ExprManager_Objects::expr_to_list(apival_t e, bool values
 {
 NumericValue* tmp = static_cast<NumericValue*>(e);
 return ::expr_to_list(tmp, values);
+}
+
+int ExprManager_Objects::nlinear_vars(apival_t e)
+{
+NumericValue* e_ = static_cast<NumericValue*>(e);
+ExprRepn* repn = get_repn(e_);
+return repn->linear_vars.size();
+}
+
+apival_t ExprManager_Objects::linear_var(apival_t e, int i)
+{
+NumericValue* e_ = static_cast<NumericValue*>(e);
+ExprRepn* repn = get_repn(e_);
+if ((i < 0) or (i >= repn->linear_vars.size()))
+   return 0;
+return repn->linear_vars[i];
+}
+
+double ExprManager_Objects::linear_coef(apival_t e, int i)
+{
+NumericValue* e_ = static_cast<NumericValue*>(e);
+ExprRepn* repn = get_repn(e_);
+return repn->linear_coefs[i];
+}
+
+ExprRepn* ExprManager_Objects::get_repn(numval_t e)
+{
+std::map<numval_t,ExprRepn*>::iterator it = repn.find(e);
+if (it != repn.end())
+   return it->second;
+
+ExprRepn* ans = new ExprRepn();
+ans->initialize(e);
+repn[e] = ans;
+return ans;
+}
+
+
+// Forward reference
+void collect_terms(NumericValue* e, ExprRepn& repn);
+
+void collect_terms_(Parameter* e, ExprRepn& repn)
+{ repn.constval = e->value(); }
+
+void collect_terms_(Variable* e, ExprRepn& repn)
+{
+repn.linear_vars.push_back(e);
+repn.linear_coefs.push_back(1.0);
+}
+
+void collect_terms_(InequalityExpression* e, ExprRepn& repn)
+{ collect_terms(e->body, repn); }
+
+void collect_terms_(EqualityExpression* e, ExprRepn& repn)
+{ collect_terms(e->body, repn); }
+
+void collect_terms_(AddExpression* e, ExprRepn& repn)
+{
+ExprRepn lhs;
+collect_terms(e->lhs, lhs);
+repn.constval += lhs.constval;
+for (size_t i=0; i<lhs.linear_vars.size(); i++) {
+    repn.linear_vars.push_back(lhs.linear_vars[i]);
+    repn.linear_coefs.push_back(lhs.linear_coefs[i]);
+    }
+
+ExprRepn rhs;
+collect_terms(e->rhs, rhs);
+repn.constval += rhs.constval;
+for (size_t i=0; i<rhs.linear_vars.size(); i++) {
+    repn.linear_vars.push_back(rhs.linear_vars[i]);
+    repn.linear_coefs.push_back(rhs.linear_coefs[i]);
+    }
+}
+
+void collect_terms_(MulExpression* e, ExprRepn& repn)
+{
+ExprRepn lhs;
+collect_terms(e->lhs, lhs);
+if (lhs.linear_vars.size() == 0) {
+    if (lhs.constval == 0.0)
+        return;
+    ExprRepn rhs;
+    collect_terms(e->rhs, rhs);
+    repn.constval += lhs.constval*rhs.constval;
+    for (size_t i=0; i<rhs.linear_vars.size(); i++) {
+        repn.linear_vars.push_back(rhs.linear_vars[i]);
+        repn.linear_coefs.push_back(rhs.linear_coefs[i]);
+        }
+    }
+else {
+    ExprRepn rhs;
+    collect_terms(e->rhs, rhs);
+    if (rhs.linear_vars.size() == 0) {
+        if (rhs.constval == 0.0)
+            return;
+        repn.constval += lhs.constval * rhs.constval;
+        for (size_t i=0; i<lhs.linear_vars.size(); i++) {
+            repn.linear_vars.push_back(lhs.linear_vars[i]);
+            repn.linear_coefs.push_back(lhs.linear_coefs[i]);
+            }
+        }
+    else {
+        throw std::runtime_error("Nonlinear expressions are not currently supported.");
+        }
+    }
+}
+
+void collect_terms(NumericValue* e, ExprRepn& repn)
+{
+// TODO
+//std::cout << typeid(*e).name() << std::endl;
+
+if (e->is_parameter()) {
+    Parameter* tmp = dynamic_cast<Parameter*>(e);
+    collect_terms_(tmp, repn);
+    }
+
+else if (typeid(*e) == typeid(Variable))
+    collect_terms_(dynamic_cast<Variable*>(e), repn);
+
+else if (typeid(*e) == typeid(InequalityExpression))
+    collect_terms_(dynamic_cast<InequalityExpression*>(e), repn);
+
+else if (typeid(*e) == typeid(EqualityExpression))
+    collect_terms_(dynamic_cast<EqualityExpression*>(e), repn);
+
+else if (typeid(*e) == typeid(MulExpression))
+    collect_terms_(dynamic_cast<MulExpression*>(e), repn);
+
+else if (typeid(*e) == typeid(AddExpression))
+    collect_terms_(dynamic_cast<AddExpression*>(e), repn);
+
+else {
+    std::string str = "Unknown expression term: ";
+    str += typeid(*e).name();
+    str += " ( ";
+    std::ostringstream ostr;
+    e->print(ostr);
+    str += ostr.str();
+    str += " )";
+    throw std::runtime_error(str.c_str());
+    }
+}
+
+void ExprRepn::initialize(NumericValue* e)
+{
+collect_terms(e, *this);
+// TODO
+/*
+Parameter
+Variable
+Constraint
+
+AbsExpression
+NegExpression
+CeilExpression
+FlooExpression
+ExpExpression
+LogExpression
+Log10Expression
+SqrtExpression
+SinExpression
+CosExpression
+TanExpression
+AsinExpression
+AcosExpression
+AtanExpression
+SinhExpression
+CoshExpression
+TanhExpression
+AsinhExpression
+AcoshExpression
+AtanhExpression
+
+PowExpression
+AddExpression
+SubExpression
+MulExpression
+DivExpression
+*/
 }
 

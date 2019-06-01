@@ -911,18 +911,19 @@ public:
 
 /*** ADD ***/
 
-template <typename LHS, typename RHS>
-class AddExpression : public BinaryExpression<LHS,RHS>
+class AddExpression : public BinaryExpression<NumericValue*,NumericValue*>
 {
 public:
 
-    AddExpression(ExprManager* _manager, LHS _lhs, RHS _rhs) 
-        : BinaryExpression<LHS,RHS>(_manager,_lhs,_rhs)
+    AddExpression(ExprManager* _manager, NumericValue* _lhs, NumericValue* _rhs) 
+        : BinaryExpression<NumericValue*,NumericValue*>(_manager,_lhs,_rhs)
         {}
 
-    void print(std::ostream& ostr) {AddExpression_print(ostr, this);}
+    void print(std::ostream& ostr)
+        {this->lhs->print(ostr); ostr << " + "; this->rhs->print(ostr); }
 
-    double value() {return AddExpression_value(this);}
+    double value()
+        { return this->lhs->value() + this->rhs->value(); }
 
     double compute_value()
         {
@@ -954,47 +955,6 @@ public:
         {std::snprintf(buf, max, "+");}
 
 };
-
-template <typename LHS, typename RHS>
-void AddExpression_print(std::ostream& ostr, AddExpression<LHS, RHS>* expr)
-{expr->lhs->print(ostr); ostr << " + "; expr->rhs->print(ostr); }
-
-template <typename LHS>
-void AddExpression_print(std::ostream& ostr, AddExpression<LHS, int>* expr)
-{ expr->lhs->print(ostr); ostr << " + " << expr->rhs; }
-
-template <typename LHS>
-void AddExpression_print(std::ostream& ostr, AddExpression<LHS, double>* expr)
-{ expr->lhs->print(ostr); ostr << " + " << expr->rhs; }
-
-template <typename RHS>
-void AddExpression_print(std::ostream& ostr, AddExpression<int, RHS>* expr)
-{ ostr << expr->lhs << " + "; expr->rhs->print(ostr); }
-
-template <typename RHS>
-void AddExpression_print(std::ostream& ostr, AddExpression<double, RHS>* expr)
-{ ostr << expr->lhs << " + "; expr->rhs->print(ostr); }
-
-
-template <typename LHS, typename RHS>
-double AddExpression_value(AddExpression<LHS, RHS>* expr)
-{ return expr->lhs->value() + expr->rhs->value(); }
-
-template <typename LHS>
-double AddExpression_value(AddExpression<LHS, int>* expr)
-{ return expr->lhs->value() + expr->rhs; }
-
-template <typename LHS>
-double AddExpression_value(AddExpression<LHS, double>* expr)
-{ return expr->lhs->value() + expr->rhs; }
-
-template <typename RHS>
-double AddExpression_value(AddExpression<int, RHS>* expr)
-{ return expr->lhs + expr->rhs->value(); }
-
-template <typename RHS>
-double AddExpression_value(AddExpression<double, RHS>* expr)
-{ return expr->lhs + expr->rhs->value(); }
 
 
 /*** SUB ***/
@@ -1048,18 +1008,31 @@ public:
 
 /*** MUL ***/
 
-template <typename LHS, typename RHS>
-class MulExpression : public BinaryExpression<LHS,RHS>
+class MulExpression : public BinaryExpression<NumericValue*,NumericValue*>
 {
 public:
 
-    MulExpression(ExprManager* _manager, LHS _lhs, RHS _rhs) 
-        : BinaryExpression<LHS,RHS>(_manager,_lhs,_rhs)
+    MulExpression(ExprManager* _manager, NumericValue* _lhs, NumericValue* _rhs) 
+        : BinaryExpression<NumericValue*,NumericValue*>(_manager,_lhs,_rhs)
         {}
 
-    void print(std::ostream& ostr) {MulExpression_print(ostr, this);}
+    void print(std::ostream& ostr)
+        {
+        if (this->lhs->is_variable() || this->lhs->is_parameter())
+            this->lhs->print(ostr);
+        else {
+            ostr << "("; this->lhs->print(ostr); ostr << ")";
+            }
+        ostr << "*";
+        if (this->rhs->is_variable() || this->rhs->is_parameter())
+            this->rhs->print(ostr);
+        else {
+            ostr << "("; this->rhs->print(ostr); ostr << ")";
+            }
+        }
 
-    double value() {return MulExpression_value(this); }
+    double value()
+        { return this->lhs->value() * this->rhs->value(); }
 
     double compute_value()
         {
@@ -1098,92 +1071,6 @@ public:
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "*");}
 };
-
-
-template <typename LHS, typename RHS>
-void MulExpression_print(std::ostream& ostr, MulExpression<LHS, RHS>* expr)
-{
-if (expr->lhs->is_variable() || expr->lhs->is_parameter())
-    expr->lhs->print(ostr);
-else {
-    ostr << "("; expr->lhs->print(ostr); ostr << ")";
-    }
-ostr << "*";
-if (expr->rhs->is_variable() || expr->rhs->is_parameter())
-    expr->rhs->print(ostr);
-else {
-    ostr << "("; expr->rhs->print(ostr); ostr << ")";
-    }
-}
-
-template <typename LHS>
-void MulExpression_print(std::ostream& ostr, MulExpression<LHS, int>* expr)
-{ 
-if (expr->lhs->is_variable() || expr->lhs->is_parameter())
-    expr->lhs->print(ostr);
-else {
-    ostr << "("; expr->lhs->print(ostr); ostr << ")";
-    }
-ostr << "*";
-ostr << expr->rhs;
-}
-
-template <typename LHS>
-void MulExpression_print(std::ostream& ostr, MulExpression<LHS, double>* expr)
-{
-if (expr->lhs->is_variable() || expr->lhs->is_parameter())
-    expr->lhs->print(ostr);
-else {
-    ostr << "("; expr->lhs->print(ostr); ostr << ")";
-    }
-ostr << "*";
-ostr << expr->rhs;
-}
-
-template <typename RHS>
-void MulExpression_print(std::ostream& ostr, MulExpression<int, RHS>* expr)
-{
-ostr << expr->lhs;
-ostr << "*";
-if (expr->rhs->is_variable() || expr->rhs->is_parameter())
-    expr->rhs->print(ostr);
-else {
-    ostr << "("; expr->rhs->print(ostr); ostr << ")";
-    }
-}
-
-template <typename RHS>
-void MulExpression_print(std::ostream& ostr, MulExpression<double, RHS>* expr)
-{
-ostr << expr->lhs;
-ostr << "*";
-if (expr->rhs->is_variable() || expr->rhs->is_parameter())
-    expr->rhs->print(ostr);
-else {
-    ostr << "("; expr->rhs->print(ostr); ostr << ")";
-    }
-}
-
-
-template <typename LHS, typename RHS>
-double MulExpression_value(MulExpression<LHS, RHS>* expr)
-{ return expr->lhs->value() * expr->rhs->value(); }
-
-template <typename LHS>
-double MulExpression_value(MulExpression<LHS, int>* expr)
-{ return expr->lhs->value() * expr->rhs; }
-
-template <typename LHS>
-double MulExpression_value(MulExpression<LHS, double>* expr)
-{ return expr->lhs->value() * expr->rhs; }
-
-template <typename RHS>
-double MulExpression_value(MulExpression<int, RHS>* expr)
-{ return expr->lhs * expr->rhs->value(); }
-
-template <typename RHS>
-double MulExpression_value(MulExpression<double, RHS>* expr)
-{ return expr->lhs * expr->rhs->value(); }
 
 
 /*** DIV ***/

@@ -1,8 +1,25 @@
 #pragma once
 
 #include <list>
+#include <vector>
+#include <map>
 #include "expr/expr_manager.hpp"
 #include "expr/expr_types.hpp"
+
+
+class ExprRepn
+{
+public:
+
+    double constval;
+
+    std::vector<NumericValue*> linear_vars;
+    std::vector<double> linear_coefs;
+
+    ExprRepn() : constval(0.0) {}
+
+    void initialize(NumericValue* e);
+};
 
 
 //
@@ -16,6 +33,7 @@ public:
     typedef numval_t expr_t;
 
     std::list<numval_t> owned;
+    std::map<numval_t, ExprRepn*> repn;
 
     ExprManager_Objects() 
        : OneParameter(this,1,false),
@@ -177,5 +195,10 @@ public:
 
     std::list<std::string> expr_to_list(apival_t e, bool values);
 
+    int nlinear_vars(apival_t e);
+    apival_t linear_var(apival_t e, int i);
+    double linear_coef(apival_t e, int i);
+
+    ExprRepn* get_repn(numval_t e);
 };
 

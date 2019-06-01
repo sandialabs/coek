@@ -484,6 +484,24 @@ if (body)
 return v->boolean_value();
 }
 
+extern "C" int expr_repn_nlinear_vars(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->manager->nlinear_vars(e);
+}
+
+extern "C" void* expr_repn_linear_var(void* expr, int i)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->manager->linear_var(e, i);
+}
+
+extern "C" double expr_repn_linear_coef(void* expr, int i)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->manager->linear_coef(e, i);
+}
+
 extern "C" void* create_inequality(void* expr, int strict_flag)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
