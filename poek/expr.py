@@ -4,7 +4,7 @@ from poek.globals import NAN, NULL, BUFFER
 __all__ = ['NumericValue', 'parameter', 
     'variable', 'variable_single', 'variable_array', 'expression',
     'constraint', 'inequality_constraint', 'equality_constraint',
-    'ZeroParameter', 'OneParameter', 'NegativeOneParameter']
+    'ZeroParameter', 'OneParameter', 'NegativeOneParameter', 'variable_view']
 
 
 class NumericValue(object):
@@ -627,12 +627,14 @@ class variable_single(NumericValue):
 
     __slots__ = ('ptr', '_name')
 
-    def __init__(self, name=None, initialize=NAN, lb=NAN, ub=NAN):
+    def __init__(self, name=None, initialize=NAN, lb=NAN, ub=NAN, binary=False, integer=False):
         self._name = name
+        binval = 1 if binary else 0
+        integer = 1 if integer else 0
         if name is None:
-            self.ptr = lib.create_variable(NULL,0,0,lb,ub,initialize,str.encode(""))   # TODO: add 'within' argument
+            self.ptr = lib.create_variable(NULL,binary,integer,lb,ub,initialize,str.encode(""))   # TODO: add 'within' argument
         else:
-            self.ptr = lib.create_variable(NULL,0,0,lb,ub,initialize,str.encode(name))   # TODO: add 'within' argument
+            self.ptr = lib.create_variable(NULL,binary,integer,lb,ub,initialize,str.encode(name))   # TODO: add 'within' argument
 
     @property
     def value(self):
@@ -654,6 +656,14 @@ class variable_single(NumericValue):
     @ub.setter
     def ub(self, value):
         lib.variable_set_ub(self.ptr, value)
+
+    @property
+    def binary(self):
+        return lib.variable_is_binary(self.ptr)
+
+    @property
+    def integer(self):
+        return lib.variable_is_integer(self.ptr)
 
     @property
     def index(self):
@@ -800,6 +810,15 @@ class expression(NumericValue):
 
     def show(self):                 #pragma:nocover
         lib.print_expr(self.ptr)
+
+    def repn_nlinear_vars(self):
+        return lib.expr_repn_nlinear_vars(self.ptr)
+
+    def repn_linear_var(self, i):
+        return lib.expr_repn_linear_var(self.ptr, i)
+
+    def repn_linear_coef(self, i):
+        return lib.expr_repn_linear_coef(self.ptr, i)
 
 
 class constraint(NumericValue):
