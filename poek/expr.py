@@ -811,6 +811,9 @@ class expression(NumericValue):
     def show(self):                 #pragma:nocover
         lib.print_expr(self.ptr)
 
+    def repn_constant(self):
+        return lib.expr_repn_constant(self.ptr)
+
     def repn_nlinear_vars(self):
         return lib.expr_repn_nlinear_vars(self.ptr)
 
@@ -849,6 +852,10 @@ class constraint(NumericValue):
     @value.setter
     def value(self, value):
         raise TypeError("Cannot set the value of a constraint")
+
+    @property
+    def body(self):
+        return expression( self.ptr )
 
     #
     # TODO: Reassess whether this should be TRUE

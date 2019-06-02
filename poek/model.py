@@ -45,7 +45,9 @@ class model(object):
         return poek.expr.expression( lib.get_objective(self.ptr, i) )
 
     def get_constraint(self, i):
-        return poek.expr.constraint( lib.get_constraint(self.ptr, i) )
+        if i < lib.get_niconstraints(self.ptr):
+            return poek.expr.inequality_constraint( lib.get_constraint(self.ptr, i) )
+        return poek.expr.equality_constraint( lib.get_constraint(self.ptr, i) )
 
     def compute_f(self, i=0):
         return lib.compute_objective_f(self.ptr, i)
