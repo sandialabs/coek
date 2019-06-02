@@ -29,6 +29,9 @@ public:
     int num_constraints()
         { return inequalities.size() + equalities.size(); }
 
+    int num_ineqconstraints()
+        { return inequalities.size(); }
+
     int num_nonzeros_Jacobian();
 
     void set_variables(std::vector<double>& x);

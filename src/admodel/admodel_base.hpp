@@ -22,6 +22,8 @@ public:
 
     virtual int num_constraints() = 0;
 
+    virtual int num_ineqconstraints() = 0;
+
     virtual int num_nonzeros_Jacobian() = 0;
 
     virtual void set_variables(std::vector<double>& x) = 0;

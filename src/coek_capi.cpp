@@ -496,6 +496,12 @@ if (body)
 return v->boolean_value();
 }
 
+extern "C" double expr_repn_constant(void* expr)
+{
+NumericValue* e = static_cast<NumericValue*>(expr);
+return e->manager->constant(e);
+}
+
 extern "C" int expr_repn_nlinear_vars(void* expr)
 {
 NumericValue* e = static_cast<NumericValue*>(expr);
@@ -605,6 +611,12 @@ extern "C" int get_nconstraints(void* _model)
 {
 ADModel* tmp = static_cast<ADModel*>(_model);
 return tmp->num_constraints();
+}
+
+extern "C" int get_niconstraints(void* _model)
+{
+ADModel* tmp = static_cast<ADModel*>(_model);
+return tmp->num_ineqconstraints();
 }
 
 extern "C" double compute_objective_f(void* _model, int i)

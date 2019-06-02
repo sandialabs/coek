@@ -313,6 +313,13 @@ NumericValue* tmp = static_cast<NumericValue*>(e);
 return ::expr_to_list(tmp, values);
 }
 
+double ExprManager_Objects::constant(apival_t e)
+{
+NumericValue* e_ = static_cast<NumericValue*>(e);
+ExprRepn* repn = get_repn(e_);
+return repn->constval;
+}
+
 int ExprManager_Objects::nlinear_vars(apival_t e)
 {
 NumericValue* e_ = static_cast<NumericValue*>(e);
@@ -386,6 +393,25 @@ for (size_t i=0; i<rhs.linear_vars.size(); i++) {
     }
 }
 
+void collect_terms_(SubExpression* e, ExprRepn& repn)
+{
+ExprRepn lhs;
+collect_terms(e->lhs, lhs);
+repn.constval += lhs.constval;
+for (size_t i=0; i<lhs.linear_vars.size(); i++) {
+    repn.linear_vars.push_back(lhs.linear_vars[i]);
+    repn.linear_coefs.push_back(lhs.linear_coefs[i]);
+    }
+
+ExprRepn rhs;
+collect_terms(e->rhs, rhs);
+repn.constval -= rhs.constval;
+for (size_t i=0; i<rhs.linear_vars.size(); i++) {
+    repn.linear_vars.push_back(rhs.linear_vars[i]);
+    repn.linear_coefs.push_back(-1*rhs.linear_coefs[i]);
+    }
+}
+
 void collect_terms_(MulExpression* e, ExprRepn& repn)
 {
 ExprRepn lhs;
@@ -395,10 +421,10 @@ if (lhs.linear_vars.size() == 0) {
         return;
     ExprRepn rhs;
     collect_terms(e->rhs, rhs);
-    repn.constval += lhs.constval*rhs.constval;
+    repn.constval += lhs.constval * rhs.constval;
     for (size_t i=0; i<rhs.linear_vars.size(); i++) {
         repn.linear_vars.push_back(rhs.linear_vars[i]);
-        repn.linear_coefs.push_back(rhs.linear_coefs[i]);
+        repn.linear_coefs.push_back(lhs.constval * rhs.linear_coefs[i]);
         }
     }
 else {
@@ -410,7 +436,7 @@ else {
         repn.constval += lhs.constval * rhs.constval;
         for (size_t i=0; i<lhs.linear_vars.size(); i++) {
             repn.linear_vars.push_back(lhs.linear_vars[i]);
-            repn.linear_coefs.push_back(lhs.linear_coefs[i]);
+            repn.linear_coefs.push_back(lhs.linear_coefs[i] * rhs.constval);
             }
         }
     else {
@@ -443,6 +469,9 @@ else if (typeid(*e) == typeid(MulExpression))
 
 else if (typeid(*e) == typeid(AddExpression))
     collect_terms_(dynamic_cast<AddExpression*>(e), repn);
+
+else if (typeid(*e) == typeid(SubExpression))
+    collect_terms_(dynamic_cast<SubExpression*>(e), repn);
 
 else {
     std::string str = "Unknown expression term: ";

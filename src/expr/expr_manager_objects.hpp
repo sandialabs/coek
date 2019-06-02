@@ -195,6 +195,7 @@ public:
 
     std::list<std::string> expr_to_list(apival_t e, bool values);
 
+    double constant(apival_t e);
     int nlinear_vars(apival_t e);
     apival_t linear_var(apival_t e, int i);
     double linear_coef(apival_t e, int i);

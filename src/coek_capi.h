@@ -85,6 +85,7 @@ double expr_get_value(void* numval);
 double compute_numval_value(void* numval);
 double compute_constraint_value(void* numval, int body_flag);
 
+double expr_repn_constant(void* expr);
 int expr_repn_nlinear_vars(void* expr);
 void* expr_repn_linear_var(void* expr, int i);
 double expr_repn_linear_coef(void* expr, int i);
@@ -104,6 +105,7 @@ void build_model(void* model);
 int get_nvariables(void* model);
 int get_nobjectives(void* model);
 int get_nconstraints(void* model);
+int get_niconstraints(void* model);
 
 double compute_objective_f(void* model, int i);
 void compute_objective_df(void* model, double*, int n, int i);

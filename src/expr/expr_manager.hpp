@@ -93,6 +93,8 @@ public:
 
     virtual std::list<std::string> expr_to_list(apival_t e, bool values) = 0;
 
+    virtual double constant(apival_t e) = 0;
+
     virtual int nlinear_vars(apival_t e) = 0;
 
     virtual apival_t linear_var(apival_t e, int i) = 0;
