@@ -1,14 +1,13 @@
-#include <sstream>
 #include "expr/expr_types.hpp"
 #include "expr/expr_manager_objects.hpp"
 
 
 ExprManager_Objects::~ExprManager_Objects(void)
 {
-for (std::list<NumericValue*>::iterator it=owned.begin(); it != owned.end(); it++)
-    delete *it;
 for (std::map<numval_t,ExprRepn*>::iterator it=repn.begin(); it != repn.end(); it++)
     delete it->second;
+for (std::list<NumericValue*>::iterator it=owned.begin(); it != owned.end(); it++)
+    delete *it;
 }
 
 ExprManager_Objects::numval_t ExprManager_Objects::negate(numval_t expr)
@@ -356,6 +355,7 @@ return ans;
 }
 
 
+/*
 // Forward reference
 void collect_terms(NumericValue* e, ExprRepn& repn);
 
@@ -450,10 +450,8 @@ void collect_terms(NumericValue* e, ExprRepn& repn)
 // TODO
 //std::cout << typeid(*e).name() << std::endl;
 
-if (e->is_parameter()) {
-    Parameter* tmp = dynamic_cast<Parameter*>(e);
-    collect_terms_(tmp, repn);
-    }
+if (e->is_parameter())
+    collect_terms_(dynamic_cast<Parameter*>(e), repn);
 
 else if (typeid(*e) == typeid(Variable))
     collect_terms_(dynamic_cast<Variable*>(e), repn);
@@ -484,10 +482,11 @@ else {
     throw std::runtime_error(str.c_str());
     }
 }
+*/
 
-void ExprRepn::initialize(NumericValue* e)
-{
-collect_terms(e, *this);
+//void ExprRepn::initialize(NumericValue* e)
+//{
+//e->collect_terms(*this);
 // TODO
 /*
 Parameter
@@ -521,5 +520,5 @@ SubExpression
 MulExpression
 DivExpression
 */
-}
+//}
 

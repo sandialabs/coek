@@ -2,6 +2,7 @@
 #include <set>
 #include <list>
 #include <cmath>
+#include <sstream>
 
 #include "expr/expr_types.hpp"
 
@@ -14,6 +15,10 @@ bool variable_comparator(const Variable* lhs, const Variable* rhs)
 {
 return lhs->index < rhs->index;
 }
+
+
+void ExprRepn::initialize(NumericValue* e)
+{ e->collect_terms(*this); }
 
 
 NumericValue* PowExpression::partial(unsigned int i)
@@ -36,6 +41,81 @@ double exp = this->rhs->_value;
 this->lhs->adjoint += this->adjoint * exp * pow(base, exp-1);
 this->rhs->adjoint += this->adjoint * log(base) * this->_value;
 //std::cout << "PowExpression::compute_adjoint " << this->adjoint << " " << this->lhs->adjoint << " " << this->rhs->adjoint << std::endl;
+}
+
+
+void NumericValue::collect_terms(ExprRepn& )
+{
+std::string str = "Unknown expression term: ";
+str += typeid(*this).name();
+str += " ( ";
+std::ostringstream ostr;
+this->print(ostr);
+str += ostr.str();
+str += " )";
+throw std::runtime_error(str.c_str());
+}
+
+
+void AddExpression::collect_terms(ExprRepn& repn)
+{
+this->lhs->collect_terms(repn);
+
+ExprRepn rhs;
+this->rhs->collect_terms(rhs);
+repn.constval += rhs.constval;
+for (size_t i=0; i<rhs.linear_vars.size(); i++) {
+    repn.linear_vars.push_back(rhs.linear_vars[i]);
+    repn.linear_coefs.push_back(rhs.linear_coefs[i]);
+    }
+}
+
+
+void SubExpression::collect_terms(ExprRepn& repn)
+{
+this->lhs->collect_terms(repn);
+
+ExprRepn rhs;
+this->rhs->collect_terms(rhs);
+repn.constval -= rhs.constval;
+for (size_t i=0; i<rhs.linear_vars.size(); i++) {
+    repn.linear_vars.push_back(rhs.linear_vars[i]);
+    repn.linear_coefs.push_back(-1*rhs.linear_coefs[i]);
+    }
+}
+
+
+void MulExpression::collect_terms(ExprRepn& repn)
+{
+ExprRepn lhs;
+this->lhs->collect_terms(lhs);
+if (lhs.linear_vars.size() == 0) {
+    if (lhs.constval == 0.0)
+        return;
+    ExprRepn rhs;
+    this->rhs->collect_terms(rhs);
+    repn.constval += lhs.constval * rhs.constval;
+    for (size_t i=0; i<rhs.linear_vars.size(); i++) {
+        repn.linear_vars.push_back(rhs.linear_vars[i]);
+        repn.linear_coefs.push_back(lhs.constval * rhs.linear_coefs[i]);
+        }
+    }
+else {
+    ExprRepn rhs;
+    this->rhs->collect_terms(rhs);
+    if (rhs.linear_vars.size() == 0) {
+        if (rhs.constval == 0.0)
+            return;
+        repn.constval += lhs.constval * rhs.constval;
+        for (size_t i=0; i<lhs.linear_vars.size(); i++) {
+            repn.linear_vars.push_back(lhs.linear_vars[i]);
+            repn.linear_coefs.push_back(lhs.linear_coefs[i] * rhs.constval);
+            }
+        }
+    else {
+        throw std::runtime_error("Nonlinear expressions are not currently supported.");
+        }
+    }
 }
 
 

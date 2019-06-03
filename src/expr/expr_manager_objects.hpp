@@ -7,21 +7,6 @@
 #include "expr/expr_types.hpp"
 
 
-class ExprRepn
-{
-public:
-
-    double constval;
-
-    std::vector<NumericValue*> linear_vars;
-    std::vector<double> linear_coefs;
-
-    ExprRepn() : constval(0.0) {}
-
-    void initialize(NumericValue* e);
-};
-
-
 //
 // Class that manages expressions with dynamically created objects
 //

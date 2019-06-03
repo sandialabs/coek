@@ -8,12 +8,31 @@
 #include <list>
 #include <set>
 #include <string>
+#include <vector>
 
 #include "expr/expr_manager.hpp"
 
 
 #define POSITIVE_INFINITY 1.0e19
 #define NEGATIVE_INFINITY -1.0e19
+
+
+class NumericValue;
+
+
+class ExprRepn
+{
+public:
+
+    double constval;
+
+    std::vector<NumericValue*> linear_vars;
+    std::vector<double> linear_coefs;
+
+    ExprRepn() : constval(0.0) {}
+
+    void initialize(NumericValue* e);
+};
 
 
 class NumericValue
@@ -60,6 +79,8 @@ public:
 
     virtual void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "%.3f", _value);}
+
+    virtual void collect_terms(ExprRepn& repn);
 };
 
 
@@ -85,6 +106,9 @@ public:
     void compute_hv_back() {}
 
     virtual void set_value(double val) = 0;
+
+    void collect_terms(ExprRepn& repn)
+        { repn.constval = this->value(); }
 };
 
 
@@ -223,6 +247,12 @@ public:
         else
             std::snprintf(buf, max, "%s{%.3f}", name.c_str(), this->_value);
         }
+
+    void collect_terms(ExprRepn& repn)
+        {
+        repn.linear_vars.push_back(this);
+        repn.linear_coefs.push_back(1.0);
+        }
 };
 
 
@@ -301,6 +331,9 @@ public:
         else
             std::snprintf(buf, max, "<=");
         }
+
+    void collect_terms(ExprRepn& repn)
+        { body->collect_terms(repn); }
 };
 
 
@@ -339,6 +372,8 @@ public:
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "==");}
 
+    void collect_terms(ExprRepn& repn)
+        { body->collect_terms(repn); }
 };
 
 
@@ -954,6 +989,7 @@ public:
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "+");}
 
+    void collect_terms(ExprRepn& repn);
 };
 
 
@@ -1003,6 +1039,7 @@ public:
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "-");}
 
+    void collect_terms(ExprRepn& repn);
 };
 
 
@@ -1070,6 +1107,8 @@ public:
 
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "*");}
+
+    void collect_terms(ExprRepn& repn);
 };
 
 
