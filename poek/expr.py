@@ -7,6 +7,20 @@ __all__ = ['NumericValue', 'parameter',
     'ZeroParameter', 'OneParameter', 'NegativeOneParameter', 'variable_view']
 
 
+native_integer_types = set([int, bool])
+native_float_types = set([float])
+try:
+    import numpy
+    native_integer_types.add(numpy.int32)
+    native_integer_types.add(numpy.int64)
+    native_integer_types.add(numpy.uint32)
+    native_integer_types.add(numpy.uint64)
+    native_float_types.add(numpy.float32)
+    native_float_types.add(numpy.float64)
+except:
+    pass
+
+
 class NumericValue(object):
 
     __slots__ = ()
@@ -168,17 +182,17 @@ class NumericValue(object):
 
             self + other
         """
-        if other.__class__ is int:
+        if other.__class__ in native_integer_types:
             if other == 0:
                 return self
-            return expression( lib.expr_plus_int(self.ptr, other) )
-        elif other.__class__ is float:
+            return expression( lib.expr_plus_int(self.ptr, int(other)) )
+        elif other.__class__ in native_float_types:
             if other == 0.0:
                 return self
-            return expression( lib.expr_plus_double(self.ptr, other) )
-        elif other.is_constraint():
-            raise TypeError("Cannot create a constraint with a relational subexpression.")
+            return expression( lib.expr_plus_double(self.ptr, float(other)) )
         try:
+            if other.is_constraint():
+                raise TypeError("Cannot create a constraint with a relational subexpression.")
             return expression( lib.expr_plus_expression(self.ptr, other.ptr) )
         except AttributeError as e:
             raise TypeError("Cannot treat argument as a single numeric value: "+str(e))
@@ -191,17 +205,17 @@ class NumericValue(object):
 
             self - other
         """
-        if other.__class__ is int:
+        if other.__class__ in native_integer_types:
             if other == 0:
                 return self
-            return expression( lib.expr_minus_int(self.ptr, other) )
-        elif other.__class__ is float:
+            return expression( lib.expr_minus_int(self.ptr, int(other)) )
+        elif other.__class__ in native_float_types:
             if other == 0.0:
                 return self
-            return expression( lib.expr_minus_double(self.ptr, other) )
-        elif other.is_constraint():
-            raise TypeError("Cannot create a constraint with a relational subexpression.")
+            return expression( lib.expr_minus_double(self.ptr, float(other)) )
         try:
+            if other.is_constraint():
+                raise TypeError("Cannot create a constraint with a relational subexpression.")
             return expression( lib.expr_minus_expression(self.ptr, other.ptr) )
         except AttributeError as e:
             raise TypeError("Cannot treat argument as a single numeric value: "+str(e))
@@ -214,21 +228,21 @@ class NumericValue(object):
         
             self * other
         """
-        if other.__class__ is int:
+        if other.__class__ in native_integer_types:
             if other == 0:
                 return 0
             elif other == 1:
                 return self
-            return expression( lib.expr_times_int(self.ptr, other) )
-        elif other.__class__ is float:
+            return expression( lib.expr_times_int(self.ptr, int(other)) )
+        elif other.__class__ in native_float_types:
             if other == 0.0:
                 return 0.0
             elif other == 1.0:
                 return self
-            return expression( lib.expr_times_double(self.ptr, other) )
-        elif other.is_constraint():
-            raise TypeError("Cannot create a constraint with a relational subexpression.")
+            return expression( lib.expr_times_double(self.ptr, float(other)) )
         try:
+            if other.is_constraint():
+                raise TypeError("Cannot create an expression with a relational subexpression.")
             tmp = lib.expr_times_expression(self.ptr, other.ptr)
             if tmp == NULL:
                 return ZeroParameter
@@ -248,21 +262,21 @@ class NumericValue(object):
         
             self / other
         """
-        if other.__class__ is int:
+        if other.__class__ in native_integer_types:
             if other == 0:
                 raise ZeroDivisionError
             elif other == 1:
                 return self
-            return expression( lib.expr_divide_int(self.ptr, other) )
-        elif other.__class__ is float:
+            return expression( lib.expr_divide_int(self.ptr, int(other)) )
+        elif other.__class__ in native_float_types:
             if other == 0.0:
                 raise ZeroDivisionError
             elif other == 1.0:
                 return self
-            return expression( lib.expr_divide_double(self.ptr, other) )
-        elif other.is_constraint():
-            raise TypeError("Cannot create a constraint with a relational subexpression.")
+            return expression( lib.expr_divide_double(self.ptr, float(other)) )
         try:
+            if other.is_constraint():
+                raise TypeError("Cannot create a constraint with a relational subexpression.")
             tmp = lib.expr_divide_expression(self.ptr, other.ptr)
             if tmp == 0:
                 return ZeroParameter
@@ -284,21 +298,21 @@ class NumericValue(object):
         
             self ** other
         """
-        if other.__class__ is int:
+        if other.__class__ in native_integer_types:
             if other == 0:
                 return 1
             elif other == 1:
                 return self
-            return expression( lib.expr_pow_int(self.ptr, other) )
-        elif other.__class__ is float:
+            return expression( lib.expr_pow_int(self.ptr, int(other)) )
+        elif other.__class__ in native_float_types:
             if other == 0.0:
                 return 1.0
             elif other == 1.0:
                 return self
-            return expression( lib.expr_pow_double(self.ptr, other) )
-        elif other.is_constraint():
-            raise TypeError("Cannot create a constraint with a relational subexpression.")
+            return expression( lib.expr_pow_double(self.ptr, float(other)) )
         try:
+            if other.is_constraint():
+                raise TypeError("Cannot create a constraint with a relational subexpression.")
             tmp = lib.expr_pow_expression(self.ptr, other.ptr)
             if tmp == NULL:
                 return ZeroParameter
@@ -316,14 +330,14 @@ class NumericValue(object):
         
             other + self
         """
-        if other.__class__ is int:
+        if other.__class__ in native_integer_types:
             if other == 0:
                 return self
-            return expression( lib.expr_rplus_int(other, self.ptr) )
-        elif other.__class__ is float:
+            return expression( lib.expr_rplus_int(int(other), self.ptr) )
+        elif other.__class__ in native_float_types:
             if other == 0.0:
                 return self
-            return expression( lib.expr_rplus_double(other, self.ptr) )
+            return expression( lib.expr_rplus_double(float(other), self.ptr) )
         else:
             raise TypeError("Unexpected type (LHS) when adding: %s" % str(type(other)))
 
@@ -335,10 +349,10 @@ class NumericValue(object):
 
             other - self
         """
-        if other.__class__ is int:
-            return expression( lib.expr_rminus_int(other, self.ptr) )
-        elif other.__class__ is float:
-            return expression( lib.expr_rminus_double(other, self.ptr) )
+        if other.__class__ in native_integer_types:
+            return expression( lib.expr_rminus_int(int(other), self.ptr) )
+        elif other.__class__ in native_float_types:
+            return expression( lib.expr_rminus_double(float(other), self.ptr) )
         else:
             raise TypeError("Unexpected type (LHS) when subtracting: %s" % str(type(other)))
 
@@ -352,18 +366,18 @@ class NumericValue(object):
 
         when other is not a :class:`NumericValue <pyomo.core.expr.numvalue.NumericValue>` object.
         """
-        if other.__class__ is int:
+        if other.__class__ in native_integer_types:
             if other == 0:
                 return 0
             elif other == 1:
                 return self
-            return expression( lib.expr_rtimes_int(other, self.ptr) )
-        elif other.__class__ is float:
+            return expression( lib.expr_rtimes_int(int(other), self.ptr) )
+        elif other.__class__ in native_float_types:
             if other == 0.0:
                 return 0.0
             elif other == 1.0:
                 return self
-            return expression( lib.expr_rtimes_double(other, self.ptr) )
+            return expression( lib.expr_rtimes_double(float(other), self.ptr) )
         else:
             raise TypeError("Unexpected type (LHS) when multiplying: %s" % str(type(other)))
 
@@ -377,17 +391,17 @@ class NumericValue(object):
 
         when other is not a :class:`NumericValue <pyomo.core.expr.numvalue.NumericValue>` object.
         """
-        if other.__class__ is int:
+        if other.__class__ in native_integer_types:
             if other == 0:
                 return 0
-            tmp = lib.expr_rdivide_int(other, self.ptr)
+            tmp = lib.expr_rdivide_int(int(other), self.ptr)
             if tmp == NULL: 
                 raise ZeroDivisionError
             return expression( tmp )
-        elif other.__class__ is float:
+        elif other.__class__ in native_float_types:
             if other == 0.0:
                 return 0.0
-            tmp = lib.expr_rdivide_double(other, self.ptr)
+            tmp = lib.expr_rdivide_double(float(other), self.ptr)
             if tmp == NULL:
                 raise ZeroDivisionError
             return expression( tmp )
@@ -406,18 +420,18 @@ class NumericValue(object):
 
         when other is not a :class:`NumericValue <pyomo.core.expr.numvalue.NumericValue>` object.
         """
-        if other.__class__ is int:
+        if other.__class__ in native_integer_types:
             if other == 0:
                 return 0
             elif other == 1:
                 return 1
-            return expression( lib.expr_rpow_int(other, self.ptr) )
-        elif other.__class__ is float:
+            return expression( lib.expr_rpow_int(int(other), self.ptr) )
+        elif other.__class__ in native_float_types:
             if other == 0.0:
                 return 0.0
             elif other == 1.0:
                 return 1.0
-            return expression( lib.expr_rpow_double(other, self.ptr) )
+            return expression( lib.expr_rpow_double(float(other), self.ptr) )
         else:
             raise TypeError("Unexpected type (LHS) in a power expression: %s" % str(type(other)))
 
@@ -429,14 +443,14 @@ class NumericValue(object):
         
             self += other
         """
-        if other.__class__ is int:
+        if other.__class__ in native_integer_types:
             if other == 0:
                 return self
-            return expression( lib.expr_plus_int(self.ptr, other) )
-        elif other.__class__ is float:
+            return expression( lib.expr_plus_int(self.ptr, int(other)) )
+        elif other.__class__ in native_float_types:
             if other == 0.0:
                 return self
-            return expression( lib.expr_plus_double(self.ptr, other) )
+            return expression( lib.expr_plus_double(self.ptr, float(other)) )
         elif other.is_constraint():
             raise TypeError("Cannot create a constraint with a relational subexpression.")
         else:
@@ -450,14 +464,14 @@ class NumericValue(object):
 
             self -= other
         """
-        if other.__class__ is int:
+        if other.__class__ in native_integer_types:
             if other == 0:
                 return self
-            return expression( lib.expr_minus_int(self.ptr, other) )
-        elif other.__class__ is float:
+            return expression( lib.expr_minus_int(self.ptr, int(other)) )
+        elif other.__class__ in native_float_types:
             if other == 0.0:
                 return self
-            return expression( lib.expr_minus_double(self.ptr, other) )
+            return expression( lib.expr_minus_double(self.ptr, float(other)) )
         elif other.is_constraint():
             raise TypeError("Cannot create a constraint with a relational subexpression.")
         else:
@@ -471,18 +485,18 @@ class NumericValue(object):
 
             self *= other
         """
-        if other.__class__ is int:
+        if other.__class__ in native_integer_types:
             if other == 0:
                 return 0
             elif other == 1:
                 return self
-            return expression( lib.expr_times_int(self.ptr, other) )
-        elif other.__class__ is float:
+            return expression( lib.expr_times_int(self.ptr, int(other)) )
+        elif other.__class__ in native_float_types:
             if other == 0.0:
                 return 0.0
             elif other == 1.0:
                 return self
-            return expression( lib.expr_times_double(self.ptr, other) )
+            return expression( lib.expr_times_double(self.ptr, float(other)) )
         elif other.is_constraint():
             raise TypeError("Cannot create a constraint with a relational subexpression.")
         else:
@@ -496,18 +510,18 @@ class NumericValue(object):
 
             self /= other
         """
-        if other.__class__ is int:
+        if other.__class__ in native_integer_types:
             if other == 0:
                 raise ZeroDivisionError
             elif other == 1:
                 return self
-            return expression( lib.expr_divide_int(self.ptr, other) )
-        elif other.__class__ is float:
+            return expression( lib.expr_divide_int(self.ptr, int(other)) )
+        elif other.__class__ in native_float_types:
             if other == 0.0:
                 raise ZeroDivisionError
             elif other == 1.0:
                 return self
-            return expression( lib.expr_divide_double(self.ptr, other) )
+            return expression( lib.expr_divide_double(self.ptr, float(other)) )
         elif other.is_constraint():
             raise TypeError("Cannot create a constraint with a relational subexpression.")
         else:
@@ -523,18 +537,18 @@ class NumericValue(object):
 
             self **= other
         """
-        if other.__class__ is int:
+        if other.__class__ in native_integer_types:
             if other == 0:
                 return 1
             elif other == 1:
                 return self
-            return expression( lib.expr_pow_int(self.ptr, other) )
-        elif other.__class__ is float:
+            return expression( lib.expr_pow_int(self.ptr, int(other)) )
+        elif other.__class__ in native_float_types:
             if other == 0.0:
                 return 1.0
             elif other == 1.0:
                 return self
-            return expression( lib.expr_pow_double(self.ptr, other) )
+            return expression( lib.expr_pow_double(self.ptr, float(other)) )
         elif other.is_constraint():
             raise TypeError("Cannot create a constraint with a relational subexpression.")
         else:
@@ -593,10 +607,10 @@ class parameter(NumericValue):
             tmp = str.encode("")
         else:
             tmp = str.encode(name)
-        if value.__class__ is int:
-            self.ptr = lib.create_parameter_int(NULL, value, self.mutable, tmp)
+        if value.__class__ in native_integer_types:
+            self.ptr = lib.create_parameter_int(NULL, int(value), self.mutable, tmp)
         else:
-            self.ptr = lib.create_parameter_double(NULL, value, self.mutable, tmp)
+            self.ptr = lib.create_parameter_double(NULL, float(value), self.mutable, tmp)
 
     def show(self):             #pragma:nocover
         lib.print_parameter(self.ptr)
@@ -742,14 +756,16 @@ class variable_array(object):
 
     __slots__ = ('ptrs', 'name', 'num', 'views', 'initialize')
 
-    def __init__(self, num, name=None, initialize=NAN, lb=NAN, ub=NAN):
+    def __init__(self, num, name=None, initialize=NAN, lb=NAN, ub=NAN, binary=False, integer=False):
         # TODO: Allow for 'num' to be a shape tuple.  (How would this be written?)
         self.num = num 
         self.name = name
         self.initialize = initialize
         prefix = str.encode("") if name is None else str.encode(name)
         ptrs = ffi.new("void* []", num)
-        lib.create_variable_array(NULL,ptrs,num,0,0,lb,ub,initialize,prefix)
+        binval = 1 if binary else 0
+        intval = 1 if integer else 0
+        lib.create_variable_array(NULL,ptrs,num,binval,intval,lb,ub,initialize,prefix)
         self.ptrs = ptrs
         self.views = {}
 

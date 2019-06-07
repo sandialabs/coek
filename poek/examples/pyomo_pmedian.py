@@ -3,12 +3,11 @@ from pyomo.environ import *
 import random
 random.seed(1000)
 
-N = 640
-M = 640
+N = 200
+M = 200
 P = 1
-#N = 7
-#M = 5
-#P = 1
+#N = 10
+#M = 11
 
 model = ConcreteModel()
 
@@ -25,7 +24,7 @@ model.y = Var(model.N, bounds=(0,1), initialize=0)
 #for n in range(N):
 #    y[n] = variable(lb=0, ub=1, initialize=0)
 
-model.d = Param(model.N, model.M, initialize=lambda  n, m, model : random.uniform(1.0,2.0))
+model.d = Param(model.N, model.M, initialize=lambda  n, m, model : random.uniform(0.0,1.0))
 #d = {}
 #for n in range(N):
 #    for m in range(M):
@@ -71,3 +70,4 @@ model.num_facilities = Constraint(rule=rule)
 #pmedian.build()
 
 pmedian = model
+pmedian.write("tmp.lp")

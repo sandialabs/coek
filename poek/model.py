@@ -105,3 +105,7 @@ class model(object):
         # TODO: customize build based on AD needs f/g/h
         lib.build_model(self.ptr)
 
+    def write(self, filename):
+        lib.write_model(self.ptr, str.encode(filename))
+
+

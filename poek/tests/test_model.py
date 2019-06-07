@@ -28,7 +28,7 @@ class TestModel(unittest.TestCase):
 
         visitor = ValueVisitor()
         e = m.get_objective()
-        self.assertEqual( visitor.walk(e), ['+', ['+', ['+', ['-', '1', ['+', 'v1', 'v2']], ['*', '3', ['+', 'v1', 'v2']]], ['*', ['+', 'v1', 'v2'], ['+', 'v1', 'v2']]], 'v3'] )
+        self.assertEqual( visitor.walk(e), ['+', ['-', '1', ['+', 'v1', 'v2']], ['*', '3', ['+', 'v1', 'v2']], ['*', ['+', 'v1', 'v2'], ['+', 'v1', 'v2']], 'v3'] )
         e = m.get_constraint(0)
         self.assertEqual( e.value, -4 )
         e = m.get_constraint(1)

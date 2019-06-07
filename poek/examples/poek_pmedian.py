@@ -3,12 +3,12 @@ from poek import *
 import random
 random.seed(1000)
 
-N = 640
-M = 640
-P = 1
-#N = 7
-#M = 5
+N = 200
+M = 200
 #P = 1
+#N = 10
+#M = 11
+P = 1
 
 x = {}
 for n in range(N):
@@ -43,3 +43,4 @@ pmedian.add( sum(y[n] for n in range(N)) == P )
 
 pmedian.build()
 #pmedian.show()
+pmedian.write("foo.lp")

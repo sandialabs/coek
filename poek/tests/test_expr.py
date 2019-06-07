@@ -105,8 +105,8 @@ class Test_SumExpression(unittest.TestCase):
         e = a + b
         e += (2*a)
         #
-        self.assertEqual( self.visitor.walk(e), ['+', ['+', 'a', 'b'], ['*', '2', 'a']] )
-        self.assertEqual(e.size(), 7)
+        self.assertEqual( self.visitor.walk(e), ['+', 'a', 'b', ['*', '2', 'a']] )
+        self.assertEqual(e.size(), 6)
 
     def test_constSum(self):
         # a + 5
@@ -155,8 +155,8 @@ class Test_SumExpression(unittest.TestCase):
         e1 = a + b
         e = e1 + 5
         #
-        self.assertEqual( self.visitor.walk(e), ['+',['+','a','b'], '5'] )
-        self.assertEqual(e.size(), 5)
+        self.assertEqual( self.visitor.walk(e), ['+', 'a','b', '5'] )
+        self.assertEqual(e.size(), 4)
 
         #       + 
         #      / \ 
@@ -177,8 +177,8 @@ class Test_SumExpression(unittest.TestCase):
         e1 = a + b
         e = e1 + c
         #
-        self.assertEqual( self.visitor.walk(e), ['+',['+','a','b'],'c'] )
-        self.assertEqual(e.size(), 5)
+        self.assertEqual( self.visitor.walk(e), ['+', 'a','b','c'] )
+        self.assertEqual(e.size(), 4)
 
         #       + 
         #      / \ 
@@ -200,8 +200,8 @@ class Test_SumExpression(unittest.TestCase):
         e2 = c + d
         e = e1 + e2
         #
-        self.assertEqual( self.visitor.walk(e), ['+',['+','a','b'],['+','c','d']] )
-        self.assertEqual(e.size(), 7)
+        self.assertEqual( self.visitor.walk(e), ['+','a','b',['+','c','d']] )
+        self.assertEqual(e.size(), 6)
 
     def test_nestedSum2(self):
         #
@@ -327,8 +327,8 @@ class Test_SumExpression(unittest.TestCase):
         e2 = b + c
         e = e2 + e1
         #
-        self.assertEqual( self.visitor.walk(e), ['+',['+','b','c'],['*','a','5']] )
-        self.assertEqual(e.size(), 7)
+        self.assertEqual( self.visitor.walk(e), ['+', 'b', 'c', ['*','a','5']] )
+        self.assertEqual(e.size(), 6)
 
 
 class TestDiffExpression(unittest.TestCase):
@@ -817,8 +817,8 @@ class Test_MulExpression(unittest.TestCase):
         e2 = c + e1
         e3 = e1 + d
         e = e2 * e3
-        self.assertEqual( self.visitor.walk(e), ['*',['+','c',['+','a','b']],['+',['+','a','b'],'d']] )
-        self.assertEqual(e.size(),11)
+        self.assertEqual( self.visitor.walk(e), ['*',['+','c', ['+','a','b']],['+','a','b','d']] )
+        self.assertEqual(e.size(),10)
 
         #
         # Check the structure of nested products
@@ -1476,7 +1476,7 @@ class EntangledExpressionErrors(unittest.TestCase):
         e = a*2 + 1
         self.assertEqual( self.visitor.walk(e), ['+',['*','a','2'],'1'] )
         e += 1
-        self.assertEqual( self.visitor.walk(e), ['+',['+',['*','a','2'],'1'],'1'] )
+        self.assertEqual( self.visitor.walk(e), ['+',['*','a','2'],'1','1'] )
 
     def test_entangled_test1(self):
         a = self.a
