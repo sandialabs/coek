@@ -550,6 +550,13 @@ manager = &(model->manager);
 return tmp;
 }
 
+extern "C" void write_model(void* _model, const char* filename)
+{
+ADModel* tmp = static_cast<ADModel*>(_model);
+std::string fname = filename;
+tmp->write(fname);
+}
+
 extern "C" void add_objective(void* _model, void* expr)
 {
 ADModel* tmp = static_cast<ADModel*>(_model);

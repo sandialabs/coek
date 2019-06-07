@@ -22,6 +22,8 @@ public:
 
     void print(std::ostream& ostr);
 
+    void write(std::string& filename);
+
     void add_objective(expr_t expr)
         { objectives.push_back(expr); }
 

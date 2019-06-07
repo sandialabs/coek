@@ -30,8 +30,12 @@ assert(lhs->manager == rhs->manager);
 NumericValue* tmp;
 if (lhs->is_parameter() and !lhs->is_mutable_parameter() and rhs->is_parameter() and !rhs->is_mutable_parameter())
     tmp = new TypedParameter<double>(lhs->manager, lhs->_value + rhs->_value, false);
-else
-    tmp = new AddExpression(lhs->manager, lhs,rhs);
+else {
+    if (typeid(*lhs) == typeid(AddExpression)) 
+        tmp = new AddExpression(lhs->manager, dynamic_cast<AddExpression*>(lhs),rhs);
+    else
+        tmp = new AddExpression(lhs->manager, lhs,rhs);
+    }
 owned.push_back(tmp);
 return tmp;
 }

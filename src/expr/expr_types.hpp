@@ -902,88 +902,117 @@ return 0;
 }
 
 
-/*** POW ***/
-
-class PowExpression : public BinaryExpression<NumericValue*,NumericValue*>
+class SharedNAryExpression
 {
 public:
 
-    PowExpression(ExprManager* _manager, NumericValue* _lhs, NumericValue* _rhs) 
-        : BinaryExpression<NumericValue*,NumericValue*>(_manager,_lhs,_rhs)
-        {}
+    std::vector<NumericValue*> data;
 
-    void print(std::ostream& ostr)
-        {ostr << "("; this->lhs->print(ostr); ostr << ")**("; this->rhs->print(ostr); ostr << ")"; }
-
-    double value()
-        {return pow(lhs->value(), rhs->value());}
-
-    double compute_value()
+    unsigned int add(NumericValue* e)
         {
-        this->_value = pow(lhs->_value, rhs->_value);
-        return this->_value;
+        data.push_back(e);
+        return data.size();
+        }
+};
+
+
+class NAryPrefixExpression : public Expression
+{
+public:
+
+    SharedNAryExpression* data;
+    unsigned int n;
+
+    NAryPrefixExpression(ExprManager* _manager, NumericValue* _lhs, NumericValue* _rhs)
+        : Expression(_manager)
+        {
+        data = new SharedNAryExpression();
+        data->add(_lhs);
+        n = data->add(_rhs);
+        }
+    NAryPrefixExpression(ExprManager* _manager, NAryPrefixExpression* _lhs, NumericValue* _rhs)
+        : Expression(_manager), data(_lhs->data)
+        { n = data->add(_rhs); }
+
+    unsigned int num_sub_expressions() {return n;}
+
+    NumericValue* expression(unsigned int i) { return data->data[i]; }
+
+    int size() 
+        {
+        int ans = 1;
+        for (unsigned int i=0; i<n; i++)
+            ans += data->data[i]->size();
+        return ans;
         }
 
-    NumericValue* partial(unsigned int i);
-
-    void compute_adjoint();
-
-    // TODO
-    void compute_hv_fwd()
-        {
-        compute_value();
-        this->adjoint = 0;
-        this->adO = 0;
-        this->dL = this->dR = 1;
-        this->dL2 = this->dLR = this->dR2 = 0;
-        this->dO = this->lhs->dO*this->dL + this->rhs->dO*this->dR;
-        }
-
-    void snprintf(char* buf, int max)
-        {std::snprintf(buf, max, "**");}
+    void compute_hv_back()
+        { }
 
 };
 
+
 /*** ADD ***/
 
-class AddExpression : public BinaryExpression<NumericValue*,NumericValue*>
+class AddExpression : public NAryPrefixExpression
 {
 public:
 
-    AddExpression(ExprManager* _manager, NumericValue* _lhs, NumericValue* _rhs) 
-        : BinaryExpression<NumericValue*,NumericValue*>(_manager,_lhs,_rhs)
+    AddExpression(ExprManager* _manager, NumericValue* _lhs, NumericValue* _rhs)
+        : NAryPrefixExpression(_manager, _lhs, _rhs)
+        {}
+
+    AddExpression(ExprManager* _manager, NAryPrefixExpression* _lhs, NumericValue* _rhs)
+        : NAryPrefixExpression(_manager, _lhs, _rhs)
         {}
 
     void print(std::ostream& ostr)
-        {this->lhs->print(ostr); ostr << " + "; this->rhs->print(ostr); }
+        {
+        this->data->data[0]->print(ostr);
+        for (unsigned int i=1; i<this->n; i++) {
+            ostr << " + ";
+            this->data->data[i]->print(ostr);
+            }
+        }
 
     double value()
-        { return this->lhs->value() + this->rhs->value(); }
+        {
+        double ans = this->data->data[0]->value();
+        for (unsigned int i=1; i<this->n; i++)
+            ans += this->data->data[i]->value();
+        return ans;
+        }
 
     double compute_value()
         {
-        this->_value = this->lhs->_value + this->rhs->_value;
+        this->_value = this->data->data[0]->_value;
+        for (unsigned int i=1; i<this->n; i++)
+            this->_value += this->data->data[i]->_value;
         return this->_value;
         }
 
     NumericValue* partial(unsigned int i)
-        {return static_cast<NumericValue*>(this->manager->one);}
+        { return 0; }
 
     void compute_adjoint()
         {
+        /*
         this->lhs->adjoint += this->adjoint;
         this->rhs->adjoint += this->adjoint;
         //std::cout << "AddExpression::compute_adjoint " << this->adjoint << " " << this->lhs->adjoint << " " << this->rhs->adjoint << std::endl;
+        */
         }
 
     void compute_hv_fwd()
         {
+        /*
         compute_value();
         this->adjoint = 0;
         this->adO = 0;
         this->dL = this->dR = 1;
         this->dL2 = this->dLR = this->dR2 = 0;
         this->dO = this->lhs->dO*this->dL + this->rhs->dO*this->dR;
+        */
         }
 
     void snprintf(char* buf, int max)
@@ -1178,6 +1207,48 @@ public:
         {std::snprintf(buf, max, "/");}
 };
 
+
+/*** POW ***/
+
+class PowExpression : public BinaryExpression<NumericValue*,NumericValue*>
+{
+public:
+
+    PowExpression(ExprManager* _manager, NumericValue* _lhs, NumericValue* _rhs) 
+        : BinaryExpression<NumericValue*,NumericValue*>(_manager,_lhs,_rhs)
+        {}
+
+    void print(std::ostream& ostr)
+        {ostr << "("; this->lhs->print(ostr); ostr << ")**("; this->rhs->print(ostr); ostr << ")"; }
+
+    double value()
+        {return pow(lhs->value(), rhs->value());}
+
+    double compute_value()
+        {
+        this->_value = pow(lhs->_value, rhs->_value);
+        return this->_value;
+        }
+
+    NumericValue* partial(unsigned int i);
+
+    void compute_adjoint();
+
+    // TODO
+    void compute_hv_fwd()
+        {
+        compute_value();
+        this->adjoint = 0;
+        this->adO = 0;
+        this->dL = this->dR = 1;
+        this->dL2 = this->dLR = this->dR2 = 0;
+        this->dO = this->lhs->dO*this->dL + this->rhs->dO*this->dR;
+        }
+
+    void snprintf(char* buf, int max)
+        {std::snprintf(buf, max, "**");}
+
+};
 
 void symbolic_diff_all(NumericValue* root, std::map<Variable*, NumericValue*>& diff);
 

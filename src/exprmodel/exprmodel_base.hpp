@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <string>
 
 namespace coek {
 
@@ -31,6 +32,8 @@ public:
   virtual expr_t get_constraint(unsigned int n) = 0;
 
   virtual void print(std::ostream& ostr) = 0;
+
+  virtual void write(std::string& ostr) = 0;
 
 };
 

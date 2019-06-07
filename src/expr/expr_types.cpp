@@ -59,14 +59,16 @@ throw std::runtime_error(str.c_str());
 
 void AddExpression::collect_terms(ExprRepn& repn)
 {
-this->lhs->collect_terms(repn);
+this->data->data[0]->collect_terms(repn);
 
-ExprRepn rhs;
-this->rhs->collect_terms(rhs);
-repn.constval += rhs.constval;
-for (size_t i=0; i<rhs.linear_vars.size(); i++) {
-    repn.linear_vars.push_back(rhs.linear_vars[i]);
-    repn.linear_coefs.push_back(rhs.linear_coefs[i]);
+for (unsigned int i=1; i<this->n; i++) {
+    ExprRepn tmp;
+    this->data->data[i]->collect_terms(tmp);
+    repn.constval += tmp.constval;
+    for (size_t i=0; i<tmp.linear_vars.size(); i++) {
+        repn.linear_vars.push_back(tmp.linear_vars[i]);
+        repn.linear_coefs.push_back(tmp.linear_coefs[i]);
+        }
     }
 }
 

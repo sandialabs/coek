@@ -93,6 +93,7 @@ double expr_repn_linear_coef(void* expr, int i);
 void* create_inequality(void* self, int strict_flag);
 void* create_equality(void* self);
 void* create_model(void);
+void write_model(void* self, const char* filename);
 
 void add_objective(void* model, void* expr);
 void add_inequality(void* model, void* ineq);
