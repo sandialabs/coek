@@ -18,7 +18,7 @@ public:
     typedef numval_t expr_t;
 
     std::list<numval_t> owned;
-    std::map<numval_t, ExprRepn*> repn;
+    std::map<numval_t, QuadraticExprRepn*> repn;
 
     ExprManager_Objects() 
        : OneParameter(this,1,false),
@@ -185,6 +185,6 @@ public:
     apival_t linear_var(apival_t e, int i);
     double linear_coef(apival_t e, int i);
 
-    ExprRepn* get_repn(numval_t e);
+    QuadraticExprRepn* get_repn(numval_t e);
 };
 

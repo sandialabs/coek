@@ -4,7 +4,7 @@
 
 ExprManager_Objects::~ExprManager_Objects(void)
 {
-for (std::map<numval_t,ExprRepn*>::iterator it=repn.begin(); it != repn.end(); it++)
+for (std::map<numval_t,QuadraticExprRepn*>::iterator it=repn.begin(); it != repn.end(); it++)
     delete it->second;
 for (std::list<NumericValue*>::iterator it=owned.begin(); it != owned.end(); it++)
     delete *it;
@@ -319,21 +319,21 @@ return ::expr_to_list(tmp, values);
 double ExprManager_Objects::constant(apival_t e)
 {
 NumericValue* e_ = static_cast<NumericValue*>(e);
-ExprRepn* repn = get_repn(e_);
+QuadraticExprRepn* repn = get_repn(e_);
 return repn->constval;
 }
 
 int ExprManager_Objects::nlinear_vars(apival_t e)
 {
 NumericValue* e_ = static_cast<NumericValue*>(e);
-ExprRepn* repn = get_repn(e_);
+QuadraticExprRepn* repn = get_repn(e_);
 return repn->linear_vars.size();
 }
 
 apival_t ExprManager_Objects::linear_var(apival_t e, int i)
 {
 NumericValue* e_ = static_cast<NumericValue*>(e);
-ExprRepn* repn = get_repn(e_);
+QuadraticExprRepn* repn = get_repn(e_);
 if ((i < 0) or (i >= repn->linear_vars.size()))
    return 0;
 return repn->linear_vars[i];
@@ -342,17 +342,17 @@ return repn->linear_vars[i];
 double ExprManager_Objects::linear_coef(apival_t e, int i)
 {
 NumericValue* e_ = static_cast<NumericValue*>(e);
-ExprRepn* repn = get_repn(e_);
+QuadraticExprRepn* repn = get_repn(e_);
 return repn->linear_coefs[i];
 }
 
-ExprRepn* ExprManager_Objects::get_repn(numval_t e)
+QuadraticExprRepn* ExprManager_Objects::get_repn(numval_t e)
 {
-std::map<numval_t,ExprRepn*>::iterator it = repn.find(e);
+std::map<numval_t,QuadraticExprRepn*>::iterator it = repn.find(e);
 if (it != repn.end())
    return it->second;
 
-ExprRepn* ans = new ExprRepn();
+QuadraticExprRepn* ans = new QuadraticExprRepn();
 ans->initialize(e);
 repn[e] = ans;
 return ans;

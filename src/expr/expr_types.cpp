@@ -17,8 +17,24 @@ return lhs->index < rhs->index;
 }
 
 
+/*
 void ExprRepn::initialize(NumericValue* e)
 { e->collect_terms(*this); }
+
+
+void LinearExprRepn::initialize(NumericValue* e)
+{ e->collect_terms(*this); }
+*/
+
+
+void QuadraticExprRepn::initialize(NumericValue* e)
+{ e->collect_terms(*this); }
+
+
+/*
+void NonlinearExprRepn::initialize(NumericValue* e)
+{ e->collect_terms(*this); }
+*/
 
 
 NumericValue* PowExpression::partial(unsigned int i)
@@ -44,7 +60,7 @@ this->rhs->adjoint += this->adjoint * log(base) * this->_value;
 }
 
 
-void NumericValue::collect_terms(ExprRepn& )
+void NumericValue::collect_terms(QuadraticExprRepn& )
 {
 std::string str = "Unknown expression term: ";
 str += typeid(*this).name();
@@ -57,37 +73,54 @@ throw std::runtime_error(str.c_str());
 }
 
 
-void AddExpression::collect_terms(ExprRepn& repn)
+void AddExpression::collect_terms(QuadraticExprRepn& repn)
 {
 this->data->data[0]->collect_terms(repn);
 
 for (unsigned int i=1; i<this->n; i++) {
-    ExprRepn tmp;
+    QuadraticExprRepn tmp;
     this->data->data[i]->collect_terms(tmp);
+
     repn.constval += tmp.constval;
-    for (size_t i=0; i<tmp.linear_vars.size(); i++) {
+
+    for (size_t i=0; i<tmp.linear_coefs.size(); i++) {
         repn.linear_vars.push_back(tmp.linear_vars[i]);
         repn.linear_coefs.push_back(tmp.linear_coefs[i]);
+        }
+
+    for (size_t i=0; i<tmp.quadratic_coefs.size(); i++) {
+        repn.quadratic_lvars.push_back(tmp.quadratic_lvars[i]);
+        repn.quadratic_rvars.push_back(tmp.quadratic_rvars[i]);
+        repn.quadratic_coefs.push_back(tmp.quadratic_coefs[i]);
         }
     }
 }
 
 
-void SubExpression::collect_terms(ExprRepn& repn)
+void SubExpression::collect_terms(QuadraticExprRepn& repn)
 {
 this->lhs->collect_terms(repn);
 
-ExprRepn rhs;
+QuadraticExprRepn rhs;
 this->rhs->collect_terms(rhs);
+
 repn.constval -= rhs.constval;
-for (size_t i=0; i<rhs.linear_vars.size(); i++) {
+
+for (size_t i=0; i<rhs.linear_coefs.size(); i++) {
     repn.linear_vars.push_back(rhs.linear_vars[i]);
     repn.linear_coefs.push_back(-1*rhs.linear_coefs[i]);
+    }
+
+for (size_t i=0; i<rhs.quadratic_coefs.size(); i++) {
+    repn.quadratic_lvars.push_back(rhs.quadratic_lvars[i]);
+    repn.quadratic_rvars.push_back(rhs.quadratic_rvars[i]);
+    repn.quadratic_coefs.push_back(-1*rhs.quadratic_coefs[i]);
     }
 }
 
 
-void MulExpression::collect_terms(ExprRepn& repn)
+/*
+void MulExpression::collect_terms(LinearExprRepn& repn)
 {
 ExprRepn lhs;
 this->lhs->collect_terms(lhs);
@@ -119,7 +152,139 @@ else {
         }
     }
 }
+*/
 
+
+
+void MulExpression::collect_terms(QuadraticExprRepn& repn)
+{
+QuadraticExprRepn lhs;
+this->lhs->collect_terms(lhs);
+
+if (lhs.linear_vars.size() == 0) {
+    if (lhs.constval == 0.0)
+        return;
+
+    QuadraticExprRepn rhs;
+    this->rhs->collect_terms(rhs);
+    repn.constval += lhs.constval * rhs.constval;
+    for (size_t i=0; i<rhs.linear_vars.size(); i++) {
+        repn.linear_vars.push_back(rhs.linear_vars[i]);
+        repn.linear_coefs.push_back(lhs.constval * rhs.linear_coefs[i]);
+        }
+    return;
+    }
+
+QuadraticExprRepn rhs;
+this->rhs->collect_terms(rhs);
+if (rhs.linear_vars.size() == 0) {
+    if (rhs.constval == 0.0)
+        return;
+
+    repn.constval += lhs.constval * rhs.constval;
+    for (size_t i=0; i<lhs.linear_vars.size(); i++) {
+        repn.linear_vars.push_back(lhs.linear_vars[i]);
+        repn.linear_coefs.push_back(lhs.linear_coefs[i] * rhs.constval);
+        }
+    }
+
+repn.constval = lhs.constval * rhs.constval;
+
+if (lhs.constval != 0.0) {
+    for (size_t i=0; i<rhs.linear_coefs.size(); i++) {
+        repn.linear_vars.push_back(rhs.linear_vars[i]);
+        repn.linear_coefs.push_back(lhs.constval * rhs.linear_coefs[i]);
+        }
+    for (size_t i=0; i<rhs.quadratic_coefs.size(); i++) {
+        repn.quadratic_lvars.push_back(rhs.quadratic_lvars[i]);
+        repn.quadratic_rvars.push_back(rhs.quadratic_rvars[i]);
+        repn.quadratic_coefs.push_back(lhs.constval * rhs.quadratic_coefs[i]);
+        }
+    }
+if (rhs.constval != 0.0) {
+    for (size_t i=0; i<lhs.linear_coefs.size(); i++) {
+        repn.linear_vars.push_back(lhs.linear_vars[i]);
+        repn.linear_coefs.push_back(lhs.linear_coefs[i] * rhs.constval);
+        }
+    for (size_t i=0; i<lhs.quadratic_coefs.size(); i++) {
+        repn.quadratic_lvars.push_back(lhs.quadratic_lvars[i]);
+        repn.quadratic_rvars.push_back(lhs.quadratic_rvars[i]);
+        repn.quadratic_coefs.push_back(rhs.constval * lhs.quadratic_coefs[i]);
+        }
+    }
+for (size_t i=0; i<lhs.linear_coefs.size(); i++) {
+    for (size_t j=0; j<rhs.linear_coefs.size(); j++) {
+        repn.quadratic_lvars.push_back(lhs.linear_vars[i]);
+        repn.quadratic_rvars.push_back(rhs.linear_vars[j]);
+        repn.quadratic_coefs.push_back(lhs.linear_coefs[i]*rhs.linear_coefs[j]);
+        }
+    }
+
+if ((lhs.quadratic_coefs.size() > 0) and (rhs.quadratic_coefs.size() > 0))
+    throw std::runtime_error("Nonlinear expressions are not currently supported.");
+}
+
+
+
+void PowExpression::collect_terms(QuadraticExprRepn& repn)
+{
+QuadraticExprRepn rhs;
+this->rhs->collect_terms(rhs);
+
+if ((rhs.linear_coefs.size() > 0) or (rhs.quadratic_coefs.size() > 0))
+    throw std::runtime_error("Nonlinear expressions with non-constant coefs are not currently supported.");
+
+if (rhs.constval == 0.0) {
+    repn.constval = 1;
+    return;
+    }
+if (rhs.constval == 1.0) {
+    this->lhs->collect_terms(repn);
+    return;
+    }
+if (rhs.constval == 2.0) {
+    QuadraticExprRepn lhs;
+    this->lhs->collect_terms(lhs);
+    if (lhs.quadratic_coefs.size() > 0)
+        throw std::runtime_error("Nonlinear quadratic nonlinear expression is not currently supported.");
+
+    if (lhs.constval != 0.0) {
+        repn.constval = lhs.constval*lhs.constval; 
+        for (size_t i=0; i<lhs.linear_coefs.size(); i++) {
+            repn.linear_vars.push_back(lhs.linear_vars[i]);
+            repn.linear_coefs.push_back(lhs.linear_coefs[i] * 2*lhs.constval);
+            }
+        }
+    for (size_t i=0; i<lhs.linear_coefs.size(); i++) {
+        repn.quadratic_lvars.push_back(lhs.linear_vars[i]);
+        repn.quadratic_rvars.push_back(lhs.linear_vars[i]);
+        repn.quadratic_coefs.push_back(lhs.linear_coefs[i]*lhs.linear_coefs[i]);
+
+        for (size_t j=i+1; j<lhs.linear_coefs.size(); j++) {
+            repn.quadratic_lvars.push_back(lhs.linear_vars[i]);
+            repn.quadratic_rvars.push_back(lhs.linear_vars[j]);
+            repn.quadratic_coefs.push_back(lhs.linear_coefs[i]*rhs.linear_coefs[j]*2);
+            }
+        }
+    return;
+    }
+
+throw std::runtime_error("Nonlinear quadratic nonlinear expression is not currently supported.");
+}
+
+
+void NegExpression::collect_terms(QuadraticExprRepn& repn)
+{
+this->body->collect_terms(repn);
+
+repn.constval *= -1;
+
+for (size_t i=0; i<repn.linear_coefs.size(); i++)
+    repn.linear_coefs[i] *= -1;
+
+for (size_t i=0; i<repn.quadratic_coefs.size(); i++)
+    repn.quadratic_coefs[i] *= -1;
+}
 
 
 void symbolic_diff_all(NumericValue* root, std::map<Variable*, NumericValue*>& diff)

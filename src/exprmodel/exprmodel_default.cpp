@@ -35,23 +35,71 @@ for (std::vector<NumericValue*>::iterator it=equalities.begin(); it != equalitie
 }
 
 
-void print_repn(std::ostream& ostr, ExprRepn& repn, std::map<int,Variable*>& vars)
+void print_repn(std::ostream& ostr, QuadraticExprRepn& repn, std::map<int,Variable*>& vars)
 {
-std::map<int,int> vindex;
-int i=0;
-for (std::vector<NumericValue*>::iterator it=repn.linear_vars.begin(); it != repn.linear_vars.end(); ++it, i++) {
-    Variable* tmp = dynamic_cast<Variable*>(*it);
-    vars[ tmp->index ] = tmp;
-    vindex[ tmp->index ] = i;
+if (repn.linear_coefs.size() > 0) {
+    std::map<int,double> vval;
+    int i=0;
+    for (std::vector<NumericValue*>::iterator it=repn.linear_vars.begin(); it != repn.linear_vars.end(); ++it, i++) {
+        Variable* tmp = dynamic_cast<Variable*>(*it);
+        vars[ tmp->index ] = tmp;
+
+        std::map<int,double>::iterator curr = vval.find(tmp->index);
+        if (curr == vval.end())
+            vval[tmp->index ] = repn.linear_coefs[i];
+        else
+            vval[tmp->index ] += repn.linear_coefs[i];
+        }
+
+    for (std::map<int,double>::iterator it=vval.begin(); it != vval.end(); ++it) {
+        i = it->first;
+        double tmp = it->second;
+        if (tmp > 0)
+            ostr << "+" << tmp << " x(" << i << ")" << std::endl;
+        else if (tmp < 0)
+            ostr << tmp << " x(" << i << ")" << std::endl;
+        }
     }
 
-for (std::map<int,int>::iterator it=vindex.begin(); it != vindex.end(); ++it) {
-    i = it->first;
-    double tmp = repn.linear_coefs[it->second];
-    if (tmp > 0)
-        ostr << "+" << tmp << " x(" << i << ")" << std::endl;
-    else if (tmp < 0)
-        ostr << tmp << " x(" << i << ")" << std::endl;
+if (repn.quadratic_coefs.size() > 0) {
+    ostr << "+[" << std::endl;
+    std::map<std::pair<int,int>,double> qval;
+    for (size_t ii=0; ii<repn.quadratic_coefs.size(); ii++) {
+        Variable* lvar = dynamic_cast<Variable*>(repn.quadratic_lvars[ii]);
+        vars[ lvar->index ] = lvar;
+        Variable* rvar = dynamic_cast<Variable*>(repn.quadratic_rvars[ii]);
+        vars[ rvar->index ] = rvar;
+
+        std::pair<int,int> tmp;
+        if (lvar->index < rvar->index)
+            tmp = std::pair<int,int>(lvar->index, rvar->index);
+        else
+            tmp = std::pair<int,int>(rvar->index, lvar->index);
+
+        std::map<std::pair<int,int>,double>::iterator curr = qval.find(tmp);
+        if (curr == qval.end())
+            qval[ tmp ] = repn.quadratic_coefs[ii];
+        else
+            qval[ tmp ] += repn.quadratic_coefs[ii];
+        }
+
+    for (std::map<std::pair<int,int>,double>::iterator it=qval.begin(); it != qval.end(); ++it) {
+        const std::pair<int,int>& tmp = it->first;
+        double val = it->second;
+        if (tmp.first == tmp.second) {
+            if (val > 0)
+                ostr << "+" << val << " x(" << tmp.first << ") ^ 2" << std::endl;
+            else if (val < 0)
+                ostr << val << " x(" << tmp.first << ") ^ 2" << std::endl;
+            }
+        else {
+            if (val > 0)
+                ostr << "+" << val << " x(" << tmp.first << ") * x(" << tmp.second << ")" << std::endl;
+            else if (val < 0)
+                ostr << val << " x(" << tmp.first << ") * x(" << tmp.second << ")" << std::endl;
+            }
+        }
+    ostr << "]" << std::endl;
     }
 }
 
@@ -76,7 +124,7 @@ ofstr << std::endl << "minimize" << std::endl << std::endl;
 
 ofstr << "obj:" << std::endl;
 {
-ExprRepn repn;
+QuadraticExprRepn repn;
 objectives[0]->collect_terms(repn);
 print_repn(ofstr, repn, vars);
 }
@@ -86,7 +134,7 @@ ofstr << std::endl << "subject to" << std::endl << std::endl;
 int ctr=0;
 for (std::vector<NumericValue*>::iterator it=inequalities.begin(); it != inequalities.end(); ++it) {
     ofstr << "c" << ctr++ << ":" << std::endl;
-    ExprRepn repn;
+    QuadraticExprRepn repn;
     (*it)->collect_terms(repn);
     print_repn(ofstr, repn, vars);
     double tmp = repn.constval;
@@ -98,7 +146,7 @@ for (std::vector<NumericValue*>::iterator it=inequalities.begin(); it != inequal
 
 for (std::vector<NumericValue*>::iterator it=equalities.begin(); it != equalities.end(); ++it) {
     ofstr << "c" << ctr++ << ":" << std::endl;
-    ExprRepn repn;
+    QuadraticExprRepn repn;
     (*it)->collect_terms(repn);
     print_repn(ofstr, repn, vars);
     double tmp = repn.constval;
@@ -112,8 +160,15 @@ std::map<int,Variable*> bvars;
 std::map<int,Variable*> ivars;
 ofstr << std::endl << "bounds" << std::endl;
 for(std::map<int,Variable*>::iterator it=vars.begin(); it != vars.end(); ++it) {
-    ofstr << it->second->lb << " <= x(" << it->first << ") <= " << it->second->ub << std::endl;
-    //std::cerr << it->first << " " << it->second->binary << std::endl;
+    if (it->second->lb < -1.0e18)
+        ofstr << "-inf";
+    else
+        ofstr << it->second->lb;
+    ofstr << " <= x(" << it->first << ") <= ";
+    if (it->second->ub > 1.0e18)
+        ofstr << "inf" << std::endl;
+    else
+        ofstr << it->second->ub << std::endl;
     if (it->second->binary)
         bvars[it->first] = it->second;
     if (it->second->integer)
