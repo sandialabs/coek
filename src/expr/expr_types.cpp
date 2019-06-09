@@ -161,31 +161,36 @@ void MulExpression::collect_terms(QuadraticExprRepn& repn)
 QuadraticExprRepn lhs;
 this->lhs->collect_terms(lhs);
 
-if (lhs.linear_vars.size() == 0) {
+if (lhs.linear_coefs.size()+lhs.quadratic_coefs.size() == 0) {
     if (lhs.constval == 0.0)
         return;
 
-    QuadraticExprRepn rhs;
-    this->rhs->collect_terms(rhs);
-    repn.constval += lhs.constval * rhs.constval;
-    for (size_t i=0; i<rhs.linear_vars.size(); i++) {
-        repn.linear_vars.push_back(rhs.linear_vars[i]);
-        repn.linear_coefs.push_back(lhs.constval * rhs.linear_coefs[i]);
-        }
+    this->rhs->collect_terms(repn);
+    repn.constval *= lhs.constval;
+    for (size_t i=0; i<repn.linear_coefs.size(); i++)
+        repn.linear_coefs[i] *= lhs.constval;
+    for (size_t i=0; i<repn.quadratic_coefs.size(); i++)
+        repn.quadratic_coefs[i] *= lhs.constval;
     return;
     }
 
 QuadraticExprRepn rhs;
 this->rhs->collect_terms(rhs);
-if (rhs.linear_vars.size() == 0) {
+if (rhs.linear_coefs.size()+rhs.quadratic_coefs.size() == 0) {
     if (rhs.constval == 0.0)
         return;
 
-    repn.constval += lhs.constval * rhs.constval;
-    for (size_t i=0; i<lhs.linear_vars.size(); i++) {
-        repn.linear_vars.push_back(lhs.linear_vars[i]);
-        repn.linear_coefs.push_back(lhs.linear_coefs[i] * rhs.constval);
-        }
+    repn.linear_vars = lhs.linear_vars;
+    repn.linear_coefs.resize( lhs.linear_coefs.size() );
+    repn.quadratic_lvars = lhs.quadratic_lvars;
+    repn.quadratic_rvars = lhs.quadratic_rvars;
+    repn.constval = lhs.constval * rhs.constval;
+    repn.quadratic_coefs.resize( lhs.quadratic_coefs.size() );
+    for (size_t i=0; i<repn.linear_coefs.size(); i++)
+        repn.linear_coefs[i] = lhs.linear_coefs[i] * rhs.constval;
+    for (size_t i=0; i<repn.quadratic_coefs.size(); i++)
+        repn.quadratic_coefs[i] = lhs.quadratic_coefs[i] * rhs.constval;
+    return;
     }
 
 repn.constval = lhs.constval * rhs.constval;
@@ -224,6 +229,26 @@ if ((lhs.quadratic_coefs.size() > 0) and (rhs.quadratic_coefs.size() > 0))
     throw std::runtime_error("Nonlinear expressions are not currently supported.");
 }
 
+
+
+void DivExpression::collect_terms(QuadraticExprRepn& repn)
+{
+QuadraticExprRepn rhs;
+this->rhs->collect_terms(rhs);
+
+if (rhs.linear_coefs.size()+rhs.quadratic_coefs.size() > 0)
+    throw std::runtime_error("Nonlinear expressions are not currently supported in the denominator.");
+if (rhs.constval == 0.0)
+    throw std::runtime_error("Division by zero error.");
+
+this->lhs->collect_terms(repn);
+
+repn.constval /= rhs.constval;
+for (size_t i=0; i<repn.linear_coefs.size(); i++)
+    repn.linear_coefs[i] /= rhs.constval;
+for (size_t i=0; i<repn.quadratic_coefs.size(); i++)
+    repn.quadratic_coefs[i] /= rhs.constval;
+}
 
 
 void PowExpression::collect_terms(QuadraticExprRepn& repn)
@@ -278,10 +303,8 @@ void NegExpression::collect_terms(QuadraticExprRepn& repn)
 this->body->collect_terms(repn);
 
 repn.constval *= -1;
-
 for (size_t i=0; i<repn.linear_coefs.size(); i++)
     repn.linear_coefs[i] *= -1;
-
 for (size_t i=0; i<repn.quadratic_coefs.size(); i++)
     repn.quadratic_coefs[i] *= -1;
 }

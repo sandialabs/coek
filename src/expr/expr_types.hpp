@@ -1244,6 +1244,8 @@ public:
 
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "/");}
+
+    void collect_terms(QuadraticExprRepn& repn);
 };
 
 
