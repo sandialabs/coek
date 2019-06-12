@@ -1,5 +1,6 @@
 from poek.coek_cffi import ffi, lib
-__all__ = ['Solver']
+
+__all__ = ['Solver', 'GurobiSolver']
 
 
 class Solver(object):
@@ -15,24 +16,17 @@ class Solver(object):
 
 
 
-class XGurobiSolver(object):
+class GurobiSolver(object):
 
-    __slots__ = ('env','model', 'x', 'nx')
+    __slots__ = ('env', 'modelptr', 'x', 'nx')
 
     def __init__(self):
-        self.envptr = lib.solver_gurobi_env()
         self.modelptr = None
         self.x = None
         self.nx = None
 
     def solve(self, model):
-        self.modelptr = lib.solver_gurobi_model(model.ptr)
-        if self.nx is None:
-            self.nx = lib.get_nvariables(self.ptr)
-        if self.x is None:
-            self.x = ffi.new("double []", self.nx)
-        lib.gurobi_solve(self.modelptr, self.x, self.nx)
-        tmp = []
-        for i in range(self.nx):
-            tmp.append( self.x[i] )
+        solver = lib.get_solver(str.encode('gurobi'))
+        lib.set_solver_model(solver, model.ptr)
+        lib.solver_solve(solver)
         
