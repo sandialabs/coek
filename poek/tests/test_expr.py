@@ -1545,5 +1545,53 @@ class TestVariables(unittest.TestCase):
         self.assertEqual(v.name[0], 'x')
 
 
+class TestNDVariables(unittest.TestCase):
+
+    def test_default_value(self):
+        self.model = model()
+        v = variable((3,2,4), name='v')
+        self.assertTrue(math.isnan(v[0,1,3].value))
+        self.assertTrue(math.isnan(v[1,0,0].value))
+        self.assertTrue(math.isnan(v[2,1,2].value))
+
+    def tearDown(self):
+        self.model = None
+
+    def test_initialize(self):
+        v = variable((3,2,4), name='v', initialize=3)
+        self.assertEqual(v[0,1,3].value,3)
+        self.assertEqual(v[1,0,0].value,3)
+        self.assertEqual(v[2,1,2].value,3)
+
+    def test_iterator(self):
+        v = variable((3,2,4), name='v')
+        for i in v:
+            math.isnan(v[i].value)
+
+    def test_getitem1(self):
+        v = variable((3,2,4), name='v')
+        v1 = v[0,0,0]
+        v2 = v[0,0,0]
+        self.assertIs(v1, v2)
+    
+    def test_getitem2(self):
+        v = variable((3,2,4))
+        v1 = v[0,0,0]
+        v2 = v[0,0,0]
+        self.assertIs(v1, v2)
+
+    def test_name1(self):
+        v = variable((3,2,4), name='v', initialize=3)
+        self.assertEqual(v.name, 'v')
+        self.assertEqual(v[2,1,3].name, 'v[2, 1, 3]')
+        self.assertEqual(v[0,0,0].name, 'v[0, 0, 0]')
+
+    def test_name2(self):
+        v = variable((3,2,4), initialize=3)
+        self.assertEqual(v.name, None)
+        self.assertEqual(v[2,1,3].name, 'x[2, 1, 3]')
+        self.assertEqual(v[0,0,0].name, 'x[0, 0, 0]')
+
+
 if __name__ == "__main__":
     unittest.main()
