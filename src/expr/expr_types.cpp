@@ -18,24 +18,8 @@ return lhs->index < rhs->index;
 }
 
 
-/*
-void ExprRepn::initialize(NumericValue* e)
-{ e->collect_terms(*this); }
-
-
-void LinearExprRepn::initialize(NumericValue* e)
-{ e->collect_terms(*this); }
-*/
-
-
-void QuadraticExprRepn::initialize(NumericValue* e)
-{ e->collect_terms(*this); }
-
-
-/*
-void NonlinearExprRepn::initialize(NumericValue* e)
-{ e->collect_terms(*this); }
-*/
+void QuadraticExprRepn::initialize(NumericValue* e, vars_t& vars)
+{ e->collect_terms(*this, vars); }
 
 
 NumericValue* PowExpression::partial(unsigned int i)
@@ -61,7 +45,7 @@ this->rhs->adjoint += this->adjoint * log(base) * this->_value;
 }
 
 
-void NumericValue::collect_terms(QuadraticExprRepn& )
+void NumericValue::collect_terms(QuadraticExprRepn& , vars_t& )
 {
 std::string str = "Unknown expression term: ";
 str += typeid(*this).name();
@@ -74,13 +58,13 @@ throw std::runtime_error(str.c_str());
 }
 
 
-void AddExpression::collect_terms(QuadraticExprRepn& repn)
+void AddExpression::collect_terms(QuadraticExprRepn& repn, vars_t& vars)
 {
-this->data->data[0]->collect_terms(repn);
+this->data->data[0]->collect_terms(repn, vars);
 
 for (unsigned int i=1; i<this->n; i++) {
     QuadraticExprRepn tmp;
-    this->data->data[i]->collect_terms(tmp);
+    this->data->data[i]->collect_terms(tmp, vars);
 
     repn.constval += tmp.constval;
 
@@ -98,12 +82,12 @@ for (unsigned int i=1; i<this->n; i++) {
 }
 
 
-void SubExpression::collect_terms(QuadraticExprRepn& repn)
+void SubExpression::collect_terms(QuadraticExprRepn& repn, vars_t& vars)
 {
-this->lhs->collect_terms(repn);
+this->lhs->collect_terms(repn, vars);
 
 QuadraticExprRepn rhs;
-this->rhs->collect_terms(rhs);
+this->rhs->collect_terms(rhs, vars);
 
 repn.constval -= rhs.constval;
 
@@ -157,16 +141,16 @@ else {
 
 
 
-void MulExpression::collect_terms(QuadraticExprRepn& repn)
+void MulExpression::collect_terms(QuadraticExprRepn& repn, vars_t& vars)
 {
 QuadraticExprRepn lhs;
-this->lhs->collect_terms(lhs);
+this->lhs->collect_terms(lhs, vars);
 
 if (lhs.linear_coefs.size()+lhs.quadratic_coefs.size() == 0) {
     if (lhs.constval == 0.0)
         return;
 
-    this->rhs->collect_terms(repn);
+    this->rhs->collect_terms(repn, vars);
     repn.constval *= lhs.constval;
     for (size_t i=0; i<repn.linear_coefs.size(); i++)
         repn.linear_coefs[i] *= lhs.constval;
@@ -176,7 +160,7 @@ if (lhs.linear_coefs.size()+lhs.quadratic_coefs.size() == 0) {
     }
 
 QuadraticExprRepn rhs;
-this->rhs->collect_terms(rhs);
+this->rhs->collect_terms(rhs, vars);
 if (rhs.linear_coefs.size()+rhs.quadratic_coefs.size() == 0) {
     if (rhs.constval == 0.0)
         return;
@@ -232,17 +216,17 @@ if ((lhs.quadratic_coefs.size() > 0) and (rhs.quadratic_coefs.size() > 0))
 
 
 
-void DivExpression::collect_terms(QuadraticExprRepn& repn)
+void DivExpression::collect_terms(QuadraticExprRepn& repn, vars_t& vars)
 {
 QuadraticExprRepn rhs;
-this->rhs->collect_terms(rhs);
+this->rhs->collect_terms(rhs, vars);
 
 if (rhs.linear_coefs.size()+rhs.quadratic_coefs.size() > 0)
     throw std::runtime_error("Nonlinear expressions are not currently supported in the denominator.");
 if (rhs.constval == 0.0)
     throw std::runtime_error("Division by zero error.");
 
-this->lhs->collect_terms(repn);
+this->lhs->collect_terms(repn, vars);
 
 repn.constval /= rhs.constval;
 for (size_t i=0; i<repn.linear_coefs.size(); i++)
@@ -252,10 +236,10 @@ for (size_t i=0; i<repn.quadratic_coefs.size(); i++)
 }
 
 
-void PowExpression::collect_terms(QuadraticExprRepn& repn)
+void PowExpression::collect_terms(QuadraticExprRepn& repn, vars_t& vars)
 {
 QuadraticExprRepn rhs;
-this->rhs->collect_terms(rhs);
+this->rhs->collect_terms(rhs, vars);
 
 if ((rhs.linear_coefs.size() > 0) or (rhs.quadratic_coefs.size() > 0))
     throw std::runtime_error("Nonlinear expressions with non-constant coefs are not currently supported.");
@@ -265,12 +249,12 @@ if (rhs.constval == 0.0) {
     return;
     }
 if (rhs.constval == 1.0) {
-    this->lhs->collect_terms(repn);
+    this->lhs->collect_terms(repn, vars);
     return;
     }
 if (rhs.constval == 2.0) {
     QuadraticExprRepn lhs;
-    this->lhs->collect_terms(lhs);
+    this->lhs->collect_terms(lhs, vars);
     if (lhs.quadratic_coefs.size() > 0)
         throw std::runtime_error("Nonlinear quadratic nonlinear expression is not currently supported.");
 
@@ -299,9 +283,9 @@ throw std::runtime_error("Nonlinear quadratic nonlinear expression is not curren
 }
 
 
-void NegExpression::collect_terms(QuadraticExprRepn& repn)
+void NegExpression::collect_terms(QuadraticExprRepn& repn, vars_t& vars)
 {
-this->body->collect_terms(repn);
+this->body->collect_terms(repn, vars);
 
 repn.constval *= -1;
 for (size_t i=0; i<repn.linear_coefs.size(); i++)

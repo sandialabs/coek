@@ -20,6 +20,8 @@
 class NumericValue;
 class Variable;
 
+typedef std::map<int,Variable*> vars_t;
+
 
 class ExprRepn
 {
@@ -56,7 +58,7 @@ public:
 
     QuadraticExprRepn() : LinearExprRepn() {}
 
-    void initialize(NumericValue* e);
+    void initialize(NumericValue* e, vars_t& vars);
 };
 
 
@@ -118,7 +120,7 @@ public:
     virtual void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "%.3f", _value);}
 
-    virtual void collect_terms(QuadraticExprRepn& repn);
+    virtual void collect_terms(QuadraticExprRepn& repn, vars_t& vars);
 };
 
 
@@ -145,7 +147,7 @@ public:
 
     virtual void set_value(double val) = 0;
 
-    void collect_terms(QuadraticExprRepn& repn)
+    void collect_terms(QuadraticExprRepn& repn, vars_t& )
         { repn.constval = this->value(); }
 };
 
@@ -286,10 +288,11 @@ public:
             std::snprintf(buf, max, "%s{%.3f}", name.c_str(), this->_value);
         }
 
-    void collect_terms(QuadraticExprRepn& repn)
+    void collect_terms(QuadraticExprRepn& repn, vars_t& vars)
         {
         repn.linear_vars.push_back(this);
         repn.linear_coefs.push_back(1.0);
+        vars[this->index] = this;
         }
 };
 
@@ -370,8 +373,8 @@ public:
             std::snprintf(buf, max, "<=");
         }
 
-    void collect_terms(QuadraticExprRepn& repn)
-        { body->collect_terms(repn); }
+    void collect_terms(QuadraticExprRepn& repn, vars_t& vars)
+        { body->collect_terms(repn, vars); }
 };
 
 
@@ -410,8 +413,8 @@ public:
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "==");}
 
-    void collect_terms(QuadraticExprRepn& repn)
-        { body->collect_terms(repn); }
+    void collect_terms(QuadraticExprRepn& repn, vars_t& vars)
+        { body->collect_terms(repn, vars); }
 };
 
 
@@ -553,7 +556,7 @@ public:
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "-");}
 
-    void collect_terms(QuadraticExprRepn& repn);
+    void collect_terms(QuadraticExprRepn& repn, vars_t& vars);
 
 };
 
@@ -1058,7 +1061,7 @@ public:
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "+");}
 
-    void collect_terms(QuadraticExprRepn& repn);
+    void collect_terms(QuadraticExprRepn& repn, vars_t& vars);
 };
 
 
@@ -1108,7 +1111,7 @@ public:
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "-");}
 
-    void collect_terms(QuadraticExprRepn& repn);
+    void collect_terms(QuadraticExprRepn& repn, vars_t& vars);
 };
 
 
@@ -1177,7 +1180,7 @@ public:
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "*");}
 
-    void collect_terms(QuadraticExprRepn& repn);
+    void collect_terms(QuadraticExprRepn& repn, vars_t& vars);
 };
 
 
@@ -1246,7 +1249,7 @@ public:
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "/");}
 
-    void collect_terms(QuadraticExprRepn& repn);
+    void collect_terms(QuadraticExprRepn& repn, vars_t& vars);
 };
 
 
@@ -1290,7 +1293,7 @@ public:
     void snprintf(char* buf, int max)
         {std::snprintf(buf, max, "**");}
 
-    virtual void collect_terms(QuadraticExprRepn& repn);
+    virtual void collect_terms(QuadraticExprRepn& repn, vars_t& vars);
 };
 
 void symbolic_diff_all(NumericValue* root, std::map<Variable*, NumericValue*>& diff);
