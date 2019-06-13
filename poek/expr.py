@@ -1,3 +1,4 @@
+import itertools
 from poek.coek_cffi import ffi, lib
 from poek.globals import NAN, NULL, BUFFER
 
@@ -710,9 +711,9 @@ class variable_view(variable_single):
     __slots__ = ('_index')
 
     def __init__(self, index=None, name=None, ptr=None):
-        self.ptr = ptr
-        self._name = name
         self._index = index
+        self._name = name
+        self.ptr = ptr
 
     @property
     def value(self):
@@ -744,9 +745,15 @@ class variable_view(variable_single):
 
     @property
     def name(self):
-        if self._name is None:
-            return 'x[%d]' % self._index
-        return '%s[%d]' % (self._name, self._index)
+        if type(self._index) is tuple:
+            index = str(self._index)
+            if self._name is None:
+                return 'x[%s]' % index[1:-1]
+            return '%s[%s]' % (self._name, index[1:-1])
+        else:
+            if self._name is None:
+                return 'x[%d]' % self._index
+            return '%s[%d]' % (self._name, self._index)
     @name.setter
     def name(self, value):
         raise TypeError("Cannot set the name of a variable array element")
@@ -754,20 +761,29 @@ class variable_view(variable_single):
 
 class variable_array(object):
 
-    __slots__ = ('ptrs', 'name', 'num', 'views', 'initialize')
+    __slots__ = ('ptrs', 'name', 'num', 'nvars', 'views', 'initialize', 'nextptr')
 
     def __init__(self, num, name=None, initialize=NAN, lb=NAN, ub=NAN, binary=False, integer=False):
-        # TODO: Allow for 'num' to be a shape tuple.  (How would this be written?)
         self.num = num 
         self.name = name
         self.initialize = initialize
         prefix = str.encode("") if name is None else str.encode(name)
-        ptrs = ffi.new("void* []", num)
+        if type(num) is tuple:
+            tmp = 1
+            for i in num:
+                tmp *= i
+            self.nvars = tmp
+        else:
+            self.nvars = num
+        ptrs = self.ptrs = ffi.new("void* []", self.nvars)
         binval = 1 if binary else 0
         intval = 1 if integer else 0
-        lib.create_variable_array(NULL,ptrs,num,binval,intval,lb,ub,initialize,prefix)
-        self.ptrs = ptrs
-        self.views = {}
+        lib.create_variable_array(NULL, self.ptrs, self.nvars, binval, intval, lb, ub, initialize, prefix)
+        if type(num) is tuple:
+            iters = [range(n) for n in num]
+            self.views = {key : variable_view(index=key, name=name, ptr=ptrs[i]) for i,key in enumerate(itertools.product(*iters))}
+        else:
+            self.views = {i : variable_view(index=i, name=name, ptr=ptrs[i]) for i in range(num)}
 
     def is_expression(self):        #pragma:nocover
         return False
@@ -776,11 +792,7 @@ class variable_array(object):
         return False
 
     def __getitem__(self, key):
-        views = self.views
-        if key in views:
-            return views[key]
-        views[key] = variable_view(index=key, name=self.name, ptr=self.ptrs[key])
-        return views[key]
+        return self.views[key]
 
     def __str__(self):      #pragma:nocover
         if self.name is None:
@@ -788,22 +800,22 @@ class variable_array(object):
         return self.name
 
     def __iter__(self):
-        for key in range(self.num):
-            yield key
+        if type(self.num) is tuple:
+            iters = [range(n) for n in self.num]
+            for index in itertools.product(*iters):
+                yield index
+        else:
+            for key in range(self.nvars):
+                yield key
 
     def items(self):
-        for key in range(self.num):
-            if key in views:
-                yield key, views[key]
-            views[key] = variable_view(index=key, name=self.name, ptr=self.ptrs[key])
+        views = self.views
+        for key in self:
             yield key, views[key]
 
     def values(self):
         views = self.views
-        for key in range(self.num):
-            if key in views:
-                yield views[key]
-            views[key] = variable_view(index=key, name=self.name, ptr=self.ptrs[key])
+        for key in self:
             yield views[key]
 
 

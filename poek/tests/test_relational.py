@@ -274,7 +274,7 @@ class Test_Expr(unittest.TestCase):
         with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
             e -= 2
 
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+        with self.assertRaisesRegex(TypeError, "Cannot create an expression with a relational subexpression."):
             a * e
         with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
             e * a
