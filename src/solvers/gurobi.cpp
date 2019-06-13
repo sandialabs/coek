@@ -6,18 +6,14 @@
 
 void collect_variables(QuadraticExprRepn& repn, std::map<int,Variable*>& vars)
 {
-for (std::vector<Variable*>::iterator it=repn.linear_vars.begin(); it != repn.linear_vars.end(); ++it) {
-    Variable* tmp = dynamic_cast<Variable*>(*it);
-    vars[ tmp->index ] = tmp;
-    }
-for (std::vector<Variable*>::iterator it=repn.quadratic_lvars.begin(); it != repn.quadratic_lvars.end(); ++it) {
-    Variable* tmp = dynamic_cast<Variable*>(*it);
-    vars[ tmp->index ] = tmp;
-    }
-for (std::vector<Variable*>::iterator it=repn.quadratic_rvars.begin(); it != repn.quadratic_rvars.end(); ++it) {
-    Variable* tmp = dynamic_cast<Variable*>(*it);
-    vars[ tmp->index ] = tmp;
-    }
+for (std::vector<Variable*>::iterator it=repn.linear_vars.begin(); it != repn.linear_vars.end(); ++it)
+    vars[ (*it)->index ] = *it;
+
+for (std::vector<Variable*>::iterator it=repn.quadratic_lvars.begin(); it != repn.quadratic_lvars.end(); ++it)
+    vars[ (*it)->index ] = *it;
+
+for (std::vector<Variable*>::iterator it=repn.quadratic_rvars.begin(); it != repn.quadratic_rvars.end(); ++it)
+    vars[ (*it)->index ] = *it;
 }
 
 
