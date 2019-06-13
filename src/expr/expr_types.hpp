@@ -18,6 +18,7 @@
 
 
 class NumericValue;
+class Variable;
 
 
 class ExprRepn
@@ -36,7 +37,7 @@ class LinearExprRepn : public ExprRepn
 {
 public:
 
-    std::vector<NumericValue*> linear_vars;
+    std::vector<Variable*> linear_vars;
     std::vector<double> linear_coefs;
 
     LinearExprRepn() : ExprRepn() {}
@@ -49,8 +50,8 @@ class QuadraticExprRepn : public LinearExprRepn
 {
 public:
 
-    std::vector<NumericValue*> quadratic_lvars;
-    std::vector<NumericValue*> quadratic_rvars;
+    std::vector<Variable*> quadratic_lvars;
+    std::vector<Variable*> quadratic_rvars;
     std::vector<double> quadratic_coefs;
 
     QuadraticExprRepn() : LinearExprRepn() {}
@@ -63,7 +64,7 @@ class NonlinearExprRepn : public LinearExprRepn
 {
 public:
 
-    std::vector<NumericValue*> nonlinear_vars;
+    std::vector<Variable*> nonlinear_vars;
     NumericValue* nonl;
 
     NonlinearExprRepn() : LinearExprRepn() {}
@@ -1072,7 +1073,7 @@ public:
         {}
 
     void print(std::ostream& ostr)
-        {this->lhs->print(ostr); ostr << " - "; this->rhs->print(ostr); }
+        {this->lhs->print(ostr); ostr << " - ("; this->rhs->print(ostr); ostr << ")"; }
 
     double value() {return this->lhs->value() - this->rhs->value();}
 

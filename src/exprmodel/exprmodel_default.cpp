@@ -40,7 +40,7 @@ void print_repn(std::ostream& ostr, QuadraticExprRepn& repn, std::map<int,Variab
 if (repn.linear_coefs.size() > 0) {
     std::map<int,double> vval;
     int i=0;
-    for (std::vector<NumericValue*>::iterator it=repn.linear_vars.begin(); it != repn.linear_vars.end(); ++it, i++) {
+    for (std::vector<Variable*>::iterator it=repn.linear_vars.begin(); it != repn.linear_vars.end(); ++it, i++) {
         Variable* tmp = dynamic_cast<Variable*>(*it);
         vars[ tmp->index ] = tmp;
 
@@ -62,7 +62,7 @@ if (repn.linear_coefs.size() > 0) {
     }
 
 if (repn.quadratic_coefs.size() > 0) {
-    ostr << "+[" << std::endl;
+    ostr << "+ [" << std::endl;
     std::map<std::pair<int,int>,double> qval;
     for (size_t ii=0; ii<repn.quadratic_coefs.size(); ii++) {
         Variable* lvar = dynamic_cast<Variable*>(repn.quadratic_lvars[ii]);

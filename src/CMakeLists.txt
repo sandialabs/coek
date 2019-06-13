@@ -51,11 +51,15 @@ endif()
 #
 
 # GUROBI LIBRARY
-if(${GUROBI_HOME})
-    MESSAGE("-- GUROBI_HOME ${GUROBI_HOME}")
-    INCLUDE_DIRECTORIES(${GUROBI_HOME}/include)
-else()
-    MESSAGE("-- GUROBI_HOME Not provided")
+if(with_gurobi)
+    list(APPEND sources
+        solvers/gurobi.cpp)
+    if(NOT "$ENV{GUROBI_HOME}" STREQUAL "")
+        MESSAGE("-- GUROBI_HOME $ENV{GUROBI_HOME}")
+        INCLUDE_DIRECTORIES($ENV{GUROBI_HOME}/include)
+    else()
+        MESSAGE("-- GUROBI_HOME Not provided")
+    endif()
 endif()
 
 # IPOPT LIBRARY
