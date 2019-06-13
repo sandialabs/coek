@@ -353,7 +353,8 @@ if (it != repn.end())
    return it->second;
 
 QuadraticExprRepn* ans = new QuadraticExprRepn();
-ans->initialize(e);
+vars_t vars;
+ans->initialize(e, vars);
 repn[e] = ans;
 return ans;
 }
