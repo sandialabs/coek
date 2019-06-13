@@ -3,6 +3,7 @@
 #include <list>
 #include <cmath>
 #include <sstream>
+#include <typeinfo>
 
 #include "expr/expr_types.hpp"
 
