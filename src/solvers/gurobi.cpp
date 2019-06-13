@@ -28,19 +28,19 @@ std::map<int,GRBVar> x;
 
 // Collect repns
 QuadraticExprRepn orepn;
-model->objectives[0]->collect_terms(orepn);
-collect_variables(orepn, vars);
+model->objectives[0]->collect_terms(orepn, vars);
+//collect_variables(orepn, vars);
 
 std::vector<QuadraticExprRepn> irepn(model->inequalities.size());
 for (size_t i=0; i<model->inequalities.size(); i++) {
-    model->inequalities[i]->collect_terms( irepn[i] );
-    collect_variables(irepn[i], vars);
+    model->inequalities[i]->collect_terms( irepn[i], vars );
+    //collect_variables(irepn[i], vars);
     }
 
 std::vector<QuadraticExprRepn> erepn(model->equalities.size());
 for (size_t i=0; i<model->equalities.size(); i++) {
-    model->equalities[i]->collect_terms( erepn[i] );
-    collect_variables(erepn[i], vars);
+    model->equalities[i]->collect_terms( erepn[i], vars );
+    //collect_variables(erepn[i], vars);
     }
 
 // Add Gurobi variables
