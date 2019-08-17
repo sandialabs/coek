@@ -1,11 +1,12 @@
+#include <cassert>
 #include "IpIpoptApplication.hpp"
 #include "IpSolveStatistics.hpp"
 #include "IpTNLP.hpp"
 #include "ipopt.hpp"
 
-#include "admodel/simple.hpp"
-
 using namespace Ipopt;
+
+namespace coek {
 
 
 std::ostream& operator<<(std::ostream& ostr, const std::vector<double>& vec)
@@ -20,20 +21,24 @@ class IpoptProblem : public TNLP
 {
 public:
 
-    Simple_ADModel* model;
+    NLPModel model;
     std::vector<double> tmp_grad;
     std::vector<double> tmp_c;
+    std::vector<double> tmp_j;
+    std::vector<double> tmp_h;
+    std::vector<double> tmp_hw;
 
     // default constructor
-    IpoptProblem(ADModel* _model)
-        {
-        model=dynamic_cast<Simple_ADModel*>(_model);
-        }
+    IpoptProblem(NLPModel& _model)
+        { model = _model; }
 
     void build()
         {
-        tmp_grad.resize(model->num_variables());
-        tmp_c.resize(model->num_constraints());
+        tmp_grad.resize(model.num_variables());
+        tmp_c.resize(model.num_constraints());
+        tmp_j.resize(model.num_nonzeros_Jacobian());
+        tmp_h.resize(model.num_nonzeros_Hessian_Lagrangian());
+        tmp_hw.resize(model.num_objectives() + model.num_constraints());
         }
 
     // default destructor
@@ -41,44 +46,44 @@ public:
         {}
 
     // Method to return some info about the nlp
-    virtual bool get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
+    bool get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                     Index& nnz_h_lag, IndexStyleEnum& index_style);
   
     // Method to return the bounds for my problem
-    virtual bool get_bounds_info(Index n, Number* x_l, Number* x_u, Index m, Number* g_l, Number* g_u);
+    bool get_bounds_info(Index n, Number* x_l, Number* x_u, Index m, Number* g_l, Number* g_u);
   
     // Method to return the starting point for the algorithm
-    virtual bool get_starting_point(Index n, bool init_x, Number* x, 
+    bool get_starting_point(Index n, bool init_x, Number* x, 
                     bool init_z, Number* z_L, Number* z_U,
                     Index m, bool init_lambda,
                     Number* lambda);
   
     // Method to return the objective value
-    virtual bool eval_f(Index n, const Number* x, bool new_x, Number& obj_value);
+    bool eval_f(Index n, const Number* x, bool new_x, Number& obj_value);
   
     // Method to return the gradient of the objective
-    virtual bool eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f);
+    bool eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f);
   
     // Method to return the constraint residuals
-    virtual bool eval_g(Index n, const Number* x, bool new_x, Index m, Number* g);
+    bool eval_g(Index n, const Number* x, bool new_x, Index m, Number* g);
 
-  // Method to return:
-  //   1) The structure of the jacobian (if "values" is NULL)
-  //   2) The values of the jacobian (if "values" is not NULL)
-  virtual bool eval_jac_g(Index n, const Number* x, bool new_x,
+    // Method to return:
+    //   1) The structure of the jacobian (if "values" is NULL)
+    //   2) The values of the jacobian (if "values" is not NULL)
+    bool eval_jac_g(Index n, const Number* x, bool new_x,
                           Index m, Index nele_jac, Index* iRow, Index *jCol,
                           Number* values);
 
-  // Method to return:
-  //   1) The structure of the hessian of the lagrangian (if "values" is NULL)
-  //   2) The values of the hessian of the lagrangian (if "values" is not NULL)
-  virtual bool eval_h(Index n, const Number* x, bool new_x,
+    // Method to return:
+    //   1) The structure of the hessian of the lagrangian (if "values" is NULL)
+    //   2) The values of the hessian of the lagrangian (if "values" is not NULL)
+    bool eval_h(Index n, const Number* x, bool new_x,
                       Number obj_factor, Index m, const Number* lambda,
                       bool new_lambda, Index nele_hess, Index* iRow,
                       Index* jCol, Number* values);
 
-  // This method is called when the algorithm is complete so the TNLP can store/write the solution
-  virtual void finalize_solution(SolverReturn status,
+    // This method is called when the algorithm is complete so the TNLP can store/write the solution
+    void finalize_solution(SolverReturn status,
                  Index n, const Number* x, const Number* z_L, const Number* z_U,
                  Index m, const Number* g, const Number* lambda,
                  Number obj_value,
@@ -94,7 +99,6 @@ private:
     // This method should not be used.
     IpoptProblem& operator=(const IpoptProblem&)
         { return *this; }
-
 };
 
 
@@ -103,18 +107,21 @@ bool IpoptProblem::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                          Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
 // The number of variables
-n = model->num_variables();
+n = model.num_variables();
+//std::cout << "HERE z " << n << std::endl << std::flush;
 
 // The number of constraints
-m = model->num_constraints();
+m = model.num_constraints();
 
 // The number of nonzeros in the jacobian
-nnz_jac_g = model->num_nonzeros_Jacobian();
+nnz_jac_g = model.num_nonzeros_Jacobian();
 
 // The number of nonzeros in the hessian of the lagrangian
-nnz_h_lag = 0;
+nnz_h_lag = model.num_nonzeros_Hessian_Lagrangian();
+//std::cout << "HERE Z " << nnz_h_lag << std::endl << std::flush;
 
 // The index style for row/col entries
+//index_style = FORTRAN_STYLE;
 index_style = C_STYLE;
 
 return true;
@@ -129,24 +136,31 @@ bool IpoptProblem::get_bounds_info(Index n, Number* x_l, Number* x_u,
 //std::cout << "GET BOUNDS " << std::endl << std::flush;
 // Setting bounds to +/- infinity
 Index i=0;
-for (std::vector<Variable*>::iterator it=model->variables.begin(); it != model->variables.end(); it++) {
-    x_l[i] = (*it)->lb;
-    x_u[i] = (*it)->ub;
+for (size_t i=0; i<model.num_variables(); i++) {
+    auto v = model.get_variable(i);
+    if (v.is_binary())
+        throw std::runtime_error("Cannot apply ipopt to problems with binary variables");
+    if (v.is_integer())
+        throw std::runtime_error("Cannot apply ipopt to problems with integer variables");
+
+    x_l[i] = v.get_lb();
+    x_u[i] = v.get_ub();
     //std::cout << "x " << i << " " << x_l[i] << " " << x_u[i] << std::endl << std::flush;
-    i++;
     }
 
-// Equality constraints are g(x) == 0
-for (Index j=0; j<model->inequalities.size(); j++) {
-    g_l[j] = NEGATIVE_INFINITY;
-    g_u[j] = 0; 
-    //std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl << std::flush;
-    }
-// Inequality constraints are g(x) <= 0
-for (Index j=model->inequalities.size(); j<m; j++) {
-    g_l[j] = 0;
-    g_u[j] = 0; 
-    //std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl << std::flush;
+for (size_t j=0; j<model.model.constraints.size(); j++) {
+    if (model.model.constraints[i].is_inequality()) {
+        // Inequality constraints are g(x) <= 0
+        g_l[j] = - COEK_INFINITY;
+        g_u[j] = 0; 
+        //std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl << std::flush;
+        }
+    else {
+        // Equality constraints are g(x) == 0
+        g_l[j] = 0;
+        g_u[j] = 0; 
+        //std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl << std::flush;
+        }
     }
 
 return true;
@@ -164,10 +178,10 @@ assert(init_z == false);
 assert(init_lambda == false);
 
 // Initialize the x[i];
-Index i=0;
-for (std::vector<Variable*>::iterator it=model->variables.begin(); it != model->variables.end(); it++) {
-    x[i++] = (*it)->_value;
-    //std::cout << "x " << (i-1) << " " << x[i-1] << std::endl << std::flush;
+for (size_t i=0; i<model.num_variables(); i++) {
+    auto v = model.get_variable(i);
+    x[i] = v.get_initial();
+    //std::cout << "x " << i << " " << x[i] << std::endl << std::flush;
     }
 
 return true;
@@ -178,12 +192,12 @@ bool IpoptProblem::eval_f(Index n, const Number* x, bool new_x, Number& obj_valu
 //std::cout << "EVAL F " << std::endl << std::flush;
 if (new_x) {
     //std::cout << "Set Vars " << std::endl << std::flush;
-    model->set_variables(x, n);
+    model.set_variables(x, n);
     }
 
 //std::cout << "Compute F - START" << std::endl << std::flush;
 // return the value of the objective function
-obj_value = model->compute_f(0);
+obj_value = model.compute_f(0);
 
 //std::cout << "EVAL F - END" << std::endl << std::flush;
 return true;
@@ -195,13 +209,13 @@ bool IpoptProblem::eval_grad_f(Index n, const Number* x, bool new_x, Number* gra
 //std::cout << "EVAL DF " << std::endl << std::flush;
 if (new_x) {
     //std::cout << "Set Vars " << std::endl << std::flush;
-    model->set_variables(x, n);
+    model.set_variables(x, n);
     }
 
 //std::cout << "Compute DF - START" << std::endl << std::flush;
 // return the gradient of the objective function grad_{x} f(x)
 double f;
-model->compute_df(f, tmp_grad, 0);
+model.compute_df(f, tmp_grad, 0);
 int i=0;
 for (std::vector<double>::iterator it=tmp_grad.begin(); it != tmp_grad.end(); it++)
     grad_f[i++] = *it;
@@ -216,12 +230,12 @@ bool IpoptProblem::eval_g(Index n, const Number* x, bool new_x, Index m, Number*
 //std::cout << "EVAL G " << std::endl << std::flush;
 if (new_x) {
     //std::cout << "Set Vars " << std::endl << std::flush;
-    model->set_variables(x, n);
+    model.set_variables(x, n);
     }
 
 //std::cout << "Compute G - START" << std::endl << std::flush;
 // return the value of the constraints: g(x)
-model->compute_c(tmp_c);
+model.compute_c(tmp_c);
 int i=0;
 for (std::vector<double>::iterator it=tmp_c.begin(); it != tmp_c.end(); it++)
     g[i++] = *it;
@@ -232,46 +246,33 @@ return true;
 
 
 bool IpoptProblem::eval_jac_g(Index n, const Number* x, bool new_x,
-                       Index m, Index nele_jac, Index* iRow, Index *jCol,
+                       Index m, Index nele_jac, Index* jRow, Index *jCol,
                        Number* values)
 { 
 //std::cout << "EVAL J " << std::endl << std::flush;
 if (values == NULL) {
     //std::cout << "Get Structure " << std::endl << std::flush;
     // Return the structure of the Jacobian of the constraints
-    int i=0;
-    for (size_t j=0; j<model->J_rc.size(); j++) {
-        for (size_t k=0; k<model->J_rc[j].size(); k++) {
-            iRow[i] = j;
-            jCol[i] = model->J_rc[j][k];
-            //std::cout << "i " << i << " irow=" << iRow[i] << " jcol=" << jCol[i] << std::endl << std::flush;
-            i++;
-            }
+    std::vector<size_t> jrow;
+    std::vector<size_t> jcol;
+    model.get_J_nonzeros(jrow, jcol);
+    for (size_t i=0; i<jrow.size(); i++) {
+        jRow[i] = jrow[i];
+        jCol[i] = jcol[i];
         }
     }
 
 else {
+    assert(nele_jac == tmp_j.size());
     //std::cout << "Do Eval - START" << std::endl << std::flush;
     //std::cout << "nele_jac " << nele_jac << std::endl << std::flush;
     // Return the values of the Jacobian of the constraints
-    //if (new_x) {
-    if (1) {
-        model->set_variables(x, n);
+    if (new_x) {
+        model.set_variables(x, n);
         }
-    int i=0;
-    for (size_t j=0; j<model->J.size(); j++) {
-        //std::cout << "EVAL compute_adjoints " << j << std::endl << std::flush;
-        // Zero out the adjoints in the variable objects
-        for (size_t k=0; k<model->J[j].size(); k++)
-            model->J[j][k]->adjoint = 0;
-        // Compute the adjoints using AD
-        model->compute_adjoints(j);
-        // Collect the adjoints in the the array used by ipopt
-        for (size_t k=0; k<model->J[j].size(); k++) {
-            //std::cout << "EVAL J " << j << " " << k << " = " << model->J[j][k]->adjoint << std::endl << std::flush;
-            values[i++] = model->J[j][k]->adjoint;
-            }
-        }
+    model.compute_J(tmp_j);
+    for (size_t i=0; i<tmp_j.size(); i++)
+        values[i] = tmp_j[i];
     //std::cout << "Do Eval - END" << std::endl << std::flush;
     }
 
@@ -282,20 +283,37 @@ return true;
 
 bool IpoptProblem::eval_h(Index n, const Number* x, bool new_x,
                    Number obj_factor, Index m, const Number* lambda,
-                   bool new_lambda, Index nele_hess, Index* iRow,
-                   Index* jCol, Number* values)
+                   bool new_lambda, Index nele_hess, Index* hRow,
+                   Index* hCol, Number* values)
 {
-assert(false);
 if (values == NULL) {
     // Return the structure. This is a symmetric matrix, fill the lower left
     // triangle only.
+    std::vector<size_t> hrow;
+    std::vector<size_t> hcol;
+    model.get_H_nonzeros(hrow, hcol);
+    //std::cout << "HERE hrow_size " << hrow.size() << std::endl;
+    for (size_t i=0; i<hrow.size(); i++) {
+        hRow[i] = hrow[i];
+        hCol[i] = hcol[i];
+        //std::cout << hRow[i] << " " << hCol[i] << std::endl;
+        }
     }
 
 else {
     // Return the values of the Hessian
     if (new_x) {
-        model->set_variables(x, n);
+        model.set_variables(x, n);
         }
+    size_t nf = model.num_objectives();
+    size_t nc = model.num_constraints();
+    for (size_t i=0; i<nf; i++)
+        tmp_hw[i] = obj_factor;
+    for (size_t i=nf; i<nc; i++)
+        tmp_hw[i+nf] = lambda[i];
+    model.compute_H(tmp_hw, tmp_h);
+    for (size_t i=0; i<tmp_h.size(); i++)
+        values[i] = tmp_h[i];
     }
 
 return true;
@@ -310,18 +328,18 @@ void IpoptProblem::finalize_solution(SolverReturn status,
                 IpoptCalculatedQuantities* ip_cq)
 {
 //std::cout << "FINALIZE" << std::endl;
-Index i=0;
-for (std::vector<Variable*>::iterator it=model->variables.begin(); it != model->variables.end(); it++) {
-    //std::cout << " x[" << i << "] = " << x[i] << std::endl;
-    (*it)->_value = x[i++];
+for (size_t i=0; i<model.num_variables(); i++) {
+    auto v = model.get_variable(i);
+    v.set_value( x[i] );
     }
 }
 
 
 
-int IpoptSolver::solve()
+int IpoptSolver::solve(NLPModel& _model)
 {
-SmartPtr<IpoptProblem> nlp = new IpoptProblem(model);
+model = &_model;
+SmartPtr<IpoptProblem> nlp = new IpoptProblem(_model);
 nlp->build();
 
 // Create an instance of the IpoptApplication
@@ -337,6 +355,13 @@ if (status != Solve_Succeeded) {
     return (int) status;
     }
 
+for (auto it=string_options.begin(); it != string_options.end(); ++it)
+    app->Options()->SetStringValue(it->first, it->second);
+for (auto it=integer_options.begin(); it != integer_options.end(); ++it)
+    app->Options()->SetIntegerValue(it->first, it->second);
+for (auto it=double_options.begin(); it != double_options.end(); ++it)
+    app->Options()->SetNumericValue(it->first, it->second);
+
 status = app->OptimizeTNLP(nlp);
 
 if (status == Solve_Succeeded) {
@@ -349,4 +374,18 @@ if (status == Solve_Succeeded) {
 }
 
 return (int) status;
+}
+
+
+void IpoptSolver::load(NLPModel& _model)
+{
+model = &_model;
+}
+
+
+int IpoptSolver::resolve()
+{
+return solve(*model);
+}
+
 }

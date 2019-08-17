@@ -5,7 +5,7 @@
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/CppAD)
   MESSAGE("-- With CppAD Library: available")
   set(cppad_available ON PARENT_SCOPE)
-  set(CPPAD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/CppAD PARENT_SCOPE)
+  set(CPPAD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/CppAD/include PARENT_SCOPE)
 else()
   set(cppad_available OFF PARENT_SCOPE)
   MESSAGE("-- With CppAD Library: missing")

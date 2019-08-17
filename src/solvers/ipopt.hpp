@@ -1,20 +1,23 @@
 #pragma once
 
-#include "model.hpp"
+#include "coek_model.hpp"
 #include "solver.hpp"
 
 
-class IpoptSolver : public Solver
+namespace coek {
+
+class IpoptSolver : public NLPSolverRepn
 {
 public:
 
-    ADModel* model;
+    IpoptSolver() : NLPSolverRepn() {}
 
-    IpoptSolver() : Solver() {}
+    void load(NLPModel& model);
 
-    void set_model(ADModel* _model)
-        {model = _model;}
+    int resolve();
 
-    int solve();
+    int solve(NLPModel& model);
+
 };
 
+}

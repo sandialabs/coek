@@ -1,23 +1,34 @@
 #pragma once
 
-#include "model.hpp"
+#include "gurobi_c++.h"
 #include "solver.hpp"
 
 
 namespace coek {
 
-class GurobiSolver : public Solver
+class GurobiSolver : public SolverRepn
 {
 public:
 
-    ADModel* model;
+    GRBEnv* env;
+    GRBModel* gmodel;
+    std::unordered_map<int,GRBVar> x;
 
-    GurobiSolver() : Solver() {}
+public:
 
-    void set_model(ADModel* _model)
-        {model = _model;}
+    GurobiSolver() : SolverRepn() {}
+    ~GurobiSolver();
 
-    int solve();
+    int resolve();
+    int solve(Model& );
+
+public:
+
+    bool get_option(const std::string& option, int& value) const;
+    bool get_option(const std::string& option, double& value) const;
+    void set_option(const std::string& option, int value);
+    void set_option(const std::string& option, double value);
+
 };
 
 }

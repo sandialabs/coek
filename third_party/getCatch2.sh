@@ -1,6 +1,6 @@
 #!/bin/sh
 
-URL=$(curl --silent "https://api.github.com/repos/catchorg/Catch2/releases/latest" | grep tarball_url | tail -1 | cut -d '"' -f 4)
+URL=$(curl --silent "https://api.github.com/repos/catchorg/Catch2/releases/latest" | grep tarball_url | head -1 | cut -d '"' -f 4)
 BASE=$(basename $URL)
 echo "Latest Catch2 release: " $URL
 

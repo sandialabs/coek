@@ -5,20 +5,24 @@ PROJECT( Coek )
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/third_party/Catch2/contrib;${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/third_party/pybind11/tools;${CMAKE_MODULE_PATH})
 
 
 ##################### Options #####################
 
 # Configuration options
 option(with_tests "Build tests" OFF)
+option(with_examples "Build examples" OFF)
 option(with_debug "Debug build" OFF)
+option(with_verbose "Verbose build" OFF)
 option(with_gcov "Add code coverage using gcov" OFF)
+option(with_gprof "Profile build" OFF)
+option(with_python "Build python interface using pybind11" OFF)
 
 # Autograd Dependencies
 option(with_cppad "Use the CppAD Autograd Library" OFF)
 option(with_sacado "Use the Sacado Autograd Library" OFF)
 option(with_asl "Use the ASL Autograd Library" OFF)
-
 
 # Solver Dependencies
 option(with_ipopt "Use the Ipopt Solver" OFF)
@@ -37,9 +41,18 @@ else()
 endif()
 if(${with_debug})
   set(CMAKE_BUILD_TYPE debug)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG")
 endif()
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
+if(${with_verbose})
+    set(CMAKE_VERBOSE_MAKEFILE ON)
+endif()
+if(${with_gprof})
+  set(CMAKE_CXX_FLAGS_RELEASE "-pg")
+  MESSAGE("-- With gprof: on")
+else()
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
+  MESSAGE("-- With gprof: off")
+endif()
 
 if(with_ipopt)
   list(APPEND solver_flags "-DWITH_IPOPT")
@@ -119,6 +132,11 @@ add_subdirectory(third_party)
 # src
 add_subdirectory(src)
 
+# examples
+if (with_examples OR with_tests)
+    add_subdirectory(examples)
+endif()
+
 # testing
 if(with_tests)
   MESSAGE("-- With Tests: on")
@@ -134,9 +152,28 @@ if(with_tests)
 
   if (gcovr_FOUND)
     add_custom_target(gcovr 
-      COMMAND ${GCOVR_EXECUTABLE} -r ${CMAKE_CURRENT_SOURCE_DIR} -e ../third_party/ -e ../tests/)
+      COMMAND ${GCOVR_EXECUTABLE} -d -r ${CMAKE_CURRENT_SOURCE_DIR} -e ../third_party/ -e ../tests/)
   endif()
 else()
   MESSAGE("-- With Tests: off")
+endif()
+
+# python
+if(with_python)
+    MESSAGE("-- With Python: on")
+    add_subdirectory(third_party/pybind11)
+    add_subdirectory(python)
+
+    #
+    # Note that this target is automatically build when with_python is ON
+    #
+    add_custom_target(python 
+        DEPENDS pycoek)
+    add_custom_target(test_python 
+        DEPENDS pycoek
+        COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        )
+else()
+    MESSAGE("-- With Python: off")
 endif()
 
