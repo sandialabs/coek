@@ -1,6 +1,6 @@
 #!/bin/sh
 
-URL=$(curl --silent "https://api.github.com/repos/trilinos/Trilinos/tags" | grep "trilinos-release" | tail -1 | grep tarball_url | cut -d '"' -f 4)
+URL=$(curl --silent "https://api.github.com/repos/trilinos/Trilinos/tags" | grep "trilinos-release" | head -1 | grep tarball_url | cut -d '"' -f 4)
 BASE=$(basename $URL)
 echo "Latest Trilinos release: " $URL
 
