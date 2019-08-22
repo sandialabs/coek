@@ -1,7 +1,20 @@
+cmake_minimum_required(VERSION 3.12)
 
-cmake_minimum_required(VERSION 3.7)
+PROJECT(Coek
+        LANGUAGES CXX
+        VERSION 0.1
+        DESCRIPTION "C++ Optimization Expression Kernels"
+        )
 
-PROJECT( Coek )
+if(DEFINED ENV{CONDA_PREFIX})
+    message(STATUS "Building in a conda environment.")
+    set(CONDA_ACTIVE TRUE)
+    set(CMAKE_INSTALL_PREFIX "$ENV{CONDA_PREFIX}")
+    set(CMAKE_PREFIX_PATH "$ENV{CONDA_PREFIX}")
+    set(CMAKE_INCLUDE_PATH "$ENV{CONDA_PREFIX}/include")
+    #include_directories($ENV{CONDA_PREFIX}/include)
+    set(CMAKE_LIBRARY_PATH "$ENV{CONDA_PREFIX}/lib")
+endif()
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/third_party/Catch2/contrib;${CMAKE_MODULE_PATH})
@@ -17,7 +30,8 @@ option(with_debug "Debug build" OFF)
 option(with_verbose "Verbose build" OFF)
 option(with_gcov "Add code coverage using gcov" OFF)
 option(with_gprof "Profile build" OFF)
-option(with_python "Build python interface using pybind11" OFF)
+option(with_pybind11 "Build python interface using pybind11" OFF)
+option(with_cppyy "Build python interface using cppyy" OFF)
 
 # Autograd Dependencies
 option(with_cppad "Use the CppAD Autograd Library" OFF)
@@ -158,22 +172,40 @@ else()
   MESSAGE("-- With Tests: off")
 endif()
 
-# python
-if(with_python)
-    MESSAGE("-- With Python: on")
+# pybind11
+if(with_pybind11)
+    MESSAGE("-- With Pybind11: on")
     add_subdirectory(third_party/pybind11)
-    add_subdirectory(python)
+    add_subdirectory(pybind11)
 
     #
-    # Note that this target is automatically build when with_python is ON
+    # Note that this target is automatically build when with_pybind11 is ON
     #
     add_custom_target(python 
         DEPENDS pycoek)
     add_custom_target(test_python 
         DEPENDS pycoek
-        COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/pybind11 ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
         )
 else()
-    MESSAGE("-- With Python: off")
+    MESSAGE("-- With Pybind11: off")
+endif()
+
+# cppyy
+if(with_cppyy)
+    MESSAGE("-- With Cppyy: on")
+    add_subdirectory(cppyy)
+
+    #
+    # Note that this target is automatically build when with_cppyy is ON
+    #
+    add_custom_target(python 
+        DEPENDS pycoek)
+    add_custom_target(test_python 
+        DEPENDS pycoek
+        COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/cppyy ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        )
+else()
+    MESSAGE("-- With Cppyy: on")
 endif()
 

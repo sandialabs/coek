@@ -146,7 +146,7 @@ public:
     bool fixed;
     std::string name;
 
-    VariableTerm(double _value, double _lb, double _ub, bool _binary, bool _integer);
+    VariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer);
 
     double eval() const
         { return value; }
@@ -161,10 +161,14 @@ public:
     term_id id()
         {return VariableTerm_id;}
 
+    virtual std::string get_simple_name()
+        {
+            return "x[" + std::to_string(index) + "]";
+        }
     virtual std::string get_name()
         {
         if (name == "")
-            return "x[" + std::to_string(index) + "]";
+            return get_simple_name();
         else
             return name;
         }
@@ -215,13 +219,13 @@ public:
 
     double eval() const
         {return body->eval();}
-    virtual bool feasible() const = 0;
     bool is_constraint() const
         {return true;}
     virtual bool is_inequality() const
         {return false;}
     virtual bool is_equality() const
         {return false;}
+    virtual bool is_feasible() const = 0;
 };
 
 class InequalityTerm : public ConstraintTerm
@@ -233,15 +237,14 @@ public:
     InequalityTerm(const expr_pointer_t& repn, bool _strict=false)
         : ConstraintTerm(repn), strict(_strict) {}
 
-    bool feasible() const
+    bool is_inequality() const
+        {return true;}
+    bool is_feasible() const
         {
         if (strict)
             return body->eval() < 0.0;
         return body->eval() <= 0.0;
         }
-
-    bool is_inequality() const
-        {return true;}
 
     void accept(Visitor& v)
         { v.visit(*this); }
@@ -256,11 +259,10 @@ public:
     EqualityTerm(const expr_pointer_t& repn)
         : ConstraintTerm(repn) {}
 
-    bool feasible() const
-        {return body->eval() == 0.0;}
-
     bool is_equality() const
         {return true;}
+    bool is_feasible() const
+        {return body->eval() == 0.0;}
 
     void accept(Visitor& v)
         { v.visit(*this); }

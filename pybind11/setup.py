@@ -58,7 +58,7 @@ class CMakeBuild(build_ext):
                                                               self.distribution.get_version())
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
-        cmd = ['cmake', '-Dwith_verbose=ON', '-Dwith_python=ON', ext.sourcedir] + cmake_args
+        cmd = ['cmake', '-Dwith_verbose=ON', '-Dwith_pybind11=ON', ext.sourcedir] + cmake_args
         args = setup_configure.loadpickle()
         for key in args:
             if key.endswith("_home"):

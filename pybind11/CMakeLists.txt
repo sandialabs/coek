@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 
 # Use pybind11 to create pycoek Python module
-#
-# NOTE: we probably need to extend this to link in solver libraries
-#
 
 include_directories("${PROJECT_SOURCE_DIR}/src/")
 include_directories("${PROJECT_SOURCE_DIR}/src/expr/")

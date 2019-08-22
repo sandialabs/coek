@@ -1,0 +1,52 @@
+cmake_minimum_required(VERSION 3.7)
+
+set(CMAKE_CPPYY_SOURCE_DIR ${CMAKE_SOURCE_DIR}/cppyy)
+set(CMAKE_INCLUDE_DIRECTORIES_BEFORE ON)
+include(GNUInstallDirs)
+
+#
+# Add our project's cmake dir the the module path. This gives us the
+# Cppyy commands and targets.
+#
+#list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
+find_package(Cppyy)
+
+list(APPEND LIB_HEADERS 
+    ${CMAKE_SOURCE_DIR}/src/coek_expr.hpp
+    ${CMAKE_SOURCE_DIR}/src/expr/varray.hpp
+    ${CMAKE_SOURCE_DIR}/src/coek_model.hpp
+    )
+list(APPEND LIB_INCLUDE_DIRS 
+    ${CMAKE_SOURCE_DIR}/src
+    )
+
+
+#
+# Set up the Cppyy bindings generation.
+#
+cppyy_add_bindings(
+    "pycoek" "${PROJECT_VERSION}" "William Hart" "whart222@gmail.com"
+   LICENSE "BSD-3"
+   LANGUAGE_STANDARD "11"
+   SELECTION_XML  ${CMAKE_SOURCE_DIR}/cppyy/selection.xml
+   INTERFACE_FILE ${CMAKE_SOURCE_DIR}/cppyy/cppyy_interface.hpp
+   HEADERS        ${LIB_HEADERS}
+   INCLUDE_DIRS   ${LIB_INCLUDE_DIRS}
+   LINK_LIBRARIES coek
+   NAMESPACES     coek
+   GENERATE_OPTIONS    -I${CMAKE_SOURCE_DIR}/src
+)
+
+#if(${with_ipopt})
+#  TARGET_LINK_LIBRARIES(pycoek PUBLIC ipopt gfortran)
+#endif()
+#if(${with_gurobi})
+#  TARGET_LINK_LIBRARIES(pycoek PUBLIC gurobi_g++5.2 gurobi81)
+#endif()
+
+#INSTALL(TARGETS pycoek DESTINATION lib)
+
+add_custom_target(pip_install
+        DEPENDS pycoek
+        COMMAND pip install --force-reinstall ${PY_WHEEL_FILE}
+        )

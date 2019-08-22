@@ -2549,56 +2549,56 @@ coek::Expression f;
         coek::Constraint e = 1 < p;
         static std::list<std::string> baseline = {"[", "<", "[", "+", "1.000", "[", "-", "p", "]", "]", "0","]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == false );
+        REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "p < 1" ) {
         coek::Constraint e = p < 1;
         static std::list<std::string> baseline = {"[", "<", "[", "+", "p", "-1.000", "]", "0", "]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == true );
+        REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1.0 < p" ) {
         coek::Constraint e = 1.0 < p;
         static std::list<std::string> baseline = {"[", "<", "[", "+", "1.000", "[", "-", "p", "]", "]", "0","]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == false );
+        REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "p < 1.0" ) {
         coek::Constraint e = p < 1.0;
         static std::list<std::string> baseline = {"[", "<", "[", "+", "p", "-1.000", "]", "0", "]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == true );
+        REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1 < v" ) {
         coek::Constraint e = 1 < v;
         static std::list<std::string> baseline = {"[", "<", "[", "+", "1.000", "[", "*", "-1", "v", "]", "]", "0","]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == false );
+        REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "v < 1" ) {
         coek::Constraint e = v < 1;
         static std::list<std::string> baseline = {"[", "<", "[", "+", "v", "-1.000", "]", "0", "]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == false );
+        REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "1.0 < v" ) {
         coek::Constraint e = 1.0 < v;
         static std::list<std::string> baseline = {"[", "<", "[", "+", "1.000", "[", "*", "-1", "v", "]", "]", "0","]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == false );
+        REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "v < 1.0" ) {
         coek::Constraint e = v < 1.0;
         static std::list<std::string> baseline = {"[", "<", "[", "+", "v", "-1.000", "]", "0", "]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == false );
+        REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "1 < f" ) {
@@ -2686,56 +2686,56 @@ coek::Expression f;
         coek::Constraint e = 1 <= p;
         static std::list<std::string> baseline = {"[", "<=", "[", "+", "1.000", "[", "-", "p", "]", "]", "0","]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == false );
+        REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "p <= 1" ) {
         coek::Constraint e = p <= 1;
         static std::list<std::string> baseline = {"[", "<=", "[", "+", "p", "-1.000", "]", "0", "]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == true );
+        REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1.0 <= p" ) {
         coek::Constraint e = 1.0 <= p;
         static std::list<std::string> baseline = {"[", "<=", "[", "+", "1.000", "[", "-", "p", "]", "]", "0","]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == false );
+        REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "p <= 1.0" ) {
         coek::Constraint e = p <= 1.0;
         static std::list<std::string> baseline = {"[", "<=", "[", "+", "p", "-1.000", "]", "0", "]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == true );
+        REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1 <= v" ) {
         coek::Constraint e = 1 <= v;
         static std::list<std::string> baseline = {"[", "<=", "[", "+", "1.000", "[", "*", "-1", "v", "]", "]", "0","]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == true );
+        REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "v <= 1" ) {
         coek::Constraint e = v <= 1;
         static std::list<std::string> baseline = {"[", "<=", "[", "+", "v", "-1.000", "]", "0", "]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == true );
+        REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1.0 <= v" ) {
         coek::Constraint e = 1.0 <= v;
         static std::list<std::string> baseline = {"[", "<=", "[", "+", "1.000", "[", "*", "-1", "v", "]", "]", "0","]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == true );
+        REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "v <= 1.0" ) {
         coek::Constraint e = v <= 1.0;
         static std::list<std::string> baseline = {"[", "<=", "[", "+", "v", "-1.000", "]", "0", "]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.feasible() == true );
+        REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1 <= f" ) {
@@ -3343,10 +3343,10 @@ coek::Parameter q(2, "q");
   SECTION( "constraint" ) {
 
     WHEN( "e = 3*b + q == 0" ) {
-        coek::Constraint c = 3*b + q == 0;
-        REQUIRE( c.get_value() == 5.0 );
-        REQUIRE( c.feasible() == false );
-        REQUIRE( c.get_value() == 5.0 );
+        coek::Constraint e = 3*b + q == 0;
+        REQUIRE( e.get_value() == 5.0 );
+        REQUIRE( e.is_feasible() == false );
+        REQUIRE( e.get_value() == 5.0 );
     }
   }
 

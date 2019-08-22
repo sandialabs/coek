@@ -67,8 +67,8 @@ public:
 
 public:
 
-    IndexedVariableTerm(double _value, double _lb, double _ub, bool _binary, bool _integer, bool _fixed, int _i, VariableArray* _varray)
-        : VariableTerm(_value, _lb, _ub, _binary, _integer)
+    IndexedVariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _fixed, int _i, VariableArray* _varray)
+        : VariableTerm(_lb, _ub, _value, _binary, _integer)
         { varray_index=_i; varray=_varray; fixed=_fixed; }
 
     std::string get_name();
@@ -190,7 +190,7 @@ public:
 
         variables.resize(n);
         for (int i=0; i<n; i++) {
-            auto tmp = CREATE_POINTER(IndexedVariableTerm, init, lb, ub, binary, integer, fixed, i, this);
+            auto tmp = CREATE_POINTER(IndexedVariableTerm, lb, ub, init, binary, integer, fixed, i, this);
             variables[i] = Variable(tmp);
             }
         }
@@ -638,7 +638,7 @@ PYBIND11_MODULE(pycoek, m) {
     py::class_<coek::Constraint>(m, "constraint")
         .def("__init__", [](){throw std::runtime_error("Cannot create an empty constraint.");})
         .def_property_readonly("value", &coek::Constraint::get_value)
-        .def("is_feasible", &coek::Constraint::feasible)
+        .def("is_feasible", &coek::Constraint::is_feasible)
         .def("is_constraint",[](const coek::Constraint& x){return true;})
 
         .def("to_list", [](coek::Constraint& x){

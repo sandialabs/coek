@@ -96,27 +96,27 @@ OWN_POINTER(repn);
 
 Variable::Variable(double lb, double ub, double value)
 {
-repn = CREATE_POINTER(VariableTerm, value, lb, ub, false, false);
+repn = CREATE_POINTER(VariableTerm, lb, ub, value, false, false);
 OWN_POINTER(repn);
 }
 
 Variable::Variable(double lb, double ub, double value, const std::string& name)
 {
-repn = CREATE_POINTER(VariableTerm, value, lb, ub, false, false);
+repn = CREATE_POINTER(VariableTerm, lb, ub, value, false, false);
 repn->name = name;
 OWN_POINTER(repn);
 }
 
 Variable::Variable(double lb, double ub, double value, bool binary, bool integer, const std::string& name)
 {
-repn = CREATE_POINTER(VariableTerm, value, lb, ub, binary, integer);
+repn = CREATE_POINTER(VariableTerm, lb, ub, value, binary, integer);
 repn->name = name;
 OWN_POINTER(repn);
 }
 
 Variable::Variable(double lb, double ub, double value, bool binary, bool integer)
 {
-repn = CREATE_POINTER(VariableTerm, value, lb, ub, binary, integer);
+repn = CREATE_POINTER(VariableTerm, lb, ub, value, binary, integer);
 OWN_POINTER(repn);
 }
 
@@ -331,6 +331,18 @@ write_expr(arg.repn, ostr);
 return ostr;
 }
 
+Expression& Expression::operator+=(int arg)
+{ Expression e(arg); *this += e; return *this; }
+
+Expression& Expression::operator+=(double arg)
+{ Expression e(arg); *this += e; return *this; }
+
+Expression& Expression::operator+=(const Parameter& arg)
+{ Expression e(arg); *this += e; return *this; }
+
+Expression& Expression::operator+=(const Variable& arg)
+{ Expression e(arg); *this += e; return *this; }
+
 Expression& Expression::operator+=(const Expression& arg)
 {
 // SHARED_PTR
@@ -341,6 +353,18 @@ DISOWN_POINTER(_repn);
 OWN_POINTER(repn);
 return *this;
 }
+
+Expression& Expression::operator-=(int arg)
+{ Expression e(arg); *this -= e; return *this; }
+
+Expression& Expression::operator-=(double arg)
+{ Expression e(arg); *this -= e; return *this; }
+
+Expression& Expression::operator-=(const Parameter& arg)
+{ Expression e(arg); *this -= e; return *this; }
+
+Expression& Expression::operator-=(const Variable& arg)
+{ Expression e(arg); *this -= e; return *this; }
 
 Expression& Expression::operator-=(const Expression& arg)
 {
@@ -354,6 +378,18 @@ OWN_POINTER(repn);
 return *this;
 }
 
+Expression& Expression::operator*=(int arg)
+{ Expression e(arg); *this *= e; return *this; }
+
+Expression& Expression::operator*=(double arg)
+{ Expression e(arg); *this *= e; return *this; }
+
+Expression& Expression::operator*=(const Parameter& arg)
+{ Expression e(arg); *this *= e; return *this; }
+
+Expression& Expression::operator*=(const Variable& arg)
+{ Expression e(arg); *this *= e; return *this; }
+
 Expression& Expression::operator*=(const Expression& arg)
 {
 // SHARED_PTR
@@ -364,6 +400,18 @@ DISOWN_POINTER(_repn);
 OWN_POINTER(repn);
 return *this;
 }
+
+Expression& Expression::operator/=(int arg)
+{ Expression e(arg); *this /= e; return *this; }
+
+Expression& Expression::operator/=(double arg)
+{ Expression e(arg); *this /= e; return *this; }
+
+Expression& Expression::operator/=(const Parameter& arg)
+{ Expression e(arg); *this /= e; return *this; }
+
+Expression& Expression::operator/=(const Variable& arg)
+{ Expression e(arg); *this /= e; return *this; }
 
 Expression& Expression::operator/=(const Expression& arg)
 {
@@ -406,20 +454,16 @@ return *this;
 }
 
 bool Constraint::is_inequality() const
-{return repn->is_inequality();}
+{ return repn->is_inequality(); }
 
 bool Constraint::is_equality() const
-{return repn->is_equality();}
+{ return repn->is_equality(); }
 
-bool Constraint::feasible() const
-{
-return repn->feasible();
-}
+bool Constraint::is_feasible() const
+{ return repn->is_feasible(); }
 
 double Constraint::get_value() const
-{
-return repn->eval();
-}
+{ return repn->eval(); }
 
 std::list<std::string> Constraint::to_list() const
 {

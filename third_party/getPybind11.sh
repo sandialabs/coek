@@ -1,4 +1,4 @@
-#!/bin/sh -v
+#!/bin/sh
 
 URL=$(curl --silent "https://api.github.com/repos/pybind/pybind11/tags" | grep tarball_url | head -1 | cut -d '"' -f 4)
 BASE=$(basename $URL)

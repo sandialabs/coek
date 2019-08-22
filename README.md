@@ -5,10 +5,16 @@
 
 The C/C++ library that supports the definition of expressions used to formulate and solve optimization problems.
 
-## Build
+## Simple Build
+
+* mkdir build
+* cd build
+* cmake ..
+
+## Build with Tests
 
 * cd third\_party
-* ./getCatch2.sh
+* ./installCatch2.sh
 * cd ..
 * mkdir build
 * cd build
@@ -16,19 +22,28 @@ The C/C++ library that supports the definition of expressions used to formulate 
 * make
 * make test
 
-
-## Build with CppAD
+## Build with Solvers and CppAD (for NLP solvers)
 
 * cd third\_party
-* ./getCatch2.sh
+* ./installCatch2.sh
 * ./installCppAD.sh
 * cd ..
 * mkdir build
 * cd build
-* cmake -Dwith\_tests=ON -Dwith\_cppad=ON ..
+* cmake -Dwith\_tests=ON -Dwith\_cppad=ON -Dwith\_ipopt=ON -Dwith\_gurobi=ON ..
 * make
-* tests/runner
+* make test
 
+## Simple build with Python extensions (build a WHEEL and install with PIP)
+
+* conda create -n coek python=3 cmake cxx-compiler c-compiler clangdev libcxx libstdcxx-ng libgcc-ng
+* conda activate coek
+* pip install cppyy clang
+* mkdir build
+* cd build
+* cmake -Dwith\_cppyy=ON ..
+* make
+* make pip\_install
 
 ## Install
 
@@ -36,8 +51,10 @@ The C/C++ library that supports the definition of expressions used to formulate 
 * cmake -DCMAKE\_INSTALL\_PREFIX=../\_install ..
 * make install
 
+
 ## Next Steps
 
+* Direct expression constraint for faster Gurobi interface
 * Integrate Sacado ... and maybe the Stan Math Library
 * Add support for interrogating the solver solution properties
 * Add support for row/col properties (e.g. dual information)
