@@ -87,6 +87,46 @@ class Variable;
 class Expression;
 class Constraint;
 
+//
+// numerical operators
+//
+
+Expression operator+(const Parameter&);
+Expression operator+(const Variable&);
+Expression operator+(const Expression&);
+
+Expression operator-(const Parameter&);
+Expression operator-(const Variable&);
+Expression operator-(const Expression&);
+
+Expression operator+(int, const Parameter&);
+Expression operator+(int, const Variable&);
+Expression operator+(int, const Expression&);
+Expression operator+(double, const Parameter&);
+Expression operator+(double, const Variable&);
+Expression operator+(double, const Expression&);
+
+Expression operator-(int, const Parameter&);
+Expression operator-(int, const Variable&);
+Expression operator-(int, const Expression&);
+Expression operator-(double, const Parameter&);
+Expression operator-(double, const Variable&);
+Expression operator-(double, const Expression&);
+
+Expression operator*(int, const Parameter&);
+Expression operator*(int, const Variable&);
+Expression operator*(int, const Expression&);
+Expression operator*(double, const Parameter&);
+Expression operator*(double, const Variable&);
+Expression operator*(double, const Expression&);
+
+Expression operator/(int, const Parameter&);
+Expression operator/(int, const Variable&);
+Expression operator/(int, const Expression&);
+Expression operator/(double, const Parameter&);
+Expression operator/(double, const Variable&);
+Expression operator/(double, const Expression&);
+
 
 // Mutable Parameter 
 class Parameter
@@ -99,10 +139,10 @@ public:
 
     Parameter(double value);
     Parameter(double value, const std::string& name);
-    Parameter(const Parameter& var);
+    Parameter(const Parameter& arg);
     ~Parameter();
 
-    Parameter& operator=(const Parameter& expr);
+    Parameter& operator=(const Parameter& arg);
 
     double get_value() const;
     void set_value(double value);
@@ -132,10 +172,10 @@ public:
     Variable(double lb, double ub, double value, const std::string& name);
     Variable(double lb, double ub, double value, bool binary, bool integer, const std::string& name);
     Variable(double lb, double ub, double value, bool binary, bool integer);
-    Variable(const Variable& var);
+    Variable(const Variable& arg);
     ~Variable();
 
-    Variable& operator=(const Variable& expr);
+    Variable& operator=(const Variable& arg);
 
     void initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed, const std::string& name);
     void initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed);
@@ -184,12 +224,12 @@ public:
     Expression(const ExpressionRepn& _repn);
     Expression(double value);
     Expression(int value);
-    Expression(const Parameter& param);
-    Expression(const Variable& var);
-    Expression(const Expression& var);
+    Expression(const Parameter& arg);
+    Expression(const Variable& arg);
+    Expression(const Expression& arg);
     ~Expression();
 
-    Expression& operator=(const Expression& expr);
+    Expression& operator=(const Expression& arg);
 
     bool is_constant() const;
 
@@ -198,9 +238,28 @@ public:
     std::list<std::string> to_list() const;
     Expression diff(const Variable& var) const;
 
+    Expression& operator+=(int arg);
+    Expression& operator+=(double arg);
+    Expression& operator+=(const Parameter& arg);
+    Expression& operator+=(const Variable& arg);
     Expression& operator+=(const Expression& arg);
+
+    Expression& operator-=(int arg);
+    Expression& operator-=(double arg);
+    Expression& operator-=(const Parameter& arg);
+    Expression& operator-=(const Variable& arg);
     Expression& operator-=(const Expression& arg);
+
+    Expression& operator*=(int arg);
+    Expression& operator*=(double arg);
+    Expression& operator*=(const Parameter& arg);
+    Expression& operator*=(const Variable& arg);
     Expression& operator*=(const Expression& arg);
+
+    Expression& operator/=(int arg);
+    Expression& operator/=(double arg);
+    Expression& operator/=(const Parameter& arg);
+    Expression& operator/=(const Variable& arg);
     Expression& operator/=(const Expression& arg);
 
     COEK_API_OPERATORS
@@ -218,20 +277,17 @@ public:
 
 public:
 
-    Constraint();
     Constraint(const ConstraintRepn& _repn);
-    Constraint(const Constraint& var);
+    Constraint(const Constraint& arg);
     ~Constraint();
 
-    Constraint& operator=(const Constraint& expr);
+    Constraint& operator=(const Constraint& arg);
 
-    bool is_constraint() const
-        {return true;}
     bool is_inequality() const;
     bool is_equality() const;
+    bool is_feasible() const;
 
     double get_value() const;
-    bool feasible() const;
 
     std::list<std::string> to_list() const;
 
@@ -306,46 +362,6 @@ std::ostream& operator<<(std::ostream& ostr, const Variable& arg);
 std::ostream& operator<<(std::ostream& ostr, const Expression& arg);
 std::ostream& operator<<(std::ostream& ostr, const Constraint& arg);
 std::ostream& operator<<(std::ostream& ostr, const QuadraticExpr& arg);
-
-//
-// numerical operators
-//
-
-Expression operator+(const Parameter&);
-Expression operator+(const Variable&);
-Expression operator+(const Expression&);
-
-Expression operator-(const Parameter&);
-Expression operator-(const Variable&);
-Expression operator-(const Expression&);
-
-Expression operator+(int, const Parameter&);
-Expression operator+(int, const Variable&);
-Expression operator+(int, const Expression&);
-Expression operator+(double, const Parameter&);
-Expression operator+(double, const Variable&);
-Expression operator+(double, const Expression&);
-
-Expression operator-(int, const Parameter&);
-Expression operator-(int, const Variable&);
-Expression operator-(int, const Expression&);
-Expression operator-(double, const Parameter&);
-Expression operator-(double, const Variable&);
-Expression operator-(double, const Expression&);
-
-Expression operator*(int, const Parameter&);
-Expression operator*(int, const Variable&);
-Expression operator*(int, const Expression&);
-Expression operator*(double, const Parameter&);
-Expression operator*(double, const Variable&);
-Expression operator*(double, const Expression&);
-
-Expression operator/(int, const Parameter&);
-Expression operator/(int, const Variable&);
-Expression operator/(int, const Expression&);
-Expression operator/(double, const Parameter&);
-Expression operator/(double, const Variable&);
-Expression operator/(double, const Expression&);
 
 //
 // logical operators

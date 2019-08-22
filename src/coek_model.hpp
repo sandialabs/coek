@@ -44,6 +44,9 @@ public:
     Variable& getVariable(double lb, double ub, double value, bool binary, bool integer, const std::string& name);
     void addVariable(Variable& var);
 
+    Expression get_objective(unsigned int i=0);
+    Constraint get_constraint(unsigned int i);
+
     void write(std::string ostr);
 
     friend std::ostream& operator<<(std::ostream& ostr, const Model& arg);
@@ -130,7 +133,7 @@ public:
 
     /// COMPUTE Value of Specific Objective Function
 
-    double compute_f(unsigned int i);
+    double compute_f(unsigned int i=0);
 
     double compute_f(std::vector<double>& x)
         {

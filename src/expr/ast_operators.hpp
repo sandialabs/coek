@@ -300,6 +300,7 @@ return CREATE_POINTER(DivideTerm, _lhs, rhs);
 template <typename LHS>
 expr_pointer_t divide(const LHS& lhs, int rhs)
 {
+
 //if (rhs == 1)
 //    return lhs;
 //if (rhs == -1)

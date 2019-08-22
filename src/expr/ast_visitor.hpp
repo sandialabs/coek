@@ -41,6 +41,8 @@ class Visitor
 {
 public:
 
+    virtual ~Visitor() {}
+
     virtual void visit(ConstantTerm& arg) = 0;
     virtual void visit(ParameterTerm& arg) = 0;
     virtual void visit(VariableTerm& arg) = 0;

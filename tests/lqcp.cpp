@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
   int n = atoi(argv[1]);
   int m = n;
   int n1 = n-1;
-  int m1 = m-1;
+  //int m1 = m-1;
   double dx = 1.0/n;
   double T = 1.58;
   double dt = T/m;

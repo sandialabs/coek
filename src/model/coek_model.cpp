@@ -72,6 +72,20 @@ var.repn->index = ++VariableTerm::count;
 variables.push_back(var);
 }
 
+Expression Model::get_objective(unsigned int i)
+{
+if (i > objectives.size())
+    throw std::out_of_range("Objective index " + std::to_string(i) + " is too large: " + std::to_string(objectives.size()) + "       objectives available.");
+return objectives[i];
+}
+
+Constraint Model::get_constraint(unsigned int i)
+{
+if (i > constraints.size())
+    throw std::out_of_range("Constraint index " + std::to_string(i) + " is too large: " + std::to_string(constraints.size()) + "      constraints available.");
+return constraints[i];
+}
+
 
 static bool endsWith(const std::string& str, const std::string& suffix)
 {

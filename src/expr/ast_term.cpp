@@ -106,7 +106,7 @@ return CREATE_POINTER(NegateTerm, repn);
 
 int VariableTerm::count = 0;
 
-VariableTerm::VariableTerm(double _value, double _lb, double _ub, bool _binary, bool _integer)
+VariableTerm::VariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer)
     : index(0),
       initialize(_value),
       value(_value),

@@ -1,0 +1,29 @@
+<lcgdict>
+    <class pattern="coek::*"/>
+    <function pattern="coek::*"/>
+    <exclusion>
+        <class name="coek::Parameter">
+          <field name="repn"/>
+        </class>
+        <class name="coek::Variable">
+          <field name="repn"/>
+        </class>
+        <class name="coek::Expression">
+          <field name="repn"/>
+        </class>
+        <class name="coek::VariableTerm"/>
+        <class name="coek::ParameterTerm"/>
+        <class name="coek::BaseExpressionTerm"/>
+        <class name="coek::ConstraintTerm"/>
+
+        <class name="coek::VariableRepn"/>
+        <class name="coek::ParameterRepn"/>
+        <class name="coek::ExpressionRepn"/>
+        <class name="coek::ConstraintRepn"/>
+
+        <class name="coek::MutableNLPExpr"/>
+        <class name="coek::QuadraticExpr"/>
+        <class pattern="coek::MapKeyIterator*"/>
+        <class pattern="coek::VecKeyIterator*"/>
+    </exclusion>
+</lcgdict>
