@@ -86,6 +86,15 @@ if(with_ipopt)
     endif()
 endif()
 
+#
+# Solver Interface Options
+#
+if(with_cffi)
+    list(APPEND sources
+        capi/coek_capi.cpp)
+        INCLUDE_DIRECTORIES(PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/capi)
+endif()
+
 # build library
 ADD_LIBRARY(coek SHARED ${sources})
 TARGET_COMPILE_OPTIONS(coek PRIVATE ${solver_flags})

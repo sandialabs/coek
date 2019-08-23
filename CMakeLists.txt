@@ -212,7 +212,7 @@ if(with_cppyy)
         COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/cppyy ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
         )
 else()
-    MESSAGE("-- With Cppyy: on")
+    MESSAGE("-- With Cppyy: off")
 endif()
 
 
@@ -231,6 +231,6 @@ if(with_cffi)
         COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/cffi ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
         )
 else()
-    MESSAGE("-- With Cffi: on")
+    MESSAGE("-- With Cffi: off")
 endif()
 

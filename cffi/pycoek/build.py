@@ -6,7 +6,7 @@ import os
 #
 # Find COEK if it's installed next to the current directory
 #
-coekdir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))), 'src')
+coekdir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))), 'src', 'capi')
 header = os.path.abspath(os.path.join( coekdir, "coek_capi.h"))
 library_dirs=[ os.path.abspath(os.path.join( coekdir, "lib")) ]
 
