@@ -172,6 +172,10 @@ else()
   MESSAGE("-- With Tests: off")
 endif()
 
+if(with_pybind11 AND with_cppyy)
+   MESSAGE(FATAL_ERROR "Cannot configure with both pybind11 and cppyy!")
+endif()
+
 # pybind11
 if(with_pybind11)
     MESSAGE("-- With Pybind11: on")

@@ -76,7 +76,7 @@ setup(
     author_email='whart222@gmail.com',
     description='A Python wrapper for COEK using pybind11',
     long_description='',
-    ext_modules=[CMakeExtension('pycoek')],
-    cmdclass=dict(build_ext=CMakeBuild, configure=setup_configure.configure),
+    #ext_modules=[CMakeExtension('pycoek')],
+    #cmdclass=dict(build_ext=CMakeBuild, configure=setup_configure.configure),
     zip_safe=False,
 )

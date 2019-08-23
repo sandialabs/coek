@@ -34,7 +34,18 @@ The C/C++ library that supports the definition of expressions used to formulate 
 * make
 * make test
 
-## Simple build with Python extensions (build a WHEEL and install with PIP)
+## Simple build with Pybind11 Python extensions (build a WHEEL and install with PIP)
+
+* cd third\_party
+* ./installPybind11.sh
+* cd ..
+* mkdir build
+* cd build
+* cmake -Dwith\_pybind11=ON ..
+* make
+* make pip\_install
+
+## Simple build with Cppyy Python extensions (build a WHEEL and install with PIP)
 
 * conda create -n coek python=3 cmake cxx-compiler c-compiler clangdev libcxx libstdcxx-ng libgcc-ng
 * conda activate coek

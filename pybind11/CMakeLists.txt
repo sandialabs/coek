@@ -20,3 +20,10 @@ endif()
 INSTALL(TARGETS pycoek
         DESTINATION lib)
 
+#
+# This is poorly named, but for consistency I'll stick with this for now
+#
+add_custom_target(pip_install
+        DEPENDS pycoek
+        COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/pybind11/setup.py develop
+        )
