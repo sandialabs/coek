@@ -488,7 +488,7 @@ PYBIND11_MODULE(pycoek, m) {
         .def("__getitem__", [](coek::VariableArray& va, std::vector<int>& index){return va.get(index);})
         .def_property_readonly("name", [](coek::VariableArray& x) -> py::object {
                 if (x.name.size() == 0)
-                    return py::cast<py::none>(Py_None);
+                    return py::cast<std::string>("x");
                 else
                     return py::cast<std::string>(x.get_name());
                 })
@@ -640,6 +640,11 @@ PYBIND11_MODULE(pycoek, m) {
         .def_property_readonly("value", &coek::Constraint::get_value)
         .def("is_feasible", &coek::Constraint::is_feasible)
         .def("is_constraint",[](const coek::Constraint& x){return true;})
+        .def("__eq__", [](){throw std::runtime_error("Cannot create a constraint from a boolean expression.");})
+        .def("__le__", [](){throw std::runtime_error("Cannot create a constraint from a boolean expression.");})
+        .def("__lt__", [](){throw std::runtime_error("Cannot create a constraint from a boolean expression.");})
+        .def("__ge__", [](){throw std::runtime_error("Cannot create a constraint from a boolean expression.");})
+        .def("__gt__", [](){throw std::runtime_error("Cannot create a constraint from a boolean expression.");})
 
         .def("to_list", [](coek::Constraint& x){
                                 auto tmp = x.to_list();
