@@ -172,8 +172,10 @@ else()
   MESSAGE("-- With Tests: off")
 endif()
 
-if(with_pybind11 AND with_cppyy)
-   MESSAGE(FATAL_ERROR "Cannot configure with both pybind11 and cppyy!")
+if(with_pybind11 OR with_cppyy OR with_cffi)
+    if((with_cffi AND with_cppyy) OR (with_cffi AND with_pybind11) OR (with_cppyy AND with_pybind11))
+        MESSAGE(FATAL_ERROR "Cannot configure multiple python interfaces!")
+    endif()
 endif()
 
 # pybind11
@@ -211,5 +213,24 @@ if(with_cppyy)
         )
 else()
     MESSAGE("-- With Cppyy: on")
+endif()
+
+
+# cffi
+if(with_cffi)
+    MESSAGE("-- With Cffi: on")
+    add_subdirectory(cffi)
+
+    #
+    # Note that this target is automatically build when with_cffi is ON
+    #
+    add_custom_target(python 
+        DEPENDS pycoek)
+    add_custom_target(test_python 
+        DEPENDS pycoek
+        COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/cffi ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        )
+else()
+    MESSAGE("-- With Cffi: on")
 endif()
 

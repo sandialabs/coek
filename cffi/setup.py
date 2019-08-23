@@ -10,11 +10,11 @@ base_dir = os.path.dirname(__file__)
 #
 requires=['cffi>=1.0.0']
 ext_modules = []
-readme = os.path.join(base_dir, "README.rst")
-with open(readme) as f:
-    long_description = f.read()
+#readme = os.path.join(base_dir, "README.rst")
+#with open(readme) as f:
+#    long_description = f.read()
 about = {}
-with open(os.path.join(base_dir, "poek", "__about__.py")) as f:
+with open(os.path.join(base_dir, "pycoek", "__about__.py")) as f:
     exec(f.read(), about)
 packages = find_packages(exclude=["test*", "*test*", "example*"])
 
@@ -22,7 +22,7 @@ setup(
     name = about['__title__'],
     version = about['__version__'],
     description = about['__summary__'],
-    long_description = long_description,
+    long_description = "pycoek description",
     author = about['__author__'],
     author_email = about['__email__'],
     url = about['__url__'],
@@ -50,6 +50,6 @@ setup(
       ext_modules = ext_modules,
       install_requires=requires,
       setup_requires=requires,
-      cffi_modules=[ 'pycoek/build.py:ffi' ],
+      cffi_modules=[ os.path.join(base_dir,'pycoek','build.py') + ':ffi' ],
       )
 
