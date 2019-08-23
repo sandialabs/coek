@@ -378,9 +378,9 @@ PYBIND11_MODULE(pycoek, m) {
 
         .def("__abs__", [](coek::Parameter& x){return abs(x);})
 
-        .def("__bool__", [](coek::Parameter& x){return x.get_value() != 0;})
-        .def("__int__", [](coek::Parameter& x){return int(x.get_value());})
-        .def("__float__", [](coek::Parameter& x){return x.get_value();})
+        //.def("__bool__", [](coek::Parameter& x){return x.get_value() != 0;})
+        //.def("__int__", [](coek::Parameter& x){return int(x.get_value());})
+        //.def("__float__", [](coek::Parameter& x){return x.get_value();})
         ;
 
     //
@@ -473,9 +473,9 @@ PYBIND11_MODULE(pycoek, m) {
 
         .def("__abs__", [](coek::Variable& x){return abs(x);})
 
-        .def("__bool__", [](coek::Variable& x){return x.get_value() != 0;})
-        .def("__int__", [](coek::Variable& x){return int(x.get_value());})
-        .def("__float__", [](coek::Variable& x){return x.get_value();})
+        //.def("__bool__", [](coek::Variable& x){return x.get_value() != 0;})
+        //.def("__int__", [](coek::Variable& x){return int(x.get_value());})
+        //.def("__float__", [](coek::Variable& x){return x.get_value();})
         ;
 
     //
@@ -613,9 +613,9 @@ PYBIND11_MODULE(pycoek, m) {
 
         .def("__abs__", [](coek::Expression& x){return coek::abs(x);})
 
-        .def("__bool__", [](coek::Expression& x){return x.get_value() != 0;})
-        .def("__int__", [](coek::Expression& x){return int(x.get_value());})
-        .def("__float__", [](coek::Expression& x){return x.get_value();})
+        //.def("__bool__", [](coek::Expression& x){return x.get_value() != 0;})
+        //.def("__int__", [](coek::Expression& x){return int(x.get_value());})
+        //.def("__float__", [](coek::Expression& x){return x.get_value();})
 
         .def("to_list", [](coek::Expression& x){
                                 auto tmp = x.to_list();
