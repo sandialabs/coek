@@ -21,7 +21,6 @@ int main(int argc, char** argv) {
   int n = atoi(argv[1]);
   int m = n;
   int n1 = n-1;
-  //int m1 = m-1;
   double dx = 1.0/n;
   double T = 1.58;
   double dt = T/m;
@@ -76,8 +75,6 @@ int main(int argc, char** argv) {
   // BC
   for (int i = 1; i <= m; i++) {
     model.add( y[i][2] - 4*y[i][1] + 3*y[i][0] == 0 );
-  }
-  for (int i = 1; i <= m; i++) {
     model.add( (y[i][n-2] - 4*y[i][n1] + 3*y[i][n])/(2*dx) == u[i]-y[i][n]);
   }
   
