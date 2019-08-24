@@ -168,12 +168,17 @@ std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
 // All options are converted to strings for Gurobi
 for (auto it=string_options.begin(); it != string_options.end(); ++it)
     gmodel->set(it->first, it->second);
-gmodel->optimize();
+try {
+    gmodel->optimize();
 
-// Collect values of Gurobi variables
-for (std::vector<coek::Variable>::iterator it=model.variables.begin(); it != model.variables.end(); ++it) {
-    coek::VariableTerm* v = it->repn;
-    v->value = x[v->index].get(GRB_DoubleAttr_X);
+    // Collect values of Gurobi variables
+    for (std::vector<coek::Variable>::iterator it=model.variables.begin(); it != model.variables.end(); ++it) {
+        coek::VariableTerm* v = it->repn;
+        v->value = x[v->index].get(GRB_DoubleAttr_X);
+        }
+    }
+catch (GRBException e) {
+    std::cerr << "GUROBI Exception: (constraint) " << e.getMessage() << std::endl;
     }
 
 delete gmodel;
