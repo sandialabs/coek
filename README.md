@@ -59,7 +59,7 @@ The C/C++ library that supports the definition of expressions used to formulate 
 ## Install
 
 * cd build
-* cmake -DCMAKE\_INSTALL\_PREFIX=../\_install ..
+* cmake -DCMAKE\_INSTALL\_PREFIX=${COEK\_HOME} ..
 * make install
 
 
