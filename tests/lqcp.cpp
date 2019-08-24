@@ -28,21 +28,6 @@ int main(int argc, char** argv) {
   double h2 = dx*dx;
   double a = 0.001;
 
-/*
-  //env.debug = true;
-  coek::Variable A;
-  coek::Parameter B(2, "B");
-  coek::Expression e = 3*A + B;
-  //coek::Expression e3 = e2 + e;
-  return 0;
-  coek::Parameter p(1,"p");
-  coek::Expression E = e + p;
-  for (size_t i=0; i<10000000; i++)
-    e += E + p;
-    //e = e + E + p;
-    //e = e +  p;
-  return 0;
-*/
 
   coek::Model model;
 
