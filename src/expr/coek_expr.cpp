@@ -43,14 +43,6 @@ OWN_POINTER(repn);
 return *this;
 }
 
-#if 0
-// Moved to header
-bool Parameter::is_constant() const
-{
-return repn->is_constant();
-}
-#endif
-
 void Parameter::set_value(double value)
 {
 // Parameters are non-constant
@@ -68,15 +60,6 @@ std::string Parameter::get_name() const
 {
 return repn->name;
 }
-
-#if 0
-std::list<std::string> Parameter::to_list() const
-{
-std::list<std::string> tmp;
-expr_to_list(repn, tmp);
-return tmp;
-}
-#endif
 
 std::ostream& operator<<(std::ostream& ostr, const Parameter& arg)
 {
