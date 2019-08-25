@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 #include <list>
 #include <vector>
@@ -65,7 +66,13 @@
     Constraint operator==(const Expression& arg) const;
 
 
+// A general streaming utility that is not put in the coek namespace for now
+std::ostream& operator<<(std::ostream& ostr, const std::list<std::string>& arg);
+
+
 namespace coek {
+
+std::ostream& operator<<(std::ostream& ostr, const std::list<std::string>& arg);
 
 class ParameterTerm;
 class VariableTerm;

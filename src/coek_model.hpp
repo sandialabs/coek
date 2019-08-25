@@ -41,6 +41,7 @@ public:
     Variable& getVariable(double lb, double ub, const std::string& name);
     Variable& getVariable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=0.0);
     Variable& getVariable(double lb, double ub, double value, const std::string& name);
+    Variable& getVariable(double lb, double ub, double value, bool binary, bool integer);
     Variable& getVariable(double lb, double ub, double value, bool binary, bool integer, const std::string& name);
     void addVariable(Variable& var);
 
