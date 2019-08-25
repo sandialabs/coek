@@ -102,4 +102,21 @@ if(${with_gurobi})
   TARGET_LINK_LIBRARIES(rlqcp PUBLIC gurobi_g++5.2 gurobi81)
 endif()
 
+# resolve
+add_executable(resolve resolve.cpp)
+TARGET_LINK_LIBRARIES(resolve PUBLIC coek)
+if(${with_gcov})
+  TARGET_COMPILE_OPTIONS(resolve PUBLIC -fprofile-arcs -ftest-coverage -g)
+  TARGET_LINK_LIBRARIES(resolve PUBLIC gcov)
+endif()
+if(${with_cppad})
+  TARGET_COMPILE_OPTIONS(resolve PUBLIC -DWITH_CPPAD)
+endif()
+if(${with_ipopt})
+  TARGET_LINK_LIBRARIES(resolve PUBLIC ipopt gfortran)
+endif()
+if(${with_gurobi})
+  TARGET_LINK_LIBRARIES(resolve PUBLIC gurobi_g++5.2 gurobi81)
+endif()
+
 
