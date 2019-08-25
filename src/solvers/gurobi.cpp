@@ -11,27 +11,6 @@
 
 namespace coek {
 
-#if 0
-namespace {
-
-void write(std::ostream& ostr, const std::list<std::string>& slist)
-{
-bool flag=false;
-ostr << "{ ";
-for (std::list<std::string>::const_iterator it=slist.begin(); it != slist.end(); ++it) {
-    if (flag) {
-        ostr << "  ";
-        }
-    flag=true;
-    ostr << *it;
-    }
-ostr << "} ";
-ostr << std::endl;
-}
-
-}
-#endif
-
 
 GurobiSolver::~GurobiSolver()
 {
@@ -72,13 +51,13 @@ for (std::vector<coek::Variable>::iterator it=model.variables.begin(); it != mod
     else {
         if (v->ub >= 1e19) {
             if (v->lb <= -1e19)
-                x[ v->index ] = gmodel->addVar(GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
+                x[ v->index ] = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
             else
                 x[ v->index ] = gmodel->addVar(v->lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
             }
         else {
             if (v->lb <= -1e19)
-                x[ v->index ] = gmodel->addVar(GRB_INFINITY, v->ub, 0, GRB_CONTINUOUS);
+                x[ v->index ] = gmodel->addVar(-GRB_INFINITY, v->ub, 0, GRB_CONTINUOUS);
             else
                 x[ v->index ] = gmodel->addVar(v->lb, v->ub, 0, GRB_CONTINUOUS);
             }
