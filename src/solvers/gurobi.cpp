@@ -276,7 +276,7 @@ else {
         switch (where) {
             case 0:     // Constant Value
                 if (i > 0)
-                    gmodel->getConstr(i-1).set(GRB_DoubleAttr_RHS, repn[i].constval.get_value() );
+                    gmodel->getConstr(i-1).set(GRB_DoubleAttr_RHS, - repn[i].constval.get_value() );
                 else
                     gmodel->set(GRB_DoubleAttr_ObjCon, repn[0].constval.get_value());
                 break;
@@ -298,7 +298,6 @@ else {
         }
 
     std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
-    //gmodel->getEnv().set(GRB_DoubleParam_TimeLimit, 0);
     gmodel->optimize();
     }
     
