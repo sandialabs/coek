@@ -11,6 +11,12 @@ namespace coek {
 // Parameter
 //
 
+Parameter::Parameter()
+{
+repn = CREATE_POINTER(ParameterTerm, 0);
+OWN_POINTER(repn);
+}
+
 Parameter::Parameter(double value)
 {
 repn = CREATE_POINTER(ParameterTerm, value);

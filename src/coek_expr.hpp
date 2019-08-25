@@ -144,6 +144,7 @@ public:
 
 public:
 
+    Parameter();
     Parameter(double value);
     Parameter(double value, const std::string& name);
     Parameter(const Parameter& arg);
