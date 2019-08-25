@@ -58,6 +58,14 @@ variables.push_back(tmp);
 return variables.back();
 }
 
+Variable& Model::getVariable(double lb, double ub, double value, bool binary, bool integer)
+{
+Variable tmp(lb,ub,value,binary,integer);
+tmp.repn->index = ++VariableTerm::count;
+variables.push_back(tmp);
+return variables.back();
+}
+
 Variable& Model::getVariable(double lb, double ub, double value, bool binary, bool integer, const std::string& name)
 {
 Variable tmp(lb,ub,value,binary,integer,name);
