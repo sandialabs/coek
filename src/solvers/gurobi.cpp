@@ -70,13 +70,14 @@ gmodel->update();
 try {
     if (orepn.linear_coefs.size() + orepn.quadratic_coefs.size() > 0) {
         GRBLinExpr term1;
-        for (size_t i=0; i< orepn.linear_coefs.size(); i++)
-            term1 += orepn.linear_coefs[i] * x[orepn.linear_vars[i]->index];
+        auto iv=orepn.linear_vars.begin();
+        for (auto it=orepn.linear_coefs.begin(); it != orepn.linear_coefs.end(); ++it, ++iv)
+            term1 += *it * x[(*iv)->index];
         term1 += orepn.constval;
         if (orepn.quadratic_coefs.size() > 0) {
             GRBQuadExpr term2;
             for (size_t i=0; i< orepn.quadratic_coefs.size(); i++)
-                term2 += orepn.quadratic_coefs[i] * x[orepn.quadratic_lvars[i]->index] * x[orepn.quadratic_rvars[i]->index];
+                term2.addTerm(orepn.quadratic_coefs[i], x[orepn.quadratic_lvars[i]->index], x[orepn.quadratic_rvars[i]->index]);
             gmodel->setObjective(term1 + term2);
             }
         else
@@ -100,29 +101,13 @@ try {
         coek::QuadraticExpr& repn = *it;
         if (repn.linear_coefs.size() + repn.quadratic_coefs.size() > 0) {
             GRBLinExpr term1;
-#if 0
-            std::vector<GRBVar> vars1(repn.linear_coefs.size());  
-            for (size_t i=0; i< vars1.size(); i++)
-                vars1[i] = x[repn.linear_vars[i]->index];
-            term1.addTerms(&(repn.linear_coefs[0]), &(vars1[0]), vars1.size());
-#else
-            for (size_t i=0; i< repn.linear_coefs.size(); i++)
-                term1 += repn.linear_coefs[i] * x[repn.linear_vars[i]->index];
-#endif
+            auto iv=repn.linear_vars.begin();
+            for (auto it=repn.linear_coefs.begin(); it != repn.linear_coefs.end(); ++it, ++iv)
+                term1 += *it * x[(*iv)->index];
             if (repn.quadratic_coefs.size() > 0) {
                 GRBQuadExpr term2;
-#if 0
-                std::vector<GRBVar> vars2a(repn.quadratic_coefs.size());  
-                std::vector<GRBVar> vars2b(repn.quadratic_coefs.size());  
-                for (size_t i=0; i< vars2a.size(); i++) {
-                    vars2a[i] = x[repn.quadratic_lvars[i]->index];
-                    vars2b[i] = x[repn.quadratic_rvars[i]->index];
-                    }
-                term2.addTerms(&(repn.quadratic_coefs[0]), &(vars2a[0]), &(vars2b[0]), vars2a.size());
-#else
                 for (size_t i=0; i< repn.quadratic_coefs.size(); i++)
-                    term2 += repn.quadratic_coefs[i] * x[repn.quadratic_lvars[i]->index] * x[repn.quadratic_rvars[i]->index];
-#endif
+                    term2.addTerm(repn.quadratic_coefs[i], x[repn.quadratic_lvars[i]->index], x[repn.quadratic_rvars[i]->index]);
 
                 if (model.constraints[ii].is_inequality())
                     gmodel->addQConstr(term1 + term2, GRB_LESS_EQUAL, - repn.constval);
