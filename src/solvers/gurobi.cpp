@@ -101,9 +101,14 @@ try {
         coek::QuadraticExpr& repn = *it;
         if (repn.linear_coefs.size() + repn.quadratic_coefs.size() > 0) {
             GRBLinExpr term1;
+#if 0
             auto iv=repn.linear_vars.begin();
             for (auto it=repn.linear_coefs.begin(); it != repn.linear_coefs.end(); ++it, ++iv)
                 term1 += *it * x[(*iv)->index];
+#else
+            for (size_t i=0; i<repn.linear_coefs.size(); i++)
+                term1 += repn.linear_coefs[i] * x[repn.linear_vars[i]->index];
+#endif
             if (repn.quadratic_coefs.size() > 0) {
                 GRBQuadExpr term2;
                 for (size_t i=0; i< repn.quadratic_coefs.size(); i++)
