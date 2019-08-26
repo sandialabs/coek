@@ -32,10 +32,10 @@ for (auto it=pcache.begin(); it != pcache.end(); ++it) {
         }
     }
 
-#ifdef DEBUG
+//#ifdef DEBUG
 std::cout << "Updated Fixed Variables: " << vupdates.size() << std::endl;
 std::cout << "Updated Parameters:      " << pupdates.size() << std::endl;
-#endif
+//#endif
 }
 
 
@@ -157,10 +157,10 @@ for (size_t j=0; j<repn.size(); j++) {
         GetWithDef(pnonlvals, *it).insert(j);
     }
 
-#ifdef DEBUG
+//#ifdef DEBUG
 std::cout << "# Model Expressions:   " << repn.size() << std::endl;
 std::cout << "# Mutable Expressions: " << nmutable << std::endl;
-#endif
+//#endif
 }
 
 
@@ -275,9 +275,9 @@ for (auto it=pupdates.begin(); it != pupdates.end(); ++it) {
         }
     }
 
-#ifdef DEBUG
+//#ifdef DEBUG
 std::cout << "Updated Coefficients:    " << updated_coefs.size() << std::endl;
-#endif
+//#endif
 }
 
 
