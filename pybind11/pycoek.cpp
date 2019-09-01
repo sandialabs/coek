@@ -740,6 +740,9 @@ PYBIND11_MODULE(pycoek, m) {
         .def("get_objective", [](coek::Model& m){return m.objectives[0];})
         .def("get_objective", [](coek::Model& m, int i){return m.objectives[i];})
         .def("get_constraint", [](coek::Model& m, int i){return m.constraints[i];})
+        .def("num_variables", [](coek::Model& m){return m.variables.size();})
+        .def("num_objectives", [](coek::Model& m){return m.objectives.size();})
+        .def("num_constraints", [](coek::Model& m){return m.constraints.size();})
         ;
 
     //
