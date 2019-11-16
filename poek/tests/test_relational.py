@@ -3,6 +3,15 @@ import math
 import pyutilib.th as unittest
 
 from poek import *
+import poek
+
+try:
+    import pycoek
+    def is_constraint(val):
+        return type(val) == poek.constraint
+except:
+    def is_constraint(val):
+        return val.is_constraint()
 
 
 class Test_ConditionalValue(unittest.TestCase):
@@ -32,11 +41,11 @@ class Test_ConditionalValue(unittest.TestCase):
         #
         # Confirm whether 'exp' is an expression
         #
-        self.assertEqual(exp.is_expression(), expectExpression)
+        self.assertEqual(is_constraint(exp), False)
         #
         # Confirm that 'exp' has the expected value
         #
-        self.assertEqual(value(exp), val)
+        self.assertEqual(exp.value, val)
 
     @unittest.nottest
     def relation_test(self, exp, val, expectConstExpression=None):
@@ -49,12 +58,11 @@ class Test_ConditionalValue(unittest.TestCase):
         #
         # Confirm that this is a relational expression
         #
-        self.assertTrue(exp.is_expression())
-        self.assertTrue(exp.is_constraint())
+        self.assertTrue(is_constraint(exp))
         #
         # Check that the expression evaluates correctly
         #
-        self.assertEqual(exp.eval(body=False), val)
+        self.assertEqual(exp.is_feasible(), val)
         #
         # Check that the expression evaluates correctly in a Boolean context
         #
@@ -64,12 +72,12 @@ class Test_ConditionalValue(unittest.TestCase):
             #
             # Check that 'val' equals the boolean value of the expression.
             #
-            self.assertEqual(bool(exp), val)
+            self.assertEqual(exp.is_feasible(), val)
         else:
             #
             # Check that the expression evaluates to 'val'
             #
-            self.assertEqual(bool(exp), val)
+            self.assertEqual(exp.is_feasible(), val)
 
     def test_lt(self):
         #
@@ -179,7 +187,6 @@ class Test_Expr(unittest.TestCase):
         self.a = variable(name='a')
         self.b = variable(name='b')
         self.c = variable(name='c')
-        self.visitor = ValueVisitor()
         self.x = variable(10, name='x')
 
     def tearDown(self):
@@ -193,8 +200,7 @@ class Test_Expr(unittest.TestCase):
         b = self.b
 
         e = a == b
-        self.assertEqual( self.visitor.walk(e), ['==',['-','a','b'],'0'] )
-        self.assertEqual(e.size(), 3)
+        self.assertEqual( e.to_list(), ['==', ['+', 'a', ['*', '-1', 'b']], '0'] )
 
     def test_error1(self):
         #
@@ -208,13 +214,19 @@ class Test_Expr(unittest.TestCase):
         #     =   5
         #    / \
         #   a   b
-        e = a == b == 5
-        self.assertEqual( self.visitor.walk(e), ['==',['-','a','b'],'0'] )
+        if poek.__using_pybind11__:
+            e = a == b == 5
+        else:
+            with self.assertRaisesRegex(TypeError, "bool\(\) argument must.*"):
+                e = a == b == 5
 
         a.value = 3
         b.value = 3
-        e = a == b == 5
-        self.assertEqual( self.visitor.walk(e), ['==',['-','b','5'],'0'] )
+        if poek.__using_pybind11__:
+            e = a == b == 5
+        else:
+            with self.assertRaisesRegex(TypeError, "bool\(\) argument must.*"):
+                e = a == b == 5
 
         e = a == b
         try:
@@ -232,15 +244,27 @@ class Test_Expr(unittest.TestCase):
         x = self.x
 
         e = a == b
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            e == a
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            a == e
+        if poek.__using_pybind11__:
+            with self.assertRaisesRegex(TypeError,"__eq__\(\): incompatible function arguments.*"):
+                e == a
+            with self.assertRaisesRegex(TypeError,"__eq__\(\): incompatible function arguments.*"):
+                a == e
+        else:
+            with self.assertRaisesRegex(TypeError, "Constraint argument cannot be used in a boolean expression."):
+                e == a
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                a == e
 
-        with self.assertRaisesRegex(TypeError, "Cannot treat argument as a single numeric value: .*"):
-            a == x
-        with self.assertRaisesRegex(TypeError, "Cannot treat argument as a single numeric value: .*"):
-            x == a
+        if poek.__using_pybind11__:
+            with self.assertRaisesRegex(TypeError,"__eq__\(\): incompatible function arguments.*"):
+                a == x
+            with self.assertRaisesRegex(TypeError,"__eq__\(\): incompatible function arguments.*"):
+                x == a
+        else:
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                a == x
+            with self.assertRaisesRegex(TypeError,"VariableArray argument cannot be used in a boolean expression."):
+                x == a
 
     def test_error_nested(self):
         #
@@ -252,59 +276,99 @@ class Test_Expr(unittest.TestCase):
         e = a == b
         E = a
 
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            a + e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            e + a
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            E += e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+        if poek.__using_pybind11__:
+            with self.assertRaisesRegex(TypeError,"__add__\(\): incompatible function arguments.*"):
+                a + e
+            with self.assertRaisesRegex(TypeError,"__radd__\(\): incompatible function arguments.*"):
+                e + a
+            with self.assertRaisesRegex(TypeError,"__add__\(\): incompatible function arguments.*"):
+                E += e
+        else:
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                a + e
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                e + a
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                E += e
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
             2 + e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
             e += 2
 
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            a - e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            e - a
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            E -= e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+        if poek.__using_pybind11__:
+            with self.assertRaisesRegex(TypeError,"__sub__\(\): incompatible function arguments.*"):
+                a - e
+            with self.assertRaisesRegex(TypeError,"__rsub__\(\): incompatible function arguments.*"):
+                e - a
+            with self.assertRaisesRegex(TypeError,"__sub__\(\): incompatible function arguments.*"):
+                E -= e
+        else:
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                a - e
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                e - a
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                E -= e
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
             2 - e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
             e -= 2
 
-        with self.assertRaisesRegex(TypeError, "Cannot create an expression with a relational subexpression."):
-            a * e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            e * a
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            E *= e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+        if poek.__using_pybind11__:
+            with self.assertRaisesRegex(TypeError,"__mul__\(\): incompatible function arguments.*"):
+                a * e
+            with self.assertRaisesRegex(TypeError,"__rmul__\(\): incompatible function arguments.*"):
+                e * a
+            with self.assertRaisesRegex(TypeError,"__mul__\(\): incompatible function arguments.*"):
+                E *= e
+        else:
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                a * e
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                e * a
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                E *= e
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
             2 * e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
             e *= 2
 
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            a / e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            e / a
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            E /= e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+        if poek.__using_pybind11__:
+            with self.assertRaisesRegex(TypeError,"__truediv__\(\): incompatible function arguments.*"):
+                a / e
+            with self.assertRaisesRegex(TypeError,"__rtruediv__\(\): incompatible function arguments.*"):
+                e / a
+            with self.assertRaisesRegex(TypeError,"__truediv__\(\): incompatible function arguments.*"):
+                E /= e
+        else:
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                a / e
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                e / a
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                E /= e
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
             2 / e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
             e /= 2
 
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            a ** e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            e ** a
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            E **= e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+        if poek.__using_pybind11__:
+            with self.assertRaisesRegex(TypeError,"__pow__\(\): incompatible function arguments.*"):
+                a ** e
+            with self.assertRaisesRegex(TypeError,"__rpow__\(\): incompatible function arguments.*"):
+                e ** a
+            with self.assertRaisesRegex(TypeError,"__pow__\(\): incompatible function arguments.*"):
+                E **= e
+        else:
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                a ** e
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                e ** a
+            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+                E **= e
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
             2 ** e
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
+        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
             e **= 2
 
     def test_error_chained(self):
@@ -316,16 +380,28 @@ class Test_Expr(unittest.TestCase):
         
         e = a == b
 
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            e < a
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            e <= a
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            e > a
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            e >= a
-        with self.assertRaisesRegex(TypeError, "Cannot create a constraint with a relational subexpression."):
-            e == a
+        if poek.__using_pybind11__:
+            with self.assertRaisesRegex(TypeError,"__lt__\(\): incompatible function arguments.*"):
+                e < a
+            with self.assertRaisesRegex(TypeError,"__le__\(\): incompatible function arguments.*"):
+                e <= a
+            with self.assertRaisesRegex(TypeError,"__gt__\(\): incompatible function arguments.*"):
+                e > a
+            with self.assertRaisesRegex(TypeError,"__ge__\(\): incompatible function arguments.*"):
+                e >= a
+            with self.assertRaisesRegex(TypeError,"__eq__\(\): incompatible function arguments.*"):
+                e == a
+        else:
+            with self.assertRaisesRegex(TypeError, "Constraint argument cannot be used in a boolean expression."):
+                e < a
+            with self.assertRaisesRegex(TypeError, "Constraint argument cannot be used in a boolean expression."):
+                e <= a
+            with self.assertRaisesRegex(TypeError, "Constraint argument cannot be used in a boolean expression."):
+                e > a
+            with self.assertRaisesRegex(TypeError, "Constraint argument cannot be used in a boolean expression."):
+                e >= a
+            with self.assertRaisesRegex(TypeError, "Constraint argument cannot be used in a boolean expression."):
+                e == a
 
 if __name__ == "__main__":
     unittest.main()
