@@ -10,6 +10,9 @@ class TestModel(unittest.TestCase):
         v1 = variable(name="v1", initialize=1)
         v2 = variable(name="v2", initialize=2)
         v3 = variable(name="v3", initialize=3)
+        m.use(v1)
+        m.use(v2)
+        m.use(v3)
 
         e = v1+v2
         m.add( (1-e) + 3*e + e*e + v3 )
@@ -18,18 +21,19 @@ class TestModel(unittest.TestCase):
         m.add( 1 < v2 )
         m.add( v1 > 1 )
         m.add( v1 == 3*v2-3 )
-        m.show(True)
 
-        m.build()
         #m.show(True)
 
-        self.assertEqual(m.num_objectives(), 1)
-        self.assertEqual(m.num_constraints(), 5)
+        nlp = nlp_model(m, "cppad")
+        self.assertEqual(nlp.num_variables(), 3)
+        self.assertEqual(nlp.num_objectives(), 1)
+        self.assertEqual(nlp.num_constraints(), 5)
 
-        visitor = ValueVisitor()
         e = m.get_objective()
-        self.assertEqual( visitor.walk(e), ['+', ['-', '1', ['+', 'v1', 'v2']], ['*', '3', ['+', 'v1', 'v2']], ['*', ['+', 'v1', 'v2'], ['+', 'v1', 'v2']], 'v3'] )
+        self.assertEqual( e.to_list(), ['+', '1.000', ['-', ['+', 'v1', 'v2']], ['*', '3.000', ['+', 'v1', 'v2']], ['*', ['+', 'v1', 'v2'], ['+', 'v1', 'v2']], 'v3'] )
+
         e = m.get_constraint(0)
+        self.assertEqual( e.to_list(), ['<=', ['+', ['*', 'v1', 'v1'], '1.000', ['*', '-3', 'v2']], '0'])
         self.assertEqual( e.value, -4 )
         e = m.get_constraint(1)
         self.assertEqual( e.value, 5 )
@@ -40,19 +44,25 @@ class TestModel(unittest.TestCase):
         e = m.get_constraint(4)
         self.assertEqual( e.value, -2 )
 
-        self.assertEqual(m.compute_f(), 19)
-        self.assertEqual(m.compute_c(), [-4, 5, -1, 0, -2])
-        self.assertEqual(m.compute_df(), [8,8,1])
-        self.assertEqual(m.compute_dc(0), [2,-3,0])
-        self.assertEqual(m.compute_dc(1), [-2,3,0])
-        self.assertEqual(m.compute_dc(2), [0,-1,0])
-        self.assertEqual(m.compute_dc(3), [-1,0,0])
-        self.assertEqual(m.compute_dc(4), [1,-3,0])
+        self.assertEqual(nlp.compute_f(), 19)
+        self.assertEqual(nlp.compute_c(), [-4, 5, -1, 0, -2])
+        self.assertEqual(nlp.compute_df(), [8,8,1])
+        self.assertEqual(nlp.compute_dc(0), [2,-3,0])
+        self.assertEqual(nlp.compute_dc(1), [-2,3,0])
+        self.assertEqual(nlp.compute_dc(2), [0,-1,0])
+        self.assertEqual(nlp.compute_dc(3), [-1,0,0])
+        self.assertEqual(nlp.compute_dc(4), [1,-3,0])
 
-    def test_error1(self):
+    def test_constant_obj(self):
         m = model()
-        p = parameter(2,False)
+        p = parameter(2)
         m.add(p)
+
+    def test_variable_obj(self):
+        m = model()
+        v = variable(name="v")
+        m.use(v)
+        m.add(v)
 
 
 if __name__ == "__main__":      #pragma:nocover
