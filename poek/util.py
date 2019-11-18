@@ -1,14 +1,12 @@
 import poek as pk
 try:
-    pyomo_available=True
     from pyomo.core.expr.visitor import _EvaluationVisitor
     from pyomo.core.expr.numvalue import nonpyomo_leaf_types, value
-    from pyomo.environ import Constraint, Objective
-    from pyomo.core.base import _ObjectiveData
+    from pyomo.core.base import _ObjectiveData, Constraint, Objective
+    pyomo_available=True
 except:
     _EvaluationVisitor=object
     pyomo_available=False
-
 
 def quicksum(args, start=0):
     """
@@ -70,9 +68,12 @@ class ToCoekExpression(_EvaluationVisitor):
         return False, None
 
 
-def pyomo_to_poek(pyomo_model, poek_model):
+def pyomo_to_poek(pyomo_model):
     if not pyomo_available:
         raise RuntimeError("Error running pyomo_to_poek - Pyomo is not installed.")
+
+    poek_model = pk.model()
+
     visitor = ToCoekExpression(poek_model)
     for cdata in pyomo_model.component_data_objects(Objective, active=True):
         e = visitor.dfs_postorder_stack(cdata.expr)
@@ -86,4 +87,6 @@ def pyomo_to_poek(pyomo_model, poek_model):
                 poek_model.add( e - value(cdata.lower) >= 0)
             if cdata.has_ub():
                 poek_model.add( e - value(cdata.upper) <= 0 )
+
+    return poek_model
 
