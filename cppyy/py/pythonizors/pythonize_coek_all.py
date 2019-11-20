@@ -29,7 +29,7 @@ def pythonize_coek_all(klass, name):
     def get_name_str_or_None(self):
         name = self.get_name()
         if name == "":
-            return None
+            return "x"
         return name
 
     def VariableArray_iter(self):
@@ -70,7 +70,6 @@ def pythonize_coek_all(klass, name):
         klass.__pow__ = pycoek.coek.Variable_pow
         klass.__rpow__ = pycoek.coek.Variable_rpow
         klass.__bool__ = bool_error
-        klass.__eq__ = klass.__cpp_eq__
 
     elif name == 'Expression':
         klass.__init__bak = klass.__init__
@@ -87,7 +86,7 @@ def pythonize_coek_all(klass, name):
         klass.__pow__ = pycoek.coek.Expression_pow
         klass.__rpow__ = pycoek.coek.Expression_rpow
         klass.__bool__ = bool_error
-        klass.__eq__ = klass.__cpp_eq__
+        #klass.__eq__ = klass.__cpp_eq__
 
     elif name == 'Parameter':
         klass.__init__ = klass.__init__.__overload__("double,const string&")
@@ -102,7 +101,7 @@ def pythonize_coek_all(klass, name):
         klass.__pow__ = pycoek.coek.Parameter_pow
         klass.__rpow__ = pycoek.coek.Parameter_rpow
         klass.__bool__ = bool_error
-        klass.__eq__ = klass.__cpp_eq__
+        #klass.__eq__ = klass.__cpp_eq__
 
     elif name == 'Constraint':
         klass.feasible = property(klass.is_feasible, doc="This value is True if the constraint is feasible.")
@@ -128,5 +127,4 @@ def pythonize_coek_all(klass, name):
         klass.__ge__ = varray_bool_error
 
     elif name == 'Model':
-        klass.use = lambda self,var : self.addVariable(var)
-
+        klass.use = lambda self, var : self.addVariable(var)
