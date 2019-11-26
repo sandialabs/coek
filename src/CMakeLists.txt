@@ -16,6 +16,7 @@ SET(sources
     expr/coek_expr.cpp
     model/coek_model.cpp
     model/writer_lp.cpp
+    model/writer_nl.cpp
     solvers/solver.cpp
     solvers/testsolver.cpp
     autograd/autograd.cpp

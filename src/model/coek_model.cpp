@@ -36,7 +36,7 @@ return ostr;
 
 Variable& Model::getVariable(double lb, double ub, const std::string& name)
 {
-Variable tmp(lb,ub,lb,name);
+Variable tmp(lb,ub,COEK_NAN,name);
 tmp.repn->index = ++VariableTerm::count;
 variables.push_back(tmp);
 return variables.back();
@@ -101,6 +101,7 @@ static bool endsWith(const std::string& str, const std::string& suffix)
 }
 
 void write_lp_problem(Model& model, std::ostream& ostr);
+void write_nl_problem(Model& model, std::ostream& ostr);
 
 
 void Model::write(std::string fname)
@@ -108,6 +109,13 @@ void Model::write(std::string fname)
 if (endsWith(fname, ".lp")) {
     std::ofstream ofstr(fname);
     write_lp_problem(*this, ofstr);
+    ofstr.close();
+    return;
+    }
+
+else if (endsWith(fname, ".nl")) {
+    std::ofstream ofstr(fname);
+    write_nl_problem(*this, ofstr);
     ofstr.close();
     return;
     }

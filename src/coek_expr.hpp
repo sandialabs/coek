@@ -4,11 +4,12 @@
 #include <string>
 #include <list>
 #include <vector>
-#include <unordered_set>
+#include <set>
 
 
 #define COEK_INFINITY   1e100
 #define COEK_UNDEFINED  1e101
+#define COEK_NAN        coek::nan_value
 
 #define COEK_API_OPERATORS\
     Expression operator+(int arg) const;\
@@ -71,6 +72,9 @@ std::ostream& operator<<(std::ostream& ostr, const std::list<std::string>& arg);
 
 
 namespace coek {
+
+extern double nan_value;
+
 
 std::ostream& operator<<(std::ostream& ostr, const std::list<std::string>& arg);
 
@@ -334,6 +338,12 @@ class MutableNLPExpr
 {
 public:
 
+    struct varterm_compare {
+        bool operator() (const VariableTerm*, const VariableTerm*) const;
+    };
+
+public:
+
     Expression constval;
 
     std::vector<VariableTerm*> linear_vars;
@@ -343,7 +353,7 @@ public:
     std::vector<VariableTerm*> quadratic_rvars;
     std::vector<Expression> quadratic_coefs;
 
-    std::vector<VariableTerm*> nonlinear_vars;
+    std::set<VariableTerm*,varterm_compare> nonlinear_vars;
     Expression nonlinear;
 
     //std::unordered_set<coek::VariableTerm*> fixed_vars;

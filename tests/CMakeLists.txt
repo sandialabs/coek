@@ -3,18 +3,13 @@ set(CATCH_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/Catch2/single_i
 add_library(Catch INTERFACE)
 target_include_directories(Catch INTERFACE ${CATCH_INCLUDE_DIR})
 
-#SET(sources
-#    test_expr.cpp
-#    test_expr_manager_objects.cpp
-#    test_capi.cpp
-#   )
-
 SET(sources
     runner.cpp
     test_model.cpp
     test_expr_visitors.cpp
     test_testsolver.cpp
     test_examples.cpp
+    test_writers.cpp
    )
 
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/../src)

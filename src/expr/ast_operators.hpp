@@ -32,6 +32,8 @@ return CREATE_POINTER(PlusTerm, lhs, rhs);
 template <typename LHS, typename RHS>
 expr_pointer_t plus(const LHS& lhs, const RHS& rhs)
 {
+if (lhs == ZEROCONST)
+    return rhs;
 return CREATE_POINTER(PlusTerm, lhs, rhs);
 }
 

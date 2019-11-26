@@ -3424,6 +3424,7 @@ coek::Parameter q(2, "q");
 " );
 */
 
+#if 0
   SECTION( "model writing" ) {
     coek::Expression e0 = 3*a + q;
     model.add( e0 );
@@ -3443,6 +3444,7 @@ coek::Parameter q(2, "q");
 
     model.write("testing.lp");
   }
+#endif
 
 
 }
