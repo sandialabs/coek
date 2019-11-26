@@ -1,3 +1,4 @@
+#include <cmath>
 #include <cstdio>
 //#include <sstream>
 #include <map>
@@ -6,6 +7,8 @@
 #include "coek_expr.hpp"
 
 namespace coek {
+
+double nan_value = std::nan("");
 
 //
 // Parameter
@@ -486,6 +489,9 @@ to_QuadraticExpr(expr.repn, *this);
 //
 // MutableNLPExpr
 //
+
+bool MutableNLPExpr::varterm_compare::operator() (const VariableTerm* lhs, const VariableTerm* rhs) const
+{ return lhs->index < rhs->index; }
 
 void to_MutableNLPExpr(expr_pointer_t expr,
                     MutableNLPExpr& repn);
