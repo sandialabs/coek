@@ -4,6 +4,11 @@ cmake_minimum_required(VERSION 3.7)
 
 include_directories("${PROJECT_SOURCE_DIR}/src/")
 include_directories("${PROJECT_SOURCE_DIR}/src/expr/")
+
+if(${with_gurobi})
+  LINK_DIRECTORIES($ENV{GUROBI_HOME}/lib)
+endif()
+
 if(${with_debug})
     pybind11_add_module(pycoek NO_EXTRAS pycoek.cpp)
 else()
