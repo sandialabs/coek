@@ -1,8 +1,9 @@
 
 #include <cmath>
 #include "catch.hpp"
-
+#include "expr/ast_term.hpp"
 #include "coek_model.hpp"
+
 
 void small1(coek::Model& model) 
 {
@@ -234,34 +235,38 @@ model.add (c + d == 0);
 
 TEST_CASE( "lp_writer", "[smoke]" ) {
 
-  coek::Model model;
-
   SECTION( "small1" ) {
+    coek::Model model;
     small1(model);
     model.write("small1.lp");
     }
 
   SECTION( "small2" ) {
+    coek::Model model;
     small2(model);
     model.write("small2.lp");
     }
 
   SECTION( "small3" ) {
+    coek::Model model;
     small3(model);
     model.write("small3.lp");
     }
 
   SECTION( "small4" ) {
+    coek::Model model;
     small4(model);
     model.write("small4.lp");
     }
 
   SECTION( "small8" ) {
+    coek::Model model;
     small8(model);
     model.write("small8.lp");
     }
 
   SECTION( "testing1" ) {
+    coek::Model model;
     testing1(model);
     model.write("testing1.lp");
     }
@@ -274,64 +279,74 @@ REQUIRE( coek::env.check_memory() == true );
 
 TEST_CASE( "nl_writer", "[smoke]" ) {
 
-coek::Model model;
-
   SECTION( "small1" ) {
+    coek::Model model;
     small1(model);
     model.write("small1.nl");
     }
 
   SECTION( "small2" ) {
+    coek::Model model;
     small2(model);
     model.write("small2.nl");
     }
 
   SECTION( "small3" ) {
+    coek::Model model;
     small3(model);
     model.write("small3.nl");
     }
 
   SECTION( "small4" ) {
+    coek::Model model;
     small4(model);
     model.write("small4.nl");
     }
 
   SECTION( "small5" ) {
+    coek::Model model;
     small5(model);
     model.write("small5.nl");
     }
 
   SECTION( "small6" ) {
+    coek::Model model;
     small6(model);
     model.write("small6.nl");
     }
 
   SECTION( "small7" ) {
+    coek::Model model;
     small7(model);
     model.write("small7.nl");
     }
 
   SECTION( "small8" ) {
+    coek::Model model;
     small8(model);
     model.write("small8.nl");
     }
 
   SECTION( "small9" ) {
+    coek::Model model;
     small9(model);
     model.write("small9.nl");
     }
 
   SECTION( "small13" ) {
+    coek::Model model;
     small13(model);
     model.write("small13.nl");
     }
 
   SECTION( "small14" ) {
+    coek::Model model;
     small14(model);
     model.write("small14.nl");
     }
 
   SECTION( "testing1" ) {
+    coek::Model model;
     testing1(model);
     model.write("testing1.nl");
     }
