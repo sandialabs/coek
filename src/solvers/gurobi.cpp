@@ -140,14 +140,24 @@ for (auto it=string_options.begin(); it != string_options.end(); ++it)
 try {
     gmodel->optimize();
 
-    // Collect values of Gurobi variables
-    for (std::vector<coek::Variable>::iterator it=model.variables.begin(); it != model.variables.end(); ++it) {
-        coek::VariableTerm* v = it->repn;
-        v->value = x[v->index].get(GRB_DoubleAttr_X);
+    int status = gmodel->get(GRB_IntAttr_Status);
+    if (status == GRB_OPTIMAL) {
+        // TODO: Are there other conditions where the variables have valid values?
+        // TODO: If we do not update the COEK variable values, should we set them to NAN?
+        // TODO: We need to cache the optimization status in COEK somewhere
+        // TODO: Is there a string description of the solver status?
+
+        // Collect values of Gurobi variables
+        for (std::vector<coek::Variable>::iterator it=model.variables.begin(); it != model.variables.end(); ++it) {
+            coek::VariableTerm* v = it->repn;
+            v->value = x[v->index].get(GRB_DoubleAttr_X);
+            }
         }
     }
 catch (GRBException e) {
-    std::cerr << "GUROBI Exception: (constraint) " << e.getMessage() << std::endl;
+    std::cerr << "GUROBI Exception: (solver) " << e.getMessage() << std::endl;
+    // TODO: We should raise a CoekException object, to ensure that COEK can manage exceptions in a uniform manner.
+    throw;
     }
 
 delete gmodel;
