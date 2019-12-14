@@ -10,8 +10,8 @@ int TestSolver::solve(Model& model)
 //std::cout << "COLLECTING REPNS/VARS" << std::endl << std::flush;
 
 // Collect repns
-coek::QuadraticExpr orepn;
-std::vector<coek::QuadraticExpr> crepn(model.constraints.size());
+coek::MutableNLPExpr orepn;
+std::vector<coek::MutableNLPExpr> crepn(model.constraints.size());
 
 orepn.collect_terms(model.objectives[0]);
 for (size_t i=0; i<model.constraints.size(); i++)
