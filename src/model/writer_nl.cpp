@@ -446,6 +446,9 @@ for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ctr++) {
 //
 // "x" section - primal initial values
 //
+// TODO - Should this section use the variable value if that isn't NAN?  What is the
+// semantics that we want to enforce here?
+//
 {
 auto _it = vars.begin();
 if (not std::isnan(varobj[*_it].get_initial())) {
