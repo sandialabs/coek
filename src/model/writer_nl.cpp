@@ -92,7 +92,7 @@ void PrintExpr::visit(PlusTerm& arg)
 if (arg.n == 2)
     ostr << "o0" << std::endl;
 else
-    ostr << "o54" << std::endl;
+    ostr << "o54" << std::endl << arg.n << std::endl;
 std::vector<expr_pointer_t>& vec = *(arg.data);
 for (size_t i=0; i<arg.n; i++)
     vec[i]->accept(*this);
