@@ -181,7 +181,7 @@ public:
         bool binary, integer, fixed;
         parse_varargs<double>(kwargs, "lb", lb, -COEK_INFINITY);
         parse_varargs<double>(kwargs, "ub", ub,  COEK_INFINITY);
-        parse_varargs<double>(kwargs, "initialize", init, NAN);
+        parse_varargs<double>(kwargs, "initial", init, NAN);
         parse_varargs<bool>(kwargs, "binary", binary, false);
         parse_varargs<bool>(kwargs, "integer", integer, false);
         parse_varargs<bool>(kwargs, "fixed", fixed, false);
@@ -259,7 +259,7 @@ double lb, ub, init;
 bool binary, integer, fixed;
 parse_varargs<double>(kwargs, "lb", lb, -COEK_INFINITY);
 parse_varargs<double>(kwargs, "ub", ub,  COEK_INFINITY);
-parse_varargs<double>(kwargs, "initialize", init, NAN);
+parse_varargs<double>(kwargs, "initial", init, NAN);
 parse_varargs<bool>(kwargs, "binary", binary, false);
 parse_varargs<bool>(kwargs, "integer", integer, false);
 parse_varargs<bool>(kwargs, "fixed", fixed, false);
