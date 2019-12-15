@@ -34,5 +34,6 @@ INSTALL(TARGETS pycoek
 #
 add_custom_target(pip_install
         DEPENDS pycoek
+        COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/pybind11/setup.py develop -u
         COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/pybind11/setup.py develop
         )
