@@ -309,6 +309,30 @@ TEST_CASE( "expr_writer", "[smoke]" ) {
     WRITER_INTRINSIC_TEST2(pow)
   }
 
+  SECTION( "affine_expression1" ) {
+        std::vector<coek::Variable> v(4);
+        std::vector<double> w(4);
+        for (int i=0; i<4; i++) {
+            v[i] = coek::Variable(0, 1, 0, "v[" + std::to_string(i) + "]");
+            w[i] = i+1;
+            }
+        coek::Expression e = affine_expression(w, v, 5.0);
+        std::stringstream sstr;
+        sstr << e;
+        REQUIRE( sstr.str() == "5 + v[0] + 2*v[1] + 3*v[2] + 4*v[3]" );
+  }
+
+  SECTION( "affine_expression" ) {
+        std::vector<coek::Variable> v(4);
+        for (int i=0; i<4; i++) {
+            v[i] = coek::Variable(0, 1, 0, "v[" + std::to_string(i) + "]");
+            }
+        coek::Expression e = affine_expression(v, 5.0);
+        std::stringstream sstr;
+        sstr << e;
+        REQUIRE( sstr.str() == "5 + v[0] + v[1] + v[2] + v[3]" );
+  }
+
 #ifdef DEBUG
 REQUIRE( coek::env.check_memory() == true );
 #endif
