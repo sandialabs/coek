@@ -292,6 +292,10 @@ PYBIND11_MODULE(pycoek, m) {
     m.def("_variable",[](int n, py::kwargs kw) {return coek::variable_fn(n, kw);});
     m.def("_variable",[](std::vector<int>& dimen, py::kwargs kw) {return coek::variable_fn(dimen, kw);});
     m.def("_variable",[](py::kwargs kw) {return coek::variable_fn(kw);});
+    m.def("affine_expression",[](std::vector<double>& coef, std::vector<coek::Variable>& var, double offset) {return affine_expression(coef, var, offset);});
+    m.def("affine_expression",[](std::vector<double>& coef, std::vector<coek::Variable>& var) {return affine_expression(coef, var, 0);});
+    m.def("affine_expression",[](std::vector<coek::Variable>& var, double offset) {return affine_expression(var, offset);});
+    m.def("affine_expression",[](std::vector<coek::Variable>& var) {return affine_expression(var, 0);});
 
     //
     // Parameter
