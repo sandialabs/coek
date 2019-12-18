@@ -26,7 +26,7 @@ class variable(object):
         name = kwds.get('name',"")
         lb = kwds.get('lb', NAN)
         ub = kwds.get('ub', NAN)
-        init = kwds.get('initialize', NAN)
+        init = kwds.get('initial', NAN)
         binval = kwds.get('binary', 0)
         integer = kwds.get('integer', 0)
         fixed = kwds.get('fixed', 0)
@@ -59,7 +59,7 @@ class _variable_array(object):
             oval = oval*dimen[i]
             i = i-1
         if name == "":
-            self._name = None
+            self._name = "x"
         else:
             self._name = name
 
@@ -97,5 +97,13 @@ tanh = pycoek.coek.tanh
 asinh = pycoek.coek.asinh
 acosh = pycoek.coek.acosh
 atanh = pycoek.coek.atanh
+
+def affine_expression(arg1, arg2=None, arg3=None):
+    if arg2 is None:
+        return pycoek.coek.affine_expression(arg1,0)
+    elif arg3 is None:
+        return pycoek.coek.affine_expression(arg1,arg2)
+    else:
+        return pycoek.coek.affine_expression(arg1,arg2,arg3)
 
 from .util import quicksum
