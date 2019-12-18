@@ -74,6 +74,18 @@ class _variable_array(object):
         for i in self.index:
             yield i
 
+
+def model_use(self, vobj):
+    if vobj.__class__ == pycoek.coek.Variable or vobj.__class__ == pycoek.coek.VariableArray:
+        self.addVariable(vobj)
+    elif vobj.__class__ == _variable_array:
+        self.addVariable(vobj.varray)
+    else:
+        raise TypeError("Unrecognized variable object: "+str(type(vobj)))
+
+model.use = model_use
+
+
 #
 # Intrinsic functions
 #
