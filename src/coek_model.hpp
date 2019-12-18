@@ -6,6 +6,7 @@
 
 namespace coek {
 
+class VariableArray;
 class NLPModelRepn;
 class SolverRepn;
 class NLPSolverRepn;
@@ -44,6 +45,7 @@ public:
     Variable& getVariable(double lb, double ub, double value, bool binary, bool integer);
     Variable& getVariable(double lb, double ub, double value, bool binary, bool integer, const std::string& name);
     void addVariable(Variable& var);
+    void addVariable(VariableArray& var);
 
     Expression get_objective(unsigned int i=0);
     Constraint get_constraint(unsigned int i);

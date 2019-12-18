@@ -4,6 +4,7 @@
 #include <fstream>
 #include <map>
 #include "expr/ast_term.hpp"
+#include "expr/varray.hpp"
 #include "coek_expr.hpp"
 #include "coek_model.hpp"
 #include "solvers/solver.hpp"
@@ -78,6 +79,14 @@ void Model::addVariable(Variable& var)
 {
 var.repn->index = ++VariableTerm::count;
 variables.push_back(var);
+}
+
+void Model::addVariable(VariableArray& varray)
+{
+for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
+    it->repn->index = ++VariableTerm::count;
+    variables.push_back(*it);
+    }
 }
 
 Expression Model::get_objective(unsigned int i)
