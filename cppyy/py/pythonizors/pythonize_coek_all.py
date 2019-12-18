@@ -125,6 +125,3 @@ def pythonize_coek_all(klass, name):
         klass.__le__ = varray_bool_error
         klass.__gt__ = varray_bool_error
         klass.__ge__ = varray_bool_error
-
-    elif name == 'Model':
-        klass.use = lambda self, var : self.addVariable(var)
