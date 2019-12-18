@@ -27,7 +27,7 @@ list(APPEND LIB_INCLUDE_DIRS
 cppyy_add_bindings(
     "pycoek" "${PROJECT_VERSION}" "William Hart" "whart222@gmail.com"
    LICENSE "BSD-3"
-   LANGUAGE_STANDARD "11"
+   LANGUAGE_STANDARD "17"
    SELECTION_XML  ${CMAKE_SOURCE_DIR}/cppyy/selection.xml
    INTERFACE_FILE ${CMAKE_SOURCE_DIR}/cppyy/cppyy_interface.hpp
    HEADERS        ${LIB_HEADERS}
