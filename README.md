@@ -47,9 +47,11 @@ The C/C++ library that supports the definition of expressions used to formulate 
 
 ## Simple build with Cppyy Python extensions (build a WHEEL and install with PIP)
 
-* conda create -n coek python=3 cmake cxx-compiler c-compiler clangdev libcxx libstdcxx-ng libgcc-ng
+* conda create -n coek python=3 cmake
 * conda activate coek
-* pip install cppyy clang
+* conda install -y clangxx
+* conda install -y python-clang
+* conda install -y cppyy
 * mkdir build
 * cd build
 * cmake -Dwith\_cppyy=ON ..
