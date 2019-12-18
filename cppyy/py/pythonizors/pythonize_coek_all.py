@@ -1,7 +1,7 @@
 import pycoek
 
 def pythonize_coek_all(klass, name):
-    print(("PYTHONIZE COEK", klass, name))
+    #print(("PYTHONIZE COEK", klass, name))
 
     def to_nested_list(b, e):
         tmp = []
