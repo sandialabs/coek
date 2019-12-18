@@ -20,6 +20,14 @@ list(APPEND LIB_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/src
     )
 
+if(${with_gurobi})
+  LINK_DIRECTORIES($ENV{GUROBI_HOME}/lib)
+  list(APPEND OPT_LINK_LIBRARIES gurobi_g++5.2 gurobi81)
+endif()
+if(${with_ipopt})
+  LINK_DIRECTORIES($ENV{IPOPT_HOME}/lib)
+  list(APPEND OPT_LINK_LIBRARIES ipopt gfortran)
+endif()
 
 #
 # Set up the Cppyy bindings generation.
@@ -32,21 +40,13 @@ cppyy_add_bindings(
    INTERFACE_FILE ${CMAKE_SOURCE_DIR}/cppyy/cppyy_interface.hpp
    HEADERS        ${LIB_HEADERS}
    INCLUDE_DIRS   ${LIB_INCLUDE_DIRS}
-   LINK_LIBRARIES coek
+   LINK_LIBRARIES coek ${OPT_LINK_LIBRARIES}
    NAMESPACES     coek
    GENERATE_OPTIONS    -I${CMAKE_SOURCE_DIR}/src
 )
 
-#if(${with_ipopt})
-#  TARGET_LINK_LIBRARIES(pycoek PUBLIC ipopt gfortran)
-#endif()
-#if(${with_gurobi})
-#  TARGET_LINK_LIBRARIES(pycoek PUBLIC gurobi_g++5.2 gurobi81)
-#endif()
-
-#INSTALL(TARGETS pycoek DESTINATION lib)
-
 add_custom_target(pip_install
         DEPENDS pycoek
         COMMAND pip install --force-reinstall ${PY_WHEEL_FILE}
+        COMMAND python -c "import pycoek"
         )
