@@ -28,9 +28,9 @@ def pythonize_coek_all(klass, name):
 
     def get_name_str_or_None(self):
         name = self.get_name()
-        if name == "":
-            return "x"
-        return name
+        if name:
+            return name
+        return "x"
 
     def VariableArray_iter(self):
         if self.dimen.size() == 0:
