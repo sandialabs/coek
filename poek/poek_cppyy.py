@@ -8,7 +8,7 @@ nlp_model = pycoek.coek.NLPModel
 nlp_solver = pycoek.coek.NLPSolver
 
 NAN = float('nan')
-
+inf = model.inf
 
 class parameter(object):
     """Class used to define a POEK parameter."""
@@ -24,8 +24,8 @@ class variable(object):
 
     def __new__(cls, *args, **kwds):
         name = kwds.get('name',"")
-        lb = kwds.get('lb', NAN)
-        ub = kwds.get('ub', NAN)
+        lb = kwds.get('lb', -inf)
+        ub = kwds.get('ub', inf)
         init = kwds.get('initial', NAN)
         binval = kwds.get('binary', 0)
         integer = kwds.get('integer', 0)
