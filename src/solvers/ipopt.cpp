@@ -148,8 +148,8 @@ for (size_t i=0; i<model.num_variables(); i++) {
     //std::cout << "x " << i << " " << x_l[i] << " " << x_u[i] << std::endl << std::flush;
     }
 
-for (size_t j=0; j<model.model.constraints.size(); j++) {
-    if (model.model.constraints[i].is_inequality()) {
+for (size_t j=0; j<model.model.repn->constraints.size(); j++) {
+    if (model.model.repn->constraints[i].is_inequality()) {
         // Inequality constraints are g(x) <= 0
         g_l[j] = - COEK_INFINITY;
         g_u[j] = 0; 

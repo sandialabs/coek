@@ -248,8 +248,8 @@ sparse_JH=_sparse_JH;
 //
 find_used_variables();
 nx = used_variables.size();
-nf = model.objectives.size();
-nc = model.constraints.size();
+nf = model.repn->objectives.size();
+nc = model.repn->constraints.size();
 
 dynamic_params.resize(fixed_variables.size()+parameters.size());
 dynamic_param_vals.resize(fixed_variables.size()+parameters.size());
@@ -272,7 +272,7 @@ try {
     if (nf > 0) {
         int nb=0;
 
-        for (auto it=model.objectives.begin(); it != model.objectives.end(); ++it) {
+        for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it) {
             build_expression(it->repn, nb, ADvars, ADrange[nb], _used_variables);
             nb++;
             }
@@ -280,7 +280,7 @@ try {
     if (nc > 0) {
         int nb=0;
 
-        for (auto it=model.constraints.begin(); it != model.constraints.end(); ++it) {
+        for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it) {
             build_expression(it->repn, nb, ADvars, ADrange[nf + nb], _used_variables);
             nb++;
             }

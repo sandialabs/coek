@@ -43,7 +43,7 @@ TEST_CASE( "cppad_add", "[smoke]" ) {
 
     model.add( x + y );
 
-    REQUIRE( model.variables.size() == 2 );
+    REQUIRE( model.repn->variables.size() == 2 );
 
     coek::NLPModel m;
 
