@@ -45,7 +45,31 @@ void visit(ParameterTerm& expr, QuadraticExpr& repn, double multiplier)
 repn.constval += multiplier * expr.value;
 }
 
+void visit(IndexParameterTerm& expr, QuadraticExpr& repn, double multiplier)
+{
+throw std::runtime_error("Unexpected index parameter.");
+}
+
 void visit(VariableTerm& expr, QuadraticExpr& repn, double multiplier)
+{
+if (! expr.index)
+    throw std::runtime_error("Unexpected variable not owned by a model.");
+
+if (expr.fixed)  {
+    repn.constval += multiplier * expr.value;
+    }
+else {
+    repn.linear_vars.push_back(&expr);
+    repn.linear_coefs.push_back(multiplier);
+    }
+}
+
+void visit(VariableRefTerm& expr, QuadraticExpr& repn, double multiplier)
+{
+throw std::runtime_error("Unexpected variable reference.");
+}
+
+void visit(IndexedVariableTerm& expr, QuadraticExpr& repn, double multiplier)
 {
 if (! expr.index)
     throw std::runtime_error("Unexpected variable not owned by a model.");
@@ -311,7 +335,10 @@ switch (expr->id()) {
 
     VISIT_CASE(ConstantTerm);
     VISIT_CASE(ParameterTerm);
+    VISIT_CASE(IndexParameterTerm);
     VISIT_CASE(VariableTerm);
+    VISIT_CASE(VariableRefTerm);
+    VISIT_CASE(IndexedVariableTerm);
     VISIT_CASE(MonomialTerm);
     VISIT_CASE(InequalityTerm);
     VISIT_CASE(EqualityTerm);

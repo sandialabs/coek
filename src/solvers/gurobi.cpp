@@ -11,6 +11,63 @@
 
 namespace coek {
 
+namespace {
+
+void add_gurobi_objective(GRBModel* gmodel, Expression& expr, bool sense, std::unordered_map<int,GRBVar>& x)
+{
+    coek::QuadraticExpr orepn;
+    orepn.collect_terms(expr);
+    if (orepn.linear_coefs.size() + orepn.quadratic_coefs.size() > 0) {
+        GRBLinExpr term1;
+        auto iv=orepn.linear_vars.begin();
+        for (auto it=orepn.linear_coefs.begin(); it != orepn.linear_coefs.end(); ++it, ++iv)
+            term1 += *it * x[(*iv)->index];
+        term1 += orepn.constval;
+        if (orepn.quadratic_coefs.size() > 0) {
+            GRBQuadExpr term2;
+            for (size_t i=0; i< orepn.quadratic_coefs.size(); i++)
+                term2.addTerm(orepn.quadratic_coefs[i], x[orepn.quadratic_lvars[i]->index], x[orepn.quadratic_rvars[i]->index]);
+            gmodel->setObjective(term1 + term2);
+            }
+        else
+            gmodel->setObjective(term1);
+        }
+
+    if (sense)
+        gmodel->set(GRB_IntAttr_ModelSense, GRB_MINIMIZE);
+    else
+        gmodel->set(GRB_IntAttr_ModelSense, GRB_MAXIMIZE);
+}
+
+void add_gurobi_constraint(GRBModel* gmodel, Constraint& con, std::unordered_map<int,GRBVar>& x)
+{
+        coek::QuadraticExpr repn;
+        repn.collect_terms(con);
+
+        if (repn.linear_coefs.size() + repn.quadratic_coefs.size() > 0) {
+            GRBLinExpr term1;
+            for (size_t i=0; i<repn.linear_coefs.size(); i++)
+                term1 += repn.linear_coefs[i] * x[repn.linear_vars[i]->index];
+            if (repn.quadratic_coefs.size() > 0) {
+                GRBQuadExpr term2;
+                for (size_t i=0; i< repn.quadratic_coefs.size(); i++)
+                    term2.addTerm(repn.quadratic_coefs[i], x[repn.quadratic_lvars[i]->index], x[repn.quadratic_rvars[i]->index]);
+
+                if (con.is_inequality())
+                    gmodel->addQConstr(term1 + term2, GRB_LESS_EQUAL, - repn.constval);
+                else
+                    gmodel->addQConstr(term1 + term2, GRB_EQUAL, - repn.constval);
+                }
+            else {
+                if (con.is_inequality())
+                    gmodel->addConstr(term1, GRB_LESS_EQUAL, - repn.constval);
+                else
+                    gmodel->addConstr(term1, GRB_EQUAL, - repn.constval);
+                }
+            }
+}
+}
+
 
 GurobiSolver::~GurobiSolver()
 {
@@ -23,26 +80,28 @@ if (env)
 
 int GurobiSolver::solve(Model& model)
 {
+auto _model = model.repn.get();
+
 std::cout << "STARTING GUROBI" << std::endl << std::flush;
 
 env = new GRBEnv();
 gmodel = new GRBModel(*env);
 
 std::cout << "COLLECTING REPNS/VARS" << std::endl << std::flush;
-assert(model.objectives.size() == 1);
+assert(_model->objectives.size() == 1);
 
 // Collect repns
 coek::QuadraticExpr orepn;
-orepn.collect_terms(model.objectives[0]);
+orepn.collect_terms(_model->objectives[0]);
 
-std::vector<coek::QuadraticExpr> crepn(model.constraints.size());
-for (size_t i=0; i<model.constraints.size(); i++)
-    crepn[i].collect_terms(model.constraints[i]);
+std::vector<coek::QuadraticExpr> crepn(_model->constraints.size());
+for (size_t i=0; i<_model->constraints.size(); i++)
+    crepn[i].collect_terms(_model->constraints[i]);
 
 std::cout << "BUILDING GUROBI MODEL" << std::endl << std::flush;
 
 // Add Gurobi variables
-for (std::vector<coek::Variable>::iterator it=model.variables.begin(); it != model.variables.end(); ++it) {
+for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _model->variables.end(); ++it) {
     coek::VariableTerm* v = it->repn;
     if (v->binary)
         x[ v->index ] = gmodel->addVar(v->lb, v->ub, 0, GRB_BINARY);
@@ -84,7 +143,7 @@ try {
             gmodel->setObjective(term1);
         }
 
-    if (model.sense[0])
+    if (_model->sense[0])
         gmodel->set(GRB_IntAttr_ModelSense, GRB_MINIMIZE);
     else
         gmodel->set(GRB_IntAttr_ModelSense, GRB_MAXIMIZE);
@@ -114,16 +173,140 @@ try {
                 for (size_t i=0; i< repn.quadratic_coefs.size(); i++)
                     term2.addTerm(repn.quadratic_coefs[i], x[repn.quadratic_lvars[i]->index], x[repn.quadratic_rvars[i]->index]);
 
-                if (model.constraints[ii].is_inequality())
+                if (_model->constraints[ii].is_inequality())
                     gmodel->addQConstr(term1 + term2, GRB_LESS_EQUAL, - repn.constval);
                 else
                     gmodel->addQConstr(term1 + term2, GRB_EQUAL, - repn.constval);
                 }
             else {
-                if (model.constraints[ii].is_inequality())
+                if (_model->constraints[ii].is_inequality())
                     gmodel->addConstr(term1, GRB_LESS_EQUAL, - repn.constval);
                 else
                     gmodel->addConstr(term1, GRB_EQUAL, - repn.constval);
+                }
+            }
+        }
+    }
+catch (GRBException e) {
+    std::cerr << "GUROBI Exception: (constraint) " << e.getMessage() << std::endl;
+    throw;
+    }
+
+std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
+// All options are converted to strings for Gurobi
+for (auto it=string_options.begin(); it != string_options.end(); ++it)
+    gmodel->set(it->first, it->second);
+try {
+    gmodel->optimize();
+
+    int status = gmodel->get(GRB_IntAttr_Status);
+    if (status == GRB_OPTIMAL) {
+        // TODO: Are there other conditions where the variables have valid values?
+        // TODO: If we do not update the COEK variable values, should we set them to NAN?
+        // TODO: We need to cache the optimization status in COEK somewhere
+        // TODO: Is there a string description of the solver status?
+
+        // Collect values of Gurobi variables
+        for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _model->variables.end(); ++it) {
+            coek::VariableTerm* v = it->repn;
+            v->value = x[v->index].get(GRB_DoubleAttr_X);
+            }
+        }
+    }
+catch (GRBException e) {
+    std::cerr << "GUROBI Exception: (solver) " << e.getMessage() << std::endl;
+    // TODO: We should raise a CoekException object, to ensure that COEK can manage exceptions in a uniform manner.
+    throw;
+    }
+
+delete gmodel;
+gmodel = 0;
+delete env;
+env = 0;
+
+return 0;
+}
+
+
+int GurobiSolver::solve(CompactModel& model)
+{
+std::cout << "STARTING GUROBI" << std::endl << std::flush;
+
+env = new GRBEnv();
+gmodel = new GRBModel(*env);
+
+assert(model.objectives.size() == 1);
+
+std::cout << "BUILDING GUROBI MODEL" << std::endl << std::flush;
+
+// Add Gurobi variables
+for (std::vector<coek::Variable>::iterator it=model.variables.begin(); it != model.variables.end(); ++it) {
+    coek::VariableTerm* v = it->repn;
+    if (v->binary)
+        x[ v->index ] = gmodel->addVar(v->lb, v->ub, 0, GRB_BINARY);
+    else if (v->integer)
+        x[ v->index ] = gmodel->addVar(v->lb, v->ub, 0, GRB_INTEGER);
+    else {
+        if (v->ub >= 1e19) {
+            if (v->lb <= -1e19)
+                x[ v->index ] = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
+            else
+                x[ v->index ] = gmodel->addVar(v->lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
+            }
+        else {
+            if (v->lb <= -1e19)
+                x[ v->index ] = gmodel->addVar(-GRB_INFINITY, v->ub, 0, GRB_CONTINUOUS);
+            else
+                x[ v->index ] = gmodel->addVar(v->lb, v->ub, 0, GRB_CONTINUOUS);
+            }
+        }
+    }
+
+gmodel->update();
+
+// Add Gurobi objective
+int nobj=0;
+try {
+    for (auto it=model.objectives.begin(); it != model.objectives.end(); ++it) {
+        auto& val = *it;
+        if (auto eval = std::get_if<Expression>(&val)) {
+            Expression e = eval->expand();
+            add_gurobi_objective(gmodel, e, model.sense[nobj], x);
+            nobj++;
+            }
+        else {
+            auto& seq = std::get<ExpressionSequence>(val);
+            for (auto jt=seq.begin(); jt != seq.end(); ++jt) {
+                add_gurobi_objective(gmodel, *jt, model.sense[nobj], x);
+                nobj++;
+                }
+            }
+        }
+    }
+catch (GRBException e) {
+    std::cerr << "GUROBI Exception: (objective) " << e.getMessage() << std::endl;
+    throw;
+    }
+if (nobj > 1) {
+    //
+    // TODO - is this an error?
+    //
+    std::cerr << "Error initializing Gurobi: More than one objective defined!" << std::endl;
+    return -1;
+    }
+
+// Add Gurobi constraints
+try {
+    for (auto it=model.constraints.begin(); it != model.constraints.end(); ++it) {
+        auto& val = *it;
+        if (auto cval = std::get_if<Constraint>(&val)) {
+            Constraint c = cval->expand();
+            add_gurobi_constraint(gmodel, c, x);
+            }
+        else {
+            auto& seq = std::get<ConstraintSequence>(val);
+            for (auto jt=seq.begin(); jt != seq.end(); ++jt) {
+                add_gurobi_constraint(gmodel, *jt, x);
                 }
             }
         }
@@ -171,6 +354,8 @@ return 0;
 
 int GurobiSolver::resolve()
 {
+auto _model = model.repn.get();
+
 if (initial_solve()) {
     std::cout << "STARTING GUROBI" << std::endl << std::flush;
 
@@ -178,10 +363,10 @@ if (initial_solve()) {
     gmodel = new GRBModel(*env);
 
     std::cout << "BUILDING GUROBI MODEL" << std::endl << std::flush;
-    assert(model->objectives.size() == 1);
+    assert(_model->objectives.size() == 1);
 
     // Add Gurobi variables
-    for (std::vector<coek::Variable>::iterator it=model->variables.begin(); it != model->variables.end(); ++it) {
+    for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _model->variables.end(); ++it) {
         coek::VariableTerm* v = it->repn;
         if (v->binary)
             x[ v->index ] = gmodel->addVar(v->lb, v->ub, 0, GRB_BINARY);
@@ -206,7 +391,7 @@ if (initial_solve()) {
     gmodel->update();
 
     size_t ii=0;
-    if (model->objectives.size() != 1)
+    if (_model->objectives.size() != 1)
         throw std::runtime_error("GUROBI Exception: multiple objectives declared");
     
     // Add Gurobi objective
@@ -225,7 +410,7 @@ if (initial_solve()) {
         else
             gmodel->setObjective(term1);
 
-        if (model->sense[0])
+        if (_model->sense[0])
             gmodel->set(GRB_IntAttr_ModelSense, GRB_MINIMIZE);
         else
             gmodel->set(GRB_IntAttr_ModelSense, GRB_MAXIMIZE);
@@ -237,7 +422,7 @@ if (initial_solve()) {
 
     // Add Gurobi constraints
     try {
-        size_t nobjectives = model->objectives.size();
+        size_t nobjectives = _model->objectives.size();
         for (ii=1; ii<repn.size(); ii++) {
             coek::MutableNLPExpr& _repn = repn[ii];
             if (_repn.linear_coefs.size() + _repn.quadratic_coefs.size() > 0) {
@@ -249,13 +434,13 @@ if (initial_solve()) {
                     for (size_t i=0; i< _repn.quadratic_coefs.size(); i++)
                         term2 += _repn.quadratic_coefs[i].get_value() * x[_repn.quadratic_lvars[i]->index] * x[_repn.quadratic_rvars[i]->index];
 
-                    if (model->constraints[ii-nobjectives].is_inequality())
+                    if (_model->constraints[ii-nobjectives].is_inequality())
                         gmodel->addQConstr(term1 + term2, GRB_LESS_EQUAL, - _repn.constval.get_value());
                     else
                         gmodel->addQConstr(term1 + term2, GRB_EQUAL, - _repn.constval.get_value());
                     }
                 else {
-                    if (model->constraints[ii-nobjectives].is_inequality())
+                    if (_model->constraints[ii-nobjectives].is_inequality())
                         gmodel->addConstr(term1, GRB_LESS_EQUAL, - _repn.constval.get_value());
                     else
                         gmodel->addConstr(term1, GRB_EQUAL, - _repn.constval.get_value());
@@ -312,7 +497,7 @@ else {
     }
     
 // Collect values of Gurobi variables
-for (std::vector<coek::Variable>::iterator it=model->variables.begin(); it != model->variables.end(); ++it) {
+for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _model->variables.end(); ++it) {
     coek::VariableTerm* v = it->repn;
     v->value = x[v->index].get(GRB_DoubleAttr_X);
     }

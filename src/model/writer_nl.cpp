@@ -28,7 +28,10 @@ public:
 
     void visit(ConstantTerm& arg);
     void visit(ParameterTerm& arg);
+    void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
+    void visit(VariableRefTerm& arg);
+    void visit(IndexedVariableTerm& arg);
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
@@ -65,7 +68,16 @@ void PrintExpr::visit(ConstantTerm& arg)
 void PrintExpr::visit(ParameterTerm& arg)
 { ostr << "n" << arg.value << std::endl; }
 
+void PrintExpr::visit(IndexParameterTerm& arg)
+{ throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
+
 void PrintExpr::visit(VariableTerm& arg)
+{ ostr << "v" << varmap[arg.index] << std::endl; }
+
+void PrintExpr::visit(VariableRefTerm& arg)
+{ throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
+
+void PrintExpr::visit(IndexedVariableTerm& arg)
 { ostr << "v" << varmap[arg.index] << std::endl; }
 
 void PrintExpr::visit(MonomialTerm& arg)
@@ -193,11 +205,11 @@ if (nonlinear) {
 
 void write_nl_problem(Model& model, std::ostream& ostr)
 {
-if (model.objectives.size() == 0) {
+if (model.repn->objectives.size() == 0) {
     std::cerr << "Error writing NL file: No objectives specified!" << std::endl;
     return;
     }
-if (model.objectives.size() > 1) {
+if (model.repn->objectives.size() > 1) {
     std::cerr << "Error writing NL file: More than one objective defined!" << std::endl;
     return;
     }
@@ -225,9 +237,9 @@ int nnz_Jacobian=0;
 int nnz_gradient=0;
 
 // Objectives
-std::vector<MutableNLPExpr> o_expr(model.objectives.size());
+std::vector<MutableNLPExpr> o_expr(model.repn->objectives.size());
 int ctr=0;
-for (auto it=model.objectives.begin(); it != model.objectives.end(); ++it, ctr++) {
+for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it, ctr++) {
     o_expr[ctr].collect_terms(*it);
     if ((o_expr[ctr].quadratic_coefs.size() > 0) or (not o_expr[ctr].nonlinear.is_constant()))
         nonl_objectives++;
@@ -261,9 +273,9 @@ for (auto it=model.objectives.begin(); it != model.objectives.end(); ++it, ctr++
 nnz_gradient=vars.size();
 
 // Constraints
-std::vector<MutableNLPExpr> c_expr(model.constraints.size());
+std::vector<MutableNLPExpr> c_expr(model.repn->constraints.size());
 ctr=0;
-for (std::vector<Constraint>::iterator it=model.constraints.begin(); it != model.constraints.end(); ++it, ctr++) {
+for (std::vector<Constraint>::iterator it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it, ctr++) {
     c_expr[ctr].collect_terms(*it);
     if (it->is_inequality())
         num_inequalities++;
@@ -428,14 +440,14 @@ for (auto it=c_expr.begin(); it != c_expr.end(); it++, ctr++) {
 ctr=0;
 for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ctr++) {
     if ((not it->nonlinear.is_constant()) or (it->quadratic_coefs.size() > 0)) {
-        if (model.sense[ctr] == Model::minimize)
+        if (model.repn->sense[ctr] == Model::minimize)
             ostr << "O" << ctr << " 0" << std::endl;
         else
             ostr << "O" << ctr << " 1" << std::endl;
         print_expr(ostr, *it, varmap);
         }
     else {
-        if (model.sense[ctr] == Model::minimize)
+        if (model.repn->sense[ctr] == Model::minimize)
             ostr << "O" << ctr << " 0" << std::endl;
         else
             ostr << "O" << ctr << " 1" << std::endl;
@@ -468,7 +480,7 @@ if (not std::isnan(varobj[*_it].get_initial())) {
 
 ostr << "r" << std::endl;
 ctr = 0;
-for (auto it=model.constraints.begin(); it != model.constraints.end(); ++it, ctr++) {
+for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it, ctr++) {
     if (it->is_inequality()) {
         ostr << "1 ";
         }

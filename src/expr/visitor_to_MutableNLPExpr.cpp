@@ -42,6 +42,13 @@ else
 repn.mutable_values=true;
 }
 
+void visit(IndexParameterTerm& expr,
+                    MutableNLPExpr& repn,
+                    double multiplier)
+{
+throw std::runtime_error("Unexpected index parameter.");
+}
+
 void visit(VariableTerm& expr,
                     MutableNLPExpr& repn,
                     double multiplier)
@@ -65,6 +72,13 @@ else {
         repn.linear_coefs.push_back( CREATE_POINTER(ConstantTerm, multiplier) );
         }
     }
+}
+
+void visit(VariableRefTerm& expr,
+                    MutableNLPExpr& repn,
+                    double multiplier)
+{
+throw std::runtime_error("Unexpected variable reference.");
 }
 
 void visit(MonomialTerm& expr,
@@ -357,7 +371,10 @@ switch (expr->id()) {
 
     VISIT_CASE(ConstantTerm);
     VISIT_CASE(ParameterTerm);
+    VISIT_CASE(IndexParameterTerm);
     VISIT_CASE(VariableTerm);
+    VISIT_CASE(IndexedVariableTerm);
+    VISIT_CASE(VariableRefTerm);
     VISIT_CASE(MonomialTerm);
     VISIT_CASE(InequalityTerm);
     VISIT_CASE(EqualityTerm);

@@ -6,8 +6,6 @@
 #include "expr/ast_visitors.hpp"
 #include "coek_model.hpp"
 
-void xxx() {}
-
 #define WRITER_INTRINSIC_TEST1(FN)\
     WHEN( #FN ) {\
           coek::Variable v(0, 1, 0, "v");\

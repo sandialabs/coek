@@ -8,6 +8,10 @@
 
 namespace coek {
 
+expr_pointer_t convert_expr_template(expr_pointer_t expr);
+ConstraintTerm* convert_con_template(ConstraintTerm* con);
+
+
 double nan_value = std::nan("");
 
 //
@@ -77,12 +81,132 @@ return ostr;
 }
 
 //
-// Variable
+// IndexParameter
 //
 
+// TODO - Does it make sense to allow an empty IndexParameter?
+
+IndexParameter::IndexParameter()
+    : repn(0)
+{}
+
+IndexParameter::IndexParameter(const std::string& name)
+{
+repn = CREATE_POINTER(IndexParameterTerm, name);
+OWN_POINTER(repn);
+}
+
+IndexParameter::IndexParameter(const IndexParameter& expr)
+{
+repn = expr.repn;
+if (repn)
+    OWN_POINTER(repn);
+}
+
+IndexParameter::~IndexParameter()
+{
+if (repn)
+    DISOWN_POINTER(repn);
+}
+
+IndexParameter& IndexParameter::operator=(const IndexParameter& expr)
+{
+if (repn)
+    DISOWN_POINTER(repn);
+repn = expr.repn;
+OWN_POINTER(repn);
+return *this;
+}
+
+void IndexParameter::set_value(double value)
+{
+if (repn)
+    repn->value = value;
+}
+
+void IndexParameter::set_value(int value)
+{
+if (repn)
+    repn->value = value;
+}
+
+void IndexParameter::set_value(const std::string& value)
+{
+if (repn)
+    repn->value = value;
+}
+
+void IndexParameter::get_value(double& value) const
+{
+if (!repn)
+    throw std::runtime_error("No double value stored in index parameter.");
+
+if (auto pval = std::get_if<double>(&(repn->value))) {
+    value = *pval;
+}
+else {
+    throw std::runtime_error("No double value stored in index parameter.");
+    }
+}
+
+void IndexParameter::get_value(int& value) const
+{
+if (!repn)
+    throw std::runtime_error("No integer value stored in index parameter.");
+
+if (auto pval = std::get_if<int>(&(repn->value))) {
+    value = *pval;
+}
+else {
+    throw std::runtime_error("No integer value stored in index parameter.");
+    }
+}
+
+void IndexParameter::get_value(std::string& value) const
+{
+if (!repn)
+    throw std::runtime_error("No string value stored in index parameter.");
+
+if (auto pval = std::get_if<std::string>(&(repn->value))) {
+    value = *pval;
+}
+else {
+    throw std::runtime_error("No string value stored in index parameter.");
+    }
+}
+
+std::string IndexParameter::get_name() const
+{
+if (repn)
+    return repn->name;
+return "";
+}
+
+std::ostream& operator<<(std::ostream& ostr, const IndexParameter& arg)
+{
+if (arg.repn)
+    write_expr(arg.repn, ostr);
+return ostr;
+}
+
+//
+// Variable
+//
 Variable::Variable(const VariableRepn& _repn)
 {
 repn = _repn;
+OWN_POINTER(repn);
+}
+
+Variable::~Variable()
+{
+if (repn)
+    DISOWN_POINTER(repn);
+}
+
+Variable::Variable(const Variable& expr)
+{
+repn = expr.repn;
 OWN_POINTER(repn);
 }
 
@@ -95,32 +219,21 @@ OWN_POINTER(repn);
 Variable::Variable(double lb, double ub, double value, const std::string& name)
 {
 repn = CREATE_POINTER(VariableTerm, lb, ub, value, false, false);
-repn->name = name;
 OWN_POINTER(repn);
+repn->name = name;
 }
 
 Variable::Variable(double lb, double ub, double value, bool binary, bool integer, const std::string& name)
 {
 repn = CREATE_POINTER(VariableTerm, lb, ub, value, binary, integer);
-repn->name = name;
 OWN_POINTER(repn);
+repn->name = name;
 }
 
 Variable::Variable(double lb, double ub, double value, bool binary, bool integer)
 {
 repn = CREATE_POINTER(VariableTerm, lb, ub, value, binary, integer);
 OWN_POINTER(repn);
-}
-
-Variable::Variable(const Variable& expr)
-{
-repn = expr.repn;
-OWN_POINTER(repn);
-}
-
-Variable::~Variable()
-{
-DISOWN_POINTER(repn);
 }
 
 void Variable::initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed)
@@ -262,6 +375,12 @@ repn = STATIC_CAST(BaseExpressionTerm, param.repn);
 OWN_POINTER(repn);
 }
 
+Expression::Expression(const IndexParameter& param)
+{
+repn = STATIC_CAST(BaseExpressionTerm, param.repn);
+OWN_POINTER(repn);
+}
+
 Expression::Expression(const Variable& var)
 {
 repn = STATIC_CAST(BaseExpressionTerm, var.repn);
@@ -317,6 +436,11 @@ for (std::map<VariableTerm*, expr_pointer_t>::iterator it=ans.begin(); it != ans
 return e;
 }
 
+Expression Expression::expand()
+{
+return convert_expr_template(repn);
+}
+
 std::ostream& operator<<(std::ostream& ostr, const Expression& arg)
 {
 write_expr(arg.repn, ostr);
@@ -330,6 +454,9 @@ Expression& Expression::operator+=(double arg)
 { Expression e(arg); *this += e; return *this; }
 
 Expression& Expression::operator+=(const Parameter& arg)
+{ Expression e(arg); *this += e; return *this; }
+
+Expression& Expression::operator+=(const IndexParameter& arg)
 { Expression e(arg); *this += e; return *this; }
 
 Expression& Expression::operator+=(const Variable& arg)
@@ -353,6 +480,9 @@ Expression& Expression::operator-=(double arg)
 { Expression e(arg); *this -= e; return *this; }
 
 Expression& Expression::operator-=(const Parameter& arg)
+{ Expression e(arg); *this -= e; return *this; }
+
+Expression& Expression::operator-=(const IndexParameter& arg)
 { Expression e(arg); *this -= e; return *this; }
 
 Expression& Expression::operator-=(const Variable& arg)
@@ -379,6 +509,9 @@ Expression& Expression::operator*=(double arg)
 Expression& Expression::operator*=(const Parameter& arg)
 { Expression e(arg); *this *= e; return *this; }
 
+Expression& Expression::operator*=(const IndexParameter& arg)
+{ Expression e(arg); *this *= e; return *this; }
+
 Expression& Expression::operator*=(const Variable& arg)
 { Expression e(arg); *this *= e; return *this; }
 
@@ -402,6 +535,9 @@ Expression& Expression::operator/=(double arg)
 Expression& Expression::operator/=(const Parameter& arg)
 { Expression e(arg); *this /= e; return *this; }
 
+Expression& Expression::operator/=(const IndexParameter& arg)
+{ Expression e(arg); *this /= e; return *this; }
+
 Expression& Expression::operator/=(const Variable& arg)
 { Expression e(arg); *this /= e; return *this; }
 
@@ -419,6 +555,12 @@ return *this;
 //
 // Constraint
 //
+
+Constraint::Constraint()
+    : repn(DUMMYCONSTRAINT)
+{
+OWN_POINTER(repn);
+}
 
 Constraint::Constraint(const ConstraintRepn& _repn)
     : repn(_repn)
@@ -457,6 +599,11 @@ bool Constraint::is_feasible() const
 double Constraint::get_value() const
 { return repn->eval(); }
 
+Constraint Constraint::expand()
+{
+return convert_con_template(repn);
+}
+
 std::list<std::string> Constraint::to_list() const
 {
 std::list<std::string> tmp;
@@ -476,12 +623,12 @@ return ostr;
 
 void to_QuadraticExpr(expr_pointer_t expr, QuadraticExpr& repn);
 
-void QuadraticExpr::collect_terms(Expression& expr)
+void QuadraticExpr::collect_terms(const Expression& expr)
 {
 to_QuadraticExpr(expr.repn, *this);
 }
 
-void QuadraticExpr::collect_terms(Constraint& expr)
+void QuadraticExpr::collect_terms(const Constraint& expr)
 {
 to_QuadraticExpr(expr.repn, *this);
 }
@@ -506,96 +653,6 @@ void MutableNLPExpr::collect_terms(Constraint& expr)
 to_MutableNLPExpr(expr.repn, *this);
 }
 
-#if 0
-//
-// Model
-//
-
-bool Model::minimize = true;
-bool Model::maximize = false;
-
-std::ostream& operator<<(std::ostream& ostr, const Model& arg)
-{
-ostr << "MODEL" << std::endl;
-ostr << "  Objectives" << std::endl;
-for (std::vector<Expression>::const_iterator it=arg.objectives.begin(); it != arg.objectives.end(); ++it) {
-    ostr << "    " << *it << std::endl;
-    }
-ostr << "  Constraints" << std::endl;
-for (std::vector<Constraint>::const_iterator it=arg.constraints.begin(); it != arg.constraints.end(); ++it) {
-    ostr << "    " << *it << std::endl;
-    }
-return ostr;
-}
-
-Variable& Model::getVariable(double lb, double ub, double value)
-{
-Variable tmp(lb,ub,value);
-tmp.repn->index = ++VariableTerm::count;
-variables.push_back(tmp);
-return variables.back();
-}
-
-Variable& Model::getVariable(double lb, double ub, double value, const std::string& name)
-{
-Variable tmp(lb,ub,value,name);
-tmp.repn->index = ++VariableTerm::count;
-variables.push_back(tmp);
-return variables.back();
-}
-
-Variable& Model::getVariable(double lb, double ub, double value, bool binary, bool integer, const std::string& name)
-{
-Variable tmp(lb,ub,value,binary,integer,name);
-tmp.repn->index = ++VariableTerm::count;
-variables.push_back(tmp);
-return variables.back();
-}
-
-void Model::addVariable(Variable& var)
-{
-var.repn->index = ++VariableTerm::count;
-variables.push_back(var);
-}
-
-
-static bool endsWith(const std::string& str, const std::string& suffix)
-{
-    return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
-}
-
-void write_lp_problem(Model& model, std::ostream& ostr);
-
-
-void Model::write(std::string fname)
-{
-if (endsWith(fname, ".lp")) {
-    std::ofstream ofstr(fname);
-    write_lp_problem(*this, ofstr);
-    ofstr.close();
-    return;
-    }
-
-throw std::runtime_error("Unknown problem type");
-}
-
-
-//
-// Solver
-//
-
-void Solver::initialize(std::string name)
-{
-std::shared_ptr<SolverRepn> tmp(create_solver(name));
-repn = tmp;
-}
-
-int Solver::solve(Model& model)
-{
-return repn->solve(model);
-}
-#endif
-
 //
 // -------------------------------------------------------------------------------------
 // OPERATORS
@@ -606,6 +663,8 @@ return repn->solve(model);
 //
 Expression operator+(const Parameter& param)
 { return STATIC_CAST(BaseExpressionTerm, param.repn); }
+Expression operator+(const IndexParameter& param)
+{ return STATIC_CAST(BaseExpressionTerm, param.repn); }
 Expression operator+(const Variable& var)
 { return STATIC_CAST(BaseExpressionTerm, var.repn); }
 Expression operator+(const Expression& expr)
@@ -613,11 +672,15 @@ Expression operator+(const Expression& expr)
 
 Expression operator+(int lhs, const Parameter& rhs)
 { return plus(lhs, rhs.repn); }
+Expression operator+(int lhs, const IndexParameter& rhs)
+{ return plus(lhs, rhs.repn); }
 Expression operator+(int lhs, const Variable& rhs)
 { return plus(lhs, rhs.repn); }
 Expression operator+(int lhs, const Expression& rhs)
 { return plus(lhs, rhs.repn); }
 Expression operator+(double lhs, const Parameter& rhs)
+{return plus(lhs, rhs.repn);}
+Expression operator+(double lhs, const IndexParameter& rhs)
 {return plus(lhs, rhs.repn);}
 Expression operator+(double lhs, const Variable& rhs)
 {return plus(lhs, rhs.repn);}
@@ -626,11 +689,15 @@ Expression operator+(double lhs, const Expression& rhs)
 
 Expression Parameter::operator+(int arg) const
 { return plus(repn, arg); }
+Expression IndexParameter::operator+(int arg) const
+{ return plus(repn, arg); }
 Expression Variable::operator+(int arg) const
 { return plus(repn, arg); }
 Expression Expression::operator+(int arg) const
 { return plus(repn, arg); }
 Expression Parameter::operator+(double arg) const
+{ return plus(repn, arg); }
+Expression IndexParameter::operator+(double arg) const
 { return plus(repn, arg); }
 Expression Variable::operator+(double arg) const
 { return plus(repn, arg); }
@@ -639,27 +706,38 @@ Expression Expression::operator+(double arg) const
 
 Expression Parameter::operator+(const Parameter& arg) const
 { return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) ); }
+Expression Parameter::operator+(const IndexParameter& arg) const
+{ return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) ); }
 Expression Parameter::operator+(const Variable& arg) const
 { return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) ); }
 Expression Parameter::operator+(const Expression& arg) const
-{
-//if (arg.repn == ZeroConstant.repn)
-//    return repn;
-return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) );
-}
+{ return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) ); }
+
+Expression IndexParameter::operator+(const Parameter& arg) const
+{ return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) ); }
+Expression IndexParameter::operator+(const IndexParameter& arg) const
+{ return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) ); }
+Expression IndexParameter::operator+(const Variable& arg) const
+{ return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) ); }
+Expression IndexParameter::operator+(const Expression& arg) const
+{ return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) ); }
 
 Expression Variable::operator+(const Parameter& arg) const
+{ return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) ); }
+Expression Variable::operator+(const IndexParameter& arg) const
 { return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) ); }
 Expression Variable::operator+(const Variable& arg) const
 { return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) ); }
 Expression Variable::operator+(const Expression& arg) const
-{
-//if (arg.repn == ZeroConstant.repn)
-//    return repn;
-return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) );
-}
+{ return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) ); }
 
 Expression Expression::operator+(const Parameter& arg) const
+{
+//if (repn == ZeroConstant.repn)
+//    return arg.repn;
+return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) );
+}
+Expression Expression::operator+(const IndexParameter& arg) const
 {
 //if (repn == ZeroConstant.repn)
 //    return arg.repn;
@@ -685,12 +763,16 @@ return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn) 
 //
 Expression operator-(const Parameter& param)
 { return param.repn->negate(param.repn); }
+Expression operator-(const IndexParameter& param)
+{ return param.repn->negate(param.repn); }
 Expression operator-(const Variable& var)
-{ return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(MonomialTerm, -1, var.repn) ); }
+{ return var.repn->negate(var.repn); }
 Expression operator-(const Expression& expr)
 { return expr.repn->negate(expr.repn); }
 
 Expression operator-(int lhs, const Parameter& rhs)
+{return minus(lhs, rhs.repn);}
+Expression operator-(int lhs, const IndexParameter& rhs)
 {return minus(lhs, rhs.repn);}
 Expression operator-(int lhs, const Variable& rhs)
 {return minus(lhs, rhs.repn);}
@@ -701,6 +783,8 @@ Expression operator-(int lhs, const Expression& rhs)
 return minus(lhs, rhs.repn);
 }
 Expression operator-(double lhs, const Parameter& rhs)
+{return minus(lhs, rhs.repn);}
+Expression operator-(double lhs, const IndexParameter& rhs)
 {return minus(lhs, rhs.repn);}
 Expression operator-(double lhs, const Variable& rhs)
 {return minus(lhs, rhs.repn);}
@@ -713,11 +797,15 @@ return minus(lhs, rhs.repn);
 
 Expression Parameter::operator-(int arg) const
 { return plus(repn, -arg); }
+Expression IndexParameter::operator-(int arg) const
+{ return plus(repn, -arg); }
 Expression Variable::operator-(int arg) const
 { return plus(repn, -arg); }
 Expression Expression::operator-(int arg) const
 { return plus(repn, -arg); }
 Expression Parameter::operator-(double arg) const
+{ return plus(repn, -arg); }
+Expression IndexParameter::operator-(double arg) const
 { return plus(repn, -arg); }
 Expression Variable::operator-(double arg) const
 { return plus(repn, -arg); }
@@ -729,12 +817,40 @@ Expression Parameter::operator-(const Parameter& arg) const
 return STATIC_CAST(BaseExpressionTerm,
         CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn) ) );
 }
+Expression Parameter::operator-(const IndexParameter& arg) const
+{
+return STATIC_CAST(BaseExpressionTerm,
+        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn) ) );
+}
 Expression Parameter::operator-(const Variable& arg) const
 {
 return STATIC_CAST(BaseExpressionTerm,
-        CREATE_POINTER(PlusTerm, repn, CREATE_POINTER(MonomialTerm, -1, arg.repn) ) );
+        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn) ) );
 }
 Expression Parameter::operator-(const Expression& arg) const
+{
+//if (rhs.repn == ZeroConstant.repn)
+//    return repn;
+return STATIC_CAST(BaseExpressionTerm,
+        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn) ) );
+}
+
+Expression IndexParameter::operator-(const Parameter& arg) const
+{
+return STATIC_CAST(BaseExpressionTerm,
+        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn) ) );
+}
+Expression IndexParameter::operator-(const IndexParameter& arg) const
+{
+return STATIC_CAST(BaseExpressionTerm,
+        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn) ) );
+}
+Expression IndexParameter::operator-(const Variable& arg) const
+{
+return STATIC_CAST(BaseExpressionTerm,
+        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn) ) );
+}
+Expression IndexParameter::operator-(const Expression& arg) const
 {
 //if (rhs.repn == ZeroConstant.repn)
 //    return repn;
@@ -747,15 +863,18 @@ Expression Variable::operator-(const Parameter& arg) const
 return STATIC_CAST(BaseExpressionTerm,
         CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn) ) );
 }
+Expression Variable::operator-(const IndexParameter& arg) const
+{
+return STATIC_CAST(BaseExpressionTerm,
+        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn) ) );
+}
 Expression Variable::operator-(const Variable& arg) const
 {
 return STATIC_CAST(BaseExpressionTerm,
-        CREATE_POINTER(PlusTerm, repn, CREATE_POINTER(MonomialTerm, -1, arg.repn) ));
+        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn) ) );
 }
 Expression Variable::operator-(const Expression& arg) const
 {
-//if (rhs.repn == ZeroConstant.repn)
-//    return repn;
 return STATIC_CAST(BaseExpressionTerm,
         CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn) ) );
 }
@@ -765,10 +884,15 @@ Expression Expression::operator-(const Parameter& arg) const
 return STATIC_CAST(BaseExpressionTerm,
         CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn) ) );
 }
+Expression Expression::operator-(const IndexParameter& arg) const
+{
+return STATIC_CAST(BaseExpressionTerm,
+        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn) ) );
+}
 Expression Expression::operator-(const Variable& arg) const
 {
 return STATIC_CAST(BaseExpressionTerm,
-        CREATE_POINTER(PlusTerm, repn, CREATE_POINTER(MonomialTerm, -1, arg.repn) ) );
+        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn) ) );
 }
 Expression Expression::operator-(const Expression& arg) const
 {
@@ -786,6 +910,8 @@ return STATIC_CAST(BaseExpressionTerm,
 //
 Expression operator*(int lhs, const Parameter& rhs)
 {return times(lhs, rhs.repn);}
+Expression operator*(int lhs, const IndexParameter& rhs)
+{return times(lhs, rhs.repn);}
 Expression operator*(int lhs, const Variable& rhs)
 {
 if (lhs == 0)
@@ -793,11 +919,13 @@ if (lhs == 0)
 if (lhs == 1)
     return rhs.repn;
 return STATIC_CAST(BaseExpressionTerm,
-        CREATE_POINTER(MonomialTerm, lhs, rhs.repn) );
+        rhs.repn->const_mult(lhs, rhs.repn) );
 }
 Expression operator*(int lhs, const Expression& rhs)
 {return times(lhs, rhs.repn);}
 Expression operator*(double lhs, const Parameter& rhs)
+{return times(lhs, rhs.repn);}
+Expression operator*(double lhs, const IndexParameter& rhs)
 {return times(lhs, rhs.repn);}
 Expression operator*(double lhs, const Variable& rhs)
 {
@@ -806,12 +934,14 @@ if (lhs == 0.0)
 if (lhs == 1.0)
     return rhs.repn;
 return STATIC_CAST(BaseExpressionTerm,
-        CREATE_POINTER(MonomialTerm, lhs, rhs.repn) );
+        rhs.repn->const_mult(lhs, rhs.repn) );
 }
 Expression operator*(double lhs, const Expression& rhs)
 {return times(lhs, rhs.repn);}
 
 Expression Parameter::operator*(int arg) const
+{ return times(repn, arg); }
+Expression IndexParameter::operator*(int arg) const
 { return times(repn, arg); }
 Expression Variable::operator*(int arg) const
 {
@@ -819,11 +949,14 @@ if (arg == 0)
     return ZEROCONST;
 if (arg == 1)
     return repn;
-return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(MonomialTerm, arg, repn) );
+return STATIC_CAST(BaseExpressionTerm,
+        repn->const_mult(arg, repn) );
 }
 Expression Expression::operator*(int arg) const
 { return times(repn, arg); }
 Expression Parameter::operator*(double arg) const
+{ return times(repn, arg); }
+Expression IndexParameter::operator*(double arg) const
 { return times(repn, arg); }
 Expression Variable::operator*(double arg) const
 {
@@ -831,7 +964,8 @@ if (arg == 0.0)
     return ZEROCONST;
 if (arg == 1.0)
     return repn;
-return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(MonomialTerm, arg, repn) );
+return STATIC_CAST(BaseExpressionTerm,
+        repn->const_mult(arg, repn) );
 }
 Expression Expression::operator*(double arg) const
 { return times(repn, arg); }
@@ -839,12 +973,25 @@ Expression Expression::operator*(double arg) const
 
 Expression Parameter::operator*(const Parameter& arg) const
 { return times(repn, arg.repn); }
+Expression Parameter::operator*(const IndexParameter& arg) const
+{ return times(repn, arg.repn); }
 Expression Parameter::operator*(const Variable& arg) const
 { return times(repn, arg.repn); }
 Expression Parameter::operator*(const Expression& arg) const
 { return times(repn, arg.repn); }
 
+Expression IndexParameter::operator*(const Parameter& arg) const
+{ return times(repn, arg.repn); }
+Expression IndexParameter::operator*(const IndexParameter& arg) const
+{ return times(repn, arg.repn); }
+Expression IndexParameter::operator*(const Variable& arg) const
+{ return times(repn, arg.repn); }
+Expression IndexParameter::operator*(const Expression& arg) const
+{ return times(repn, arg.repn); }
+
 Expression Variable::operator*(const Parameter& arg) const
+{ return times(repn, arg.repn); }
+Expression Variable::operator*(const IndexParameter& arg) const
 { return times(repn, arg.repn); }
 Expression Variable::operator*(const Variable& arg) const
 { return times(repn, arg.repn); }
@@ -852,6 +999,8 @@ Expression Variable::operator*(const Expression& arg) const
 { return times(repn, arg.repn); }
 
 Expression Expression::operator*(const Parameter& arg) const
+{ return times(repn, arg.repn); }
+Expression Expression::operator*(const IndexParameter& arg) const
 { return times(repn, arg.repn); }
 Expression Expression::operator*(const Variable& arg) const
 { return times(repn, arg.repn); }
@@ -863,11 +1012,15 @@ Expression Expression::operator*(const Expression& arg) const
 //
 Expression operator/(int lhs, const Parameter& rhs)
 {return divide(lhs, rhs.repn);}
+Expression operator/(int lhs, const IndexParameter& rhs)
+{return divide(lhs, rhs.repn);}
 Expression operator/(int lhs, const Variable& rhs)
 {return divide(lhs, rhs.repn);}
 Expression operator/(int lhs, const Expression& rhs)
 {return divide(lhs, rhs.repn);}
 Expression operator/(double lhs, const Parameter& rhs)
+{return divide(lhs, rhs.repn);}
+Expression operator/(double lhs, const IndexParameter& rhs)
 {return divide(lhs, rhs.repn);}
 Expression operator/(double lhs, const Variable& rhs)
 {return divide(lhs, rhs.repn);}
@@ -876,6 +1029,8 @@ Expression operator/(double lhs, const Expression& rhs)
 
 Expression Parameter::operator/(int arg) const
 { return divide(repn, arg); }
+Expression IndexParameter::operator/(int arg) const
+{ return divide(repn, arg); }
 Expression Variable::operator/(int arg) const
 {
 if (arg == 1)
@@ -883,11 +1038,13 @@ if (arg == 1)
 if (arg == 0)
     throw std::domain_error("Division by zero.");
 return STATIC_CAST(BaseExpressionTerm,
-        CREATE_POINTER(MonomialTerm, 1.0/arg, repn) );
+        repn->const_mult(1.0/arg, repn) );
 }
 Expression Expression::operator/(int arg) const
 { return divide(repn, arg); }
 Expression Parameter::operator/(double arg) const
+{ return divide(repn, arg); }
+Expression IndexParameter::operator/(double arg) const
 { return divide(repn, arg); }
 Expression Variable::operator/(double arg) const
 {
@@ -896,20 +1053,32 @@ if (arg == 1.0)
 if (arg == 0.0)
     throw std::domain_error("Division by zero.");
 return STATIC_CAST(BaseExpressionTerm,
-        CREATE_POINTER(MonomialTerm, 1.0/arg, repn) );
+        repn->const_mult(1.0/arg, repn) );
 }
 Expression Expression::operator/(double arg) const
 { return divide(repn, arg); }
 
 Expression Parameter::operator/(const Parameter& arg) const
 { return divide(repn, arg.repn); }
+Expression Parameter::operator/(const IndexParameter& arg) const
+{ return divide(repn, arg.repn); }
 Expression Parameter::operator/(const Variable& arg) const
 { return divide(repn, arg.repn); }
 Expression Parameter::operator/(const Expression& arg) const
 { return divide(repn, arg.repn); }
 
+Expression IndexParameter::operator/(const Parameter& arg) const
+{ return divide(repn, arg.repn); }
+Expression IndexParameter::operator/(const IndexParameter& arg) const
+{ return divide(repn, arg.repn); }
+Expression IndexParameter::operator/(const Variable& arg) const
+{ return divide(repn, arg.repn); }
+Expression IndexParameter::operator/(const Expression& arg) const
+{ return divide(repn, arg.repn); }
 
 Expression Variable::operator/(const Parameter& arg) const
+{ return divide(repn, arg.repn); }
+Expression Variable::operator/(const IndexParameter& arg) const
 { return divide(repn, arg.repn); }
 Expression Variable::operator/(const Variable& arg) const
 { return divide(repn, arg.repn); }
@@ -917,6 +1086,8 @@ Expression Variable::operator/(const Expression& arg) const
 { return divide(repn, arg.repn); }
 
 Expression Expression::operator/(const Parameter& arg) const
+{ return divide(repn, arg.repn); }
+Expression Expression::operator/(const IndexParameter& arg) const
 { return divide(repn, arg.repn); }
 Expression Expression::operator/(const Variable& arg) const
 { return divide(repn, arg.repn); }
@@ -928,11 +1099,15 @@ Expression Expression::operator/(const Expression& arg) const
 //
 Constraint operator<(int lhs, const Parameter& rhs)
 {return less_than(lhs, rhs.repn, true);}
+Constraint operator<(int lhs, const IndexParameter& rhs)
+{return less_than(lhs, rhs.repn, true);}
 Constraint operator<(int lhs, const Variable& rhs)
 {return less_than(lhs, rhs.repn, true);}
 Constraint operator<(int lhs, const Expression& rhs)
 {return less_than(lhs, rhs.repn, true);}
 Constraint operator<(double lhs, const Parameter& rhs)
+{return less_than(lhs, rhs.repn, true);}
+Constraint operator<(double lhs, const IndexParameter& rhs)
 {return less_than(lhs, rhs.repn, true);}
 Constraint operator<(double lhs, const Variable& rhs)
 {return less_than(lhs, rhs.repn, true);}
@@ -945,9 +1120,24 @@ Constraint Parameter::operator<(int rhs) const
 {return less_than(repn, rhs, true);}
 Constraint Parameter::operator<(const Parameter& rhs) const
 {return less_than(repn, rhs.repn, true);}
+Constraint Parameter::operator<(const IndexParameter& rhs) const
+{return less_than(repn, rhs.repn, true);}
 Constraint Parameter::operator<(const Variable& rhs) const
 {return less_than(repn, rhs.repn, true);}
 Constraint Parameter::operator<(const Expression& rhs) const
+{return less_than(repn, rhs.repn, true);}
+
+Constraint IndexParameter::operator<(double rhs) const
+{return less_than(repn, rhs, true);}
+Constraint IndexParameter::operator<(int rhs) const
+{return less_than(repn, rhs, true);}
+Constraint IndexParameter::operator<(const Parameter& rhs) const
+{return less_than(repn, rhs.repn, true);}
+Constraint IndexParameter::operator<(const IndexParameter& rhs) const
+{return less_than(repn, rhs.repn, true);}
+Constraint IndexParameter::operator<(const Variable& rhs) const
+{return less_than(repn, rhs.repn, true);}
+Constraint IndexParameter::operator<(const Expression& rhs) const
 {return less_than(repn, rhs.repn, true);}
 
 Constraint Variable::operator<(double rhs) const
@@ -955,6 +1145,8 @@ Constraint Variable::operator<(double rhs) const
 Constraint Variable::operator<(int rhs) const
 {return less_than(repn, rhs, true);}
 Constraint Variable::operator<(const Parameter& rhs) const
+{return less_than(repn, rhs.repn, true);}
+Constraint Variable::operator<(const IndexParameter& rhs) const
 {return less_than(repn, rhs.repn, true);}
 Constraint Variable::operator<(const Variable& rhs) const
 {return less_than(repn, rhs.repn, true);}
@@ -967,6 +1159,8 @@ Constraint Expression::operator<(int rhs) const
 {return less_than(repn, rhs, true);}
 Constraint Expression::operator<(const Parameter& rhs) const
 {return less_than(repn, rhs.repn, true);}
+Constraint Expression::operator<(const IndexParameter& rhs) const
+{return less_than(repn, rhs.repn, true);}
 Constraint Expression::operator<(const Variable& rhs) const
 {return less_than(repn, rhs.repn, true);}
 Constraint Expression::operator<(const Expression& rhs) const
@@ -977,11 +1171,15 @@ Constraint Expression::operator<(const Expression& rhs) const
 //
 Constraint operator<=(int lhs, const Parameter& rhs)
 {return less_than(lhs, rhs.repn, false);}
+Constraint operator<=(int lhs, const IndexParameter& rhs)
+{return less_than(lhs, rhs.repn, false);}
 Constraint operator<=(int lhs, const Variable& rhs)
 {return less_than(lhs, rhs.repn, false);}
 Constraint operator<=(int lhs, const Expression& rhs)
 {return less_than(lhs, rhs.repn, false);}
 Constraint operator<=(double lhs, const Parameter& rhs)
+{return less_than(lhs, rhs.repn, false);}
+Constraint operator<=(double lhs, const IndexParameter& rhs)
 {return less_than(lhs, rhs.repn, false);}
 Constraint operator<=(double lhs, const Variable& rhs)
 {return less_than(lhs, rhs.repn, false);}
@@ -994,9 +1192,24 @@ Constraint Parameter::operator<=(int rhs) const
 {return less_than(repn, rhs, false);}
 Constraint Parameter::operator<=(const Parameter& rhs) const
 {return less_than(repn, rhs.repn, false);}
+Constraint Parameter::operator<=(const IndexParameter& rhs) const
+{return less_than(repn, rhs.repn, false);}
 Constraint Parameter::operator<=(const Variable& rhs) const
 {return less_than(repn, rhs.repn, false);}
 Constraint Parameter::operator<=(const Expression& rhs) const
+{return less_than(repn, rhs.repn, false);}
+
+Constraint IndexParameter::operator<=(double rhs) const
+{return less_than(repn, rhs, false);}
+Constraint IndexParameter::operator<=(int rhs) const
+{return less_than(repn, rhs, false);}
+Constraint IndexParameter::operator<=(const Parameter& rhs) const
+{return less_than(repn, rhs.repn, false);}
+Constraint IndexParameter::operator<=(const IndexParameter& rhs) const
+{return less_than(repn, rhs.repn, false);}
+Constraint IndexParameter::operator<=(const Variable& rhs) const
+{return less_than(repn, rhs.repn, false);}
+Constraint IndexParameter::operator<=(const Expression& rhs) const
 {return less_than(repn, rhs.repn, false);}
 
 Constraint Variable::operator<=(double rhs) const
@@ -1004,6 +1217,8 @@ Constraint Variable::operator<=(double rhs) const
 Constraint Variable::operator<=(int rhs) const
 {return less_than(repn, rhs, false);}
 Constraint Variable::operator<=(const Parameter& rhs) const
+{return less_than(repn, rhs.repn, false);}
+Constraint Variable::operator<=(const IndexParameter& rhs) const
 {return less_than(repn, rhs.repn, false);}
 Constraint Variable::operator<=(const Variable& rhs) const
 {return less_than(repn, rhs.repn, false);}
@@ -1016,6 +1231,8 @@ Constraint Expression::operator<=(int rhs) const
 {return less_than(repn, rhs, false);}
 Constraint Expression::operator<=(const Parameter& rhs) const
 {return less_than(repn, rhs.repn, false);}
+Constraint Expression::operator<=(const IndexParameter& rhs) const
+{return less_than(repn, rhs.repn, false);}
 Constraint Expression::operator<=(const Variable& rhs) const
 {return less_than(repn, rhs.repn, false);}
 Constraint Expression::operator<=(const Expression& rhs) const
@@ -1026,11 +1243,15 @@ Constraint Expression::operator<=(const Expression& rhs) const
 //
 Constraint operator>(int lhs, const Parameter& rhs)
 {return greater_than(lhs, rhs.repn, true);}
+Constraint operator>(int lhs, const IndexParameter& rhs)
+{return greater_than(lhs, rhs.repn, true);}
 Constraint operator>(int lhs, const Variable& rhs)
 {return greater_than(lhs, rhs.repn, true);}
 Constraint operator>(int lhs, const Expression& rhs)
 {return greater_than(lhs, rhs.repn, true);}
 Constraint operator>(double lhs, const Parameter& rhs)
+{return greater_than(lhs, rhs.repn, true);}
+Constraint operator>(double lhs, const IndexParameter& rhs)
 {return greater_than(lhs, rhs.repn, true);}
 Constraint operator>(double lhs, const Variable& rhs)
 {return greater_than(lhs, rhs.repn, true);}
@@ -1043,9 +1264,24 @@ Constraint Parameter::operator>(int rhs) const
 {return greater_than(repn, rhs, true);}
 Constraint Parameter::operator>(const Parameter& rhs) const
 {return greater_than(repn, rhs.repn, true);}
+Constraint Parameter::operator>(const IndexParameter& rhs) const
+{return greater_than(repn, rhs.repn, true);}
 Constraint Parameter::operator>(const Variable& rhs) const
 {return greater_than(repn, rhs.repn, true);}
 Constraint Parameter::operator>(const Expression& rhs) const
+{return greater_than(repn, rhs.repn, true);}
+
+Constraint IndexParameter::operator>(double rhs) const
+{return greater_than(repn, rhs, true);}
+Constraint IndexParameter::operator>(int rhs) const
+{return greater_than(repn, rhs, true);}
+Constraint IndexParameter::operator>(const Parameter& rhs) const
+{return greater_than(repn, rhs.repn, true);}
+Constraint IndexParameter::operator>(const IndexParameter& rhs) const
+{return greater_than(repn, rhs.repn, true);}
+Constraint IndexParameter::operator>(const Variable& rhs) const
+{return greater_than(repn, rhs.repn, true);}
+Constraint IndexParameter::operator>(const Expression& rhs) const
 {return greater_than(repn, rhs.repn, true);}
 
 Constraint Variable::operator>(double rhs) const
@@ -1053,6 +1289,8 @@ Constraint Variable::operator>(double rhs) const
 Constraint Variable::operator>(int rhs) const
 {return greater_than(repn, rhs, true);}
 Constraint Variable::operator>(const Parameter& rhs) const
+{return greater_than(repn, rhs.repn, true);}
+Constraint Variable::operator>(const IndexParameter& rhs) const
 {return greater_than(repn, rhs.repn, true);}
 Constraint Variable::operator>(const Variable& rhs) const
 {return greater_than(repn, rhs.repn, true);}
@@ -1065,6 +1303,8 @@ Constraint Expression::operator>(int rhs) const
 {return greater_than(repn, rhs, true);}
 Constraint Expression::operator>(const Parameter& rhs) const
 {return greater_than(repn, rhs.repn, true);}
+Constraint Expression::operator>(const IndexParameter& rhs) const
+{return greater_than(repn, rhs.repn, true);}
 Constraint Expression::operator>(const Variable& rhs) const
 {return greater_than(repn, rhs.repn, true);}
 Constraint Expression::operator>(const Expression& rhs) const
@@ -1075,11 +1315,15 @@ Constraint Expression::operator>(const Expression& rhs) const
 //
 Constraint operator>=(int lhs, const Parameter& rhs)
 {return greater_than(lhs, rhs.repn, false);}
+Constraint operator>=(int lhs, const IndexParameter& rhs)
+{return greater_than(lhs, rhs.repn, false);}
 Constraint operator>=(int lhs, const Variable& rhs)
 {return greater_than(lhs, rhs.repn, false);}
 Constraint operator>=(int lhs, const Expression& rhs)
 {return greater_than(lhs, rhs.repn, false);}
 Constraint operator>=(double lhs, const Parameter& rhs)
+{return greater_than(lhs, rhs.repn, false);}
+Constraint operator>=(double lhs, const IndexParameter& rhs)
 {return greater_than(lhs, rhs.repn, false);}
 Constraint operator>=(double lhs, const Variable& rhs)
 {return greater_than(lhs, rhs.repn, false);}
@@ -1092,9 +1336,24 @@ Constraint Parameter::operator>=(int rhs) const
 {return greater_than(repn, rhs, false);}
 Constraint Parameter::operator>=(const Parameter& rhs) const
 {return greater_than(repn, rhs.repn, false);}
+Constraint Parameter::operator>=(const IndexParameter& rhs) const
+{return greater_than(repn, rhs.repn, false);}
 Constraint Parameter::operator>=(const Variable& rhs) const
 {return greater_than(repn, rhs.repn, false);}
 Constraint Parameter::operator>=(const Expression& rhs) const
+{return greater_than(repn, rhs.repn, false);}
+
+Constraint IndexParameter::operator>=(double rhs) const
+{return greater_than(repn, rhs, false);}
+Constraint IndexParameter::operator>=(int rhs) const
+{return greater_than(repn, rhs, false);}
+Constraint IndexParameter::operator>=(const Parameter& rhs) const
+{return greater_than(repn, rhs.repn, false);}
+Constraint IndexParameter::operator>=(const IndexParameter& rhs) const
+{return greater_than(repn, rhs.repn, false);}
+Constraint IndexParameter::operator>=(const Variable& rhs) const
+{return greater_than(repn, rhs.repn, false);}
+Constraint IndexParameter::operator>=(const Expression& rhs) const
 {return greater_than(repn, rhs.repn, false);}
 
 Constraint Variable::operator>=(double rhs) const
@@ -1102,6 +1361,8 @@ Constraint Variable::operator>=(double rhs) const
 Constraint Variable::operator>=(int rhs) const
 {return greater_than(repn, rhs, false);}
 Constraint Variable::operator>=(const Parameter& rhs) const
+{return greater_than(repn, rhs.repn, false);}
+Constraint Variable::operator>=(const IndexParameter& rhs) const
 {return greater_than(repn, rhs.repn, false);}
 Constraint Variable::operator>=(const Variable& rhs) const
 {return greater_than(repn, rhs.repn, false);}
@@ -1114,6 +1375,8 @@ Constraint Expression::operator>=(int rhs) const
 {return greater_than(repn, rhs, false);}
 Constraint Expression::operator>=(const Parameter& rhs) const
 {return greater_than(repn, rhs.repn, false);}
+Constraint Expression::operator>=(const IndexParameter& rhs) const
+{return greater_than(repn, rhs.repn, false);}
 Constraint Expression::operator>=(const Variable& rhs) const
 {return greater_than(repn, rhs.repn, false);}
 Constraint Expression::operator>=(const Expression& rhs) const
@@ -1124,11 +1387,15 @@ Constraint Expression::operator>=(const Expression& rhs) const
 //
 Constraint operator==(int lhs, const Parameter& rhs)
 {return equal(lhs, rhs.repn);}
+Constraint operator==(int lhs, const IndexParameter& rhs)
+{return equal(lhs, rhs.repn);}
 Constraint operator==(int lhs, const Variable& rhs)
 {return equal(lhs, rhs.repn);}
 Constraint operator==(int lhs, const Expression& rhs)
 {return equal(lhs, rhs.repn);}
 Constraint operator==(double lhs, const Parameter& rhs)
+{return equal(lhs, rhs.repn);}
+Constraint operator==(double lhs, const IndexParameter& rhs)
 {return equal(lhs, rhs.repn);}
 Constraint operator==(double lhs, const Variable& rhs)
 {return equal(lhs, rhs.repn);}
@@ -1141,9 +1408,24 @@ Constraint Parameter::operator==(int rhs) const
 {return equal(repn, rhs);}
 Constraint Parameter::operator==(const Parameter& rhs) const
 {return equal(repn, rhs.repn);}
+Constraint Parameter::operator==(const IndexParameter& rhs) const
+{return equal(repn, rhs.repn);}
 Constraint Parameter::operator==(const Variable& rhs) const
 {return equal(repn, rhs.repn);}
 Constraint Parameter::operator==(const Expression& rhs) const
+{return equal(repn, rhs.repn);}
+
+Constraint IndexParameter::operator==(double rhs) const
+{return equal(repn, rhs);}
+Constraint IndexParameter::operator==(int rhs) const
+{return equal(repn, rhs);}
+Constraint IndexParameter::operator==(const Parameter& rhs) const
+{return equal(repn, rhs.repn);}
+Constraint IndexParameter::operator==(const IndexParameter& rhs) const
+{return equal(repn, rhs.repn);}
+Constraint IndexParameter::operator==(const Variable& rhs) const
+{return equal(repn, rhs.repn);}
+Constraint IndexParameter::operator==(const Expression& rhs) const
 {return equal(repn, rhs.repn);}
 
 Constraint Variable::operator==(double rhs) const
@@ -1151,6 +1433,8 @@ Constraint Variable::operator==(double rhs) const
 Constraint Variable::operator==(int rhs) const
 {return equal(repn, rhs);}
 Constraint Variable::operator==(const Parameter& rhs) const
+{return equal(repn, rhs.repn);}
+Constraint Variable::operator==(const IndexParameter& rhs) const
 {return equal(repn, rhs.repn);}
 Constraint Variable::operator==(const Variable& rhs) const
 {return equal(repn, rhs.repn);}
@@ -1162,6 +1446,8 @@ Constraint Expression::operator==(double rhs) const
 Constraint Expression::operator==(int rhs) const
 {return equal(repn, rhs);}
 Constraint Expression::operator==(const Parameter& rhs) const
+{return equal(repn, rhs.repn);}
+Constraint Expression::operator==(const IndexParameter& rhs) const
 {return equal(repn, rhs.repn);}
 Constraint Expression::operator==(const Variable& rhs) const
 {return equal(repn, rhs.repn);}

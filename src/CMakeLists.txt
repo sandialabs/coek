@@ -12,8 +12,13 @@ SET(sources
     expr/visitor_symdiff.cpp
     expr/visitor_mutable_values.cpp
     expr/visitor_variables.cpp
+    expr/visitor_exprtemplate.cpp
     expr/varray.cpp
     expr/coek_expr.cpp
+    abstract/expr_rule.cpp
+    set/ast_set.cpp
+    set/coek_sets.cpp
+    set/coek_indexed.cpp
     model/coek_model.cpp
     model/writer_lp.cpp
     model/writer_nl.cpp
@@ -110,7 +115,7 @@ endif()
 INSTALL(TARGETS coek
         DESTINATION lib
        )
-INSTALL(FILES coek_model.hpp coek_expr.hpp
+INSTALL(FILES coek_model.hpp coek_expr.hpp coek_sets.hpp coek_indexed.hpp
         DESTINATION include
        )
 

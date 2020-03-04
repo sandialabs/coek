@@ -5,7 +5,7 @@
 #include <list>
 #include <vector>
 #include <set>
-
+#include <memory>
 
 #define COEK_INFINITY   1e100
 #define COEK_UNDEFINED  1e101
@@ -15,54 +15,63 @@
     Expression operator+(int arg) const;\
     Expression operator+(double arg) const;\
     Expression operator+(const Parameter& arg) const;\
+    Expression operator+(const IndexParameter& arg) const;\
     Expression operator+(const Variable& arg) const;\
     Expression operator+(const Expression& arg) const;\
 \
     Expression operator-(int arg) const;\
     Expression operator-(double arg) const;\
     Expression operator-(const Parameter& arg) const;\
+    Expression operator-(const IndexParameter& arg) const;\
     Expression operator-(const Variable& arg) const;\
     Expression operator-(const Expression& arg) const;\
 \
     Expression operator*(int arg) const;\
     Expression operator*(double arg) const;\
     Expression operator*(const Parameter& arg) const;\
+    Expression operator*(const IndexParameter& arg) const;\
     Expression operator*(const Variable& arg) const;\
     Expression operator*(const Expression& arg) const;\
 \
     Expression operator/(int arg) const;\
     Expression operator/(double arg) const;\
     Expression operator/(const Parameter& arg) const;\
+    Expression operator/(const IndexParameter& arg) const;\
     Expression operator/(const Variable& arg) const;\
     Expression operator/(const Expression& arg) const;\
 \
     Constraint operator<(int arg) const;\
     Constraint operator<(double arg) const;\
     Constraint operator<(const Parameter& arg) const;\
+    Constraint operator<(const IndexParameter& arg) const;\
     Constraint operator<(const Variable& arg) const;\
     Constraint operator<(const Expression& arg) const;\
 \
     Constraint operator<=(int arg) const;\
     Constraint operator<=(double arg) const;\
     Constraint operator<=(const Parameter& arg) const;\
+    Constraint operator<=(const IndexParameter& arg) const;\
     Constraint operator<=(const Variable& arg) const;\
     Constraint operator<=(const Expression& arg) const;\
 \
     Constraint operator>(int arg) const;\
     Constraint operator>(double arg) const;\
     Constraint operator>(const Parameter& arg) const;\
+    Constraint operator>(const IndexParameter& arg) const;\
     Constraint operator>(const Variable& arg) const;\
     Constraint operator>(const Expression& arg) const;\
 \
     Constraint operator>=(int arg) const;\
     Constraint operator>=(double arg) const;\
     Constraint operator>=(const Parameter& arg) const;\
+    Constraint operator>=(const IndexParameter& arg) const;\
     Constraint operator>=(const Variable& arg) const;\
     Constraint operator>=(const Expression& arg) const;\
 \
     Constraint operator==(int arg) const;\
     Constraint operator==(double arg) const;\
     Constraint operator==(const Parameter& arg) const;\
+    Constraint operator==(const IndexParameter& arg) const;\
     Constraint operator==(const Variable& arg) const;\
     Constraint operator==(const Expression& arg) const;
 
@@ -79,62 +88,75 @@ extern double nan_value;
 std::ostream& operator<<(std::ostream& ostr, const std::list<std::string>& arg);
 
 class ParameterTerm;
+class IndexParameterTerm;
 class VariableTerm;
 class BaseExpressionTerm;
 class ConstraintTerm;
 
-// SHARED_PTR
-//typedef std::shared_ptr<ParameterTerm> ParameterRepn;
-//typedef std::shared_ptr<VariableTerm> VariableRepn;
-//typedef std::shared_ptr<BaseExpressionTerm> ExpressionRepn;
-//typedef std::shared_ptr<ConstraintTerm> ConstraintRepn;
 typedef ParameterTerm* ParameterRepn;
+typedef IndexParameterTerm* IndexParameterRepn;
 typedef VariableTerm* VariableRepn;
 typedef BaseExpressionTerm* ExpressionRepn;
 typedef ConstraintTerm* ConstraintRepn;
 
 class Parameter;
+class IndexParameter;
 class Variable;
 class Expression;
 class Constraint;
+class ExpressionSequence;
+class ExpressionSequenceRepn;
+class ConstraintSequence;
+class ConstraintSequenceRepn;
+class ConcreteSet;
 
 //
 // numerical operators
 //
 
 Expression operator+(const Parameter&);
+Expression operator+(const IndexParameter&);
 Expression operator+(const Variable&);
 Expression operator+(const Expression&);
 
 Expression operator-(const Parameter&);
+Expression operator-(const IndexParameter&);
 Expression operator-(const Variable&);
 Expression operator-(const Expression&);
 
 Expression operator+(int, const Parameter&);
+Expression operator+(int, const IndexParameter&);
 Expression operator+(int, const Variable&);
 Expression operator+(int, const Expression&);
 Expression operator+(double, const Parameter&);
+Expression operator+(double, const IndexParameter&);
 Expression operator+(double, const Variable&);
 Expression operator+(double, const Expression&);
 
 Expression operator-(int, const Parameter&);
+Expression operator-(int, const IndexParameter&);
 Expression operator-(int, const Variable&);
 Expression operator-(int, const Expression&);
 Expression operator-(double, const Parameter&);
+Expression operator-(double, const IndexParameter&);
 Expression operator-(double, const Variable&);
 Expression operator-(double, const Expression&);
 
 Expression operator*(int, const Parameter&);
+Expression operator*(int, const IndexParameter&);
 Expression operator*(int, const Variable&);
 Expression operator*(int, const Expression&);
 Expression operator*(double, const Parameter&);
+Expression operator*(double, const IndexParameter&);
 Expression operator*(double, const Variable&);
 Expression operator*(double, const Expression&);
 
 Expression operator/(int, const Parameter&);
+Expression operator/(int, const IndexParameter&);
 Expression operator/(int, const Variable&);
 Expression operator/(int, const Expression&);
 Expression operator/(double, const Parameter&);
+Expression operator/(double, const IndexParameter&);
 Expression operator/(double, const Variable&);
 Expression operator/(double, const Expression&);
 
@@ -173,6 +195,38 @@ public:
 };
 
 
+// Index Parameter 
+class IndexParameter
+{
+public:
+
+    IndexParameterRepn repn;
+
+public:
+
+    IndexParameter();
+    IndexParameter(const std::string& name);
+    IndexParameter(const IndexParameter& arg);
+    ~IndexParameter();
+
+    IndexParameter& operator=(const IndexParameter& arg);
+
+    void get_value(double& value) const;
+    void get_value(int& value) const;
+    void get_value(std::string& value) const;
+
+    void set_value(double value);
+    void set_value(int value);
+    void set_value(const std::string& value);
+
+    std::string get_name() const;
+
+    COEK_API_OPERATORS
+
+    friend std::ostream& operator<<(std::ostream& ostr, const IndexParameter& arg);
+};
+
+
 // Decision Variables
 class Variable
 {
@@ -188,7 +242,7 @@ public:
     Variable(double lb, double ub, double value, bool binary, bool integer, const std::string& name);
     Variable(double lb, double ub, double value, bool binary, bool integer);
     Variable(const Variable& arg);
-    ~Variable();
+    virtual ~Variable();
 
     Variable& operator=(const Variable& arg);
 
@@ -226,6 +280,19 @@ public:
 };
 
 
+class ExpressionSequenceAux
+{
+public:
+
+    std::shared_ptr<ExpressionSequenceRepn> repn;
+
+public:
+
+    ExpressionSequenceAux(const std::shared_ptr<ExpressionSequenceRepn>& _repn);
+    ExpressionSequence in(const ConcreteSet& _index_set);
+};
+
+
 // Coek AST Expression
 class Expression
 {
@@ -240,6 +307,7 @@ public:
     Expression(double value);
     Expression(int value);
     Expression(const Parameter& arg);
+    Expression(const IndexParameter& arg);
     Expression(const Variable& arg);
     Expression(const Expression& arg);
     ~Expression();
@@ -256,30 +324,72 @@ public:
     Expression& operator+=(int arg);
     Expression& operator+=(double arg);
     Expression& operator+=(const Parameter& arg);
+    Expression& operator+=(const IndexParameter& arg);
     Expression& operator+=(const Variable& arg);
     Expression& operator+=(const Expression& arg);
 
     Expression& operator-=(int arg);
     Expression& operator-=(double arg);
     Expression& operator-=(const Parameter& arg);
+    Expression& operator-=(const IndexParameter& arg);
     Expression& operator-=(const Variable& arg);
     Expression& operator-=(const Expression& arg);
 
     Expression& operator*=(int arg);
     Expression& operator*=(double arg);
     Expression& operator*=(const Parameter& arg);
+    Expression& operator*=(const IndexParameter& arg);
     Expression& operator*=(const Variable& arg);
     Expression& operator*=(const Expression& arg);
 
     Expression& operator/=(int arg);
     Expression& operator/=(double arg);
     Expression& operator/=(const Parameter& arg);
+    Expression& operator/=(const IndexParameter& arg);
     Expression& operator/=(const Variable& arg);
     Expression& operator/=(const Expression& arg);
 
     COEK_API_OPERATORS
 
     friend std::ostream& operator<<(std::ostream& ostr, const Expression& arg);
+
+    template <typename... TYPES>
+    ExpressionSequenceAux forall(const TYPES&... args)
+        {
+        std::vector<IndexParameter> indices;
+        collect_args(indices, args...);
+        return forall(indices);
+        }
+
+    ExpressionSequenceAux forall(const std::vector<IndexParameter>& indices);
+    Expression expand();
+
+protected:
+
+    void collect_args(std::vector<IndexParameter>& indices, const IndexParameter& arg)
+        {
+        indices.emplace_back(arg);
+        }
+
+    template <typename... TYPES>
+    void collect_args(std::vector<IndexParameter>& indices, const IndexParameter& arg, const TYPES&... args)
+        {
+        indices.emplace_back(arg);
+        collect_args(indices, args...);
+        }
+};
+
+
+class ConstraintSequenceAux
+{
+public:
+
+    std::shared_ptr<ConstraintSequenceRepn> repn;
+
+public:
+
+    ConstraintSequenceAux(const std::shared_ptr<ConstraintSequenceRepn>& _repn);
+    ConstraintSequence in(const ConcreteSet& _index_set);
 };
 
 
@@ -292,6 +402,7 @@ public:
 
 public:
 
+    Constraint();
     Constraint(const ConstraintRepn& _repn);
     Constraint(const Constraint& arg);
     ~Constraint();
@@ -304,9 +415,34 @@ public:
 
     double get_value() const;
 
+    template <typename... TYPES>
+    ConstraintSequenceAux forall(const TYPES&... args)
+        {
+        std::vector<IndexParameter> indices;
+        collect_args(indices, args...);
+        return forall(indices);
+        }
+
+    ConstraintSequenceAux forall(const std::vector<IndexParameter>& indices);
+    Constraint expand();
+
     std::list<std::string> to_list() const;
 
     friend std::ostream& operator<<(std::ostream& ostr, const Constraint& arg);
+
+protected:
+
+    void collect_args(std::vector<IndexParameter>& indices, const IndexParameter& arg)
+        {
+        indices.emplace_back(arg);
+        }
+
+    template <typename... TYPES>
+    void collect_args(std::vector<IndexParameter>& indices, const IndexParameter& arg, const TYPES&... args)
+        {
+        indices.emplace_back(arg);
+        collect_args(indices, args...);
+        }
 };
 
 
@@ -325,8 +461,8 @@ public:
 
     QuadraticExpr() : constval(0.0) {}
 
-    void collect_terms(Expression& expr);
-    void collect_terms(Constraint& expr);
+    void collect_terms(const Expression& expr);
+    void collect_terms(const Constraint& expr);
 
     bool is_constant() const
         {return (linear_coefs.size() == 0) and (quadratic_coefs.size() == 0);}
@@ -389,37 +525,47 @@ std::ostream& operator<<(std::ostream& ostr, const QuadraticExpr& arg);
 //
 
 Constraint operator<(int, const Parameter&);
+Constraint operator<(int, const IndexParameter&);
 Constraint operator<(int, const Variable&);
 Constraint operator<(int, const Expression&);
 Constraint operator<(double, const Parameter&);
+Constraint operator<(double, const IndexParameter&);
 Constraint operator<(double, const Variable&);
 Constraint operator<(double, const Expression&);
 
 Constraint operator<=(int, const Parameter&);
+Constraint operator<=(int, const IndexParameter&);
 Constraint operator<=(int, const Variable&);
 Constraint operator<=(int, const Expression&);
 Constraint operator<=(double, const Parameter&);
+Constraint operator<=(double, const IndexParameter&);
 Constraint operator<=(double, const Variable&);
 Constraint operator<=(double, const Expression&);
 
 Constraint operator>(int, const Parameter&);
+Constraint operator>(int, const IndexParameter&);
 Constraint operator>(int, const Variable&);
 Constraint operator>(int, const Expression&);
 Constraint operator>(double, const Parameter&);
+Constraint operator>(double, const IndexParameter&);
 Constraint operator>(double, const Variable&);
 Constraint operator>(double, const Expression&);
 
 Constraint operator>=(int, const Parameter&);
+Constraint operator>=(int, const IndexParameter&);
 Constraint operator>=(int, const Variable&);
 Constraint operator>=(int, const Expression&);
 Constraint operator>=(double, const Parameter&);
+Constraint operator>=(double, const IndexParameter&);
 Constraint operator>=(double, const Variable&);
 Constraint operator>=(double, const Expression&);
 
 Constraint operator==(int, const Parameter&);
+Constraint operator==(int, const IndexParameter&);
 Constraint operator==(int, const Variable&);
 Constraint operator==(int, const Expression&);
 Constraint operator==(double, const Parameter&);
+Constraint operator==(double, const IndexParameter&);
 Constraint operator==(double, const Variable&);
 Constraint operator==(double, const Expression&);
 

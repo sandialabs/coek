@@ -8,11 +8,11 @@
 #include <unordered_set>
 #include <map>
 #include "coek_expr.hpp"
+#include "coek_model.hpp"
 
 
 namespace coek {
 
-class Model;
 class NLPModel;
 
 class SolverCache
@@ -62,7 +62,7 @@ class SolverRepn : public SolverCache
 {
 public:
 
-    Model* model;
+    Model model;
 
     std::vector<MutableNLPExpr> repn;
 
@@ -83,14 +83,16 @@ public:
 public:
     
     SolverRepn(void) 
-        : SolverCache(), model(0), initial(true) {}
+        : SolverCache(), initial(true) {}
     virtual ~SolverRepn() {}
 
     virtual void load(Model& model);
+    virtual void load(CompactModel& model);
 
     virtual int resolve() = 0;
 
     virtual int solve(Model& model) = 0;
+    virtual int solve(CompactModel& model);
 
     bool initial_solve();
     void find_updated_coefs();

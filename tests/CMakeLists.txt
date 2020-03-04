@@ -10,6 +10,8 @@ SET(sources
     test_testsolver.cpp
     test_examples.cpp
     test_writers.cpp
+    test_sets.cpp
+    test_indexed.cpp
    )
 
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/../src)
@@ -56,7 +58,7 @@ if(${with_ipopt})
 endif()
 if(${with_gurobi})
   TARGET_COMPILE_OPTIONS(runner PUBLIC -DWITH_GUROBI)
-  TARGET_LINK_LIBRARIES(runner PUBLIC gurobi_g++5.2 gurobi81)
+  TARGET_LINK_LIBRARIES(runner PUBLIC gurobi_g++5.2 gurobi90)
 endif()
 
 include(CTest)
@@ -77,7 +79,24 @@ if(${with_ipopt})
   TARGET_LINK_LIBRARIES(lqcp PUBLIC ipopt gfortran)
 endif()
 if(${with_gurobi})
-  TARGET_LINK_LIBRARIES(lqcp PUBLIC gurobi_g++5.2 gurobi81)
+  TARGET_LINK_LIBRARIES(lqcp PUBLIC gurobi_g++5.2 gurobi90)
+endif()
+
+# lqcp2
+add_executable(lqcp2 lqcp2.cpp)
+TARGET_LINK_LIBRARIES(lqcp2 PUBLIC coek)
+if(${with_gcov})
+  TARGET_COMPILE_OPTIONS(lqcp2 PUBLIC -fprofile-arcs -ftest-coverage -g)
+  TARGET_LINK_LIBRARIES(lqcp2 PUBLIC gcov)
+endif()
+if(${with_cppad})
+  TARGET_COMPILE_OPTIONS(lqcp2 PUBLIC -DWITH_CPPAD)
+endif()
+if(${with_ipopt})
+  TARGET_LINK_LIBRARIES(lqcp2 PUBLIC ipopt gfortran)
+endif()
+if(${with_gurobi})
+  TARGET_LINK_LIBRARIES(lqcp2 PUBLIC gurobi_g++5.2 gurobi90)
 endif()
 
 # rlqcp
@@ -94,7 +113,7 @@ if(${with_ipopt})
   TARGET_LINK_LIBRARIES(rlqcp PUBLIC ipopt gfortran)
 endif()
 if(${with_gurobi})
-  TARGET_LINK_LIBRARIES(rlqcp PUBLIC gurobi_g++5.2 gurobi81)
+  TARGET_LINK_LIBRARIES(rlqcp PUBLIC gurobi_g++5.2 gurobi90)
 endif()
 
 # resolve
@@ -111,7 +130,24 @@ if(${with_ipopt})
   TARGET_LINK_LIBRARIES(resolve PUBLIC ipopt gfortran)
 endif()
 if(${with_gurobi})
-  TARGET_LINK_LIBRARIES(resolve PUBLIC gurobi_g++5.2 gurobi81)
+  TARGET_LINK_LIBRARIES(resolve PUBLIC gurobi_g++5.2 gurobi90)
 endif()
+
+# template
+#add_executable(template template.cpp)
+#TARGET_LINK_LIBRARIES(template PUBLIC coek)
+#if(${with_gcov})
+#  TARGET_COMPILE_OPTIONS(template PUBLIC -fprofile-arcs -ftest-coverage -g)
+#  TARGET_LINK_LIBRARIES(template PUBLIC gcov)
+#endif()
+#if(${with_cppad})
+#  TARGET_COMPILE_OPTIONS(template PUBLIC -DWITH_CPPAD)
+#endif()
+#if(${with_ipopt})
+#  TARGET_LINK_LIBRARIES(template PUBLIC ipopt gfortran)
+#endif()
+#if(${with_gurobi})
+#  TARGET_LINK_LIBRARIES(template PUBLIC gurobi_g++5.2 gurobi90)
+#endif()
 
 

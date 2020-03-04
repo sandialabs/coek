@@ -13,6 +13,7 @@ public:
 
     int resolve();
     int solve(Model& );
+    int solve(CompactModel& );
 };
 
 }

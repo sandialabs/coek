@@ -73,10 +73,10 @@ int main(int argc, char** argv) {
 
 
   // BC
-  for (int i = 1; i <= m; i++) {
+  for (int i = 1; i <= m; i++)
     model.add( y[i][2] - 4*y[i][1] + 3*y[i][0] == 0 );
+  for (int i = 1; i <= m; i++)
     model.add( (y[i][n-2] - 4*y[i][n1] + 3*y[i][n])/(2*dx) == u[i]-y[i][n]);
-  }
   
   
 if (lp_file) {

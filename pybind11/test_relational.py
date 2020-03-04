@@ -313,13 +313,13 @@ class Test_Expr(unittest.TestCase):
         
         e = a == b
 
-        with self.assertRaisesRegex(TypeError, "__gt__\(\): incompatible function arguments. .*"):
-            e < a
-        with self.assertRaisesRegex(TypeError, "__ge__\(\): incompatible function arguments. .*"):
-            e <= a
         with self.assertRaisesRegex(TypeError, "__lt__\(\): incompatible function arguments. .*"):
-            e > a
+            e < a
         with self.assertRaisesRegex(TypeError, "__le__\(\): incompatible function arguments. .*"):
+            e <= a
+        with self.assertRaisesRegex(TypeError, "__gt__\(\): incompatible function arguments. .*"):
+            e > a
+        with self.assertRaisesRegex(TypeError, "__ge__\(\): incompatible function arguments. .*"):
             e >= a
         with self.assertRaisesRegex(TypeError, "__eq__\(\): incompatible function arguments. .*"):
             e == a

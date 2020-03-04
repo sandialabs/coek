@@ -6,7 +6,7 @@ namespace coek {
 
 namespace {
 
-void print_repn(std::ostream& ostr, QuadraticExpr& repn, std::map<int,int>& vid)
+void print_repn(std::ostream& ostr, QuadraticExpr& repn, std::unordered_map<int,int>& vid)
 {
 if (repn.linear_coefs.size() > 0) {
     std::map<int,double> vval;
@@ -71,24 +71,55 @@ if (repn.quadratic_coefs.size() > 0) {
     }
 }
 
+void print_objective(std::ostream& ostr, const Expression& e, bool& one_var_constant, std::unordered_map<int,int>& vid)
+{
+QuadraticExpr expr;
+expr.collect_terms(e);
+print_repn(ostr, expr, vid);
+double tmp = expr.constval;
+if (tmp != 0) {
+    one_var_constant=true;
+    if (tmp > 0)
+        ostr << "+";
+    ostr << tmp << " ONE_VAR_CONSTANT" << std::endl;
+    }
+}
+
+void print_constraint(std::ostream& ostr, const Constraint& c, int ctr, std::unordered_map<int,int>& vid)
+{
+ostr << "c" << ctr++ << ":" << std::endl;
+QuadraticExpr expr;
+expr.collect_terms(c);
+print_repn(ostr, expr, vid);
+if (c.is_inequality())
+    ostr << "<= ";
+else
+    ostr << "= ";
+double tmp = expr.constval;
+if (tmp == 0)
+    ostr << "0" << std::endl << std::endl;
+else
+    ostr << (-tmp) << std::endl << std::endl;
+}
+
 }
 
 void write_lp_problem(Model& model, std::ostream& ostr)
 {
-if (model.objectives.size() == 0) {
+if (model.repn->objectives.size() == 0) {
     std::cerr << "Error writing LP file: No objectives specified!" << std::endl;
     return;
     }
-if (model.objectives.size() > 1) {
+if (model.repn->objectives.size() > 1) {
     std::cerr << "Error writing LP file: More than one objective defined!" << std::endl;
     return;
     }
 
 // Create variable ID map
-std::map<int,int> vid;
+std::unordered_map<int,int> vid;
 {
 int ctr=0;
-for(std::vector<Variable>::iterator it=model.variables.begin(); it != model.variables.end(); ++it) {
+for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
     vid[(*it).get_index()] = ctr++;
     }
 }
@@ -100,9 +131,12 @@ ostr << std::endl << "minimize" << std::endl << std::endl;
 
 ostr << "obj:" << std::endl;
 bool one_var_constant=false;
+#if 1
+print_objective(ostr, model.repn->objectives[0], one_var_constant, vid);
+#else
 {
 QuadraticExpr expr;
-expr.collect_terms(model.objectives[0]);
+expr.collect_terms(model.repn->objectives[0]);
 //write_expr(objectives[0].repn, std::cout);
 //std::cout << std::endl;
 //std::cout << expr << std::endl;
@@ -115,6 +149,7 @@ if (tmp != 0) {
     ostr << tmp << " ONE_VAR_CONSTANT" << std::endl;
     }
 }
+#endif
 
 ostr << std::endl << "subject to" << std::endl << std::endl;
 if (one_var_constant) {
@@ -123,8 +158,15 @@ if (one_var_constant) {
     ostr << std::endl;
     }
 
+//
+// Simple contraints
+//
 int ctr=0;
-for (std::vector<Constraint>::iterator it=model.constraints.begin(); it != model.constraints.end(); ++it) {
+for (std::vector<Constraint>::iterator it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it) {
+#if 1
+    print_constraint(ostr, *it, ctr, vid);
+    ctr++;
+#else
     ostr << "c" << ctr++ << ":" << std::endl;
     QuadraticExpr expr;
     expr.collect_terms(*it);
@@ -141,6 +183,114 @@ for (std::vector<Constraint>::iterator it=model.constraints.begin(); it != model
         ostr << "0" << std::endl << std::endl;
     else
         ostr << (-tmp) << std::endl << std::endl;
+#endif
+    }
+
+std::map<int,VariableTerm*> bvars;
+std::map<int,VariableTerm*> ivars;
+ostr << std::endl << "bounds" << std::endl;
+for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
+    VariableTerm* v = it->repn;
+    if (v->lb <= -COEK_INFINITY)
+        ostr << "-inf";
+    else
+        ostr << v->lb;
+    ostr << " <= x(" << vid[v->index] << ") <= ";
+    if (v->ub >= COEK_INFINITY)
+        ostr << "inf" << std::endl;
+    else
+        ostr << v->ub << std::endl;
+    if (v->binary)
+        bvars[vid[v->index]] = v;
+    if (v->integer)
+        ivars[vid[v->index]] = v;
+    }
+
+if (bvars.size() > 0) {
+    ostr << std::endl << "binary" << std::endl;
+    for(std::map<int,VariableTerm*>::iterator it=bvars.begin(); it != bvars.end(); ++it)
+        ostr << "x(" << it->first << ")" << std::endl;
+    }
+
+if (ivars.size() > 0) {
+    ostr << std::endl << "integer" << std::endl;
+    for(std::map<int,VariableTerm*>::iterator it=ivars.begin(); it != ivars.end(); ++it)
+        ostr << "x(" << it->first << ")" << std::endl;
+    }
+
+ostr << std::endl << "end" << std::endl;
+}
+
+void write_lp_problem(CompactModel& model, std::ostream& ostr)
+{
+if (model.objectives.size() == 0) {
+    std::cerr << "Error writing LP file: No objectives specified!" << std::endl;
+    return;
+    }
+
+// Create variable ID map
+std::unordered_map<int,int> vid;
+{
+int ctr=0;
+for(std::vector<Variable>::iterator it=model.variables.begin(); it != model.variables.end(); ++it) {
+    vid[(*it).get_index()] = ctr++;
+    }
+}
+
+// Create file
+
+ostr << "\\* LP File Generated by COEK *\\" << std::endl << std::endl;
+ostr << std::endl << "minimize" << std::endl << std::endl;
+
+ostr << "obj:" << std::endl;
+bool one_var_constant=false;
+int nobj=0;
+
+for (auto it=model.objectives.begin(); it != model.objectives.end(); ++it) {
+    auto& val = *it;
+    if (auto eval = std::get_if<Expression>(&val)) {
+        Expression e = eval->expand();
+        print_objective(ostr, e, one_var_constant, vid);
+        nobj++;
+        }
+    else {
+        auto& seq = std::get<ExpressionSequence>(val);
+        for (auto jt=seq.begin(); jt != seq.end(); ++jt) {
+            print_objective(ostr, *jt, one_var_constant, vid);
+            nobj++;
+            }
+        }
+    }
+if (nobj > 1) {
+    std::cerr << "Error writing LP file: More than one objective defined!" << std::endl;
+    return;
+    }
+
+ostr << std::endl << "subject to" << std::endl << std::endl;
+if (one_var_constant) {
+    ostr << "c_ONE_VAR_CONSTANT:" << std::endl;
+    ostr << "ONE_VAR_CONSTANT = 1.0" << std::endl;
+    ostr << std::endl;
+    }
+
+//
+// Simple contraints
+//
+int ctr=0;
+for (auto it=model.constraints.begin(); it != model.constraints.end(); ++it) {
+    auto& val = *it;
+    if (auto cval = std::get_if<Constraint>(&val)) {
+        Constraint c = cval->expand();
+        print_constraint(ostr, c, ctr, vid);
+        ctr++;
+        }
+    else {
+        auto& seq = std::get<ConstraintSequence>(val);
+        for (auto jt=seq.begin(); jt != seq.end(); ++jt) {
+            print_constraint(ostr, *jt, ctr, vid);
+            ctr++;
+            }
+        }
     }
 
 std::map<int,VariableTerm*> bvars;

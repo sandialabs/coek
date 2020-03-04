@@ -82,10 +82,7 @@ else {
 
 void SolverRepn::load(Model& _model)
 {
-#if 0
-    std::map<VariableTerm*, double> vcache;
-    std::map<ParameterTerm*, double> pcache;
-#endif
+model = _model;
 vcache.clear();
 pcache.clear();
 
@@ -98,17 +95,16 @@ pquadvals.clear();
 vnonlvals.clear();
 pnonlvals.clear();
 
-repn.resize(_model.objectives.size() + _model.constraints.size());
+repn.resize(model.repn->objectives.size() + model.repn->constraints.size());
 
-model = &_model;
 
 // Collect mutable repn data
 {
 size_t j=0;
-for (size_t i=0; i<_model.objectives.size(); i++, j++)
-    repn[j].collect_terms( _model.objectives[i] );
-for (size_t i=0; i<_model.constraints.size(); i++, j++)
-    repn[j].collect_terms( _model.constraints[i] );
+for (size_t i=0; i<model.repn->objectives.size(); i++, j++)
+    repn[j].collect_terms( model.repn->objectives[i] );
+for (size_t i=0; i<model.repn->constraints.size(); i++, j++)
+    repn[j].collect_terms( model.repn->constraints[i] );
 }
 
 // Populate the maps that identify mutable model values
@@ -161,6 +157,20 @@ for (size_t j=0; j<repn.size(); j++) {
 std::cout << "# Model Expressions:   " << repn.size() << std::endl;
 std::cout << "# Mutable Expressions: " << nmutable << std::endl;
 //#endif
+}
+
+
+void SolverRepn::load(CompactModel& _model)
+{
+model = _model.expand();
+load(model);
+}
+
+
+int SolverRepn::solve(CompactModel& _model)
+{
+model = _model.expand();
+return solve(model);
 }
 
 

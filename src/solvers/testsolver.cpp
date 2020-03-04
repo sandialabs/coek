@@ -11,13 +11,20 @@ int TestSolver::solve(Model& model)
 
 // Collect repns
 coek::MutableNLPExpr orepn;
-std::vector<coek::MutableNLPExpr> crepn(model.constraints.size());
+std::vector<coek::MutableNLPExpr> crepn(model.repn->constraints.size());
 
-orepn.collect_terms(model.objectives[0]);
-for (size_t i=0; i<model.constraints.size(); i++)
-    crepn[i].collect_terms(model.constraints[i]);
+orepn.collect_terms(model.repn->objectives[0]);
+for (size_t i=0; i<model.repn->constraints.size(); i++)
+    crepn[i].collect_terms(model.repn->constraints[i]);
 
 return 0;
+}
+
+
+int TestSolver::solve(CompactModel& _model)
+{
+Model model = _model.expand();
+return solve(model);
 }
 
 

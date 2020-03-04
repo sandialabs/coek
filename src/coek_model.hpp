@@ -2,17 +2,181 @@
 
 #include <memory>
 #include <vector>
+#include <variant>
 #include "coek_expr.hpp"
+#include "coek_sets.hpp"
+#include "coek_indexed.hpp"
 
 namespace coek {
 
 class VariableArray;
+class ModelRepn;
 class NLPModelRepn;
 class SolverRepn;
 class NLPSolverRepn;
+class ExpressionSeqIteratorRepn;
+class ConstraintSeqIteratorRepn;
 
 
+class ExpressionSeqIterator
+{
+public:
+
+    std::shared_ptr<ExpressionSeqIteratorRepn> repn;
+
+    typedef Expression* pointer;
+    typedef const Expression* const_pointer;
+    typedef Expression& reference;
+    typedef const Expression& const_reference;
+
+public:
+
+    ExpressionSeqIterator();
+    ExpressionSeqIterator(ExpressionSequenceRepn* seq, bool end=false);
+
+    ExpressionSeqIterator& operator++();
+
+    bool operator==(const ExpressionSeqIterator& other) const;
+    bool operator!=(const ExpressionSeqIterator& other) const;
+
+    reference operator*();
+    const_reference operator*() const;
+    pointer operator->();
+    const_pointer operator->() const;
+};
+
+
+class ExpressionSequence
+{
+public:
+
+  std::shared_ptr<ExpressionSequenceRepn> repn;
+
+public:
+
+    ExpressionSequence(const std::shared_ptr<ExpressionSequenceRepn>& _repn);
+
+    template <typename... TYPES>
+    ExpressionSequenceAux forall(const TYPES&... args)
+        {
+        std::vector<IndexParameter> arg;
+        collect_args(args..., arg);
+        return forall(arg);
+        }
+    
+    ExpressionSequenceAux forall(const std::vector<IndexParameter>& params);
+    ExpressionSequence st(const Constraint& con);
+    ExpressionSequence where(const Constraint& con);
+
+    ExpressionSeqIterator begin();
+    ExpressionSeqIterator end();
+
+protected:
+    
+    void collect_args(const IndexParameter& arg, std::vector<IndexParameter>& _arg)
+        {
+        _arg.emplace_back(arg);
+        }
+
+    template <typename... TYPES>
+    void collect_args(const IndexParameter& arg, const TYPES&... args, std::vector<IndexParameter>&  _arg)
+        {
+        _arg.emplace_back(arg);
+        collect_args(args..., _arg);
+        }
+};
+
+
+class ConstraintSeqIterator
+{
+public:
+
+    std::shared_ptr<ConstraintSeqIteratorRepn> repn;
+
+    typedef Constraint* pointer;
+    typedef const Constraint* const_pointer;
+    typedef Constraint& reference;
+    typedef const Constraint& const_reference;
+
+public:
+
+    ConstraintSeqIterator();
+    ConstraintSeqIterator(ConstraintSequenceRepn* seq, bool end=false);
+
+    ConstraintSeqIterator& operator++();
+
+    bool operator==(const ConstraintSeqIterator& other) const;
+    bool operator!=(const ConstraintSeqIterator& other) const;
+
+    reference operator*();
+    const_reference operator*() const;
+    pointer operator->();
+    const_pointer operator->() const;
+};
+
+
+class ConstraintSequence
+{
+public:
+
+  std::shared_ptr<ConstraintSequenceRepn> repn;
+
+public:
+
+    ConstraintSequence(const std::shared_ptr<ConstraintSequenceRepn>& _repn);
+
+    template <typename... TYPES>
+    ConstraintSequenceAux forall(const TYPES&... args)
+        {
+        std::vector<IndexParameter> arg;
+        collect_args(args..., arg);
+        return forall(arg);
+        }
+    
+    ConstraintSequenceAux forall(const std::vector<IndexParameter>& params);
+    ConstraintSequence st(const Constraint& con);
+    ConstraintSequence where(const Constraint& con);
+
+    ConstraintSeqIterator begin();
+    ConstraintSeqIterator end();
+
+protected:
+    
+    void collect_args(const IndexParameter& arg, std::vector<IndexParameter>& _arg)
+        {
+        _arg.emplace_back(arg);
+        }
+
+    template <typename... TYPES>
+    void collect_args(const IndexParameter& arg, const TYPES&... args, std::vector<IndexParameter>&  _arg)
+        {
+        _arg.emplace_back(arg);
+        collect_args(args..., _arg);
+        }
+};
+
+
+// BAD: This function doesn't logically belong in this header
+Expression Sum(const ExpressionSequence& seq);
+
+
+// TODO - Move to *.cpp file
+class ModelRepn
+{
+public:
+
+    std::vector<bool> sense;
+    std::vector<Expression> objectives;
+    std::vector<Constraint> constraints;
+    std::vector<Variable> variables;
+};
+
+//
 // Coek Model
+//
+// TODO - Define SimpeModel and AbstractModel.  Operations like get_constraint(i) may not make sense for
+// an abstract model, and even when they do, these are probably more expensive operations.
+//
 class Model
 {
 public:
@@ -21,23 +185,17 @@ public:
     static bool maximize;
     static double inf;
 
-    std::vector<bool> sense;
-    std::vector<Expression> objectives;
-    std::vector<Constraint> constraints;
-    std::vector<Variable> variables;
+    std::shared_ptr<ModelRepn> repn;
 
 public:
 
-    void add(const Expression& expr, bool _sense=Model::minimize)
-        {
-        objectives.push_back( expr );
-        sense.push_back(_sense);
-        }
+    Model();
+    Model(const Model& other);
+    ~Model();
+    Model& operator=(const Model&);
 
-    void add(const Constraint& expr)
-        {
-        constraints.push_back( expr );
-        }
+    void add(const Expression& expr, bool _sense=Model::minimize);
+    void add(const Constraint& expr);
 
     Variable& getVariable(double lb, double ub, const std::string& name);
     Variable& getVariable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN);
@@ -46,6 +204,7 @@ public:
     Variable& getVariable(double lb, double ub, double value, bool binary, bool integer, const std::string& name);
     void addVariable(Variable& var);
     void addVariable(VariableArray& var);
+    void addVariable(ConcreteIndexedVariable& var);
 
     Expression get_objective(unsigned int i=0);
     Constraint get_constraint(unsigned int i);
@@ -57,6 +216,38 @@ public:
 
 
 // Coek Solver
+class CompactModel
+{
+public:
+
+    std::vector<bool> sense;
+    std::vector<std::variant<Expression, ExpressionSequence>> objectives;
+    std::vector<std::variant<Constraint, ConstraintSequence>> constraints;
+    std::vector<Variable> variables;
+
+public:
+
+    void add(const Expression& expr, bool _sense=Model::minimize);
+    void add(const ExpressionSequence& seq, bool _sense=Model::minimize);
+    void add(const Constraint& expr);
+    void add(const ConstraintSequence& seq);
+
+    Variable& getVariable(double lb, double ub, const std::string& name);
+    Variable& getVariable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN);
+    Variable& getVariable(double lb, double ub, double value, const std::string& name);
+    Variable& getVariable(double lb, double ub, double value, bool binary, bool integer);
+    Variable& getVariable(double lb, double ub, double value, bool binary, bool integer, const std::string& name);
+
+    void addVariable(Variable& var);
+    void addVariable(VariableArray& var);
+    void addVariable(ConcreteIndexedVariable& var);
+
+    Model expand();
+
+    void write(std::string ostr);
+};
+
+
 class Solver
 {
 public:
@@ -73,8 +264,10 @@ public:
     void initialize(std::string solver);
 
     int solve(Model& model);
+    int solve(CompactModel& model);
 
     void load(Model& model);
+    void load(CompactModel& model);
     int resolve();
 
     // Solver Options

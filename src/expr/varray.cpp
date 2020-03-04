@@ -6,6 +6,7 @@
 
 namespace coek {
 
+namespace local {
 
 class IndexedVariableTerm : public VariableTerm
 {
@@ -22,7 +23,6 @@ public:
 
     std::string get_name();
 };
-
 
 void initialize_index_map(std::vector<int>& dimen, std::vector<int>& tmp, std::size_t curr, std::size_t& ctr, std::map<std::vector<int>,int>& index_map)
 {
@@ -64,6 +64,8 @@ else {
     }
 }
 
+}
+
 
 VariableArray::VariableArray(std::vector<int>& _dimen, double init, double lb, double ub, 
                 bool binary, bool integer, bool fixed, std::string _name)
@@ -82,7 +84,7 @@ initialize(n, init, lb, ub, binary, integer, fixed);
 //
 std::vector<int> tmp(dimen.size());
 std::size_t ctr=0;
-initialize_index_map(dimen, tmp, 0, ctr, index_map);
+local::initialize_index_map(dimen, tmp, 0, ctr, index_map);
 //
 //  Compute index order
 //
@@ -112,7 +114,7 @@ if (std::isnan(ub))
 
 variables.resize(n);
 for (int i=0; i<n; i++) {
-    auto tmp = CREATE_POINTER(IndexedVariableTerm, lb, ub, init, binary, integer, fixed, i, this);
+    auto tmp = CREATE_POINTER(local::IndexedVariableTerm, lb, ub, init, binary, integer, fixed, i, this);
     tmp->index = ++VariableTerm::count;
     variables[i] = Variable(tmp);
     }

@@ -13,13 +13,13 @@ class TestValue(unittest.TestCase):
         self.model = None
 
     def test_var(self):
-        p = variable(initialize=2)
+        p = variable(initial=2)
         self.assertEqual(p.value, 2)
         p.value = 3
         self.assertEqual(p.value, 3)
 
     def test_expr(self):
-        p = variable(initialize=2)
+        p = variable(initial=2)
         self.assertEqual(p.value, 2)
         e = p + 3
         self.assertEqual(e.value, 5)
@@ -27,7 +27,7 @@ class TestValue(unittest.TestCase):
             e.value = 0
 
     def test_constraint(self):
-        p = variable(initialize=2)
+        p = variable(initial=2)
         self.assertEqual(p.value, 2)
         e = p < 3
         self.assertEqual(e.value, -1)
@@ -42,15 +42,13 @@ class TestValue(unittest.TestCase):
 
     def test_float(self):
         p = parameter(-1)
-        self.assertEqual(float(p), -1.0)
+        with self.assertRaisesRegex(TypeError, "float\(\) argument must.*"):
+            float(p)
             
     def test_int(self):
         p = parameter(-1)
-        self.assertEqual(int(p), -1)
-
-    def test_bool(self):
-        p = parameter(-1)
-        self.assertEqual(bool(p), True)
+        with self.assertRaisesRegex(TypeError, "int\(\) argument must.*"):
+            int(p)
             
 
 class Test_SumExpression(unittest.TestCase):
@@ -1308,7 +1306,7 @@ class TestVariables(unittest.TestCase):
         self.model = None
 
     def test_initialize(self):
-        v = variable(3, name='v', initialize=3)
+        v = variable(3, name='v', initial=3)
         self.assertEqual(v[0].value, 3)
         self.assertEqual(v[1].value, 3)
         self.assertEqual(v[2].value, 3)
@@ -1331,19 +1329,19 @@ class TestVariables(unittest.TestCase):
         self.assertEqual(v1.name, v2.name)
 
     def test_name1(self):
-        v = variable(3, name='v', initialize=3)
+        v = variable(3, name='v', initial=3)
         self.assertEqual(v.name, 'v')
         self.assertEqual(v[0].name, 'v[0]')
 
     def test_name2(self):
-        v = variable(3, initialize=3)
-        self.assertEqual(v.name, None)
+        v = variable(3, initial=3)
+        self.assertEqual(v.name, 'x')
         self.assertEqual(v[0].name, 'x[0]')
 
     def test_name_single(self):
-        v = variable(initialize=3, name='y')
+        v = variable(initial=3, name='y')
         self.assertEqual(v.name, 'y')
-        v = variable(initialize=3)
+        v = variable(initial=3)
         self.assertEqual(v.name[0], 'x')
 
 
@@ -1360,7 +1358,7 @@ class TestNDVariables(unittest.TestCase):
         self.model = None
 
     def test_initialize(self):
-        v = variable((3,2,4), name='v', initialize=3)
+        v = variable((3,2,4), name='v', initial=3)
         self.assertEqual(v[0,1,3].value,3)
         self.assertEqual(v[1,0,0].value,3)
         self.assertEqual(v[2,1,2].value,3)
@@ -1383,14 +1381,14 @@ class TestNDVariables(unittest.TestCase):
         self.assertEqual(v1.name, v2.name)
 
     def test_name1(self):
-        v = variable((3,2,4), name='v', initialize=3)
+        v = variable((3,2,4), name='v', initial=3)
         self.assertEqual(v.name, 'v')
         self.assertEqual(v[2,1,3].name, 'v[2, 1, 3]')
         self.assertEqual(v[0,0,0].name, 'v[0, 0, 0]')
 
     def test_name2(self):
-        v = variable((3,2,4), initialize=3)
-        self.assertEqual(v.name, None)
+        v = variable((3,2,4), initial=3)
+        self.assertEqual(v.name, 'x')
         self.assertEqual(v[2,1,3].name, 'x[2, 1, 3]')
         self.assertEqual(v[0,0,0].name, 'x[0, 0, 0]')
 
