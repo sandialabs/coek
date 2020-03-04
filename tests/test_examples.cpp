@@ -34,7 +34,7 @@ TEST_CASE( "ipopt", "[smoke]" ) {
     solver.set_option("print_level", 0);
     solver.solve(nlp);
 
-    check(m.variables, rosenbr_soln);
+    check(m.repn->variables, rosenbr_soln);
   }
 
 #ifdef DEBUG
@@ -56,7 +56,7 @@ TEST_CASE( "gurobi", "[smoke]" ) {
     solver.set_option("OutputFlag", 0);
     solver.solve(m);
 
-    check(m.variables, simplelp1_soln);
+    check(m.repn->variables, simplelp1_soln);
   }
 
 #ifdef DEBUG

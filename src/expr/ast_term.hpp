@@ -6,13 +6,13 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include <variant>
 
 #include "ast_visitor.hpp"
 
 #if defined(DEBUG)
 #define WITH_AST_ENV
 #endif
-
 
 namespace coek {
 
@@ -25,17 +25,23 @@ namespace coek {
 //#define STATIC_CAST(TYPE, ARG)   std::static_pointer_cast<TYPE>(ARG)
 
 typedef BaseExpressionTerm* expr_pointer_t;
+//typedef std::variant<int,double,std::string,expr_pointer_t> refarg_types;
+typedef std::variant<int,expr_pointer_t> refarg_types;
 
 #ifdef WITH_AST_ENV
 #define CREATE_POINTER(PTR, ...) env.cache(new PTR(__VA_ARGS__))
+#define CACHE_POINTER(PTR) env.cache(PTR)
 #define DISCARD_POINTER(PTR) env.uncache(PTR)
 #define OWN_POINTER(PTR) env.own(PTR)
 #define DISOWN_POINTER(PTR) env.disown(PTR)
+#define FREE_POINTER(PTR) env.free(PTR)
 #else
 #define CREATE_POINTER(PTR, ...) new PTR(__VA_ARGS__)
+#define CACHE_POINTER(PTR)
 #define DISCARD_POINTER(PTR) {if ((PTR)->refcount == 0) delete PTR;}
 #define OWN_POINTER(PTR) (PTR)->refcount++
 #define DISOWN_POINTER(PTR) {(PTR)->refcount--; if ((PTR)->refcount == 0) delete PTR;}
+#define FREE_POINTER(PTR) (PTR)->refcount--
 #endif
 #define STATIC_CAST(TYPE, ARG)   ARG
 
@@ -57,6 +63,8 @@ public:
         {return false;}
     virtual bool is_parameter() const
         {return false;}
+    virtual bool is_abstract_parameter() const
+        {return false;}
     virtual bool is_variable() const
         {return false;}
     virtual bool is_monomial() const
@@ -64,6 +72,7 @@ public:
     virtual bool is_expression() const
         {return false;}
 
+    virtual expr_pointer_t const_mult(double coef, const expr_pointer_t& repn);
     virtual expr_pointer_t negate(const expr_pointer_t& repn);
     virtual void accept(Visitor& v) = 0;
     virtual term_id id() = 0;
@@ -125,10 +134,53 @@ public:
 };
 
 //
+// IndexParameterTerm
+//
+
+class IndexParameterTerm : public BaseExpressionTerm
+{
+public:
+
+    std::string name;
+    std::variant<int, double, std::string> value;
+
+    IndexParameterTerm(const std::string& _name, int refcount=0)
+        : BaseExpressionTerm(refcount), name(_name)
+        {}
+
+    bool is_abstract_parameter() const
+        {return true;}
+
+    double eval() const
+        {
+        if (auto ival = std::get_if<int>(&value))
+            return *ival;
+        if (auto dval = std::get_if<double>(&value))
+            return *dval;
+        throw std::runtime_error("Accessing the value of a non-numeric abstract parameter");
+        }
+
+    expr_pointer_t negate(const expr_pointer_t& repn);
+
+    void accept(Visitor& v)
+        { v.visit(*this); }
+    term_id id()
+        {return IndexParameterTerm_id;}
+};
+
+//
+// BaseVariableTerm
+//
+
+class BaseVariableTerm : public BaseExpressionTerm
+{
+};
+
+//
 // VariableTerm
 //
 
-class VariableTerm : public BaseExpressionTerm
+class VariableTerm : public BaseVariableTerm
 {
 public:
 
@@ -144,9 +196,10 @@ public:
     bool binary;
     bool integer;
     bool fixed;
+    bool indexed;
     std::string name;
 
-    VariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer);
+    VariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _indexed=false);
 
     double eval() const
         { return value; }
@@ -154,6 +207,7 @@ public:
     bool is_variable() const
         {return true;}
 
+    expr_pointer_t const_mult(double coef, const expr_pointer_t& repn);
     expr_pointer_t negate(const expr_pointer_t& repn);
 
     void accept(Visitor& v)
@@ -163,15 +217,35 @@ public:
 
     virtual std::string get_simple_name()
         {
-            return "x[" + std::to_string(index) + "]";
+            return "x(" + std::to_string(index) + ")";
         }
     virtual std::string get_name()
         {
         if (name == "")
             return get_simple_name();
+        else if (indexed)
+            return name + "(" + std::to_string(index) + ")";
         else
             return name;
         }
+};
+
+class IndexedVariableTerm : public VariableTerm
+{
+public:
+
+    void* var;      // ConcreteIndexedVariableRepn
+    unsigned int vindex;
+
+    IndexedVariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, unsigned int _vindex, void* _var)
+        : VariableTerm(_lb, _ub, _value, _binary, _integer), var(_var), vindex(_vindex) {}
+
+    virtual std::string get_name();
+
+    void accept(Visitor& v)
+        { v.visit(*this); }
+    term_id id()
+        {return IndexedVariableTerm_id;}
 };
 
 //
@@ -214,6 +288,7 @@ public:
 
 public:
 
+    ConstraintTerm();
     ConstraintTerm(const expr_pointer_t& repn);
     ~ConstraintTerm();
 
@@ -226,6 +301,8 @@ public:
     virtual bool is_equality() const
         {return false;}
     virtual bool is_feasible() const = 0;
+    virtual bool is_trivial() const
+        {return false;}
 };
 
 class InequalityTerm : public ConstraintTerm
@@ -263,6 +340,27 @@ public:
         {return true;}
     bool is_feasible() const
         {return body->eval() == 0.0;}
+
+    void accept(Visitor& v)
+        { v.visit(*this); }
+    term_id id()
+        {return EqualityTerm_id;}
+};
+
+class DummyConstraintTerm : public ConstraintTerm
+{
+public:
+
+    DummyConstraintTerm();
+    ~DummyConstraintTerm()
+        {body=0;}
+
+    bool is_equality() const
+        {return true;}
+    bool is_feasible() const
+        {return true;}
+    virtual bool is_trivial() const
+        {return true;}
 
     void accept(Visitor& v)
         { v.visit(*this); }
@@ -347,6 +445,8 @@ public:
 
     void initialize(NAryPrefixTerm* lhs, const expr_pointer_t& rhs);
 
+    void push_back(const expr_pointer_t& rhs);
+
     unsigned int num_expressions() const
         {return n;}
 
@@ -383,6 +483,7 @@ class PlusTerm : public NAryPrefixTerm
 public:
 
     PlusTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs);
+    PlusTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs, bool dummy);
 
     double eval() const
         {
@@ -522,15 +623,46 @@ BINARY_CLASS(pow, PowTerm)
 //BINARY_CLASS(atan2, ATan2Term)
 
 
+class VariableRefTerm : public BaseVariableTerm
+{
+public:
+
+    std::vector<refarg_types> indices;
+    std::string name;
+    void* var;
+
+public:
+
+    VariableRefTerm(const std::vector<refarg_types>& _indices, const std::string& _name, void* _var);
+    ~VariableRefTerm();
+
+    double eval() const
+        { throw std::runtime_error("Cannot evaluate a VariableRefTerm"); }
+    void accept(Visitor& v)
+        { v.visit(*this); }
+    term_id id()
+        {return VariableRefTerm_id;}
+
+};
+
+class SetRefTerm : public BaseExpressionTerm
+{
+public:
+
+    expr_pointer_t body;
+
+public:
+
+    SetRefTerm(const expr_pointer_t& repn);
+    ~SetRefTerm();
+};
+
+
 #ifdef WITH_AST_ENV
 // GCOVR_EXCL_START
 class ASTEnvironment
 {
 public:
-
-    ConstantTerm OneConstant;
-    ConstantTerm ZeroConstant;
-    ConstantTerm NegativeOneConstant; 
 
     typedef std::unordered_map<BaseExpressionTerm*,int> cache_t;
     std::unordered_map<BaseExpressionTerm*,int> data;
@@ -538,16 +670,20 @@ public:
     static bool debug;
     unsigned int num_global_constants;
 
+    ConstantTerm OneConstant;
+    ConstantTerm ZeroConstant;
+    ConstantTerm NegativeOneConstant; 
+    DummyConstraintTerm DummyConstraint; 
+
 public:
 
     ASTEnvironment()
-        : OneConstant(1), ZeroConstant(0), NegativeOneConstant(-1)
+        : num_global_constants(4), OneConstant(1), ZeroConstant(0), NegativeOneConstant(-1), DummyConstraint()
         { reset(); }
 
     ~ASTEnvironment();
 
-    bool undeleted_memory()
-        { return (data.size() > num_global_constants); }
+    bool undeleted_memory();
 
     bool check_memory();
 
@@ -560,8 +696,8 @@ public:
 #if 0
         if (debug) {
             std::cout << "Caching (" << ctr << ") : ";
-            tmp->write(std::cout);
-            std::cout << std::endl;
+            write_expr(ptr);
+            //std::cout << std::endl;
             write(std::cout);
             std::cout << std::endl << std::flush;
             }
@@ -594,9 +730,12 @@ public:
         {
         BaseExpressionTerm* tmp = ptr;
         cache_t::iterator curr = data.find(tmp);
-        if (curr == data.end())
-            throw std::runtime_error("ASTEnvironment::own called with a pointer that is not cached.");
-         curr->second += 1;
+        if (curr == data.end()) {
+            //throw std::runtime_error("ASTEnvironment::own called with a pointer that is not cached.");
+            data.emplace( std::unordered_map<BaseExpressionTerm*,int>::value_type(tmp, 1) );
+            }
+         else
+            curr->second += 1;
 #if 0
         if (debug) {
             std::cout << "Owning (" << curr->second << ") : ";
@@ -624,11 +763,23 @@ public:
         cache_t::iterator curr = data.find(tmp);
         if (curr == data.end())
             throw std::runtime_error("ASTEnvironment::disown called with a pointer that is not cached.");
-        curr->second -= 1;
+        if (curr->second > 0)
+            curr->second -= 1;
         if (curr->second == 0) {
             data.erase( curr );
             delete tmp;
             }
+        }
+
+    template <typename TYPE>
+    void free(TYPE* ptr)
+        {
+        BaseExpressionTerm* tmp = ptr;
+        cache_t::iterator curr = data.find(tmp);
+        if (curr == data.end())
+            throw std::runtime_error("ASTEnvironment::free called with a pointer that is not cached.");
+        if (curr->second > 0)
+            curr->second -= 1;
         }
 
     void write(std::ostream& ostr);
@@ -638,14 +789,17 @@ extern ASTEnvironment env;
 #define ZEROCONST &(env.ZeroConstant)
 #define ONECONST &(env.OneConstant)
 #define NEGATIVEONECONST &(env.NegativeOneConstant)
+#define DUMMYCONSTRAINT &(env.DummyConstraint)
 
 #else
 extern ConstantTerm ZeroConstant;
 extern ConstantTerm OneConstant;
 extern ConstantTerm NegativeOneConstant;
+extern DummyConstraintTerm DummyConstraint;
 #define ZEROCONST &(ZeroConstant)
 #define ONECONST &(OneConstant)
 #define NEGATIVEONECONST &(NegativeOneConstant)
+#define DUMMYCONSTRAINT &(DummyConstraint)
 // GCOVR_EXCL_STOP
 #endif
 

@@ -19,7 +19,10 @@ public:
 
     void visit(ConstantTerm& arg);
     void visit(ParameterTerm& arg);
+    void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
+    void visit(VariableRefTerm& arg);
+    void visit(IndexedVariableTerm& arg);
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
@@ -47,6 +50,7 @@ public:
     void visit(ACoshTerm& arg);
     void visit(ATanhTerm& arg);
     void visit(PowTerm& arg);
+    void visit(SumExpressionTerm& arg);
 };
 
 
@@ -66,6 +70,11 @@ else
     ostr << arg.name;
 }
 
+void WriteExprVisitor::visit(IndexParameterTerm& arg)
+{
+ostr << arg.name;
+}
+
 void WriteExprVisitor::visit(VariableTerm& arg)
 {
 if (arg.name.size() == 0) {
@@ -74,6 +83,39 @@ if (arg.name.size() == 0) {
 else {
     ostr << arg.name;
     }
+}
+
+void WriteExprVisitor::visit(VariableRefTerm& arg)
+{
+bool first=true;
+ostr << arg.name << "(";
+for (auto it=arg.indices.begin(); it != arg.indices.end(); ++it) {
+    if (first)
+        first=false;
+    else
+        ostr << ",";
+    auto val = *it;
+    if (auto ival = std::get_if<int>(&val)) {
+        ostr << *ival;
+        }
+#if 0
+    else if (auto dval = std::get_if<double>(&val)) {
+        ostr << *dval;
+        }
+    else if (auto sval = std::get_if<std::string>(&val)) {
+        ostr << "\"" << *sval << "\"";
+        }
+#endif
+    else if (auto eval = std::get_if<expr_pointer_t>(&val)) {
+        (*eval)->accept(*this);
+        }
+    }
+ostr << ")";
+}
+
+void WriteExprVisitor::visit(IndexedVariableTerm& arg)
+{
+ostr << arg.get_name();
 }
 
 void WriteExprVisitor::visit(MonomialTerm& arg)
@@ -108,6 +150,10 @@ ostr << ")";
 void WriteExprVisitor::visit(PlusTerm& arg)
 {
 std::vector<expr_pointer_t>& vec = *(arg.data);
+if (vec.size() == 0) {
+    ostr << "NULL-SUM";
+    return;
+    }
 vec[0]->accept(*this);
 
 for (size_t i=1; i<arg.n; i++) {
@@ -170,6 +216,11 @@ arg.lhs->accept(*this);
 ostr << ", ";
 arg.rhs->accept(*this);
 ostr << ")";
+}
+
+void WriteExprVisitor::visit(SumExpressionTerm& arg)
+{
+ostr << "Sum()";
 }
 
 }

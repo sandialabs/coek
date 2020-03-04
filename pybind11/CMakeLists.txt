@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.7)
 
 # Use pybind11 to create pycoek Python module
 
+set(PYBIND11_CPP_STANDARD -std=c++17)
+
 include_directories("${PROJECT_SOURCE_DIR}/src/")
 include_directories("${PROJECT_SOURCE_DIR}/src/expr/")
 
@@ -19,7 +21,7 @@ else()
 endif()
 TARGET_LINK_LIBRARIES(pycoek PUBLIC coek)
 if(${with_gurobi})
-  TARGET_LINK_LIBRARIES(pycoek PUBLIC gurobi_g++5.2 gurobi81)
+  TARGET_LINK_LIBRARIES(pycoek PUBLIC gurobi_g++5.2 gurobi90)
 endif()
 if(${with_ipopt})
   TARGET_LINK_LIBRARIES(pycoek PUBLIC ipopt gfortran)

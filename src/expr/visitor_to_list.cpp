@@ -51,7 +51,10 @@ public:
 
     void visit(ConstantTerm& arg);
     void visit(ParameterTerm& arg);
+    void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
+    void visit(VariableRefTerm& arg);
+    void visit(IndexedVariableTerm& arg);
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
@@ -79,6 +82,7 @@ public:
     void visit(ACoshTerm& arg);
     void visit(ATanhTerm& arg);
     void visit(PowTerm& arg);
+    void visit(SumExpressionTerm& arg);
 };
 
 
@@ -97,7 +101,28 @@ write_expr(&arg, sstr);
 repr.push_back( sstr.str() );
 }
 
+void ToListVisitor::visit(IndexParameterTerm& arg)
+{
+std::stringstream sstr;
+write_expr(&arg, sstr);
+repr.push_back( sstr.str() );
+}
+
 void ToListVisitor::visit(VariableTerm& arg)
+{
+std::stringstream sstr;
+write_expr(&arg, sstr);
+repr.push_back( sstr.str() );
+}
+
+void ToListVisitor::visit(VariableRefTerm& arg)
+{
+std::stringstream sstr;
+write_expr(&arg, sstr);
+repr.push_back( sstr.str() );
+}
+
+void ToListVisitor::visit(IndexedVariableTerm& arg)
 {
 std::stringstream sstr;
 write_expr(&arg, sstr);
@@ -216,6 +241,13 @@ repr.push_back( "[" );
 repr.push_back( "pow" );
 arg.lhs->accept(*this);
 arg.rhs->accept(*this);
+repr.push_back( "]" );
+}
+
+void ToListVisitor::visit(SumExpressionTerm& arg)
+{
+repr.push_back( "[" );
+repr.push_back( "Sum" );
 repr.push_back( "]" );
 }
 

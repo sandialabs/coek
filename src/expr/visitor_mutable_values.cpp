@@ -25,7 +25,16 @@ public:
     void visit(ParameterTerm& arg)
         {params.insert(&arg);}
 
+    void visit(IndexParameterTerm& arg)
+        {}
+
     void visit(VariableTerm& arg)
+        { if (arg.fixed) fixed_vars.insert(&arg); }
+
+    void visit(VariableRefTerm& arg)
+        {}
+
+    void visit(IndexedVariableTerm& arg)
         { if (arg.fixed) fixed_vars.insert(&arg); }
 
     void visit(MonomialTerm& arg)

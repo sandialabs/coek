@@ -27,9 +27,9 @@ std::unordered_set<VariableTerm*> vars;
 std::set<VariableTerm*> fixed_vars;
 std::set<ParameterTerm*> params;
 
-for (auto it=model.objectives.begin(); it != model.objectives.end(); ++it)
+for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it)
     find_vars_and_params(it->repn, vars, fixed_vars, params);
-for (auto it=model.constraints.begin(); it != model.constraints.end(); ++it)
+for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it)
     find_vars_and_params(it->repn, vars, fixed_vars, params);
 
 //std::cout << "HERE x " << vars.size() << std::endl;

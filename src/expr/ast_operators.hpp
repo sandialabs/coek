@@ -34,7 +34,12 @@ expr_pointer_t plus(const LHS& lhs, const RHS& rhs)
 {
 if (lhs == ZEROCONST)
     return rhs;
-return CREATE_POINTER(PlusTerm, lhs, rhs);
+PlusTerm* _lhs = dynamic_cast<PlusTerm*>(lhs);
+if (_lhs && (_lhs->data->size() == _lhs->n)) {
+    _lhs->push_back(rhs);
+    return _lhs;
+    }
+return CREATE_POINTER(PlusTerm, lhs, rhs, false);
 }
 
 template <typename LHS>
@@ -44,7 +49,12 @@ if (rhs == 0.0)
     return lhs;
 
 expr_pointer_t _rhs = CREATE_POINTER(ConstantTerm, rhs);
-return CREATE_POINTER(PlusTerm, lhs, _rhs);
+PlusTerm* _lhs = dynamic_cast<PlusTerm*>(lhs);
+if (_lhs && (_lhs->data->size() == _lhs->n)) {
+    _lhs->push_back(_rhs);
+    return _lhs;
+    }
+return CREATE_POINTER(PlusTerm, lhs, _rhs, false);
 }
 
 template <typename RHS>
@@ -54,7 +64,7 @@ if (lhs == 0.0)
     return rhs;
 
 expr_pointer_t _lhs = CREATE_POINTER(ConstantTerm, lhs);
-return CREATE_POINTER(PlusTerm, _lhs, rhs);
+return CREATE_POINTER(PlusTerm, _lhs, rhs, false);
 }
 
 template <typename LHS>
@@ -64,7 +74,12 @@ if (rhs == 0)
     return lhs;
 
 expr_pointer_t _rhs = CREATE_POINTER(ConstantTerm, rhs);
-return CREATE_POINTER(PlusTerm, lhs, _rhs);
+PlusTerm* _lhs = dynamic_cast<PlusTerm*>(lhs);
+if (_lhs && (_lhs->data->size() == _lhs->n)) {
+    _lhs->push_back(_rhs);
+    return _lhs;
+    }
+return CREATE_POINTER(PlusTerm, lhs, _rhs, false);
 }
 
 template <typename RHS>
@@ -74,7 +89,7 @@ if (lhs == 0)
     return rhs;
 
 expr_pointer_t _lhs = CREATE_POINTER(ConstantTerm, lhs);
-return CREATE_POINTER(PlusTerm, _lhs, rhs);
+return CREATE_POINTER(PlusTerm, _lhs, rhs, false);
 }
 
 //
@@ -83,7 +98,12 @@ return CREATE_POINTER(PlusTerm, _lhs, rhs);
 template <typename LHS, typename RHS>
 expr_pointer_t minus(const LHS& lhs, const RHS& rhs)
 {
-return CREATE_POINTER(PlusTerm, lhs, rhs->negate(rhs) );
+PlusTerm* _lhs = dynamic_cast<PlusTerm*>(lhs);
+if (_lhs && (_lhs->data->size() == _lhs->n)) {
+    _lhs->push_back(rhs->negate(rhs));
+    return _lhs;
+    }
+return CREATE_POINTER(PlusTerm, lhs, rhs->negate(rhs), false);
 }
 
 template <typename RHS>
@@ -93,7 +113,7 @@ if (lhs == 0.0)
     return rhs->negate(rhs);
 
 expr_pointer_t _lhs = CREATE_POINTER(ConstantTerm, lhs);
-return CREATE_POINTER(PlusTerm, _lhs, rhs->negate(rhs));
+return CREATE_POINTER(PlusTerm, _lhs, rhs->negate(rhs), false);
 }
 
 template <typename RHS>
@@ -103,7 +123,7 @@ if (lhs == 0)
     return rhs->negate(rhs);
 
 expr_pointer_t _lhs = CREATE_POINTER(ConstantTerm, lhs);
-return CREATE_POINTER(PlusTerm, _lhs, rhs->negate(rhs));
+return CREATE_POINTER(PlusTerm, _lhs, rhs->negate(rhs), false);
 }
 
 template <typename LHS>
@@ -114,7 +134,12 @@ expr_pointer_t minus(const LHS& lhs, double rhs)
 //    return lhs;
 
 expr_pointer_t _rhs = CREATE_POINTER(ConstantTerm, -rhs);
-return CREATE_POINTER(PlusTerm, lhs, _rhs);
+PlusTerm* _lhs = dynamic_cast<PlusTerm*>(lhs);
+if (_lhs && (_lhs->data->size() == _lhs->n)) {
+    _lhs->push_back(_rhs);
+    return _lhs;
+    }
+return CREATE_POINTER(PlusTerm, lhs, _rhs, false);
 }
 
 template <typename LHS>
@@ -125,7 +150,12 @@ expr_pointer_t minus(const LHS& lhs, int rhs)
 //    return lhs;
 
 expr_pointer_t _rhs = CREATE_POINTER(ConstantTerm, -rhs);
-return CREATE_POINTER(PlusTerm, lhs, _rhs);
+PlusTerm* _lhs = dynamic_cast<PlusTerm*>(lhs);
+if (_lhs && (_lhs->data->size() == _lhs->n)) {
+    _lhs->push_back(_rhs);
+    return _lhs;
+    }
+return CREATE_POINTER(PlusTerm, lhs, _rhs, false);
 }
 
 //

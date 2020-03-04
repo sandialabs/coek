@@ -29,7 +29,21 @@ public:
         params.insert(&arg);
         }
 
+    void visit(IndexParameterTerm& arg)
+        {}
+
     void visit(VariableTerm& arg)
+        {
+        if (arg.fixed)  fixed_vars.insert(&arg);
+        else            vars.insert(&arg);
+        }
+
+    void visit(VariableRefTerm& arg)
+        {
+        throw std::runtime_error("Attempting to find variables in an abstract expression!");
+        }
+
+    void visit(IndexedVariableTerm& arg)
         {
         if (arg.fixed)  fixed_vars.insert(&arg);
         else            vars.insert(&arg);

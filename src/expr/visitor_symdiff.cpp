@@ -28,7 +28,10 @@ public:
 
     void visit(ConstantTerm& arg);
     void visit(ParameterTerm& arg);
+    void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
+    void visit(VariableRefTerm& arg);
+    void visit(IndexedVariableTerm& arg);
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
@@ -71,11 +74,30 @@ void PartialVisitor::visit(ParameterTerm& arg)
 partial = ZEROCONST;
 }
 
+void PartialVisitor::visit(IndexParameterTerm& arg)
+{
+throw std::runtime_error("Cannot differentiate an expression using an abstract parameter term.");
+}
+
 void PartialVisitor::visit(VariableTerm& arg)
 {
 partial = ONECONST;
 }
 
+void PartialVisitor::visit(VariableRefTerm& arg)
+{
+//
+// We assume for now that a user cannot differentiate with respect to an referenced
+// variable.  It's not clear that we can infer whether two referenced variables are the same,
+// given that they may be indexed by equations.
+//
+partial = ZEROCONST;
+}
+
+void PartialVisitor::visit(IndexedVariableTerm& arg)
+{
+partial = ONECONST;
+}
 void PartialVisitor::visit(MonomialTerm& arg)
 {
 partial = CREATE_POINTER(ConstantTerm, arg.coef);

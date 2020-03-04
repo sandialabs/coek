@@ -5,12 +5,15 @@ namespace coek {
 
 class BaseExpressionTerm;
 class VariableTerm;
+class VariableRefTerm;
+class IndexedVariableTerm;
 class ConstantTerm;
 class ParameterTerm;
-class VariableTerm;
+class IndexParameterTerm;
 class MonomialTerm;
 class InequalityTerm;
 class EqualityTerm;
+class DummyConstraintTerm;
 class NegateTerm;
 class PlusTerm;
 class TimesTerm;
@@ -35,6 +38,7 @@ class ASinhTerm;
 class ACoshTerm;
 class ATanhTerm;
 class PowTerm;
+class SumExpressionTerm;
 
 
 class Visitor
@@ -45,10 +49,14 @@ public:
 
     virtual void visit(ConstantTerm& arg) = 0;
     virtual void visit(ParameterTerm& arg) = 0;
+    virtual void visit(IndexParameterTerm& arg) = 0;
     virtual void visit(VariableTerm& arg) = 0;
+    virtual void visit(VariableRefTerm& arg) = 0;
+    virtual void visit(IndexedVariableTerm& arg) = 0;
     virtual void visit(MonomialTerm& arg) = 0;
     virtual void visit(InequalityTerm& arg) = 0;
     virtual void visit(EqualityTerm& arg) = 0;
+    virtual void visit(DummyConstraintTerm& ) {}
     virtual void visit(NegateTerm& arg) = 0;
     virtual void visit(PlusTerm& arg) = 0;
     virtual void visit(TimesTerm& arg) = 0;
@@ -73,39 +81,45 @@ public:
     virtual void visit(ACoshTerm& arg) = 0;
     virtual void visit(ATanhTerm& arg) = 0;
     virtual void visit(PowTerm& arg) = 0;
+    virtual void visit(SumExpressionTerm& arg)
+        { throw std::runtime_error("Visitor cannot handle SumExpressionTerm"); }
 };
 
 enum term_id {
-    ConstantTerm_id =   1,
-    ParameterTerm_id =  2,
-    VariableTerm_id =   3,
-    MonomialTerm_id =   4,
-    InequalityTerm_id = 5,
-    EqualityTerm_id =   6,
-    NegateTerm_id =     7,
-    PlusTerm_id =       8,
-    TimesTerm_id =      9,
-    DivideTerm_id =     10,
-    AbsTerm_id =        11,
-    CeilTerm_id =       12,
-    FloorTerm_id =      13,
-    ExpTerm_id =        14,
-    LogTerm_id =        15,
-    Log10Term_id =      16,
-    SqrtTerm_id =       17,
-    SinTerm_id =        18,
-    CosTerm_id =        19,
-    TanTerm_id =        20,
-    SinhTerm_id =       21,
-    CoshTerm_id =       22,
-    TanhTerm_id =       23,
-    ASinTerm_id =       24,
-    ACosTerm_id =       25,
-    ATanTerm_id =       26,
-    ASinhTerm_id =      27,
-    ACoshTerm_id =      28,
-    ATanhTerm_id =      29,
-    PowTerm_id =        30
+    ConstantTerm_id =       1,
+    ParameterTerm_id =      2,
+    IndexParameterTerm_id = 100,
+    VariableTerm_id =       3,
+    VariableRefTerm_id =    4,
+    IndexedVariableTerm_id = 101,
+    MonomialTerm_id =       5,
+    InequalityTerm_id =     6,
+    EqualityTerm_id =       7,
+    NegateTerm_id =         8,
+    PlusTerm_id =           9,
+    TimesTerm_id =          10,
+    DivideTerm_id =         11,
+    AbsTerm_id =            12,
+    CeilTerm_id =           13,
+    FloorTerm_id =          14,
+    ExpTerm_id =            15,
+    LogTerm_id =            16,
+    Log10Term_id =          17,
+    SqrtTerm_id =           18,
+    SinTerm_id =            19,
+    CosTerm_id =            20,
+    TanTerm_id =            21,
+    SinhTerm_id =           22,
+    CoshTerm_id =           23,
+    TanhTerm_id =           24,
+    ASinTerm_id =           25,
+    ACosTerm_id =           26,
+    ATanTerm_id =           27,
+    ASinhTerm_id =          28,
+    ACoshTerm_id =          29,
+    ATanhTerm_id =          30,
+    PowTerm_id =            31,
+    SumExpressionTerm_id =  102
     };
 
 }
