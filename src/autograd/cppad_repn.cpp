@@ -348,7 +348,11 @@ if (nc > 0) {
             // Identity marix 
             CppAD::vectorBool r(nx * nx);
             for(size_t i = 0; i < nx; i++)
-                r[i*nx + i] = true;
+              for(size_t j = 0; j < nx; j++)
+                if (i==j)
+                    r[i*nx + j] = true;
+                else
+                    r[i*nx + j] = false;
             auto s = ADfc.ForSparseJac(nx, r);
 
             // fill in the corresponding columns of total_sparsity
@@ -395,6 +399,8 @@ if (nc > 0) {
             CppAD::vectorBool r(nfc * nfc); //, s(nx * nc);
 
             // R is the identity matrix
+            for (size_t i = 0; i < nfc*nfc; i++)
+                r[i] = false;
             for (size_t i = nf; i < nfc; i++)
                 r[i*nfc + i] = true;
             auto s = ADfc.RevSparseJac(nfc, r);
@@ -488,7 +494,11 @@ if ( sparse_JH ) {
     // Identity matrix
     CppAD::vectorBool r(nx * nx); //, h(nx * n_column);
     for(size_t i = 0; i < nx; i++)
-        r[i*nx + i] = true;
+      for(size_t j = 0; j < nx; j++)
+        if (i == j)
+            r[i*nx + j] = true;
+        else
+            r[i*nx + j] = false;
     ADfc.ForSparseJac(nx, r);
 
     // sparsity pattern corresponding to paritls w.r.t. (theta, u)
