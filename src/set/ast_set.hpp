@@ -288,23 +288,25 @@ public:
 
     IndexParameter index;
     typename std::vector<TYPE>::iterator iterator;
+    typename std::vector<TYPE>::iterator end_iterator;
 
 public:
 
-    FiniteSetIteratorRepn(const typename std::vector<TYPE>::iterator& _iterator, const IndexParameter& _index)
-        : index(_index), iterator(_iterator)
+    FiniteSetIteratorRepn(const typename std::vector<TYPE>::iterator& _iterator, const typename std::vector<TYPE>::iterator& _end_iterator, const IndexParameter& _index)
+        : index(_index), iterator(_iterator), end_iterator(_end_iterator)
         {
         set_index_value(index, *iterator);
         }
 
-    FiniteSetIteratorRepn(const typename std::vector<TYPE>::iterator& _iterator)
-        : iterator(_iterator)
+    FiniteSetIteratorRepn(const typename std::vector<TYPE>::iterator& _iterator, const typename std::vector<TYPE>::iterator& _end_iterator)
+        : iterator(_iterator), end_iterator(_end_iterator)
         { }
 
     void next()
         {
         iterator++;
-        set_index_value(index, *iterator);
+        if (iterator != end_iterator)
+            set_index_value(index, *iterator);
         }
 
     bool equals(const SetIteratorRepnBase<TYPE>* repn) const
@@ -413,13 +415,13 @@ public:
 
     SimpleSetIterator<TYPE> begin()
         {
-        auto tmp = std::make_shared<FiniteSetIteratorRepn<TYPE>>(data.begin());
+        auto tmp = std::make_shared<FiniteSetIteratorRepn<TYPE>>(data.begin(), data.end());
         return SimpleSetIterator<TYPE>(tmp);
         }
 
     SimpleSetIterator<TYPE> end()
         {
-        auto tmp = std::make_shared<FiniteSetIteratorRepn<TYPE>>(data.end());
+        auto tmp = std::make_shared<FiniteSetIteratorRepn<TYPE>>(data.end(), data.end());
         return SimpleSetIterator<TYPE>(tmp);
         }
 

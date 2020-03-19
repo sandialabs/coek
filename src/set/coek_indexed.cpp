@@ -227,7 +227,7 @@ protected:
         for (auto it=concrete_set.begin(); it != concrete_set.end(); ++it) {
             auto& vec = *it;
             IndexVector x = cache.alloc(dim);
-            for (size_t j=0; j<dim+1; j++)
+            for (size_t j=0; j<dim; j++)
                 x[j] = vec[j];
             index[x] = i++;
             }
