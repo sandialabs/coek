@@ -356,6 +356,10 @@ if (nc > 0) {
             auto s = ADfc.ForSparseJac(nx, r);
 
             // fill in the corresponding columns of total_sparsity
+            for(size_t i = 0; i < nf; i++) {
+                for(size_t j = 0; j < nx; j++)
+                    jac_pattern[i*nx  + j] = 0;
+                }
             for(size_t i = nf; i < nfc; i++) {
                 for(size_t j = 0; j < nx; j++)
                     jac_pattern[i*nx  + j] = s[i*nx + j];
@@ -406,6 +410,10 @@ if (nc > 0) {
             auto s = ADfc.RevSparseJac(nfc, r);
 
             // fill in correspoding rows of total sparsity
+            for(size_t i = 0; i < nf; i++) {
+                for(size_t j = 0; j < nx; j++)
+                    jac_pattern[i*nx + j] = 0;
+                }
             for(size_t i = nf; i < nfc; i++) {
                 for(size_t j = 0; j < nx; j++)
                     jac_pattern[i*nx + j] = s[i*nx + j];
@@ -514,6 +522,9 @@ if ( sparse_JH ) {
     for(size_t i = 0; i < nx; i++) {
         for(size_t j = 0; j <= i; j++)
             hes_pattern[i*nx + j] = h[i*nx + j];
+        // TODO - Why is CppAD looking at the pattern in a non-symmetric manner?
+        for(size_t j = i+1; j < nx; j++)
+            hes_pattern[i*nx + j] = 0;
         }
 #endif
     //
@@ -543,6 +554,9 @@ else {
             }
         }
     }
+
+if (sparse_JH)
+    hes_work.color_method = "cppad.symmetric";
 
 reset();
 }

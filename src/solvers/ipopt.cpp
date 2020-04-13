@@ -309,7 +309,8 @@ else {
     size_t nc = model.num_constraints();
     for (size_t i=0; i<nf; i++)
         tmp_hw[i] = obj_factor;
-    for (size_t i=nf; i<nc; i++)
+    //for (size_t i=nf; i<nc; i++)
+    for (size_t i=0; i<nc; i++)
         tmp_hw[i+nf] = lambda[i];
     model.compute_H(tmp_hw, tmp_h);
     for (size_t i=0; i<tmp_h.size(); i++)
