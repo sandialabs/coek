@@ -1,4 +1,5 @@
 #include <cassert>
+#include "autograd/autograd.hpp"
 #include "IpIpoptApplication.hpp"
 #include "IpSolveStatistics.hpp"
 #include "IpTNLP.hpp"
@@ -9,7 +10,8 @@ using namespace Ipopt;
 namespace coek {
 
 
-std::ostream& operator<<(std::ostream& ostr, const std::vector<double>& vec)
+template <typename TYPE>
+std::ostream& operator<<(std::ostream& ostr, const std::vector<TYPE>& vec)
 {
 for (size_t i=0; i<vec.size(); i++)
   ostr << vec[i] << " ";
@@ -134,8 +136,8 @@ bool IpoptProblem::get_bounds_info(Index n, Number* x_l, Number* x_u,
 // x_u[i] - the upper bound of variable i
 
 //std::cout << "GET BOUNDS " << std::endl << std::flush;
+//std::cout << "  num variables: " << model.num_variables() << std::endl;
 // Setting bounds to +/- infinity
-Index i=0;
 for (size_t i=0; i<model.num_variables(); i++) {
     auto v = model.get_variable(i);
     if (v.is_binary())
@@ -148,8 +150,9 @@ for (size_t i=0; i<model.num_variables(); i++) {
     //std::cout << "x " << i << " " << x_l[i] << " " << x_u[i] << std::endl << std::flush;
     }
 
-for (size_t j=0; j<model.model.repn->constraints.size(); j++) {
-    if (model.model.repn->constraints[i].is_inequality()) {
+//std::cout << "  num constraints: " << model.num_constraints() << std::endl;
+for (size_t j=0; j<model.repn->model.repn->constraints.size(); j++) {
+    if (model.repn->model.repn->constraints[j].is_inequality()) {
         // Inequality constraints are g(x) <= 0
         g_l[j] = - COEK_INFINITY;
         g_u[j] = 0; 
@@ -251,7 +254,6 @@ bool IpoptProblem::eval_jac_g(Index n, const Number* x, bool new_x,
 { 
 //std::cout << "EVAL J " << std::endl << std::flush;
 if (values == NULL) {
-    //std::cout << "Get Structure " << std::endl << std::flush;
     // Return the structure of the Jacobian of the constraints
     std::vector<size_t> jrow;
     std::vector<size_t> jcol;
@@ -260,6 +262,9 @@ if (values == NULL) {
         jRow[i] = jrow[i];
         jCol[i] = jcol[i];
         }
+    //std::cout << "Get Structure " << std::endl << std::flush;
+    //std::cout << jrow << std::endl;
+    //std::cout << jcol << std::endl;
     }
 
 else {
