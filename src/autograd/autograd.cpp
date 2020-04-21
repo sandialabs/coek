@@ -70,4 +70,20 @@ v->initialize = _v->initialize;
 v->value = _v->value;
 }
 
+void NLPModelRepn::write(std::ostream& ostr) const
+{
+ostr << "NLPModel:" << std::endl;
+ostr << "  variables:         " << num_variables() << std::endl;
+ostr << "  all variables:     " << used_variables.size() << std::endl;
+ostr << "  fixed variables:   " << fixed_variables.size() << std::endl;
+ostr << "  parameters:        " << parameters.size() << std::endl;
+ostr << "  objectives:        " << num_objectives() << std::endl;
+ostr << "  constraints:       " << num_constraints() << std::endl;
+ostr << "  nonzeros Jacobian: " << num_nonzeros_Jacobian() << std::endl;
+ostr << "  nonzeros Hessian:  " << num_nonzeros_Hessian_Lagrangian() << std::endl;
+ostr << std::endl;
+ostr << model;
+ostr << std::endl;
+}
+
 }

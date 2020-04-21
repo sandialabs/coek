@@ -126,7 +126,7 @@ public:
 
 public:
 
-    void build_expression(expr_pointer_t root, int nb, std::vector<CppAD::AD<double> >& ADvars, CppAD::AD<double>& range, std::unordered_map<VariableTerm*,int>& _used_variables);
+    void build_expression(expr_pointer_t root, std::vector<CppAD::AD<double> >& ADvars, CppAD::AD<double>& range, std::unordered_map<VariableTerm*,int>& _used_variables);
 
 };
 

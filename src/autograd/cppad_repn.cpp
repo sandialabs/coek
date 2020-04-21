@@ -64,7 +64,7 @@ jrow.resize(jac_row.size());
 jcol.resize(jac_col.size());
 
 for (size_t i=0; i<jac_row.size(); i++) {
-    jrow[i] = jac_row[i];
+    jrow[i] = jac_row[i] - 1;
     jcol[i] = jac_col[i];
     }
 }
@@ -82,6 +82,7 @@ for (size_t i=0; i<hes_row.size(); i++) {
 
 void CppAD_Repn::write(std::ostream& ostr) const
 {
+NLPModelRepn::write(ostr);
 }
 
 double CppAD_Repn::compute_f(unsigned int i)
@@ -269,21 +270,16 @@ else
     CppAD::Independent(ADvars);
 
 try {
-    if (nf > 0) {
-        int nb=0;
-
-        for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it) {
-            build_expression(it->repn, nb, ADvars, ADrange[nb], _used_variables);
-            nb++;
-            }
+    int nb=0;
+    for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it) {
+        build_expression(it->repn, ADvars, ADrange[nb], _used_variables);
+        nb++;
         }
-    if (nc > 0) {
-        int nb=0;
 
-        for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it) {
-            build_expression(it->repn, nb, ADvars, ADrange[nf + nb], _used_variables);
-            nb++;
-            }
+    nb=0;
+    for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it) {
+        build_expression(it->repn, ADvars, ADrange[nf + nb], _used_variables);
+        nb++;
         }
     }
 catch (std::runtime_error& err) {
@@ -509,7 +505,7 @@ if ( sparse_JH ) {
             r[i*nx + j] = false;
     ADfc.ForSparseJac(nx, r);
 
-    // sparsity pattern corresponding to paritls w.r.t. (theta, u)
+    // sparsity pattern corresponding to parials w.r.t. (theta, u)
     // of partial w.r.t. the selected columns
     bool transpose = true;
     // sparsity pattern for range space of function
@@ -887,7 +883,7 @@ switch (expr->id()) {
 }
 
 
-void CppAD_Repn::build_expression(expr_pointer_t root, int nb, std::vector<CppAD::AD<double> >& ADvars, CppAD::AD<double>& range, std::unordered_map<VariableTerm*,int>& _used_variables)
+void CppAD_Repn::build_expression(expr_pointer_t root, std::vector<CppAD::AD<double> >& ADvars, CppAD::AD<double>& range, std::unordered_map<VariableTerm*,int>& _used_variables)
 {
 std::unordered_map<expr_pointer_t, CppAD::AD<double> > cache;
 
