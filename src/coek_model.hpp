@@ -215,7 +215,6 @@ public:
 };
 
 
-// Coek Solver
 class CompactModel
 {
 public:
@@ -295,8 +294,6 @@ class NLPModel
 public:
 
     std::shared_ptr<NLPModelRepn> repn;
-
-    Model model;
 
 public:
 
