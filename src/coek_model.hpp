@@ -267,7 +267,8 @@ public:
 
     void load(Model& model);
     void load(CompactModel& model);
-    int resolve();
+    int resolve(bool reset_initial_point=true);
+    void reset();
 
     // Solver Options
 
@@ -301,7 +302,7 @@ public:
     NLPModel(Model& model, std::string type, bool sparse_JH=true);
 
     void initialize(Model& model, std::string type, bool sparse_JH=true);
-    void reset();
+    void reset();   // TODO - maybe this should be called 'update'?
 
     size_t num_variables() const;
     size_t num_objectives() const;
@@ -428,7 +429,8 @@ public:
     int solve(NLPModel& model);
 
     void load(NLPModel& model);
-    int resolve();
+    int resolve(bool reset_initial_point=true);
+    void reset();
     
     // Solver Options
 

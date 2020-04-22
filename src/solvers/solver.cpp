@@ -80,11 +80,18 @@ else {
 }
 
 
+void SolverRepn::reset()
+{
+initial=true;
+vcache.clear();
+pcache.clear();
+}
+
+
 void SolverRepn::load(Model& _model)
 {
 model = _model;
-vcache.clear();
-pcache.clear();
+reset();
 
 vconstvals.clear();
 pconstvals.clear();

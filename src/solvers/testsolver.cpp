@@ -7,6 +7,7 @@ namespace coek {
 
 int TestSolver::solve(Model& model)
 {
+assert(initial_solve());
 //std::cout << "COLLECTING REPNS/VARS" << std::endl << std::flush;
 
 // Collect repns
@@ -28,7 +29,7 @@ return solve(model);
 }
 
 
-int TestSolver::resolve()
+int TestSolver::resolve(bool reset_initial_point)
 {
 if (initial_solve()) {
     // Setup the model the first time here

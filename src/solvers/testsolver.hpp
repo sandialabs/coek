@@ -11,7 +11,7 @@ public:
 
     TestSolver() : SolverRepn() {}
 
-    int resolve();
+    int resolve(bool reset_initial_point);
     int solve(Model& );
     int solve(CompactModel& );
 };

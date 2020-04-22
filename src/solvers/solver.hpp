@@ -89,7 +89,8 @@ public:
     virtual void load(Model& model);
     virtual void load(CompactModel& model);
 
-    virtual int resolve() = 0;
+    virtual int resolve(bool reset_initial_point) = 0;
+    virtual void reset();
 
     virtual int solve(Model& model) = 0;
     virtual int solve(CompactModel& model);
@@ -115,18 +116,30 @@ public:
 public:
 
     NLPSolverRepn(void) 
-        : SolverCache(), model(0) {}
+        : SolverCache(), model(0), initial(true) {}
     virtual ~NLPSolverRepn() {}
 
     virtual void load(NLPModel& _model)
-        {model = &_model;}
+        {
+        model = &_model;
+        reset();
+        }
 
-    virtual int resolve() = 0;
+    virtual int resolve(bool reset_initial_point) = 0;
+    virtual void reset()
+        { initial=true; }
 
     virtual int solve(NLPModel& model) = 0;
 
     virtual bool initial_solve()
-        {return false;}
+        {
+        if (initial) {
+            initial = false;
+            return true;
+            }
+        else
+            return false;
+        }
 
 protected:
 

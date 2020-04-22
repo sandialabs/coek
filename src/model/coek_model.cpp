@@ -1106,8 +1106,10 @@ void Solver::load(Model& model)
 void Solver::load(CompactModel& model)
 { repn->load(model); }
 
-int Solver::resolve()
-{ return repn->resolve(); }
+int Solver::resolve(bool reset_initial_point)
+{ return repn->resolve(reset_initial_point); }
+void Solver::reset()
+{ repn->reset(); }
 
 bool Solver::get_option(const std::string& option, int& value) const
 { return repn->get_option(option, value); }
@@ -1146,19 +1148,15 @@ repn = tmp;
 }
 
 int NLPSolver::solve(NLPModel& model)
-{
-return repn->solve(model);
-}
+{ return repn->solve(model); }
 
 void NLPSolver::load(NLPModel& model)
-{
-repn->load(model);
-}
+{ repn->load(model); }
 
-int NLPSolver::resolve()
-{
-return repn->resolve();
-}
+int NLPSolver::resolve(bool reset_initial_point)
+{ return repn->resolve(reset_initial_point); }
+void NLPSolver::reset()
+{ repn->reset(); }
 
 bool NLPSolver::get_option(const std::string& option, int& value) const
 { return repn->get_option(option, value); }

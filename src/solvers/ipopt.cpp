@@ -24,6 +24,8 @@ class IpoptProblem : public TNLP
 public:
 
     NLPModel model;
+    bool start_from_last_x;
+    std::vector<double> last_x;
     std::vector<double> tmp_grad;
     std::vector<double> tmp_c;
     std::vector<double> tmp_j;
@@ -36,6 +38,8 @@ public:
 
     void build()
         {
+        start_from_last_x=false;
+        last_x.resize(model.num_variables());
         tmp_grad.resize(model.num_variables());
         tmp_c.resize(model.num_constraints());
         tmp_j.resize(model.num_nonzeros_Jacobian());
@@ -103,6 +107,19 @@ private:
         { return *this; }
 };
 
+
+class IpoptSolverRepn
+{
+public:
+
+    SmartPtr<IpoptProblem> problem;
+
+    IpoptSolverRepn(NLPModel& model)
+        { problem = new IpoptProblem(model); }
+
+    void build()
+        { problem->build(); }
+};
 
 
 bool IpoptProblem::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
@@ -174,18 +191,24 @@ bool IpoptProblem::get_starting_point(Index n, bool init_x, Number* x,
                                bool init_z, Number* z_L, Number* z_U,
                                Index m, bool init_lambda, Number* lambda)
 {
-//std::cout << "GET STARTING POINT " << std::endl << std::flush;
-// Here, we assume we only have starting values for x
-assert(init_x == true);
-assert(init_z == false);
-assert(init_lambda == false);
-
-// Initialize the x[i];
-for (size_t i=0; i<model.num_variables(); i++) {
-    auto v = model.get_variable(i);
-    x[i] = v.get_initial();
-    //std::cout << "x " << i << " " << x[i] << std::endl << std::flush;
+// We only have starting values for x
+if (init_x) {
+    //std::cout << "GET STARTING POINT " << std::endl << std::flush;
+    // Initialize the x[i];
+    for (size_t i=0; i<model.num_variables(); i++) {
+        auto v = model.get_variable(i);
+        if (start_from_last_x)
+            x[i] = last_x[i];
+        else
+            x[i] = v.get_initial();
+        //std::cout << "x " << i << " " << x[i] << std::endl << std::flush;
+        }
     }
+
+if (init_z)
+    return false;
+if (init_lambda)
+    return false;
 
 return true;
 }
@@ -337,21 +360,37 @@ void IpoptProblem::finalize_solution(SolverReturn status,
 for (size_t i=0; i<model.num_variables(); i++) {
     auto v = model.get_variable(i);
     v.set_value( x[i] );
+    last_x[i] = x[i];
     }
+
 }
 
 
 
 int IpoptSolver::solve(NLPModel& _model)
 {
-model = &_model;
-SmartPtr<IpoptProblem> nlp = new IpoptProblem(_model);
-nlp->build();
+load(_model);
+if (not initial_solve()) {
+    std::cout << "ERROR: must reset the model before solving" << std::endl;
+    return -1;
+    }
+nlp->problem->start_from_last_x = false;
+return perform_solve();
+}
 
-// Create an instance of the IpoptApplication
-//
-// We are using the factory, since this allows us to compile this
-// example with an Ipopt Windows DLL
+
+int IpoptSolver::resolve(bool reset_initial_point)
+{
+if (not initial_solve())
+    nlp->problem->model.reset();
+
+nlp->problem->start_from_last_x = not reset_initial_point;
+
+return perform_solve();
+}
+
+int IpoptSolver::perform_solve()
+{
 SmartPtr<IpoptApplication> app = IpoptApplicationFactory();
 
 // Initialize the IpoptApplication and process the options
@@ -368,7 +407,7 @@ for (auto it=integer_options.begin(); it != integer_options.end(); ++it)
 for (auto it=double_options.begin(); it != double_options.end(); ++it)
     app->Options()->SetNumericValue(it->first, it->second);
 
-status = app->OptimizeTNLP(nlp);
+status = app->OptimizeTNLP(nlp->problem);
 
 if (status == Solve_Succeeded) {
     // Retrieve some statistics about the solve
@@ -377,7 +416,7 @@ if (status == Solve_Succeeded) {
 
     Number final_obj = app->Statistics()->FinalObjective();
     std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
-}
+    }
 
 return (int) status;
 }
@@ -386,12 +425,8 @@ return (int) status;
 void IpoptSolver::load(NLPModel& _model)
 {
 model = &_model;
-}
-
-
-int IpoptSolver::resolve()
-{
-return solve(*model);
+nlp = std::make_shared<IpoptSolverRepn>(_model);
+nlp->build();
 }
 
 }
