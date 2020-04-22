@@ -5,6 +5,7 @@
 //       Ax <= b
 //       x >= 0
 //
+#include <chrono>
 #include <map>
 #include <vector>
 #include <random>
@@ -98,17 +99,18 @@ if (solver == "gurobi") {
     }
 else {
     coek::NLPModel nlp(model, "cppad");
-    std::cout << "NLP\n" << nlp << std::endl;
     coek::NLPSolver opt("ipopt");
     opt.set_option("print_level", 0);
     opt.solve(nlp);
-    std::cout << "Solve: " << 0 << "  Objective: " << model.repn->objectives[0].get_value() << std::endl;
+    std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
     }
 }
 
 
 void objective_test(int N, int nsolves, const std::string& solver)
 {
+auto start = std::chrono::high_resolution_clock::now();
+
 std::mt19937 rng(10000) ;
 std::uniform_real_distribution<double> distribution(0,1);
 auto uniform = std::bind( distribution, rng );
@@ -146,7 +148,6 @@ for (int n=0; n<N; n++) {
     model.add( expr <= b[n] );
     }
 
-
 if (solver == "gurobi") {
     coek::Solver opt(solver);
     opt.load(model);
@@ -162,10 +163,23 @@ if (solver == "gurobi") {
 else {
     coek::NLPModel nlp(model, "cppad");
     coek::NLPSolver opt("ipopt");
+    opt.set_option("print_level", 0);
     opt.load(nlp);
+
+    auto curr = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> diff = curr-start;
+    std::cout << "Time to build model: " << diff.count() << " s\n";
+    start = curr;
+
     for (int i=0; i<nsolves; i++) {
         opt.resolve();
-        std::cout << "Solve: " << i << "  Objective: " << model.repn->objectives[0].get_value() << std::endl;
+
+        auto curr = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> diff = curr-start;
+        std::cout << "Time to solve model: " << diff.count() << " s\n";
+        start = curr;
+
+        std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
         for (int n=0; n<N; n++)
             c[n].set_value( uniform() );
@@ -243,10 +257,11 @@ if (solver == "gurobi") {
 else {
     coek::NLPModel nlp(model, "cppad");
     coek::NLPSolver opt("ipopt");
+    opt.set_option("print_level", 0);
     opt.load(nlp);
     for (int i=0; i<nsolves; i++) {
         opt.resolve();
-        std::cout << "Solve: " << i << "  Objective: " << model.repn->objectives[0].get_value() << std::endl;
+        std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
         for (int m=0; m<N; m++)
             A_[m].set_value( uniform() );
@@ -323,10 +338,11 @@ if (solver == "gurobi") {
 else {
     coek::NLPModel nlp(model, "cppad");
     coek::NLPSolver opt("ipopt");
+    opt.set_option("print_level", 0);
     opt.load(nlp);
     for (int i=0; i<nsolves; i++) {
         opt.resolve();
-        std::cout << "Solve: " << i << "  Objective: " << model.repn->objectives[0].get_value() << std::endl;
+        std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
         for (int n=0; n<N; n++)
             A_[n].set_value( uniform() );
@@ -391,10 +407,11 @@ if (solver == "gurobi") {
 else {
     coek::NLPModel nlp(model, "cppad");
     coek::NLPSolver opt("ipopt");
+    opt.set_option("print_level", 0);
     opt.load(nlp);
     for (int i=0; i<nsolves; i++) {
         opt.resolve();
-        std::cout << "Solve: " << i << "  Objective: " << model.repn->objectives[0].get_value() << std::endl;
+        std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
         for (int n=0; n<N; n++)
             b[n].set_value( uniform() );
