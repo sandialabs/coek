@@ -7,9 +7,9 @@ class TestModel(unittest.TestCase):
 
     def test_model1(self):
         m = model()
-        v1 = variable(name="v1", initialize=1)
-        v2 = variable(name="v2", initialize=2)
-        v3 = variable(name="v3", initialize=3)
+        v1 = variable(name="v1", initial=1)
+        v2 = variable(name="v2", initial=2)
+        v3 = variable(name="v3", initial=3)
         m.use(v1)
         m.use(v2)
         m.use(v3)
@@ -22,7 +22,7 @@ class TestModel(unittest.TestCase):
         m.add( v1 > 1 )
         m.add( v1 == 3*v2-3 )
 
-        #m.show(True)
+        #m.display()
 
         nlp = nlp_model(m, "cppad")
         self.assertEqual(nlp.num_variables(), 3)
