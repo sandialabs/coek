@@ -165,6 +165,13 @@ Expression affine_expression(std::vector<Variable>& var, double offset);
 
 
 // Mutable Parameter 
+/**
+ * @class Parameter
+ * @brief Values that appear as mutable constants in expressions.
+ *
+ * Mutable parameters are used to declare expressions for which coefficients and
+ * constant terms can be changed without reconstructing the expression.
+ */
 class Parameter
 {
 public:
@@ -173,24 +180,70 @@ public:
 
 public:
 
+    /**
+     * @name Constructors
+     */
+     //@{
+    /**
+     * Constructs a undefined Parameter.
+     */
     Parameter();
+    /**
+     * Constructs a Parameter initialized with a given value.
+     *
+     * @param value the initial value of the parameter
+     */
     Parameter(double value);
+    /**
+     * Constructs a named Parameter initialized with a given value.
+     *
+     * @param value the initial value of the parameter
+     * @param name the name of the parameter
+     */
     Parameter(double value, const std::string& name);
+    /**
+     * Copy constructor
+     *
+     * @param arg a parameter whose value is shared
+     */
     Parameter(const Parameter& arg);
     ~Parameter();
 
     Parameter& operator=(const Parameter& arg);
 
+    /**
+     * Get the value of the parameter
+     *
+     * @return return the parameter value
+     */
     double get_value() const;
+    /**
+     * Set the value of the parameter
+     *
+     * @param the parameter value
+     */
     void set_value(double value);
 
     bool is_constant() const
         {return false;}
 
+    /**
+     * Get the name of the parameter
+     *
+     * @return return the parameter name
+     */
     std::string get_name() const;
 
     COEK_API_OPERATORS
 
+    /**
+     * @name Stream operator
+     *
+     * Stream the parameter to an output stream.
+     *
+     * @param ostr output stream
+     * @param arg parameter
+     */
     friend std::ostream& operator<<(std::ostream& ostr, const Parameter& arg);
 };
 
@@ -572,32 +625,26 @@ Constraint operator==(double, const Expression&);
 //
 // intrinsic functions
 //
-#define INTRINSIC_DECL1(FN)\
-Expression FN(const Expression& body);
+Expression abs(const Expression& body);
+Expression ceil(const Expression& body);
+Expression floor(const Expression& body);
+Expression exp(const Expression& body);
+Expression log(const Expression& body);
+Expression log10(const Expression& body);
+Expression sqrt(const Expression& body);
+Expression sin(const Expression& body);
+Expression cos(const Expression& body);
+Expression tan(const Expression& body);
+Expression sinh(const Expression& body);
+Expression cosh(const Expression& body);
+Expression tanh(const Expression& body);
+Expression asin(const Expression& body);
+Expression acos(const Expression& body);
+Expression atan(const Expression& body);
+Expression asinh(const Expression& body);
+Expression acosh(const Expression& body);
+Expression atanh(const Expression& body);
 
-INTRINSIC_DECL1(abs);
-INTRINSIC_DECL1(ceil);
-INTRINSIC_DECL1(floor);
-INTRINSIC_DECL1(exp);
-INTRINSIC_DECL1(log);
-INTRINSIC_DECL1(log10);
-INTRINSIC_DECL1(sqrt);
-INTRINSIC_DECL1(sin);
-INTRINSIC_DECL1(cos);
-INTRINSIC_DECL1(tan);
-INTRINSIC_DECL1(sinh);
-INTRINSIC_DECL1(cosh);
-INTRINSIC_DECL1(tanh);
-INTRINSIC_DECL1(asin);
-INTRINSIC_DECL1(acos);
-INTRINSIC_DECL1(atan);
-INTRINSIC_DECL1(asinh);
-INTRINSIC_DECL1(acosh);
-INTRINSIC_DECL1(atanh);
-
-#define INTRINSIC_DECL2(FN)\
-Expression FN(const Expression&, const Expression&);
-
-INTRINSIC_DECL2(pow);
+Expression pow(const Expression&, const Expression&);
 
 }
