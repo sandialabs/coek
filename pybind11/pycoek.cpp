@@ -1054,6 +1054,7 @@ PYBIND11_MODULE(pycoek, m) {
         .def("num_variables", [](coek::Model& m){return m.repn->variables.size();})
         .def("num_objectives", [](coek::Model& m){return m.repn->objectives.size();})
         .def("num_constraints", [](coek::Model& m){return m.repn->constraints.size();})
+        .def("display", [](coek::Model& m){std::cout << m << std::endl;})
         ;
 
     //
