@@ -244,6 +244,7 @@ repn->value = value;
 repn->initialize = value;
 repn->binary = binary;
 repn->integer = integer;
+repn->fixed = fixed;
 }
 
 void Variable::initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed, const std::string& name)
