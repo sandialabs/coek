@@ -89,7 +89,7 @@ public:
     virtual void load(Model& model);
     virtual void load(CompactModel& model);
 
-    virtual int resolve(bool reset_initial_point) = 0;
+    virtual int resolve() = 0;
     virtual void reset();
 
     virtual int solve(Model& model) = 0;
@@ -125,7 +125,7 @@ public:
         reset();
         }
 
-    virtual int resolve(bool reset_initial_point) = 0;
+    virtual int resolve() = 0;
     virtual void reset()
         { initial=true; }
 

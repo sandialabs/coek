@@ -461,13 +461,15 @@ for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ctr++) {
 // TODO - Should this section use the variable value if that isn't NAN?  What is the
 // semantics that we want to enforce here?
 //
+// NOTE: This is assuming that get_initial() is deprecated.
+//
 {
 auto _it = vars.begin();
-if (not std::isnan(varobj[*_it].get_initial())) {
+if (not std::isnan(varobj[*_it].get_value())) {
     ostr << "x" << vars.size() << std::endl;
     ctr = 0;
     for (auto it=vars.begin(); it != vars.end(); it++, ctr++) {
-        auto tmp = varobj[*it].get_initial();
+        auto tmp = varobj[*it].get_value();
         if (not std::isnan(tmp))
             ostr << ctr << " " << tmp << std::endl;
         }

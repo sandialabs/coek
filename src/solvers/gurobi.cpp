@@ -352,10 +352,8 @@ return 0;
 }
 
 
-int GurobiSolver::resolve(bool reset_initial_point)
+int GurobiSolver::resolve()
 {
-// NOTE: the reset_initial_point value is ignored
-
 auto _model = model.repn.get();
 
 if (initial_solve()) {

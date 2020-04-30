@@ -70,6 +70,8 @@ TEST_CASE( "ipopt", "[smoke]" ) {
         for (auto it=p.begin(); it != p.end(); ++it)
             it->set_value(-0.5);
 
+        for (size_t i=0; i<nlp.num_variables(); i++)
+            nlp.get_variable(i).set_value(0);
         solver.set_option("print_level", 0);
         solver.resolve();
 
@@ -90,7 +92,32 @@ TEST_CASE( "ipopt", "[smoke]" ) {
             it->set_value(-0.5);
 
         solver.set_option("print_level", 0);
-        solver.resolve(false);
+        solver.resolve();
+
+        check(m.repn->variables, invquad_soln_5);
+    }
+    WHEN( "resolve - Warm Start" ) {
+        coek::Model m;
+        invquad_example(m, p);
+
+        coek::NLPModel nlp(m, "cppad");
+        coek::NLPSolver solver("ipopt");
+
+        solver.set_option("print_level", 0);
+        solver.solve(nlp);
+
+        for (auto it=p.begin(); it != p.end(); ++it)
+            it->set_value(-0.5);
+
+        // Even though we set the value of the initial point,
+        // the warm starting option should ignore this and 
+        // restart the solve from where it ended last time.
+        for (size_t i=0; i<nlp.num_variables(); i++)
+            nlp.get_variable(i).set_value(0);
+
+        solver.set_option("warm_start_init_point", "yes");
+        solver.set_option("print_level", 0);
+        solver.resolve();
 
         check(m.repn->variables, invquad_soln_5);
     }

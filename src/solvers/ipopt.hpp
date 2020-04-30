@@ -23,7 +23,7 @@ public:
 
     void load(NLPModel& model);
 
-    int resolve(bool reset_initial_point);
+    int resolve();
 
     int solve(NLPModel& model);
 };

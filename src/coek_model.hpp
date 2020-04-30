@@ -267,7 +267,7 @@ public:
 
     void load(Model& model);
     void load(CompactModel& model);
-    int resolve(bool reset_initial_point=true);
+    int resolve();
     void reset();
 
     // Solver Options
@@ -429,7 +429,7 @@ public:
     int solve(NLPModel& model);
 
     void load(NLPModel& model);
-    int resolve(bool reset_initial_point=true);
+    int resolve();
     void reset();
     
     // Solver Options

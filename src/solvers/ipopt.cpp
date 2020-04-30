@@ -24,8 +24,15 @@ class IpoptProblem : public TNLP
 public:
 
     NLPModel model;
+
     bool start_from_last_x;
+    //double last_objval;
     std::vector<double> last_x;
+    std::vector<double> last_zL;
+    std::vector<double> last_zU;
+    //std::vector<double> last_g;
+    std::vector<double> last_lambda;
+
     std::vector<double> tmp_grad;
     std::vector<double> tmp_c;
     std::vector<double> tmp_j;
@@ -39,7 +46,6 @@ public:
     void build()
         {
         start_from_last_x=false;
-        last_x.resize(model.num_variables());
         tmp_grad.resize(model.num_variables());
         tmp_c.resize(model.num_constraints());
         tmp_j.resize(model.num_nonzeros_Jacobian());
@@ -191,24 +197,36 @@ bool IpoptProblem::get_starting_point(Index n, bool init_x, Number* x,
                                bool init_z, Number* z_L, Number* z_U,
                                Index m, bool init_lambda, Number* lambda)
 {
+//std::cout << "GET STARTING POINT " << init_x << " " << init_z << " " << init_lambda << std::endl << std::flush;
+
 // We only have starting values for x
 if (init_x) {
-    //std::cout << "GET STARTING POINT " << std::endl << std::flush;
+    last_x.resize(n);
     // Initialize the x[i];
     for (size_t i=0; i<model.num_variables(); i++) {
         auto v = model.get_variable(i);
         if (start_from_last_x)
             x[i] = last_x[i];
         else
-            x[i] = v.get_initial();
+            x[i] = v.get_value();
         //std::cout << "x " << i << " " << x[i] << std::endl << std::flush;
         }
     }
 
-if (init_z)
-    return false;
-if (init_lambda)
-    return false;
+if (init_z) {
+    last_zL.resize(n);
+    last_zU.resize(n);
+    for (int i=0; i<n; i++)
+        z_L[i] = last_zL[i];
+    for (int i=0; i<n; i++)
+        z_U[i] = last_zU[i];
+    }
+
+if (init_lambda) {
+    last_lambda.resize(m);
+    for (int i=0; i<m; i++)
+        lambda[i] = last_lambda[i];
+    }
 
 return true;
 }
@@ -356,13 +374,29 @@ void IpoptProblem::finalize_solution(SolverReturn status,
                 const IpoptData* ip_data,
                 IpoptCalculatedQuantities* ip_cq)
 {
-//std::cout << "FINALIZE" << std::endl;
-for (size_t i=0; i<model.num_variables(); i++) {
+//std::cout << "FINALIZE " << n << " " << m << std::endl;
+assert(n == model.num_variables());
+assert(m == model.num_constraints());
+last_x.resize(n);
+last_zL.resize(n);
+last_zU.resize(n);
+//last_g.resize(m);
+last_lambda.resize(m);
+
+//last_objval = obj_value;
+
+for (int i=0; i<n; i++) {
     auto v = model.get_variable(i);
     v.set_value( x[i] );
     last_x[i] = x[i];
+    last_zL[i] = z_L[i];
+    last_zU[i] = z_U[i];
     }
 
+for (int i=0; i<m; i++) {
+    //last_g[i] = g[i];
+    last_lambda[i] = lambda[i];
+    }
 }
 
 
@@ -374,18 +408,20 @@ if (not initial_solve()) {
     std::cout << "ERROR: must reset the model before solving" << std::endl;
     return -1;
     }
-nlp->problem->start_from_last_x = false;
 return perform_solve();
 }
 
 
-int IpoptSolver::resolve(bool reset_initial_point)
+int IpoptSolver::resolve()
 {
 if (not initial_solve())
     nlp->problem->model.reset();
 
-nlp->problem->start_from_last_x = not reset_initial_point;
-
+auto it = string_options.find("warm_start_init_point");
+if ((it != string_options.end()) and (it->second == "yes"))
+    nlp->problem->start_from_last_x = true;
+else    
+    nlp->problem->start_from_last_x = false;
 return perform_solve();
 }
 

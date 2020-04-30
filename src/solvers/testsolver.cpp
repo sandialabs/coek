@@ -29,7 +29,7 @@ return solve(model);
 }
 
 
-int TestSolver::resolve(bool reset_initial_point)
+int TestSolver::resolve()
 {
 if (initial_solve()) {
     // Setup the model the first time here

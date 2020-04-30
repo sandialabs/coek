@@ -1106,8 +1106,9 @@ void Solver::load(Model& model)
 void Solver::load(CompactModel& model)
 { repn->load(model); }
 
-int Solver::resolve(bool reset_initial_point)
-{ return repn->resolve(reset_initial_point); }
+int Solver::resolve()
+{ return repn->resolve(); }
+
 void Solver::reset()
 { repn->reset(); }
 
@@ -1153,8 +1154,9 @@ int NLPSolver::solve(NLPModel& model)
 void NLPSolver::load(NLPModel& model)
 { repn->load(model); }
 
-int NLPSolver::resolve(bool reset_initial_point)
-{ return repn->resolve(reset_initial_point); }
+int NLPSolver::resolve()
+{ return repn->resolve(); }
+
 void NLPSolver::reset()
 { repn->reset(); }
 
