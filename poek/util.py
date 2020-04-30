@@ -1,3 +1,4 @@
+from pyutilib.misc import Options
 import poek as pk
 try:
     from pyomo.core.expr.visitor import _EvaluationVisitor
@@ -38,6 +39,7 @@ class ToCoekExpression(_EvaluationVisitor):
     def __init__(self, model):
         self._model = model
         self._var = {}
+        self._param = {}
 
     def visit(self, node, values):
         """ Visit nodes that have been expanded """
@@ -52,12 +54,23 @@ class ToCoekExpression(_EvaluationVisitor):
         if node.__class__ in nonpyomo_leaf_types:
             return True, node
 
+        if node.is_parameter_type():
+            tmp = id(node)
+            #print("PARAM",str(node),tmp)
+            if tmp in self._param:
+                param = self._param[tmp]
+            else:
+                param = pk.parameter(value(node))
+                self._param[tmp] = param
+            return True, param
+
         if node.is_variable_type():
             tmp = id(node)
+            #print("VAR",str(node),tmp)
             if tmp in self._var:
                 var = self._var[tmp]
             else:
-                var = pk.variable(lb=node.lb, ub=node.ub, init=node.value, binary=node.is_binary(), integer=node.is_integer())
+                var = pk.variable(lb=node.lb, ub=node.ub, initial=node.value, binary=node.is_binary(), integer=node.is_integer())
                 self._model.use(var)
                 self._var[tmp] = var
             return True, var
@@ -88,5 +101,9 @@ def pyomo_to_poek(pyomo_model):
             if cdata.has_ub():
                 poek_model.add( e - value(cdata.upper) <= 0 )
 
-    return poek_model
+    data = Options()
+    data.poek_model = poek_model
+    data.pyo2pk_var = visitor._var
+    data.pyo2pk_param = visitor._param
+    return data
 
