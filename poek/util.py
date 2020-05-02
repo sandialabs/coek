@@ -1,9 +1,11 @@
+import sys
 from pyutilib.misc import Options
 import poek as pk
 try:
     from pyomo.core.expr.visitor import _EvaluationVisitor
     from pyomo.core.expr.numvalue import nonpyomo_leaf_types, value
     from pyomo.core.base import _ObjectiveData, Constraint, Objective
+    import pyomo.core.expr.current as EXPR
     pyomo_available=True
 except:
     _EvaluationVisitor=object
@@ -36,13 +38,36 @@ def quicksum(args, start=0):
 
 class ToCoekExpression(_EvaluationVisitor):
 
-    def __init__(self, model):
+    def __init__(self, model, default_variable_value=False):
         self._model = model
+        self.default_variable_value = default_variable_value
         self._var = {}
         self._param = {}
+        self._functionMap = {
+            'exp': pk.exp,
+            'log': pk.log,
+            'log10': pk.log10, 
+            'sin': pk.sin,
+            'asin': pk.asin,
+            'sinh': pk.sinh,
+            'asinh': pk.asinh,
+            'cos': pk.cos,
+            'acos': pk.acos,
+            'cosh': pk.cosh,
+            'acosh': pk.acosh,
+            'tan': pk.tan,
+            'atan': pk.atan,
+            'tanh': pk.tanh,
+            'atanh': pk.atanh,
+            #'ceil': pk.ceiling,
+            #'floor': pk.floor,
+            'sqrt': pk.sqrt,
+            }
 
     def visit(self, node, values):
         """ Visit nodes that have been expanded """
+        if node.__class__ is EXPR.UnaryFunctionExpression:
+            return self._functionMap[node._name](values[0])
         return node._apply_operation(values)
 
     def visiting_potential_leaf(self, node):
@@ -70,7 +95,12 @@ class ToCoekExpression(_EvaluationVisitor):
             if tmp in self._var:
                 var = self._var[tmp]
             else:
-                var = pk.variable(lb=node.lb, ub=node.ub, initial=node.value, binary=node.is_binary(), integer=node.is_integer())
+                if self.default_variable_value is not None and node.value is None:
+                    print("WARNING: Variable %s is not initialized.  Setting initial value to zero." % str(node))
+                    val = self.default_variable_value
+                else:
+                    val = node.value
+                var = pk.variable(lb=node.lb, ub=node.ub, initial=val, binary=node.is_binary(), integer=node.is_integer(), fixed=node.fixed, name=str(node))
                 self._model.use(var)
                 self._var[tmp] = var
             return True, var
@@ -81,13 +111,13 @@ class ToCoekExpression(_EvaluationVisitor):
         return False, None
 
 
-def pyomo_to_poek(pyomo_model):
+def pyomo_to_poek(pyomo_model, default_variable_value=None):
     if not pyomo_available:
         raise RuntimeError("Error running pyomo_to_poek - Pyomo is not installed.")
 
     poek_model = pk.model()
 
-    visitor = ToCoekExpression(poek_model)
+    visitor = ToCoekExpression(poek_model, default_variable_value=default_variable_value)
     for cdata in pyomo_model.component_data_objects(Objective, active=True):
         e = visitor.dfs_postorder_stack(cdata.expr)
         poek_model.add( e )
@@ -105,5 +135,6 @@ def pyomo_to_poek(pyomo_model):
     data.poek_model = poek_model
     data.pyo2pk_var = visitor._var
     data.pyo2pk_param = visitor._param
+    sys.stdout.flush()
     return data
 
