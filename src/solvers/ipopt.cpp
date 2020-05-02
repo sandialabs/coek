@@ -1,3 +1,4 @@
+#include <chrono>
 #include <cassert>
 #include "autograd/autograd.hpp"
 #include "IpIpoptApplication.hpp"
@@ -414,6 +415,8 @@ return perform_solve();
 
 int IpoptSolver::resolve()
 {
+auto start = std::chrono::high_resolution_clock::now();
+
 if (not initial_solve())
     nlp->problem->model.reset();
 
@@ -422,7 +425,13 @@ if ((it != string_options.end()) and (it->second == "yes"))
     nlp->problem->start_from_last_x = true;
 else    
     nlp->problem->start_from_last_x = false;
-return perform_solve();
+int status = perform_solve();
+
+auto curr = std::chrono::high_resolution_clock::now();
+std::chrono::duration<double> diff = curr-start;
+std::cout << "Time to solve: " << diff.count() << " s\n";
+
+return status;
 }
 
 int IpoptSolver::perform_solve()

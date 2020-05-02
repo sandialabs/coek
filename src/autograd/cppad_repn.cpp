@@ -287,6 +287,7 @@ catch (std::runtime_error& err) {
     throw err;
     }
 ADfc.Dependent(ADvars, ADrange);
+ADfc.optimize();
 
 //
 // Setup temporary arrays used during computations
