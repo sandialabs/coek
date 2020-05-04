@@ -80,9 +80,9 @@ for (size_t i=0; i<hes_row.size(); i++) {
     }
 }
 
-void CppAD_Repn::write(std::ostream& ostr) const
+void CppAD_Repn::write(std::ostream& ostr, std::map<int,int>& varmap) const
 {
-NLPModelRepn::write(ostr);
+NLPModelRepn::write(ostr, varmap);
 }
 
 double CppAD_Repn::compute_f(unsigned int i)
@@ -629,9 +629,6 @@ void visit(VariableTerm& expr,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)
 {
-if (! expr.index)
-    throw std::runtime_error("Unexpected variable not owned by a model.");
-
 if (expr.fixed)
     ans += dynamic_params[fixed_variables[&expr]];
 else
@@ -647,9 +644,6 @@ void visit(MonomialTerm& expr,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)
 {
-if (! expr.var->index)
-    throw std::runtime_error("Unexpected variable not owned by a model.");
-
 if (expr.var->fixed)
     ans += expr.coef * dynamic_params[fixed_variables[expr.var]];
 else

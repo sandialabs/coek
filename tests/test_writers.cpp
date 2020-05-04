@@ -5,6 +5,15 @@
 #include "coek_model.hpp"
 
 
+void error1(coek::Model& model) 
+{
+auto x = model.getVariable();
+auto y = coek::Variable();
+
+model.add( x );
+model.add( x*y == 4 );
+}
+
 void small1(coek::Model& model) 
 {
 auto x = model.getVariable();
@@ -235,6 +244,13 @@ model.add (c + d == 0);
 
 TEST_CASE( "lp_writer", "[smoke]" ) {
 
+  SECTION( "error1" ) {
+    coek::Model model;
+    error1(model);
+    REQUIRE_THROWS_WITH(model.write("error1.lp"),
+        "Error writing LP file: Unexpected variable encountered in a model expression");
+    }
+
   SECTION( "small1" ) {
     coek::Model model;
     small1(model);
@@ -278,6 +294,13 @@ REQUIRE( coek::env.check_memory() == true );
 
 
 TEST_CASE( "nl_writer", "[smoke]" ) {
+
+  SECTION( "error1" ) {
+    coek::Model model;
+    error1(model);
+    REQUIRE_THROWS_WITH(model.write("error1.nl"),
+        "Model expressions contain variables that are not declared in the model.");
+    }
 
   SECTION( "small1" ) {
     coek::Model model;

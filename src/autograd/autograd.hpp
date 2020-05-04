@@ -39,7 +39,9 @@ public:
     virtual void set_variables(std::vector<double>& x) = 0;
     virtual void set_variables(const double* x, size_t n) = 0;
 
-    virtual void write(std::ostream& ostr) const = 0;
+    virtual Constraint get_constraint(int i);
+
+    virtual void write(std::ostream& ostr, std::map<int,int>& varmap) const = 0;
 
     virtual double compute_f(unsigned int i) = 0;
     virtual void compute_df(double& f, std::vector<double>& df, unsigned int i) = 0;

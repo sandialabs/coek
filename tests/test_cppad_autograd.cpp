@@ -16,7 +16,7 @@ TEST_CASE( "cppad_add", "[smoke]" ) {
 
     coek::NLPModel nlp;
     REQUIRE_THROWS_WITH(nlp.initialize(model, "cppad"),
-            "Unexpected variable not owned by a model.");
+            "Model expressions contain variables that are not declared in the model.");
     }
 
   SECTION( "error2" ) {
@@ -26,7 +26,7 @@ TEST_CASE( "cppad_add", "[smoke]" ) {
 
     coek::NLPModel nlp;
     REQUIRE_THROWS_WITH(nlp.initialize(model, "cppad"),
-            "Unexpected variable not owned by a model.");
+            "Model expressions contain variables that are not declared in the model.");
     }
 
   SECTION( "error3" ) {

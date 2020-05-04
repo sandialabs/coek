@@ -678,7 +678,6 @@ repn->constraints.push_back(expr);
 Variable& Model::getVariable(double lb, double ub, const std::string& name)
 {
 Variable tmp(lb,ub,COEK_NAN,name);
-tmp.repn->index = ++VariableTerm::count;
 repn->variables.push_back(tmp);
 return repn->variables.back();
 }
@@ -686,7 +685,6 @@ return repn->variables.back();
 Variable& Model::getVariable(double lb, double ub, double value)
 {
 Variable tmp(lb,ub,value);
-tmp.repn->index = ++VariableTerm::count;
 repn->variables.push_back(tmp);
 return repn->variables.back();
 }
@@ -694,7 +692,6 @@ return repn->variables.back();
 Variable& Model::getVariable(double lb, double ub, double value, const std::string& name)
 {
 Variable tmp(lb,ub,value,name);
-tmp.repn->index = ++VariableTerm::count;
 repn->variables.push_back(tmp);
 return repn->variables.back();
 }
@@ -702,7 +699,6 @@ return repn->variables.back();
 Variable& Model::getVariable(double lb, double ub, double value, bool binary, bool integer)
 {
 Variable tmp(lb,ub,value,binary,integer);
-tmp.repn->index = ++VariableTerm::count;
 repn->variables.push_back(tmp);
 return repn->variables.back();
 }
@@ -710,21 +706,18 @@ return repn->variables.back();
 Variable& Model::getVariable(double lb, double ub, double value, bool binary, bool integer, const std::string& name)
 {
 Variable tmp(lb,ub,value,binary,integer,name);
-tmp.repn->index = ++VariableTerm::count;
 repn->variables.push_back(tmp);
 return repn->variables.back();
 }
 
 void Model::addVariable(Variable& var)
 {
-var.repn->index = ++VariableTerm::count;
 repn->variables.push_back(var);
 }
 
 void Model::addVariable(VariableArray& varray)
 {
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
-    it->repn->index = ++VariableTerm::count;
     repn->variables.push_back(*it);
     }
 }
@@ -733,7 +726,6 @@ void Model::addVariable(ConcreteIndexedVariable& vars)
 {
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
-    it->repn->index = ++VariableTerm::count;
     repn->variables.push_back(*it);
     }
 }
@@ -757,23 +749,29 @@ static bool endsWith(const std::string& str, const std::string& suffix)
     return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
 }
 
-void write_lp_problem(Model& model, std::ostream& ostr);
-void write_lp_problem(CompactModel& model, std::ostream& ostr);
-void write_nl_problem(Model& model, std::ostream& ostr);
+void write_lp_problem(Model& model, std::ostream& ostr, std::map<int,int>& varmap);
+void write_lp_problem(CompactModel& model, std::ostream& ostr, std::map<int,int>& varmap);
+void write_nl_problem(Model& model, std::ostream& ostr, std::map<int,int>& varmap);
 
 
 void Model::write(std::string fname)
 {
+std::map<int,int> varmap;
+write(fname, varmap);
+}
+
+void Model::write(std::string fname, std::map<int,int>& varmap)
+{
 if (endsWith(fname, ".lp")) {
     std::ofstream ofstr(fname);
-    write_lp_problem(*this, ofstr);
+    write_lp_problem(*this, ofstr, varmap);
     ofstr.close();
     return;
     }
 
 else if (endsWith(fname, ".nl")) {
     std::ofstream ofstr(fname);
-    write_nl_problem(*this, ofstr);
+    write_nl_problem(*this, ofstr, varmap);
     ofstr.close();
     return;
     }
@@ -811,7 +809,6 @@ constraints.push_back(seq);
 Variable& CompactModel::getVariable(double lb, double ub, const std::string& name)
 {
 Variable tmp(lb,ub,COEK_NAN,name);
-tmp.repn->index = ++VariableTerm::count;
 variables.push_back(tmp);
 return variables.back();
 }
@@ -819,7 +816,6 @@ return variables.back();
 Variable& CompactModel::getVariable(double lb, double ub, double value)
 {
 Variable tmp(lb,ub,value);
-tmp.repn->index = ++VariableTerm::count;
 variables.push_back(tmp);
 return variables.back();
 }
@@ -827,7 +823,6 @@ return variables.back();
 Variable& CompactModel::getVariable(double lb, double ub, double value, const std::string& name)
 {
 Variable tmp(lb,ub,value,name);
-tmp.repn->index = ++VariableTerm::count;
 variables.push_back(tmp);
 return variables.back();
 }
@@ -835,7 +830,6 @@ return variables.back();
 Variable& CompactModel::getVariable(double lb, double ub, double value, bool binary, bool integer)
 {
 Variable tmp(lb,ub,value,binary,integer);
-tmp.repn->index = ++VariableTerm::count;
 variables.push_back(tmp);
 return variables.back();
 }
@@ -843,21 +837,18 @@ return variables.back();
 Variable& CompactModel::getVariable(double lb, double ub, double value, bool binary, bool integer, const std::string& name)
 {
 Variable tmp(lb,ub,value,binary,integer,name);
-tmp.repn->index = ++VariableTerm::count;
 variables.push_back(tmp);
 return variables.back();
 }
 
 void CompactModel::addVariable(Variable& var)
 {
-var.repn->index = ++VariableTerm::count;
 variables.push_back(var);
 }
 
 void CompactModel::addVariable(VariableArray& varray)
 {
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
-    it->repn->index = ++VariableTerm::count;
     variables.push_back(*it);
     }
 }
@@ -866,7 +857,6 @@ void CompactModel::addVariable(ConcreteIndexedVariable& vars)
 {
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
-    it->repn->index = ++VariableTerm::count;
     variables.push_back(*it);
     }
 }
@@ -913,15 +903,21 @@ return model;
 
 void CompactModel::write(std::string fname)
 {
+std::map<int,int> varmap;
+write(fname, varmap);
+}
+
+void CompactModel::write(std::string fname, std::map<int,int>& varmap)
+{
 if (endsWith(fname, ".lp")) {
     std::ofstream ofstr(fname);
-    write_lp_problem(*this, ofstr);
+    write_lp_problem(*this, ofstr, varmap);
     ofstr.close();
     return;
     }
 
 Model model = expand();
-model.write(fname);
+model.write(fname, varmap);
 }
 
 
@@ -1014,6 +1010,13 @@ if (repn == 0)
 repn->set_variables(x, n);
 }
 
+Constraint NLPModel::get_constraint(size_t i)
+{
+if (repn == 0)
+    throw std::runtime_error("Calling get_constraint() for uninitialized NLPModel.");
+return repn->get_constraint(i);
+}
+
 void NLPModel::get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol)
 {
 if (repn == 0)
@@ -1032,7 +1035,15 @@ void NLPModel::write(std::ostream& ostr) const
 {
 if (repn == 0)
     throw std::runtime_error("Calling write() for uninitialized NLPModel.");
-repn->write(ostr);
+std::map<int,int> varmap;
+repn->write(ostr, varmap);
+}
+
+void NLPModel::write(std::ostream& ostr, std::map<int,int>& varmap) const
+{
+if (repn == 0)
+    throw std::runtime_error("Calling write() for uninitialized NLPModel.");
+repn->write(ostr, varmap);
 }
 
 double NLPModel::compute_f(unsigned int i)
@@ -1079,7 +1090,8 @@ repn->compute_J(J);
 
 std::ostream& operator<<(std::ostream& ostr, const NLPModel& arg)
 {
-arg.write(ostr);
+std::map<int,int> varmap;
+arg.write(ostr, varmap);
 return ostr;
 }
 
@@ -1185,5 +1197,25 @@ void NLPSolver::set_option(int option, double value)
 { repn->set_option(option, value); }
 void NLPSolver::set_option(int option, const std::string value)
 { repn->set_option(option, value); }
+
+
+void check_that_expression_variables_are_declared(Model& model, const std::set<unsigned int>& var_ids)
+{
+std::set<unsigned int> model_ids;
+
+auto end = model.repn->variables.end();
+for (auto it=model.repn->variables.begin(); it != end; ++it)
+    model_ids.insert( (*it).id() );
+
+// TODO - Make this faster because both sets are ordered
+for (auto it=var_ids.begin(); it != var_ids.end(); it++) {
+    auto tmp = model_ids.find(*it);
+    if (tmp == model_ids.end()) {
+        throw std::runtime_error("Model expressions contain variables that are not declared in the model.");
+        }
+    }
+
+// TODO - More diagnostic analysis here
+}
 
 }

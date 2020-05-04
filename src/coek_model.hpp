@@ -210,6 +210,7 @@ public:
     Constraint get_constraint(unsigned int i);
 
     void write(std::string ostr);
+    void write(std::string ostr, std::map<int,int>& varmap);
 
     friend std::ostream& operator<<(std::ostream& ostr, const Model& arg);
 };
@@ -244,6 +245,7 @@ public:
     Model expand();
 
     void write(std::string ostr);
+    void write(std::string ostr, std::map<int,int>& varmap);
 };
 
 
@@ -316,10 +318,13 @@ public:
     void set_variables(std::vector<double>& x);
     void set_variables(const double* x, size_t n);
 
+    Constraint get_constraint(size_t i);
+
     void get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol);
     void get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol);
 
     void write(std::ostream& ostr) const;
+    void write(std::ostream& ostr, std::map<int,int>& varmap) const;
 
     friend std::ostream& operator<<(std::ostream& ostr, const NLPModel& arg);
 

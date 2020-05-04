@@ -52,8 +52,8 @@ throw std::runtime_error("Unexpected index parameter.");
 
 void visit(VariableTerm& expr, QuadraticExpr& repn, double multiplier)
 {
-if (! expr.index)
-    throw std::runtime_error("Unexpected variable not owned by a model.");
+//if (! expr.index)
+//    throw std::runtime_error("Unexpected variable not owned by a model.");
 
 if (expr.fixed)  {
     repn.constval += multiplier * expr.value;
@@ -71,8 +71,8 @@ throw std::runtime_error("Unexpected variable reference.");
 
 void visit(IndexedVariableTerm& expr, QuadraticExpr& repn, double multiplier)
 {
-if (! expr.index)
-    throw std::runtime_error("Unexpected variable not owned by a model.");
+//if (! expr.index)
+//    throw std::runtime_error("Unexpected variable not owned by a model.");
 
 if (expr.fixed)  {
     repn.constval += multiplier * expr.value;
@@ -85,8 +85,8 @@ else {
 
 void visit(MonomialTerm& expr, QuadraticExpr& repn, double multiplier)
 {
-if (! expr.var->index)
-    throw std::runtime_error("Unexpected variable not owned by a model.");
+//if (! expr.var->index)
+//    throw std::runtime_error("Unexpected variable not owned by a model.");
 
 if (expr.var->fixed) {
     repn.constval += multiplier * expr.coef * expr.var->value;

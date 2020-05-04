@@ -740,30 +740,9 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         REQUIRE( repn.quadratic_coefs.size() == 0 );
         }
     }
-    WHEN( "error 1" ) {
-        {
-        coek::Model m;
-        coek::Variable v(0,1,3,"v");
-        coek::Expression e = v;
-        auto E = e.expand();
-        coek::MutableNLPExpr repn;
-        REQUIRE_THROWS_WITH(repn.collect_terms(E),
-            "Unexpected variable not owned by a model.");
-        }
-    }
   }
 
   SECTION( "monomial" ) {
-    WHEN( "error" ) {
-        {
-        coek::Variable v(0,1,0,"v");
-        coek::Expression e = 2*v;
-        auto E = e.expand();
-        coek::MutableNLPExpr repn;
-        REQUIRE_THROWS_WITH(repn.collect_terms(E),
-            "Unexpected variable not owned by a model.");
-        }
-    }
     WHEN( "unfixed" ) {
         {
         coek::Model m;

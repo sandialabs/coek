@@ -183,7 +183,7 @@ TEST_CASE( "expr_writer", "[smoke]" ) {
         coek::Variable v(0, 1, 0, "");
         std::stringstream sstr;
         sstr << v;
-        REQUIRE( sstr.str() == "x0" );
+        REQUIRE( sstr.str()[0] == 'x' );
     }
     WHEN( "named ") {
         coek::Variable v(0, 1, 0, "v");
@@ -361,13 +361,6 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
   }
 
   SECTION( "var" ) {
-    WHEN( "error" ) {
-        coek::Variable v(0,1,0,"v");
-        coek::Expression e = v;
-        coek::QuadraticExpr repn;
-        REQUIRE_THROWS_WITH(repn.collect_terms(e),
-            "Unexpected variable not owned by a model.");
-    }
     WHEN( "unfixed" ) {
         coek::Model m;
         coek::Variable v = m.getVariable(0,1,0,"v");
@@ -396,13 +389,6 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
   }
 
   SECTION( "monomial" ) {
-    WHEN( "error" ) {
-        coek::Variable v(0,1,0,"v");
-        coek::Expression e = 2*v;
-        coek::QuadraticExpr repn;
-        REQUIRE_THROWS_WITH(repn.collect_terms(e),
-            "Unexpected variable not owned by a model.");
-    }
     WHEN( "unfixed" ) {
         coek::Model m;
         coek::Variable v = m.getVariable(0,1,0,"v");
@@ -1127,34 +1113,9 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         REQUIRE( coek::env.check_memory() == true );
         #endif
     }
-    WHEN( "error 1" ) {
-        {
-        coek::Model m;
-        coek::Variable v(0,1,3,"v");
-        coek::Expression e = v;
-        coek::MutableNLPExpr repn;
-        REQUIRE_THROWS_WITH(repn.collect_terms(e),
-            "Unexpected variable not owned by a model.");
-        }
-        #ifdef DEBUG
-        REQUIRE( coek::env.check_memory() == true );
-        #endif
-    }
   }
 
   SECTION( "monomial" ) {
-    WHEN( "error" ) {
-        {
-        coek::Variable v(0,1,0,"v");
-        coek::Expression e = 2*v;
-        coek::MutableNLPExpr repn;
-        REQUIRE_THROWS_WITH(repn.collect_terms(e),
-            "Unexpected variable not owned by a model.");
-        }
-        #ifdef DEBUG
-        REQUIRE( coek::env.check_memory() == true );
-        #endif
-    }
     WHEN( "unfixed" ) {
         {
         coek::Model m;

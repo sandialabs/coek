@@ -151,8 +151,7 @@ return CREATE_POINTER(IndexParameterTerm, name);
 int VariableTerm::count = 0;
 
 VariableTerm::VariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _indexed)
-    : index(0),
-      initialize(_value),
+    : initialize(_value),
       value(_value),
       lb(_lb),
       ub(_ub),
@@ -160,7 +159,9 @@ VariableTerm::VariableTerm(double _lb, double _ub, double _value, bool _binary, 
       integer(_integer),
       fixed(false),
       indexed(_indexed)
-    { }
+{
+index = count++;
+}
 
 expr_pointer_t VariableTerm::const_mult(double coef, const expr_pointer_t& repn)
 {
@@ -202,10 +203,13 @@ return CREATE_POINTER(MonomialTerm, -1*coef, var);
 //
 // ConstraintTerm
 //
+int ConstraintTerm::count = 0;
 
 ConstraintTerm::ConstraintTerm()
     : body(0)
-{}
+{
+index = count++;
+}
 
 ConstraintTerm::ConstraintTerm(const expr_pointer_t& repn)
     : body(repn)

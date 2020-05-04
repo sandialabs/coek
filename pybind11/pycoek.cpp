@@ -9,10 +9,13 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
+#include <pybind11/stl_bind.h>
 #include "ast_term.hpp"
 #include "coek_model.hpp"
 
 namespace py = pybind11;
+
+PYBIND11_MAKE_OPAQUE(std::map<int,int>);
 
 
 namespace coek {
@@ -358,6 +361,9 @@ coek::Expression ConcreteIndexedVariable_getitem(coek::ConcreteIndexedVariable& 
 }
 
 PYBIND11_MODULE(pycoek, m) {
+
+    py::bind_map<std::map<int, int>>(m, "STLMapIntInt");
+
     m.doc() = "A Python module that wraps Coek";
 
     m.def("_variable",[](int n, py::kwargs kw) {return coek::variable_fn(n, kw);});
@@ -606,6 +612,7 @@ PYBIND11_MODULE(pycoek, m) {
         .def_property("lb", &coek::Variable::get_lb, &coek::Variable::set_lb)
         .def_property("ub", &coek::Variable::get_ub, &coek::Variable::set_ub)
         .def_property("fixed", &coek::Variable::get_fixed, &coek::Variable::set_fixed)
+        .def_property_readonly("id", &coek::Variable::id)
         .def("is_constraint",[](const coek::Variable& x){return false;})
 
         .def("__neg__", [](const coek::Variable& x){return -x;})
@@ -924,6 +931,7 @@ PYBIND11_MODULE(pycoek, m) {
     py::class_<coek::Constraint>(m, "constraint")
         .def("__init__", [](){throw std::runtime_error("Cannot create an empty constraint.");})
         .def_property_readonly("value", &coek::Constraint::get_value)
+        .def_property_readonly("id", &coek::Constraint::id)
         .def("is_feasible", &coek::Constraint::is_feasible)
         .def("is_constraint",[](const coek::Constraint& x){return true;})
         .def("__eq__", [](){throw std::runtime_error("Cannot create a constraint from a boolean expression.");})
@@ -1042,6 +1050,7 @@ PYBIND11_MODULE(pycoek, m) {
         .def("add", [](coek::Model& m, const coek::Variable& e, bool sense){m.add(e, sense);})
         .def("add", [](coek::Model& m, const coek::Constraint& c){m.add(c);})
         .def("write", [](coek::Model& m, const std::string& s){m.write(s);})
+        .def("write", [](coek::Model& m, const std::string& s, std::map<int,int>& varmap){m.write(s,varmap);})
         .def("use", [](coek::Model& m, coek::Variable& v){m.addVariable(v);})
         .def("use", [](coek::Model& m, coek::VariableArray& v)
             {
@@ -1073,6 +1082,7 @@ PYBIND11_MODULE(pycoek, m) {
         .def("add", [](coek::CompactModel& m, const coek::Constraint& c){m.add(c);})
         .def("add", [](coek::CompactModel& m, const coek::ConstraintSequence& c){m.add(c);})
 
+        .def("write", [](coek::CompactModel& m, const std::string& s, std::map<int,int>& varmap){m.write(s,varmap);})
         .def("write", [](coek::CompactModel& m, const std::string& s){m.write(s);})
 
         .def("use", [](coek::CompactModel& m, coek::Variable& v){m.addVariable(v);})

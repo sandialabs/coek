@@ -168,7 +168,7 @@ TEST_CASE( "model_variables", "[smoke]" ) {
         REQUIRE( b.get_lb() == 0 );
         REQUIRE( b.get_ub() == 1 );
         REQUIRE( b.get_name() == "test" );
-        REQUIRE( a.get_index() == b.get_index() );
+        REQUIRE( a.id() == b.id() );
     }
 
     WHEN( "equal" ) {
@@ -179,7 +179,7 @@ TEST_CASE( "model_variables", "[smoke]" ) {
         REQUIRE( b.get_lb() == 0 );
         REQUIRE( b.get_ub() == 1 );
         REQUIRE( b.get_name() == "test" );
-        REQUIRE( a.get_index() == b.get_index() );
+        REQUIRE( a.id() == b.id() );
     }
   }
 
@@ -188,7 +188,7 @@ TEST_CASE( "model_variables", "[smoke]" ) {
     coek::Variable a(0.0, 1.0, 0.0, false, false, "a");
     model.addVariable(a);
     coek::Variable b = model.getVariable(0,1,0,false,false,"b"); 
-    REQUIRE( a.get_index() == (b.get_index() - 1) );
+    REQUIRE( a.id() == (b.id() - 1) );
   }
 
   SECTION( "values" ) {
@@ -291,12 +291,14 @@ TEST_CASE( "model_monomial", "[smoke]" ) {
     REQUIRE( e.to_list() == baseline );
   }
 
+/*
   SECTION( "unnamed monomial" ) {
     coek::Variable v(0,1,0);
     coek::Expression e = 2*v;
     static std::list<std::string> baseline = {"[", "*", "2", "x0", "]"};
     REQUIRE( e.to_list() == baseline );
   }
+*/
 
 #ifdef DEBUG
 REQUIRE( coek::env.check_memory() == true );

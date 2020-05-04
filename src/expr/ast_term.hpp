@@ -284,6 +284,11 @@ class ConstraintTerm : public BaseExpressionTerm
 {
 public:
 
+    static int count;
+
+public:
+
+    int index;
     expr_pointer_t body;
 
 public:

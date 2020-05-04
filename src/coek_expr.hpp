@@ -317,7 +317,7 @@ public:
     double get_ub() const;
     void set_ub(double value);
 
-    unsigned int get_index() const;
+    unsigned int id() const;
     std::string get_name() const;
 
     void set_fixed(bool flag);
@@ -461,6 +461,8 @@ public:
     ~Constraint();
 
     Constraint& operator=(const Constraint& arg);
+
+    unsigned int id() const;
 
     bool is_inequality() const;
     bool is_equality() const;

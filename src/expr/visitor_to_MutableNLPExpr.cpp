@@ -53,8 +53,8 @@ void visit(VariableTerm& expr,
                     MutableNLPExpr& repn,
                     double multiplier)
 {
-if (! expr.index)
-    throw std::runtime_error("Unexpected variable not owned by a model.");
+//if (! expr.index)
+//    throw std::runtime_error("Unexpected variable not owned by a model.");
 
 if (expr.fixed)  {
     if (multiplier == 1)
@@ -85,8 +85,8 @@ void visit(MonomialTerm& expr,
                     MutableNLPExpr& repn,
                     double multiplier)
 {
-if (! expr.var->index)
-    throw std::runtime_error("Unexpected variable not owned by a model.");
+//if (! expr.var->index)
+//    throw std::runtime_error("Unexpected variable not owned by a model.");
 
 if (expr.var->fixed) {
     repn.constval = plus_(repn.constval.repn, times(CREATE_POINTER(ConstantTerm, multiplier * expr.coef), expr.var) );

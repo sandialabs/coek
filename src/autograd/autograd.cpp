@@ -8,6 +8,8 @@
 
 namespace coek {
 
+void check_that_expression_variables_are_declared(Model& model, const std::set<unsigned int>& var_ids);
+
 
 NLPModelRepn* create_NLPModelRepn(Model& model, std::string& name)
 {
@@ -33,6 +35,11 @@ for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(
     find_vars_and_params(it->repn, vars, fixed_vars, params);
 
 //std::cout << "HERE x " << vars.size() << std::endl;
+std::set<unsigned int> used_ids;
+for (auto it=vars.begin(); it != vars.end(); ++it)
+    used_ids.insert((*it)->index);
+check_that_expression_variables_are_declared(model, used_ids);
+
 std::map<int,VariableTerm*> tmp;
 for (auto it=vars.begin(); it != vars.end(); ++it)
     tmp[(*it)->index] = *it;
@@ -41,7 +48,7 @@ used_variables.clear();
 int i=0;
 for (auto it=tmp.begin(); it != tmp.end(); ++it)
     used_variables[i++] = it->second;
-//std::cout << "HERE y " << used_variables.size() << std::endl << std::flush;
+
 
 i = 0;
 fixed_variables.clear();
@@ -70,7 +77,12 @@ v->initialize = _v->initialize;
 v->value = _v->value;
 }
 
-void NLPModelRepn::write(std::ostream& ostr) const
+Constraint NLPModelRepn::get_constraint(int i)
+{
+return model.get_constraint(i);
+}
+
+void NLPModelRepn::write(std::ostream& ostr, std::map<int,int>& varmap) const
 {
 ostr << "NLPModel:" << std::endl;
 ostr << "  variables:         " << num_variables() << std::endl;

@@ -4,6 +4,9 @@
 
 namespace coek {
 
+void check_that_expression_variables_are_declared(Model& model, const std::set<unsigned int>& var_ids);
+
+
 namespace {
 
 void format(std::ostream& ostr, double value)
@@ -19,11 +22,11 @@ class PrintExpr : public Visitor
 public:
 
     std::ostream& ostr;
-    std::map<int,int>& varmap;
+    const std::unordered_map<int,int>& varmap;
 
 public:
 
-    PrintExpr(std::ostream& _ostr, std::map<int,int>& _varmap)
+    PrintExpr(std::ostream& _ostr, const std::unordered_map<int,int>& _varmap)
         : ostr(_ostr), varmap(_varmap) {}
 
     void visit(ConstantTerm& arg);
@@ -72,19 +75,19 @@ void PrintExpr::visit(IndexParameterTerm& arg)
 { throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
 
 void PrintExpr::visit(VariableTerm& arg)
-{ ostr << "v" << varmap[arg.index] << std::endl; }
+{ ostr << "v" << varmap.at(arg.index) << std::endl; }
 
 void PrintExpr::visit(VariableRefTerm& arg)
 { throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
 
 void PrintExpr::visit(IndexedVariableTerm& arg)
-{ ostr << "v" << varmap[arg.index] << std::endl; }
+{ ostr << "v" << varmap.at(arg.index) << std::endl; }
 
 void PrintExpr::visit(MonomialTerm& arg)
 {
 ostr << "o2" << std::endl;
 ostr << "n" << arg.coef << std::endl;
-ostr << "v" << varmap[arg.var->index] << std::endl;
+ostr << "v" << varmap.at(arg.var->index) << std::endl;
 }
 
 void PrintExpr::visit(InequalityTerm& arg)
@@ -159,7 +162,7 @@ arg.rhs->accept(*this);
 }
 
 
-void print_expr(std::ostream& ostr, MutableNLPExpr& repn, std::map<int,int>& varmap)
+void print_expr(std::ostream& ostr, const MutableNLPExpr& repn, const std::unordered_map<int,int>& varmap)
 {
 bool nonlinear = not repn.nonlinear.is_constant();
 bool quadratic = repn.quadratic_coefs.size() > 0;
@@ -168,8 +171,8 @@ if (nonlinear and quadratic)
 if (quadratic) {
     std::map<std::pair<int,int>,double> term;
     for (size_t i=0; i<repn.quadratic_coefs.size(); i++) {
-        int lhs = varmap[repn.quadratic_lvars[i]->index];
-        int rhs = varmap[repn.quadratic_rvars[i]->index];
+        int lhs = varmap.at(repn.quadratic_lvars[i]->index);
+        int rhs = varmap.at(repn.quadratic_rvars[i]->index);
         if (rhs < lhs)
             std::swap(lhs,rhs);
         auto key = std::pair<int,int>(lhs, rhs);
@@ -203,7 +206,7 @@ if (nonlinear) {
 
 
 
-void write_nl_problem(Model& model, std::ostream& ostr)
+void write_nl_problem(Model& model, std::ostream& ostr, std::map<int,int>& invvarmap)
 {
 if (model.repn->objectives.size() == 0) {
     std::cerr << "Error writing NL file: No objectives specified!" << std::endl;
@@ -217,16 +220,16 @@ if (model.repn->objectives.size() > 1) {
 //
 // Process Model to Create NL Header
 //
-std::map<int,Variable> varobj;
-std::set<int> vars;
-std::set<int> nonlinear_vars_obj;
-std::set<int> nonlinear_vars_con;
+std::map<unsigned int,Variable> varobj;
+std::set<unsigned int> vars;
+std::set<unsigned int> nonlinear_vars_obj;
+std::set<unsigned int> nonlinear_vars_con;
 int num_inequalities=0;
 int num_equalities=0;
 int nonl_objectives=0;
 int nonl_constraints=0;
 
-std::set<int> linear_vars;
+std::set<unsigned int> linear_vars;
 int num_linear_binary_vars=0;
 int num_linear_integer_vars=0;
 int num_nonlinear_obj_int_vars=0;
@@ -319,6 +322,8 @@ for (std::vector<Constraint>::iterator it=model.repn->constraints.begin(); it !=
     nnz_Jacobian += curr_vars.size();
     }
 
+check_that_expression_variables_are_declared(model, vars);
+
 for (auto it=linear_vars.begin(); it != linear_vars.end(); it++) {
     auto& var = varobj[*it];
     if (var.is_binary())
@@ -344,10 +349,12 @@ for (auto it=nonlinear_vars_con.begin(); it != nonlinear_vars_con.end(); it++) {
     }
 
 // Map Variable index to NL variable ID (0 ... n_vars-1)
-std::map<int,int> varmap;
+std::unordered_map<int,int> varmap;
 ctr = 0;
-for (auto it=vars.begin(); it != vars.end(); it++)
+for (auto it=vars.begin(); it != vars.end(); it++) {
     varmap[*it] = ctr++;
+    invvarmap[ctr] = *it;
+    }
 
 // Compute linear Jacobian and Gradient values
 std::vector<std::set<int>> k_count(vars.size());
@@ -562,9 +569,6 @@ for (size_t i=0; i<G.size(); i++) {
         ostr << it->first << " " << it->second << std::endl;
         }
     }
-
-
-// DONE
 }
 
 }

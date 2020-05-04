@@ -301,7 +301,7 @@ void Variable::set_ub(double value)
 repn->ub = value;
 }
 
-unsigned int Variable::get_index() const
+unsigned int Variable::id() const
 {
 return repn->index;
 }
@@ -586,6 +586,11 @@ DISOWN_POINTER(repn);
 repn = expr.repn;
 OWN_POINTER(repn);
 return *this;
+}
+
+unsigned int Constraint::id() const
+{
+return repn->index;
 }
 
 bool Constraint::is_inequality() const
