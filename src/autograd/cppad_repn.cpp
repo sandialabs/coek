@@ -80,9 +80,9 @@ for (size_t i=0; i<hes_row.size(); i++) {
     }
 }
 
-void CppAD_Repn::write(std::ostream& ostr, std::map<int,int>& varmap) const
+void CppAD_Repn::print_summary(std::ostream& ostr) const
 {
-NLPModelRepn::write(ostr, varmap);
+NLPModelRepn::print_summary(ostr);
 }
 
 double CppAD_Repn::compute_f(unsigned int i)

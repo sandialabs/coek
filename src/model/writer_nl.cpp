@@ -206,7 +206,7 @@ if (nonlinear) {
 
 
 
-void write_nl_problem(Model& model, std::ostream& ostr, std::map<int,int>& invvarmap)
+void write_nl_problem(Model& model, std::ostream& ostr, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 {
 if (model.repn->objectives.size() == 0) {
     std::cerr << "Error writing NL file: No objectives specified!" << std::endl;
@@ -278,7 +278,8 @@ nnz_gradient=vars.size();
 // Constraints
 std::vector<MutableNLPExpr> c_expr(model.repn->constraints.size());
 ctr=0;
-for (std::vector<Constraint>::iterator it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it, ctr++) {
+for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it, ctr++) {
+    invconmap[ctr] = it->id();
     c_expr[ctr].collect_terms(*it);
     if (it->is_inequality())
         num_inequalities++;

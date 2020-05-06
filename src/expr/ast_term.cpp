@@ -214,6 +214,7 @@ index = count++;
 ConstraintTerm::ConstraintTerm(const expr_pointer_t& repn)
     : body(repn)
 {
+index = count++;
 OWN_POINTER(body);
 }
 

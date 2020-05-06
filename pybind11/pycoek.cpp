@@ -1050,7 +1050,7 @@ PYBIND11_MODULE(pycoek, m) {
         .def("add", [](coek::Model& m, const coek::Variable& e, bool sense){m.add(e, sense);})
         .def("add", [](coek::Model& m, const coek::Constraint& c){m.add(c);})
         .def("write", [](coek::Model& m, const std::string& s){m.write(s);})
-        .def("write", [](coek::Model& m, const std::string& s, std::map<int,int>& varmap){m.write(s,varmap);})
+        .def("write", [](coek::Model& m, const std::string& s, std::map<int,int>& varmap, std::map<int,int>& conmap){m.write(s,varmap,conmap);})
         .def("use", [](coek::Model& m, coek::Variable& v){m.addVariable(v);})
         .def("use", [](coek::Model& m, coek::VariableArray& v)
             {
@@ -1082,7 +1082,7 @@ PYBIND11_MODULE(pycoek, m) {
         .def("add", [](coek::CompactModel& m, const coek::Constraint& c){m.add(c);})
         .def("add", [](coek::CompactModel& m, const coek::ConstraintSequence& c){m.add(c);})
 
-        .def("write", [](coek::CompactModel& m, const std::string& s, std::map<int,int>& varmap){m.write(s,varmap);})
+        .def("write", [](coek::CompactModel& m, const std::string& s, std::map<int,int>& varmap, std::map<int,int>& conmap){m.write(s,varmap,conmap);})
         .def("write", [](coek::CompactModel& m, const std::string& s){m.write(s);})
 
         .def("use", [](coek::CompactModel& m, coek::Variable& v){m.addVariable(v);})
@@ -1128,6 +1128,7 @@ PYBIND11_MODULE(pycoek, m) {
         .def("num_constraints", &coek::NLPModel::num_constraints)
         .def("get_variable", &coek::NLPModel::get_variable)
         .def("set_variable", &coek::NLPModel::set_variable)
+        .def("get_constraint", &coek::NLPModel::get_constraint)
 
         .def("compute_f", [](coek::NLPModel& m){return m.compute_f(0);})
         .def("compute_f", [](coek::NLPModel& m, unsigned int i){return m.compute_f(i);})
@@ -1157,6 +1158,8 @@ PYBIND11_MODULE(pycoek, m) {
                 })
         //.def("compute_H", [](coek::NLPModel& m){return m.compute_f();})
         //.def("compute_J", [](coek::NLPModel& m){return m.compute_f();})
+        .def("write", [](coek::NLPModel& m, const std::string& s){m.write(s);})
+        .def("write", [](coek::NLPModel& m, const std::string& s, std::map<int,int>& varmap, std::map<int,int>& conmap){m.write(s,varmap,conmap);})
         ;
 
     //

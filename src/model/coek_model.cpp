@@ -637,16 +637,21 @@ double Model::inf = COEK_INFINITY;
 
 std::ostream& operator<<(std::ostream& ostr, const Model& arg)
 {
+arg.print_summary(ostr);
+return ostr;
+}
+
+void Model::print_summary(std::ostream& ostr) const
+{
 ostr << "MODEL" << std::endl;
 ostr << "  Objectives" << std::endl;
-for (std::vector<Expression>::const_iterator it=arg.repn->objectives.begin(); it != arg.repn->objectives.end(); ++it) {
+for (std::vector<Expression>::const_iterator it=repn->objectives.begin(); it != repn->objectives.end(); ++it) {
     ostr << "    " << *it << std::endl;
     }
 ostr << "  Constraints" << std::endl;
-for (std::vector<Constraint>::const_iterator it=arg.repn->constraints.begin(); it != arg.repn->constraints.end(); ++it) {
+for (std::vector<Constraint>::const_iterator it=repn->constraints.begin(); it != repn->constraints.end(); ++it) {
     ostr << "    " << *it << std::endl;
     }
-return ostr;
 }
 
 Model::Model()
@@ -749,29 +754,30 @@ static bool endsWith(const std::string& str, const std::string& suffix)
     return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
 }
 
-void write_lp_problem(Model& model, std::ostream& ostr, std::map<int,int>& varmap);
-void write_lp_problem(CompactModel& model, std::ostream& ostr, std::map<int,int>& varmap);
-void write_nl_problem(Model& model, std::ostream& ostr, std::map<int,int>& varmap);
+void write_lp_problem(Model& model, std::ostream& ostr, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem(CompactModel& model, std::ostream& ostr, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_nl_problem(Model& model, std::ostream& ostr, std::map<int,int>& varmap, std::map<int,int>& conmap);
 
 
 void Model::write(std::string fname)
 {
 std::map<int,int> varmap;
-write(fname, varmap);
+std::map<int,int> conmap;
+write(fname, varmap, conmap);
 }
 
-void Model::write(std::string fname, std::map<int,int>& varmap)
+void Model::write(std::string fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 {
 if (endsWith(fname, ".lp")) {
     std::ofstream ofstr(fname);
-    write_lp_problem(*this, ofstr, varmap);
+    write_lp_problem(*this, ofstr, varmap, conmap);
     ofstr.close();
     return;
     }
 
 else if (endsWith(fname, ".nl")) {
     std::ofstream ofstr(fname);
-    write_nl_problem(*this, ofstr, varmap);
+    write_nl_problem(*this, ofstr, varmap, conmap);
     ofstr.close();
     return;
     }
@@ -904,20 +910,21 @@ return model;
 void CompactModel::write(std::string fname)
 {
 std::map<int,int> varmap;
-write(fname, varmap);
+std::map<int,int> conmap;
+write(fname, varmap, conmap);
 }
 
-void CompactModel::write(std::string fname, std::map<int,int>& varmap)
+void CompactModel::write(std::string fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 {
 if (endsWith(fname, ".lp")) {
     std::ofstream ofstr(fname);
-    write_lp_problem(*this, ofstr, varmap);
+    write_lp_problem(*this, ofstr, varmap, conmap);
     ofstr.close();
     return;
     }
 
 Model model = expand();
-model.write(fname, varmap);
+model.write(fname, varmap, conmap);
 }
 
 
@@ -1031,21 +1038,6 @@ if (repn == 0)
 repn->get_H_nonzeros(hrow, hcol);
 }
 
-void NLPModel::write(std::ostream& ostr) const
-{
-if (repn == 0)
-    throw std::runtime_error("Calling write() for uninitialized NLPModel.");
-std::map<int,int> varmap;
-repn->write(ostr, varmap);
-}
-
-void NLPModel::write(std::ostream& ostr, std::map<int,int>& varmap) const
-{
-if (repn == 0)
-    throw std::runtime_error("Calling write() for uninitialized NLPModel.");
-repn->write(ostr, varmap);
-}
-
 double NLPModel::compute_f(unsigned int i)
 {
 if (repn == 0)
@@ -1088,10 +1080,32 @@ if (repn == 0)
 repn->compute_J(J);
 }
 
+void NLPModel::write(std::string fname)
+{
+if (repn == 0)
+    throw std::runtime_error("Calling write() for uninitialized NLPModel.");
+std::map<int,int> varmap;
+std::map<int,int> conmap;
+repn->model.write(fname, varmap, conmap);
+}
+
+void NLPModel::write(std::string fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
+{
+if (repn == 0)
+    throw std::runtime_error("Calling write() for uninitialized NLPModel.");
+repn->model.write(fname, varmap, conmap);
+}
+
+void NLPModel::print_summary(std::ostream& ostr) const
+{
+if (repn == 0)
+    throw std::runtime_error("Calling print_summary() for uninitialized NLPModel.");
+repn->print_summary(ostr);
+}
+
 std::ostream& operator<<(std::ostream& ostr, const NLPModel& arg)
 {
-std::map<int,int> varmap;
-arg.write(ostr, varmap);
+arg.print_summary(ostr);
 return ostr;
 }
 

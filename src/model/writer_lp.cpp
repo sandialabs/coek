@@ -123,7 +123,7 @@ else
 
 }
 
-void write_lp_problem(Model& model, std::ostream& ostr, std::map<int,int>& invvarmap)
+void write_lp_problem(Model& model, std::ostream& ostr, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 {
 if (model.repn->objectives.size() == 0) {
     std::cerr << "Error writing LP file: No objectives specified!" << std::endl;
@@ -159,6 +159,7 @@ try {
     ostr << std::endl << "subject to" << std::endl << std::endl;
     int ctr=0;
     for (std::vector<Constraint>::iterator it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it) {
+        invconmap[it->id()] = ctr;
         print_constraint(ostr, *it, ctr, vid);
         ctr++;
         }
@@ -215,7 +216,7 @@ ostr << std::endl << "end" << std::endl;
 }
 
 
-void write_lp_problem(CompactModel& model, std::ostream& ostr, std::map<int,int>& varmap)
+void write_lp_problem(CompactModel& model, std::ostream& ostr, std::map<int,int>& varmap, std::map<int,int>& conmap)
 {
 if (model.objectives.size() == 0) {
     std::cerr << "Error writing LP file: No objectives specified!" << std::endl;
@@ -272,12 +273,14 @@ try {
         auto& val = *it;
         if (auto cval = std::get_if<Constraint>(&val)) {
             Constraint c = cval->expand();
+            conmap[c.id()] = ctr;
             print_constraint(ostr, c, ctr, vid);
             ctr++;
             }
         else {
             auto& seq = std::get<ConstraintSequence>(val);
             for (auto jt=seq.begin(); jt != seq.end(); ++jt) {
+                conmap[jt->id()] = ctr;
                 print_constraint(ostr, *jt, ctr, vid);
                 ctr++;
                 }

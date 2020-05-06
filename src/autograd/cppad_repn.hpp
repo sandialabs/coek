@@ -108,7 +108,7 @@ public:
     void get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol);
     void get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol);
 
-    void write(std::ostream& ostr, std::map<int,int>& varmap) const;
+    void print_summary(std::ostream& ostr) const;
 
 public:
 

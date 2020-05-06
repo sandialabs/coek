@@ -209,8 +209,9 @@ public:
     Expression get_objective(unsigned int i=0);
     Constraint get_constraint(unsigned int i);
 
-    void write(std::string ostr);
-    void write(std::string ostr, std::map<int,int>& varmap);
+    void write(std::string filename);
+    void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
+    void print_summary(std::ostream& ostr) const;
 
     friend std::ostream& operator<<(std::ostream& ostr, const Model& arg);
 };
@@ -244,8 +245,8 @@ public:
 
     Model expand();
 
-    void write(std::string ostr);
-    void write(std::string ostr, std::map<int,int>& varmap);
+    void write(std::string filename);
+    void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
 };
 
 
@@ -323,8 +324,9 @@ public:
     void get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol);
     void get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol);
 
-    void write(std::ostream& ostr) const;
-    void write(std::ostream& ostr, std::map<int,int>& varmap) const;
+    void write(std::string filename);
+    void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
+    void print_summary(std::ostream& ostr) const;
 
     friend std::ostream& operator<<(std::ostream& ostr, const NLPModel& arg);
 

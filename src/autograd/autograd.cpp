@@ -82,7 +82,7 @@ Constraint NLPModelRepn::get_constraint(int i)
 return model.get_constraint(i);
 }
 
-void NLPModelRepn::write(std::ostream& ostr, std::map<int,int>& varmap) const
+void NLPModelRepn::print_summary(std::ostream& ostr) const
 {
 ostr << "NLPModel:" << std::endl;
 ostr << "  variables:         " << num_variables() << std::endl;
