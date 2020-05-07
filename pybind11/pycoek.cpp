@@ -932,6 +932,7 @@ PYBIND11_MODULE(pycoek, m) {
         .def("__init__", [](){throw std::runtime_error("Cannot create an empty constraint.");})
         .def_property_readonly("value", &coek::Constraint::get_value)
         .def_property_readonly("id", &coek::Constraint::id)
+        .def_property_readonly("name", [](coek::Constraint& c){return std::string("c")+std::to_string(c.id());})
         .def("is_feasible", &coek::Constraint::is_feasible)
         .def("is_constraint",[](const coek::Constraint& x){return true;})
         .def("__eq__", [](){throw std::runtime_error("Cannot create a constraint from a boolean expression.");})

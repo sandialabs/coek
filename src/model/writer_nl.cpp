@@ -184,7 +184,7 @@ if (quadratic) {
     if (term.size() == 2)
         ostr << "o0" << std::endl;
     else if (term.size() > 2)
-        ostr << "o54" << std::endl;
+        ostr << "o54" << std::endl << term.size() << std::endl;
     for (auto it=term.begin(); it != term.end(); it++) {
         double coef = it->second;
         if (coef != 1) {
@@ -353,8 +353,8 @@ for (auto it=nonlinear_vars_con.begin(); it != nonlinear_vars_con.end(); it++) {
 std::unordered_map<int,int> varmap;
 ctr = 0;
 for (auto it=vars.begin(); it != vars.end(); it++) {
-    varmap[*it] = ctr++;
     invvarmap[ctr] = *it;
+    varmap[*it] = ctr++;
     }
 
 // Compute linear Jacobian and Gradient values
