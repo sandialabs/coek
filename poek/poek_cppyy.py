@@ -26,7 +26,7 @@ class variable(object):
         name = kwds.get('name',"")
         lb = kwds.get('lb', -inf)
         ub = kwds.get('ub', inf)
-        init = kwds.get('initial', NAN)
+        init = kwds.get('value', NAN)
         binval = kwds.get('binary', 0)
         integer = kwds.get('integer', 0)
         fixed = kwds.get('fixed', 0)
