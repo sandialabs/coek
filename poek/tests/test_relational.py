@@ -200,7 +200,7 @@ class Test_Expr(unittest.TestCase):
         b = self.b
 
         e = a == b
-        self.assertEqual( e.to_list(), ['==', ['+', 'a', ['*', '-1', 'b']], '0'] )
+        self.assertEqual( e.to_list(), ['==', ['+', 'a', ['*', '-1', 'b']], '0.000'] )
 
     def test_error1(self):
         #
