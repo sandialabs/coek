@@ -11,6 +11,12 @@ except:
     _EvaluationVisitor=object
     pyomo_available=False
 
+def prod(v):
+    expr = 1
+    for v_ in v.values():
+        expr *= v_
+    return expr
+
 def quicksum(args, start=0):
     """
     A utility function to compute a sum of Poek expressions.
