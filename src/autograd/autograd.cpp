@@ -73,7 +73,6 @@ v->integer = _v->integer;
 v->lb = _v->lb;
 v->ub = _v->ub;
 v->fixed = _v->fixed;
-v->initialize = _v->initialize;
 v->value = _v->value;
 }
 

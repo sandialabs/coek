@@ -305,9 +305,6 @@ public:
     bool is_constant() const
         {return false;}
 
-    double get_initial() const;
-    void set_initial(double value);
-
     double get_value() const;
     void set_value(double value);
 
@@ -468,7 +465,9 @@ public:
     bool is_equality() const;
     bool is_feasible() const;
 
-    double get_value() const;
+    Expression lower() const;
+    Expression body() const;
+    Expression upper() const;
 
     template <typename... TYPES>
     ConstraintSequenceAux forall(const TYPES&... args)
@@ -578,6 +577,10 @@ std::ostream& operator<<(std::ostream& ostr, const QuadraticExpr& arg);
 //
 // logical operators
 //
+
+Constraint inequality(int lower, const Expression& body, int upper, bool strict=false);
+Constraint inequality(double lower, const Expression& body, double upper, bool strict=false);
+Constraint inequality(const Expression& lower, const Expression& body, const Expression& upper, bool strict=false);
 
 Constraint operator<(int, const Parameter&);
 Constraint operator<(int, const IndexParameter&);

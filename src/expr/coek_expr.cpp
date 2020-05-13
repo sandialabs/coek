@@ -241,7 +241,6 @@ void Variable::initialize(double lb, double ub, double value, bool binary, bool 
 repn->lb = lb;
 repn->ub = ub;
 repn->value = value;
-repn->initialize = value;
 repn->binary = binary;
 repn->integer = integer;
 repn->fixed = fixed;
@@ -269,16 +268,6 @@ return repn->value;
 void Variable::set_value(double value)
 {
 repn->value = value;
-}
-
-double Variable::get_initial() const
-{
-return repn->initialize;
-}
-
-void Variable::set_initial(double value)
-{
-repn->initialize = value;
 }
 
 double Variable::get_lb() const
@@ -355,7 +344,8 @@ OWN_POINTER(repn);
 Expression::Expression(const ExpressionRepn& _repn)
     : repn(_repn)
 {
-OWN_POINTER(repn);
+if (repn)
+    OWN_POINTER(repn);
 }
 
 Expression::Expression(double value)
@@ -390,7 +380,8 @@ OWN_POINTER(repn);
 
 Expression::~Expression()
 {
-DISOWN_POINTER(repn);
+if (repn)
+    DISOWN_POINTER(repn);
 }
 
 Expression::Expression(const Expression& expr)
@@ -589,9 +580,7 @@ return *this;
 }
 
 unsigned int Constraint::id() const
-{
-return repn->index;
-}
+{ return repn->index; }
 
 bool Constraint::is_inequality() const
 { return repn->is_inequality(); }
@@ -602,13 +591,17 @@ bool Constraint::is_equality() const
 bool Constraint::is_feasible() const
 { return repn->is_feasible(); }
 
-double Constraint::get_value() const
-{ return repn->eval(); }
+Expression Constraint::lower() const
+{ return repn->lower; }
+
+Expression Constraint::body() const
+{ return repn->body; }
+
+Expression Constraint::upper() const
+{ return repn->upper; }
 
 Constraint Constraint::expand()
-{
-return convert_con_template(repn);
-}
+{ return convert_con_template(repn); }
 
 std::list<std::string> Constraint::to_list() const
 {
@@ -1248,145 +1241,145 @@ Constraint Expression::operator<=(const Expression& rhs) const
 // operator>
 //
 Constraint operator>(int lhs, const Parameter& rhs)
-{return greater_than(lhs, rhs.repn, true);}
+{return less_than(rhs.repn, lhs, true);}
 Constraint operator>(int lhs, const IndexParameter& rhs)
-{return greater_than(lhs, rhs.repn, true);}
+{return less_than(rhs.repn, lhs, true);}
 Constraint operator>(int lhs, const Variable& rhs)
-{return greater_than(lhs, rhs.repn, true);}
+{return less_than(rhs.repn, lhs, true);}
 Constraint operator>(int lhs, const Expression& rhs)
-{return greater_than(lhs, rhs.repn, true);}
+{return less_than(rhs.repn, lhs, true);}
 Constraint operator>(double lhs, const Parameter& rhs)
-{return greater_than(lhs, rhs.repn, true);}
+{return less_than(rhs.repn, lhs, true);}
 Constraint operator>(double lhs, const IndexParameter& rhs)
-{return greater_than(lhs, rhs.repn, true);}
+{return less_than(rhs.repn, lhs, true);}
 Constraint operator>(double lhs, const Variable& rhs)
-{return greater_than(lhs, rhs.repn, true);}
+{return less_than(rhs.repn, lhs, true);}
 Constraint operator>(double lhs, const Expression& rhs)
-{return greater_than(lhs, rhs.repn, true);}
+{return less_than(rhs.repn, lhs, true);}
 
 Constraint Parameter::operator>(double rhs) const
-{return greater_than(repn, rhs, true);}
+{return less_than(rhs, repn, true);}
 Constraint Parameter::operator>(int rhs) const
-{return greater_than(repn, rhs, true);}
+{return less_than(rhs, repn, true);}
 Constraint Parameter::operator>(const Parameter& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 Constraint Parameter::operator>(const IndexParameter& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 Constraint Parameter::operator>(const Variable& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 Constraint Parameter::operator>(const Expression& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 
 Constraint IndexParameter::operator>(double rhs) const
-{return greater_than(repn, rhs, true);}
+{return less_than(rhs, repn, true);}
 Constraint IndexParameter::operator>(int rhs) const
-{return greater_than(repn, rhs, true);}
+{return less_than(rhs, repn, true);}
 Constraint IndexParameter::operator>(const Parameter& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 Constraint IndexParameter::operator>(const IndexParameter& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 Constraint IndexParameter::operator>(const Variable& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 Constraint IndexParameter::operator>(const Expression& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 
 Constraint Variable::operator>(double rhs) const
-{return greater_than(repn, rhs, true);}
+{return less_than(rhs, repn, true);}
 Constraint Variable::operator>(int rhs) const
-{return greater_than(repn, rhs, true);}
+{return less_than(rhs, repn, true);}
 Constraint Variable::operator>(const Parameter& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 Constraint Variable::operator>(const IndexParameter& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 Constraint Variable::operator>(const Variable& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 Constraint Variable::operator>(const Expression& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 
 Constraint Expression::operator>(double rhs) const
-{return greater_than(repn, rhs, true);}
+{return less_than(rhs, repn, true);}
 Constraint Expression::operator>(int rhs) const
-{return greater_than(repn, rhs, true);}
+{return less_than(rhs, repn, true);}
 Constraint Expression::operator>(const Parameter& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 Constraint Expression::operator>(const IndexParameter& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 Constraint Expression::operator>(const Variable& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 Constraint Expression::operator>(const Expression& rhs) const
-{return greater_than(repn, rhs.repn, true);}
+{return less_than(rhs.repn, repn, true);}
 
 //
 // operator>=
 //
 Constraint operator>=(int lhs, const Parameter& rhs)
-{return greater_than(lhs, rhs.repn, false);}
+{return less_than(rhs.repn, lhs, false);}
 Constraint operator>=(int lhs, const IndexParameter& rhs)
-{return greater_than(lhs, rhs.repn, false);}
+{return less_than(rhs.repn, lhs, false);}
 Constraint operator>=(int lhs, const Variable& rhs)
-{return greater_than(lhs, rhs.repn, false);}
+{return less_than(rhs.repn, lhs, false);}
 Constraint operator>=(int lhs, const Expression& rhs)
-{return greater_than(lhs, rhs.repn, false);}
+{return less_than(rhs.repn, lhs, false);}
 Constraint operator>=(double lhs, const Parameter& rhs)
-{return greater_than(lhs, rhs.repn, false);}
+{return less_than(rhs.repn, lhs, false);}
 Constraint operator>=(double lhs, const IndexParameter& rhs)
-{return greater_than(lhs, rhs.repn, false);}
+{return less_than(rhs.repn, lhs, false);}
 Constraint operator>=(double lhs, const Variable& rhs)
-{return greater_than(lhs, rhs.repn, false);}
+{return less_than(rhs.repn, lhs, false);}
 Constraint operator>=(double lhs, const Expression& rhs)
-{return greater_than(lhs, rhs.repn, false);}
+{return less_than(rhs.repn, lhs, false);}
 
 Constraint Parameter::operator>=(double rhs) const
-{return greater_than(repn, rhs, false);}
+{return less_than(rhs, repn, false);}
 Constraint Parameter::operator>=(int rhs) const
-{return greater_than(repn, rhs, false);}
+{return less_than(rhs, repn, false);}
 Constraint Parameter::operator>=(const Parameter& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 Constraint Parameter::operator>=(const IndexParameter& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 Constraint Parameter::operator>=(const Variable& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 Constraint Parameter::operator>=(const Expression& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 
 Constraint IndexParameter::operator>=(double rhs) const
-{return greater_than(repn, rhs, false);}
+{return less_than(rhs, repn, false);}
 Constraint IndexParameter::operator>=(int rhs) const
-{return greater_than(repn, rhs, false);}
+{return less_than(rhs, repn, false);}
 Constraint IndexParameter::operator>=(const Parameter& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 Constraint IndexParameter::operator>=(const IndexParameter& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 Constraint IndexParameter::operator>=(const Variable& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 Constraint IndexParameter::operator>=(const Expression& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 
 Constraint Variable::operator>=(double rhs) const
-{return greater_than(repn, rhs, false);}
+{return less_than(rhs, repn, false);}
 Constraint Variable::operator>=(int rhs) const
-{return greater_than(repn, rhs, false);}
+{return less_than(rhs, repn, false);}
 Constraint Variable::operator>=(const Parameter& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 Constraint Variable::operator>=(const IndexParameter& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 Constraint Variable::operator>=(const Variable& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 Constraint Variable::operator>=(const Expression& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 
 Constraint Expression::operator>=(double rhs) const
-{return greater_than(repn, rhs, false);}
+{return less_than(rhs, repn, false);}
 Constraint Expression::operator>=(int rhs) const
-{return greater_than(repn, rhs, false);}
+{return less_than(rhs, repn, false);}
 Constraint Expression::operator>=(const Parameter& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 Constraint Expression::operator>=(const IndexParameter& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 Constraint Expression::operator>=(const Variable& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 Constraint Expression::operator>=(const Expression& rhs) const
-{return greater_than(repn, rhs.repn, false);}
+{return less_than(rhs.repn, repn, false);}
 
 //
 // operator==
@@ -1459,6 +1452,22 @@ Constraint Expression::operator==(const Variable& rhs) const
 {return equal(repn, rhs.repn);}
 Constraint Expression::operator==(const Expression& rhs) const
 {return equal(repn, rhs.repn);}
+
+Constraint inequality(int lower, const Expression& body, int upper, bool strict)
+{
+return CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lower), body.repn, CREATE_POINTER(ConstantTerm, upper), strict);
+}
+
+Constraint inequality(double lower, const Expression& body, double upper, bool strict)
+{
+return CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lower), body.repn, CREATE_POINTER(ConstantTerm, upper), strict);
+}
+
+Constraint inequality(const Expression& lower, const Expression& body, const Expression& upper, bool strict)
+{
+return CREATE_POINTER(InequalityTerm, lower.repn, body.repn, upper.repn, strict);
+}
+
 
 //
 // intrinsic functions

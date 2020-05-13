@@ -127,17 +127,28 @@ arg.var->accept(*this);
 
 void WriteExprVisitor::visit(InequalityTerm& arg)
 {
+if (arg.lower) {
+    arg.lower->accept(*this);
+    if (arg.strict)
+        ostr << " < ";
+    else
+        ostr << " <= ";
+    }
 arg.body->accept(*this);
-if (arg.strict)
-    ostr << " < 0";
-else
-    ostr << " <= 0";
+if (arg.upper) {
+    if (arg.strict)
+        ostr << " < ";
+    else
+        ostr << " <= ";
+    arg.upper->accept(*this);
+    }
 }
 
 void WriteExprVisitor::visit(EqualityTerm& arg)
 {
 arg.body->accept(*this);
-ostr << " == 0";
+ostr << " == ";
+arg.lower->accept(*this);
 }
 
 void WriteExprVisitor::visit(NegateTerm& arg)

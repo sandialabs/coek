@@ -151,8 +151,7 @@ return CREATE_POINTER(IndexParameterTerm, name);
 int VariableTerm::count = 0;
 
 VariableTerm::VariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _indexed)
-    : initialize(_value),
-      value(_value),
+    : value(_value),
       lb(_lb),
       ub(_ub),
       binary(_binary),
@@ -206,22 +205,31 @@ return CREATE_POINTER(MonomialTerm, -1*coef, var);
 int ConstraintTerm::count = 0;
 
 ConstraintTerm::ConstraintTerm()
-    : body(0)
+    : lower(0), body(0), upper(0)
 {
 index = count++;
 }
 
-ConstraintTerm::ConstraintTerm(const expr_pointer_t& repn)
-    : body(repn)
+ConstraintTerm::ConstraintTerm(const expr_pointer_t& _lower, const expr_pointer_t& _body, const expr_pointer_t& _upper)
+    : lower(_lower), body(_body), upper(_upper)
 {
 index = count++;
-OWN_POINTER(body);
+if (lower)
+    OWN_POINTER(lower);
+if (body)
+    OWN_POINTER(body);
+if (upper)
+    OWN_POINTER(upper);
 }
 
 ConstraintTerm::~ConstraintTerm()
 {
+if (lower)
+    DISOWN_POINTER(lower);
 if (body)
     DISOWN_POINTER(body);
+if (upper)
+    DISOWN_POINTER(upper);
 }
 
 //
@@ -231,6 +239,7 @@ if (body)
 UnaryTerm::UnaryTerm(const expr_pointer_t& repn)
     : body(repn)
 {
+non_variable = repn->non_variable;
 OWN_POINTER(body);
 }
 
@@ -242,6 +251,7 @@ DISOWN_POINTER(body);
 BinaryTerm::BinaryTerm(const expr_pointer_t& _lhs, const expr_pointer_t& _rhs)
     : lhs(_lhs), rhs(_rhs)
 {
+non_variable = lhs->non_variable and rhs->non_variable;
 OWN_POINTER(lhs);
 OWN_POINTER(rhs);
 }
@@ -267,6 +277,7 @@ void NAryPrefixTerm::initialize(const expr_pointer_t& lhs, const expr_pointer_t&
 data = std::make_shared<shared_t>();
 data->push_back(lhs);
 data->push_back(rhs);
+non_variable = lhs->non_variable and rhs->non_variable;
 //n = data->size();
 n = 2;
 OWN_POINTER(lhs);
@@ -277,6 +288,7 @@ void NAryPrefixTerm::initialize(NAryPrefixTerm* lhs, const expr_pointer_t& rhs)
 {
 data = lhs->data;
 data->push_back(rhs);
+non_variable = lhs->non_variable and rhs->non_variable;
 n = data->size();
 OWN_POINTER(rhs);
 }
@@ -284,6 +296,7 @@ OWN_POINTER(rhs);
 void NAryPrefixTerm::push_back(const expr_pointer_t& rhs)
 {
 assert(n == data->size());
+non_variable = non_variable and rhs->non_variable;
 data->push_back(rhs);
 n = data->size();
 OWN_POINTER(rhs);

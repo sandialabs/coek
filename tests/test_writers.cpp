@@ -17,9 +17,9 @@ model.add( x*y == 4 );
 void small1(coek::Model& model) 
 {
 auto x = model.getVariable();
-x.set_initial(1.0);
+x.set_value(1.0);
 auto y = model.getVariable();
-y.set_initial(1.0);
+y.set_value(1.0);
 
 model.add( pow(x,2) );
 model.add( pow(y,2) == 4 );
@@ -28,9 +28,9 @@ model.add( pow(y,2) == 4 );
 void small2(coek::Model& model) 
 {
 auto x = model.getVariable();
-x.set_initial(1.0);
+x.set_value(1.0);
 auto y = model.getVariable();
-y.set_initial(1.0);
+y.set_value(1.0);
 
 model.add( x );
 model.add( pow(y,2) == 4 );
@@ -39,9 +39,9 @@ model.add( pow(y,2) == 4 );
 void small3(coek::Model& model) 
 {
 auto x = model.getVariable();
-x.set_initial(1.0);
+x.set_value(1.0);
 auto y = model.getVariable();
-y.set_initial(1.0);
+y.set_value(1.0);
 
 model.add( x*y );
 model.add( pow(y,2) == 4 );
@@ -50,9 +50,9 @@ model.add( pow(y,2) == 4 );
 void small4(coek::Model& model) 
 {
 auto x = model.getVariable();
-x.set_initial(1.0);
+x.set_value(1.0);
 auto y = model.getVariable();
-y.set_initial(1.0);
+y.set_value(1.0);
 
 model.add( pow(y,2) );
 model.add( y*x == 4 );
@@ -89,7 +89,7 @@ auto x = model.getVariable(-1,1,1);
 auto y = model.getVariable(-1,1,2);
 auto v = model.getVariable(-1,1,3);
 auto p = model.getVariable();
-p.set_initial(2);
+p.set_value(2);
 p.set_fixed(true);
 
 model.add( x );
@@ -108,7 +108,7 @@ auto x = model.getVariable(-1,1,1);
 auto y = model.getVariable(-1,1,2);
 auto v = model.getVariable(-1,1,3);
 auto p = model.getVariable();
-p.set_initial(2);
+p.set_value(2);
 p.set_fixed(true);
 auto q = coek::Parameter(2);
 
@@ -161,7 +161,7 @@ void small9(coek::Model& model)
 auto x = model.getVariable();
 auto y = model.getVariable();
 auto z = model.getVariable();
-y.set_initial(1.0);
+y.set_value(1.0);
 y.set_fixed(true);
 
 coek::Parameter p = coek::Parameter(0.0);
@@ -179,7 +179,7 @@ model.add( x*q*z == 1 );
 void small13(coek::Model& model)
 {
 auto x = model.getVariable();
-x.set_initial(0.5);
+x.set_value(0.5);
 
 model.add( x, coek::Model::maximize );
 model.add( pow(x,3) - x == 0 );
@@ -193,9 +193,9 @@ double e = M_E;
 double pi = M_PI;
 
 auto ONE = model.getVariable();
-ONE.set_initial(1);
+ONE.set_value(1);
 auto ZERO = model.getVariable();
-ZERO.set_initial(1);
+ZERO.set_value(1);
 
 model.add( ONE+ZERO );
 model.add( log(ONE) == 0 );
@@ -236,6 +236,7 @@ model.add( 3*b + q - a <= 0 );
 model.add( 3*b + b == 0 );
 model.add( 3*b*a + q + b*b + b*b == 0 );
 model.add( 3*b*b + q - a*b - a*a <= 0 );
+model.add( inequality(-7, 3*b*b + q - a*b - a*a, 7) );
 coek::Variable c = model.getVariable(0, COEK_INFINITY);
 coek::Variable d = model.getVariable(-COEK_INFINITY, 0);
 model.add (c + d == 0);
@@ -246,9 +247,9 @@ TEST_CASE( "lp_writer", "[smoke]" ) {
 
   SECTION( "error1" ) {
     coek::Model model;
-    error1(model);
-    REQUIRE_THROWS_WITH(model.write("error1.lp"),
-        "Error writing LP file: Unexpected variable encountered in a model expression");
+    //error1(model);
+    //REQUIRE_THROWS_WITH(model.write("error1.lp"),
+    //    "Error writing LP file: Unexpected variable encountered in a model expression");
     }
 
   SECTION( "small1" ) {
@@ -291,7 +292,6 @@ TEST_CASE( "lp_writer", "[smoke]" ) {
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
-
 
 TEST_CASE( "nl_writer", "[smoke]" ) {
 

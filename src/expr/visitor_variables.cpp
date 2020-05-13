@@ -145,4 +145,11 @@ VariablesVisitor visitor(vars, fixed_vars, params);
 expr->accept(visitor);
 }
 
+void find_variables(expr_pointer_t expr, std::unordered_set<VariableTerm*>& vars)
+{
+std::set<VariableTerm*> fixed_vars;
+std::set<ParameterTerm*> params;
+find_vars_and_params(expr, vars, fixed_vars, params);
+}
+
 }

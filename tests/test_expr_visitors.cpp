@@ -216,21 +216,21 @@ TEST_CASE( "expr_writer", "[smoke]" ) {
         coek::Constraint e = v < 1;
         std::stringstream sstr;
         sstr << e;
-        REQUIRE( sstr.str() == "v + -1 < 0" );
+        REQUIRE( sstr.str() == "v < 1" );
     }
     WHEN( "leq ") {
         coek::Variable v(0, 1, 0, "v");
         coek::Constraint e = v <= 1;
         std::stringstream sstr;
         sstr << e;
-        REQUIRE( sstr.str() == "v + -1 <= 0" );
+        REQUIRE( sstr.str() == "v <= 1" );
     }
     WHEN( "eq ") {
         coek::Variable v(0, 1, 0, "v");
         coek::Constraint e = v == 1;
         std::stringstream sstr;
         sstr << e;
-        REQUIRE( sstr.str() == "v + -1 == 0" );
+        REQUIRE( sstr.str() == "v == 1" );
     }
   }
 
@@ -1293,8 +1293,9 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         REQUIRE( coek::env.check_memory() == true );
         #endif
     }
-    WHEN( "complex quadratic 1" ) {
+    WHEN( "complex quadratic 1a" ) {
         {
+        // Products of linear expressions are not expanded
         coek::Model m;
         coek::Variable v = m.getVariable(0, 1, 0, "v");
         coek::Variable w = m.getVariable(0, 1, 0, "w");
@@ -1302,26 +1303,34 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "8.000" };
-        static std::list<std::string> lcoef0 = { "10.000" };
-        static std::list<std::string> lcoef1 = { "2.000" };
-        static std::list<std::string> lcoef2 = { "12.000" };
-        static std::list<std::string> lcoef3 = { "4.000" };
+        static std::list<std::string> constval = { "0.000" };
+        REQUIRE( repn.constval.to_list() == constval );
+        REQUIRE( repn.linear_coefs.size() == 0 );
+        REQUIRE( repn.quadratic_coefs.size() == 0 );
+        }
+        #ifdef DEBUG
+        REQUIRE( coek::env.check_memory() == true );
+        #endif
+    }
+    WHEN( "complex quadratic 1b" ) {
+        {
+        coek::Model m;
+        coek::Variable v = m.getVariable(0, 1, 0, "v");
+        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Expression e = 3*w*(4 + 5*v + w);
+        coek::MutableNLPExpr repn;
+        repn.collect_terms(e);
+
+        static std::list<std::string> constval = { "0.000" };
+        static std::list<std::string> lcoef0 = { "12.000" };
         static std::list<std::string> qcoef0 = { "15.000" };
         static std::list<std::string> qcoef1 = { "3.000" };
-        static std::list<std::string> qcoef2 = { "5.000" };
-        static std::list<std::string> qcoef3 = { "1.000" };
         REQUIRE( repn.constval.to_list() == constval );
-        REQUIRE( repn.linear_coefs.size() == 4 );
+        REQUIRE( repn.linear_coefs.size() == 1 );
         REQUIRE( repn.linear_coefs[0].to_list() == lcoef0 );
-        REQUIRE( repn.linear_coefs[1].to_list() == lcoef1 );
-        REQUIRE( repn.linear_coefs[2].to_list() == lcoef2 );
-        REQUIRE( repn.linear_coefs[3].to_list() == lcoef3 );
-        REQUIRE( repn.quadratic_coefs.size() == 4 );
+        REQUIRE( repn.quadratic_coefs.size() == 2 );
         REQUIRE( repn.quadratic_coefs[0].to_list() == qcoef0 );
         REQUIRE( repn.quadratic_coefs[1].to_list() == qcoef1 );
-        REQUIRE( repn.quadratic_coefs[2].to_list() == qcoef2 );
-        REQUIRE( repn.quadratic_coefs[3].to_list() == qcoef3 );
         }
         #ifdef DEBUG
         REQUIRE( coek::env.check_memory() == true );
@@ -1512,11 +1521,11 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::Model m;
         coek::Parameter p(0, "p");
         coek::Variable w = m.getVariable(0,1,3,"w");
-        coek::Constraint e = p*w <= 2;
+        coek::Constraint e = p*w + 1 <= 2;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "-2.000" };
+        static std::list<std::string> constval = { "1.000" };
         static std::list<std::string> coefval = { "p" };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );
@@ -1533,11 +1542,11 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::Model m;
         coek::Parameter p(0, "p");
         coek::Variable w = m.getVariable(0,1,3,"w");
-        coek::Constraint e = p*w == 2;
+        coek::Constraint e = p*w -1 == 2;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "-2.000" };
+        static std::list<std::string> constval = { "-1.000" };
         static std::list<std::string> coefval = { "p" };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );

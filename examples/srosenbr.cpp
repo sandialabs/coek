@@ -12,9 +12,9 @@ size_t N = 10000;
 std::vector<coek::Variable> x(N);
 for (size_t i=0; i<N; i++) {
     if (i%2 == 0)
-        x[i].set_initial(-1.2);
+        x[i].set_value(-1.2);
     else
-        x[i].set_initial(1);
+        x[i].set_value(1);
     m.addVariable(x[i]);
     }
 

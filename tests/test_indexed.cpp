@@ -561,7 +561,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
             auto tmp = (y(i) == 0). forall(i).in( s );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
-                std::list<std::string> baseline = {"[", "==", "y(" + std::to_string(v[ii]) + ")", "0", "]"};
+                std::list<std::string> baseline = {"[", "==", "y(" + std::to_string(v[ii]) + ")", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);
                 ii++;
                 }
@@ -571,7 +571,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
             auto tmp = (1+y(i) == 0). forall(i).in( s );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
-                std::list<std::string> baseline = {"[", "==", "[", "+", "1.000", "y(" + std::to_string(v[ii]) + ")", "]", "0", "]"};
+                std::list<std::string> baseline = {"[", "==", "[", "+", "1.000", "y(" + std::to_string(v[ii]) + ")", "]", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);
                 ii++;
                 }
@@ -581,7 +581,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
             auto tmp = (i+y(i) == 0). forall(i).in( s );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
-                std::list<std::string> baseline = {"[", "==", "[", "+", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]) + ")", "]", "0", "]"};
+                std::list<std::string> baseline = {"[", "==", "[", "+", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]) + ")", "]", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);
                 ii++;
                 }
@@ -593,7 +593,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
             auto tmp = (y(i+2) == 0). forall(i).in( S );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
-                std::list<std::string> baseline = {"[", "==", "y(" + std::to_string(v[ii]+2) + ")", "0", "]"};
+                std::list<std::string> baseline = {"[", "==", "y(" + std::to_string(v[ii]+2) + ")", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);
                 ii++;
                 }
@@ -605,7 +605,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
             auto tmp = (y(i)+i*y(i+2) == 0). forall(i).in( S );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
-                std::list<std::string> baseline = {"[", "==", "[", "+", "y(" + std::to_string(v[ii]) + ")", "[", "*", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]+2) + ")", "]", "]", "0", "]"};
+                std::list<std::string> baseline = {"[", "==", "[", "+", "y(" + std::to_string(v[ii]) + ")", "[", "*", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]+2) + ")", "]", "]", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);
                 ii++;
                 }
@@ -614,14 +614,14 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         WHEN( "Sum( y(i) ) == 0" ) {
             auto tmp = Sum( (y(i)). forall(i).in( s ) ) == 0;
             auto e = tmp.expand();
-            std::list<std::string> baseline = { "[", "==", "[", "+", "y(1)", "y(5)", "y(3)", "y(7)", "]", "0", "]" };
+            std::list<std::string> baseline = { "[", "==", "[", "+", "y(1)", "y(5)", "y(3)", "y(7)", "]", "0.000", "]" };
             REQUIRE( e.to_list() == baseline);
         }
 
         WHEN( "Sum( y(i)*x(i,i) ) == 0" ) {
             auto tmp = Sum( (y(i)*x(i,i)). forall(i).in(s) ) == 0;
             auto e = tmp.expand();
-            std::list<std::string> baseline = { "[", "==", "[", "+", "[", "*", "y(1)", "x(1,1)", "]", "[", "*", "y(5)", "x(5,5)", "]", "[", "*", "y(3)", "x(3,3)", "]", "[", "*", "y(7)", "x(7,7)", "]", "]", "0", "]" };
+            std::list<std::string> baseline = { "[", "==", "[", "+", "[", "*", "y(1)", "x(1,1)", "]", "[", "*", "y(5)", "x(5,5)", "]", "[", "*", "y(3)", "x(3,3)", "]", "[", "*", "y(7)", "x(7,7)", "]", "]", "0.000", "]" };
             REQUIRE( e.to_list() == baseline);
         }
     }
@@ -910,8 +910,9 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         REQUIRE( repn.quadratic_rvars[0] == w.repn );
         }
     }
-    WHEN( "complex quadratic 1" ) {
+    WHEN( "complex quadratic 1a" ) {
         {
+        // By default, we do not expand products of linear expressions
         coek::Model m;
         coek::Variable v = m.getVariable(0, 1, 0, "v");
         coek::Variable w = m.getVariable(0, 1, 0, "w");
@@ -920,26 +921,32 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(E);
 
-        static std::list<std::string> constval = { "8.000" };
-        static std::list<std::string> lcoef0 = { "10.000" };
-        static std::list<std::string> lcoef1 = { "2.000" };
-        static std::list<std::string> lcoef2 = { "12.000" };
-        static std::list<std::string> lcoef3 = { "4.000" };
+        static std::list<std::string> constval = { "0.000" };
+        REQUIRE( repn.constval.to_list() == constval );
+        REQUIRE( repn.linear_coefs.size() == 0 );
+        REQUIRE( repn.quadratic_coefs.size() == 0 );
+        }
+    }
+    WHEN( "complex quadratic 1b" ) {
+        {
+        coek::Model m;
+        coek::Variable v = m.getVariable(0, 1, 0, "v");
+        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Expression e = 3*w*(4 + 5*v + w);
+        auto E = e.expand();
+        coek::MutableNLPExpr repn;
+        repn.collect_terms(E);
+
+        static std::list<std::string> constval = { "0.000" };
+        static std::list<std::string> lcoef0 = { "12.000" };
         static std::list<std::string> qcoef0 = { "15.000" };
         static std::list<std::string> qcoef1 = { "3.000" };
-        static std::list<std::string> qcoef2 = { "5.000" };
-        static std::list<std::string> qcoef3 = { "1.000" };
         REQUIRE( repn.constval.to_list() == constval );
-        REQUIRE( repn.linear_coefs.size() == 4 );
+        REQUIRE( repn.linear_coefs.size() == 1 );
         REQUIRE( repn.linear_coefs[0].to_list() == lcoef0 );
-        REQUIRE( repn.linear_coefs[1].to_list() == lcoef1 );
-        REQUIRE( repn.linear_coefs[2].to_list() == lcoef2 );
-        REQUIRE( repn.linear_coefs[3].to_list() == lcoef3 );
-        REQUIRE( repn.quadratic_coefs.size() == 4 );
+        REQUIRE( repn.quadratic_coefs.size() == 2 );
         REQUIRE( repn.quadratic_coefs[0].to_list() == qcoef0 );
         REQUIRE( repn.quadratic_coefs[1].to_list() == qcoef1 );
-        REQUIRE( repn.quadratic_coefs[2].to_list() == qcoef2 );
-        REQUIRE( repn.quadratic_coefs[3].to_list() == qcoef3 );
         }
     }
     WHEN( "complex quadratic 2" ) {
@@ -1109,12 +1116,12 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         coek::Model m;
         coek::Parameter p(0, "p");
         coek::Variable w = m.getVariable(0,1,3,"w");
-        coek::Constraint e = p*w <= 2;
+        coek::Constraint e = p*w -3 <= 2;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
         repn.collect_terms(E);
 
-        static std::list<std::string> constval = { "-2.000" };
+        static std::list<std::string> constval = { "-3.000" };
         static std::list<std::string> coefval = { "p" };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );
@@ -1128,12 +1135,12 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         coek::Model m;
         coek::Parameter p(0, "p");
         coek::Variable w = m.getVariable(0,1,3,"w");
-        coek::Constraint e = p*w == 2;
+        coek::Constraint e = p*w +1 == 2;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
         repn.collect_terms(E);
 
-        static std::list<std::string> constval = { "-2.000" };
+        static std::list<std::string> constval = { "1.000" };
         static std::list<std::string> coefval = { "p" };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );

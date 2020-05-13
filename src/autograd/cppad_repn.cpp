@@ -573,8 +573,11 @@ ADfc.new_dynamic( dynamic_param_vals );
 //
 // Setup initial value
 //
+// TODO - Does this do anything?  Maybe, if the user has explicitly set the
+//          variable value.
+//
 for (auto it=used_variables.begin(); it != used_variables.end(); ++it)
-    currx[it->first] = it->second->initialize;
+    currx[it->first] = it->second->value;
 set_variables(currx);
 }
 

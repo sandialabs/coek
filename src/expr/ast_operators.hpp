@@ -458,93 +458,95 @@ return CREATE_POINTER(PowTerm, lhs, rhs);
 // operator<
 //
 
-template <typename LHS, typename RHS>
-ConstraintTerm* less_than(const LHS& lhs, const RHS& rhs, bool strict)
+inline ConstraintTerm* less_than(expr_pointer_t lhs, expr_pointer_t rhs, bool strict)
 {
-expr_pointer_t e = minus(lhs, rhs);
-
-return CREATE_POINTER(InequalityTerm, e, strict);
+if (lhs->non_variable)
+    // lower=lhs, body=rhs
+    return CREATE_POINTER(InequalityTerm, lhs, rhs, 0, strict);
+else if (rhs->non_variable)
+    // body=lhs, upper=rhs
+    return CREATE_POINTER(InequalityTerm, 0, lhs, rhs, strict);
+else {
+    // body=lhs-rhs, upper=ZERO
+    expr_pointer_t e = minus(lhs, rhs);
+    return CREATE_POINTER(InequalityTerm, 0, e, ZEROCONST, strict);
+    }
 }
 
-template <typename LHS>
-ConstraintTerm* less_than(const LHS& lhs, int rhs, bool strict)
+inline ConstraintTerm* less_than(expr_pointer_t lhs, int rhs, bool strict)
 {
-expr_pointer_t e;
 if (rhs == 0)
-    e = lhs;
+    return CREATE_POINTER(InequalityTerm, 0, lhs, ZEROCONST, strict);
 else
-    e = minus(lhs, rhs);
-
-return CREATE_POINTER(InequalityTerm, e, strict);
+    return CREATE_POINTER(InequalityTerm, 0, lhs, CREATE_POINTER(ConstantTerm, rhs), strict);
 }
 
-template <typename LHS>
-ConstraintTerm* less_than(const LHS& lhs, double rhs, bool strict)
+inline ConstraintTerm* less_than(expr_pointer_t lhs, double rhs, bool strict)
 {
-expr_pointer_t e;
 if (rhs == 0.0)
-    e = lhs;
+    return CREATE_POINTER(InequalityTerm, 0, lhs, ZEROCONST, strict);
 else
-    e = minus(lhs, rhs);
-
-return CREATE_POINTER(InequalityTerm, e, strict);
+    return CREATE_POINTER(InequalityTerm, 0, lhs, CREATE_POINTER(ConstantTerm, rhs), strict);
 }
 
-template <typename LHS, typename RHS>
-ConstraintTerm* greater_than(const LHS& lhs, const RHS& rhs, bool strict)
+inline ConstraintTerm* less_than(int lhs, expr_pointer_t rhs, bool strict)
 {
-expr_pointer_t _lhs = lhs->negate(lhs);
-expr_pointer_t e = plus(_lhs, rhs);
-
-return CREATE_POINTER(InequalityTerm, e, strict);
+if (lhs == 0)
+    return CREATE_POINTER(InequalityTerm, ZEROCONST, rhs, 0, strict);
+else
+    return CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, 0, strict);
 }
 
-template <typename RHS>
-ConstraintTerm* greater_than(int lhs, const RHS& rhs, bool strict)
+inline ConstraintTerm* less_than(double lhs, expr_pointer_t rhs, bool strict)
 {
-expr_pointer_t e = plus(-lhs, rhs);
-
-return CREATE_POINTER(InequalityTerm, e, strict);
+if (lhs == 0)
+    return CREATE_POINTER(InequalityTerm, ZEROCONST, rhs, 0, strict);
+else
+    return CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, 0, strict);
 }
 
-template <typename RHS>
-ConstraintTerm* greater_than(double lhs, const RHS& rhs, bool strict)
+inline ConstraintTerm* equal(expr_pointer_t lhs, expr_pointer_t rhs)
 {
-expr_pointer_t e = plus(-lhs, rhs);
-
-return CREATE_POINTER(InequalityTerm, e, strict);
+if (lhs->non_variable)
+    return CREATE_POINTER(EqualityTerm, rhs, lhs);
+else if (rhs->non_variable)
+    return CREATE_POINTER(EqualityTerm, lhs, rhs);
+else {
+    expr_pointer_t e = minus(lhs, rhs);
+    return CREATE_POINTER(EqualityTerm, e, ZEROCONST);
+    }
 }
 
-template <typename LHS, typename RHS>
-ConstraintTerm* equal(const LHS& lhs, const RHS& rhs)
+inline ConstraintTerm* equal(expr_pointer_t lhs, int rhs)
 {
-expr_pointer_t e = minus(lhs, rhs);
-
-return CREATE_POINTER(EqualityTerm, e);
-}
-
-template <typename LHS>
-ConstraintTerm* equal(const LHS& lhs, int rhs)
-{
-expr_pointer_t e;
 if (rhs == 0)
-    e = lhs;
+    return CREATE_POINTER(EqualityTerm, lhs, ZEROCONST);
 else
-    e = minus(lhs, rhs);
-
-return CREATE_POINTER(EqualityTerm, e);
+    return CREATE_POINTER(EqualityTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
 }
 
-template <typename LHS>
-ConstraintTerm* equal(const LHS& lhs, double rhs)
+inline ConstraintTerm* equal(expr_pointer_t lhs, double rhs)
 {
-expr_pointer_t e;
-if (rhs == 0.0)
-    e = lhs;
+if (rhs == 0)
+    return CREATE_POINTER(EqualityTerm, lhs, ZEROCONST);
 else
-    e = minus(lhs, rhs);
+    return CREATE_POINTER(EqualityTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
+}
 
-return CREATE_POINTER(EqualityTerm, e);
+inline ConstraintTerm* equal(int lhs, expr_pointer_t rhs)
+{
+if (lhs == 0)
+    return CREATE_POINTER(EqualityTerm, rhs, ZEROCONST);
+else
+    return CREATE_POINTER(EqualityTerm, rhs, CREATE_POINTER(ConstantTerm, lhs));
+}
+
+inline ConstraintTerm* equal(double lhs, expr_pointer_t rhs)
+{
+if (lhs == 0)
+    return CREATE_POINTER(EqualityTerm, rhs, ZEROCONST);
+else
+    return CREATE_POINTER(EqualityTerm, rhs, CREATE_POINTER(ConstantTerm, lhs));
 }
 
 }

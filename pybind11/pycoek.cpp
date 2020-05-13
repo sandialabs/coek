@@ -178,11 +178,11 @@ public:
 
     void initialize(int n, py::kwargs kwargs)
         {
-        double lb, ub, init;
+        double lb, ub, value;
         bool binary, integer, fixed;
         parse_varargs<double>(kwargs, "lb", lb, -COEK_INFINITY);
         parse_varargs<double>(kwargs, "ub", ub,  COEK_INFINITY);
-        parse_varargs<double>(kwargs, "initial", init, NAN);
+        parse_varargs<double>(kwargs, "value", value, NAN);
         parse_varargs<bool>(kwargs, "binary", binary, false);
         parse_varargs<bool>(kwargs, "integer", integer, false);
         parse_varargs<bool>(kwargs, "fixed", fixed, false);
@@ -191,7 +191,7 @@ public:
 
         variables.resize(n);
         for (int i=0; i<n; i++) {
-            auto tmp = CREATE_POINTER(_IndexedVariableTerm, lb, ub, init, binary, integer, fixed, i, this);
+            auto tmp = CREATE_POINTER(_IndexedVariableTerm, lb, ub, value, binary, integer, fixed, i, this);
             variables[i] = Variable(tmp);
             }
         }
@@ -255,11 +255,11 @@ VariableArray* variable_fn(int n, py::kwargs kwargs)
 
 Variable variable_fn(py::kwargs kwargs)
 {
-double lb, ub, init;
+double lb, ub, value;
 bool binary, integer, fixed;
 parse_varargs<double>(kwargs, "lb", lb, -COEK_INFINITY);
 parse_varargs<double>(kwargs, "ub", ub,  COEK_INFINITY);
-parse_varargs<double>(kwargs, "initial", init, NAN);
+parse_varargs<double>(kwargs, "value", value, NAN);
 parse_varargs<bool>(kwargs, "binary", binary, false);
 parse_varargs<bool>(kwargs, "integer", integer, false);
 parse_varargs<bool>(kwargs, "fixed", fixed, false);
@@ -270,11 +270,11 @@ try {
         auto _name = kwargs["name"];
         if (not _name.is_none()) {
             auto name = _name.cast<py::str>();
-            tmp.initialize(lb, ub, init, binary, integer, fixed, name);
+            tmp.initialize(lb, ub, value, binary, integer, fixed, name);
             return tmp;
             }
         }
-    tmp.initialize(lb, ub, init, binary, integer, fixed);
+    tmp.initialize(lb, ub, value, binary, integer, fixed);
     return tmp;
     }
 catch (std::exception& err) {
@@ -608,7 +608,6 @@ PYBIND11_MODULE(pycoek, m) {
         .def(py::init<double, double, double, bool, bool>())
         .def_property_readonly("name",&coek::Variable::get_name)
         .def_property("value", &coek::Variable::get_value, &coek::Variable::set_value)
-        .def_property("initial", &coek::Variable::get_initial, &coek::Variable::set_initial)
         .def_property("lb", &coek::Variable::get_lb, &coek::Variable::set_lb)
         .def_property("ub", &coek::Variable::get_ub, &coek::Variable::set_ub)
         .def_property("fixed", &coek::Variable::get_fixed, &coek::Variable::set_fixed)
@@ -930,7 +929,7 @@ PYBIND11_MODULE(pycoek, m) {
     //
     py::class_<coek::Constraint>(m, "constraint")
         .def("__init__", [](){throw std::runtime_error("Cannot create an empty constraint.");})
-        .def_property_readonly("value", &coek::Constraint::get_value)
+        .def_property_readonly("value", [](coek::Constraint& c){return c.body().get_value();})
         .def_property_readonly("id", &coek::Constraint::id)
         .def_property_readonly("name", [](coek::Constraint& c){return std::string("c")+std::to_string(c.id());})
         .def("is_feasible", &coek::Constraint::is_feasible)
@@ -1181,6 +1180,19 @@ PYBIND11_MODULE(pycoek, m) {
         .def("get_option", [](coek::NLPSolver& s, const std::string& o){int v; s.get_option(o,v); return v;})
         .def("get_option", [](coek::NLPSolver& s, const std::string& o){double v; s.get_option(o,v); return v;})
         ;
+
+    m.def("inequality", [](int lower, const coek::Expression& body, int upper){return inequality(lower,body,upper);});
+    m.def("inequality", [](double lower, const coek::Expression& body, double upper){return inequality(lower,body,upper);});
+    m.def("inequality", [](const coek::Expression lower, const coek::Expression& body, const coek::Expression upper){return inequality(lower,body,upper);});
+    m.def("inequality", [](int lower, const coek::Expression& body, int upper, bool strict){return inequality(lower,body,upper,strict);});
+    m.def("inequality", [](double lower, const coek::Expression& body, double upper, bool strict){return inequality(lower,body,upper,strict);});
+    m.def("inequality", [](const coek::Expression lower, const coek::Expression& body, const coek::Expression upper, bool strict){return inequality(lower,body,upper,strict);});
+    m.def("inequality", [](int lower, const coek::Variable& body, int upper){return inequality(lower,body,upper);});
+    m.def("inequality", [](double lower, const coek::Variable& body, double upper){return inequality(lower,body,upper);});
+    m.def("inequality", [](const coek::Expression lower, const coek::Variable& body, const coek::Expression upper){return inequality(lower,body,upper);});
+    m.def("inequality", [](int lower, const coek::Variable& body, int upper, bool strict){return inequality(lower,body,upper,strict);});
+    m.def("inequality", [](double lower, const coek::Variable& body, double upper, bool strict){return inequality(lower,body,upper,strict);});
+    m.def("inequality", [](const coek::Expression lower, const coek::Variable& body, const coek::Expression upper, bool strict){return inequality(lower,body,upper,strict);});
 
 }
 

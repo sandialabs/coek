@@ -51,9 +51,10 @@ class BaseExpressionTerm
 public:
 
     int refcount;
+    bool non_variable;
 
     BaseExpressionTerm(int _refcount=0)
-        : refcount(_refcount) {}
+        : refcount(_refcount), non_variable(false) {}
 
     virtual ~BaseExpressionTerm() {}
 
@@ -90,7 +91,7 @@ public:
 
     ConstantTerm(double _value, int refcount=0)
         : BaseExpressionTerm(refcount), value(_value)
-        {}
+        {non_variable=true;}
 
     double eval() const
         { return value; }
@@ -146,7 +147,7 @@ public:
 
     IndexParameterTerm(const std::string& _name, int refcount=0)
         : BaseExpressionTerm(refcount), name(_name)
-        {}
+        {non_variable=true;}
 
     bool is_abstract_parameter() const
         {return true;}
@@ -189,7 +190,6 @@ public:
 public:
 
     int index;
-    double initialize;
     double value;
     double lb;
     double ub;
@@ -289,12 +289,14 @@ public:
 public:
 
     int index;
+    expr_pointer_t lower;
     expr_pointer_t body;
+    expr_pointer_t upper;
 
 public:
 
     ConstraintTerm();
-    ConstraintTerm(const expr_pointer_t& repn);
+    ConstraintTerm(const expr_pointer_t& lower, const expr_pointer_t& body, const expr_pointer_t& upper);
     ~ConstraintTerm();
 
     double eval() const
@@ -316,16 +318,24 @@ public:
 
     bool strict;
 
-    InequalityTerm(const expr_pointer_t& repn, bool _strict=false)
-        : ConstraintTerm(repn), strict(_strict) {}
+    InequalityTerm(const expr_pointer_t& lower, const expr_pointer_t& body, const expr_pointer_t& upper, bool _strict=false)
+        : ConstraintTerm(lower, body, upper), strict(_strict) {}
 
     bool is_inequality() const
         {return true;}
     bool is_feasible() const
         {
-        if (strict)
-            return body->eval() < 0.0;
-        return body->eval() <= 0.0;
+        double bodyval = body->eval();
+        if (strict) {
+            bool lhs = (not lower or (lower->eval() < bodyval));
+            bool rhs = (not upper or (upper->eval() > bodyval));
+            return lhs and rhs;
+            }
+        else {
+            bool lhs = (not lower or (lower->eval() <= bodyval));
+            bool rhs = (not upper or (upper->eval() >= bodyval));
+            return lhs and rhs;
+            }
         }
 
     void accept(Visitor& v)
@@ -338,13 +348,13 @@ class EqualityTerm : public ConstraintTerm
 {
 public:
 
-    EqualityTerm(const expr_pointer_t& repn)
-        : ConstraintTerm(repn) {}
+    EqualityTerm(const expr_pointer_t& body, const expr_pointer_t& rhs)
+        : ConstraintTerm(rhs, body, 0) {}
 
     bool is_equality() const
         {return true;}
     bool is_feasible() const
-        {return body->eval() == 0.0;}
+        {return body->eval() == lower->eval();}
 
     void accept(Visitor& v)
         { v.visit(*this); }
@@ -358,7 +368,7 @@ public:
 
     DummyConstraintTerm();
     ~DummyConstraintTerm()
-        {body=0;}
+        {body=0; lower=0; upper=0;}
 
     bool is_equality() const
         {return true;}
