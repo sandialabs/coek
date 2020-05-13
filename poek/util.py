@@ -106,7 +106,7 @@ class ToCoekExpression(_EvaluationVisitor):
                     val = self.default_variable_value
                 else:
                     val = node.value
-                var = pk.variable(lb=node.lb, ub=node.ub, initial=val, binary=node.is_binary(), integer=node.is_integer(), fixed=node.fixed, name=str(node))
+                var = pk.variable(lb=node.lb, ub=node.ub, value=val, binary=node.is_binary(), integer=node.is_integer(), fixed=node.fixed, name=str(node))
                 self._model.use(var)
                 self._var[tmp] = var
             return True, var
@@ -132,10 +132,12 @@ def pyomo_to_poek(pyomo_model, default_variable_value=None):
         if cdata.equality:
             poek_model.add( e == value(cdata.lower) )
         else:
-            if cdata.has_lb():
-                poek_model.add( e - value(cdata.lower) >= 0)
-            if cdata.has_ub():
-                poek_model.add( e - value(cdata.upper) <= 0 )
+            if cdata.has_lb() and cdata.has_ub():
+                poek_model.add( inequality(value(cdata.lower), e, value(cdata.upper)) )
+            elif cdata.has_lb():
+                poek_model.add( e >= value(cdata.lower) )
+            elif cdata.has_ub():
+                poek_model.add( e <= value(cdata.upper) )
 
     data = Options()
     data.poek_model = poek_model
