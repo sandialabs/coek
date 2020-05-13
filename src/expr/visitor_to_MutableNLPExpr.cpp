@@ -136,10 +136,31 @@ void visit(TimesTerm& expr,
 {
 MutableNLPExpr lhs_repn;
 visit_expression(expr.lhs, lhs_repn, multiplier);
+
+// LHS is a simple constant
+if ((lhs_repn.linear_coefs.size() == 0) and (lhs_repn.quadratic_coefs.size() == 0) and (lhs_repn.nonlinear.repn == ZEROCONST) and lhs_repn.constval.is_constant()) {
+    if (lhs_repn.constval.repn != ZEROCONST)
+        visit_expression(expr.rhs, repn, lhs_repn.constval.get_value());
+    return;
+    }
+
 MutableNLPExpr rhs_repn;
 visit_expression(expr.rhs, rhs_repn, 1.0);
 
 repn.mutable_values = repn.mutable_values or lhs_repn.mutable_values or rhs_repn.mutable_values;
+
+// Don't expand expressions with cubic or nonlinear terms 
+// Don't expand products of linear terms, unless they are "simple"  (e.g. x*(y+z) )
+int lhs_mindegree = std::max(lhs_repn.linear_coefs.size() == 0 ? 0 : 1, std::max(lhs_repn.quadratic_coefs.size() == 0 ? 0 : 2, lhs_repn.nonlinear.repn == ZEROCONST ? 0 : 4));
+int rhs_mindegree = std::max(rhs_repn.linear_coefs.size() == 0 ? 0 : 1, std::max(rhs_repn.quadratic_coefs.size() == 0 ? 0 : 2, rhs_repn.nonlinear.repn == ZEROCONST ? 0 : 4));
+if ( ((lhs_mindegree + rhs_mindegree) > 2) or                                           // Creating 3rd-degree polynomial
+     (std::min(lhs_repn.linear_coefs.size(), rhs_repn.linear_coefs.size()) > 1) ) {          // Creating product of linear terms
+    repn.nonlinear = plus_(repn.nonlinear.repn, &expr);
+    std::unordered_set<VariableTerm*> exprvars;
+    find_variables(&expr, exprvars);
+    repn.nonlinear_vars.insert(exprvars.begin(), exprvars.end());
+    return;
+    }
 
 // CONSTANT * CONSTANT
 if (not ((lhs_repn.constval.repn == ZEROCONST) or (rhs_repn.constval.repn == ZEROCONST)))
@@ -181,6 +202,7 @@ for (size_t i=0; i<lhs_repn.linear_coefs.size(); i++) {
         }
     }
 
+#if 0
 // LINEAR * QUADRATIC and QUADRATIC * LINEAR and QUADRATIC * QUADRATIC
 Expression ltmp1;
 Expression ltmp2;
@@ -231,7 +253,7 @@ if (not (rhs_repn.nonlinear.repn == ZEROCONST)) {
 if (not ((lhs_repn.nonlinear.repn == ZEROCONST) or (rhs_repn.nonlinear.repn == ZEROCONST))) {
     repn.nonlinear = plus( repn.nonlinear.repn, times_(lhs_repn.nonlinear.repn, rhs_repn.nonlinear.repn) );
     }
-
+#endif
 }
 
 void visit(DivideTerm& expr,
@@ -279,8 +301,11 @@ if (((lhs_repn.linear_coefs.size()+lhs_repn.quadratic_coefs.size()) == 0) and (l
     if (lhs_repn.constval.is_constant() and (lhs_repn.constval.get_value() == 0))
         return;
     }
-repn.nonlinear = plus_(repn.nonlinear.repn, &expr);
 repn.mutable_values = repn.mutable_values or lhs_repn.mutable_values or rhs_repn.mutable_values;
+repn.nonlinear = plus_(repn.nonlinear.repn, &expr);
+std::unordered_set<VariableTerm*> exprvars;
+find_variables(&expr, exprvars);
+repn.nonlinear_vars.insert(exprvars.begin(), exprvars.end());
 }
 
 #define UNARY_VISITOR(TERM, FN)\
@@ -290,7 +315,7 @@ void visit(TERM& expr,\
 {\
 MutableNLPExpr body_repn;\
 visit_expression(expr.body, body_repn, 1.0);\
-if ((body_repn.linear_coefs.size() + body_repn.quadratic_coefs.size()) == 0) {\
+if ((body_repn.linear_coefs.size() == 0) and (body_repn.quadratic_coefs.size() == 0) and (body_repn.nonlinear.repn == ZEROCONST)) {\
     repn.constval = plus( repn.constval.repn, intrinsic_ ## FN(body_repn.constval.repn) );\
     return;\
     }\
@@ -335,8 +360,8 @@ MutableNLPExpr lhs_repn;\
 visit_expression(expr.lhs, lhs_repn, 1.0);\
 MutableNLPExpr rhs_repn;\
 visit_expression(expr.rhs, rhs_repn, 1.0);\
-if ( ((lhs_repn.linear_coefs.size() + lhs_repn.quadratic_coefs.size()) == 0) and\
-     ((rhs_repn.linear_coefs.size() + rhs_repn.quadratic_coefs.size()) == 0) ) {\
+if ((lhs_repn.linear_coefs.size() == 0) and (lhs_repn.quadratic_coefs.size() == 0) and (lhs_repn.nonlinear.repn == ZEROCONST) and\
+    (rhs_repn.linear_coefs.size() == 0) and (rhs_repn.quadratic_coefs.size() == 0) and (rhs_repn.nonlinear.repn == ZEROCONST)) {\
     repn.constval = plus( repn.constval.repn, intrinsic_ ## FN(lhs_repn.constval.repn, rhs_repn.constval.repn) );\
     return;\
     }\

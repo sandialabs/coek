@@ -9,8 +9,8 @@
 void rosenbr_example(coek::Model& m)
 {
 std::vector<coek::Variable> x(2);
-x[0].set_initial(1);
-x[1].set_initial(2);
+x[0].set_value(1);
+x[1].set_value(2);
 m.addVariable(x[0]);
 m.addVariable(x[1]);
 

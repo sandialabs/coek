@@ -106,19 +106,31 @@ if (tmp != 0) {
 
 void print_constraint(std::ostream& ostr, const Constraint& c, int ctr, const std::unordered_map<int,int>& vid)
 {
-ostr << "c" << ctr++ << ":" << std::endl;
 QuadraticExpr expr;
 expr.collect_terms(c);
-print_repn(ostr, expr, vid);
-if (c.is_inequality())
-    ostr << "<= ";
-else
-    ostr << "= ";
 double tmp = expr.constval;
-if (tmp == 0)
-    ostr << "0" << std::endl << std::endl;
-else
-    ostr << (-tmp) << std::endl << std::endl;
+
+auto lower = c.lower();
+auto upper = c.upper();
+
+ostr << "c" << ctr++ << ":" << std::endl;
+if (c.is_inequality()) {
+    if (lower.repn) {
+        ostr << lower.get_value() - tmp;
+        ostr << " <= ";
+        }
+    print_repn(ostr, expr, vid);
+    if (upper.repn) {
+        ostr << " <= ";
+        ostr << upper.get_value() - tmp;
+        }
+    }
+else {
+    print_repn(ostr, expr, vid);
+    ostr << "= ";
+    ostr << lower.get_value() - tmp;
+    }
+ostr << std::endl << std::endl;
 }
 
 }

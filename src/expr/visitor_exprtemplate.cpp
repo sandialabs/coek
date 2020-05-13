@@ -28,14 +28,17 @@ expr_pointer_t visit(VariableRefTerm& arg)
 
 expr_pointer_t visit(InequalityTerm& arg)
 {
-auto curr = visit_expression(arg.body);
-return CREATE_POINTER(InequalityTerm, curr);
+auto lower = arg.lower ? visit_expression(arg.lower) : 0;
+auto body = visit_expression(arg.body);
+auto upper = arg.upper ? visit_expression(arg.upper) : 0;
+return CREATE_POINTER(InequalityTerm, lower, body, upper);
 }
 
 expr_pointer_t visit(EqualityTerm& arg)
 {
-auto curr = visit_expression(arg.body);
-return CREATE_POINTER(EqualityTerm, curr);
+auto body = visit_expression(arg.body);
+auto lower = visit_expression(arg.lower);
+return CREATE_POINTER(EqualityTerm, body, lower);
 }
 
 expr_pointer_t visit(NegateTerm& arg)
@@ -177,10 +180,15 @@ if (expr == 0)
     throw std::runtime_error("Unexpected null constraint");
 
 auto curr = visitors::visit_expression(expr->body);
-if (expr->is_equality())
-    return CREATE_POINTER(EqualityTerm, curr);
-else
-    return CREATE_POINTER(InequalityTerm, curr);
+if (expr->is_equality()) {
+    auto lower = expr->lower ? visitors::visit_expression(expr->lower) : 0;
+    return CREATE_POINTER(EqualityTerm, curr, lower);
+    }
+else {
+    auto lower = expr->lower ? visitors::visit_expression(expr->lower) : 0;
+    auto upper = expr->upper ? visitors::visit_expression(expr->upper) : 0;
+    return CREATE_POINTER(InequalityTerm, lower, curr, upper);
+    }
 }
 
 }

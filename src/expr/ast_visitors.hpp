@@ -26,4 +26,6 @@ void find_vars_and_params(expr_pointer_t expr,
                 std::set<VariableTerm*>& fixed_vars,
                 std::set<ParameterTerm*>& params
                 );
+
+void find_variables(expr_pointer_t expr, std::unordered_set<VariableTerm*>& variables);
 }

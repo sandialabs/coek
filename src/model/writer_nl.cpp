@@ -1,6 +1,9 @@
+#include <iomanip>
 #include <map>
 #include "expr/ast_visitors.hpp"
 #include "coek_model.hpp"
+
+#define EPSILON 1e-12
 
 namespace coek {
 
@@ -11,8 +14,7 @@ namespace {
 
 void format(std::ostream& ostr, double value)
 {
-// TODO - format string
-ostr << value;
+ostr << std::setprecision(16) << value;
 }
 
 
@@ -66,10 +68,18 @@ public:
 
 
 void PrintExpr::visit(ConstantTerm& arg)
-{ ostr << "n" << arg.value << std::endl; }
+{
+ostr << "n";
+format(ostr, arg.value);
+ostr << std::endl;
+}
 
 void PrintExpr::visit(ParameterTerm& arg)
-{ ostr << "n" << arg.value << std::endl; }
+{
+ostr << "n";
+format(ostr, arg.value);
+ostr << std::endl;
+}
 
 void PrintExpr::visit(IndexParameterTerm& arg)
 { throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
@@ -86,7 +96,9 @@ void PrintExpr::visit(IndexedVariableTerm& arg)
 void PrintExpr::visit(MonomialTerm& arg)
 {
 ostr << "o2" << std::endl;
-ostr << "n" << arg.coef << std::endl;
+ostr << "n";
+format(ostr, arg.coef);
+ostr << std::endl;
 ostr << "v" << varmap.at(arg.var->index) << std::endl;
 }
 
@@ -162,14 +174,17 @@ arg.rhs->accept(*this);
 }
 
 
-void print_expr(std::ostream& ostr, const MutableNLPExpr& repn, const std::unordered_map<int,int>& varmap)
+void print_expr(std::ostream& ostr, const MutableNLPExpr& repn, const std::unordered_map<int,int>& varmap, bool objective=false)
 {
 bool nonlinear = not repn.nonlinear.is_constant();
 bool quadratic = repn.quadratic_coefs.size() > 0;
-if (nonlinear and quadratic)
-    ostr << "o0" << std::endl;
+
+double cval = repn.constval.get_value();
+if (not nonlinear)
+    cval += repn.nonlinear.get_value();
+
+std::map<std::pair<int,int>,double> term;
 if (quadratic) {
-    std::map<std::pair<int,int>,double> term;
     for (size_t i=0; i<repn.quadratic_coefs.size(); i++) {
         int lhs = varmap.at(repn.quadratic_lvars[i]->index);
         int rhs = varmap.at(repn.quadratic_rvars[i]->index);
@@ -181,15 +196,34 @@ if (quadratic) {
         else
             term[key] += repn.quadratic_coefs[i].get_value();
         }
-    if (term.size() == 2)
-        ostr << "o0" << std::endl;
-    else if (term.size() > 2)
-        ostr << "o54" << std::endl << term.size() << std::endl;
+    }
+
+// Compute the number of terms in the sum
+int ctr=0;
+if (objective and (fabs(cval) > EPSILON))
+    ctr++;
+if (nonlinear)
+    ctr++;
+if (quadratic)
+    ctr += term.size();
+
+// Write the sum header
+if (ctr == 0)
+    return;
+else if (ctr == 2)
+    ostr << "o0" << std::endl;
+else if (ctr > 2)
+    ostr << "o54" << std::endl << ctr << std::endl;
+
+// Write terms in the sum
+if (quadratic) {
     for (auto it=term.begin(); it != term.end(); it++) {
         double coef = it->second;
         if (coef != 1) {
             ostr << "o2" << std::endl;
-            ostr << "n" << coef << std::endl;
+            ostr << "n";
+            format(ostr, coef);
+            ostr << std::endl;
             }
         ostr << "o2" << std::endl;
         ostr << "v" << it->first.first << std::endl;
@@ -200,12 +234,19 @@ if (nonlinear) {
     PrintExpr visitor(ostr, varmap);
     repn.nonlinear.repn->accept(visitor);
     }
+if (objective and (fabs(cval) > EPSILON)) {
+    ostr << "n";
+    format(ostr, cval);
+    ostr << std::endl;
+    }
 }
 
 }
 
 
 
+// TODO - Reorder constraints to have nonlinear before linear
+// TODO - Reorder variables per the AMPL solver hookup logic
 void write_nl_problem(Model& model, std::ostream& ostr, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 {
 if (model.repn->objectives.size() == 0) {
@@ -225,6 +266,7 @@ std::set<unsigned int> vars;
 std::set<unsigned int> nonlinear_vars_obj;
 std::set<unsigned int> nonlinear_vars_con;
 int num_inequalities=0;
+int num_ranges=0;
 int num_equalities=0;
 int nonl_objectives=0;
 int nonl_constraints=0;
@@ -277,14 +319,48 @@ nnz_gradient=vars.size();
 
 // Constraints
 std::vector<MutableNLPExpr> c_expr(model.repn->constraints.size());
+std::vector<int> r(model.repn->constraints.size());
+std::vector<double> rval(2*model.repn->constraints.size());
 ctr=0;
 for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it, ctr++) {
     invconmap[ctr] = it->id();
     c_expr[ctr].collect_terms(*it);
-    if (it->is_inequality())
+
+    double bodyconst = c_expr[ctr].constval.get_value();
+    if (it->is_inequality()) {
         num_inequalities++;
-    else
+        if (it->repn->lower and it->repn->upper) {
+            double lower = it->repn->lower->eval() - bodyconst;
+            double upper = it->repn->upper->eval() - bodyconst;
+            if (fabs(upper-lower) < EPSILON) {
+                num_equalities++;
+                r[ctr] = 4;
+                rval[2*ctr] = lower;
+                }
+            else {
+                num_ranges++;
+                r[ctr] = 0;
+                rval[2*ctr] = lower;
+                rval[2*ctr+1] = upper;
+                }
+            }
+        else if (it->repn->lower) {
+            r[ctr] = 2;
+            rval[2*ctr] = it->repn->lower->eval() - bodyconst;
+            }
+        else if (it->repn->upper) {
+            r[ctr] = 1;
+            rval[2*ctr] = it->repn->upper->eval() - bodyconst;
+            }
+        else {
+            r[ctr] = 3;
+            }
+        }
+    else {
         num_equalities++;
+        r[ctr] = 4;
+        rval[2*ctr] = it->repn->lower->eval() - bodyconst;
+        }
     if ((c_expr[ctr].quadratic_coefs.size() > 0) or (not c_expr[ctr].nonlinear.is_constant()))
         nonl_constraints++;
 
@@ -415,7 +491,7 @@ for (auto it=c_expr.begin(); it != c_expr.end(); ++it, ctr++) {
 // This API seems poorly documented.  Is the 2005 paper the defining reference?  Pyomo writes a header that doesn't conform to it...
 //
 ostr << "g3 1 1 0 # unnamed problem generated by COEK" << std::endl;
-ostr << " " << vars.size() << " " << (num_inequalities+num_equalities) << " 1 0 " << num_equalities << " 0 # vars, constraints, objectives, ranges, eqns, lcons" << std::endl;
+ostr << " " << vars.size() << " " << (num_inequalities+num_equalities) << " 1 " << num_ranges << " " << num_equalities << " 0 # vars, constraints, objectives, ranges, eqns, lcons" << std::endl;
 ostr << " " << nonl_constraints << " " << nonl_objectives << " # nonlinear constraints, objectives" << std::endl;
 ostr << " 0 0 # network constraints: nonlinear, linear" << std::endl;
 ostr << " " << nonlinear_vars_con.size() << " " << nonlinear_vars_obj.size() << " " << nonlinear_vars_both << " # nonlinear vars in constraints, objectives, both" << std::endl;
@@ -452,35 +528,32 @@ for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ctr++) {
             ostr << "O" << ctr << " 0" << std::endl;
         else
             ostr << "O" << ctr << " 1" << std::endl;
-        print_expr(ostr, *it, varmap);
+        print_expr(ostr, *it, varmap, true);
         }
     else {
         if (model.repn->sense[ctr] == Model::minimize)
             ostr << "O" << ctr << " 0" << std::endl;
         else
             ostr << "O" << ctr << " 1" << std::endl;
-        ostr << "n0" << std::endl;
+        ostr << "n" << it->constval << std::endl;
         }
     }
 
 //
 // "x" section - primal initial values
 //
-// TODO - Should this section use the variable value if that isn't NAN?  What is the
-// semantics that we want to enforce here?
-//
-// NOTE: This is assuming that get_initial() is deprecated.
-//
 {
-auto _it = vars.begin();
-if (not std::isnan(varobj[*_it].get_value())) {
-    ostr << "x" << vars.size() << std::endl;
-    ctr = 0;
-    for (auto it=vars.begin(); it != vars.end(); it++, ctr++) {
-        auto tmp = varobj[*it].get_value();
-        if (not std::isnan(tmp))
-            ostr << ctr << " " << tmp << std::endl;
-        }
+std::map<int, double> values;
+ctr=0;
+for (auto it=vars.begin(); it != vars.end(); it++, ctr++) {
+    auto tmp = varobj[*it].get_value();
+    if (not std::isnan(tmp))
+        values[ctr] = tmp;
+    }
+if (values.size() > 0) {
+    ostr << "x" << values.size() << std::endl;
+    for (auto it=values.begin(); it != values.end(); it++)
+        ostr << it->first << " " << it->second << std::endl;
     }
 }
 
@@ -488,21 +561,35 @@ if (not std::isnan(varobj[*_it].get_value())) {
 // "r" section - bounds on constraints
 //
 
-ostr << "r" << std::endl;
-ctr = 0;
-for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it, ctr++) {
-    if (it->is_inequality()) {
-        ostr << "1 ";
+if (model.repn->constraints.size() > 0) {
+    ostr << "r" << std::endl;
+    ctr = 0;
+    for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it, ctr++) {
+        switch (r[ctr]) {
+            case 0:
+                ostr << "0 ";
+                format(ostr, rval[2*ctr]);
+                ostr << " ";
+                format(ostr, rval[2*ctr+1]);
+                break;
+            case 1:
+                ostr << "1 ";
+                format(ostr, rval[2*ctr]);
+                break;
+            case 2:
+                ostr << "2 ";
+                format(ostr, rval[2*ctr]);
+                break;
+            case 3:
+                ostr << "3";
+                break;
+            case 4:
+                ostr << "4 ";
+                format(ostr, rval[2*ctr]);
+                break;
+            };
+        ostr << std::endl;
         }
-    else {
-        ostr << "4 ";
-        }
-    double constval=c_expr[ctr].constval.get_value();
-    if (constval == 0)
-        format(ostr, constval);
-    else
-        format(ostr, -1 * constval);
-    ostr << std::endl;
     }
 
 //
@@ -530,10 +617,16 @@ for (auto it=vars.begin(); it != vars.end(); it++) {
             ostr << std::endl;
             }
         else {
-            ostr << "0 ";
-            format(ostr, lb);
-            ostr << " ";
-            format(ostr, ub);
+            if (fabs(ub-lb) < EPSILON) {
+                ostr << "4 ";
+                format(ostr, lb);
+                }
+            else {
+                ostr << "0 ";
+                format(ostr, lb);
+                ostr << " ";
+                format(ostr, ub);
+                }
             ostr << std::endl;
             }
         }

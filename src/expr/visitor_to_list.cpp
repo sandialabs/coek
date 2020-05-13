@@ -156,8 +156,15 @@ if (arg.strict)
     repr.push_back( "<" );
 else
     repr.push_back( "<=" );
+if (arg.lower)
+    arg.lower->accept(*this);
+else
+    repr.push_back( "-Inf" );
 arg.body->accept(*this);
-repr.push_back( "0" );
+if (arg.upper)
+    arg.upper->accept(*this);
+else
+    repr.push_back( "Inf" );
 repr.push_back( "]" );
 }
 
@@ -166,7 +173,7 @@ void ToListVisitor::visit(EqualityTerm& arg)
 repr.push_back( "[" );
 repr.push_back( "==" );
 arg.body->accept(*this);
-repr.push_back( "0" );
+arg.lower->accept(*this);
 repr.push_back( "]" );
 }
 
