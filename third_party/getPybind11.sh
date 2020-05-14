@@ -1,6 +1,6 @@
 #!/bin/sh
 
-URL=$(curl --silent "https://api.github.com/repos/pybind/pybind11/tags" | grep tarball_url | head -1 | cut -d '"' -f 4)
+URL=$(curl -k --silent "https://api.github.com/repos/pybind/pybind11/tags" | grep tarball_url | head -1 | cut -d '"' -f 4)
 BASE=$(basename $URL)
 echo "Latest pybind11 release: " $URL
 

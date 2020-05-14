@@ -1,4 +1,4 @@
-#!/bin/sh -v
+#!/bin/sh
 #
 # Enable debugging by executing: 
 #    bin/trace.sh forward0 1
