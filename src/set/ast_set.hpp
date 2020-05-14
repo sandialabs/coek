@@ -247,17 +247,7 @@ public:
         return tmp;
         }
 
-    std::shared_ptr<BaseSetExpression> set_product(const std::shared_ptr<BaseSetExpression>& lhs, const std::shared_ptr<BaseSetExpression>& rhs) const
-        {
-        if (rhs->dim() == 1) {
-            auto tmp = std::make_shared<ProductSet>(lhs, rhs);
-            return tmp;
-            }
-        else {
-            auto tmp = std::make_shared<ProductSet>(lhs, std::dynamic_pointer_cast<ProductSet>(rhs) );
-            return tmp;
-            }
-        }
+    std::shared_ptr<BaseSetExpression> set_product(const std::shared_ptr<BaseSetExpression>& lhs, const std::shared_ptr<BaseSetExpression>& rhs) const;
 };
 
 /// -------------------------------------------------------------
@@ -1087,6 +1077,21 @@ public:
     void initialize();
 };
 
+//
+// Defered template class member function declaration because we need the definition of ProductSet
+//
+template <class TYPE>
+std::shared_ptr<BaseSetExpression> SimpleSet<TYPE>::set_product(const std::shared_ptr<BaseSetExpression>& lhs, const std::shared_ptr<BaseSetExpression>& rhs) const
+{
+if (rhs->dim() == 1) {
+    auto tmp = std::make_shared<ProductSet>(lhs, rhs);
+    return tmp;
+    }
+else {
+    auto tmp = std::make_shared<ProductSet>(lhs, std::dynamic_pointer_cast<ProductSet>(rhs) );
+    return tmp;
+    }
+}
 
 }
 
