@@ -321,10 +321,9 @@ if ((body_repn.linear_coefs.size() == 0) and (body_repn.quadratic_coefs.size() =
     }\
 if (multiplier == 1)\
     repn.nonlinear = plus( repn.nonlinear.repn, &expr );\
-else {\
+else \
     repn.nonlinear = plus( repn.nonlinear.repn, times(CREATE_POINTER(ConstantTerm, multiplier), &expr) );\
-    repn.mutable_values = repn.mutable_values or body_repn.mutable_values;\
-    }\
+repn.mutable_values = repn.mutable_values or body_repn.mutable_values;\
 repn.nonlinear_vars.insert(body_repn.linear_vars.begin(), body_repn.linear_vars.end());\
 repn.nonlinear_vars.insert(body_repn.quadratic_lvars.begin(), body_repn.quadratic_lvars.end());\
 repn.nonlinear_vars.insert(body_repn.quadratic_rvars.begin(), body_repn.quadratic_rvars.end());\
@@ -367,8 +366,9 @@ if ((lhs_repn.linear_coefs.size() == 0) and (lhs_repn.quadratic_coefs.size() == 
     }\
 if (multiplier == 1)\
     repn.nonlinear = plus( repn.nonlinear.repn, &expr );\
-else\
+else \
     repn.nonlinear = plus( repn.nonlinear.repn, times(CREATE_POINTER(ConstantTerm, multiplier), &expr) );\
+repn.mutable_values = repn.mutable_values or lhs_repn.mutable_values or rhs_repn.mutable_values;\
 repn.nonlinear_vars.insert(lhs_repn.linear_vars.begin(), lhs_repn.linear_vars.end());\
 repn.nonlinear_vars.insert(lhs_repn.quadratic_lvars.begin(), lhs_repn.quadratic_lvars.end());\
 repn.nonlinear_vars.insert(lhs_repn.quadratic_rvars.begin(), lhs_repn.quadratic_rvars.end());\

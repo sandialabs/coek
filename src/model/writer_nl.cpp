@@ -85,7 +85,12 @@ void PrintExpr::visit(IndexParameterTerm& arg)
 { throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
 
 void PrintExpr::visit(VariableTerm& arg)
-{ ostr << "v" << varmap.at(arg.index) << std::endl; }
+{ 
+if (arg.fixed)
+    ostr << "n" << arg.value << std::endl;
+else
+    ostr << "v" << varmap.at(arg.index) << std::endl;
+}
 
 void PrintExpr::visit(VariableRefTerm& arg)
 { throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
@@ -99,7 +104,10 @@ ostr << "o2" << std::endl;
 ostr << "n";
 format(ostr, arg.coef);
 ostr << std::endl;
-ostr << "v" << varmap.at(arg.var->index) << std::endl;
+if (arg.var->fixed)
+    ostr << "n" << arg.var->value << std::endl;
+else
+    ostr << "v" << varmap.at(arg.var->index) << std::endl;
 }
 
 void PrintExpr::visit(InequalityTerm& arg)
@@ -432,6 +440,10 @@ for (auto it=vars.begin(); it != vars.end(); it++) {
     invvarmap[ctr] = *it;
     varmap[*it] = ctr++;
     }
+if (vars.size() != varmap.size()) {
+    std::cerr << "Error writing NL file: Variables with duplicate index values detected!" << std::endl;
+    return;
+    }
 
 // Compute linear Jacobian and Gradient values
 std::vector<std::set<int>> k_count(vars.size());
@@ -506,7 +518,6 @@ ostr << " 0 0 0 0 0 # common exprs: b,c,o,c1,o1" << std::endl;
 //
 ctr = 0;
 for (auto it=c_expr.begin(); it != c_expr.end(); it++, ctr++) {
-    //std::cout << "HERE " << it->nonlinear.is_constant() << " " << it->quadratic_coefs.size() << std::endl;
     //std::cout << it->nonlinear.to_list() << std::endl;
     if ((not it->nonlinear.is_constant()) or (it->quadratic_coefs.size() > 0)) {
         ostr << "C" << ctr << std::endl;
@@ -535,7 +546,7 @@ for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ctr++) {
             ostr << "O" << ctr << " 0" << std::endl;
         else
             ostr << "O" << ctr << " 1" << std::endl;
-        ostr << "n" << it->constval << std::endl;
+        ostr << "n" << it->constval.get_value() << std::endl;
         }
     }
 
