@@ -36,5 +36,3 @@ model.add( 0 <= -(x1-(sqrt((x1*x1)+(x2*x2)))*cos((sqrt((x1*x1)+(x2*x2))))) * (x1
 model.add( 0 <= -(x2-(sqrt((x1*x1)+(x2*x2)))*sin((sqrt((x1*x1)+(x2*x2))))) * \
     (x2-(sqrt((x1*x1)+(x2*x2)))*sin((sqrt((x1*x1)+(x2*x2))))) - 0.0050*x1 * x1 - \
     0.0050*x2 * x2 + u )
-
-model.display()
