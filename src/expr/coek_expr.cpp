@@ -1486,7 +1486,7 @@ Expression FN(const Expression& body)\
 {\
 if (body.repn->is_constant()) {\
     ConstantTerm* _body = dynamic_cast<ConstantTerm*>(body.repn);\
-    return FN(_body->value);\
+    return ::FN(_body->value);\
     }\
 return intrinsic_ ## FN(body.repn);\
 }
@@ -1516,7 +1516,7 @@ Expression FN(const Expression& lhs, const Expression& rhs)\
 if (lhs.is_constant() and rhs.is_constant()) {\
     ConstantTerm* _lhs = dynamic_cast<ConstantTerm*>(lhs.repn);\
     ConstantTerm* _rhs = dynamic_cast<ConstantTerm*>(rhs.repn);\
-    return FN(_lhs->value, _rhs->value);\
+    return ::FN(_lhs->value, _rhs->value);\
     }\
 return intrinsic_ ## FN(lhs.repn, rhs.repn);\
 }
