@@ -1,12 +1,4 @@
-#
-#  Pyomo: Python Optimization Modeling Objects
-#  Copyright (c) 2010 Sandia Corporation.
-#  This software is distributed under the BSD License.
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-#  the U.S. Government retains certain rights in this software.
-#  For more information, see the Pyomo README.txt file.
-#  _________________________________________________________________________
-
+# TODO
 # Formulated in Pyomo by Juan Lopez
 # Taken from:
 # AMPL Model by Hande Y. Benson
@@ -29,27 +21,23 @@
 
 #   classification SQR2-MN-84-42
 
-from pyomo.environ import *
-model=AbstractModel()
+import poek as pk
+
+
+model = pk.model()
 
 N = 42
-x = model.variable(list(range(1,42),bounds=(-10,10))
-y = model.variable(list(range(1,42),bounds=(-10,10))
+
+# LOAD DATA
 r = Param(list(range(1,N))
 cx = Param(list(range(1,N))
 cy = Param(list(range(1,N))
 
-# For Pyomo testing,
-# generate the ConcreteModel version
-# by loading the data
-import os
-if os.path.isfile(os.path.abspath(__file__).replace('.pyc','.dat').replace('.py','.dat')):
-    model = create_instance(os.path.abspath(__file__).replace('.pyc','.dat').replace('.py','.dat'))
+x = model.variable(index=range(1,N+1), lb=-10, ub=10)
+y = model.variable(index=range(1,N+1), lb=-10, ub=10)
 
-def f_obj_rule(model):
-model.add( sum((x[i]-x[j])**2+(y[i]-y[j])**2 for i in range(1,N) for j in range(i+1,N+1))
-f = Objective(rule=f_obj_rule)
+model.add( sum((x[i] - x[j])**2 + (y[i] - y[j])**2 
+           for i in range(1,N) for j in range(i+1,N+1)) )
 
-def cons1_rule(model,i):
-model.add( (x[i]-cx[i])**2 + (y[i]-cy[i])**2 - r[i] <= 0
-cons1 = Constraint(list(range(1,42),rule=cons1_rule)
+for i in x:
+    model.add( (x[i]-cx[i])**2 + (y[i]-cy[i])**2 - r[i] <= 0 )

@@ -1,12 +1,4 @@
-#
-#  Pyomo: Python Optimization Modeling Objects
-#  Copyright (c) 2010 Sandia Corporation.
-#  This software is distributed under the BSD License.
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-#  the U.S. Government retains certain rights in this software.
-#  For more information, see the Pyomo README.txt file.
-#  _________________________________________________________________________
-
+# TODO
 # Formulated in Pyomo by Gabe Hackebeil, Juan Lopez
 # Taken from:
 
@@ -23,8 +15,10 @@
 
 #   classification LQI2-RN-157-134
 
-from pyomo.core import *
-model = ConcreteModel()
+import poek as pk
+
+
+model = pk.model()
 
 M =1000
 N =3*M
@@ -34,12 +28,12 @@ beta = 0.26
 gamma = 0.26
 delta = 0.26
 
-K = Param(list(range(1,4),value=0)
-x = model.variable(list(range(1,N),value=2.0)
+K = {i:0 for i in [1,2,3,4]}
 
-def f_rule(model):
+x = model.variable(index=range(1,N+1), value=2.0)
+
+
 model.add( 1.0 + sum(alpha*x[i]**2*(i/N)**K[1] for i in range(1,N+1))+\
     sum(beta*x[i]**2*(x[i+1]+x[i+1]**2)**2*(i/N)**K[2] for i in range(1,N))+\
     sum(gamma*x[i]**2*x[i+M]**4*(i/N)**K[3] for i in range(1,2*M+1)) +\
-    sum(delta*x[i]*x[i+2*M]*(i/N)**K[4] for i in range(1,M+1))
-f = Objective(rule=f_rule)
+    sum(delta*x[i]*x[i+2*M]*(i/N)**K[4] for i in range(1,M+1)) )

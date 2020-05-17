@@ -1,13 +1,4 @@
-#  _________________________________________________________________________
-#
-#  Pyomo: Python Optimization Modeling Objects
-#  Copyright (c) 2010 Sandia Corporation.
-#  This software is distributed under the BSD License.
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-#  the U.S. Government retains certain rights in this software.
-#  For more information, see the Pyomo README.txt file.
-#  _________________________________________________________________________
-#
+# TODO
 # Formulated in Pyomo by Carl D. Laird, Daniel P. Word, and Brandon C. Barrera
 # Taken from:
 
@@ -29,90 +20,79 @@
 
 #   classification SOR2-AN-V-V
 
-from pyomo.core import *
-model = ConcreteModel()
+import poek as pk
+sin = pk.sin
+cos = pk.cos
 
-t = Param(value=1000)
-xt = Param(value=10.0)
-mass = Param(value=0.37)
-tol = Param(value=0.1)
 
-def h_rule(model):
-model.add( value(xt)/value(t)
-h = Param(value=h_rule)
-def w_rule(model):
-model.add( value(xt)*(value(t)+1.0)/2.0
-w = Param(value=w_rule)
+model = pk.model()
 
-def fmax_rule(model):
-model.add( value(xt)/value(t)
-fmax = Param(value=fmax_rule)
+t = 1000
+xt = 10.0
+mass = 0.37
+tol = 0.1
 
-S = list(range(0,t)
-SS = list(range(1,t)
+h = xt/t
+w = xt*(t+1.0)/2.0
 
-def x_rule(model, i):
-model.add( i*value(h)
-def x_bound(model, i):
-    l = 0.0
-    u = value(xt)
-model.add( (l,u)
-x = model.variable(S, bounds=x_bound, value=x_rule)
-y = model.variable(S)
-z = model.variable(S)
-vx = model.variable(S, value=1.0)
-vy = model.variable(S)
-vz = model.variable(S)
+fmax = xt/t
 
-def u_bound(model, i):
-    l = -value(fmax)
-    u = value(fmax)
-model.add( (l,u)
-ux = model.variable(SS, bounds=u_bound)
-uy = model.variable(SS, bounds=u_bound)
-uz = model.variable(SS, bounds=u_bound)
+S = list(range(0,t+1))
+SS = list(range(1,t+1))
 
-x[0] = 0.0
+x = model.variable(index=S)
+for i in x:
+    x[i].lb = 0
+    x[i].ub = xt
+y = model.variable(index=S)
+z = model.variable(index=S)
+vx = model.variable(index=S, value=1.0)
+vy = model.variable(index=S)
+vz = model.variable(index=S)
+
+ux = model.variable(index=SS)
+uy = model.variable(index=SS)
+uz = model.variable(index=SS)
+for i in SS:
+    ux[i].lb = -fmax
+    ux[i].ub =  fmax
+    uy[i].lb = -fmax
+    uy[i].ub =  fmax
+    uz[i].lb = -fmax
+    uz[i].ub =  fmax
+
+x[0].value = 0.0
 x[0].fixed=True
-y[0] = 0.0
+y[0].value = 0.0
 y[0].fixed=True
-z[0] = 1.0
+z[0].value = 1.0
 z[0].fixed=True
-vx[0] = 0.0
+vx[0].value = 0.0
 vx[0].fixed=True
-vy[0] = 0.0
+vy[0].value = 0.0
 vy[0].fixed=True
-vz[0] = 0.0
+vz[0].value = 0.0
 vz[0].fixed=True
-vx[value(t)] = 0.0
-vx[value(t)].fixed=True
-vy[value(t)] = 0.0
-vy[value(t)].fixed=True
-vz[value(t)] = 0.0
-vz[value(t)].fixed=True
+vx[t].value = 0.0
+vx[t].fixed=True
+vy[t].value = 0.0
+vy[t].fixed=True
+vz[t].value = 0.0
+vz[t].fixed=True
 
-def f(model):
-model.add( sum ([(i*value(h)/value(w))*(x[i] - value(xt))**2 for i in SS])
-f = Objective(rule=f,sense=minimize)
+model.add( sum((i*h/w)*(x[i] - xt)**2 for i in SS) )
 
-def acx(model, i):
-model.add( value(mass)*(vx[i]-vx[i-1])/value(h) - ux[i] == 0
-acx = Constraint(SS, rule=acx)
-def acy(model, i):
-model.add( value(mass)*(vy[i]-vy[i-1])/value(h) - uy[i] == 0
-acy = Constraint(SS, rule=acy)
-def acz(model, i):
-model.add( value(mass)*(vz[i]-vz[i-1])/value(h) - uz[i] == 0
-acz = Constraint(SS, rule=acz)
-def psx(model, i):
-model.add( (x[i]-x[i-1])/value(h) - vx[i] == 0
-psx = Constraint(SS, rule=psx)
-def psy(model, i):
-model.add( (y[i]-y[i-1])/value(h) - vy[i] == 0
-psy = Constraint(SS, rule=psy)
-def psz(model, i):
-model.add( (z[i]-z[i-1])/value(h) - vz[i] == 0
-psz = Constraint(SS, rule=psz)
-def sc(model, i):
-model.add( (y[i] - sin(x[i]))**2 + (z[i] - cos(x[i]))**2 - value(tol)**2 <= 0
-sc = Constraint(SS, rule=sc)
+for i in SS:
+    model.add( mass*(vx[i]-vx[i-1])/h - ux[i] == 0 )
+for i in SS:
+    model.add( mass*(vy[i]-vy[i-1])/h - uy[i] == 0 )
+for i in SS:
+    model.add( mass*(vz[i]-vz[i-1])/h - uz[i] == 0 )
+for i in SS:
+    model.add( (x[i]-x[i-1])/h - vx[i] == 0 )
+for i in SS:
+    model.add( (y[i]-y[i-1])/h - vy[i] == 0 )
+for i in SS:
+    model.add( (z[i]-z[i-1])/h - vz[i] == 0 )
+for i in SS:
+    model.add( (y[i] - sin(x[i]))**2 + (z[i] - cos(x[i]))**2 - tol**2 <= 0 )

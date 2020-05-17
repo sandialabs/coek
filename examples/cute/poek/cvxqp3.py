@@ -1,13 +1,4 @@
-#  _________________________________________________________________________                                                                                \
-#                                                                                                                                                           \
-#  Pyomo: Python Optimization Modeling Objects                                                                                                           \
-#  Copyright (c) 2010 Sandia Corporation.                                                                                                                   \
-#  This software is distributed under the BSD License.                                                                                                      \
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,                                                                                   \
-#  the U.S. Government retains certain rights in this software.                                                                                             \
-#  For more information, see the Pyomo README.txt file.                                                                                                     \
-#  _________________________________________________________________________                                                                                \
-
+# TODO
 # Formulated in Pyomo by Carl D. Laird, Daniel P. Word, and Brandon C. Barrera
 # Taken from:
 
@@ -24,19 +15,17 @@
 
 #   classification QLR2-AN-V-V
 
-from pyomo.core import *
-model = AbstractModel()
+import poek as pk
+
+
+model = pk.model()
+
 N = 10000
-N = Param(value=N)
-M = Param(value=3*N/4)
+M = 3*N//4
 
-S = list(range(1,N)
-SS = list(range(1,M)
-x = model.variable(S, bounds=(0.1,10.0), value=0.5)
+x = model.variable(index=range(1,N+1), lb=0, ub=10, value=0.5)
 
-def f(model):
-model.add( sum ([(x[i]+x[((2*i-1) % value(N))+1]+x[((3*i-1) % value(N))+1])**2*i/2.0 for i in S])
-f = Objective(rule=f,sense=minimize)
-def cons1(model, i):
-model.add( x[i]+2*x[((4*i-1) % value(N))+1] + 3*x[((5*i-1)  % value(N))+1] - 6.0 == 0
-cons1 = Constraint(SS, rule=cons1)
+model.add( sum((x[i]+x[((2*i-1) % N)+1]+x[((3*i-1) % N)+1])**2*i/2.0 for i in x) )
+
+for i in range(1,M+1):
+    model.add( x[i]+2*x[((4*i-1) % N)+1] + 3*x[((5*i-1)  % N)+1] - 6.0 == 0 )

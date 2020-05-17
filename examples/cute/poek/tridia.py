@@ -36,10 +36,7 @@ beta = 1.0
 gamma = 1.0
 delta = 1.0
 
-R2 = list(range(2,N+1))
-R1 = list(range(1,N+1))
-
-x = model.variable(index=R1, value=1.0)
+x = model.variable(index=range(1,N+1), value=1.0)
 
 
-model.add( gamma*(x[1]*delta-1.0)**2 + sum( i*(-beta*x[i-1]+alpha*x[i])**2 for i in R2 ) )
+model.add( gamma*(x[1]*delta-1.0)**2 + sum( i*(-beta*x[i-1]+alpha*x[i])**2 for i in range(2,N+1) ) )

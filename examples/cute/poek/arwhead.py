@@ -1,13 +1,4 @@
-#  _________________________________________________________________________
-#                                                                           
-#  Pyomo: Python Optimization Modeling Objects                          
-#  Copyright (c) 2010 Sandia Corporation.                                  
-#  This software is distributed under the BSD License.                     
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,  
-#  the U.S. Government retains certain rights in this software.            
-#  For more information, see the Pyomo README.txt file.                    
-#  _________________________________________________________________________
-
+# TODO
 # Formulated in Pyomo by Carl D. Laird, Daniel P. Word, and Brandon C. Barrera
 # Taken from:
 
@@ -32,15 +23,15 @@
 
 #   classification OUR2-AN-V-0
 
-from pyomo.core import *
-model = AbstractModel()
+import poek as pk
 
-N = Param(value=5000)
-S = list(range(1,N)
-x = model.variable(S, value=1.0)
-SS = list(range(1,N-1)
-def f(model):
-    expsum1 = sum ((-4*x[i]+3.0) for i in SS)
-    expsum2 = sum ((x[i]**2+x[value(N)]**2)**2 for i in SS)
-model.add( expsum1 + expsum2
-f = Objective(rule=f,sense=minimize)
+
+model = pk.model()
+
+N = 5000
+
+x = model.variable(index=range(1,N+1), value=1.0)
+
+expsum1 = sum(-4*x[i]+3.0 for i in range(1,N))
+expsum2 = sum((x[i]**2+x[N]**2)**2 for i in range(1,N))
+model.add( expsum1 + expsum2 )

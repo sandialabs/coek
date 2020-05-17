@@ -1,13 +1,4 @@
-#  _________________________________________________________________________                                                                                \
-#                                                                                                                                                           \
-#  Pyomo: Python Optimization Modeling Objects                                                                                                           \
-#  Copyright (c) 2010 Sandia Corporation.                                                                                                                   \
-#  This software is distributed under the BSD License.                                                                                                      \
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,                                                                                   \
-#  the U.S. Government retains certain rights in this software.                                                                                             \
-#  For more information, see the Pyomo README.txt file.                                                                                                     \
-#  _________________________________________________________________________                                                                                \
-
+# TODO
 # Formulated in Pyomo by Carl D. Laird, Daniel P. Word, and Brandon C. Barrera
 # Taken from:
 
@@ -33,19 +24,15 @@
 
 #   classification OUR2-AN-V-0
 
-from pyomo.core import *
-model = AbstractModel()
+import poek as pk
 
-N = Param(value=5000)
-S1 = list(range(1,N)
-S2 = list(range(1,N-1)
-x = model.variable(S1, value=2.0)
 
-def f(model):
-    sumexp1 = 0
-    sumexp2 = 0
-    for i in S2:
-        sumexp1 += -4*x[i]+3.0
-        sumexp2 += (x[i]**2+x[i+1]**2)**2
-model.add( sumexp1 + sumexp2
-f = Objective(rule=f,sense=minimize)
+model = pk.model()
+
+N = 5000
+
+x = model.variable(index=range(1,N+1), value=2.0)
+
+sumexp1 = sum(-4*x[i]+3.0 for i in range(1,N))
+sumexp2 = sum((x[i]**2+x[i+1]**2)**2 for i in range(1,N))
+model.add( sumexp1 + sumexp2 )

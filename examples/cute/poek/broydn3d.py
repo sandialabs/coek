@@ -1,13 +1,4 @@
-#  _________________________________________________________________________                                                                                \
-#                                                                                                                                                           \
-#  Pyomo: Python Optimization Modeling Objects                                                                                                           \
-#  Copyright (c) 2010 Sandia Corporation.                                                                                                                   \
-#  This software is distributed under the BSD License.                                                                                                      \
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,                                                                                   \
-#  the U.S. Government retains certain rights in this software.                                                                                             \
-#  For more information, see the Pyomo README.txt file.                                                                                                     \
-#  _________________________________________________________________________                                                                                \
-
+# TODO
 # Formulated in Pyomo by Juan Lopez
 # Taken from:
 # AMPL Model by Hande Y. Benson
@@ -30,27 +21,23 @@
 #   SIF input: Ph. Toint, Dec 1989.
 
 #   classification NOR2-AN-V-V
-from pyomo.core import *
-model = ConcreteModel()
+
+import poek as pk
+
+
+model = pk.model()
 
 N = 10000
 kappa1 = 2.0
 kappa2 = 1.0
 
-x = model.variable(list(range(1,N),value=-1.0)
+x = model.variable(index=range(1,N+1), value=-1.0)
 
-def f_rule(model):
-model.add( 0
-f = Objective(rule=f_rule)
+model.add( pk.expression(0) )
 
-def con1(model):
-model.add( (-2*x[2]+kappa2+(3-kappa1*x[1])*x[1]) == 0
-cons1 = Constraint(rule=con1)
+model.add( (-2*x[2]+kappa2+(3-kappa1*x[1])*x[1]) == 0 )
 
-def con2(model,i):
-model.add( (-x[i-1]-2*x[i+1]+kappa2+(3-kappa1*x[i])*x[i]) == 0
-cons2 = Constraint(list(range(2,N-1),rule=con2)
+for i in range(2,N):
+    model.add( (-x[i-1]-2*x[i+1]+kappa2+(3-kappa1*x[i])*x[i]) == 0 )
 
-def con3(model):
-model.add( (-x[N-1]+kappa2+(3-kappa1*x[N])*x[N]) == 0
-cons3 = Constraint(rule=con3)
+model.add( (-x[N-1]+kappa2+(3-kappa1*x[N])*x[N]) == 0 )

@@ -1,13 +1,4 @@
-#  _________________________________________________________________________
-#                                                                           
-#  Pyomo: Python Optimization Modeling Objects                           
-#  Copyright (c) 2010 Sandia Corporation.                                   
-#  This software is distributed under the BSD License.                      
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,   
-#  the U.S. Government retains certain rights in this software.             
-#  For more information, see the Pyomo README.txt file.                     
-#  _________________________________________________________________________
-
+# TODO
 # Formulated in Pyomo by Juan Lopez
 # Taken from:
 # AMPL Model by Hande Y. Benson
@@ -31,16 +22,15 @@
 
 #   classification QBR2-AN-V-V
 
-from pyomo.core import *
-model = ConcreteModel()
+import poek as pk
+
+
+model = pk.model()
 
 N = 1000
-x = model.variable(list(range(1,N))
+x = model.variable(index=range(1,N+1))
 
-def f_rule(model):
-model.add( (x[1]-1)**2 + sum((x[i+1]-x[i])**2 for i in range(1,N)) + (1-x[N])**2
-f = Objective(rule=f_rule)
+model.add( (x[1]-1)**2 + sum((x[i+1]-x[i])**2 for i in range(1,N)) + (1-x[N])**2 )
 
-def cons1(model,i):
-model.add( 0.0<=x[i]<=0.9
-cons1 = Constraint(list(range(1,N-1),rule=cons1)
+for i in range(1,N):
+    model.add( pk.inequality(0.0, x[i], 0.9) )

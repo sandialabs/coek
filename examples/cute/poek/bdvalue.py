@@ -1,13 +1,4 @@
-#  _________________________________________________________________________                                                                                \
-#                                                                                                                                                           \
-#  Pyomo: Python Optimization Modeling Objects                                                                                                           \
-#  Copyright (c) 2010 Sandia Corporation.                                                                                                                   \
-#  This software is distributed under the BSD License.                                                                                                      \
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,                                                                                   \
-#  the U.S. Government retains certain rights in this software.                                                                                             \
-#  For more information, see the Pyomo README.txt file.                                                                                                     \
-#  _________________________________________________________________________                                                                                \
-
+# TODO
 # Formulated in Pyomo by Juan Lopez
 # Taken from:
 # AMPL Model by Hande Y. Benson
@@ -30,26 +21,22 @@
 
 #   classification NOR2-MN-V-V
 
-from pyomo.core import *
-model = ConcreteModel()
+import poek as pk
+
+
+model = pk.model()
 
 ndp = 5002
 h = 1.0/(ndp-1)
-S = list(range(1,ndp)
-SS = list(range(2,ndp-1)
 
-def x_init(model,i):
-model.add( ((i-1)*h)*((i-1)*h-1)
-x = model.variable(S,value=x_init)
-
-x[1] = 0
+x = model.variable(index=range(1,ndp+1))
+for i in x:
+    x[i].value = ((i-1)*h)*((i-1)*h-1)
+x[1].value = 0
 x[1].fixed = True
 x[ndp].fixed = True
 
-def f(model):
-model.add( 0
-f = Objective(rule=f)
+model.add( pk.expression(0) )
 
-def cons(model,i):
-model.add( (-x[i-1]+2*x[i]-x[i+1]+0.5*h**2*(x[i]+i*h+1)**3 ) == 0
-cons = Constraint(SS,rule=cons)
+for i in range(2,ndp):
+    model.add( (-x[i-1]+2*x[i]-x[i+1]+0.5*h**2*(x[i]+i*h+1)**3 ) == 0 )

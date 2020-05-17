@@ -9,7 +9,9 @@ from os.path import abspath, dirname
 
 import pyutilib.th as unittest
 import pyutilib.subprocess
-import CUTE_classifications as CUTE
+from pyutilib.misc import timing
+from . import CUTE_classifications as CUTE
+#import CUTE_classifications as CUTE
 
 currdir = os.path.join(dirname(abspath(__file__)), 'poek') + os.sep
 
@@ -23,7 +25,10 @@ def poek_baseline_test(self, name):
         self.skipTest('Ignoring test '+name)
         return
 
+    #print("RUNNING",name)
+    #timing.tic("")
     self.poek( currdir+name+'.py', currdir+name+'.test.nl' )
+    #timing.toc(name)
 
     # Check that the pyomo nl file matches its own baseline
     self.assertFileEqualsBaseline(

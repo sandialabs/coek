@@ -1,13 +1,4 @@
-#  _________________________________________________________________________                                                                                \
-#                                                                                                                                                           \
-#  Pyomo: Python Optimization Modeling Objects                                                                                                           \
-#  Copyright (c) 2010 Sandia Corporation.                                                                                                                   \
-#  This software is distributed under the BSD License.                                                                                                      \
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,                                                                                   \
-#  the U.S. Government retains certain rights in this software.                                                                                             \
-#  For more information, see the Pyomo README.txt file.                                                                                                     \
-#  _________________________________________________________________________                                                                                \
-
+# TODO
 # Formulated in Pyomo by Carl D. Laird, Daniel P. Word, and Brandon C. Barrera
 # Taken from:
 
@@ -36,55 +27,54 @@
 
 #   classification NQR2-MY-V-V
 
-from pyomo.core import *
-model = ConcreteModel()
+import poek as pk
+
+
+model = pk.model()
+
 M = 100
-M = Param(value=M)
-H = Param(value=1.0/(M+2.0))
-RE = Param(value=4500.0)
+H = 1.0/(M+2.0)
+RE = 4500.0
 
-S1 = list(range(-1,M+2)
-S2 = list(range(1,M)
+S1 = list(range(-1,M+3))
+S2 = list(range(1,M+1))
 
-y = model.variable(S1,S1,value=0.0)
+y = model.variable(index=list((i,j) for i in S1 for j in S1), value=0.0)
 
-def f(model):
-model.add( 0
-f = Objective(rule=f,sense=minimize)
+model.add( pk.expression(0) )
 
-def cons(model, i, j):
-model.add( (20*y[i,j]-8*y[i-1,j]-8*y[i+1,j]\
-    -8*y[i,j-1]-8*y[i,j+1]+2*y[i-1,j+1]+2*y[i+1,j-1]+2*y[i-1,j-1]+2*y[i+1,j+1] +\
-    y[i-2,j] + y[i+2,j] + y[i,j-2] + y[i,j+2] + (RE/4.0)*(y[i,j+1]-y[i,j-1])\
-    *(y[i-2,j]+y[i-1,j-1]+y[i-1,j+1]-4*y[i-1,j]-4*y[i+1,j]-y[i+1,j-1] \
-    -y[i+1,j+1] - y[i+2,j]) - (RE/4.0)*(y[i+1,j]-y[i-1,j])*\
-    (y[i,j-2]+y[i-1,j-1]+y[i+1,j-1]-4*y[i,j-1]-4*y[i,j+1]-y[i-1,j+1]-y[i+1,j+1] - y[i,j+2])) == 0
-cons = Constraint(S2,S2,rule=cons)
+for i in S2:
+    for j in S2:
+        model.add( (20*y[i,j]-8*y[i-1,j]-8*y[i+1,j]\
+            -8*y[i,j-1]-8*y[i,j+1]+2*y[i-1,j+1]+2*y[i+1,j-1]+2*y[i-1,j-1]+2*y[i+1,j+1] +\
+            y[i-2,j] + y[i+2,j] + y[i,j-2] + y[i,j+2] + (RE/4.0)*(y[i,j+1]-y[i,j-1])\
+            *(y[i-2,j]+y[i-1,j-1]+y[i-1,j+1]-4*y[i-1,j]-4*y[i+1,j]-y[i+1,j-1] \
+            -y[i+1,j+1] - y[i+2,j]) - (RE/4.0)*(y[i+1,j]-y[i-1,j])*\
+            (y[i,j-2]+y[i-1,j-1]+y[i+1,j-1]-4*y[i,j-1]-4*y[i,j+1]-y[i-1,j+1]-y[i+1,j+1] - y[i,j+2])) == 0 )
 
 for j in S1:
-    y[-1,j] = 0.0
+    y[-1,j].value = 0.0
     y[-1,j].fixed = True
 
-    y[0,j] = 0.0
+    y[0,j].value = 0.0
     y[0,j].fixed = True
 
 for i in S2:
-    y[i,-1] = 0.0
+    y[i,-1].value = 0.0
     y[i,-1].fixed = True
 
-    y[i,0] = 0.0
+    y[i,0].value = 0.0
     y[i,0].fixed = True
 
-    y[i,value(M)+1] = 0.0
-    y[i,value(M)+1].fixed = True
+    y[i,M+1].value = 0.0
+    y[i,M+1].fixed = True
 
-    y[i,value(M)+2] = 0.0
-    y[i,value(M)+2].fixed = True
+    y[i,M+2].value = 0.0
+    y[i,M+2].fixed = True
 
 for j in S1:
-    y[value(M)+1,j] = -value(H)/2.0
-    y[value(M)+1,j].fixed = True
+    y[M+1,j].value = -H/2.0
+    y[M+1,j].fixed = True
 
-    y[value(M)+2,j] = value(H)/2.0
-    y[value(M)+2,j].fixed = True
-
+    y[M+2,j].value = H/2.0
+    y[M+2,j].fixed = True

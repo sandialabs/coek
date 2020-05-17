@@ -1,13 +1,4 @@
-#  _________________________________________________________________________
-#                                                                           
-#  Pyomo: Python Optimization Modeling Objects                           
-#  Copyright (c) 2010 Sandia Corporation.                                   
-#  This software is distributed under the BSD License.                      
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,   
-#  the U.S. Government retains certain rights in this software.             
-#  For more information, see the Pyomo README.txt file.                     
-#  _________________________________________________________________________
-
+# TODO
 # Formulated in Pyomo by Juan Lopez and Gabe Hackebeil
 # Taken from:
 
@@ -28,20 +19,18 @@
 
 #   classification SUR2-AN-V-0
 
-from pyomo.core import *
-model = ConcreteModel()
+import poek as pk
+
+
+model = pk.model()
 
 N = 10000
 K = 20
 
-x = model.variable(list(range(1,N),value=0.0001/(N+1))
+x = model.variable(index=range(1,N+1), value=0.0001/(N+1))
 
-def Q(model,i):
-    if i<=N-K:
-model.add( sum(x[j] for j in range(i,i+K+1))
-    else:
-model.add( sum(x[j] for j in range(i,N+1))
+Q = {i: sum(x[j] for j in range(i,i+K+1)) if i<=N-K else\
+        sum(x[j] for j in range(i,N+1)) \
+     for i in range(1,N+1)}
 
-def f(model):
-model.add( sum(Q(model,i)*(Q(model,i)*(Q(model,i)**2-20)-0.1) for i in range(1,N+1))
-f = Objective(rule=f)
+model.add( sum(Q[i]*(Q[i]*(Q[i]**2-20)-0.1) for i in range(1,N+1)) )

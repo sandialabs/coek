@@ -1,13 +1,4 @@
-#  _________________________________________________________________________
-#
-#  Pyomo: Python Optimization Modeling Objects
-#  Copyright (c) 2010 Sandia Corporation.
-#  This software is distributed under the BSD License.
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-#  the U.S. Government retains certain rights in this software.
-#  For more information, see the Pyomo README.txt file.
-#  _________________________________________________________________________
-#
+# TODO
 # Formulated in Pyomo by Carl D. Laird, Daniel P. Word, and Brandon C. Barrera
 # Taken from:
 
@@ -32,27 +23,24 @@
 
 #   classification NOR2-AN-V-V
 
-from pyomo.core import *
-model = ConcreteModel()
+import poek as pk
+atan = pk.atan
+sin = pk.sin
+
+
+model = pk.model()
 
 N = 5000
 
-S = list(range(0,N+1)
-SS = list(range(1,N)
+x = model.variable(N+2, value=1.0)
 
-x = model.variable(S, value=1.0)
+model.add( pk.expression(0) )
 
-def f(model):
-model.add( 0
-f = Objective(rule=f,sense=minimize)
+for i in range(1,N+1):
+    model.add( 0 == -0.05*(x[i] + x[i+1] + x[i-1]) + atan( sin( (i%100)*x[i] ) ) )
 
-def cons(model, i):
-    expr = (-0.05*(x[i] + x[i+1] + x[i-1]) + atan( sin( (i%100)*x[i] ) ))
-model.add( (0,expr)
-cons = Constraint(SS, rule=cons)
-
-x[0] = 0.0
+x[0].value = 0.0
 x[0].fixed = True
 
-x[N+1] = 0.0
+x[N+1].value = 0.0
 x[N+1].fixed = True

@@ -1,13 +1,4 @@
-#  _________________________________________________________________________                                                                                \
-#                                                                                                                                                           \
-#  Pyomo: Python Optimization Modeling Objects                                                                                                           \
-#  Copyright (c) 2010 Sandia Corporation.                                                                                                                   \
-#  This software is distributed under the BSD License.                                                                                                      \
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,                                                                                   \
-#  the U.S. Government retains certain rights in this software.                                                                                             \
-#  For more information, see the Pyomo README.txt file.                                                                                                     \
-#  _________________________________________________________________________                                                                                \
-
+# TODO
 # Formulated in Pyomo by Carl D. Laird, Daniel P. Word, and Brandon C. Barrera
 # Taken from:
 
@@ -33,47 +24,35 @@
 
 #   classification NOR2-MN-V-V
 
-from pyomo.core import *
-model = AbstractModel()
+import poek as pk
+exp = pk.exp
+
+
+model = pk.model()
 
 n = 1000
-n = Param(value=n)
 
-pe = Param(value=5.0)
-d = Param(value=0.135)
-b = Param(value=0.5)
-gamma = Param(value=25.0)
+pe = 5.0
+d = 0.135
+b = 0.5
+gamma = 25.0
 
-def h_rule(model):
-model.add( 1/(float(n)-1)
-h = Param(value=h_rule)
-def ct1_rule(model):
-model.add( -value(h)*value(pe)
-ct1 = Param(value=ct1_rule)
-def cti1_rule(model):
-model.add( 1/value(h) + 1/((value(h)**2)*value(pe))
-cti1 = Param(value=cti1_rule)
-def cti_rule(model):
-model.add( -1/value(h)-2/((value(h)**2)*value(pe))
-cti = Param(value=cti_rule)
+h = 1/(n-1)
+ct1 = -h*pe
+cti1 = 1/h + 1/((h**2)*pe)
+cti = -1/h-2/((h**2)*pe)
 
-S = list(range(1,n)
-t = model.variable(S, bounds=(0.0000001,None), value=1.0)
+SS = list(range(2,n))
 
-def f(model):
-model.add( 0
-f = Objective(rule=f,sense=minimize)
+t = model.variable(index=range(1,n+1), lb=0.0000001, value=1.0)
 
-def cons1(model):
-model.add( (value(ct1)*t[2]-t[1]+value(h)*value(pe)) == 0
-cons1 = Constraint(rule=cons1)
 
-SS = list(range(2,n-1)
-def cons2(model, i):
-model.add( (value(d)*(value(b)+1-t[i])*exp(value(gamma)-value(gamma)/t[i])+value(cti1)*t[i-1]\
-    +value(cti)*t[i]+t[i+1]/(value(h)**2*value(pe))) == 0
-cons2 = Constraint(SS,rule=cons2)
+model.add( pk.expression(0) )
 
-def cons3(model):
-model.add( (t[value(n)]-t[value(n)-1]) == 0
-cons3 = Constraint(rule=cons3)
+model.add( (ct1*t[2]-t[1]+h*pe) == 0 )
+
+for i in SS:
+    model.add( (d*(b+1-t[i])*exp(gamma-gamma/t[i])+cti1*t[i-1]\
+                +cti*t[i]+t[i+1]/(h**2*pe)) == 0 )
+
+model.add( (t[n]-t[n-1]) == 0 )

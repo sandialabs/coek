@@ -1,13 +1,4 @@
-#  _________________________________________________________________________                                                                                \
-#                                                                                                                                                           \
-#  Pyomo: Python Optimization Modeling Objects                                                                                                           \
-#  Copyright (c) 2010 Sandia Corporation.                                                                                                                   \
-#  This software is distributed under the BSD License.                                                                                                      \
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,                                                                                   \
-#  the U.S. Government retains certain rights in this software.                                                                                             \
-#  For more information, see the Pyomo README.txt file.                                                                                                     \
-#  _________________________________________________________________________                                                                                \
-
+# TODO
 # Formulated in Pyomo by Juan Lopez
 # Taken from:
 # AMPL Model by Hande Y. Benson
@@ -31,16 +22,18 @@
 
 #   classification OBR2-AY-V-0
 
-from pyomo.core import *
-model = ConcreteModel()
+import poek as pk
+exp = pk.exp
+
+
+model = pk.model()
 
 N = 5000
-ngs = 4998
+ngs = N-2
 
-x = model.variable(list(range(1,N),value=1.0)
+x = model.variable(index=range(1,N+1), value=1.0)
 
-def f_rule(model):
-model.add( sum((x[i]+x[i+1])*exp((x[i]+x[i+1])*(-x[i+2]))for i in range(1,ngs+1))
-f = Objective(rule=f_rule)
+model.add( sum((x[i] + x[i+1]) * exp((x[i] + x[i+1])*(-x[i+2]))
+               for i in range(1,ngs+1)) )
 
 

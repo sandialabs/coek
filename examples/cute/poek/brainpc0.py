@@ -38,6 +38,7 @@ NO = 26.0
 H = 1.0
 NT = 3450.0
 
+# LOAD DATA
 TO = Param(list(range(1,NO))
 U = Param(list(range(0,NT))
 oc_init = Param(list(range(1,NO))

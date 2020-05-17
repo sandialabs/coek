@@ -36,15 +36,27 @@ baseline_skipped_models.append('hs084')     # Needs to have data imported
 baseline_skipped_models.append('fccu')     # Needs to have data imported
 baseline_skipped_models.append('errinros')     # Needs to have data imported
 baseline_skipped_models.append('cresc50')     # Needs to have data imported
+baseline_skipped_models.append('cresc100')     # Needs to have data imported
+baseline_skipped_models.append('core1')     # Needs to have data imported
+baseline_skipped_models.append('coolhans')     # Needs to have data imported
+baseline_skipped_models.append('chnrosnb')     # Needs to have data imported
+baseline_skipped_models.append('bard')     # Needs to have data imported
+baseline_skipped_models.append('avgasb')     # Needs to have data imported
+baseline_skipped_models.append('avgasa')     # Needs to have data imported
+baseline_skipped_models.append('aircrftb')     # Needs to have data imported
+baseline_skipped_models.append('hart6')     # Needs to have data imported
+baseline_skipped_models.append('brainpc1')     # Needs to have data imported
+baseline_skipped_models.append('brainpc0')     # Needs to have data imported
+baseline_skipped_models.append('airport')     # Needs to have data imported
 
-# Smoke Models ( pyomo construct time < 0.5s )
+# Smoke Models ( poek construct time < 0.5s )
 smoke_models.extend([\
 'denschnb','denschna','alsotame','argauss','bratu1d','explin2',\
 'hs084','mistake','hs080','hs081','hs083','demymalo','bt10','bt13',\
 'cantilvr','powell20','explin','cresc100','rosenbr','byrdsphr',\
-'mifflin1','mifflin2','avgasb','aircrftb','aircrfta','hs079','hs078',\
+'mifflin1','mifflin2','avgasb','aircrftb','hs079','hs078',\
 'sisser','aug2d','hs071','hs073','hs072','hs075','hs074','hs077',\
-'fletcher','allinitu','aljazzaf','bard','allinitc','matrix2',\
+'fletcher','allinitu','bard','allinitc','matrix2',\
 'extrosnb','expfit','camel6','expquad','hs062','hs063','hs060',\
 'hs061','hs066','hs067','hs064','avgasa','catena','bt1','bt3','bt2',\
 'errinros','bt9','hs070','gigomez1','hs057','hs056','hs055','hs059',\
@@ -64,7 +76,11 @@ smoke_models.extend([\
 'hs098','hs093','hs097','hs096','hs095','hs116','hs117','hs114',\
 'hs21mod','hs112','hs113','hs110','hs111','humps','hs118','hs119',\
 'launch','lakes','linspanh','kowosb','kiwcresc','kissing','lewispol',\
-'lch'])
+'lch','bdqrtic','bigbank','biggsb1','blockqp1','blockqp2','blockqp3','blockqp4','blockqp5',\
+'bloweya','broydn7d','chainwoo','chemrctb','chenhark','djtl',\
+'edensch','engval2','expfita','expfitb','expfitc','fletchcr','fminsrf2','fminsurf',\
+'hatflda','hs085','ksip','argtrig','aljazzaf',\
+'gausselm','genhs28','genhumps','genrose','gilbert','goffin','gottfr','gouldqp2','gouldqp3','growth','growthls','gulf','hairy','haldmads','harkerp2'])
 
 asl_skipped_models.append('hs087')         # uses Piecewise (naming scheme is different)
 asl_skipped_models.append('coolhans')      # AMPL does not eleminate Var*0 from expressions in NL file
@@ -74,20 +90,18 @@ baseline_skipped_models.extend([])
 
 
 
-# Moderate Models ( 0.5 <= pyomo construct time < 5.0 )
+# Moderate Models ( 0.5 <= poek construct time < 5.0 )
 moderate_models.extend([\
-'corkscrw','brainpc0','brainpc1','bdexp','biggsb1','aug3dqp',\
-'bdqrtic','hager1','dqdrtic','dqrtic','airport','artif','bdvalue',\
-'chemrctb','blockqp5','aug3dc','bloweya','aug3dcqp','tfi2',\
-'blockqp1','blockqp2','blockqp3','blockqp4','aug3d','dixmaana',\
-'bigbank','argtrig','chenhark','cragglvy','chandheq','chebyqad',\
-'cosine','chemrcta','chainwoo','broydn3d','broydn7d','huestis',\
-'integreq','hs085','hs089','hues-mod','hs092','hs091','hs090',\
-'hairy','growthls','gausselm','fletchcr','engval2','djtl',\
-'fminsurf','gulf','genhs28','hart6','goffin','growth','gilbert',\
-'dixmaane','genrose','haldmads','gottfr','genhumps','harkerp2',\
-'hatflda','gouldqp2','gouldqp3','fminsrf2','expfita','expfitc',\
-'expfitb','edensch','liswet1','liarwhd','liswet2','ksip',\
+'chebyqad','dqrtic','aircrfta','corkscrw','brainpc0','brainpc1','bdexp','aug3dqp',\
+'hager1','dqdrtic','airport','artif','bdvalue',\
+'aug3dc','aug3dcqp','tfi2',\
+'aug3d','dixmaana',\
+'cragglvy','chandheq',\
+'cosine','chemrcta','broydn3d','huestis',\
+'integreq','hs089','hues-mod','hs092','hs091','hs090',\
+'hart6',\
+'dixmaane',\
+'liswet1','liarwhd','liswet2',\
 'liswet12','liswet10','liswet5','liswet4','liswet3'])
 
 asl_skipped_models.append('hs085')         # AMPL model uses "substitution" vars exposing an ASL bug

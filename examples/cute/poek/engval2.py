@@ -1,12 +1,4 @@
-#
-#  Pyomo: Python Optimization Modeling Objects
-#  Copyright (c) 2010 Sandia Corporation.
-#  This software is distributed under the BSD License.
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-#  the U.S. Government retains certain rights in this software.
-#  For more information, see the Pyomo README.txt file.
-#  _________________________________________________________________________
-
+# TODO
 # Formulated in Pyomo by Gabe Hackebeil, Juan Lopez
 # Taken from:
 
@@ -31,26 +23,18 @@
 
 #   classification SUR2-AN-3-0
 
-from pyomo.environ import *
-model = AbstractModel()
+import poek as pk
 
-x_init = Param(list(range(1,3))
 
-def x_init_rule(model,i):
-model.add( x_init[i]
-x = model.variable(list(range(1,3),value= x_init_rule)
+model = pk.model()
 
-# For Pyomo testing,
-# generate the ConcreteModel version
-# by loading the data
-import os
-if os.path.isfile(os.path.abspath(__file__).replace('.pyc','.dat').replace('.py','.dat')):
-    model = create_instance(os.path.abspath(__file__).replace('.pyc','.dat').replace('.py','.dat'))
+x = model.variable(index=[1,2,3])
+x[1].value = 1
+x[2].value = 2
+x[3].value = 0
 
-def f_rule(model):
 model.add( (x[1]**2+x[2]**2+x[3]**2-1)**2\
     + (x[1]**2+x[2]**2+(x[3]-2)**2-1)**2\
     + (x[1]+x[2]+x[3]-1)**2\
     + (x[1]+x[2]-x[3]+1)**2\
-    + (3*x[2]**2+x[1]**3+(5*x[3]-x[1]+1)**2-36)**2
-f = Objective(rule=f_rule)
+    + (3*x[2]**2+x[1]**3+(5*x[3]-x[1]+1)**2-36)**2 )

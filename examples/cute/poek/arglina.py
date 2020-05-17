@@ -1,13 +1,4 @@
-#  _________________________________________________________________________                                                                                \
-#                                                                                                                                                           \
-#  Pyomo: Python Optimization Modeling Objects                                                                                                           \
-#  Copyright (c) 2010 Sandia Corporation.                                                                                                                   \
-#  This software is distributed under the BSD License.                                                                                                      \
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,                                                                                   \
-#  the U.S. Government retains certain rights in this software.                                                                                             \
-#  For more information, see the Pyomo README.txt file.                                                                                                     \
-#  _________________________________________________________________________                                                                                \
-
+# TODO
 # Formulated in Pyomo by Gabe Hackebeil
 # Taken from:
 # AMPL Model by Hande Y. Benson
@@ -30,23 +21,21 @@
 
 #   classification SUR2-AN-V-0
 
-
-from pyomo.core import *
-model = ConcreteModel()
+import poek as pk
 
 
-N = 100.0
-M = 200.0
+model = pk.model()
 
-x = model.variable(list(range(1,N),value=1.0)
+N = 100
+M = 200
 
-def f_rule(model):
+x = model.variable(index=range(1,N+1), value=1.0)
+
 model.add( sum((sum(-2.0*x[j]/M for j in range(1,i)) + \
              x[i]*(1.0-2.0/M) + \
-             sum(-2.0*x[j]/M for j in range(i+1,int(N)+1)) - \
-             1.0)**2 for i in range(1,int(N)+1) )+ \
-           sum( (sum(-2.0*x[j]/M for j in range(1,int(N)+1)) -1.0 )**2 \
-             for i in range(int(N)+1,int(M)+1) )
-f = Objective(rule=f_rule)
+             sum(-2.0*x[j]/M for j in range(i+1,N+1)) - \
+             1.0)**2 for i in range(1,N+1) )+ \
+           sum( (sum(-2.0*x[j]/M for j in range(1,N+1)) -1.0 )**2 \
+             for i in range(N+1,M+1) ) )
 
 

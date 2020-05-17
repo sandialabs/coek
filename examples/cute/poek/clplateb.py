@@ -1,13 +1,4 @@
-#  _________________________________________________________________________                                                                                \
-#                                                                                                                                                           \
-#  Pyomo: Python Optimization Modeling Objects                                                                                                           \
-#  Copyright (c) 2010 Sandia Corporation.                                                                                                                   \
-#  This software is distributed under the BSD License.                                                                                                      \
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,                                                                                   \
-#  the U.S. Government retains certain rights in this software.                                                                                             \
-#  For more information, see the Pyomo README.txt file.                                                                                                     \
-#  _________________________________________________________________________                                                                                \
-
+# TODO
 # Formulated in Pyomo by Juan Lopez
 # Taken from:
 # AMPL Model by Hande Y. Benson
@@ -30,26 +21,27 @@
 #   SIF input: Ph. Toint, Dec 1989.
 
 #   classification OXR2-MN-V-0
-from pyomo.core import *
-model = ConcreteModel()
+
+import poek as pk
+
+
+model = pk.model()
 
 p = 71
 wght = -0.1
 disw = wght/(p-1)
 hp2 = 0.5*p**2
 
-x = model.variable(list(range(1,p),list(range(1,p),value=0.0)
+x = model.variable((p,p), value=0.0)
 
-def f(model):
 model.add( sum(0.5*(x[i,j]-x[i,j-1])**2+\
     0.5*(x[i,j]-x[i-1,j])**2+\
     hp2*(x[i,j]-x[i,j-1])**4+\
     hp2*(x[i,j]-x[i-1,j])**4\
-    for i in range(2,p+1) for j in range(2,p+1)) + sum(wght*x[p,j] for j in range(1,p+1))
-f = Objective(rule=f)
+    for i in range(1,p) for j in range(1,p)) + sum(wght*x[p,j] for j in range(0,p)) )
 
-for j in range(1,p+1):
-    x[1,j] = 0.0
+for j in range(0,p):
+    x[1,j].value = 0.0
     x[1,j].fixed = True
 
 

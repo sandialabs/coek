@@ -1,13 +1,4 @@
-#  _________________________________________________________________________                                                                                \
-#                                                                                                                                                           \
-#  Pyomo: Python Optimization Modeling Objects                                                                                                           \
-#  Copyright (c) 2010 Sandia Corporation.                                                                                                                   \
-#  This software is distributed under the BSD License.                                                                                                      \
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,                                                                                   \
-#  the U.S. Government retains certain rights in this software.                                                                                             \
-#  For more information, see the Pyomo README.txt file.                                                                                                     \
-#  _________________________________________________________________________                                                                                \
-
+# TODO
 # Formulated in Pyomo by Juan Lopez
 # Taken from:
 # AMPL Model by Hande Y. Benson
@@ -31,33 +22,22 @@
 
 #   classification SUR2-AN-V-0
 
-from pyomo.core import *
-model = ConcreteModel()
-
-ns = 499.0
-n = 2*ns +2.0
-
-N = list(range(1,n)
+import poek as pk
 
 
-def x_init_rule(model,i):
-    if i == 1:
-model.add(  -3.0
-    elif i == 2:
-model.add( -1.0
-    elif i == 3:
-model.add( -3.0
-    elif i == 4:
-model.add( -1.0
-    else: 
-model.add( -2.0
-x = model.variable(N,value=x_init_rule)
+model = pk.model()
 
-def f(model):
-model.add(  1.0+sum(100*(x[2*i]-x[2*i-1]**2)**2 +\
+ns = 499
+n = 2*ns + 2
+
+x0 = {1:-3, 2:-1, 3:-3, 4:-1}
+
+x = model.variable(index=range(1,n+1))
+for i in x:
+    x[i].value = x0.get(i,-2)
+
+model.add(1.0+sum(100*(x[2*i]-x[2*i-1]**2)**2 +\
     (1.0-x[2*i-1])**2 +90*(x[2*i+2]-x[2*i+1]**2)**2 +\
     (1.0-x[2*i+1])**2 +\
     10*(x[2*i]+x[2*i+2]-2.0)**2 +\
-    (x[2*i]-x[2*i+2])**2/10 for i in range(1,int(ns)+1))
-f = Objective(rule=f)
-    
+    (x[2*i]-x[2*i+2])**2/10 for i in range(1,ns+1)) )

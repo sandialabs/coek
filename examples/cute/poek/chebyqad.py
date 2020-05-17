@@ -1,13 +1,4 @@
-#  _________________________________________________________________________
-#
-#  Pyomo: Python Optimization Modeling Objects
-#  Copyright (c) 2010 Sandia Corporation.
-#  This software is distributed under the BSD License.
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-#  the U.S. Government retains certain rights in this software.
-#  For more information, see the Pyomo README.txt file.
-#  _________________________________________________________________________
-
+# TODO
 # Formulated in Pyomo by Gabe Hackebeil
 
 #
@@ -54,8 +45,13 @@
 #LO SOLTN(9)            0.0
 #LO SOLTN(10)           4.772713D-3
 #LO SOLTN(20)           4.572955D-3
-from pyomo.core import *
-model = ConcreteModel()
+
+import poek as pk
+cos = pk.cos
+acos = pk.acos
+
+
+model = pk.model()
 
 n = 50.0
 m = 50.0
@@ -67,56 +63,56 @@ rj = 50.0
 start = (50.0) * (1.0 / (51.0))
 ri = 50.0
 
-x1 = model.variable(bounds=(0,1),value=0.0196078431372549)
-x2 = model.variable(bounds=(0,1),value=0.0392156862745098)
-x3 = model.variable(bounds=(0,1),value=0.058823529411764705)
-x4 = model.variable(bounds=(0,1),value=0.0784313725490196)
-x5 = model.variable(bounds=(0,1),value=0.09803921568627451)
-x6 = model.variable(bounds=(0,1),value=0.11764705882352941)
-x7 = model.variable(bounds=(0,1),value=0.13725490196078433)
-x8 = model.variable(bounds=(0,1),value=0.1568627450980392)
-x9 = model.variable(bounds=(0,1),value=0.1764705882352941)
-x10 = model.variable(bounds=(0,1),value=0.19607843137254902)
-x11 = model.variable(bounds=(0,1),value=0.21568627450980393)
-x12 = model.variable(bounds=(0,1),value=0.23529411764705882)
-x13 = model.variable(bounds=(0,1),value=0.2549019607843137)
-x14 = model.variable(bounds=(0,1),value=0.27450980392156865)
-x15 = model.variable(bounds=(0,1),value=0.29411764705882354)
-x16 = model.variable(bounds=(0,1),value=0.3137254901960784)
-x17 = model.variable(bounds=(0,1),value=0.3333333333333333)
-x18 = model.variable(bounds=(0,1),value=0.3529411764705882)
-x19 = model.variable(bounds=(0,1),value=0.37254901960784315)
-x20 = model.variable(bounds=(0,1),value=0.39215686274509803)
-x21 = model.variable(bounds=(0,1),value=0.4117647058823529)
-x22 = model.variable(bounds=(0,1),value=0.43137254901960786)
-x23 = model.variable(bounds=(0,1),value=0.45098039215686275)
-x24 = model.variable(bounds=(0,1),value=0.47058823529411764)
-x25 = model.variable(bounds=(0,1),value=0.49019607843137253)
-x26 = model.variable(bounds=(0,1),value=0.5098039215686274)
-x27 = model.variable(bounds=(0,1),value=0.5294117647058824)
-x28 = model.variable(bounds=(0,1),value=0.5490196078431373)
-x29 = model.variable(bounds=(0,1),value=0.5686274509803921)
-x30 = model.variable(bounds=(0,1),value=0.5882352941176471)
-x31 = model.variable(bounds=(0,1),value=0.6078431372549019)
-x32 = model.variable(bounds=(0,1),value=0.6274509803921569)
-x33 = model.variable(bounds=(0,1),value=0.6470588235294118)
-x34 = model.variable(bounds=(0,1),value=0.6666666666666666)
-x35 = model.variable(bounds=(0,1),value=0.6862745098039216)
-x36 = model.variable(bounds=(0,1),value=0.7058823529411764)
-x37 = model.variable(bounds=(0,1),value=0.7254901960784313)
-x38 = model.variable(bounds=(0,1),value=0.7450980392156863)
-x39 = model.variable(bounds=(0,1),value=0.7647058823529411)
-x40 = model.variable(bounds=(0,1),value=0.7843137254901961)
-x41 = model.variable(bounds=(0,1),value=0.803921568627451)
-x42 = model.variable(bounds=(0,1),value=0.8235294117647058)
-x43 = model.variable(bounds=(0,1),value=0.8431372549019608)
-x44 = model.variable(bounds=(0,1),value=0.8627450980392157)
-x45 = model.variable(bounds=(0,1),value=0.8823529411764706)
-x46 = model.variable(bounds=(0,1),value=0.9019607843137255)
-x47 = model.variable(bounds=(0,1),value=0.9215686274509803)
-x48 = model.variable(bounds=(0,1),value=0.9411764705882353)
-x49 = model.variable(bounds=(0,1),value=0.9607843137254902)
-x50 = model.variable(bounds=(0,1),value=0.9803921568627451)
+x1 = model.variable(lb=0, ub=1, value=0.0196078431372549)
+x2 = model.variable(lb=0, ub=1, value=0.0392156862745098)
+x3 = model.variable(lb=0, ub=1, value=0.058823529411764705)
+x4 = model.variable(lb=0, ub=1, value=0.0784313725490196)
+x5 = model.variable(lb=0, ub=1, value=0.09803921568627451)
+x6 = model.variable(lb=0, ub=1, value=0.11764705882352941)
+x7 = model.variable(lb=0, ub=1, value=0.13725490196078433)
+x8 = model.variable(lb=0, ub=1, value=0.1568627450980392)
+x9 = model.variable(lb=0, ub=1, value=0.1764705882352941)
+x10 = model.variable(lb=0, ub=1, value=0.19607843137254902)
+x11 = model.variable(lb=0, ub=1, value=0.21568627450980393)
+x12 = model.variable(lb=0, ub=1, value=0.23529411764705882)
+x13 = model.variable(lb=0, ub=1, value=0.2549019607843137)
+x14 = model.variable(lb=0, ub=1, value=0.27450980392156865)
+x15 = model.variable(lb=0, ub=1, value=0.29411764705882354)
+x16 = model.variable(lb=0, ub=1, value=0.3137254901960784)
+x17 = model.variable(lb=0, ub=1, value=0.3333333333333333)
+x18 = model.variable(lb=0, ub=1, value=0.3529411764705882)
+x19 = model.variable(lb=0, ub=1, value=0.37254901960784315)
+x20 = model.variable(lb=0, ub=1, value=0.39215686274509803)
+x21 = model.variable(lb=0, ub=1, value=0.4117647058823529)
+x22 = model.variable(lb=0, ub=1, value=0.43137254901960786)
+x23 = model.variable(lb=0, ub=1, value=0.45098039215686275)
+x24 = model.variable(lb=0, ub=1, value=0.47058823529411764)
+x25 = model.variable(lb=0, ub=1, value=0.49019607843137253)
+x26 = model.variable(lb=0, ub=1, value=0.5098039215686274)
+x27 = model.variable(lb=0, ub=1, value=0.5294117647058824)
+x28 = model.variable(lb=0, ub=1, value=0.5490196078431373)
+x29 = model.variable(lb=0, ub=1, value=0.5686274509803921)
+x30 = model.variable(lb=0, ub=1, value=0.5882352941176471)
+x31 = model.variable(lb=0, ub=1, value=0.6078431372549019)
+x32 = model.variable(lb=0, ub=1, value=0.6274509803921569)
+x33 = model.variable(lb=0, ub=1, value=0.6470588235294118)
+x34 = model.variable(lb=0, ub=1, value=0.6666666666666666)
+x35 = model.variable(lb=0, ub=1, value=0.6862745098039216)
+x36 = model.variable(lb=0, ub=1, value=0.7058823529411764)
+x37 = model.variable(lb=0, ub=1, value=0.7254901960784313)
+x38 = model.variable(lb=0, ub=1, value=0.7450980392156863)
+x39 = model.variable(lb=0, ub=1, value=0.7647058823529411)
+x40 = model.variable(lb=0, ub=1, value=0.7843137254901961)
+x41 = model.variable(lb=0, ub=1, value=0.803921568627451)
+x42 = model.variable(lb=0, ub=1, value=0.8235294117647058)
+x43 = model.variable(lb=0, ub=1, value=0.8431372549019608)
+x44 = model.variable(lb=0, ub=1, value=0.8627450980392157)
+x45 = model.variable(lb=0, ub=1, value=0.8823529411764706)
+x46 = model.variable(lb=0, ub=1, value=0.9019607843137255)
+x47 = model.variable(lb=0, ub=1, value=0.9215686274509803)
+x48 = model.variable(lb=0, ub=1, value=0.9411764705882353)
+x49 = model.variable(lb=0, ub=1, value=0.9607843137254902)
+x50 = model.variable(lb=0, ub=1, value=0.9803921568627451)
 
 model.add(\
         (0.02*(cos((1.0*acos((2.0e+0*x1-1.0e+0))))) + \
@@ -5068,4 +5064,4 @@ model.add(\
         0.02*(cos((50.0*acos((2.0e+0*x47-1.0e+0))))) + \
         0.02*(cos((50.0*acos((2.0e+0*x48-1.0e+0))))) + \
         0.02*(cos((50.0*acos((2.0e+0*x49-1.0e+0))))) + \
-        0.02*(cos((50.0*acos((2.0e+0*x50-1.0e+0))))) + 4.001600640256103e-4))
+        0.02*(cos((50.0*acos((2.0e+0*x50-1.0e+0))))) + 4.001600640256103e-4) ) 

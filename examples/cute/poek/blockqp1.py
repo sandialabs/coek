@@ -1,13 +1,4 @@
-#  _________________________________________________________________________                                                                                \
-#                                                                                                                                                           \
-#  Pyomo: Python Optimization Modeling Objects                                                                                                           \
-#  Copyright (c) 2010 Sandia Corporation.                                                                                                                   \
-#  This software is distributed under the BSD License.                                                                                                      \
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,                                                                                   \
-#  the U.S. Government retains certain rights in this software.                                                                                             \
-#  For more information, see the Pyomo README.txt file.                                                                                                     \
-#  _________________________________________________________________________                                                                                \
-
+# TODO
 # Formulated in Pyomo by Juan Lopez
 # Taken from:
 # AMPL Model by Hande Y. Benson
@@ -23,44 +14,26 @@
 
 #   classification QLR2-AN-V-V
 
-from pyomo.core import *
-model = ConcreteModel()
+import poek as pk
 
-n = Param(value=1000)
-b = Param(value=5)
 
-Sn = list(range(1,n)
-Sb = list(range(1,b)
+model = pk.model()
 
-x = model.variable(Sn, bounds=(-1,1), value=0.99)
-y = model.variable(Sn, bounds=(-1,1), value=-0.99)
-z = model.variable(Sb, bounds=(0,2), value=0.5)
+n = 1000
+b = 5
 
-def f(model):
-    sum_expr_1 = 0
-    sum_expr_2 = 0
-    for i in Sn:
-        sum_expr_1 += x[i]*y[i]
-    for j in Sb:
-        sum_expr_2 += 0.5*z[j]**2
-    exp = sum_expr_1 + sum_expr_2
-model.add( exp
-f = Objective(rule=f,sense=minimize)
+x = model.variable(index=range(1,n+1), lb=-1, ub=1, value=0.99)
+y = model.variable(index=range(1,n+1), lb=-1, ub=1, value=-0.99)
+z = model.variable(index=range(1,b+1), lb=0, ub=2, value=0.5)
 
-def cons1(model):
-    sum_cexpr_1 = 0
-    sum_cexpr_2 = 0
-    for i in Sn:
-        sum_cexpr_1 += x[i] + y[i]
-    for j in Sb:
-        sum_cexpr_2 += z[j]
-    cexp = sum_cexpr_1 + sum_cexpr_2
-model.add( (value(b)+ 1, cexp, None)
-cons1 = Constraint(rule=cons1)
+sum_expr_1 = sum(x[i]*y[i] for i in x)
+sum_expr_2 = sum(0.5*z[j]**2 for j in z)
+model.add( sum_expr_1 + sum_expr_2 )
 
-def cons2(model, i):
-    csum = 0
-    for j in Sb:
-        csum += z[j]
-model.add( x[i] + y[i] + csum == value(b)
-cons2 = Constraint(Sn, rule=cons2)
+sum_cexpr_1 = sum(x[i] + y[i] for i in x)
+sum_cexpr_2 = sum(z[j] for j in z)
+cexp = sum_cexpr_1 + sum_cexpr_2
+model.add( b+1 <= cexp )
+
+for i in x:
+    model.add( x[i] + y[i] + sum(z[j] for j in z) == b )

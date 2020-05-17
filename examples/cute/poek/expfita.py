@@ -1,12 +1,4 @@
-#
-#  Pyomo: Python Optimization Modeling Objects
-#  Copyright (c) 2010 Sandia Corporation.
-#  This software is distributed under the BSD License.
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-#  the U.S. Government retains certain rights in this software.
-#  For more information, see the Pyomo README.txt file.
-#  _________________________________________________________________________
-
+# TODO
 # Formulated in Pyomo by Gabe Hackebeil, Juan Lopez
 # Taken from:
 
@@ -32,46 +24,31 @@
 #   classification OLR2-AN-5-22
 
 
-from pyomo.environ import *
-model = AbstractModel()
+import poek as pk
+from math import exp
 
-R = 11.0
 
-def T_rule(model,i):
-model.add( 5*(i-1)/(R-1)
-T = Param(list(range(1,R),value=T_rule,mutable=True)
+model = pk.model()
 
-def ET_rule(model,i):
-model.add( exp(T[i])
-ET = Param(list(range(1,R),value=ET_rule)
+R = 11
 
-pinit = Param(list(range(0,2))
+T = {i: 5*(i-1)/(R-1) for i in range(1,R+1)}
+ET = {i: exp(T[i]) for i in range(1,R+1)}
 
-def P_init(model,i):
-model.add( pinit[i]
-P = model.variable(list(range(0,2),value=P_init)
+P = model.variable(index=[0,1,2])
+P[0].value = 1
+P[1].value = 1
+P[2].value = 6
+Q = model.variable(index=[1,2], value=0.0)
 
-Q = model.variable(list(range(1,2),value=0.0)
-
-# For Pyomo testing,
-# generate the ConcreteModel version
-# by loading the data
-import os
-if os.path.isfile(os.path.abspath(__file__).replace('.pyc','.dat').replace('.py','.dat')):
-    model = create_instance(os.path.abspath(__file__).replace('.pyc','.dat').replace('.py','.dat'))
-
-def f_rule(model):
 model.add( sum((\
     (P[0]+P[1]*T[i]+P[2]*T[i]**2)/\
     (ET[i]*(1+Q[1]*(T[i]-5)+Q[2]*(T[i]-5)**2))\
-    -1 )**2 for i in range(1,int(R)+1))
-f = Objective(rule=f_rule)
+    -1 )**2 for i in range(1,R+1)) )
 
-def cons1(model,i):
-model.add( P[0]+P[1]*T[i]+P[2]*T[i]**2-(T[i]-5)*ET[i]*Q[1]-\
-        (T[i]-5)**2*ET[i]*Q[2]-ET[i]>= 0
-cons1 = Constraint(list(range(1,R),rule=cons1)
+for i in range(1,R+1):
+    model.add( P[0]+P[1]*T[i]+P[2]*T[i]**2-(T[i]-5)*ET[i]*Q[1]-\
+        (T[i]-5)**2*ET[i]*Q[2]-ET[i]>= 0 )
 
-def cons2(model,i):
-model.add( (T[i]-5)*Q[1] + (T[i]-5)**2*Q[2]+0.99999 >= 0
-cons2 = Constraint(list(range(1,R),rule=cons2)
+for i in range(1,R+1):
+    model.add( (T[i]-5)*Q[1] + (T[i]-5)**2*Q[2]+0.99999 >= 0 )

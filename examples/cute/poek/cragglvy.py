@@ -1,13 +1,4 @@
-#  _________________________________________________________________________
-#
-#  Pyomo: Python Optimization Modeling Objects
-#  Copyright (c) 2010 Sandia Corporation.
-#  This software is distributed under the BSD License.
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-#  the U.S. Government retains certain rights in this software.
-#  For more information, see the Pyomo README.txt file.
-#  _________________________________________________________________________
-
+# TODO
 # Formulated in Pyomo by Juan Lopez
 # Taken from:
 
@@ -33,23 +24,22 @@
 
 #   classification OUR2-AY-V-0
 
-from pyomo.core import *
-model = ConcreteModel()
+import poek as pk
+exp = pk.exp
+tan = pk.tan
+
+
+model = pk.model()
 
 m = 2499
 n = 2*m+2
 
-def x(model,i):
-    if i==1:
-model.add( 1.0
-    else:
-model.add( 2.0
-x = model.variable(list(range(1,n),value=x)
+x = model.variable(index=range(1,n+1))
+for i in x:
+    x[i].value = 1 if i==1 else 2
 
-def f(model):
 model.add( sum((exp(x[2*i-1])-x[2*i])**4 +\
     100*(x[2*i]-x[2*i+1])**6 +\
     (tan(x[2*i+1]-x[2*i+2])+x[2*i+1]-x[2*i+2])**4 +\
     (x[2*i-1])**8 +\
-    (x[2*i+2]-1.0)**2 for i in range(1,m+1))
-f = Objective(rule=f)
+    (x[2*i+2]-1.0)**2 for i in range(1,m+1)) )

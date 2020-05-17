@@ -1,13 +1,4 @@
-#  _________________________________________________________________________
-#
-#  Pyomo: Python Optimization Modeling Objects
-#  Copyright (c) 2010 Sandia Corporation.
-#  This software is distributed under the BSD License.
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-#  the U.S. Government retains certain rights in this software.
-#  For more information, see the Pyomo README.txt file.
-#  _________________________________________________________________________
-
+# TODO
 # Formulated in Pyomo by Gabe Hackebeil
 # Taken from:
 
@@ -46,24 +37,26 @@
 # objective function terms
 # constraints : central constraints
 
-from pyomo.core import *
-model = ConcreteModel()
+import poek as pk
 
-nx = Param(value=10.0)
-ny = Param(value=10.0)
-nz = Param(value=10.0)
-xp = Param(value=1.0 + (10.0))
-xm = Param(value=-1.0 + (10.0))
-yp = Param(value=1.0 + (10.0))
-ym = Param(value=-1.0 + (10.0))
-zp = Param(value=1.0 + (10.0))
-zm = Param(value=-1.0 + (10.0))
-m = Param(value=10.0)
-n = Param(value=10.0)
-p = Param(value=10.0)
-kp = Param(value=1.0 + (9.0))
-jp = Param(value=1.0 + (9.0))
-ip = Param(value=1.0 + (9.0))
+
+model = pk.model()
+
+nx = 10.0
+ny = 10.0
+nz = 10.0
+xp = 1.0 + (10.0)
+xm = -1.0 + (10.0)
+yp = 1.0 + (10.0)
+ym = -1.0 + (10.0)
+zp = 1.0 + (10.0)
+zm = -1.0 + (10.0)
+m = 10.0
+n = 10.0
+p = 10.0
+kp = 1.0 + (9.0)
+jp = 1.0 + (9.0)
+ip = 1.0 + (9.0)
 
 x1_1_1 = model.variable()
 y1_1_1 = model.variable()

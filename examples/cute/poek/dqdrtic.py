@@ -1,13 +1,4 @@
-#  _________________________________________________________________________                                                                                \
-#                                                                                                                                                           \
-#  Pyomo: Python Optimization Modeling Objects                                                                                                           \
-#  Copyright (c) 2010 Sandia Corporation.                                                                                                                   \
-#  This software is distributed under the BSD License.                                                                                                      \
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,                                                                                   \
-#  the U.S. Government retains certain rights in this software.                                                                                             \
-#  For more information, see the Pyomo README.txt file.                                                                                                     \
-#  _________________________________________________________________________                                                                                \
-
+# TODO
 # Formulated in Pyomo by Carl D. Laird, Daniel P. Word, and Brandon C. Barrera
 # Taken from:
 
@@ -32,14 +23,14 @@
 
 #   classification QUR2-AN-V-0
 
-from pyomo.core import *
-model = AbstractModel()
+import poek as pk
 
-N = Param(value=5000)
-S = list(range(1,N)
-x = model.variable(S, value=3.0)
 
-SS = list(range(1,N-2)
-def f(model):
-model.add( sum ([(100*x[i+1]**2+100*x[i+2]**2+x[i]**2) for i in SS])
-f = Objective(rule=f,sense=minimize)
+model = pk.model()
+
+N = 5000
+
+x = model.variable(N, value=3.0)
+
+model.add( sum(100*x[i+1]**2 + 100*x[i+2]**2 + x[i]**2
+               for i in range(N-2)) )

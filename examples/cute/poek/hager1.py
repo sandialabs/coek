@@ -29,17 +29,15 @@ import poek as pk
 model = pk.model()
 
 N = 5000
-Sx = list(range(0,N+1))
-Sy = list(range(1,N+1))
 
-x = model.variable(index=Sx, value=0.0)
-u = model.variable(index=Sy, value=0.0)
+x = model.variable(N+1, value=0.0)
+u = model.variable(index=range(1,N+1), value=0.0)
 
-sum_expr = sum((u[i]**2)/(2*N) for i in Sy)
+sum_expr = sum((u[i]**2)/(2*N) for i in u)
 expr = 0.5*x[N]**2 + sum_expr
 model.add( expr )
 
-for i in Sy:
+for i in u:
     body = (N-0.5)*x[i] + (-N - 0.5)*x[i-1] - u[i]
     model.add( body == 0 )
 

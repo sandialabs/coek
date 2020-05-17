@@ -1,13 +1,4 @@
-#  _________________________________________________________________________
-#
-#  Pyomo: Python Optimization Modeling Objects
-#  Copyright (c) 2010 Sandia Corporation.
-#  This software is distributed under the BSD License.
-#  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-#  the U.S. Government retains certain rights in this software.
-#  For more information, see the Pyomo README.txt file.
-#  _________________________________________________________________________
-
+# TODO
 # Formulated in Pyomo by Juan Lopez and Gabe Hackebeil
 # Taken from:
 
@@ -33,26 +24,20 @@
 
 #   classification NOR2-RN-V-V
 
-from pyomo.core import *
-model = ConcreteModel()
+import poek as pk
+
+
+model = pk.model()
 
 n = 100
 c = 1.0
 
-def x_init(model,i):
-model.add( i/float(n)
-x = Param(list(range(1,n),value=x_init)
+x = {i:1/n for i in range(1,n+1)}
+w = {i:1/n for i in range(1,n+1)}
 
-def w_init(model,i):
-model.add( 1.0/float(n)
-w = Param(list(range(1,n),value=w_init)
+h = model.variable(index=range(1,n+1), value=1.0, lb=0)
 
-h = model.variable(list(range(1,n),value=1.0,bounds=(0,None))
-
-model.add(0.0)
+model.add( pk.expression(0) )
     
-def con1(model,i):
-model.add( sum(-0.5*c*w[j]*x[i]/(x[i]+x[j])*h[i]*h[j] for j in range(1,n+1)) + h[i] == 1.0
-cons = Constraint(list(range(1,n),rule=con1)
-
- 
+for i in range(1,n+1):
+    model.add( sum(-0.5*c*w[j]*x[i]/(x[i]+x[j])*h[i]*h[j] for j in range(1,n+1)) + h[i] == 1.0 )
