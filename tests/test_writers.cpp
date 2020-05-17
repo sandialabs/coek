@@ -4,7 +4,6 @@
 #include "expr/ast_term.hpp"
 #include "coek_model.hpp"
 
-
 void error1(coek::Model& model) 
 {
 auto x = model.getVariable();
@@ -195,7 +194,7 @@ double pi = M_PI;
 auto ONE = model.getVariable();
 ONE.set_value(1);
 auto ZERO = model.getVariable();
-ZERO.set_value(1);
+ZERO.set_value(0);
 
 model.add( ONE+ZERO );
 model.add( log(ONE) == 0 );
