@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <variant>
+#include <unordered_map>
 #include "coek_expr.hpp"
 #include "coek_sets.hpp"
 #include "coek_indexed.hpp"
@@ -169,6 +170,11 @@ public:
     std::vector<Expression> objectives;
     std::vector<Constraint> constraints;
     std::vector<Variable> variables;
+
+    std::map<std::string, std::unordered_map<int,double> > vsuffix;
+    std::map<std::string, std::unordered_map<int,double> > csuffix;
+    std::map<std::string, std::unordered_map<int,double> > osuffix;
+    std::map<std::string, double > msuffix;
 };
 
 //
@@ -208,6 +214,16 @@ public:
 
     Expression get_objective(unsigned int i=0);
     Constraint get_constraint(unsigned int i);
+
+    void set_suffix(const std::string& name, Variable& var, double value);
+    void set_suffix(const std::string& name, Constraint& con, double value);
+    void set_suffix(const std::string& name, Expression& obj, double value);
+    void set_suffix(const std::string& name, double value);
+
+    double get_suffix(const std::string& name, Variable& var);
+    double get_suffix(const std::string& name, Constraint& con);
+    double get_suffix(const std::string& name, Expression& obj);
+    double get_suffix(const std::string& name);
 
     void write(std::string filename);
     void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);

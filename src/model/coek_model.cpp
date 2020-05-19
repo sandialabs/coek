@@ -749,6 +749,31 @@ if (i > repn->constraints.size())
 return repn->constraints[i];
 }
 
+void Model::set_suffix(const std::string& name, Variable& var, double value)
+{ repn->vsuffix[name][var.id()] = value; }
+
+void Model::set_suffix(const std::string& name, Constraint& con, double value)
+{ repn->csuffix[name][con.id()] = value; }
+
+void Model::set_suffix(const std::string& name, Expression& obj, double value)
+//{ repn->osuffix[name][obj.id()] = value; }
+{ }
+
+void Model::set_suffix(const std::string& name, double value)
+{ repn->msuffix[name] = value; }
+
+double Model::get_suffix(const std::string& name, Variable& var)
+{ return repn->vsuffix[name][var.id()]; }
+
+double Model::get_suffix(const std::string& name, Constraint& con)
+{ return repn->csuffix[name][con.id()]; }
+
+double Model::get_suffix(const std::string& name, Expression& obj)
+{ return 0; }
+
+double Model::get_suffix(const std::string& name)
+{ return repn->msuffix[name]; }
+
 static bool endsWith(const std::string& str, const std::string& suffix)
 {
     return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
