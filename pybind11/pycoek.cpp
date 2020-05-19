@@ -930,6 +930,8 @@ PYBIND11_MODULE(pycoek, m) {
     py::class_<coek::Constraint>(m, "constraint")
         .def("__init__", [](){throw std::runtime_error("Cannot create an empty constraint.");})
         .def_property_readonly("value", [](coek::Constraint& c){return c.body().get_value();})
+        .def_property_readonly("lb", [](coek::Constraint& c){return c.get_lb();})
+        .def_property_readonly("ub", [](coek::Constraint& c){return c.get_ub();})
         .def_property_readonly("id", &coek::Constraint::id)
         .def_property_readonly("name", [](coek::Constraint& c){return std::string("c")+std::to_string(c.id());})
         .def("is_feasible", &coek::Constraint::is_feasible)

@@ -580,7 +580,12 @@ return *this;
 }
 
 unsigned int Constraint::id() const
-{ return repn->index; }
+{
+if (repn)
+    return repn->index;
+// TODO - throw an exception here?
+return 0;
+}
 
 bool Constraint::is_inequality() const
 { return repn->is_inequality(); }
@@ -599,6 +604,20 @@ Expression Constraint::body() const
 
 Expression Constraint::upper() const
 { return repn->upper; }
+
+double Constraint::get_lb() const
+{
+if (repn->lower)
+    return repn->lower->eval();
+return -COEK_INFINITY;
+}
+
+double Constraint::get_ub() const
+{
+if (repn->upper)
+    return repn->upper->eval();
+return COEK_INFINITY;
+}
 
 Constraint Constraint::expand()
 { return convert_con_template(repn); }

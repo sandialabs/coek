@@ -469,6 +469,9 @@ public:
     Expression body() const;
     Expression upper() const;
 
+    double get_lb() const;
+    double get_ub() const;
+
     template <typename... TYPES>
     ConstraintSequenceAux forall(const TYPES&... args)
         {
