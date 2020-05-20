@@ -35,6 +35,7 @@ public:
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
+    void visit(ObjectiveTerm& arg);
     void visit(NegateTerm& arg);
     void visit(PlusTerm& arg);
     void visit(TimesTerm& arg);
@@ -98,6 +99,7 @@ void PartialVisitor::visit(IndexedVariableTerm& arg)
 {
 partial = ONECONST;
 }
+
 void PartialVisitor::visit(MonomialTerm& arg)
 {
 partial = CREATE_POINTER(ConstantTerm, arg.coef);
@@ -109,6 +111,11 @@ partial = 0;
 }
 
 void PartialVisitor::visit(EqualityTerm& arg)
+{
+partial = 0;
+}
+
+void PartialVisitor::visit(ObjectiveTerm& arg)
 {
 partial = 0;
 }

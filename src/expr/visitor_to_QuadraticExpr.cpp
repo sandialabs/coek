@@ -107,6 +107,11 @@ void visit(EqualityTerm& expr, QuadraticExpr& repn, double multiplier)
 visit_expression(expr.body, repn, multiplier);
 }
 
+void visit(ObjectiveTerm& expr, QuadraticExpr& repn, double multiplier)
+{
+visit_expression(expr.body, repn, multiplier);
+}
+
 void visit(NegateTerm& expr, QuadraticExpr& repn, double multiplier)
 {
 visit_expression(expr.body, repn, - multiplier);
@@ -342,6 +347,7 @@ switch (expr->id()) {
     VISIT_CASE(MonomialTerm);
     VISIT_CASE(InequalityTerm);
     VISIT_CASE(EqualityTerm);
+    VISIT_CASE(ObjectiveTerm);
     VISIT_CASE(NegateTerm);
     VISIT_CASE(PlusTerm);
     VISIT_CASE(TimesTerm);

@@ -166,8 +166,7 @@ class ModelRepn
 {
 public:
 
-    std::vector<bool> sense;
-    std::vector<Expression> objectives;
+    std::vector<Objective> objectives;
     std::vector<Constraint> constraints;
     std::vector<Variable> variables;
 
@@ -200,7 +199,8 @@ public:
     ~Model();
     Model& operator=(const Model&);
 
-    void add(const Expression& expr, bool _sense=Model::minimize);
+    // TODO - Rename this as add_objective()?
+    Objective& add(const Expression& expr, bool _sense=Model::minimize);
     void add(const Constraint& expr);
 
     Variable& getVariable(double lb, double ub, const std::string& name);
@@ -212,8 +212,10 @@ public:
     void addVariable(VariableArray& var);
     void addVariable(ConcreteIndexedVariable& var);
 
+#if 0
     Expression get_objective(unsigned int i=0);
     Constraint get_constraint(unsigned int i);
+#endif
 
     void set_suffix(const std::string& name, Variable& var, double value);
     void set_suffix(const std::string& name, Constraint& con, double value);
@@ -238,6 +240,7 @@ class CompactModel
 public:
 
     std::vector<bool> sense;
+    // TODO - define ObjectiveSequence
     std::vector<std::variant<Expression, ExpressionSequence>> objectives;
     std::vector<std::variant<Constraint, ConstraintSequence>> constraints;
     std::vector<Variable> variables;

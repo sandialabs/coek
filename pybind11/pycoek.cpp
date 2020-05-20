@@ -903,6 +903,30 @@ PYBIND11_MODULE(pycoek, m) {
         ;
 
     //
+    // Objective
+    //
+    py::class_<coek::Objective>(m, "objective")
+        .def("__init__", [](){throw std::runtime_error("Cannot create an empty objective.");})
+        .def_property_readonly("value", [](coek::Objective& c){return c.body().get_value();})
+        .def_property_readonly("id", &coek::Objective::id)
+        .def_property_readonly("name", [](coek::Objective& c){return std::string("o")+std::to_string(c.id());})
+
+        .def("to_list", [](coek::Objective& x){
+                                auto tmp = x.to_list();
+                                auto begin = tmp.begin();
+                                auto end = tmp.end();
+                                if (begin == end)
+                                    return py::list();
+                                if (tmp.size() == 1) {
+                                    auto ans = py::list();
+                                    ans.append( *begin );
+                                    return ans;
+                                    }
+                                begin++;
+                                return coek::to_nested_list(begin, end);})
+        ;
+
+    //
     // ConstraintSequenceAux
     //
     py::class_<coek::ConstraintSequenceAux>(m, "ConstraintSequenceAux")

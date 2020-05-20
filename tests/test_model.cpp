@@ -4032,7 +4032,7 @@ coek::Parameter q(2, "q");
         std::string tmp = os.str();
         REQUIRE( tmp == "MODEL\n\
   Objectives\n\
-    3*a + q\n\
+    min( 3*a + q )\n\
   Constraints\n\
     3*b + q <= 0\n\
     3*b + q == 0\n\

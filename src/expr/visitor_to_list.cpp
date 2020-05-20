@@ -58,6 +58,7 @@ public:
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
+    void visit(ObjectiveTerm& arg);
     void visit(NegateTerm& arg);
     void visit(PlusTerm& arg);
     void visit(TimesTerm& arg);
@@ -174,6 +175,17 @@ repr.push_back( "[" );
 repr.push_back( "==" );
 arg.body->accept(*this);
 arg.lower->accept(*this);
+repr.push_back( "]" );
+}
+
+void ToListVisitor::visit(ObjectiveTerm& arg)
+{
+repr.push_back( "[" );
+if (arg.sense)
+    repr.push_back( "min" );
+else
+    repr.push_back( "max" );
+arg.body->accept(*this);
 repr.push_back( "]" );
 }
 

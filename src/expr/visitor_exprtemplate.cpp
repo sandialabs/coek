@@ -41,6 +41,12 @@ auto lower = visit_expression(arg.lower);
 return CREATE_POINTER(EqualityTerm, body, lower);
 }
 
+expr_pointer_t visit(ObjectiveTerm& arg)
+{
+auto body = visit_expression(arg.body);
+return CREATE_POINTER(ObjectiveTerm, body, arg.sense);
+}
+
 expr_pointer_t visit(NegateTerm& arg)
 {
 auto curr = visit_expression(arg.body);
@@ -133,6 +139,7 @@ switch (expr->id()) {
     VISIT_CASE(VariableRefTerm);
     VISIT_CASE(InequalityTerm);
     VISIT_CASE(EqualityTerm);
+    VISIT_CASE(ObjectiveTerm);
     VISIT_CASE(NegateTerm);
     VISIT_CASE(PlusTerm);
     VISIT_CASE(TimesTerm);
