@@ -78,7 +78,7 @@ v->value = _v->value;
 
 Constraint NLPModelRepn::get_constraint(int i)
 {
-return model.get_constraint(i);
+return model.repn->constraints[i];
 }
 
 void NLPModelRepn::print_summary(std::ostream& ostr) const

@@ -90,10 +90,10 @@ if (repn.quadratic_coefs.size() > 0) {
     }
 }
 
-void print_objective(std::ostream& ostr, const Expression& e, bool& one_var_constant, const std::unordered_map<int,int>& vid)
+void print_objective(std::ostream& ostr, const Objective& obj, bool& one_var_constant, const std::unordered_map<int,int>& vid)
 {
 QuadraticExpr expr;
-expr.collect_terms(e);
+expr.collect_terms(obj);
 print_repn(ostr, expr, vid);
 double tmp = expr.constval;
 if (tmp != 0) {
@@ -259,15 +259,20 @@ try {
         auto& val = *it;
         if (auto eval = std::get_if<Expression>(&val)) {
             Expression e = eval->expand();
-            print_objective(ostr, e, one_var_constant, vid);
+            Objective obj(e, model.sense[nobj]);
+            print_objective(ostr, obj, one_var_constant, vid);
             nobj++;
             }
         else {
+#if 0
             auto& seq = std::get<ExpressionSequence>(val);
             for (auto jt=seq.begin(); jt != seq.end(); ++jt) {
                 print_objective(ostr, *jt, one_var_constant, vid);
                 nobj++;
                 }
+#endif
+            std::cerr << "Compact models can only have a single objective!" << std::endl;
+            return;
             }
         }
     if (nobj > 1) {

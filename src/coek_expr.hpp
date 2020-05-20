@@ -92,18 +92,21 @@ class IndexParameterTerm;
 class VariableTerm;
 class BaseExpressionTerm;
 class ConstraintTerm;
+class ObjectiveTerm;
 
 typedef ParameterTerm* ParameterRepn;
 typedef IndexParameterTerm* IndexParameterRepn;
 typedef VariableTerm* VariableRepn;
 typedef BaseExpressionTerm* ExpressionRepn;
 typedef ConstraintTerm* ConstraintRepn;
+typedef ObjectiveTerm* ObjectiveRepn;
 
 class Parameter;
 class IndexParameter;
 class Variable;
 class Expression;
 class Constraint;
+class Objective;
 class ExpressionSequence;
 class ExpressionSequenceRepn;
 class ConstraintSequence;
@@ -430,6 +433,34 @@ protected:
 };
 
 
+// Coek Objective
+class Objective
+{
+public:
+
+    ObjectiveRepn repn;
+
+public:
+
+    Objective();
+    Objective(const ObjectiveRepn& _repn);
+    Objective(const Expression& _repn, bool sense);
+    Objective(const Objective& arg);
+    ~Objective();
+
+    Objective& operator=(const Objective& arg);
+
+    unsigned int id() const;
+
+    Expression body() const;
+    bool sense() const;
+
+    std::list<std::string> to_list() const;
+
+    friend std::ostream& operator<<(std::ostream& ostr, const Objective& arg);
+};
+
+
 class ConstraintSequenceAux
 {
 public:
@@ -519,6 +550,7 @@ public:
     QuadraticExpr() : constval(0.0) {}
 
     void collect_terms(const Expression& expr);
+    void collect_terms(const Objective& expr);
     void collect_terms(const Constraint& expr);
 
     bool is_constant() const
@@ -561,6 +593,7 @@ public:
     ~MutableNLPExpr();
 
     void collect_terms(Expression& expr);
+    void collect_terms(Objective& expr);
     void collect_terms(Constraint& expr);
 
     bool is_mutable()

@@ -645,11 +645,11 @@ void Model::print_summary(std::ostream& ostr) const
 {
 ostr << "MODEL" << std::endl;
 ostr << "  Objectives" << std::endl;
-for (std::vector<Expression>::const_iterator it=repn->objectives.begin(); it != repn->objectives.end(); ++it) {
+for (auto it=repn->objectives.begin(); it != repn->objectives.end(); ++it) {
     ostr << "    " << *it << std::endl;
     }
 ostr << "  Constraints" << std::endl;
-for (std::vector<Constraint>::const_iterator it=repn->constraints.begin(); it != repn->constraints.end(); ++it) {
+for (auto it=repn->constraints.begin(); it != repn->constraints.end(); ++it) {
     ostr << "    " << *it << std::endl;
     }
 }
@@ -669,10 +669,11 @@ repn = other.repn;
 return *this;
 }
 
-void Model::add(const Expression& expr, bool _sense)
+Objective& Model::add(const Expression& expr, bool _sense)
 {
-repn->objectives.push_back( expr );
-repn->sense.push_back(_sense);
+Objective tmp(expr.repn, _sense);
+repn->objectives.push_back(tmp);
+return repn->objectives.back();
 }
 
 void Model::add(const Constraint& expr)
@@ -735,6 +736,7 @@ for (auto it=vars.begin(); it != end; ++it) {
     }
 }
 
+#if 0
 Expression Model::get_objective(unsigned int i)
 {
 if (i > repn->objectives.size())
@@ -748,6 +750,31 @@ if (i > repn->constraints.size())
     throw std::out_of_range("Constraint index " + std::to_string(i) + " is too large: " + std::to_string(repn->constraints.size()) + "      constraints available.");
 return repn->constraints[i];
 }
+#endif
+
+void Model::set_suffix(const std::string& name, Variable& var, double value)
+{ repn->vsuffix[name][var.id()] = value; }
+
+void Model::set_suffix(const std::string& name, Constraint& con, double value)
+{ repn->csuffix[name][con.id()] = value; }
+
+void Model::set_suffix(const std::string& name, Objective& obj, double value)
+{ repn->osuffix[name][obj.id()] = value; }
+
+void Model::set_suffix(const std::string& name, double value)
+{ repn->msuffix[name] = value; }
+
+double Model::get_suffix(const std::string& name, Variable& var)
+{ return repn->vsuffix[name][var.id()]; }
+
+double Model::get_suffix(const std::string& name, Constraint& con)
+{ return repn->csuffix[name][con.id()]; }
+
+double Model::get_suffix(const std::string& name, Objective& obj)
+{ return repn->csuffix[name][obj.id()]; }
+
+double Model::get_suffix(const std::string& name)
+{ return repn->msuffix[name]; }
 
 static bool endsWith(const std::string& str, const std::string& suffix)
 {
@@ -793,13 +820,13 @@ throw std::runtime_error("Unknown problem type");
 void CompactModel::add(const Expression& expr, bool _sense)
 {
 objectives.push_back( expr );
-sense.push_back(_sense);
+sense.push_back( _sense );
 }
 
 void CompactModel::add(const ExpressionSequence& seq, bool _sense)
 {
 objectives.push_back( seq );
-sense.push_back(_sense);
+sense.push_back( _sense );
 }
 
 void CompactModel::add(const Constraint& expr)
@@ -878,15 +905,18 @@ for (auto it=objectives.begin(); it != objectives.end(); ++it) {
     bool osense = sense[i++];
     if (auto eval = std::get_if<Expression>(&val)) {
         Expression e = eval->expand();
-        model.repn->objectives.push_back(e);
-        model.repn->sense.push_back(osense);
+        model.add(e, osense); //repn->objectives.push_back(e);
+        //model.repn->sense.push_back(osense);
         }
     else {
+#if 0
         auto& seq = std::get<ExpressionSequence>(val);
         for (auto jt=seq.begin(); jt != seq.end(); ++jt) {
-            model.repn->objectives.push_back(*jt);
-            model.repn->sense.push_back(osense);
+            //model.repn->objectives.push_back(*jt);
+            model.add( *jt, osense); //repn->objectives.push_back(*jt);
+            //model.repn->sense.push_back(osense);
             }
+#endif
         }
     }
 

@@ -39,6 +39,7 @@ class ACoshTerm;
 class ATanhTerm;
 class PowTerm;
 class SumExpressionTerm;
+class ObjectiveTerm;
 
 
 class Visitor
@@ -81,6 +82,7 @@ public:
     virtual void visit(ACoshTerm& arg) = 0;
     virtual void visit(ATanhTerm& arg) = 0;
     virtual void visit(PowTerm& arg) = 0;
+    virtual void visit(ObjectiveTerm& arg) = 0;
     virtual void visit(SumExpressionTerm& arg)
         { throw std::runtime_error("Visitor cannot handle SumExpressionTerm"); }
 };
@@ -119,7 +121,8 @@ enum term_id {
     ACoshTerm_id =          29,
     ATanhTerm_id =          30,
     PowTerm_id =            31,
-    SumExpressionTerm_id =  102
+    SumExpressionTerm_id =  102,
+    ObjectiveTerm_id =      103
     };
 
 }

@@ -46,6 +46,9 @@ public:
     void visit(EqualityTerm& arg)
         {arg.body->accept(*this);}
 
+    void visit(ObjectiveTerm& arg)
+        {arg.body->accept(*this);}
+
     void visit(NegateTerm& arg)
         {arg.body->accept(*this);}
 

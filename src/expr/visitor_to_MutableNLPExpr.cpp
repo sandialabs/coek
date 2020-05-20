@@ -112,6 +112,13 @@ void visit(EqualityTerm& expr,
 visit_expression(expr.body, repn, multiplier);
 }
 
+void visit(ObjectiveTerm& expr,
+                    MutableNLPExpr& repn,
+                    double multiplier)
+{
+visit_expression(expr.body, repn, multiplier);
+}
+
 void visit(NegateTerm& expr,
                     MutableNLPExpr& repn,
                     double multiplier)
@@ -403,6 +410,7 @@ switch (expr->id()) {
     VISIT_CASE(MonomialTerm);
     VISIT_CASE(InequalityTerm);
     VISIT_CASE(EqualityTerm);
+    VISIT_CASE(ObjectiveTerm);
     VISIT_CASE(NegateTerm);
     VISIT_CASE(PlusTerm);
     VISIT_CASE(TimesTerm);

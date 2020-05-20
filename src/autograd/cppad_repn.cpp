@@ -677,6 +677,18 @@ void visit(EqualityTerm& expr,
 visit_expression(expr.body, cache, used_variables, fixed_variables, parameters, ADvars, dynamic_params, ans);
 }
 
+void visit(ObjectiveTerm& expr,
+                    std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
+                    std::unordered_map<VariableTerm*,int>& used_variables,
+                    std::map<VariableTerm*,int>& fixed_variables,
+                    std::map<ParameterTerm*,int>& parameters,
+                    std::vector<CppAD::AD<double> >& ADvars,
+                    std::vector<CppAD::AD<double> >& dynamic_params,
+                    CppAD::AD<double>& ans)
+{
+visit_expression(expr.body, cache, used_variables, fixed_variables, parameters, ADvars, dynamic_params, ans);
+}
+
 void visit(NegateTerm& expr,
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
@@ -851,6 +863,7 @@ switch (expr->id()) {
     VISIT_CASE(MonomialTerm);
     VISIT_CASE(InequalityTerm);
     VISIT_CASE(EqualityTerm);
+    VISIT_CASE(ObjectiveTerm);
     VISIT_CASE(NegateTerm);
     VISIT_CASE(PlusTerm);
     VISIT_CASE(TimesTerm);

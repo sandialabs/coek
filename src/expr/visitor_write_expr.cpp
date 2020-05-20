@@ -26,6 +26,7 @@ public:
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
+    void visit(ObjectiveTerm& arg);
     void visit(NegateTerm& arg);
     void visit(PlusTerm& arg);
     void visit(TimesTerm& arg);
@@ -149,6 +150,16 @@ void WriteExprVisitor::visit(EqualityTerm& arg)
 arg.body->accept(*this);
 ostr << " == ";
 arg.lower->accept(*this);
+}
+
+void WriteExprVisitor::visit(ObjectiveTerm& arg)
+{
+if (arg.sense)
+   ostr << "min( ";
+else
+   ostr << "max( ";
+arg.body->accept(*this);
+ostr << " )";
 }
 
 void WriteExprVisitor::visit(NegateTerm& arg)

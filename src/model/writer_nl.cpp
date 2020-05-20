@@ -40,6 +40,7 @@ public:
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
+    void visit(ObjectiveTerm& arg);
     void visit(NegateTerm& arg);
     void visit(PlusTerm& arg);
     void visit(TimesTerm& arg);
@@ -114,6 +115,9 @@ void PrintExpr::visit(InequalityTerm& arg)
 { arg.body->accept(*this); }
 
 void PrintExpr::visit(EqualityTerm& arg)
+{ arg.body->accept(*this); }
+
+void PrintExpr::visit(ObjectiveTerm& arg)
 { arg.body->accept(*this); }
 
 void PrintExpr::visit(NegateTerm& arg)
@@ -534,15 +538,16 @@ for (auto it=c_expr.begin(); it != c_expr.end(); it++, ctr++) {
 //
 ctr=0;
 for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ctr++) {
+    bool sense = model.repn->objectives[ctr].sense();
     if ((not it->nonlinear.is_constant()) or (it->quadratic_coefs.size() > 0)) {
-        if (model.repn->sense[ctr] == Model::minimize)
+        if (sense == Model::minimize)
             ostr << "O" << ctr << " 0" << std::endl;
         else
             ostr << "O" << ctr << " 1" << std::endl;
         print_expr(ostr, *it, varmap, true);
         }
     else {
-        if (model.repn->sense[ctr] == Model::minimize)
+        if (sense == Model::minimize)
             ostr << "O" << ctr << " 0" << std::endl;
         else
             ostr << "O" << ctr << " 1" << std::endl;
