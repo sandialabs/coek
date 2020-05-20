@@ -27,7 +27,7 @@ class TestModel(unittest.TestCase):
         self.assertEqual(nlp.num_constraints(), 5)
 
         e = m.get_objective()
-        self.assertEqual( e.to_list(), ['+', '1.000', ['-', ['+', 'v1', 'v2']], ['*', '3.000', ['+', 'v1', 'v2']], ['*', ['+', 'v1', 'v2'], ['+', 'v1', 'v2']], 'v3'] )
+        self.assertEqual( e.to_list(), ['min', ['+', '1.000', ['-', ['+', 'v1', 'v2']], ['*', '3.000', ['+', 'v1', 'v2']], ['*', ['+', 'v1', 'v2'], ['+', 'v1', 'v2']], 'v3']] )
 
         e = m.get_constraint(0)
         self.assertEqual( e.to_list(), ['<=', '-Inf', ['+', ['*', 'v1', 'v1'], '1.000', ['*', '-3', 'v2']], '0.000'])
