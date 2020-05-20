@@ -219,12 +219,12 @@ public:
 
     void set_suffix(const std::string& name, Variable& var, double value);
     void set_suffix(const std::string& name, Constraint& con, double value);
-    void set_suffix(const std::string& name, Expression& obj, double value);
+    void set_suffix(const std::string& name, Objective& obj, double value);
     void set_suffix(const std::string& name, double value);
 
     double get_suffix(const std::string& name, Variable& var);
     double get_suffix(const std::string& name, Constraint& con);
-    double get_suffix(const std::string& name, Expression& obj);
+    double get_suffix(const std::string& name, Objective& obj);
     double get_suffix(const std::string& name);
 
     void write(std::string filename);
