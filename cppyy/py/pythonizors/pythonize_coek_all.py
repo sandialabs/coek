@@ -104,8 +104,11 @@ def pythonize_coek_all(klass, name):
         #klass.__eq__ = klass.__cpp_eq__
 
     elif name == 'Constraint':
+        klass.id = property(klass.id, doc="A unique integer id.")
         klass.feasible = property(klass.is_feasible, doc="This value is True if the constraint is feasible.")
-        klass.value = property(klass.get_value, doc="Value of this constraint")
+        klass.lb = property(klass.get_lb, doc="The value of the constraint lower bound.")
+        klass.ub = property(klass.get_ub, doc="The value of the constraint upper bound.")
+        #klass.value = property(klass.get_b, doc="Value of this constraint")
         klass.__to_list = klass.to_list
         klass.to_list = to_list
         klass.__bool__ = bool_error
