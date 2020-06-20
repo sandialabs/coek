@@ -639,7 +639,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
 
   SECTION( "constant" ) {
     {
-    coek::Expression e = 3;
+    coek::Expression e(3);
     auto E = e.expand();
     coek::MutableNLPExpr repn;
     repn.collect_terms(E);
@@ -727,7 +727,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         coek::Model m;
         coek::Variable v = m.getVariable(0,1,3,"v");
         v.set_fixed(true);
-        coek::Expression f = 2;
+        coek::Expression f(2);
         coek::Expression e = v/f;
         auto E = e.expand();
         coek::MutableNLPExpr repn;

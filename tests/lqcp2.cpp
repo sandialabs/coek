@@ -9,7 +9,7 @@ using namespace std;
 
 template <typename TYPE>
 coek::Expression yt(TYPE j, double dx) {
-  return 0.5*(1 - (j*dx)*(j*dx));
+  return coek::Expression(0.5*(1 - (j*dx)*(j*dx)));
 }
 
 

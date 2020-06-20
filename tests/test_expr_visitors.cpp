@@ -157,7 +157,7 @@
 TEST_CASE( "expr_writer", "[smoke]" ) {
 
   SECTION( "constant" ) {
-    coek::Expression e = 3;
+    coek::Expression e(3);
     std::stringstream sstr;
     sstr << e;
     REQUIRE( sstr.str() == "3" );
@@ -340,7 +340,7 @@ REQUIRE( coek::env.check_memory() == true );
 TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
 
   SECTION( "constant" ) {
-    coek::Expression e = 3;
+    coek::Expression e(3);
     coek::QuadraticExpr repn;
     repn.collect_terms(e);
 
@@ -605,7 +605,7 @@ REQUIRE( coek::env.check_memory() == true );
 TEST_CASE( "symbolic_diff", "[smoke]" ) {
 
   SECTION( "constant" ) {
-    coek::Expression f = 3;
+    coek::Expression f(3);
     coek::Variable v;
     auto e = f.diff(v);
     static std::list<std::string> baseline = {"0.000"};
@@ -1000,7 +1000,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
 
   SECTION( "constant" ) {
     {
-    coek::Expression e = 3;
+    coek::Expression e(3);
     coek::MutableNLPExpr repn;
     repn.collect_terms(e);
 
@@ -1098,7 +1098,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::Model m;
         coek::Variable v = m.getVariable(0,1,3,"v");
         v.set_fixed(true);
-        coek::Expression f = 2;
+        coek::Expression f(2);
         coek::Expression e = v/f;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1592,7 +1592,7 @@ std::unordered_set<coek::VariableTerm*> fixed_vars;
 std::unordered_set<coek::ParameterTerm*> params;
 
   SECTION( "constant" ) {
-    coek::Expression e = 3;
+    coek::Expression e(3);
     mutable_values(e.repn, fixed_vars, params);
 
     static std::unordered_set<coek::VariableTerm*> vbaseline {};

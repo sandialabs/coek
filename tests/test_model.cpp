@@ -1639,12 +1639,12 @@ coek::Expression f;
     coek::Parameter s(-1, "s");
     coek::Parameter S(-1.0, "S");
 
-    coek::Expression q_ = 0;
-    coek::Expression Q_ = 0.0;
-    coek::Expression r_ = 1;
-    coek::Expression R_ = 1.0;
-    coek::Expression s_ = -1;
-    coek::Expression S_ = -1.0;
+    coek::Expression q_(0);
+    coek::Expression Q_(0.0);
+    coek::Expression r_(1);
+    coek::Expression R_(1.0);
+    coek::Expression s_(-1);
+    coek::Expression S_(-1.0);
 
     WHEN( "e = a * q{0}" ) {
       coek::Expression e = a * q;
@@ -2200,12 +2200,12 @@ coek::Expression f;
     coek::Parameter s(-1, "s");
     coek::Parameter S(-1.0, "S");
 
-    coek::Expression q_ = 0;
-    coek::Expression Q_ = 0.0;
-    coek::Expression r_ = 1;
-    coek::Expression R_ = 1.0;
-    coek::Expression s_ = -1;
-    coek::Expression S_ = -1.0;
+    coek::Expression q_(0);
+    coek::Expression Q_(0.0);
+    coek::Expression r_(1);
+    coek::Expression R_(1.0);
+    coek::Expression s_(-1);
+    coek::Expression S_(-1.0);
 
     WHEN( "e = q{0} / a" ) {
       coek::Expression e = q/a;
