@@ -1554,7 +1554,7 @@ Expression abs(const Expression& body)
 {
 if (body.repn->is_constant()) {
     ConstantTerm* _body = dynamic_cast<ConstantTerm*>(body.repn);
-    return ::fabs(_body->value);
+    return Expression(::fabs(_body->value));
     }
 return intrinsic_abs(body.repn);
 }
@@ -1564,7 +1564,7 @@ Expression FN(const Expression& body)\
 {\
 if (body.repn->is_constant()) {\
     ConstantTerm* _body = dynamic_cast<ConstantTerm*>(body.repn);\
-    return ::FN(_body->value);\
+    return Expression(::FN(_body->value));\
     }\
 return intrinsic_ ## FN(body.repn);\
 }
@@ -1594,9 +1594,29 @@ Expression FN(const Expression& lhs, const Expression& rhs)\
 if (lhs.is_constant() and rhs.is_constant()) {\
     ConstantTerm* _lhs = dynamic_cast<ConstantTerm*>(lhs.repn);\
     ConstantTerm* _rhs = dynamic_cast<ConstantTerm*>(rhs.repn);\
-    return ::FN(_lhs->value, _rhs->value);\
+    return Expression(::FN(_lhs->value, _rhs->value));\
     }\
 return intrinsic_ ## FN(lhs.repn, rhs.repn);\
+}\
+\
+Expression FN(const Expression& lhs, double rhs)\
+{\
+if (lhs.is_constant()) {\
+    ConstantTerm* _lhs = dynamic_cast<ConstantTerm*>(lhs.repn);\
+    return Expression(::FN(_lhs->value, rhs));\
+    }\
+Expression _rhs(rhs);\
+return intrinsic_ ## FN(lhs.repn, _rhs.repn);\
+}\
+\
+Expression FN(double lhs, const Expression& rhs)\
+{\
+if (rhs.is_constant()) {\
+    ConstantTerm* _rhs = dynamic_cast<ConstantTerm*>(rhs.repn);\
+    return Expression(::FN(lhs, _rhs->value));\
+    }\
+Expression _lhs(lhs);\
+return intrinsic_ ## FN(_lhs.repn, rhs.repn);\
 }
 
 INTRINSIC_DEF2(pow);
@@ -1608,7 +1628,7 @@ INTRINSIC_DEF2(pow);
 //
 Expression affine_expression(std::vector<double>& coef, std::vector<Variable>& var, double offset)
 {
-Expression e = offset;
+Expression e(offset);
 for (size_t i=0; i<coef.size(); i++) {
     e += coef[i]*var[i];
     }
@@ -1617,7 +1637,7 @@ return e;
 
 Expression affine_expression(std::vector<Variable>& var, double offset)
 {
-Expression e = offset;
+Expression e(offset);
 for (size_t i=0; i<var.size(); i++) {
     e += var[i];
     }

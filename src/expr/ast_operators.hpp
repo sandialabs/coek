@@ -332,10 +332,6 @@ return CREATE_POINTER(DivideTerm, lhs, rhs);
 template <typename LHS>
 expr_pointer_t divide(const LHS& lhs, double rhs)
 {
-//if (rhs == 1.0)
-//    return lhs;
-//if (rhs == -1.0)
-//    return lhs->negate(lhs);
 if (rhs == 0.0)
     throw std::domain_error("Division by zero");
 
@@ -356,11 +352,6 @@ return CREATE_POINTER(DivideTerm, _lhs, rhs);
 template <typename LHS>
 expr_pointer_t divide(const LHS& lhs, int rhs)
 {
-
-//if (rhs == 1)
-//    return lhs;
-//if (rhs == -1)
-//    return lhs->negate(lhs);
 if (rhs == 0)
     throw std::domain_error("Division by zero");
 

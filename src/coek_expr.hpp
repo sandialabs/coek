@@ -357,8 +357,8 @@ public:
 
     Expression();
     Expression(const ExpressionRepn& _repn);
-    Expression(double value);
-    Expression(int value);
+    explicit Expression(double value);
+    explicit Expression(int value);
     Expression(const Parameter& arg);
     Expression(const IndexParameter& arg);
     Expression(const Variable& arg);
@@ -687,5 +687,7 @@ Expression acosh(const Expression& body);
 Expression atanh(const Expression& body);
 
 Expression pow(const Expression&, const Expression&);
+Expression pow(const Expression&, double);
+Expression pow(double, const Expression&);
 
 }

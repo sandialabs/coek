@@ -27,7 +27,7 @@ public:
     Constant(double _val) : val(_val) {}
 
     coek::Expression value()
-        {return val;}
+        {return coek::Expression(val);}
 };
 
 class IndexVariable : public Expression
