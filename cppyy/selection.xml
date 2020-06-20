@@ -21,6 +21,8 @@
         <class name="coek::ExpressionRepn"/>
         <class name="coek::ConstraintRepn"/>
 
+        <class name="coek::SetRepn"/>
+
         <class name="coek::MutableNLPExpr"/>
         <class name="coek::QuadraticExpr"/>
         <class pattern="coek::MapKeyIterator*"/>
