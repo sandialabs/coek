@@ -1626,21 +1626,21 @@ INTRINSIC_DEF2(pow);
 // TODO - Maybe we should have an expression term for affine expressions.  But for now, we'll
 // just create a sum of monomials.
 //
-Expression affine_expression(std::vector<double>& coef, std::vector<Variable>& var, double offset)
+Expression affine_expression(const std::vector<double>& coef, const std::vector<Variable>& var, double offset)
 {
 Expression e(offset);
-for (size_t i=0; i<coef.size(); i++) {
-    e += coef[i]*var[i];
-    }
+auto cit = coef.begin();
+auto vit = var.begin();
+for (; vit != var.end(); ++vit, ++cit)
+    e += (*cit)*(*vit);
 return e;
 }
 
-Expression affine_expression(std::vector<Variable>& var, double offset)
+Expression affine_expression(const std::vector<Variable>& var, double offset)
 {
 Expression e(offset);
-for (size_t i=0; i<var.size(); i++) {
-    e += var[i];
-    }
+for (auto it=var.begin(); it != var.end(); ++it)
+    e += *it;
 return e;
 }
 

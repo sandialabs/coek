@@ -163,8 +163,8 @@ Expression operator/(double, const IndexParameter&);
 Expression operator/(double, const Variable&);
 Expression operator/(double, const Expression&);
 
-Expression affine_expression(std::vector<double>& coef, std::vector<Variable>& var, double offset);
-Expression affine_expression(std::vector<Variable>& var, double offset);
+Expression affine_expression(const std::vector<double>& coef, const std::vector<Variable>& var, double offset);
+Expression affine_expression(const std::vector<Variable>& var, double offset);
 
 
 // Mutable Parameter 
