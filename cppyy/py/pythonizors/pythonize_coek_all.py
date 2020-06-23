@@ -53,8 +53,10 @@ def pythonize_coek_all(klass, name):
         raise TypeError("VariableArray argument cannot be used in a boolean expression.")
 
     def expression__init(self, *args, **kwargs):
-        if (type(args[0]) is pycoek.coek.VariableArray) or (type(args[0]) is pycoek.coek.Constraint):
-            raise runtime_error("Bad cast")
+        if type(args[0]) is pycoek.coek.VariableArray:
+            raise TypeError("Variable array argument cannot be used in a boolean expression.")
+        if type(args[0]) is pycoek.coek.Constraint:
+            raise TypeError("Constraint argument cannot be used in a boolean expression.")
         return self.__init__bak(*args, **kwargs)
 
     if name == 'Variable':
@@ -70,6 +72,8 @@ def pythonize_coek_all(klass, name):
         klass.__pow__ = pycoek.coek.Variable_pow
         klass.__rpow__ = pycoek.coek.Variable_rpow
         klass.__bool__ = bool_error
+        #klass.__eq__ = klass.__cpp_eq__
+        klass.__eq__ = pycoek.coek.operator_eq
 
     elif name == 'Expression':
         klass.__init__bak = klass.__init__
@@ -108,7 +112,7 @@ def pythonize_coek_all(klass, name):
         klass.feasible = property(klass.is_feasible, doc="This value is True if the constraint is feasible.")
         klass.lb = property(klass.get_lb, doc="The value of the constraint lower bound.")
         klass.ub = property(klass.get_ub, doc="The value of the constraint upper bound.")
-        #klass.value = property(klass.get_b, doc="Value of this constraint")
+        klass.value = property(lambda self: self.body().get_value(), doc="The value of the constraint body")
         klass.__to_list = klass.to_list
         klass.to_list = to_list
         klass.__bool__ = bool_error

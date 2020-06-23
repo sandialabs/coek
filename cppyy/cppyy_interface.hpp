@@ -17,6 +17,17 @@ namespace coek {
 // TODO - Rename these methods to make them class-specific
 //
 
+inline Constraint operator_eq(const Variable& arg, int rhs)
+    {return arg == rhs;}
+inline Constraint operator_eq(const Variable& arg, double rhs)
+    {return arg == rhs;}
+inline Constraint operator_eq(const Variable& arg, const Parameter& rhs)
+    {return arg == rhs;}
+inline Constraint operator_eq(const Variable& arg, const Variable& rhs)
+    {return arg == rhs;}
+inline Constraint operator_eq(const Variable& arg, const Expression& rhs)
+    {return arg == rhs;}
+
 inline Expression operator_pos(const Parameter& arg)
     {return +arg;}
 inline Expression operator_pos(const Variable& arg)
