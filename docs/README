@@ -1,0 +1,5 @@
+This integration of Doxygen, Sphinx and Breathe is
+adapted from the following tutorial:
+
+  https://devblogs.microsoft.com/cppblog/clear-functional-c-documentation-with-sphinx-breathe-doxygen-cmake/
+

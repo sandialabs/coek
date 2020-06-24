@@ -2,7 +2,7 @@
 #include <cmath>
 #include "catch.hpp"
 #include "expr/ast_term.hpp"
-#include "coek_model.hpp"
+#include "coek.hpp"
 
 void error1(coek::Model& model) 
 {

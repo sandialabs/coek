@@ -6,7 +6,7 @@
 #include "catch.hpp"
 
 #include "expr/ast_term.hpp"
-#include "coek_model.hpp"
+#include "coek.hpp"
 
 const double PI = 3.141592653589793238463;
 const double E = exp(1.0);

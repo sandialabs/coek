@@ -2,8 +2,7 @@
 
 #include <typeinfo>
 #include "expr/ast_term.hpp"
-#include "coek_indexed.hpp"
-#include "coek_model.hpp"
+#include "coek.hpp"
 
 #define NLP_INTRINSIC_TEST1(FN, MEMCHECK)\
     WHEN( #FN " 1" ) {\

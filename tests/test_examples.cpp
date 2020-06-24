@@ -2,7 +2,7 @@
 #include <iostream>
 #include "catch.hpp"
 #include "expr/ast_term.hpp"
-#include "coek_model.hpp"
+#include "coek.hpp"
 
 //
 // EXAMPLES

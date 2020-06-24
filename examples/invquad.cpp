@@ -1,5 +1,5 @@
 #include <vector>
-#include "coek_model.hpp"
+#include "coek.hpp"
 
 void invquad_example(coek::Model& m, std::vector<coek::Parameter>& p)
 {

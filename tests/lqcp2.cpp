@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <vector>
 #include <string>
-#include "coek_model.hpp"
+#include "coek.hpp"
 
 using namespace std;
 

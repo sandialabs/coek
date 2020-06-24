@@ -1,7 +1,7 @@
 #include "catch.hpp"
 
 #include "expr/ast_term.hpp"
-#include "coek_sets.hpp"
+#include "coek.hpp"
 
 TEST_CASE( "simple_finite", "[smoke]" ) {
 

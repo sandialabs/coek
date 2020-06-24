@@ -1,6 +1,6 @@
 #include <iostream>
 #include "catch.hpp"
-#include "coek_model.hpp"
+#include "coek.hpp"
 #include "expr/ast_term.hpp"
 
 const double PI = 3.141592653589793238463;

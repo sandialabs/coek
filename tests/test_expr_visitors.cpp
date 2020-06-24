@@ -4,7 +4,7 @@
 #include "catch.hpp"
 #include "expr/ast_term.hpp"
 #include "expr/ast_visitors.hpp"
-#include "coek_model.hpp"
+#include "coek.hpp"
 
 #define WRITER_INTRINSIC_TEST1(FN)\
     WHEN( #FN ) {\

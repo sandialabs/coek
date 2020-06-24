@@ -1,4 +1,4 @@
-#include "coek_model.hpp"
+#include "coek.hpp"
 
 void simplelp1_example(coek::Model& m)
 {

@@ -10,7 +10,7 @@
 #include <vector>
 #include <random>
 #include <functional>
-#include "coek_model.hpp"
+#include "coek.hpp"
 
 void baseline_test(int N, const std::string& solver);
 void objective_test(int N, int nsolves, const std::string& solver);
