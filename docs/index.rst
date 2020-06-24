@@ -14,7 +14,13 @@ Welcome to COEK's documentation!
 Docs
 ====
 
-.. doxygenstruct:: cat
+.. doxygenclass:: coek::Parameter
+   :members:
+
+.. doxygenclass:: coek::Variable
+   :members:
+
+.. doxygenclass:: coek::Expression
    :members:
 
 

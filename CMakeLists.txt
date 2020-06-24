@@ -69,6 +69,14 @@ else()
   MESSAGE("-- With gprof: off")
 endif()
 
+# docs
+if(with_docs)
+    MESSAGE("-- With Docs: on")
+else()
+    MESSAGE("-- With Docs: off")
+endif()
+
+# solvers
 if(with_ipopt)
   list(APPEND solver_flags "-DWITH_IPOPT")
   MESSAGE("-- With Ipopt Solver: on")
@@ -238,4 +246,3 @@ if(with_cffi)
 else()
     MESSAGE("-- With Cffi: off")
 endif()
-

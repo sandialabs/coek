@@ -188,7 +188,7 @@ public:
      */
      //@{
     /**
-     * Constructs a undefined Parameter.
+     * Constructs a Parameter without defining its value.
      */
     Parameter();
     /**
@@ -198,7 +198,7 @@ public:
      */
     Parameter(double value);
     /**
-     * Constructs a named Parameter initialized with a given value.
+     * Constructs a Parameter initialized with a given value and a name.
      *
      * @param value the initial value of the parameter
      * @param name the name of the parameter
@@ -217,13 +217,13 @@ public:
     /**
      * Get the value of the parameter
      *
-     * @return return the parameter value
+     * @return the parameter value
      */
     double get_value() const;
     /**
      * Set the value of the parameter
      *
-     * @param the parameter value
+     * @param value the parameter value
      */
     void set_value(double value);
 
@@ -233,7 +233,7 @@ public:
     /**
      * Get the name of the parameter
      *
-     * @return return the parameter name
+     * @return the parameter name
      */
     std::string get_name() const;
 
