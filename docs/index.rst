@@ -11,6 +11,12 @@ Welcome to COEK's documentation!
    :caption: Contents:
 
 
+Docs
+====
+
+.. doxygenstruct:: cat
+   :members:
+
 
 Indices and tables
 ==================
@@ -18,3 +24,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
