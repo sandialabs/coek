@@ -32,6 +32,7 @@ option(with_gcov "Add code coverage using gcov" OFF)
 option(with_gprof "Profile build" OFF)
 option(with_pybind11 "Build python interface using pybind11" OFF)
 option(with_cppyy "Build python interface using cppyy" OFF)
+option(with_docs "Build documentation" OFF)
 
 # Autograd Dependencies
 option(with_cppad "Use the CppAD Autograd Library" OFF)
@@ -215,6 +216,10 @@ else()
     MESSAGE("-- With Cppyy: off")
 endif()
 
+# docs
+if (with_docs)
+    add_subdirectory(docs)
+endif()
 
 # cffi
 if(with_cffi)
