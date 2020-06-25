@@ -1,4 +1,4 @@
-#include "coek.hpp"
+#include <coek/coek.hpp>
 
 //   Source:  problem 1 in
 //   J.J. More', B.S. Garbow and K.E. Hillstrom,

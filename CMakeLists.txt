@@ -70,7 +70,7 @@ else()
 endif()
 
 # docs
-if(with_docs)
+if (with_docs)
     MESSAGE("-- With Docs: on")
 else()
     MESSAGE("-- With Docs: off")
@@ -152,8 +152,8 @@ endif()
 # third_party
 add_subdirectory(third_party)
 
-# src
-add_subdirectory(src)
+# coek
+add_subdirectory(coek)
 
 # examples
 if (with_examples OR with_tests)
@@ -161,10 +161,10 @@ if (with_examples OR with_tests)
 endif()
 
 # testing
-if(with_tests)
+if (with_tests)
   MESSAGE("-- With Tests: on")
 
-  add_subdirectory(tests)
+  add_subdirectory(test)
   include(CTest)
 
   add_custom_target(test_verbose
@@ -175,7 +175,7 @@ if(with_tests)
 
   if (gcovr_FOUND)
     add_custom_target(gcovr 
-      COMMAND ${GCOVR_EXECUTABLE} -d -r ${CMAKE_CURRENT_SOURCE_DIR} -e ../third_party/ -e ../tests/)
+      COMMAND ${GCOVR_EXECUTABLE} -d -r ${CMAKE_CURRENT_SOURCE_DIR} -e ../third_party/ -e ../test/)
   endif()
 else()
   MESSAGE("-- With Tests: off")
@@ -226,7 +226,7 @@ endif()
 
 # docs
 if (with_docs)
-    add_subdirectory(docs)
+    add_subdirectory(doc)
 endif()
 
 # cffi

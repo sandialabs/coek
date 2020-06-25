@@ -11,7 +11,7 @@ SET(sources
     invquad.cpp
    )
 
-include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 # build library
 ADD_LIBRARY(coekexamples ${sources})
