@@ -70,7 +70,7 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
 setup(
-    name='pycoek',
+    name='pycoek_pybind11',
     version='1.0',
     author='William Hart',
     author_email='whart222@gmail.com',

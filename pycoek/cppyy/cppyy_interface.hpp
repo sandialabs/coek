@@ -1,8 +1,8 @@
 #pragma once
 
-#include "coek_expr.hpp"
-#include "expr/varray.hpp"
-#include "coek_model.hpp"
+#include "coek/coek_expr.hpp"
+#include "coek/expr/varray.hpp"
+#include "coek/coek_model.hpp"
 
 //
 // Inlined functions used to define reverse operators

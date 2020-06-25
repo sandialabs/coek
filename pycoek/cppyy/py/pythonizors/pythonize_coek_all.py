@@ -1,4 +1,4 @@
-import pycoek
+import pycoek_cppyy as pycoek
 
 def pythonize_coek_all(klass, name):
     #print(("PYTHONIZE COEK", klass, name))

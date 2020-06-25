@@ -181,26 +181,26 @@ else()
   MESSAGE("-- With Tests: off")
 endif()
 
-if(with_pybind11 OR with_cppyy OR with_cffi)
-    if((with_cffi AND with_cppyy) OR (with_cffi AND with_pybind11) OR (with_cppyy AND with_pybind11))
-        MESSAGE(FATAL_ERROR "Cannot configure multiple python interfaces!")
-    endif()
-endif()
+#if(with_pybind11 OR with_cppyy OR with_cffi)
+#    if((with_cffi AND with_cppyy) OR (with_cffi AND with_pybind11) OR (with_cppyy AND with_pybind11))
+#        MESSAGE(FATAL_ERROR "Cannot configure multiple python interfaces!")
+#    endif()
+#endif()
 
 # pybind11
 if(with_pybind11)
     MESSAGE("-- With Pybind11: on")
     add_subdirectory(third_party/pybind11)
-    add_subdirectory(pybind11)
+    add_subdirectory(pycoek/pybind11)
 
     #
     # Note that this target is automatically build when with_pybind11 is ON
     #
-    add_custom_target(python 
-        DEPENDS pycoek)
-    add_custom_target(test_python 
-        DEPENDS pycoek
-        COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/pybind11 ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    add_custom_target(python_pybind11
+        DEPENDS pycoek_pybind11)
+    add_custom_target(test_python_pybind11
+        DEPENDS pycoek_pybind11
+        COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/pycoek/pybind11 ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
         )
 else()
     MESSAGE("-- With Pybind11: off")
@@ -209,16 +209,16 @@ endif()
 # cppyy
 if(with_cppyy)
     MESSAGE("-- With Cppyy: on")
-    add_subdirectory(cppyy)
+    add_subdirectory(pycoek/cppyy)
 
     #
     # Note that this target is automatically build when with_cppyy is ON
     #
-    add_custom_target(python 
-        DEPENDS pycoek)
-    add_custom_target(test_python 
-        DEPENDS pycoek
-        COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/cppyy ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    add_custom_target(python_cppyy
+        DEPENDS pycoek_cppyy)
+    add_custom_target(test_python_cppyy
+        DEPENDS pycoek_cppyy
+        COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/pycoek/cppyy ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
         )
 else()
     MESSAGE("-- With Cppyy: off")
@@ -237,9 +237,9 @@ if(with_cffi)
     #
     # Note that this target is automatically build when with_cffi is ON
     #
-    add_custom_target(python 
+    add_custom_target(python_cffi
         DEPENDS pycoek)
-    add_custom_target(test_python 
+    add_custom_target(test_python_cffi
         DEPENDS pycoek
         COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/cffi ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
         )

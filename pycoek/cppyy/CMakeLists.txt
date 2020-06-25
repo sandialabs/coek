@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 
-set(CMAKE_CPPYY_SOURCE_DIR ${CMAKE_SOURCE_DIR}/cppyy)
+set(CMAKE_CPPYY_SOURCE_DIR ${CMAKE_SOURCE_DIR}/pycoek/cppyy)
 set(CMAKE_INCLUDE_DIRECTORIES_BEFORE ON)
 include(GNUInstallDirs)
 
@@ -12,12 +12,12 @@ include(GNUInstallDirs)
 find_package(Cppyy)
 
 list(APPEND LIB_HEADERS 
-    ${CMAKE_SOURCE_DIR}/src/coek_expr.hpp
-    ${CMAKE_SOURCE_DIR}/src/expr/varray.hpp
-    ${CMAKE_SOURCE_DIR}/src/coek_model.hpp
+    ${CMAKE_SOURCE_DIR}/coek/coek_expr.hpp
+    ${CMAKE_SOURCE_DIR}/coek/expr/varray.hpp
+    ${CMAKE_SOURCE_DIR}/coek/coek_model.hpp
     )
 list(APPEND LIB_INCLUDE_DIRS 
-    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}
     )
 
 if(${with_gurobi})
@@ -33,20 +33,20 @@ endif()
 # Set up the Cppyy bindings generation.
 #
 cppyy_add_bindings(
-    "pycoek" "${PROJECT_VERSION}" "William Hart" "whart222@gmail.com"
+    "pycoek_cppyy" "${PROJECT_VERSION}" "William Hart" "whart222@gmail.com"
    LICENSE "BSD-3"
    LANGUAGE_STANDARD "17"
-   SELECTION_XML  ${CMAKE_SOURCE_DIR}/cppyy/selection.xml
-   INTERFACE_FILE ${CMAKE_SOURCE_DIR}/cppyy/cppyy_interface.hpp
+   SELECTION_XML  ${CMAKE_SOURCE_DIR}/pycoek/cppyy/selection.xml
+   INTERFACE_FILE ${CMAKE_SOURCE_DIR}/pycoek/cppyy/cppyy_interface.hpp
    HEADERS        ${LIB_HEADERS}
    INCLUDE_DIRS   ${LIB_INCLUDE_DIRS}
    LINK_LIBRARIES coek ${OPT_LINK_LIBRARIES}
    NAMESPACES     coek
-   GENERATE_OPTIONS    -I${CMAKE_SOURCE_DIR}/src
+   GENERATE_OPTIONS    -I${CMAKE_SOURCE_DIR}
 )
 
-add_custom_target(pip_install
-        DEPENDS pycoek
+add_custom_target(pip_install_cppyy
+        DEPENDS pycoek_cppyy
         COMMAND pip install --force-reinstall ${PY_WHEEL_FILE}
-        COMMAND python -c "import pycoek"
+        COMMAND python -c "import pycoek_cppyy"
         )
