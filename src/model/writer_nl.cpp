@@ -72,14 +72,14 @@ void PrintExpr::visit(ConstantTerm& arg)
 {
 ostr << "n";
 format(ostr, arg.value);
-ostr << std::endl;
+ostr << '\n';
 }
 
 void PrintExpr::visit(ParameterTerm& arg)
 {
 ostr << "n";
 format(ostr, arg.value);
-ostr << std::endl;
+ostr << '\n';
 }
 
 void PrintExpr::visit(IndexParameterTerm& arg)
@@ -88,27 +88,27 @@ void PrintExpr::visit(IndexParameterTerm& arg)
 void PrintExpr::visit(VariableTerm& arg)
 { 
 if (arg.fixed)
-    ostr << "n" << arg.value << std::endl;
+    ostr << "n" << arg.value << '\n';
 else
-    ostr << "v" << varmap.at(arg.index) << std::endl;
+    ostr << "v" << varmap.at(arg.index) << '\n';
 }
 
 void PrintExpr::visit(VariableRefTerm& arg)
 { throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
 
 void PrintExpr::visit(IndexedVariableTerm& arg)
-{ ostr << "v" << varmap.at(arg.index) << std::endl; }
+{ ostr << "v" << varmap.at(arg.index) << '\n'; }
 
 void PrintExpr::visit(MonomialTerm& arg)
 {
-ostr << "o2" << std::endl;
+ostr << "o2" << '\n';
 ostr << "n";
 format(ostr, arg.coef);
-ostr << std::endl;
+ostr << '\n';
 if (arg.var->fixed)
-    ostr << "n" << arg.var->value << std::endl;
+    ostr << "n" << arg.var->value << '\n';
 else
-    ostr << "v" << varmap.at(arg.var->index) << std::endl;
+    ostr << "v" << varmap.at(arg.var->index) << '\n';
 }
 
 void PrintExpr::visit(InequalityTerm& arg)
@@ -122,31 +122,31 @@ void PrintExpr::visit(ObjectiveTerm& arg)
 
 void PrintExpr::visit(NegateTerm& arg)
 {
-ostr << "o16" << std::endl;
+ostr << "o16\n";
 arg.body->accept(*this);
 }
 
 void PrintExpr::visit(PlusTerm& arg)
 {
 if (arg.n == 2)
-    ostr << "o0" << std::endl;
+    ostr << "o0\n";
 else
-    ostr << "o54" << std::endl << arg.n << std::endl;
+    ostr << "o54\n" << arg.n << '\n';
 std::vector<expr_pointer_t>& vec = *(arg.data);
-for (size_t i=0; i<arg.n; i++)
+for (size_t i=0; i<arg.n; ++i)
     vec[i]->accept(*this);
 }
 
 void PrintExpr::visit(TimesTerm& arg)
 {
-ostr << "o2" << std::endl;
+ostr << "o2\n";
 arg.lhs->accept(*this);
 arg.rhs->accept(*this);
 }
 
 void PrintExpr::visit(DivideTerm& arg)
 {
-ostr << "o3" << std::endl;
+ostr << "o3\n";
 arg.lhs->accept(*this);
 arg.rhs->accept(*this);
 }
@@ -154,7 +154,7 @@ arg.rhs->accept(*this);
 #define PrintExpr_FN(FN, TERM)\
 void PrintExpr::visit(TERM& arg)\
 {\
-ostr << #FN << std::endl;\
+ostr << #FN << '\n';\
 arg.body->accept(*this);\
 }
 
@@ -180,7 +180,7 @@ PrintExpr_FN(o47, ATanhTerm)
 
 void PrintExpr::visit(PowTerm& arg)
 {
-ostr << "o5" << std::endl;\
+ostr << "o5\n";
 arg.lhs->accept(*this);
 arg.rhs->accept(*this);
 }
@@ -197,7 +197,7 @@ if (not nonlinear)
 
 std::map<std::pair<int,int>,double> term;
 if (quadratic) {
-    for (size_t i=0; i<repn.quadratic_coefs.size(); i++) {
+    for (size_t i=0; i<repn.quadratic_coefs.size(); ++i) {
         int lhs = varmap.at(repn.quadratic_lvars[i]->index);
         int rhs = varmap.at(repn.quadratic_rvars[i]->index);
         if (rhs < lhs)
@@ -213,9 +213,9 @@ if (quadratic) {
 // Compute the number of terms in the sum
 int ctr=0;
 if (objective and (fabs(cval) > EPSILON))
-    ctr++;
+    ++ctr;
 if (nonlinear)
-    ctr++;
+    ++ctr;
 if (quadratic)
     ctr += term.size();
 
@@ -223,23 +223,23 @@ if (quadratic)
 if (ctr == 0)
     return;
 else if (ctr == 2)
-    ostr << "o0" << std::endl;
+    ostr << "o0\n";
 else if (ctr > 2)
-    ostr << "o54" << std::endl << ctr << std::endl;
+    ostr << "o54\n" << ctr << '\n';
 
 // Write terms in the sum
 if (quadratic) {
-    for (auto it=term.begin(); it != term.end(); it++) {
+    for (auto it=term.begin(); it != term.end(); ++it) {
         double coef = it->second;
         if (coef != 1) {
-            ostr << "o2" << std::endl;
+            ostr << "o2\n";
             ostr << "n";
             format(ostr, coef);
-            ostr << std::endl;
+            ostr << '\n';
             }
-        ostr << "o2" << std::endl;
-        ostr << "v" << it->first.first << std::endl;
-        ostr << "v" << it->first.second << std::endl;
+        ostr << "o2\n";
+        ostr << "v" << it->first.first << '\n';
+        ostr << "v" << it->first.second << '\n';
         }
     }
 if (nonlinear) {
@@ -249,7 +249,7 @@ if (nonlinear) {
 if (objective and (fabs(cval) > EPSILON)) {
     ostr << "n";
     format(ostr, cval);
-    ostr << std::endl;
+    ostr << '\n';
     }
 }
 
@@ -296,29 +296,29 @@ int nnz_gradient=0;
 // Objectives
 std::vector<MutableNLPExpr> o_expr(model.repn->objectives.size());
 int ctr=0;
-for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it, ctr++) {
+for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it, ++ctr) {
     o_expr[ctr].collect_terms(*it);
     if ((o_expr[ctr].quadratic_coefs.size() > 0) or (not o_expr[ctr].nonlinear.is_constant()))
-        nonl_objectives++;
-    for (auto it=o_expr[ctr].linear_vars.begin(); it != o_expr[ctr].linear_vars.end(); it++) {
+        ++nonl_objectives;
+    for (auto it=o_expr[ctr].linear_vars.begin(); it != o_expr[ctr].linear_vars.end(); ++it) {
         auto var = *it;
         linear_vars.insert(var->index);
         vars.insert(var->index);
         varobj[var->index] = var;
         }
-    for (auto it=o_expr[ctr].quadratic_lvars.begin(); it != o_expr[ctr].quadratic_lvars.end(); it++) {
+    for (auto it=o_expr[ctr].quadratic_lvars.begin(); it != o_expr[ctr].quadratic_lvars.end(); ++it) {
         auto var = *it;
         nonlinear_vars_obj.insert(var->index);
         vars.insert(var->index);
         varobj[var->index] = var;
         }
-    for (auto it=o_expr[ctr].quadratic_rvars.begin(); it != o_expr[ctr].quadratic_rvars.end(); it++) {
+    for (auto it=o_expr[ctr].quadratic_rvars.begin(); it != o_expr[ctr].quadratic_rvars.end(); ++it) {
         auto var = *it;
         nonlinear_vars_obj.insert(var->index);
         vars.insert(var->index);
         varobj[var->index] = var;
         }
-    for (auto it=o_expr[ctr].nonlinear_vars.begin(); it != o_expr[ctr].nonlinear_vars.end(); it++) {
+    for (auto it=o_expr[ctr].nonlinear_vars.begin(); it != o_expr[ctr].nonlinear_vars.end(); ++it) {
         auto var = *it;
         nonlinear_vars_obj.insert(var->index);
         vars.insert(var->index);
@@ -334,23 +334,23 @@ std::vector<MutableNLPExpr> c_expr(model.repn->constraints.size());
 std::vector<int> r(model.repn->constraints.size());
 std::vector<double> rval(2*model.repn->constraints.size());
 ctr=0;
-for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it, ctr++) {
+for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it, ++ctr) {
     invconmap[ctr] = it->id();
     c_expr[ctr].collect_terms(*it);
 
     double bodyconst = c_expr[ctr].constval.get_value();
     if (it->is_inequality()) {
-        num_inequalities++;
+        ++num_inequalities;
         if (it->repn->lower and it->repn->upper) {
             double lower = it->repn->lower->eval() - bodyconst;
             double upper = it->repn->upper->eval() - bodyconst;
             if (fabs(upper-lower) < EPSILON) {
-                num_equalities++;
+                ++num_equalities;
                 r[ctr] = 4;
                 rval[2*ctr] = lower;
                 }
             else {
-                num_ranges++;
+                ++num_ranges;
                 r[ctr] = 0;
                 rval[2*ctr] = lower;
                 rval[2*ctr+1] = upper;
@@ -369,37 +369,37 @@ for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(
             }
         }
     else {
-        num_equalities++;
+        ++num_equalities;
         r[ctr] = 4;
         rval[2*ctr] = it->repn->lower->eval() - bodyconst;
         }
     if ((c_expr[ctr].quadratic_coefs.size() > 0) or (not c_expr[ctr].nonlinear.is_constant()))
-        nonl_constraints++;
+        ++nonl_constraints;
 
     std::set<int> curr_vars;
 
-    for (auto it=c_expr[ctr].linear_vars.begin(); it != c_expr[ctr].linear_vars.end(); it++) {
+    for (auto it=c_expr[ctr].linear_vars.begin(); it != c_expr[ctr].linear_vars.end(); ++it) {
         auto var = *it;
         linear_vars.insert(var->index);
         vars.insert(var->index);
         varobj[var->index] = var;
         curr_vars.insert(var->index);
         }
-    for (auto it=c_expr[ctr].quadratic_lvars.begin(); it != c_expr[ctr].quadratic_lvars.end(); it++) {
+    for (auto it=c_expr[ctr].quadratic_lvars.begin(); it != c_expr[ctr].quadratic_lvars.end(); ++it) {
         auto var = *it;
         nonlinear_vars_con.insert(var->index);
         vars.insert(var->index);
         varobj[var->index] = var;
         curr_vars.insert(var->index);
         }
-    for (auto it=c_expr[ctr].quadratic_rvars.begin(); it != c_expr[ctr].quadratic_rvars.end(); it++) {
+    for (auto it=c_expr[ctr].quadratic_rvars.begin(); it != c_expr[ctr].quadratic_rvars.end(); ++it) {
         auto var = *it;
         nonlinear_vars_con.insert(var->index);
         vars.insert(var->index);
         varobj[var->index] = var;
         curr_vars.insert(var->index);
         }
-    for (auto it=c_expr[ctr].nonlinear_vars.begin(); it != c_expr[ctr].nonlinear_vars.end(); it++) {
+    for (auto it=c_expr[ctr].nonlinear_vars.begin(); it != c_expr[ctr].nonlinear_vars.end(); ++it) {
         auto var = *it;
         nonlinear_vars_con.insert(var->index);
         vars.insert(var->index);
@@ -413,36 +413,37 @@ for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(
 
 check_that_expression_variables_are_declared(model, vars);
 
-for (auto it=linear_vars.begin(); it != linear_vars.end(); it++) {
+for (auto it=linear_vars.begin(); it != linear_vars.end(); ++it) {
     auto& var = varobj[*it];
     if (var.is_binary())
-        num_linear_binary_vars++;
+        ++num_linear_binary_vars;
     else if (var.is_integer())
-        num_linear_integer_vars++;
+        ++num_linear_integer_vars;
     }
 
 int nonlinear_vars_both=0;
-for (auto it=nonlinear_vars_obj.begin(); it != nonlinear_vars_obj.end(); it++) {
+for (auto it=nonlinear_vars_obj.begin(); it != nonlinear_vars_obj.end(); ++it) {
     bool flag = varobj[*it].is_binary() or varobj[*it].is_integer();
     if (flag)
-       num_nonlinear_obj_int_vars++;
+       ++num_nonlinear_obj_int_vars;
     if (nonlinear_vars_con.find(*it) != nonlinear_vars_con.end()) {
-        nonlinear_vars_both++;
+        ++nonlinear_vars_both;
         if (flag)
-           num_nonlinear_both_int_vars++;
+           ++num_nonlinear_both_int_vars;
         }
     }
-for (auto it=nonlinear_vars_con.begin(); it != nonlinear_vars_con.end(); it++) {
+for (auto it=nonlinear_vars_con.begin(); it != nonlinear_vars_con.end(); ++it) {
     if (varobj[*it].is_binary() or varobj[*it].is_integer())
-       num_nonlinear_con_int_vars++;
+       ++num_nonlinear_con_int_vars;
     }
 
 // Map Variable index to NL variable ID (0 ... n_vars-1)
 std::unordered_map<int,int> varmap;
 ctr = 0;
-for (auto it=vars.begin(); it != vars.end(); it++) {
+for (auto it=vars.begin(); it != vars.end(); ++it) {
     invvarmap[ctr] = *it;
-    varmap[*it] = ctr++;
+    varmap[*it] = ctr;
+    ++ctr;
     }
 if (vars.size() != varmap.size()) {
     std::cerr << "Error writing NL file: Variables with duplicate index values detected!" << std::endl;
@@ -455,7 +456,7 @@ std::vector<std::map<int,double>> G(o_expr.size());
 std::vector<std::map<int,double>> J(c_expr.size());
 
 ctr=0;
-for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ctr++) {
+for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ++ctr) {
     for (auto jt=it->quadratic_lvars.begin(); jt!= it->quadratic_lvars.end(); ++jt) {
         G[ctr][ varmap[(*jt)->index] ] = 0;
         }
@@ -465,7 +466,7 @@ for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ctr++) {
     for (auto jt=it->nonlinear_vars.begin(); jt!= it->nonlinear_vars.end(); ++jt) {
         G[ctr][ varmap[(*jt)->index] ] = 0;
         }
-    for (size_t j=0; j<it->linear_coefs.size(); j++) {
+    for (size_t j=0; j<it->linear_coefs.size(); ++j) {
         auto index = varmap[it->linear_vars[j]->index];
         if (G[ctr].find(index) == G[ctr].end())
             G[ctr][index] = it->linear_coefs[j].get_value();
@@ -474,7 +475,7 @@ for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ctr++) {
         }
     }
 ctr=0;
-for (auto it=c_expr.begin(); it != c_expr.end(); ++it, ctr++) {
+for (auto it=c_expr.begin(); it != c_expr.end(); ++it, ++ctr) {
     for (auto jt=it->quadratic_lvars.begin(); jt!= it->quadratic_lvars.end(); ++jt) {
         int index = varmap[(*jt)->index];
         k_count[ index ].insert(ctr);
@@ -490,7 +491,7 @@ for (auto it=c_expr.begin(); it != c_expr.end(); ++it, ctr++) {
         k_count[ index ].insert(ctr);
         J[ctr][ index ] = 0;
         }
-    for (size_t j=0; j<it->linear_coefs.size(); j++) {
+    for (size_t j=0; j<it->linear_coefs.size(); ++j) {
         int index = varmap[it->linear_vars[j]->index];
         if (J[ctr].find(index) == J[ctr].end()) {
             k_count[ index ].insert(ctr);
@@ -506,30 +507,29 @@ for (auto it=c_expr.begin(); it != c_expr.end(); ++it, ctr++) {
 //
 // This API seems poorly documented.  Is the 2005 paper the defining reference?  Pyomo writes a header that doesn't conform to it...
 //
-ostr << "g3 1 1 0 # unnamed problem generated by COEK" << std::endl;
-ostr << " " << vars.size() << " " << (num_inequalities+num_equalities) << " 1 " << num_ranges << " " << num_equalities << " 0 # vars, constraints, objectives, ranges, eqns, lcons" << std::endl;
-ostr << " " << nonl_constraints << " " << nonl_objectives << " # nonlinear constraints, objectives" << std::endl;
-ostr << " 0 0 # network constraints: nonlinear, linear" << std::endl;
-ostr << " " << nonlinear_vars_con.size() << " " << nonlinear_vars_obj.size() << " " << nonlinear_vars_both << " # nonlinear vars in constraints, objectives, both" << std::endl;
-ostr << " 0 0 0 1 # linear network variables; functions; arith, flags" << std::endl;
-ostr << " " << num_linear_binary_vars << " " << num_linear_integer_vars << " " << num_nonlinear_both_int_vars << " " << num_nonlinear_con_int_vars << " " << num_nonlinear_obj_int_vars << " # discrete variables: binary, integer, nonlinear (b,c,o)" << std::endl;
-ostr << " " << nnz_Jacobian << " " << nnz_gradient << " # nonzeros in Jacobian, gradients" << std::endl;
-ostr << " 0 0 # max name lengths: constraints, variables" << std::endl;
-ostr << " 0 0 0 0 0 # common exprs: b,c,o,c1,o1" << std::endl;
+ostr << "g3 1 1 0 # unnamed problem generated by COEK\n";
+ostr << " " << vars.size() << " " << (num_inequalities+num_equalities) << " 1 " << num_ranges << " " << num_equalities << " 0 # vars, constraints, objectives, ranges, eqns, lcons\n";
+ostr << " " << nonl_constraints << " " << nonl_objectives << " # nonlinear constraints, objectives\n";
+ostr << " 0 0 # network constraints: nonlinear, linear\n";
+ostr << " " << nonlinear_vars_con.size() << " " << nonlinear_vars_obj.size() << " " << nonlinear_vars_both << " # nonlinear vars in constraints, objectives, both\n";
+ostr << " 0 0 0 1 # linear network variables; functions; arith, flags\n";
+ostr << " " << num_linear_binary_vars << " " << num_linear_integer_vars << " " << num_nonlinear_both_int_vars << " " << num_nonlinear_con_int_vars << " " << num_nonlinear_obj_int_vars << " # discrete variables: binary, integer, nonlinear (b,c,o)\n";
+ostr << " " << nnz_Jacobian << " " << nnz_gradient << " # nonzeros in Jacobian, gradients\n";
+ostr << " 0 0 # max name lengths: constraints, variables\n";
+ostr << " 0 0 0 0 0 # common exprs: b,c,o,c1,o1\n";
 
 //
 // "C" section - nonlinear constraint segments
 //
 ctr = 0;
-for (auto it=c_expr.begin(); it != c_expr.end(); it++, ctr++) {
-    //std::cout << it->nonlinear.to_list() << std::endl;
+for (auto it=c_expr.begin(); it != c_expr.end(); ++it, ++ctr) {
     if ((not it->nonlinear.is_constant()) or (it->quadratic_coefs.size() > 0)) {
-        ostr << "C" << ctr << std::endl;
+        ostr << "C" << ctr << '\n';
         print_expr(ostr, *it, varmap);
         }
     else {
-        ostr << "C" << ctr << std::endl;
-        ostr << "n0" << std::endl;
+        ostr << "C" << ctr << '\n';
+        ostr << "n0\n";
         }
     }
 
@@ -537,21 +537,21 @@ for (auto it=c_expr.begin(); it != c_expr.end(); it++, ctr++) {
 // "O" section - nonlinear objective segments
 //
 ctr=0;
-for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ctr++) {
+for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ++ctr) {
     bool sense = model.repn->objectives[ctr].sense();
     if ((not it->nonlinear.is_constant()) or (it->quadratic_coefs.size() > 0)) {
         if (sense == Model::minimize)
-            ostr << "O" << ctr << " 0" << std::endl;
+            ostr << "O" << ctr << " 0\n";
         else
-            ostr << "O" << ctr << " 1" << std::endl;
+            ostr << "O" << ctr << " 1\n";
         print_expr(ostr, *it, varmap, true);
         }
     else {
         if (sense == Model::minimize)
-            ostr << "O" << ctr << " 0" << std::endl;
+            ostr << "O" << ctr << " 0\n";
         else
-            ostr << "O" << ctr << " 1" << std::endl;
-        ostr << "n" << it->constval.get_value() << std::endl;
+            ostr << "O" << ctr << " 1\n";
+        ostr << "n" << it->constval.get_value() << '\n';
         }
     }
 
@@ -561,15 +561,15 @@ for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ctr++) {
 {
 std::map<int, double> values;
 ctr=0;
-for (auto it=vars.begin(); it != vars.end(); it++, ctr++) {
+for (auto it=vars.begin(); it != vars.end(); ++it, ++ctr) {
     auto tmp = varobj[*it].get_value();
     if (not std::isnan(tmp))
         values[ctr] = tmp;
     }
 if (values.size() > 0) {
-    ostr << "x" << values.size() << std::endl;
-    for (auto it=values.begin(); it != values.end(); it++)
-        ostr << it->first << " " << it->second << std::endl;
+    ostr << "x" << values.size() << '\n';
+    for (auto it=values.begin(); it != values.end(); ++it)
+        ostr << it->first << " " << it->second << '\n';
     }
 }
 
@@ -578,9 +578,9 @@ if (values.size() > 0) {
 //
 
 if (model.repn->constraints.size() > 0) {
-    ostr << "r" << std::endl;
+    ostr << "r\n";
     ctr = 0;
-    for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it, ctr++) {
+    for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it, ++ctr) {
         switch (r[ctr]) {
             case 0:
                 ostr << "0 ";
@@ -604,33 +604,33 @@ if (model.repn->constraints.size() > 0) {
                 format(ostr, rval[2*ctr]);
                 break;
             };
-        ostr << std::endl;
+        ostr << '\n';
         }
     }
 
 //
 // "b" section - bounds on variables
 //
-ostr << "b" << std::endl;
-for (auto it=vars.begin(); it != vars.end(); it++) {
+ostr << "b\n";
+for (auto it=vars.begin(); it != vars.end(); ++it) {
     auto var = varobj[*it];
     double lb = var.get_lb();
     double ub = var.get_ub();
     if (lb == -COEK_INFINITY) {
         if (ub == COEK_INFINITY) {
-            ostr << "3" << std::endl;
+            ostr << "3\n";
             }
         else {
             ostr << "1 ";
             format(ostr, ub);
-            ostr << std::endl;
+            ostr << '\n';
             }
         }
     else {
         if (ub == COEK_INFINITY) {
             ostr << "2 ";
             format(ostr, lb);
-            ostr << std::endl;
+            ostr << '\n';
             }
         else {
             if (fabs(ub-lb) < EPSILON) {
@@ -643,7 +643,7 @@ for (auto it=vars.begin(); it != vars.end(); it++) {
                 ostr << " ";
                 format(ostr, ub);
                 }
-            ostr << std::endl;
+            ostr << '\n';
             }
         }
     }
@@ -651,34 +651,36 @@ for (auto it=vars.begin(); it != vars.end(); it++) {
 //
 // "k" section - Jacobian column counts
 //
-ostr << "k" << (k_count.size()-1) << std::endl;
+ostr << "k" << (k_count.size()-1) << '\n';
 ctr = 0;
-for (size_t i=0; i<(k_count.size()-1); i++) {
+for (size_t i=0; i<(k_count.size()-1); ++i) {
     ctr += k_count[i].size();
-    ostr << ctr << std::endl;
+    ostr << ctr << '\n';
     }
 
 //
 // "J" section - Jacobian sparsity, linear terms
 //
-for (size_t i=0; i<J.size(); i++) {
+for (size_t i=0; i<J.size(); ++i) {
     if (J[i].size() == 0) continue;
-    ostr << "J" << i << " " << J[i].size() << std::endl;
+    ostr << "J" << i << " " << J[i].size() << '\n';
     for (auto it=J[i].begin(); it!=J[i].end(); ++it) {
-        ostr << it->first << " " << it->second << std::endl;
+        ostr << it->first << " " << it->second << '\n';
         }
     }
 
 //
 // "G" section - Gradient sparsity, linear terms
 //
-for (size_t i=0; i<G.size(); i++) {
+for (size_t i=0; i<G.size(); ++i) {
     if (G[i].size() == 0) continue;
-    ostr << "G" << i << " " << G[i].size() << std::endl;
+    ostr << "G" << i << " " << G[i].size() << '\n';
     for (auto it=G[i].begin(); it!=G[i].end(); ++it) {
-        ostr << it->first << " " << it->second << std::endl;
+        ostr << it->first << " " << it->second << '\n';
         }
     }
+
+ostr << std::flush;
 }
 
 }
