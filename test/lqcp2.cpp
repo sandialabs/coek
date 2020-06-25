@@ -35,8 +35,8 @@ int main(int argc, char** argv) {
   auto y = coek::IndexedVariable(M*N, 0, 1, 0, "y");
   auto u = coek::IndexedVariable(coek::RangeSet(1, m), -1, 1, 0, "u");
 
-  model.addVariable(y);
-  model.addVariable(u);
+  model.add_variable(y);
+  model.add_variable(u);
 
   coek::IndexParameter i("i");
   coek::IndexParameter j("j");
@@ -55,20 +55,20 @@ int main(int argc, char** argv) {
                         forall(i).in( coek::RangeSet(1, m-1) ) );
   term2 += u(m)*u(m);
 
-  model.add(0.25*dx*term1 + 0.25*a*dt*term2);
+  model.add_objective(0.25*dx*term1 + 0.25*a*dt*term2);
 
   // PDE
-  model.add( (y(i+1,j) - y(i,j) == dt*0.5/h2*(y(i,j-1) - 2*y(i,j) + y(i,j+1) + y(i+1,j-1) - 2*y(i+1,j) + y(i+1,j+1)))
+  model.add_constraint( (y(i+1,j) - y(i,j) == dt*0.5/h2*(y(i,j-1) - 2*y(i,j) + y(i,j+1) + y(i+1,j-1) - 2*y(i+1,j) + y(i+1,j+1)))
              .forall(i,j).in( coek::RangeSet(0, m-1)*coek::RangeSet(1, n-1) ) );
 
   // IC
-  model.add( (y(0,j) == 0)
+  model.add_constraint( (y(0,j) == 0)
              .forall(j).in( coek::RangeSet(0, n) ) );
 
   // BC
-  model.add( (y(i,2) - 4*y(i,1) + 3*y(i,0) == 0)
+  model.add_constraint( (y(i,2) - 4*y(i,1) + 3*y(i,0) == 0)
              .forall(i).in( coek::RangeSet(1,m) ) );
-  model.add( ((y(i,n-2) - 4*y(i,n-1) + 3*y(i,n))/(2*dx) == u(i) - y(i,n))
+  model.add_constraint( ((y(i,n-2) - 4*y(i,n-1) + 3*y(i,n))/(2*dx) == u(i) - y(i,n))
              .forall(i).in( coek::RangeSet(1,m) ) );
   
   if (lp_file) {

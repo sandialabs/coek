@@ -199,18 +199,17 @@ public:
     ~Model();
     Model& operator=(const Model&);
 
-    // TODO - Rename this as add_objective()?
-    Objective& add(const Expression& expr, bool _sense=Model::minimize);
-    void add(const Constraint& expr);
+    Objective add_objective(const Expression& expr, bool _sense=Model::minimize);
+    Constraint add_constraint(const Constraint& expr);
 
-    Variable& getVariable(double lb, double ub, const std::string& name);
-    Variable& getVariable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN);
-    Variable& getVariable(double lb, double ub, double value, const std::string& name);
-    Variable& getVariable(double lb, double ub, double value, bool binary, bool integer);
-    Variable& getVariable(double lb, double ub, double value, bool binary, bool integer, const std::string& name);
-    void addVariable(Variable& var);
-    void addVariable(VariableArray& var);
-    void addVariable(ConcreteIndexedVariable& var);
+    Variable& add_variable(double lb, double ub, const std::string& name);
+    Variable& add_variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN);
+    Variable& add_variable(double lb, double ub, double value, const std::string& name);
+    Variable& add_variable(double lb, double ub, double value, bool binary, bool integer);
+    Variable& add_variable(double lb, double ub, double value, bool binary, bool integer, const std::string& name);
+    Variable& add_variable(Variable& var);
+    void add_variable(VariableArray& var);
+    void add_variable(ConcreteIndexedVariable& var);
 
 #if 0
     Expression get_objective(unsigned int i=0);
@@ -239,28 +238,28 @@ class CompactModel
 {
 public:
 
-    std::vector<bool> sense;
     // TODO - define ObjectiveSequence
-    std::vector<std::variant<Expression, ExpressionSequence>> objectives;
+    std::vector<std::variant<Objective, ExpressionSequence>> objectives;
     std::vector<std::variant<Constraint, ConstraintSequence>> constraints;
     std::vector<Variable> variables;
 
 public:
 
-    void add(const Expression& expr, bool _sense=Model::minimize);
-    void add(const ExpressionSequence& seq, bool _sense=Model::minimize);
-    void add(const Constraint& expr);
-    void add(const ConstraintSequence& seq);
+    Objective add_objective(const Expression& expr, bool _sense=Model::minimize);
+    void add_objective(const ExpressionSequence& seq, bool _sense=Model::minimize);
 
-    Variable& getVariable(double lb, double ub, const std::string& name);
-    Variable& getVariable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN);
-    Variable& getVariable(double lb, double ub, double value, const std::string& name);
-    Variable& getVariable(double lb, double ub, double value, bool binary, bool integer);
-    Variable& getVariable(double lb, double ub, double value, bool binary, bool integer, const std::string& name);
+    Constraint add_constraint(const Constraint& expr);
+    void add_constraint(const ConstraintSequence& seq);
 
-    void addVariable(Variable& var);
-    void addVariable(VariableArray& var);
-    void addVariable(ConcreteIndexedVariable& var);
+    Variable& add_variable(double lb, double ub, const std::string& name);
+    Variable& add_variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN);
+    Variable& add_variable(double lb, double ub, double value, const std::string& name);
+    Variable& add_variable(double lb, double ub, double value, bool binary, bool integer);
+    Variable& add_variable(double lb, double ub, double value, bool binary, bool integer, const std::string& name);
+
+    Variable& add_variable(Variable& var);
+    void add_variable(VariableArray& var);
+    void add_variable(ConcreteIndexedVariable& var);
 
     Model expand();
 

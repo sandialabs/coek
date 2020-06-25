@@ -28,7 +28,7 @@
 #define REPN_INTRINSIC_TEST1(FN)\
     WHEN( #FN " 1" ) {\
           coek::Model m;\
-          coek::Variable v = m.getVariable(0, 1, 0, "v");\
+          coek::Variable v = m.add_variable(0, 1, 0, "v");\
           coek::Expression e = FN(v+1);\
           coek::QuadraticExpr repn;\
           REQUIRE_THROWS_WITH(repn.collect_terms(e),\
@@ -36,7 +36,7 @@
       }\
     WHEN( #FN " 2" ) {\
           coek::Model m;\
-          coek::Variable v = m.getVariable(0, 1, 0, "v");\
+          coek::Variable v = m.add_variable(0, 1, 0, "v");\
           v.set_fixed(true);\
           coek::Expression e = FN(v+1);\
           coek::QuadraticExpr repn;\
@@ -47,7 +47,7 @@
 #define REPN_INTRINSIC_TEST2(FN)\
     WHEN( #FN " 1" ) {\
           coek::Model m;\
-          coek::Variable v = m.getVariable(0, 1, 0, "v");\
+          coek::Variable v = m.add_variable(0, 1, 0, "v");\
           coek::Expression e = FN(v+1, v-1);\
           coek::QuadraticExpr repn;\
           REQUIRE_THROWS_WITH(repn.collect_terms(e),\
@@ -55,7 +55,7 @@
       }\
     WHEN( #FN " 2" ) {\
           coek::Model m;\
-          coek::Variable v = m.getVariable(0, 1, 0, "v");\
+          coek::Variable v = m.add_variable(0, 1, 0, "v");\
           v.set_fixed(true);\
           coek::Expression e = FN(v+1, v-1);\
           coek::QuadraticExpr repn;\
@@ -67,7 +67,7 @@
     WHEN( #FN " 1" ) {\
           {\
           coek::Model m;\
-          coek::Variable v = m.getVariable(0, 1, 0, "v");\
+          coek::Variable v = m.add_variable(0, 1, 0, "v");\
           coek::Expression e = FN(v+1);\
           coek::MutableNLPExpr repn;\
           static std::list<std::string> constval = {"0.000"};\
@@ -80,7 +80,7 @@
     WHEN( #FN " 2" ) {\
           {\
           coek::Model m;\
-          coek::Variable v = m.getVariable(0, 1, 0, "v");\
+          coek::Variable v = m.add_variable(0, 1, 0, "v");\
           v.set_fixed(true);\
           coek::Expression e = FN(v+1);\
           coek::MutableNLPExpr repn;\
@@ -96,7 +96,7 @@
     WHEN( #FN " 1" ) {\
           {\
           coek::Model m;\
-          coek::Variable v = m.getVariable(0, 1, 0, "v");\
+          coek::Variable v = m.add_variable(0, 1, 0, "v");\
           coek::Expression e = FN(v+1, v);\
           coek::MutableNLPExpr repn;\
           static std::list<std::string> constval = {"0.000"};\
@@ -109,7 +109,7 @@
     WHEN( #FN " 2" ) {\
           {\
           coek::Model m;\
-          coek::Variable v = m.getVariable(0, 1, 0, "v");\
+          coek::Variable v = m.add_variable(0, 1, 0, "v");\
           v.set_fixed(true);\
           coek::Expression e = FN(v+1, v);\
           coek::MutableNLPExpr repn;\
@@ -124,7 +124,7 @@
 #define MV_INTRINSIC_TEST1(FN)\
     WHEN( #FN ) {\
           coek::Model m;\
-          coek::Variable v = m.getVariable(0, 1, 0, "v");\
+          coek::Variable v = m.add_variable(0, 1, 0, "v");\
           v.set_fixed(true);\
           coek::Expression e = FN(v+1);\
           mutable_values(e.repn, fixed_vars, params);\
@@ -137,7 +137,7 @@
 #define MV_INTRINSIC_TEST2(FN)\
     WHEN( #FN ) {\
           coek::Model m;\
-          coek::Variable v = m.getVariable(0, 1, 0, "v");\
+          coek::Variable v = m.add_variable(0, 1, 0, "v");\
           v.set_fixed(true);\
           coek::Expression e = FN(v+1, v);\
           mutable_values(e.repn, fixed_vars, params);\
@@ -363,7 +363,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
   SECTION( "var" ) {
     WHEN( "unfixed" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,0,"v");
+        coek::Variable v = m.add_variable(0,1,0,"v");
         coek::Expression e = v;
         coek::QuadraticExpr repn;
         repn.collect_terms(e);
@@ -376,7 +376,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     }
     WHEN( "fixed" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,3,"v");
+        coek::Variable v = m.add_variable(0,1,3,"v");
         v.set_fixed(true);
         coek::Expression e = v;
         coek::QuadraticExpr repn;
@@ -391,7 +391,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
   SECTION( "monomial" ) {
     WHEN( "unfixed" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,0,"v");
+        coek::Variable v = m.add_variable(0,1,0,"v");
         coek::Expression e = 2*v;
         coek::QuadraticExpr repn;
         repn.collect_terms(e);
@@ -405,7 +405,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     }
     WHEN( "fixed" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,3,"v");
+        coek::Variable v = m.add_variable(0,1,3,"v");
         v.set_fixed(true);
         coek::Expression e = 2*v;
         coek::QuadraticExpr repn;
@@ -432,7 +432,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     WHEN( "lhs constant" ) {
         coek::Model m;
         coek::Parameter p(2);
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = p*w;
         coek::QuadraticExpr repn;
         repn.collect_terms(e);
@@ -446,7 +446,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     WHEN( "rhs zero" ) {
         coek::Model m;
         coek::Parameter p(0);
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = w*p;
         coek::QuadraticExpr repn;
         repn.collect_terms(e);
@@ -458,7 +458,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     WHEN( "rhs constant" ) {
         coek::Model m;
         coek::Parameter p(2);
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = (w + w*w)*p;
         coek::QuadraticExpr repn;
         repn.collect_terms(e);
@@ -474,7 +474,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     }
     WHEN( "simple quadratic" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = w*w;
         coek::QuadraticExpr repn;
         repn.collect_terms(e);
@@ -488,8 +488,8 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     }
     WHEN( "complex quadratic 1" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = (2 + 3*w + v)*(4 + 5*v + w);
         coek::QuadraticExpr repn;
         repn.collect_terms(e);
@@ -508,8 +508,8 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     }
     WHEN( "error 1" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = (w + v*v)*v;
         coek::QuadraticExpr repn;
         REQUIRE_THROWS_WITH(repn.collect_terms(e),
@@ -517,8 +517,8 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     }
     WHEN( "error 2" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = v*(w + v*v);
         coek::QuadraticExpr repn;
         REQUIRE_THROWS_WITH(repn.collect_terms(e),
@@ -530,7 +530,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     WHEN( "lhs zero" ) {
         coek::Model m;
         coek::Parameter p(0);
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = p/w;
         coek::QuadraticExpr repn;
         repn.collect_terms(e);
@@ -542,7 +542,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     WHEN( "rhs zero" ) {
         coek::Model m;
         coek::Parameter p(0);
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = w/p;
         coek::QuadraticExpr repn;
         REQUIRE_THROWS_WITH(repn.collect_terms(e),
@@ -551,7 +551,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     WHEN( "rhs polynomial" ) {
         coek::Model m;
         coek::Parameter p(0);
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = w/(1+w);
         coek::QuadraticExpr repn;
         REQUIRE_THROWS_WITH(repn.collect_terms(e),
@@ -560,7 +560,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     WHEN( "rhs nonzero" ) {
         coek::Model m;
         coek::Parameter p(2.0);
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = (w*w+w+1)/p;
         coek::QuadraticExpr repn;
         repn.collect_terms(e);
@@ -652,8 +652,8 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
   SECTION( "monomial" ) {
     WHEN( "other" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,0,"v");
-        coek::Variable w = m.getVariable(0,1,0,"w");
+        coek::Variable v = m.add_variable(0,1,0,"v");
+        coek::Variable w = m.add_variable(0,1,0,"w");
         coek::Expression f = 2*v;
         auto e = f.diff(w);
         static std::list<std::string> baseline = {"0.000"};
@@ -662,7 +662,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
 
     WHEN( "same" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,0,"v");
+        coek::Variable v = m.add_variable(0,1,0,"v");
         coek::Expression f = 2*v;
         auto e = f.diff(v);
         static std::list<std::string> baseline = {"2.000"};
@@ -671,7 +671,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
 
     WHEN( "fixed" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,0,"v");
+        coek::Variable v = m.add_variable(0,1,0,"v");
         v.set_fixed(true);
         coek::Expression f = 2*v;
         auto e = f.diff(v);
@@ -730,7 +730,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     WHEN( "lhs constant" ) {
         coek::Model m;
         coek::Parameter p(2,"p");
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
         coek::Expression f = p*v;
         auto e = f.diff(v);
         static std::list<std::string> baseline = {"p"};
@@ -739,7 +739,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     WHEN( "rhs zero" ) {
         coek::Model m;
         coek::Expression p;
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
         coek::Expression f = v*p;
         auto e = f.diff(v);
         static std::list<std::string> baseline = {"0.000"};
@@ -748,7 +748,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     WHEN( "rhs constant" ) {
         coek::Model m;
         coek::Parameter p(2, "p");
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
         coek::Expression f = v*p;
         auto e = f.diff(v);
         static std::list<std::string> baseline = {"p"};
@@ -756,8 +756,8 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "simple quadratic LHS" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = v*w;
         auto e = f.diff(v);
         static std::list<std::string> baseline = {"w"};
@@ -765,8 +765,8 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "simple quadratic RHS" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = v*w;
         auto e = f.diff(w);
         static std::list<std::string> baseline = {"v"};
@@ -778,7 +778,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     WHEN( "lhs zero" ) {
         coek::Model m;
         coek::Parameter p(0,"p");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = p/w;
         auto e = f.diff(w);
         static std::list<std::string> baseline = {"[", "/", "[", "*", "-1.000", "p", "]", "[", "*", "w", "w", "]", "]"};
@@ -787,7 +787,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     WHEN( "rhs nonzero" ) {
         coek::Model m;
         coek::Parameter p(2.0,"p");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = w/p;
         auto e = f.diff(w);
         static std::list<std::string> baseline = {"[", "/", "1.000", "p", "]"};
@@ -795,7 +795,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "rhs polynomial" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = w/(1+w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "+", "[", "/", "1.000", "[", "+", "1.000", "w", "]", "]", "[", "/", "[", "*", "-1.000", "w", "]", "[", "*", "[", "+", "1.000", "w", "]", "[", "+", "1.000", "w", "]", "]", "]", "]" };
@@ -806,8 +806,8 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
   SECTION( "coverage" ) {
     WHEN( "variable partial plus monomial - 1" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
         coek::Expression f = w*v + v*(2*w+1);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "+", "v", "[", "*", "2.000", "v", "]", "]"};
@@ -815,8 +815,8 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "variable partial plus monomial - 2" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
         coek::Expression f = v*(2*w+1);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "v", "]"};
@@ -824,7 +824,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "constant partial plus monomial" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = 3*w + 2*w;
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "5.000"};
@@ -832,7 +832,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "negative monomial" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = -(-w) + (-(-w));
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "2.000"};
@@ -846,7 +846,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     REPN_INTRINSIC_TEST1(floor)
     WHEN( "exp" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = exp(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline =  { "[", "*", "2.000", "[", "exp", "[", "*", "2", "w", "]", "]", "]" };
@@ -854,7 +854,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "log" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = log(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "*", "2", "w", "]", "]", "]" };
@@ -862,7 +862,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "log10" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = log10(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "*", "2.303", "[", "*", "2", "w", "]", "]", "]", "]" };
@@ -870,7 +870,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "sqrt" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = sqrt(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "pow", "[", "*", "2", "w", "]", "-0.500", "]", "]" };
@@ -878,7 +878,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "sin" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = sin(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "cos", "[", "*", "2", "w", "]", "]", "]" };
@@ -886,7 +886,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "cos" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = cos(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "-", "[", "sin", "[", "*", "2", "w", "]", "]", "]", "]" };
@@ -894,7 +894,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "tan" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = tan(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "pow", "[", "cos", "[", "*", "2", "w", "]", "]", "2.000", "]", "]", "]" };
@@ -902,7 +902,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "sinh" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = sinh(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "cosh", "[", "*", "2", "w", "]", "]", "]" };
@@ -910,7 +910,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "cosh" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = cosh(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "sinh", "[", "*", "2", "w", "]", "]", "]" };
@@ -918,7 +918,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "tanh" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = tanh(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "+", "1.000", "[", "*", "-1.000", "[", "pow", "[", "tan", "[", "*", "2", "w", "]", "]", "2.000", "]", "]", "]", "]" };
@@ -926,7 +926,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "asin" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = asin(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "sqrt", "[", "+", "1.000", "[", "-", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "]", "]", "]", "]", "]" };
@@ -934,7 +934,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "acos" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = acos(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "-", "[", "/", "1.000", "[", "sqrt", "[", "+", "1.000", "[", "-", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "]", "]", "]", "]", "]", "]" };
@@ -942,7 +942,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "atan" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = atan(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "+", "1.000", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "]", "]", "]" };
@@ -950,7 +950,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "asinh" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = asinh(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "sqrt", "[", "+", "1.000", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "]", "]", "]", "]" };
@@ -958,7 +958,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "acosh" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = acosh(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "sqrt", "[", "+", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "-1.000", "]", "]", "]", "]" };
@@ -966,7 +966,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "atanh" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = atanh(2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "+", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "-1.000", "]", "]", "]" };
@@ -974,7 +974,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "pow - 1" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = pow(2*w, 3);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "*", "3.000", "[", "pow", "[", "*", "2", "w", "]", "[", "+", "3.000", "-1.000", "]", "]", "]", "]" };
@@ -982,7 +982,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "pow - 2" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = pow(3, 2*w);
         auto e = f.diff(w);
         static std::list<std::string> baseline = { "[", "*", "2.000", "[", "*", "1.099", "[", "pow", "3.000", "[", "*", "2", "w", "]", "]", "]", "]" };
@@ -1056,7 +1056,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "unfixed" ) {
         {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,3,"v");
+        coek::Variable v = m.add_variable(0,1,3,"v");
         coek::Expression e = v;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1077,7 +1077,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "fixed" ) {
         {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,3,"v");
+        coek::Variable v = m.add_variable(0,1,3,"v");
         v.set_fixed(true);
         coek::Expression e = v;
         coek::MutableNLPExpr repn;
@@ -1096,7 +1096,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "fixed - nontrivial multiplier" ) {
         {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,3,"v");
+        coek::Variable v = m.add_variable(0,1,3,"v");
         v.set_fixed(true);
         coek::Expression f(2);
         coek::Expression e = v/f;
@@ -1119,7 +1119,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "unfixed" ) {
         {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,0,"v");
+        coek::Variable v = m.add_variable(0,1,0,"v");
         coek::Expression e = 2*v;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1141,7 +1141,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "fixed" ) {
         {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,3,"v");
+        coek::Variable v = m.add_variable(0,1,3,"v");
         v.set_fixed(true);
         coek::Expression e = 2*v;
         coek::MutableNLPExpr repn;
@@ -1162,7 +1162,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
   SECTION( "negate" ) {
         {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,3,"v");
+        coek::Variable v = m.add_variable(0,1,3,"v");
         coek::Expression e = -(v+1);
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1185,7 +1185,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN("2 terms") {
         {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,3,"v");
+        coek::Variable v = m.add_variable(0,1,3,"v");
         coek::Expression e = v+1;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1206,7 +1206,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN("combine sums") {
         {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,3,"v");
+        coek::Variable v = m.add_variable(0,1,3,"v");
         coek::Expression e = v+1+(-1-v);
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1234,7 +1234,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         {
         coek::Model m;
         coek::Parameter p(0, "p");
-        coek::Variable w = m.getVariable(0,1,3,"w");
+        coek::Variable w = m.add_variable(0,1,3,"w");
         coek::Expression e = p*w;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1255,7 +1255,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         {
         coek::Model m;
         coek::Parameter p(0, "p");
-        coek::Variable w = m.getVariable(0,1,3,"w");
+        coek::Variable w = m.add_variable(0,1,3,"w");
         coek::Expression e = w*p;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1275,7 +1275,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "simple quadratic" ) {
         {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = w*w;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1297,8 +1297,8 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         {
         // Products of linear expressions are not expanded
         coek::Model m;
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = (2 + 3*w + v)*(4 + 5*v + w);
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1315,8 +1315,8 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "complex quadratic 1b" ) {
         {
         coek::Model m;
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = 3*w*(4 + 5*v + w);
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1339,7 +1339,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "complex quadratic 2" ) {
         {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = 3*(w*w + 2);
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1360,7 +1360,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "complex quadratic 3" ) {
         {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = (w*w + 2)*3;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1385,7 +1385,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         {
         coek::Model m;
         coek::Parameter p(0, "p");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = p/w;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1405,7 +1405,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         {
         coek::Model m;
         coek::Parameter p(0, "p");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = w/p;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1426,7 +1426,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         {
         coek::Model m;
         coek::Expression p;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = p/w;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1464,7 +1464,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         {
         coek::Model m;
         coek::Expression p;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = w/p;
         coek::MutableNLPExpr repn;
         REQUIRE_THROWS_WITH(repn.collect_terms(e),
@@ -1477,7 +1477,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "rhs polynomial" ) {
         {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = w/(1+w);
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1497,7 +1497,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         {
         coek::Model m;
         coek::Parameter p(2.0, "p");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression e = (w*w+w+1)/p;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1520,7 +1520,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         {
         coek::Model m;
         coek::Parameter p(0, "p");
-        coek::Variable w = m.getVariable(0,1,3,"w");
+        coek::Variable w = m.add_variable(0,1,3,"w");
         coek::Constraint e = p*w + 1 <= 2;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1541,7 +1541,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         {
         coek::Model m;
         coek::Parameter p(0, "p");
-        coek::Variable w = m.getVariable(0,1,3,"w");
+        coek::Variable w = m.add_variable(0,1,3,"w");
         coek::Constraint e = p*w -1 == 2;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1640,7 +1640,7 @@ std::unordered_set<coek::ParameterTerm*> params;
   SECTION( "monomial" ) {
     WHEN( "other" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0,1,0,"w");
+        coek::Variable w = m.add_variable(0,1,0,"w");
         coek::Expression e = 2*w;
         mutable_values(e.repn, fixed_vars, params);
 
@@ -1652,7 +1652,7 @@ std::unordered_set<coek::ParameterTerm*> params;
 
     WHEN( "fixed" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0,1,0,"v");
+        coek::Variable v = m.add_variable(0,1,0,"v");
         v.set_fixed(true);
         coek::Expression e = 2*v;
         mutable_values(e.repn, fixed_vars, params);
@@ -1709,7 +1709,7 @@ std::unordered_set<coek::ParameterTerm*> params;
     WHEN( "lhs constant" ) {
         coek::Model m;
         coek::Parameter p(2,"p");
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
         v.set_fixed(true);
         coek::Expression e = p*v;
         mutable_values(e.repn, fixed_vars, params);
@@ -1721,8 +1721,8 @@ std::unordered_set<coek::ParameterTerm*> params;
     }
     WHEN( "simple quadratic LHS" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         v.set_fixed(true);
         coek::Expression e = v*w;
         mutable_values(e.repn, fixed_vars, params);
@@ -1738,7 +1738,7 @@ std::unordered_set<coek::ParameterTerm*> params;
     WHEN( "lhs zero" ) {
         coek::Model m;
         coek::Parameter p(0,"p");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         w.set_fixed(true);
         coek::Expression e = p/w;
         mutable_values(e.repn, fixed_vars, params);
@@ -1751,7 +1751,7 @@ std::unordered_set<coek::ParameterTerm*> params;
     WHEN( "rhs nonzero" ) {
         coek::Model m;
         coek::Parameter p(2.0,"p");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         w.set_fixed(true);
         coek::Expression e = w/p;
         mutable_values(e.repn, fixed_vars, params);
@@ -1763,7 +1763,7 @@ std::unordered_set<coek::ParameterTerm*> params;
     }
     WHEN( "rhs polynomial" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         w.set_fixed(true);
         coek::Expression e = w/(1+w);
         mutable_values(e.repn, fixed_vars, params);
@@ -1778,8 +1778,8 @@ std::unordered_set<coek::ParameterTerm*> params;
   SECTION( "coverage" ) {
     WHEN( "variable partial plus monomial - 1" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
         coek::Expression e = w*v + v*(2*w+1);
         v.set_fixed(true);
         w.set_fixed(true);
@@ -1792,8 +1792,8 @@ std::unordered_set<coek::ParameterTerm*> params;
     }
     WHEN( "variable partial plus monomial - 2" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
         v.set_fixed(true);
         w.set_fixed(true);
         coek::Expression e = v*(2*w+1);
@@ -1806,8 +1806,8 @@ std::unordered_set<coek::ParameterTerm*> params;
     }
     WHEN( "constant partial plus monomial" ) {
         coek::Model m;
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         coek::Expression f = 3*w + 2*w;
         w.set_fixed(true);
         coek::Expression e = v*(2*w+1);
@@ -1820,7 +1820,7 @@ std::unordered_set<coek::ParameterTerm*> params;
     }
     WHEN( "negative monomial" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
         w.set_fixed(true);
         coek::Expression e = -(-w) + (-(-w));
         mutable_values(e.repn, fixed_vars, params);
@@ -1858,8 +1858,8 @@ std::unordered_set<coek::ParameterTerm*> params;
   SECTION( "constraint" ) {
     WHEN( "inequality" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
         coek::Constraint e = w*v + v*(2*w+1) <= 0;
         v.set_fixed(true);
         w.set_fixed(true);
@@ -1872,8 +1872,8 @@ std::unordered_set<coek::ParameterTerm*> params;
     }
     WHEN( "equality" ) {
         coek::Model m;
-        coek::Variable w = m.getVariable(0, 1, 0, "w");
-        coek::Variable v = m.getVariable(0, 1, 0, "v");
+        coek::Variable w = m.add_variable(0, 1, 0, "w");
+        coek::Variable v = m.add_variable(0, 1, 0, "v");
         coek::Constraint e = w*v + v*(2*w+1) == 0;
         v.set_fixed(true);
         w.set_fixed(true);

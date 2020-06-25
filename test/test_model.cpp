@@ -186,8 +186,8 @@ TEST_CASE( "model_variables", "[smoke]" ) {
   SECTION( "index" ) {
     coek::Model model;
     coek::Variable a(0.0, 1.0, 0.0, false, false, "a");
-    model.addVariable(a);
-    coek::Variable b = model.getVariable(0,1,0,false,false,"b"); 
+    model.add_variable(a);
+    coek::Variable b = model.add_variable(0,1,0,false,false,"b"); 
     REQUIRE( a.id() == (b.id() - 1) );
   }
 
@@ -393,7 +393,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
   SECTION( "collect_terms" ) {
     coek::QuadraticExpr repn;
     coek::Model m;
-    coek::Variable v = m.getVariable(0,0,0,false,false,"v");
+    coek::Variable v = m.add_variable(0,0,0,false,false,"v");
     coek::Expression a = 1 + v + v*v;
 
     repn.collect_terms(a);
@@ -3927,7 +3927,7 @@ coek::Expression f;
   SECTION( "collect_terms" ) {
     coek::QuadraticExpr repn;
     coek::Model m;
-    coek::Variable v = m.getVariable(0,1,0,"v");
+    coek::Variable v = m.add_variable(0,1,0,"v");
     coek::Constraint a = 0 >= 1 + v;
 
     repn.collect_terms(a);
@@ -3989,9 +3989,9 @@ TEST_CASE( "model_setup", "[smoke]" ) {
 
 {
 coek::Model model;
-coek::Variable a = model.getVariable(0.0, 1.0, 0.0, false, true, "a");
+coek::Variable a = model.add_variable(0.0, 1.0, 0.0, false, true, "a");
 coek::Variable b(0.0, 1.0, 0.0, true, false, "b");
-model.addVariable(b);
+model.add_variable(b);
 coek::Parameter q(2, "q");
 
   SECTION( "add" ) {
@@ -3999,32 +3999,32 @@ coek::Parameter q(2, "q");
     WHEN( "objective" ) {
         coek::Expression e =  3*b + q;
         REQUIRE( model.repn->objectives.size() == 0 );
-        model.add( e );
+        model.add_objective( e );
         REQUIRE( model.repn->objectives.size() == 1 );
     }
 
     WHEN( "inequality" ) {
         coek::Constraint c = 3*b + q <= 0;
         REQUIRE( model.repn->constraints.size() == 0 );
-        model.add(c);
+        model.add_constraint(c);
         REQUIRE( model.repn->constraints.size() == 1 );
     }
 
     WHEN( "equality" ) {
         coek::Constraint c = 3*b + q == 0;
         REQUIRE( model.repn->constraints.size() == 0 );
-        model.add(c);
+        model.add_constraint(c);
         REQUIRE( model.repn->constraints.size() == 1 );
     }
   }
 
   SECTION( "model setup" ) {
     coek::Expression e0 = 3*a + q;
-    model.add( e0 );
+    model.add_objective( e0 );
     coek::Constraint e2 = 3*b + q <= 0;
-    model.add( e2 );
+    model.add_constraint( e2 );
     coek::Constraint e3 = 3*b + q == 0;
-    model.add( e3 );
+    model.add_constraint( e3 );
 
     WHEN( "print (df == 0)" ) {
         std::stringstream os;
@@ -4055,18 +4055,18 @@ coek::Parameter q(2, "q");
 #if 0
   SECTION( "model writing" ) {
     coek::Expression e0 = 3*a + q;
-    model.add( e0 );
+    model.add_objective( e0 );
     coek::Constraint e2 = 3*b + q - a <= 0;
-    model.add( e2 );
+    model.add_constraint( e2 );
     coek::Constraint e3 = 3*b + b == 0;
-    model.add( e3 );
+    model.add_constraint( e3 );
     coek::Constraint e4 = 3*b*a + q + b*b + b*b == 0;
-    model.add( e4 );
+    model.add_constraint( e4 );
     coek::Constraint e5 = 3*b*b + q - a*b - a*a <= 0;
-    model.add( e5 );
-    coek::Variable c = model.getVariable();
+    model.add_constraint( e5 );
+    coek::Variable c = model.add_variable();
     c.set_lb(0.0);
-    coek::Variable d = model.getVariable();
+    coek::Variable d = model.add_variable();
     d.set_ub(0.0);
     model.add (c + d == 0);
 

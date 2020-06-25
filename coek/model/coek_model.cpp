@@ -669,66 +669,68 @@ repn = other.repn;
 return *this;
 }
 
-Objective& Model::add(const Expression& expr, bool _sense)
+Objective Model::add_objective(const Expression& expr, bool _sense)
 {
 Objective tmp(expr.repn, _sense);
 repn->objectives.push_back(tmp);
 return repn->objectives.back();
 }
 
-void Model::add(const Constraint& expr)
+Constraint Model::add_constraint(const Constraint& expr)
 {
 repn->constraints.push_back(expr);
+return expr;
 }
 
-Variable& Model::getVariable(double lb, double ub, const std::string& name)
+Variable& Model::add_variable(double lb, double ub, const std::string& name)
 {
 Variable tmp(lb,ub,COEK_NAN,name);
 repn->variables.push_back(tmp);
 return repn->variables.back();
 }
 
-Variable& Model::getVariable(double lb, double ub, double value)
+Variable& Model::add_variable(double lb, double ub, double value)
 {
 Variable tmp(lb,ub,value);
 repn->variables.push_back(tmp);
 return repn->variables.back();
 }
 
-Variable& Model::getVariable(double lb, double ub, double value, const std::string& name)
+Variable& Model::add_variable(double lb, double ub, double value, const std::string& name)
 {
 Variable tmp(lb,ub,value,name);
 repn->variables.push_back(tmp);
 return repn->variables.back();
 }
 
-Variable& Model::getVariable(double lb, double ub, double value, bool binary, bool integer)
+Variable& Model::add_variable(double lb, double ub, double value, bool binary, bool integer)
 {
 Variable tmp(lb,ub,value,binary,integer);
 repn->variables.push_back(tmp);
 return repn->variables.back();
 }
 
-Variable& Model::getVariable(double lb, double ub, double value, bool binary, bool integer, const std::string& name)
+Variable& Model::add_variable(double lb, double ub, double value, bool binary, bool integer, const std::string& name)
 {
 Variable tmp(lb,ub,value,binary,integer,name);
 repn->variables.push_back(tmp);
 return repn->variables.back();
 }
 
-void Model::addVariable(Variable& var)
+Variable& Model::add_variable(Variable& var)
 {
 repn->variables.push_back(var);
+return var;
 }
 
-void Model::addVariable(VariableArray& varray)
+void Model::add_variable(VariableArray& varray)
 {
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
     repn->variables.push_back(*it);
     }
 }
 
-void Model::addVariable(ConcreteIndexedVariable& vars)
+void Model::add_variable(ConcreteIndexedVariable& vars)
 {
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
@@ -817,76 +819,81 @@ throw std::runtime_error("Unknown problem type");
 // CompactModel
 //
 
-void CompactModel::add(const Expression& expr, bool _sense)
+Objective CompactModel::add_objective(const Expression& expr, bool _sense)
 {
-objectives.push_back( expr );
-sense.push_back( _sense );
+Objective obj(expr, _sense);
+objectives.push_back( obj );
+return obj;
 }
 
-void CompactModel::add(const ExpressionSequence& seq, bool _sense)
+void CompactModel::add_objective(const ExpressionSequence& seq, bool _sense)
 {
+/*
 objectives.push_back( seq );
 sense.push_back( _sense );
+*/
 }
 
-void CompactModel::add(const Constraint& expr)
+Constraint CompactModel::add_constraint(const Constraint& expr)
 {
 constraints.push_back(expr);
+return expr;
 }
 
-void CompactModel::add(const ConstraintSequence& seq)
+void CompactModel::add_constraint(const ConstraintSequence& seq)
 {
 constraints.push_back(seq);
 }
 
-Variable& CompactModel::getVariable(double lb, double ub, const std::string& name)
+Variable& CompactModel::add_variable(double lb, double ub, const std::string& name)
 {
 Variable tmp(lb,ub,COEK_NAN,name);
 variables.push_back(tmp);
 return variables.back();
 }
 
-Variable& CompactModel::getVariable(double lb, double ub, double value)
+Variable& CompactModel::add_variable(double lb, double ub, double value)
 {
 Variable tmp(lb,ub,value);
 variables.push_back(tmp);
 return variables.back();
 }
 
-Variable& CompactModel::getVariable(double lb, double ub, double value, const std::string& name)
+Variable& CompactModel::add_variable(double lb, double ub, double value, const std::string& name)
 {
 Variable tmp(lb,ub,value,name);
 variables.push_back(tmp);
 return variables.back();
 }
 
-Variable& CompactModel::getVariable(double lb, double ub, double value, bool binary, bool integer)
+Variable& CompactModel::add_variable(double lb, double ub, double value, bool binary, bool integer)
 {
 Variable tmp(lb,ub,value,binary,integer);
 variables.push_back(tmp);
 return variables.back();
 }
 
-Variable& CompactModel::getVariable(double lb, double ub, double value, bool binary, bool integer, const std::string& name)
+Variable& CompactModel::add_variable(double lb, double ub, double value, bool binary, bool integer, const std::string& name)
 {
 Variable tmp(lb,ub,value,binary,integer,name);
 variables.push_back(tmp);
 return variables.back();
 }
 
-void CompactModel::addVariable(Variable& var)
+Variable& CompactModel::add_variable(Variable& var)
 {
 variables.push_back(var);
+return var;
 }
 
-void CompactModel::addVariable(VariableArray& varray)
+void CompactModel::add_variable(VariableArray& varray)
 {
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
     variables.push_back(*it);
     }
 }
 
-void CompactModel::addVariable(ConcreteIndexedVariable& vars)
+void CompactModel::add_variable(ConcreteIndexedVariable& vars)
 {
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
@@ -901,6 +908,9 @@ model.repn->variables = variables;
 
 int i=0;
 for (auto it=objectives.begin(); it != objectives.end(); ++it) {
+    /*
+    * WEH - TODO rework this to use Objective objects
+
     auto& val = *it;
     bool osense = sense[i++];
     if (auto eval = std::get_if<Expression>(&val)) {
@@ -918,6 +928,7 @@ for (auto it=objectives.begin(); it != objectives.end(); ++it) {
             }
 #endif
         }
+    */
     }
 
 i=0;

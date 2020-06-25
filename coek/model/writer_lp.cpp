@@ -260,11 +260,13 @@ try {
 
     for (auto it=model.objectives.begin(); it != model.objectives.end(); ++it) {
         auto& val = *it;
-        if (auto eval = std::get_if<Expression>(&val)) {
-            Expression e = eval->expand();
-            Objective obj(e, model.sense[nobj]);
+        if (auto eval = std::get_if<Objective>(&val)) {
+            /* WEH - TODO rework to work with objectives
+            Objective obj = eval->expand();
+            //Objective obj(e, model.sense[nobj]);
             print_objective(ostr, obj, one_var_constant, vid);
             ++nobj;
+            */
             }
         else {
 #if 0

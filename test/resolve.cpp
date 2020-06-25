@@ -73,20 +73,20 @@ for (int n=0; n<N; n++)
 
 std::vector<coek::Variable> x(N);
 for (int n=0; n<N; n++)
-    x[n] = model.getVariable(0, COEK_INFINITY, 1);
+    x[n] = model.add_variable(0, COEK_INFINITY, 1);
 
 // obj
 coek::Expression obj;
 for (int n=0; n<N; n++)
     obj += c[n] * x[n];
-model.add( obj, coek::Model::maximize );
+model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
 for (int n=0; n<N; n++) {
     coek::Expression expr;
     for (int m=0; m<N; m++)
         expr += A[n][m] * x[m];
-    model.add( expr <= b[n] );
+    model.add_constraint( expr <= b[n] );
     break;
     }
 
@@ -132,20 +132,20 @@ for (int n=0; n<N; n++)
 
 std::vector<coek::Variable> x(N);
 for (int n=0; n<N; n++)
-    x[n] = model.getVariable(0, COEK_INFINITY, 0);
+    x[n] = model.add_variable(0, COEK_INFINITY, 0);
 
 // obj
 coek::Expression obj;
 for (int n=0; n<N; n++)
     obj += c[n] * x[n];
-model.add( obj, coek::Model::maximize );
+model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
 for (int n=0; n<N; n++) {
     coek::Expression expr;
     for (int m=0; m<N; m++)
         expr += A[n][m] * x[m];
-    model.add( expr <= b[n] );
+    model.add_constraint( expr <= b[n] );
     }
 
 if (solver == "gurobi") {
@@ -219,13 +219,13 @@ for (int n=0; n<N; n++)
 
 std::vector<coek::Variable> x(N);
 for (int n=0; n<N; n++)
-    x[n] = model.getVariable(0, COEK_INFINITY, 0);
+    x[n] = model.add_variable(0, COEK_INFINITY, 0);
 
 // obj
 coek::Expression obj;
 for (int n=0; n<N; n++)
     obj += c[n] * x[n];
-model.add( obj, coek::Model::maximize );
+model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
 for (int n=0; n<N; n++) {
@@ -238,7 +238,7 @@ for (int n=0; n<N; n++) {
         for (int m=0; m<N; m++)
             expr += A_[m] * x[m];
         }
-    model.add( expr <= b[n] );
+    model.add_constraint( expr <= b[n] );
     }
 
 
@@ -301,13 +301,13 @@ for (int n=0; n<N; n++)
 
 std::vector<coek::Variable> x(N);
 for (int n=0; n<N; n++)
-    x[n] = model.getVariable(0, COEK_INFINITY, 0);
+    x[n] = model.add_variable(0, COEK_INFINITY, 0);
 
 // obj
 coek::Expression obj;
 for (int n=0; n<N; n++)
     obj += c[n] * x[n];
-model.add( obj, coek::Model::maximize );
+model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
 for (int n=0; n<N; n++) {
@@ -319,7 +319,7 @@ for (int n=0; n<N; n++) {
         else {
             expr += A_[n] * x[m];
         }
-    model.add( expr <= b[n] );
+    model.add_constraint( expr <= b[n] );
     }
 
 
@@ -375,20 +375,20 @@ for (int n=0; n<N; n++)
 
 std::vector<coek::Variable> x(N);
 for (int n=0; n<N; n++)
-    x[n] = model.getVariable(0, COEK_INFINITY, 0);
+    x[n] = model.add_variable(0, COEK_INFINITY, 0);
 
 // obj
 coek::Expression obj;
 for (int n=0; n<N; n++)
     obj += c[n] * x[n];
-model.add( obj, coek::Model::maximize );
+model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
 for (int n=0; n<N; n++) {
     coek::Expression expr;
     for (int m=0; m<N; m++)
         expr += A[n][m] * x[m];
-    model.add( expr <= b[n] );
+    model.add_constraint( expr <= b[n] );
     }
 
 
