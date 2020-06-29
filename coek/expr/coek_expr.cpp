@@ -210,20 +210,7 @@ repn = expr.repn;
 OWN_POINTER(repn);
 }
 
-Variable::Variable(double lb, double ub, double value)
-{
-repn = CREATE_POINTER(VariableTerm, lb, ub, value, false, false);
-OWN_POINTER(repn);
-}
-
-Variable::Variable(double lb, double ub, double value, const std::string& name)
-{
-repn = CREATE_POINTER(VariableTerm, lb, ub, value, false, false);
-OWN_POINTER(repn);
-repn->name = name;
-}
-
-Variable::Variable(double lb, double ub, double value, bool binary, bool integer, const std::string& name)
+Variable::Variable(const std::string& name, double lb, double ub, double value, bool binary, bool integer)
 {
 repn = CREATE_POINTER(VariableTerm, lb, ub, value, binary, integer);
 OWN_POINTER(repn);

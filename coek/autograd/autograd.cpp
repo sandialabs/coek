@@ -81,7 +81,7 @@ Constraint NLPModelRepn::get_constraint(int i)
 return model.repn->constraints[i];
 }
 
-void NLPModelRepn::print_summary(std::ostream& ostr) const
+void NLPModelRepn::print_equations(std::ostream& ostr) const
 {
 ostr << "NLPModel:" << std::endl;
 ostr << "  variables:         " << num_variables() << std::endl;
@@ -96,5 +96,8 @@ ostr << std::endl;
 ostr << model;
 ostr << std::endl;
 }
+
+void NLPModelRepn::print_values(std::ostream& ostr) const
+{}
 
 }

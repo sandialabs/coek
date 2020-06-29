@@ -202,19 +202,14 @@ public:
     Objective add_objective(const Expression& expr, bool _sense=Model::minimize);
     Constraint add_constraint(const Constraint& expr);
 
-    Variable& add_variable(double lb, double ub, const std::string& name);
-    Variable& add_variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN);
-    Variable& add_variable(double lb, double ub, double value, const std::string& name);
-    Variable& add_variable(double lb, double ub, double value, bool binary, bool integer);
-    Variable& add_variable(double lb, double ub, double value, bool binary, bool integer, const std::string& name);
-    Variable& add_variable(Variable& var);
+    Variable add_variable(const std::string& name, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
+    Variable add_variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
+    Variable add_variable(Variable& var);
     void add_variable(VariableArray& var);
     void add_variable(ConcreteIndexedVariable& var);
 
-#if 0
-    Expression get_objective(unsigned int i=0);
+    Objective get_objective(unsigned int i=0);
     Constraint get_constraint(unsigned int i);
-#endif
 
     void set_suffix(const std::string& name, Variable& var, double value);
     void set_suffix(const std::string& name, Constraint& con, double value);
@@ -228,7 +223,10 @@ public:
 
     void write(std::string filename);
     void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
-    void print_summary(std::ostream& ostr) const;
+    void print_equations() const;
+    void print_values() const;
+    void print_equations(std::ostream& ostr) const;
+    void print_values(std::ostream& ostr) const;
 
     friend std::ostream& operator<<(std::ostream& ostr, const Model& arg);
 };
@@ -251,13 +249,9 @@ public:
     Constraint add_constraint(const Constraint& expr);
     void add_constraint(const ConstraintSequence& seq);
 
-    Variable& add_variable(double lb, double ub, const std::string& name);
-    Variable& add_variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN);
-    Variable& add_variable(double lb, double ub, double value, const std::string& name);
-    Variable& add_variable(double lb, double ub, double value, bool binary, bool integer);
-    Variable& add_variable(double lb, double ub, double value, bool binary, bool integer, const std::string& name);
-
-    Variable& add_variable(Variable& var);
+    Variable add_variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
+    Variable add_variable(const std::string& name, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
+    Variable add_variable(Variable& var);
     void add_variable(VariableArray& var);
     void add_variable(ConcreteIndexedVariable& var);
 
@@ -344,7 +338,10 @@ public:
 
     void write(std::string filename);
     void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
-    void print_summary(std::ostream& ostr) const;
+    void print_equations() const;
+    void print_values() const;
+    void print_equations(std::ostream& ostr) const;
+    void print_values(std::ostream& ostr) const;
 
     friend std::ostream& operator<<(std::ostream& ostr, const NLPModel& arg);
 

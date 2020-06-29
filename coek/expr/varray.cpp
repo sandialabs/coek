@@ -67,8 +67,8 @@ else {
 }
 
 
-VariableArray::VariableArray(std::vector<int>& _dimen, double init, double lb, double ub, 
-                bool binary, bool integer, bool fixed, std::string _name)
+VariableArray::VariableArray(std::vector<int>& _dimen, std::string _name, double init, double lb, double ub, 
+                bool binary, bool integer, bool fixed)
 {
 dimen = _dimen;
 //
@@ -97,8 +97,8 @@ while (i >= 0) {
     }
 }
 
-VariableArray::VariableArray(int n, double lb, double ub, double init,
-                bool binary, bool integer, bool fixed, std::string _name)
+VariableArray::VariableArray(int n, std::string _name, double lb, double ub, double init,
+                bool binary, bool integer, bool fixed)
 {
 initialize(n, lb, ub, init, binary, integer, fixed);
 name = _name;

@@ -637,11 +637,14 @@ double Model::inf = COEK_INFINITY;
 
 std::ostream& operator<<(std::ostream& ostr, const Model& arg)
 {
-arg.print_summary(ostr);
+arg.print_equations(ostr);
 return ostr;
 }
 
-void Model::print_summary(std::ostream& ostr) const
+void Model::print_equations() const
+{ print_equations(std::cout); }
+
+void Model::print_equations(std::ostream& ostr) const
 {
 ostr << "MODEL" << std::endl;
 ostr << "  Objectives" << std::endl;
@@ -652,6 +655,14 @@ ostr << "  Constraints" << std::endl;
 for (auto it=repn->constraints.begin(); it != repn->constraints.end(); ++it) {
     ostr << "    " << *it << std::endl;
     }
+}
+
+void Model::print_values() const
+{ print_values(std::cout); }
+
+void Model::print_values(std::ostream& ostr) const
+{
+ostr << "ERROR - Model::print_values is not implemented yet." << std::endl;
 }
 
 Model::Model()
@@ -682,42 +693,21 @@ repn->constraints.push_back(expr);
 return expr;
 }
 
-Variable& Model::add_variable(double lb, double ub, const std::string& name)
-{
-Variable tmp(lb,ub,COEK_NAN,name);
-repn->variables.push_back(tmp);
-return repn->variables.back();
-}
-
-Variable& Model::add_variable(double lb, double ub, double value)
-{
-Variable tmp(lb,ub,value);
-repn->variables.push_back(tmp);
-return repn->variables.back();
-}
-
-Variable& Model::add_variable(double lb, double ub, double value, const std::string& name)
-{
-Variable tmp(lb,ub,value,name);
-repn->variables.push_back(tmp);
-return repn->variables.back();
-}
-
-Variable& Model::add_variable(double lb, double ub, double value, bool binary, bool integer)
+Variable Model::add_variable(double lb, double ub, double value, bool binary, bool integer)
 {
 Variable tmp(lb,ub,value,binary,integer);
 repn->variables.push_back(tmp);
 return repn->variables.back();
 }
 
-Variable& Model::add_variable(double lb, double ub, double value, bool binary, bool integer, const std::string& name)
+Variable Model::add_variable(const std::string& name, double lb, double ub, double value, bool binary, bool integer)
 {
-Variable tmp(lb,ub,value,binary,integer,name);
+Variable tmp(name,lb,ub,value,binary,integer);
 repn->variables.push_back(tmp);
 return repn->variables.back();
 }
 
-Variable& Model::add_variable(Variable& var)
+Variable Model::add_variable(Variable& var)
 {
 repn->variables.push_back(var);
 return var;
@@ -738,8 +728,7 @@ for (auto it=vars.begin(); it != end; ++it) {
     }
 }
 
-#if 0
-Expression Model::get_objective(unsigned int i)
+Objective Model::get_objective(unsigned int i)
 {
 if (i > repn->objectives.size())
     throw std::out_of_range("Objective index " + std::to_string(i) + " is too large: " + std::to_string(repn->objectives.size()) + "       objectives available.");
@@ -752,7 +741,6 @@ if (i > repn->constraints.size())
     throw std::out_of_range("Constraint index " + std::to_string(i) + " is too large: " + std::to_string(repn->constraints.size()) + "      constraints available.");
 return repn->constraints[i];
 }
-#endif
 
 void Model::set_suffix(const std::string& name, Variable& var, double value)
 { repn->vsuffix[name][var.id()] = value; }
@@ -845,42 +833,21 @@ void CompactModel::add_constraint(const ConstraintSequence& seq)
 constraints.push_back(seq);
 }
 
-Variable& CompactModel::add_variable(double lb, double ub, const std::string& name)
-{
-Variable tmp(lb,ub,COEK_NAN,name);
-variables.push_back(tmp);
-return variables.back();
-}
-
-Variable& CompactModel::add_variable(double lb, double ub, double value)
-{
-Variable tmp(lb,ub,value);
-variables.push_back(tmp);
-return variables.back();
-}
-
-Variable& CompactModel::add_variable(double lb, double ub, double value, const std::string& name)
-{
-Variable tmp(lb,ub,value,name);
-variables.push_back(tmp);
-return variables.back();
-}
-
-Variable& CompactModel::add_variable(double lb, double ub, double value, bool binary, bool integer)
+Variable CompactModel::add_variable(double lb, double ub, double value, bool binary, bool integer)
 {
 Variable tmp(lb,ub,value,binary,integer);
 variables.push_back(tmp);
 return variables.back();
 }
 
-Variable& CompactModel::add_variable(double lb, double ub, double value, bool binary, bool integer, const std::string& name)
+Variable CompactModel::add_variable(const std::string& name, double lb, double ub, double value, bool binary, bool integer)
 {
-Variable tmp(lb,ub,value,binary,integer,name);
+Variable tmp(name,lb,ub,value,binary,integer);
 variables.push_back(tmp);
 return variables.back();
 }
 
-Variable& CompactModel::add_variable(Variable& var)
+Variable CompactModel::add_variable(Variable& var)
 {
 variables.push_back(var);
 return var;
@@ -1137,16 +1104,29 @@ if (repn == 0)
 repn->model.write(fname, varmap, conmap);
 }
 
-void NLPModel::print_summary(std::ostream& ostr) const
+void NLPModel::print_equations() const
+{ print_equations(std::cout); }
+
+void NLPModel::print_equations(std::ostream& ostr) const
 {
 if (repn == 0)
-    throw std::runtime_error("Calling print_summary() for uninitialized NLPModel.");
-repn->print_summary(ostr);
+    throw std::runtime_error("Calling print_equations() for uninitialized NLPModel.");
+repn->print_equations(ostr);
+}
+
+void NLPModel::print_values() const
+{ print_values(std::cout); }
+
+void NLPModel::print_values(std::ostream& ostr) const
+{
+if (repn == 0)
+    throw std::runtime_error("Calling print_values() for uninitialized NLPModel.");
+repn->print_values(ostr);
 }
 
 std::ostream& operator<<(std::ostream& ostr, const NLPModel& arg)
 {
-arg.print_summary(ostr);
+arg.print_equations(ostr);
 return ostr;
 }
 

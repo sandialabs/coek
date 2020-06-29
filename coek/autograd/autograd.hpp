@@ -41,7 +41,8 @@ public:
 
     virtual Constraint get_constraint(int i);
 
-    virtual void print_summary(std::ostream& ostr) const = 0;
+    virtual void print_equations(std::ostream& ostr) const = 0;
+    virtual void print_values(std::ostream& ostr) const = 0;
 
     virtual double compute_f(unsigned int i) = 0;
     virtual void compute_df(double& f, std::vector<double>& df, unsigned int i) = 0;

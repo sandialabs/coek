@@ -69,10 +69,13 @@ public:
 
 public:
 
-    VariableArray(std::vector<int>& _dimen, double lb, double ub, double init,
-                bool binary, bool integer, bool fixed, std::string _name);
-    VariableArray(int n, double lb, double ub, double init,
-                bool binary, bool integer, bool fixed, std::string _name);
+    VariableArray(std::vector<int>& _dimen, std::string _name, double lb, double ub, double init,
+                bool binary, bool integer, bool fixed);
+    VariableArray(int n, std::string _name, double lb, double ub, double init,
+                bool binary, bool integer, bool fixed);
+
+    Variable& operator[](int i)
+        { return variables[i]; }
 
     Variable& get(int i)
         { return variables[i]; }

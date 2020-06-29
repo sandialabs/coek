@@ -293,20 +293,15 @@ public:
 public:
 
     Variable(const VariableRepn& _repn);
-    Variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=0.0);
-    Variable(double lb, double ub, double value, const std::string& name);
-    Variable(double lb, double ub, double value, bool binary, bool integer, const std::string& name);
-    Variable(double lb, double ub, double value, bool binary, bool integer);
+    Variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=0.0, bool binary=false, bool integer=false);
+    Variable(const std::string& name, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=0.0, bool binary=false, bool integer=false);
     Variable(const Variable& arg);
     virtual ~Variable();
 
     Variable& operator=(const Variable& arg);
 
-    void initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed, const std::string& name);
     void initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed);
-
-    bool is_constant() const
-        {return false;}
+    void initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed, const std::string& name);
 
     double get_value() const;
     void set_value(double value);
@@ -317,15 +312,19 @@ public:
     double get_ub() const;
     void set_ub(double value);
 
-    unsigned int id() const;
-    std::string get_name() const;
-
-    void set_fixed(bool flag);
     bool get_fixed() const;
+    void set_fixed(bool flag);
+
+    std::string get_name() const;
+    void set_name(const std::string& name);
 
     bool is_continuous() const;
     bool is_binary() const;
     bool is_integer() const;
+
+    unsigned int id() const;
+    bool is_constant() const
+        {return false;}
 
     COEK_API_OPERATORS
 
