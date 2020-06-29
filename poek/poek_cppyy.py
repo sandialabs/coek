@@ -1,11 +1,12 @@
 
 import itertools
-import pycoek
+import pycoek_cppyy
 
-model = pycoek.coek.Model
-solver = pycoek.coek.Solver
-nlp_model = pycoek.coek.NLPModel
-nlp_solver = pycoek.coek.NLPSolver
+constraint = pycoek_cppyy.coek.Constraint
+model = pycoek_cppyy.coek.Model
+solver = pycoek_cppyy.coek.Solver
+nlp_model = pycoek_cppyy.coek.NLPModel
+nlp_solver = pycoek_cppyy.coek.NLPSolver
 
 NAN = float('nan')
 inf = model.inf
@@ -14,16 +15,16 @@ class parameter(object):
     """Class used to define a POEK parameter."""
     def __new__(cls, *args, **kwds):
         if len(args) == 1:
-            return pycoek.coek.Parameter(args[0], "")
+            return pycoek_cppyy.coek.Parameter(args[0], "")
         else:
-            return pycoek.coek.Parameter(*args)
+            return pycoek_cppyy.coek.Parameter(*args)
 
 
 class variable(object):
     """Class used to define a POEK variable."""
 
     def __new__(cls, *args, **kwds):
-        name = kwds.get('name',"")
+        name = kwds.get('name',"x")
         lb = kwds.get('lb', -inf)
         ub = kwds.get('ub', inf)
         init = kwds.get('value', NAN)
@@ -31,24 +32,24 @@ class variable(object):
         integer = kwds.get('integer', 0)
         fixed = kwds.get('fixed', 0)
         if len(args) == 0 or args[0] == 1:
-            return pycoek.coek.Variable(lb, ub, init, binval, integer, name)
+            return pycoek_cppyy.coek.Variable(name, lb, ub, init, binval, integer)
         elif len(args) == 1:
             dimen = args[0]
             if type(dimen) is tuple or type(dimen) is list:
-                return _variable_array(dimen, lb, ub, init, binval, integer, fixed, name)
-            return pycoek.coek.VariableArray(dimen, lb, ub, init, binval, integer, fixed, name)
+                return _variable_array(dimen, name, lb, ub, init, binval, integer, fixed)
+            return pycoek_cppyy.coek.VariableArray(dimen, name, lb, ub, init, binval, integer, fixed)
         else:
             raise RuntimeError("variable() only accepts a single unnamed argument")
 
 
 class _variable_array(object):
-    """Wrapper for the pycoek.VariableArray class when using multi-dimensional variable indices."""
+    """Wrapper for the pycoek_cppyy.VariableArray class when using multi-dimensional variable indices."""
 
-    def __init__(self, dimen, lb, ub, init, binval, integer, fixed, name):
+    def __init__(self, dimen, name, lb, ub, init, binval, integer, fixed):
         nvars = 1
         for i in dimen:
             nvars *= i
-        self.varray = pycoek.coek.VariableArray(nvars, lb, ub, init, binval, integer, fixed, name)
+        self.varray = pycoek_cppyy.coek.VariableArray(nvars, name, lb, ub, init, binval, integer, fixed)
         iters = [range(n) for n in dimen]
         self.index = {key : i for i,key in enumerate(itertools.product(*iters))}
         self.varray.order.resize(len(dimen))
@@ -76,46 +77,46 @@ class _variable_array(object):
 
 
 def model_use(self, vobj):
-    if vobj.__class__ == pycoek.coek.Variable or vobj.__class__ == pycoek.coek.VariableArray:
-        self.addVariable(vobj)
+    if vobj.__class__ == pycoek_cppyy.coek.Variable or vobj.__class__ == pycoek_cppyy.coek.VariableArray:
+        self.add_variable(vobj)
     elif vobj.__class__ == _variable_array:
-        self.addVariable(vobj.varray)
+        self.add_variable(vobj.varray)
     else:
         raise TypeError("Unrecognized variable object: "+str(type(vobj)))
 
-model.use = model_use
+#model.use = model_use
 
 
 #
 # Intrinsic functions
 #
-abs = pycoek.coek.abs
-ceil = pycoek.coek.ceil
-floor = pycoek.coek.floor
-exp = pycoek.coek.exp
-log = pycoek.coek.log
-log10 = pycoek.coek.log10
-sqrt = pycoek.coek.sqrt
+abs = pycoek_cppyy.coek.abs
+ceil = pycoek_cppyy.coek.ceil
+floor = pycoek_cppyy.coek.floor
+exp = pycoek_cppyy.coek.exp
+log = pycoek_cppyy.coek.log
+log10 = pycoek_cppyy.coek.log10
+sqrt = pycoek_cppyy.coek.sqrt
 
-sin = pycoek.coek.sin
-cos = pycoek.coek.cos
-tan = pycoek.coek.tan
-asin = pycoek.coek.asin
-acos = pycoek.coek.acos
-atan = pycoek.coek.atan
-sinh = pycoek.coek.sinh
-cosh = pycoek.coek.cosh
-tanh = pycoek.coek.tanh
-asinh = pycoek.coek.asinh
-acosh = pycoek.coek.acosh
-atanh = pycoek.coek.atanh
+sin = pycoek_cppyy.coek.sin
+cos = pycoek_cppyy.coek.cos
+tan = pycoek_cppyy.coek.tan
+asin = pycoek_cppyy.coek.asin
+acos = pycoek_cppyy.coek.acos
+atan = pycoek_cppyy.coek.atan
+sinh = pycoek_cppyy.coek.sinh
+cosh = pycoek_cppyy.coek.cosh
+tanh = pycoek_cppyy.coek.tanh
+asinh = pycoek_cppyy.coek.asinh
+acosh = pycoek_cppyy.coek.acosh
+atanh = pycoek_cppyy.coek.atanh
 
 def affine_expression(arg1, arg2=None, arg3=None):
     if arg2 is None:
-        return pycoek.coek.affine_expression(arg1,0)
+        return pycoek_cppyy.coek.affine_expression(arg1,0)
     elif arg3 is None:
-        return pycoek.coek.affine_expression(arg1,arg2)
+        return pycoek_cppyy.coek.affine_expression(arg1,arg2)
     else:
-        return pycoek.coek.affine_expression(arg1,arg2,arg3)
+        return pycoek_cppyy.coek.affine_expression(arg1,arg2,arg3)
 
-from .util import quicksum
+from .func import quicksum, prod

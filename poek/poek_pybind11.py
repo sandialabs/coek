@@ -3,7 +3,7 @@
 #
 from pycoek import _variable
 from pycoek import *
-from .util import quicksum
+from .func import quicksum, prod
 
 class variable(object):
 

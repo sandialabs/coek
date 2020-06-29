@@ -1,9 +1,19 @@
 
-def prod(v):
+def prod(args):
+    """
+    A utility function to compute the product of Poek expressions.
+
+    Args:
+        args: A generator for terms in the product.
+
+    Returns:
+        The value of the product, which may be a Poek expression object.
+    """
     expr = 1
-    for v_ in v.values():
+    for v_ in args.values():
         expr *= v_
     return expr
+
 
 def quicksum(args, start=0):
     """

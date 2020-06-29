@@ -1,41 +1,48 @@
-# Main __init__.py file
+# poek.__init__.py
 
 #
-# Need to create the following API
+# This defines the order of resolution of poek interfaces
+# to pycoek.
 #
-# create_model()
-# create_variable()
-# add_variable()
-# add_constraint()
-# add_objective()
-# print_model()
-# display_model()
-# SolverFactory()
-#
-# Plus logic for creating simple expressions
-#
+imports = ['pycoek_cppyy', 'pycoek_pybind11']
 
-__using_cppyy__ = False
-__using_pybind11__ = False
-__using_cffi__ = False
-import pycoek
+__using_cppyy__     = False
+__using_pybind11__  = False
+__using_cffi__      = False
 
-if hasattr(pycoek, 'coek'):
-    #
-    # Using cppyy package
-    #
-    __using_cppyy__ = True
+for import_ in imports:
+    if import_ == 'pycoek_cppyy':
+        try:
+            import pycoek_cppyy
+            __using_cppyy__ = True
+        except ImportError:
+            pass
+        if __using_cppyy__:
+            break
+
+    elif import_ == 'pycoek_pybind11':
+        try:
+            import pycoek_pybind11
+            __using_pybind11__ = True
+        except ImportError:
+            pass
+        if __using_pybind11__:
+            break
+
+from . import __about__
+
+#
+# Import pycoek symbols
+#
+if __using_cppyy__:
+    __doc__ = 'cppyy'
+    print("<Poek %s using pycoek built with cppyy>" % __about__.__version__)
     from poek.poek_cppyy import *
-elif hasattr(pycoek, 'cffi'):
-    #
-    # Using cppyy package
-    #
-    __using_cffi__ = True
-    from poek.poek_cffi import *
-else:
-    #
-    # Using pybind11 package
-    #
-    __using_pybind11__ = True
+
+elif __using_pybind11__:
+    __doc__ = 'pybind11'
+    print("<Poek %s using pycoek built with pybind11>" % __about__.__version__)
     from poek.poek_pybind11 import *
 
+else:
+    print("<Error: no Poek interface installed>")

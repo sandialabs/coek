@@ -1054,7 +1054,7 @@ class Test_DivExpression(unittest.TestCase):
         else:
             self.assertRaises(TypeError, a.__truediv__, 0)
             self.assertRaises(TypeError, a.__truediv__, 0.0)
-        ans = r / q
+        #ans = r / q
 
         #
         # Check that dividing zero by anything non-zero gives zero

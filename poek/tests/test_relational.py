@@ -5,11 +5,10 @@ import pyutilib.th as unittest
 from poek import *
 import poek
 
-try:
-    import pycoek
+if poek.__using_cppyy__:
     def is_constraint(val):
         return type(val) == poek.constraint
-except:
+else:
     def is_constraint(val):
         return val.is_constraint()
 
@@ -283,17 +282,21 @@ class Test_Expr(unittest.TestCase):
                 e + a
             with self.assertRaisesRegex(TypeError,"__add__\(\): incompatible function arguments.*"):
                 E += e
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
+                2 + e
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
+                e += 2
         else:
             with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
                 a + e
-            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+            with self.assertRaises(NotImplementedError):
                 e + a
             with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
                 E += e
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
-            2 + e
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
-            e += 2
+            with self.assertRaises(NotImplementedError):
+                2 + e
+            with self.assertRaises(NotImplementedError):
+                e += 2
 
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(TypeError,"__sub__\(\): incompatible function arguments.*"):
@@ -302,17 +305,21 @@ class Test_Expr(unittest.TestCase):
                 e - a
             with self.assertRaisesRegex(TypeError,"__sub__\(\): incompatible function arguments.*"):
                 E -= e
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
+                2 - e
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
+                e -= 2
         else:
             with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
                 a - e
-            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+            with self.assertRaises(NotImplementedError):
                 e - a
             with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
                 E -= e
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
-            2 - e
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
-            e -= 2
+            with self.assertRaises(NotImplementedError):
+                2 - e
+            with self.assertRaises(NotImplementedError):
+                e -= 2
 
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(TypeError,"__mul__\(\): incompatible function arguments.*"):
@@ -321,17 +328,21 @@ class Test_Expr(unittest.TestCase):
                 e * a
             with self.assertRaisesRegex(TypeError,"__mul__\(\): incompatible function arguments.*"):
                 E *= e
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
+                2 * e
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
+                e *= 2
         else:
             with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
                 a * e
-            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+            with self.assertRaises(NotImplementedError):
                 e * a
             with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
                 E *= e
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
-            2 * e
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
-            e *= 2
+            with self.assertRaises(NotImplementedError):
+                2 * e
+            with self.assertRaises(NotImplementedError):
+                e *= 2
 
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(TypeError,"__truediv__\(\): incompatible function arguments.*"):
@@ -340,17 +351,21 @@ class Test_Expr(unittest.TestCase):
                 e / a
             with self.assertRaisesRegex(TypeError,"__truediv__\(\): incompatible function arguments.*"):
                 E /= e
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
+                2 / e
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
+                e /= 2
         else:
             with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
                 a / e
-            with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
+            with self.assertRaises(NotImplementedError):
                 e / a
             with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):
                 E /= e
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
-            2 / e
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
-            e /= 2
+            with self.assertRaises(NotImplementedError):
+                2 / e
+            with self.assertRaises(NotImplementedError):
+                e /= 2
 
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(TypeError,"__pow__\(\): incompatible function arguments.*"):
