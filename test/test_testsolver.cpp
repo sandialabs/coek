@@ -14,8 +14,8 @@ TEST_CASE( "solver_test", "[smoke]" ) {
 
   SECTION( "params" ) {
     coek::Model model;
-    coek::Variable v = model.add_variable(0.0, 1.0, 0.0, false, true, "v");
-    coek::Variable w = model.add_variable(0.0, 1.0, 0.0, false, true, "w");
+    coek::Variable v = model.add_variable("v", 0.0, 1.0, 0.0, false, true);
+    coek::Variable w = model.add_variable("w", 0.0, 1.0, 0.0, false, true);
     coek::Parameter p(2, "p");
     coek::Parameter q(2, "q");
 
@@ -66,8 +66,8 @@ TEST_CASE( "solver_test", "[smoke]" ) {
 
   SECTION( "vars" ) {
     coek::Model model;
-    coek::Variable v = model.add_variable(0.0, 1.0, 0.0, false, true, "v");
-    coek::Variable w = model.add_variable(0.0, 1.0, 0.0, false, true, "w");
+    coek::Variable v = model.add_variable("v", 0.0, 1.0, 0.0, false, true);
+    coek::Variable w = model.add_variable("w", 0.0, 1.0, 0.0, false, true);
     w.set_fixed(true);
     coek::Parameter p(2, "p");
     coek::Parameter q(2, "q");
@@ -121,8 +121,8 @@ TEST_CASE( "solver_test", "[smoke]" ) {
 
   SECTION( "solve" ) {
     coek::Model model;
-    coek::Variable v = model.add_variable(0.0, 1.0, 0.0, false, true, "v");
-    coek::Variable w = model.add_variable(0.0, 1.0, 0.0, false, true, "w");
+    coek::Variable v = model.add_variable("v", 0.0, 1.0, 0.0, false, true);
+    coek::Variable w = model.add_variable("w", 0.0, 1.0, 0.0, false, true);
     coek::Parameter p(2, "p");
     coek::Parameter q(2, "q");
 

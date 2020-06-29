@@ -226,8 +226,8 @@ model.add_constraint( abs(ONE) == 1 );
 
 void testing1(coek::Model& model)
 {
-coek::Variable a = model.add_variable(0.0, 1.0, 0.0, false, true, "a");
-coek::Variable b(0.0, 1.0, 0.0, true, false, "b");
+coek::Variable a = model.add_variable("a", 0.0, 1.0, 0.0, false, true);
+coek::Variable b("b", 0.0, 1.0, 0.0, true, false);
 model.add_variable(b);
 coek::Parameter q(2, "q");
     

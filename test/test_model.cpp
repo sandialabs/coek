@@ -154,7 +154,7 @@ TEST_CASE( "model_variables", "[smoke]" ) {
     }
 
     WHEN( "named" ) {
-        coek::Variable a(0,1,2, "test");
+        coek::Variable a("test",0,1,2);
         REQUIRE( a.get_value() == 2 );
         REQUIRE( a.get_lb() == 0 );
         REQUIRE( a.get_ub() == 1 );
@@ -162,7 +162,7 @@ TEST_CASE( "model_variables", "[smoke]" ) {
     }
 
     WHEN( "copy" ) {
-        coek::Variable a(0,1,2, "test");
+        coek::Variable a("test",0,1,2);
         coek::Variable b(a);
         REQUIRE( b.get_value() == 2 );
         REQUIRE( b.get_lb() == 0 );
@@ -172,7 +172,7 @@ TEST_CASE( "model_variables", "[smoke]" ) {
     }
 
     WHEN( "equal" ) {
-        coek::Variable a(0,1,2, "test");
+        coek::Variable a("test",0,1,2);
         coek::Variable b;
         b = a;
         REQUIRE( b.get_value() == 2 );
@@ -185,15 +185,15 @@ TEST_CASE( "model_variables", "[smoke]" ) {
 
   SECTION( "index" ) {
     coek::Model model;
-    coek::Variable a(0.0, 1.0, 0.0, false, false, "a");
+    coek::Variable a("a", 0.0, 1.0, 0.0, false, false);
     model.add_variable(a);
-    coek::Variable b = model.add_variable(0,1,0,false,false,"b"); 
+    coek::Variable b = model.add_variable("b",0,1,0,false,false); 
     REQUIRE( a.id() == (b.id() - 1) );
   }
 
   SECTION( "values" ) {
       WHEN( "variable - 3" ) {
-        coek::Variable a(0.0, 1.0, 0.0, false, false, "a");
+        coek::Variable a("a", 0.0, 1.0, 0.0, false, false);
         REQUIRE( a.get_value() == 0 );
         a.set_value(3);
         REQUIRE( a.get_value() == 3 );
@@ -224,14 +224,14 @@ TEST_CASE( "model_variables", "[smoke]" ) {
 
   SECTION( "bounds" ) {
       WHEN( "lb" ) {
-        coek::Variable a(0.0, 1.0, 0.0, false, false, "a");
+        coek::Variable a("a", 0.0, 1.0, 0.0, false, false);
         REQUIRE( a.get_lb() == 0.0 );
         a.set_lb(3.0);
         REQUIRE( a.get_lb() == 3.0 );
       }
 
       WHEN( "ub" ) {
-        coek::Variable a(0.0, 1.0, 0.0, false, false, "a");
+        coek::Variable a("a", 0.0, 1.0, 0.0, false, false);
         REQUIRE( a.get_ub() == 1.0 );
         a.set_ub(3.0);
         REQUIRE( a.get_ub() == 3.0 );
@@ -247,14 +247,14 @@ TEST_CASE( "model_variables", "[smoke]" ) {
     }
 
     WHEN( "binary" ) {
-        coek::Variable a(0,1,0,true,false,"a");
+        coek::Variable a("a", 0,1,0,true,false);
         REQUIRE( a.is_continuous() == false );
         REQUIRE( a.is_binary() == true );
         REQUIRE( a.is_integer() == false );
     }
 
     WHEN( "integer" ) {
-        coek::Variable a(0,10,5,false,true,"a");
+        coek::Variable a("a", 0,10,5,false,true);
         REQUIRE( a.is_continuous() == false );
         REQUIRE( a.is_binary() == false );
         REQUIRE( a.is_integer() == true );
@@ -263,7 +263,7 @@ TEST_CASE( "model_variables", "[smoke]" ) {
 
   SECTION( "write" ) {
     std::stringstream sstr;
-    coek::Variable q(0,1,0, "q");
+    coek::Variable q("q", 0,1,0);
     sstr << q;
     REQUIRE( sstr.str() == "q" );
   }
@@ -277,7 +277,7 @@ REQUIRE( coek::env.check_memory() == true );
 TEST_CASE( "model_monomial", "[smoke]" ) {
 
   SECTION( "trivial" ) {
-    coek::Variable v(0,1,0,"v");
+    coek::Variable v("v",0,1,0);
     coek::Expression e = 1*v;
     REQUIRE( e.repn == v.repn );
     static std::list<std::string> baseline = {"v"};
@@ -285,7 +285,7 @@ TEST_CASE( "model_monomial", "[smoke]" ) {
   }
 
   SECTION( "simple monomial" ) {
-    coek::Variable v(0,1,0,"v");
+    coek::Variable v("v",0,1,0);
     coek::Expression e = 2*v;
     static std::list<std::string> baseline = {"[", "*", "2", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -360,7 +360,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
 
   SECTION( "plus-equal" ) {
     coek::Expression a(1.0);
-    coek::Variable p(0,1,0,"p");
+    coek::Variable p("p",0,1,0);
     a += p;
     static std::list<std::string> baseline = {"[", "+", "1.000", "p", "]"};
     REQUIRE( a.to_list() == baseline );
@@ -368,7 +368,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
 
   SECTION( "minus-equal" ) {
     coek::Expression a(1.0);
-    coek::Variable p(0,1,0,"p");
+    coek::Variable p("p",0,1,0);
     a -= p;
     static std::list<std::string> baseline = {"[", "+", "1.000", "[", "-", "p", "]", "]"};
     REQUIRE( a.to_list() == baseline );
@@ -376,7 +376,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
 
   SECTION( "times-equal" ) {
     coek::Expression a(1.0);
-    coek::Variable p(0,1,0,"p");
+    coek::Variable p("p",0,1,0);
     a *= p;
     static std::list<std::string> baseline = {"[", "*", "1.000", "p", "]"};
     REQUIRE( a.to_list() == baseline );
@@ -384,7 +384,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
 
   SECTION( "divide-equal" ) {
     coek::Expression a(1.0);
-    coek::Variable p(0,1,0,"p");
+    coek::Variable p("p",0,1,0);
     a /= p;
     static std::list<std::string> baseline = {"[", "/", "1.000", "p", "]"};
     REQUIRE( a.to_list() == baseline );
@@ -393,7 +393,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
   SECTION( "collect_terms" ) {
     coek::QuadraticExpr repn;
     coek::Model m;
-    coek::Variable v = m.add_variable(0,0,0,false,false,"v");
+    coek::Variable v = m.add_variable("v",0,0,0,false,false);
     coek::Expression a = 1 + v + v*v;
 
     repn.collect_terms(a);
@@ -446,7 +446,7 @@ TEST_CASE( "model_unary_expression", "[smoke]" ) {
     }
 
     WHEN( "var" ) {
-        coek::Variable v(0,1,0,"v");
+        coek::Variable v("v",0,1,0);
         coek::Expression e;
         e = +v;
         static std::list<std::string> baseline = {"v"};
@@ -481,7 +481,7 @@ TEST_CASE( "model_unary_expression", "[smoke]" ) {
     }
 
     WHEN( "var" ) {
-        coek::Variable v(0,1,2,"v");
+        coek::Variable v("v",0,1,2);
         coek::Expression e;
         e = -v;
         static std::list<std::string> baseline = {"[", "*", "-1", "v", "]"};
@@ -507,10 +507,10 @@ REQUIRE( coek::env.check_memory() == true );
 TEST_CASE( "model_add_expression", "[smoke]" ) {
 
 {
-coek::Variable a(0.0, 1.0, 3.0, false, false, "a");
-coek::Variable b(0.0, 1.0, 5.0, false, false, "b");
-coek::Variable c(0.0, 1.0, 0.0, false, false, "c");
-coek::Variable d(0.0, 1.0, 0.0, false, false, "d");
+coek::Variable a("a",0.0, 1.0, 3.0, false, false);
+coek::Variable b("b",0.0, 1.0, 5.0, false, false);
+coek::Variable c("c", 0.0, 1.0, 0.0, false, false);
+coek::Variable d("d",0.0, 1.0, 0.0, false, false);
 coek::Parameter z(0.0, "z");
 coek::IndexParameter Z("Z");
 
@@ -793,8 +793,8 @@ coek::IndexParameter Z("Z");
   }
 
   SECTION( "Test trivialSum" ) {
-    coek::Variable v(0,1,1,"v");
-    coek::Variable w(0,1,1,"w");
+    coek::Variable v("v",0,1,1);
+    coek::Variable w("w",0,1,1);
     coek::Parameter p(1,"p");
     coek::Parameter q(1,"q");
 
@@ -868,10 +868,10 @@ REQUIRE( coek::env.check_memory() == true );
 TEST_CASE( "model_minus_expression", "[smoke]" ) {
 
 {
-coek::Variable a(0.0, 1.0, 3.0, false, false, "a");
-coek::Variable b(0.0, 1.0, 5.0, false, false, "b");
-coek::Variable c(0.0, 1.0, 0.0, false, false, "c");
-coek::Variable d(0.0, 1.0, 0.0, false, false, "d");
+coek::Variable a("a",0.0, 1.0, 3.0, false, false);
+coek::Variable b("b",0.0, 1.0, 5.0, false, false);
+coek::Variable c("c",0.0, 1.0, 0.0, false, false);
+coek::Variable d("d",0.0, 1.0, 0.0, false, false);
 
 coek::Parameter z(1.0, "z");
 coek::IndexParameter Z("Z");
@@ -1262,7 +1262,7 @@ TEST_CASE( "model_neg_expression", "[smoke]" ) {
 
   SECTION( "Test negation_terms" ) {
     coek::Parameter p(2, "p");
-    coek::Variable v(0.0, 1.0, 0.0, false, false, "v");
+    coek::Variable v("v",0.0, 1.0, 0.0, false, false);
 
     WHEN( "e = - p*v" ) {
       coek::Expression e = - p*v;
@@ -1295,10 +1295,10 @@ TEST_CASE( "model_neg_expression", "[smoke]" ) {
 TEST_CASE( "model_mul_expression", "[smoke]" ) {
 
 {
-coek::Variable a(0.0, 1.0, 3.0, false, false, "a");
-coek::Variable b(0.0, 1.0, 5.0, false, false, "b");
-coek::Variable c(0.0, 1.0, 0.0, false, false, "c");
-coek::Variable d(0.0, 1.0, 0.0, false, false, "d");
+coek::Variable a("a", 0.0, 1.0, 3.0, false, false);
+coek::Variable b("b", 0.0, 1.0, 5.0, false, false);
+coek::Variable c("c", 0.0, 1.0, 0.0, false, false);
+coek::Variable d("d", 0.0, 1.0, 0.0, false, false);
 
 coek::Parameter z(0.0, "z");
 coek::IndexParameter Z("Z");
@@ -1916,10 +1916,10 @@ REQUIRE( coek::env.check_memory() == true );
 TEST_CASE( "model_div_expression", "[smoke]" ) {
 
 {
-coek::Variable a(0.0, 1.0, 3.0, false, false, "a");
-coek::Variable b(0.0, 1.0, 5.0, false, false, "b");
-coek::Variable c(0.0, 1.0, 0.0, false, false, "c");
-coek::Variable d(0.0, 1.0, 0.0, false, false, "d");
+coek::Variable a("a", 0.0, 1.0, 3.0, false, false);
+coek::Variable b("b", 0.0, 1.0, 5.0, false, false);
+coek::Variable c("c", 0.0, 1.0, 0.0, false, false);
+coek::Variable d("d", 0.0, 1.0, 0.0, false, false);
 
 coek::Parameter z(0.0, "z");
 coek::IndexParameter Z("Z");
@@ -2585,7 +2585,7 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
 TEST_CASE( "capi_intrinsics", "[smoke]" ) {
 
 {
-coek::Variable v(0.0, 1.0, 0.0, "v");
+coek::Variable v("v", 0.0, 1.0, 0.0);
 coek::Parameter p(0.0, "p");
 
   SECTION( "Test abs" ) {
@@ -2819,7 +2819,7 @@ REQUIRE( coek::env.check_memory() == true );
 TEST_CASE( "model_constraint", "[smoke]" ) {
 
 {
-coek::Variable v(0.0, 1.0, 1.0, false, false, "v");
+coek::Variable v("v", 0.0, 1.0, 1.0, false, false);
 coek::Parameter p(0.0, "p");
 coek::IndexParameter P("P");
 coek::Expression f;
@@ -3927,7 +3927,7 @@ coek::Expression f;
   SECTION( "collect_terms" ) {
     coek::QuadraticExpr repn;
     coek::Model m;
-    coek::Variable v = m.add_variable(0,1,0,"v");
+    coek::Variable v = m.add_variable("v",0,1,0);
     coek::Constraint a = 0 >= 1 + v;
 
     repn.collect_terms(a);
@@ -3946,8 +3946,8 @@ REQUIRE( coek::env.check_memory() == true );
 TEST_CASE( "model_compute", "[smoke]" ) {
 
 {
-coek::Variable a(0.0, 1.0, 0.0, false, false, "a");
-coek::Variable b(0.0, 1.0, 1.0, false, false, "b");
+coek::Variable a("a", 0.0, 1.0, 0.0, false, false);
+coek::Variable b("b", 0.0, 1.0, 1.0, false, false);
 coek::Parameter q(2, "q");
 
   SECTION( "expression" ) {
@@ -3989,8 +3989,8 @@ TEST_CASE( "model_setup", "[smoke]" ) {
 
 {
 coek::Model model;
-coek::Variable a = model.add_variable(0.0, 1.0, 0.0, false, true, "a");
-coek::Variable b(0.0, 1.0, 0.0, true, false, "b");
+coek::Variable a = model.add_variable("a",0.0, 1.0, 0.0, false, true);
+coek::Variable b("b", 0.0, 1.0, 0.0, true, false);
 model.add_variable(b);
 coek::Parameter q(2, "q");
 
