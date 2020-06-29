@@ -1,5 +1,7 @@
 import pycoek_cppyy as pycoek
 
+NAN = float('nan')
+
 def pythonize_coek_all(klass, name):
     #print(("PYTHONIZE COEK", klass, name))
 
@@ -32,7 +34,23 @@ def pythonize_coek_all(klass, name):
             return name
         return "x"
 
+    def Model_add_variable(self, *args, **kwds):
+        if len(args) == 1:
+            return self._add_variable_singlevar(args[0])
+        else:
+            name = kwds.get('name',"x")
+            lb = kwds.get('lb', -self.inf)
+            ub = kwds.get('ub', self.inf)
+            init = kwds.get('value', NAN)
+            binval = kwds.get('binary', 0)
+            integer = kwds.get('integer', 0)
+            return self._add_variable_newvar(name, lb, ub, init, binval, integer)
+
     def VariableArray_iter(self):
+        for i in range(self.variables.size()):
+            yield i
+
+    def VariableArray_iter_BAD(self):
         if self.dimen.size() == 0:
             b = self.unindexed_begin()
             e = self.unindexed_end()
@@ -60,20 +78,25 @@ def pythonize_coek_all(klass, name):
         return self.__init__bak(*args, **kwargs)
 
     if name == 'Variable':
-        klass.__init__ = klass.__init__.__overload__("double,double,double,bool,bool,const string&")
+        klass.__init__ = klass.__init__.__overload__("const string&,double,double,double,bool,bool")
         klass.value = property(klass.get_value, klass.set_value, doc="Value of this variable")
         klass.name = property(get_name_str_or_None, doc="Name of this variable")
-        klass.__pos__ = pycoek.coek.operator_pos
-        klass.__neg__ = pycoek.coek.operator_neg
-        klass.__radd__ = pycoek.coek.operator_radd
-        klass.__rsub__ = pycoek.coek.operator_rsub
-        klass.__rmul__ = pycoek.coek.operator_rmul
-        klass.__rtruediv__ = pycoek.coek.operator_rtruediv
+        klass.__pos__ = pycoek.coek.Variable_operator_pos
+        klass.__neg__ = pycoek.coek.Variable_operator_neg
+        klass.__radd__ = pycoek.coek.Variable_operator_radd
+        klass.__rsub__ = pycoek.coek.Variable_operator_rsub
+        klass.__rmul__ = pycoek.coek.Variable_operator_rmul
+        klass.__rtruediv__ = pycoek.coek.Variable_operator_rtruediv
+        klass.__truediv__ = pycoek.coek.Variable_operator_truediv
         klass.__pow__ = pycoek.coek.Variable_pow
         klass.__rpow__ = pycoek.coek.Variable_rpow
         klass.__bool__ = bool_error
         #klass.__eq__ = klass.__cpp_eq__
-        klass.__eq__ = pycoek.coek.operator_eq
+        klass.__eq__ = pycoek.coek.Variable_operator_eq
+
+    elif name == 'Objective':
+        klass.__to_list = klass.to_list
+        klass.to_list = to_list
 
     elif name == 'Expression':
         klass.__init__bak = klass.__init__
@@ -81,31 +104,29 @@ def pythonize_coek_all(klass, name):
         klass.value = property(klass.get_value, doc="Value of this expression")
         klass.__to_list = klass.to_list
         klass.to_list = to_list
-        klass.__pos__ = pycoek.coek.operator_pos
-        klass.__neg__ = pycoek.coek.operator_neg
-        klass.__radd__ = pycoek.coek.operator_radd
-        klass.__rsub__ = pycoek.coek.operator_rsub
-        klass.__rmul__ = pycoek.coek.operator_rmul
-        klass.__rtruediv__ = pycoek.coek.operator_rtruediv
+        klass.__pos__ = pycoek.coek.Expression_operator_pos
+        klass.__neg__ = pycoek.coek.Expression_operator_neg
+        klass.__radd__ = pycoek.coek.Expression_operator_radd
+        klass.__rsub__ = pycoek.coek.Expression_operator_rsub
+        klass.__rmul__ = pycoek.coek.Expression_operator_rmul
+        klass.__rtruediv__ = pycoek.coek.Expression_operator_rtruediv
         klass.__pow__ = pycoek.coek.Expression_pow
         klass.__rpow__ = pycoek.coek.Expression_rpow
         klass.__bool__ = bool_error
-        #klass.__eq__ = klass.__cpp_eq__
 
     elif name == 'Parameter':
         klass.__init__ = klass.__init__.__overload__("double,const string&")
         klass.value = property(klass.get_value, klass.set_value, doc="Value of this parameter")
         klass.name = property(get_name_str_or_None, doc="Name of this parameter")
-        klass.__pos__ = pycoek.coek.operator_pos
-        klass.__neg__ = pycoek.coek.operator_neg
-        klass.__radd__ = pycoek.coek.operator_radd
-        klass.__rsub__ = pycoek.coek.operator_rsub
-        klass.__rmul__ = pycoek.coek.operator_rmul
-        klass.__rtruediv__ = pycoek.coek.operator_rtruediv
+        klass.__pos__ = pycoek.coek.Parameter_operator_pos
+        klass.__neg__ = pycoek.coek.Parameter_operator_neg
+        klass.__radd__ = pycoek.coek.Parameter_operator_radd
+        klass.__rsub__ = pycoek.coek.Parameter_operator_rsub
+        klass.__rmul__ = pycoek.coek.Parameter_operator_rmul
+        klass.__rtruediv__ = pycoek.coek.Parameter_operator_rtruediv
         klass.__pow__ = pycoek.coek.Parameter_pow
         klass.__rpow__ = pycoek.coek.Parameter_rpow
         klass.__bool__ = bool_error
-        #klass.__eq__ = klass.__cpp_eq__
 
     elif name == 'Constraint':
         klass.id = property(klass.id, doc="A unique integer id.")
@@ -123,7 +144,7 @@ def pythonize_coek_all(klass, name):
         klass.__ge__ = constraint_bool_error
 
     elif name == 'VariableArray':
-        klass.__init__ = klass.__init__.__overload__("int,double,double,double,bool,bool,bool,string")
+        klass.__init__ = klass.__init__.__overload__("int,string,double,double,double,bool,bool,bool")
         klass.name = property(get_name_str_or_None, doc="Name of this variable")
         klass.__getitem__ = klass.get
         klass.__iter__ = VariableArray_iter
@@ -132,3 +153,10 @@ def pythonize_coek_all(klass, name):
         klass.__le__ = varray_bool_error
         klass.__gt__ = varray_bool_error
         klass.__ge__ = varray_bool_error
+
+    elif name == 'Model':
+        klass._add_variable_newvar = klass.add_variable.__overload__('const string&,double,double,double,bool,bool')
+        klass._add_variable_singlevar = klass.add_variable.__overload__('coek::Variable&')
+        klass._add_variable_vararray = klass.add_variable.__overload__('coek::VariableArray&')
+        klass.add_variable = Model_add_variable
+
