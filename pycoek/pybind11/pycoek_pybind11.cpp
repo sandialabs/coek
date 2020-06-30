@@ -1069,14 +1069,16 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     //
     py::class_<coek::Model>(m, "model")
         .def(py::init<>())
+#if 0
         .def("add_variable",[](coek::Model& m, py::kwargs kw)
             {
             coek::Variable v = coek::variable_fn(kw);
             return m.add_variable(v);
             })
-        .def("add_variable", [](coek::Model& m, coek::Variable& v)
+#endif
+        .def("add_variable_", [](coek::Model& m, coek::Variable& v)
             {return m.add_variable(v);})
-        .def("add_variable", [](coek::Model& m, coek::VariableArray& v)
+        .def("add_variable_", [](coek::Model& m, coek::VariableArray& v)
             {
             for (auto it=v.variables.begin(); it != v.variables.end(); ++it)
                 m.add_variable(*it);
@@ -1101,7 +1103,8 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
 
         .def("write", [](coek::Model& m, const std::string& s){m.write(s);})
         .def("write", [](coek::Model& m, const std::string& s, std::map<int,int>& varmap, std::map<int,int>& conmap){m.write(s,varmap,conmap);})
-        .def("display", [](coek::Model& m){std::cout << m << std::endl;})
+        .def("print_equations", [](coek::Model& m){m.print_equations();})
+        .def("print_values", [](coek::Model& m){m.print_values();})
         ;
 
     //
@@ -1109,19 +1112,20 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     //
     py::class_<coek::CompactModel>(m, "compact_model")
         .def(py::init<>())
-        .def("add_variable",[](coek::CompactModel& m, py::kwargs kw)
+#if 0
+        .def("add_variable_",[](coek::CompactModel& m, py::kwargs kw)
             {
             coek::Variable v = coek::variable_fn(kw);
             return m.add_variable(v);
             })
-        .def("add_variable", [](coek::CompactModel& m, coek::Variable& v){m.add_variable(v);})
-        .def("add_variable", [](coek::CompactModel& m, coek::ConcreteIndexedVariable& v){m.add_variable(v);})
-        .def("add_variable", [](coek::CompactModel& m, coek::VariableArray& v)
+#endif
+        .def("add_variable_", [](coek::CompactModel& m, coek::Variable& v){m.add_variable(v);})
+        .def("add_variable_", [](coek::CompactModel& m, coek::ConcreteIndexedVariable& v){m.add_variable(v);})
+        .def("add_variable_", [](coek::CompactModel& m, coek::VariableArray& v)
             {
             for (auto it=v.variables.begin(); it != v.variables.end(); ++it)
                 m.add_variable(*it);
             })
-
         .def("add_objective", [](coek::CompactModel& m, double f)
             {coek::Expression e(f);
             return m.add_objective(e);})
