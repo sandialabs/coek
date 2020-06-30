@@ -27,9 +27,9 @@ import poek as pk
 
 model = pk.model()
 
-x = model.variable(lb=0.0)
-y = model.variable(lb=0.0)
+x = model.add_variable(lb=0.0)
+y = model.add_variable(lb=0.0)
 
-model.add( (x-y)**2 )
+model.add_objective( (x-y)**2 )
 
-model.add( x+y-1 == 0 )
+model.add_constraint( x+y-1 == 0 )

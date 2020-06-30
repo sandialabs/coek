@@ -46,23 +46,23 @@ ct1 = -h*peh
 cti1 = 1/(h**2*peh)+1/h
 cti = -beta-1/h-2/(h**2*peh)
 
-t = model.variable(index=range(1,n+1), value=1.0, lb=0.0000001)
-u = model.variable(index=range(1,n+1), value=1.0, lb=0.0)
+t = model.add_variable(index=range(1,n+1), value=1.0, lb=0.0000001)
+u = model.add_variable(index=range(1,n+1), value=1.0, lb=0.0)
 
 
-model.add( pk.expression(0) )
+model.add_objective( pk.expression(0) )
 
-model.add( (cu1*u[2]-u[1]+h*pem) == 0 )
+model.add_constraint( (cu1*u[2]-u[1]+h*pem) == 0 )
 
-model.add( (ct1*t[2]-t[1]+h*peh) == 0 )
-
-for i in range(2,n):
-    model.add( (-d*u[i]*exp(gamma-gamma/t[i])+(cui1)*u[i-1] + cui*u[i] + u[i+1]/(h**2*pem)) == 0 )
+model.add_constraint( (ct1*t[2]-t[1]+h*peh) == 0 )
 
 for i in range(2,n):
-    model.add( (b*d*u[i]*exp(gamma-gamma/t[i])+(cti1)*t[i-1] + cti*t[i] +\
+    model.add_constraint( (-d*u[i]*exp(gamma-gamma/t[i])+(cui1)*u[i-1] + cui*u[i] + u[i+1]/(h**2*pem)) == 0 )
+
+for i in range(2,n):
+    model.add_constraint( (b*d*u[i]*exp(gamma-gamma/t[i])+(cti1)*t[i-1] + cti*t[i] +\
                 t[i+1]/(h**2*peh)) == 0 )
 
-model.add( (u[n]-u[n-1]) == 0 )
+model.add_constraint( (u[n]-u[n-1]) == 0 )
 
-model.add( (t[n]-t[n-1]) == 0 )
+model.add_constraint( (t[n]-t[n-1]) == 0 )

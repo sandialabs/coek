@@ -29,8 +29,8 @@ import poek as pk
 model = pk.model()
 
 Sx = [1,2]
-x = model.variable(index=Sx)
+x = model.add_variable(index=Sx)
 
-model.add( pk.expression(0) )
-model.add( 0 == x[1]+2*x[2]-7 )
-model.add( 0 == 2*x[1]+x[2]-5 )
+model.add_objective( pk.expression(0) )
+model.add_constraint( 0 == x[1]+2*x[2]-7 )
+model.add_constraint( 0 == 2*x[1]+x[2]-5 )

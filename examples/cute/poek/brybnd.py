@@ -32,7 +32,7 @@ N = 5000
 ml = 5
 mu = 1
 
-x = model.variable(index=range(1,N+1), value=-1)
+x = model.add_variable(index=range(1,N+1), value=-1)
 
 
 def J(i):
@@ -40,5 +40,5 @@ def J(i):
         if j != i:
             yield j
 
-model.add( sum((x[i]*(2+5*x[i]**2) + 1 -\
+model.add_objective( sum((x[i]*(2+5*x[i]**2) + 1 -\
            sum(x[j]*(1+x[j]) for j in J(i)))**2 for i in range(1,N+1)) )

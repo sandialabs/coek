@@ -40,7 +40,7 @@ p = 1/(objscale)
 S = list(range(1,n+1))
 SS = list(range(1,n))
 
-x = model.variable(index=S)
+x = model.add_variable(index=S)
 for i in S:
     x[i].value = i*h
 
@@ -49,4 +49,4 @@ exp2 = 0.5*p*(x[n])**2
 sum1 = sum(0.5*p*(x[i]-x[i+1])**2 for i in SS)
 sum2 = sum((p*(-1-2/h**2)*x[i]) for i in S)
 sum3 = sum((-kappa*p*cos(x[i])/h**2) for i in S)
-model.add( exp1 + sum1 + exp2 + sum2 + sum3 )
+model.add_objective( exp1 + sum1 + exp2 + sum2 + sum3 )

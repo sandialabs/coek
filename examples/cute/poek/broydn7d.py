@@ -30,9 +30,9 @@ model = pk.model()
 
 N = 1000
 
-x = model.variable(index=range(1,N+1), value=1.0)
+x = model.add_variable(index=range(1,N+1), value=1.0)
 
-model.add( (abs(-2*x[2]+1+(3-2*x[1])*x[1]))**(7/3.0) +\
+model.add_objective( (abs(-2*x[2]+1+(3-2*x[1])*x[1]))**(7/3.0) +\
     sum((abs(1-x[i-1]-2*x[i+1]+(3-2*x[i])*x[i]))**(7/3.0) for i in range(2,N))+\
     (abs(-x[N-1]+1 +(3-2*x[N])*x[N]))**(7/3.0) +\
     sum((abs(x[i]+x[i+N//2]))**(7/3.0) for i in range(1,N//2+1)) )

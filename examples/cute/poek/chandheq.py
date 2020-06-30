@@ -35,9 +35,9 @@ c = 1.0
 x = {i:1/n for i in range(1,n+1)}
 w = {i:1/n for i in range(1,n+1)}
 
-h = model.variable(index=range(1,n+1), value=1.0, lb=0)
+h = model.add_variable(index=range(1,n+1), value=1.0, lb=0)
 
-model.add( pk.expression(0) )
+model.add_objective( pk.expression(0) )
     
 for i in range(1,n+1):
-    model.add( sum(-0.5*c*w[j]*x[i]/(x[i]+x[j])*h[i]*h[j] for j in range(1,n+1)) + h[i] == 1.0 )
+    model.add_constraint( sum(-0.5*c*w[j]*x[i]/(x[i]+x[j])*h[i]*h[j] for j in range(1,n+1)) + h[i] == 1.0 )

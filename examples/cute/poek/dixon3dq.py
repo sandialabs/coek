@@ -32,8 +32,8 @@ n = 10
 S = list(range(1,n+1))
 SS = list(range(2,n))
 
-x = model.variable(index=S, value=-1.0)
+x = model.add_variable(index=S, value=-1.0)
 
 # rvdb comment: the sum should start at 1.
 es = sum((x[j]-x[j+1])**2 for j in SS)
-model.add( (x[1]-1.0)**2 + es + (x[n]-1.0)**2 )
+model.add_objective( (x[1]-1.0)**2 + es + (x[n]-1.0)**2 )

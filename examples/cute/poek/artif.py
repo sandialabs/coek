@@ -32,12 +32,12 @@ model = pk.model()
 
 N = 5000
 
-x = model.variable(N+2, value=1.0)
+x = model.add_variable(N+2, value=1.0)
 
-model.add( pk.expression(0) )
+model.add_objective( pk.expression(0) )
 
 for i in range(1,N+1):
-    model.add( 0 == -0.05*(x[i] + x[i+1] + x[i-1]) + atan( sin( (i%100)*x[i] ) ) )
+    model.add_constraint( 0 == -0.05*(x[i] + x[i+1] + x[i-1]) + atan( sin( (i%100)*x[i] ) ) )
 
 x[0].value = 0.0
 x[0].fixed = True

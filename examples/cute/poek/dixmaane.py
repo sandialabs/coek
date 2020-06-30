@@ -44,9 +44,9 @@ K[2] = 0
 K[3] = 0
 K[4] = 1
 
-x = model.variable(index=range(1,N+1), value=2.0)
+x = model.add_variable(index=range(1,N+1), value=2.0)
 
-model.add( 1.0 + sum(alpha*x[i]**2*(i/N)**K[1] for i in range(1,N+1))+\
+model.add_objective( 1.0 + sum(alpha*x[i]**2*(i/N)**K[1] for i in range(1,N+1))+\
     sum(beta*x[i]**2*(x[i+1]+x[i+1]**2)**2*(i/N)**K[2] for i in range(1,N))+\
     sum(gamma*x[i]**2*x[i+M]**4*(i/N)**K[3] for i in range(1,2*M+1)) +\
     sum(delta*x[i]*x[i+2*M]*(i/N)**K[4] for i in range(1,M+1)) )

@@ -27,18 +27,18 @@ import poek as pk
 
 model = pk.model()
 
-x = model.variable(index=[1,2], value=2.0)
-z = model.variable(value=2.0)
+x = model.add_variable(index=[1,2], value=2.0)
+z = model.add_variable(value=2.0)
 
 
-model.add( z )
+model.add_objective( z )
 
-model.add( z+5*x[1]-x[2] >= 0 )
+model.add_constraint( z+5*x[1]-x[2] >= 0 )
 
-model.add( z-4*x[2]-x[1]**2-x[2]**2 >= 0 )
+model.add_constraint( z-4*x[2]-x[1]**2-x[2]**2 >= 0 )
 
-model.add( z-5*x[1]-x[2] >= 0 )
+model.add_constraint( z-5*x[1]-x[2] >= 0 )
 
-model.add( x[1]+x[2]+10.0 <= 0 )
+model.add_constraint( x[1]+x[2]+10.0 <= 0 )
 
-model.add( 2*x[1]**2-x[2]**2+4.0 <= 0 )
+model.add_constraint( 2*x[1]**2-x[2]**2+4.0 <= 0 )

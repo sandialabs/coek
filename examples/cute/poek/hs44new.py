@@ -30,13 +30,13 @@ N = 4
 
 M = [1,2,3,4]
 
-x = model.variable(index=M, lb=0.0, value=1.0)
+x = model.add_variable(index=M, lb=0.0, value=1.0)
 
-model.add( x[1]-x[2]-x[3]-x[1]*x[3]+x[1]*x[4]+x[2]*x[3]-x[2]*x[4])
+model.add_objective( x[1]-x[2]-x[3]-x[1]*x[3]+x[1]*x[4]+x[2]*x[3]-x[2]*x[4])
 
-model.add( -x[1]-x[2]+8 >= 0 )
-model.add( -4*x[1]-x[2]+12 >= 0 )
-model.add( -3*x[1]-4*x[2]+12 >= 0 )
-model.add( -2*x[3]-x[4]+8 >= 0 )
-model.add( -x[3]-2*x[4]+8 >= 0 )
-model.add( -x[3]-x[4]+5 >= 0 )
+model.add_constraint( -x[1]-x[2]+8 >= 0 )
+model.add_constraint( -4*x[1]-x[2]+12 >= 0 )
+model.add_constraint( -3*x[1]-4*x[2]+12 >= 0 )
+model.add_constraint( -2*x[3]-x[4]+8 >= 0 )
+model.add_constraint( -x[3]-2*x[4]+8 >= 0 )
+model.add_constraint( -x[3]-x[4]+5 >= 0 )

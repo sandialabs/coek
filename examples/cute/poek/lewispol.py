@@ -39,7 +39,7 @@ ct = {}
 for i in range(DEG):
     ct[i] = -1 if i==0 else ct[i-1]*(N-i+1)
 
-a = model.variable(index=range1, lb=-10, ub=10)
+a = model.add_variable(index=range1, lb=-10, ub=10)
 a[0].value = -1.0
 a[1].value = 1.0
 a[2].value = 1.0
@@ -47,12 +47,12 @@ a[3].value = 0.0
 a[4].value = 1.0
 a[5].value = -1.0
 
-model.add( sum(a[j]**2 for j in range1) )
+model.add_objective( sum(a[j]**2 for j in range1) )
 
 for j in range1:
-    model.add( (a[j]**3-a[j])/PEN == 0 )
+    model.add_constraint( (a[j]**3-a[j])/PEN == 0 )
 
-model.add( sum(a[j]*c[0,j] for j in range1) - ct[0] == 0 )
+model.add_constraint( sum(a[j]*c[0,j] for j in range1) - ct[0] == 0 )
 
 for i in range(1,DEG):
-    model.add( sum(a[j]*c[i,j] for j in range(i,N)) - ct[i] == 0 )
+    model.add_constraint( sum(a[j]*c[i,j] for j in range(i,N)) - ct[i] == 0 )

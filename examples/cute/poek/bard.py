@@ -44,7 +44,7 @@ for i in S:
     w[i] = min(u[i], v[i])
 
 SS = list(range(1,N+1))
-x = model.variable(index=SS, value=1.0)
+x = model.add_variable(index=SS, value=1.0)
 
-model.add( sum ([( value(y[i])-(x[1]+value(u[i])/(value(v[i])*x[2]+value(w[i])*x[3])) )**2 for i in S])
+model.add_objective( sum ([( value(y[i])-(x[1]+value(u[i])/(value(v[i])*x[2]+value(w[i])*x[3])) )**2 for i in S])
 f = Objective(rule=f,sense=minimize)

@@ -34,7 +34,7 @@ M = list(range(1,N+1))
 L = list(range(0,N+2))
 t = {i:i*h for i in M}
 
-x = model.variable(index=L)
+x = model.add_variable(index=L)
 for i in L:
     x[i].value = t[i]*(t[i]-1.0) if (i >= 1) and (i <= N) else 0.0
 
@@ -43,7 +43,7 @@ x[0].fixed=True
 x[N+1].value = 0.0
 x[N+1].fixed=True
 
-model.add( pk.expression(0) )
+model.add_objective( pk.expression(0) )
 
 for i in M:
-    model.add( ( x[i]+h*((1-t[i])*sum(t[j]*(x[j]+t[j]+1.0)**3 for j in range(1,i+1)) + t[i]*sum((1.0-t[j])*(x[j]+t[j]+1.0)**3 for j in range(i+1,N+1)))/2.0 ) == 0 )
+    model.add_constraint( ( x[i]+h*((1-t[i])*sum(t[j]*(x[j]+t[j]+1.0)**3 for j in range(1,i+1)) + t[i]*sum((1.0-t[j])*(x[j]+t[j]+1.0)**3 for j in range(i+1,N+1)))/2.0 ) == 0 )

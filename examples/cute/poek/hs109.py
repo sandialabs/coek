@@ -52,7 +52,7 @@ u_init[7] = 252.0
 u_init[8] = 800.0
 u_init[9] = 800.0
 
-x = model.variable(index=N, value=0.0)
+x = model.add_variable(index=N, value=0.0)
 for i in N:
     if i in M:
         x[i].lb = 0
@@ -60,15 +60,15 @@ for i in N:
         x[i].lb = l_init[i]
         x[i].ub = u_init[i]
 
-model.add( 3 * x[1] + 1e-6 * x[1]**3 + 2 * x[2] + .522074e-6 * x[2]**3 )
+model.add_objective( 3 * x[1] + 1e-6 * x[1]**3 + 2 * x[2] + .522074e-6 * x[2]**3 )
 
-model.add( x[4] - x[3] + .55 >= 0 )
-model.add( x[3] - x[4] + .55 >= 0 )
-model.add( 2250000 - x[1]**2 - x[8]**2 >= 0 )
-model.add( 2250000 - x[2]**2 - x[9]**2 >= 0 )
-model.add( x[5] * x[6] * sin(-x[3] - .25) + x[5] * x[7] * sin(-x[4] - .25) + 2 * b * x[5]**2 - a * x[1] + 400 * a == 0 )
-model.add( x[5] * x[6] * sin(x[3] - .25) + x[6] * x[7] * sin(x[3] - x[4] - .25) + 2 * b * x[6]**2 - a * x[2] + 400 * a == 0 )
-model.add( x[5] * x[7] * sin(x[4] - .25) + x[6] * x[7] * sin(x[4] - x[3] - .25) + 2 * b * x[7]**2 + 881.779 * a == 0 )
-model.add( a * x[8] + x[5] * x[6] * cos(-x[3] - .25) + x[5] * x[7] * cos(-x[4] - .25) - 200 * a - 2 * c * x[5]**2 + .7533e-3 * a * x[5]**2 == 0 )
-model.add( a * x[9] + x[5] * x[6] * cos(x[3] - .25) + x[6] * x[7] * cos(x[3] - x[4] - .25) - 2 * c * x[6]**2 + .7533e-3 * a * x[6]**2 - 200 * a == 0 )
-model.add( x[5] * x[7] * cos(x[4] - .25) + x[6] * x[7] * cos(x[4] - x[3] - .25) - 2 * c * x[7]**2 + 22.938 * a + .7533e-3 * a * x[7] **2 == 0 )
+model.add_constraint( x[4] - x[3] + .55 >= 0 )
+model.add_constraint( x[3] - x[4] + .55 >= 0 )
+model.add_constraint( 2250000 - x[1]**2 - x[8]**2 >= 0 )
+model.add_constraint( 2250000 - x[2]**2 - x[9]**2 >= 0 )
+model.add_constraint( x[5] * x[6] * sin(-x[3] - .25) + x[5] * x[7] * sin(-x[4] - .25) + 2 * b * x[5]**2 - a * x[1] + 400 * a == 0 )
+model.add_constraint( x[5] * x[6] * sin(x[3] - .25) + x[6] * x[7] * sin(x[3] - x[4] - .25) + 2 * b * x[6]**2 - a * x[2] + 400 * a == 0 )
+model.add_constraint( x[5] * x[7] * sin(x[4] - .25) + x[6] * x[7] * sin(x[4] - x[3] - .25) + 2 * b * x[7]**2 + 881.779 * a == 0 )
+model.add_constraint( a * x[8] + x[5] * x[6] * cos(-x[3] - .25) + x[5] * x[7] * cos(-x[4] - .25) - 200 * a - 2 * c * x[5]**2 + .7533e-3 * a * x[5]**2 == 0 )
+model.add_constraint( a * x[9] + x[5] * x[6] * cos(x[3] - .25) + x[6] * x[7] * cos(x[3] - x[4] - .25) - 2 * c * x[6]**2 + .7533e-3 * a * x[6]**2 - 200 * a == 0 )
+model.add_constraint( x[5] * x[7] * cos(x[4] - .25) + x[6] * x[7] * cos(x[4] - x[3] - .25) - 2 * c * x[7]**2 + 22.938 * a + .7533e-3 * a * x[7] **2 == 0 )

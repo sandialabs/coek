@@ -29,6 +29,6 @@ import poek as pk
 model = pk.model()
 
 S = [1,2]
-x = model.variable(index=S, value=1.0)
+x = model.add_variable(index=S, value=1.0)
 
-model.add( (x[1]-2.0)**2 + ((x[1]-2.0)*x[2])**2 + (x[2]+1.0)**2 )
+model.add_objective( (x[1]-2.0)**2 + ((x[1]-2.0)*x[2])**2 + (x[2]+1.0)**2 )

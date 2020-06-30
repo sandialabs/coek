@@ -32,20 +32,20 @@ K = 350
 
 alpha = {i: 1.0+1.01**i if i>1 else 2.0 for i in range(1,K+2)}
 
-knot = model.variable(index=range(1,K+1))
+knot = model.add_variable(index=range(1,K+1))
 for i in range(1,K+1):
     knot[i].value = alpha[i]
     knot[i].lb = alpha[i]
     knot[i].ub = alpha[i+1]
 
-space = model.variable(index=range(1,K))
+space = model.add_variable(index=range(1,K))
 for i in range(1,K):
     space[i].value =   alpha[i+1] - alpha[i]
     space[i].lb = 0.4*(alpha[i+2] - alpha[i])
     space[i].ub = 0.6*(alpha[i+2] - alpha[i])
 
 
-model.add( sum(0.5*(space[i+1]-space[i])**2 for i in range(1,K-1)) )
+model.add_objective( sum(0.5*(space[i+1]-space[i])**2 for i in range(1,K-1)) )
 
 for i in range(1,K):
-    model.add( space[i]-knot[i+1]+knot[i] == 0 )
+    model.add_constraint( space[i]-knot[i+1]+knot[i] == 0 )

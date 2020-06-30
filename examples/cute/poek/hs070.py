@@ -13,7 +13,7 @@ M = list(range(1,20))
 c = Param(M)
 y_obs = Param(M)
 
-x = model.variable(index=[1,2,3,4], lb=0.00001, ub=100)
+x = model.add_variable(index=[1,2,3,4], lb=0.00001, ub=100)
 x[3].ub = 1.0
 x[1].value = 2.0
 x[2].value = 4.0
@@ -38,6 +38,6 @@ for i in M:
                * exp(x[1] - b*c[i]*x[1]/(7.658*x[4])) \
            );
 
-model.add( sum((y_cal[i] - y_obs[i])**2 for i in M) )
+model.add_objective( sum((y_cal[i] - y_obs[i])**2 for i in M) )
     
-model.add( x[3] + (1-x[3])*x[4] >= 0 )
+model.add_constraint( x[3] + (1-x[3])*x[4] >= 0 )

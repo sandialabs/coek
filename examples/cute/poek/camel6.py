@@ -28,10 +28,10 @@ import poek as pk
 model = pk.model()
 
 S = [1,2]
-x = model.variable(index=S, value=1.1)
+x = model.add_variable(index=S, value=1.1)
 
-model.add( 4*x[1]**2-2.1*x[1]**4+x[1]**6/3+x[1]*x[2]-4*x[2]**2+4*x[2]**4 )
+model.add_objective( 4*x[1]**2-2.1*x[1]**4+x[1]**6/3+x[1]*x[2]-4*x[2]**2+4*x[2]**4 )
 
-model.add( pk.inequality(-3,x[1],3) )
+model.add_constraint( pk.inequality(-3,x[1],3) )
 
-model.add( pk.inequality(-1.5,x[2],1.5) )
+model.add_constraint( pk.inequality(-1.5,x[2],1.5) )

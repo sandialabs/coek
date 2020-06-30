@@ -11,7 +11,7 @@ a = 2.3
 b = 3.2
 N = list(range(1,6))
 
-x = model.variable(index=N)
+x = model.add_variable(index=N)
 x[1].value = -2.0
 x[2].value = 2.0
 x[3].value = 2.0
@@ -31,8 +31,8 @@ x[5].lb =-b
 expr = 1.0
 for j in N:
     expr *= x[j]
-model.add( exp(expr) - 0.5*(x[1]**3 + x[2]**3 + 1)**2 )
+model.add_objective( exp(expr) - 0.5*(x[1]**3 + x[2]**3 + 1)**2 )
 
-model.add( sum(x[j]**2 for j in N) == 10)
-model.add( x[2]*x[3] - 5*x[4]*x[5] == 0)
-model.add( x[1]**3 + x[2]**3 == -1)
+model.add_constraint( sum(x[j]**2 for j in N) == 10)
+model.add_constraint( x[2]*x[3] - 5*x[4]*x[5] == 0)
+model.add_constraint( x[1]**3 + x[2]**3 == -1)

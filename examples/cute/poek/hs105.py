@@ -27,7 +27,7 @@ x_init[8] =  15.8
 # LOAD DATA
 y = Param(I)
 
-x = model.variable(index=N)
+x = model.add_variable(index=N)
 for i in N:
     x[i].value = x_init[i]
 
@@ -40,16 +40,16 @@ for i in I:
     b[i] = pk.expression( (x[2]/x[7]) * exp(-(y[i] - x[4])**2 / (2 * x[7]**2)) )
 
 for i in I:
-    model.add( ((1 - x[2] - x[1]) / x[8]) * exp(-(y[i] - x[5])**2 / (2 * x[8]**2)) )
+    model.add_objective( ((1 - x[2] - x[1]) / x[8]) * exp(-(y[i] - x[5])**2 / (2 * x[8]**2)) )
 
-model.add( -sum(log((a[i] + b[i] + c[i]) / sqrt(2 * PI)) for i in I) )
+model.add_constraint( -sum(log((a[i] + b[i] + c[i]) / sqrt(2 * PI)) for i in I) )
 
-model.add( 1 - x[1] - x[2] >= 0 )
-model.add( pk.inequality(.001, x[1], .499 ) )
-model.add( pk.inequality(.001, x[2], .449 ) )
-model.add( pk.inequality(100, x[3], 180 ) )
-model.add( pk.inequality(130, x[4], 210 ) )
-model.add( pk.inequality(170, x[5], 240 ) )
-model.add( pk.inequality(5, x[6], 25 ) )
-model.add( pk.inequality(5, x[7], 25 ) )
-model.add( pk.inequality(5, x[8], 25 ) )
+model.add_constraint( 1 - x[1] - x[2] >= 0 )
+model.add_constraint( pk.inequality(.001, x[1], .499 ) )
+model.add_constraint( pk.inequality(.001, x[2], .449 ) )
+model.add_constraint( pk.inequality(100, x[3], 180 ) )
+model.add_constraint( pk.inequality(130, x[4], 210 ) )
+model.add_constraint( pk.inequality(170, x[5], 240 ) )
+model.add_constraint( pk.inequality(5, x[6], 25 ) )
+model.add_constraint( pk.inequality(5, x[7], 25 ) )
+model.add_constraint( pk.inequality(5, x[8], 25 ) )

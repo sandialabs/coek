@@ -62,14 +62,14 @@ x0 = {
 10:145
 }
 
-x = model.variable(index=I)
+x = model.add_variable(index=I)
 for i in I:
     x[i].lb = lb[i]
     x[i].ub = ub[i]
     x[i].value = x0[i]
 
 
-model.add( 5.04*x[1] + .035*x[2] + 10.0*x[3] + 3.36*x[5] - .063*x[4]*x[7] )
+model.add_objective( 5.04*x[1] + .035*x[2] + 10.0*x[3] + 3.36*x[5] - .063*x[4]*x[7] )
 
 # shared sub-expressions
 G1 = 35.82 - 0.222*x[10] - b*x[9]
@@ -77,14 +77,14 @@ G2 = -133 + 3*x[7] - a*x[10]
 G5 = 1.12*x[1] + .13167*x[1]*x[8] - .00667*x[1]*x[8]**2 - a*x[4]
 G6 = 57.425 + 1.098*x[8] - .038*x[8]**2 + .325*x[6] - a*x[7]
 
-model.add( G1 >= 0  )
-model.add( G2 >= 0 )
-model.add( -G1 + x[9]*(1/b - b) >= 0 )
-model.add( -G2 + (1/a - a)*x[10] >= 0 )
-model.add( G5 >= 0 )
-model.add( G6 >= 0 )
-model.add( -G5 + (1/a - a)*x[4] >= 0 )
-model.add( -G6 + (1/a - a)*x[7] >= 0 )
-model.add( 1.22*x[4] - x[1] - x[5] == 0 )
-model.add( 98000.0*x[3]/(x[4]*x[9] + 1000*x[3]) - x[6] == 0 )
-model.add( (x[2] + x[5])/x[1] - x[8] == 0 )
+model.add_constraint( G1 >= 0  )
+model.add_constraint( G2 >= 0 )
+model.add_constraint( -G1 + x[9]*(1/b - b) >= 0 )
+model.add_constraint( -G2 + (1/a - a)*x[10] >= 0 )
+model.add_constraint( G5 >= 0 )
+model.add_constraint( G6 >= 0 )
+model.add_constraint( -G5 + (1/a - a)*x[4] >= 0 )
+model.add_constraint( -G6 + (1/a - a)*x[7] >= 0 )
+model.add_constraint( 1.22*x[4] - x[1] - x[5] == 0 )
+model.add_constraint( 98000.0*x[3]/(x[4]*x[9] + 1000*x[3]) - x[6] == 0 )
+model.add_constraint( (x[2] + x[5])/x[1] - x[8] == 0 )

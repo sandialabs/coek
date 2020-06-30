@@ -23,16 +23,16 @@ sin = pk.sin
 
 model = pk.model()
 
-x1 = model.variable(value=1.41831)
-x2 = model.variable(value=-4.79462)
-u = model.variable(value = 1.0)
+x1 = model.add_variable(value=1.41831)
+x2 = model.add_variable(value=-4.79462)
+u = model.add_variable(value = 1.0)
 
-model.add( u )
+model.add_objective( u )
 
-model.add( 0 <= -(x1-(sqrt((x1*x1)+(x2*x2)))*cos((sqrt((x1*x1)+(x2*x2))))) * (x1\
+model.add_constraint( 0 <= -(x1-(sqrt((x1*x1)+(x2*x2)))*cos((sqrt((x1*x1)+(x2*x2))))) * (x1\
     -(sqrt((x1*x1)+(x2*x2)))*cos((sqrt((x1*x1)+(x2*x2))))) - 0.0050*x1 * x1 - \
     0.0050*x2 * x2 + u )
 
-model.add( 0 <= -(x2-(sqrt((x1*x1)+(x2*x2)))*sin((sqrt((x1*x1)+(x2*x2))))) * \
+model.add_constraint( 0 <= -(x2-(sqrt((x1*x1)+(x2*x2)))*sin((sqrt((x1*x1)+(x2*x2))))) * \
     (x2-(sqrt((x1*x1)+(x2*x2)))*sin((sqrt((x1*x1)+(x2*x2))))) - 0.0050*x1 * x1 - \
     0.0050*x2 * x2 + u )

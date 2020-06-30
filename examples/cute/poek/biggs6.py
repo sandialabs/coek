@@ -41,10 +41,10 @@ xinit[4]  = 1
 xinit[5]  = 4
 xinit[6]  = 3
 
-x = model.variable(index=S)
+x = model.add_variable(index=S)
 for i in S:
     x[i].value = xinit[i]
 
-model.add( sum((-math.exp(-0.1*i)+5*math.exp(-i)-3*math.exp(-0.4*i)\
+model.add_objective( sum((-math.exp(-0.1*i)+5*math.exp(-i)-3*math.exp(-0.4*i)\
     + x[3]*exp(-0.1*i*x[1]) - x[4]*exp(-0.1*i*x[2]) +\
     x[6]*exp(-0.1*i*x[5]))**2 for i in range(1,M+1)) )

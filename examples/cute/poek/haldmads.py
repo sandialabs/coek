@@ -30,18 +30,18 @@ model = pk.model()
 y = {i: -1.0+0.1*(i-1) for i in range(1,22)}
 ey = {i: exp(y[i]) for i in range(1,22)}
 
-x = model.variable(index=range(1,6))
+x = model.add_variable(index=range(1,6))
 for i in range(1,6):
     x[i].value = 0.5 if i==1 else 0.0
 
-u = model.variable(value=0.0)
+u = model.add_variable(value=0.0)
 
-model.add(u)
+model.add_objective(u)
 
 for i in range(1,22):
-    model.add( (x[1]+y[i]*x[2])/(1.0+x[3]*y[i]+\
+    model.add_constraint( (x[1]+y[i]*x[2])/(1.0+x[3]*y[i]+\
         x[4]*y[i]**2+x[5]*y[i]**3)-u <= ey[i] )
 
 for i in range(1,22):
-    model.add( -(x[1]+y[i]*x[2])/(1.0+x[3]*y[i]+x[4]*y[i]**2+\
+    model.add_constraint( -(x[1]+y[i]*x[2])/(1.0+x[3]*y[i]+x[4]*y[i]**2+\
         x[5]*y[i]**3)-u <= -ey[i] )

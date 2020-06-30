@@ -30,7 +30,7 @@ model = pk.model()
 
 N = 5000
 
-x = model.variable(N, value=3.0)
+x = model.add_variable(N, value=3.0)
 
-model.add( sum(100*x[i+1]**2 + 100*x[i+2]**2 + x[i]**2
+model.add_objective( sum(100*x[i+1]**2 + 100*x[i+2]**2 + x[i]**2
                for i in range(N-2)) )

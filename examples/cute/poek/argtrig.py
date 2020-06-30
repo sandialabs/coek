@@ -29,12 +29,12 @@ cos = pk.cos
 model = pk.model()
 
 N = 100
-x = model.variable(index=range(1,N+1), value=1.0/N)
+x = model.add_variable(index=range(1,N+1), value=1.0/N)
 
-model.add( pk.expression(0) )
+model.add_objective( pk.expression(0) )
 
 for i in x:
-    model.add( i*(cos(x[i])+sin(x[i])) + sum(cos(x[j]) for j in range(1,N+1)) == N+i )
+    model.add_constraint( i*(cos(x[i])+sin(x[i])) + sum(cos(x[j]) for j in range(1,N+1)) == N+i )
     
     
     

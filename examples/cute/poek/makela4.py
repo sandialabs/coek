@@ -29,18 +29,18 @@ model = pk.model()
 
 N = list(range(1,21))
 
-x = model.variable(index=N)
+x = model.add_variable(index=N)
 for i in N:
     if i <= 10:
         x[i].value = i
     else:
         x[i].value = -i
-u = model.variable()
+u = model.add_variable()
 
-model.add( u )
-
-for i in N:
-    model.add( -u + x[i] <=0 )
+model.add_objective( u )
 
 for i in N:
-    model.add( -u - x[i] <=0 )
+    model.add_constraint( -u + x[i] <=0 )
+
+for i in N:
+    model.add_constraint( -u - x[i] <=0 )

@@ -43,14 +43,14 @@ for i in R1:
     THIN[i] = 0.0
 
 
-TH = model.variable(index=R1)
-THI = model.variable(index=R1)
+TH = model.add_variable(index=R1)
+THI = model.add_variable(index=R1)
 
-model.add( sum( (TH[i]-THI[i])**2 for i in R1 ) )
+model.add_objective( sum( (TH[i]-THI[i])**2 for i in R1 ) )
 
-model.add( 0 == sum(cos(TH[i]) for i in R2 ) + 0.5*cos(TH[7]) - XPOS )
+model.add_constraint( 0 == sum(cos(TH[i]) for i in R2 ) + 0.5*cos(TH[7]) - XPOS )
 
-model.add( 0 == sum(sin(TH[i]) for i in R2) + 0.5*sin(TH[7]) - YPOS )
+model.add_constraint( 0 == sum(sin(TH[i]) for i in R2) + 0.5*sin(TH[7]) - YPOS )
 
 for i in R1:
-    model.add( THI[i] == THIN[i] )
+    model.add_constraint( THI[i] == THIN[i] )

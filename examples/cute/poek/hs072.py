@@ -22,12 +22,12 @@ b = {}
 b[1] = 0.0401
 b[2] = 0.010085
 
-x = model.variable(index=M, lb=0.001, value=1.0)
+x = model.add_variable(index=M, lb=0.001, value=1.0)
 
-model.add( 1 + sum(x[j] for j in M) )
+model.add_objective( 1 + sum(x[j] for j in M) )
 
 for i in N:
-    model.add( sum((a[i,j]/x[j]) for j in M) <= b[i] )
+    model.add_constraint( sum((a[i,j]/x[j]) for j in M) <= b[i] )
 
 for j in M:
-    model.add( x[j] <= (5 - j) * 1.0e5 )
+    model.add_constraint( x[j] <= (5 - j) * 1.0e5 )

@@ -28,12 +28,12 @@ exp = pk.exp
 
 model = pk.model()
 
-x = model.variable()
-y = model.variable()
+x = model.add_variable()
+y = model.add_variable()
 
 
-model.add(exp(x-2*y))
+model.add_objective(exp(x-2*y))
 
-model.add(sin(-x+y-1)==0)
-model.add(pk.inequality(-2,x,2))
-model.add(pk.inequality(-1.5,y,1.5))
+model.add_constraint(sin(-x+y-1)==0)
+model.add_constraint(pk.inequality(-2,x,2))
+model.add_constraint(pk.inequality(-1.5,y,1.5))

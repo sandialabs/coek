@@ -31,11 +31,11 @@ model = pk.model()
 n = 5000
 ngs = n-1
 
-x = model.variable(index=range(1,n+1))
+x = model.add_variable(index=range(1,n+1))
 x[1].value = 0.5
 x[2].value = -2.0
 for i in range(3,n+1):
     x[i].value = 0.0
 
-model.add( sum(((5.0-x[i+1])*x[i+1]**2+x[i]-2*x[i+1]-13.0)**2 for i in range(1,ngs+1))+\
+model.add_objective( sum(((5.0-x[i+1])*x[i+1]**2+x[i]-2*x[i+1]-13.0)**2 for i in range(1,ngs+1))+\
     sum(((1.0+x[i+1])*x[i+1]**2+x[i]-14*x[i+1]-29.0)**2 for i in range(1,ngs+1)) )

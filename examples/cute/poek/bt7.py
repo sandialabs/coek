@@ -31,14 +31,14 @@ model = pk.model()
 
 S = [1,2,3,4,5]
 
-x = model.variable(index=S, value=1)
+x = model.add_variable(index=S, value=1)
 x[1].value = -2
 
 
-model.add( 100*(x[2]-x[1]**2)**2 + (x[1]-1.0)**2 )
+model.add_objective( 100*(x[2]-x[1]**2)**2 + (x[1]-1.0)**2 )
 
-model.add( x[1]*x[2] - x[3]**2 == 1.0 )
+model.add_constraint( x[1]*x[2] - x[3]**2 == 1.0 )
     
-model.add( x[2]**2 - x[4]**2 + x[1] == 0.0 )
+model.add_constraint( x[2]**2 - x[4]**2 + x[1] == 0.0 )
     
-model.add( x[5]**2 + x[1] == 0.5 )
+model.add_constraint( x[5]**2 + x[1] == 0.5 )

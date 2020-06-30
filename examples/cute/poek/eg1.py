@@ -28,8 +28,8 @@ sin = pk.sin
 
 model = pk.model()
 
-x1 = model.variable()
-x2 = model.variable(lb=-1, ub=1)
-x3 = model.variable(lb=1, ub=2)
+x1 = model.add_variable()
+x2 = model.add_variable(lb=-1, ub=1)
+x3 = model.add_variable(lb=1, ub=2)
 
-model.add( x1**2 + (x2*x3)**4 + x1*x3 + x2*sin(x1+x3) + x2 )
+model.add_objective( x1**2 + (x2*x3)**4 + x1*x3 + x2*sin(x1+x3) + x2 )

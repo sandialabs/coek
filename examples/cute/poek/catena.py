@@ -41,24 +41,24 @@ mg = mass*gamma
 
 Sv = list(range(0,N+2))
 
-x = model.variable(index=Sv, name="x")
+x = model.add_variable(index=Sv, name="x")
 for i in Sv:
     x[i].value = i*length/(N+1.0)
-y = model.variable(index=Sv, name="y")
+y = model.add_variable(index=Sv, name="y")
 for i in Sv:
     y[i].value = -i*length/(N+1.0)
-z = model.variable(index=Sv, value=0.0, name="z")
+z = model.add_variable(index=Sv, value=0.0, name="z")
 
 obsum = 0
 for i in range(1,N+1):
     obsum += mg*y[i]
 obsum += mg*y[N+1]/2.0
 expr = mg*y[0]/2.0 + obsum
-model.add( expr )
+model.add_objective( expr )
 
 for i in range(1,N+2):
     expr = (x[i]-x[i-1])**2 + (y[i]-y[i-1])**2 + (z[i]-z[i-1])**2
-    model.add( expr == bl**2 )
+    model.add_constraint( expr == bl**2 )
 
 x[0].value = 0.0
 x[0].fixed = True

@@ -27,8 +27,8 @@ Rx = list(range(1,N+1))
 Rsum1 = list(range(1,Nplus+1))
 Rsum2 = list(range(Nplus+1,N+1))
 
-x = model.variable(index=Rx, lb=0.1, ub=10.0, value=0.5)
+x = model.add_variable(index=Rx, lb=0.1, ub=10.0, value=0.5)
 
-model.add(\
+model.add_objective(\
     sum( 0.5*i*(x[i]+x[ ((2*i-1) % N) + 1] + x[ ((3*i-1) % N) + 1 ] )**2 for i in Rsum1 ) -\
     sum( 0.5*i*(x[i]+x[ ((2*i-1) % N) + 1] + x[ ((3*i-1) % N) + 1 ] )**2 for i in Rsum2 ) )

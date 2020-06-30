@@ -32,8 +32,8 @@ deltax = Range/K
 
 N = list(range(1,K+1))
 
-M = model.variable(index=N, lb=0, value=1.0)
+M = model.add_variable(index=N, lb=0, value=1.0)
 
-model.add(sum((M[i]**2) for i in N))
-model.add(sum(((i**3)-((i-1)**3))*(deltax**3)*M[i]/3 for i in N) - 1835.2 == 0)
-model.add(sum(((i**5)-((i-1)**5))*(deltax**5)*M[i]/5 for i in N) - 909.8 == 0)
+model.add_objective(sum((M[i]**2) for i in N))
+model.add_constraint(sum(((i**3)-((i-1)**3))*(deltax**3)*M[i]/3 for i in N) - 1835.2 == 0)
+model.add_constraint(sum(((i**5)-((i-1)**5))*(deltax**5)*M[i]/5 for i in N) - 909.8 == 0)

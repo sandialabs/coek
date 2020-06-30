@@ -28,7 +28,7 @@ model = pk.model()
 
 N = list(range(1,11))
 
-x1 = model.variable(value=0.3)
-x2 = model.variable(value=0.4)
+x1 = model.add_variable(value=0.3)
+x2 = model.add_variable(value=0.4)
 
-model.add( sum((2+2*i-(exp(i*x1)+exp(i*x2)))**2 for i in N) ) 
+model.add_objective( sum((2+2*i-(exp(i*x1)+exp(i*x2)))**2 for i in N) ) 

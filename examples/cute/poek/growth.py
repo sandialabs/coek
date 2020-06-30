@@ -26,11 +26,11 @@ model = pk.model()
 
 n = 3
 
-u1 = model.variable(value=100.0)
-u2 = model.variable()
-u3 = model.variable()
+u1 = model.add_variable(value=100.0)
+u2 = model.add_variable()
+u3 = model.add_variable()
 
-model.add( (u1 * (8.0**(u2+(log(8.0))*u3)) - 8.0)**2 +\
+model.add_objective( (u1 * (8.0**(u2+(log(8.0))*u3)) - 8.0)**2 +\
     (u1 * (9.0**(u2+(log(9.0))*u3)) - \
     8.4305)**2 + (u1 * (10.0**(u2+(log(10.0))*u3)) - 9.5294)**2 + (u1 * \
     (11.0**(u2+(log(11.0))*u3)) - 10.4627)**2 + \

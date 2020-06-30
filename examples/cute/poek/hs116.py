@@ -29,7 +29,7 @@ d = 0.03475
 e = 0.975
 f = 0.00975
 
-x = model.variable(index=I, lb=0)
+x = model.add_variable(index=I, lb=0)
 x[1].value = 0.5
 x[2].value = 0.8
 x[3].value = 0.9
@@ -44,35 +44,35 @@ x[11].value= 150.0
 x[12].value= 150.0
 x[13].value= 150.0
 
-model.add( x[11]+x[12]+x[13] )
+model.add_objective( x[11]+x[12]+x[13] )
 
-model.add( x[3]-x[2] >= 0)
-model.add( x[2]-x[1] >= 0)
-model.add( 1-a*x[7]+a*x[8] >= 0)
-model.add( x[11]+x[12]+x[13] >= 50)
-model.add( x[13] - b * x[10] + c * x[3] * x[10] >= 0)
-model.add( x[5] - d * x[2] - e * x[2] * x[5] + f * x[2]**2 >= 0)
-model.add( x[6] - d * x[3] - e * x[3] * x[6] + f * x[3]**2 >= 0)
-model.add( x[4] - d * x[1] - e * x[1] * x[4] + f * x[1]**2 >= 0)
-model.add( x[12] - b * x[9] + c * x[2] * x[9] >= 0)
-model.add( x[11] - b * x[8] + c * x[1] * x[8] >= 0)
-model.add( x[5] * x[7] - x[1] * x[8] - x[4] * x[7] + x[4] * x[8] >= 0)
-model.add( 1 - a * (x[2] * x[9] + x[5] * x[8] - x[1] * x[8] - x[6] * x[9]) - x[5] - x[6] >= 0)
-model.add( x[2] * x[9] - x[3] * x[10] - x[6] * x[9] - 500 * x[2] + 500 * x[6] + x[2] * x[10] >= 0)
-model.add( x[2] - 0.9 - a * (x[2] * x[10] - x[3] * x[10]) >= 0)
-model.add( x[11] + x[12] + x[13] <= 250)
+model.add_constraint( x[3]-x[2] >= 0)
+model.add_constraint( x[2]-x[1] >= 0)
+model.add_constraint( 1-a*x[7]+a*x[8] >= 0)
+model.add_constraint( x[11]+x[12]+x[13] >= 50)
+model.add_constraint( x[13] - b * x[10] + c * x[3] * x[10] >= 0)
+model.add_constraint( x[5] - d * x[2] - e * x[2] * x[5] + f * x[2]**2 >= 0)
+model.add_constraint( x[6] - d * x[3] - e * x[3] * x[6] + f * x[3]**2 >= 0)
+model.add_constraint( x[4] - d * x[1] - e * x[1] * x[4] + f * x[1]**2 >= 0)
+model.add_constraint( x[12] - b * x[9] + c * x[2] * x[9] >= 0)
+model.add_constraint( x[11] - b * x[8] + c * x[1] * x[8] >= 0)
+model.add_constraint( x[5] * x[7] - x[1] * x[8] - x[4] * x[7] + x[4] * x[8] >= 0)
+model.add_constraint( 1 - a * (x[2] * x[9] + x[5] * x[8] - x[1] * x[8] - x[6] * x[9]) - x[5] - x[6] >= 0)
+model.add_constraint( x[2] * x[9] - x[3] * x[10] - x[6] * x[9] - 500 * x[2] + 500 * x[6] + x[2] * x[10] >= 0)
+model.add_constraint( x[2] - 0.9 - a * (x[2] * x[10] - x[3] * x[10]) >= 0)
+model.add_constraint( x[11] + x[12] + x[13] <= 250)
 
-model.add( pk.inequality(0.1, x[1], 1) )
-model.add( pk.inequality(0.1, x[2], 1) )
-model.add( pk.inequality(0.1, x[3], 1) )
-model.add( pk.inequality(0.0001, x[4], 0.1) )
-model.add( pk.inequality(0.1, x[5], 0.9) )
-model.add( pk.inequality(0.1, x[6], 0.9) )
-model.add( pk.inequality(0.1, x[7], 1000) )
-model.add( pk.inequality(0.1, x[8], 1000) )
-model.add( pk.inequality(500, x[9], 1000) )
-model.add( pk.inequality(0.1, x[10], 500) )
-model.add( pk.inequality(1, x[11], 150) )
-model.add( pk.inequality(0.0001, x[12], 150) )
-model.add( pk.inequality(0.0001, x[13], 150) )
+model.add_constraint( pk.inequality(0.1, x[1], 1) )
+model.add_constraint( pk.inequality(0.1, x[2], 1) )
+model.add_constraint( pk.inequality(0.1, x[3], 1) )
+model.add_constraint( pk.inequality(0.0001, x[4], 0.1) )
+model.add_constraint( pk.inequality(0.1, x[5], 0.9) )
+model.add_constraint( pk.inequality(0.1, x[6], 0.9) )
+model.add_constraint( pk.inequality(0.1, x[7], 1000) )
+model.add_constraint( pk.inequality(0.1, x[8], 1000) )
+model.add_constraint( pk.inequality(500, x[9], 1000) )
+model.add_constraint( pk.inequality(0.1, x[10], 500) )
+model.add_constraint( pk.inequality(1, x[11], 150) )
+model.add_constraint( pk.inequality(0.0001, x[12], 150) )
+model.add_constraint( pk.inequality(0.0001, x[13], 150) )
 

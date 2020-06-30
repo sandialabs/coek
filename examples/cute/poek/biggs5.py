@@ -42,7 +42,7 @@ xinit[4] = 1
 xinit[5] = 4
 xinit[6] = 3
 
-x = model.variable(index=S)
+x = model.add_variable(index=S)
 for i in S:
     x[i].value = xinit[i]
 
@@ -50,6 +50,6 @@ sum1 = 0
 for i in SS:
     sum1 += (-exp(-0.1*i)+5*exp(-i)-3*exp(-0.4*i)+ x[3]*pk.exp(-0.1*i*x[1])\
     - x[4]*pk.exp(-0.1*i*x[2]) + x[6]*pk.exp(-0.1*i*x[5]))**2
-model.add( sum1 )
+model.add_objective( sum1 )
 
-model.add( x[6] == 3 )
+model.add_constraint( x[6] == 3 )

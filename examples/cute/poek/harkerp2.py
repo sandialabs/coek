@@ -30,11 +30,11 @@ model = pk.model()
 
 N=100
 
-x = model.variable(index=range(1,N+1), lb=0.0)
+x = model.add_variable(index=range(1,N+1), lb=0.0)
 for i in range(1,N+1):
     x[i].value = i
 
-model.add( sum (-1*x[i]**2*0.5 for i in range(1,N+1)) +\
+model.add_objective( sum (-1*x[i]**2*0.5 for i in range(1,N+1)) +\
     sum(-x[i]for i in range(1,N+1)) +\
     (sum(x[i] for i in range(1,N+1)))**2+\
     sum (2*(sum(x[i] for i in range(j,N+1)))**2 for j in range(2,N+1)) )

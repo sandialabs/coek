@@ -41,12 +41,12 @@ SS2 = list(range(N1+1,N+1))
 A = {i:Biga-(i-1)*F2 for i in S }
 B = {i:(i-1)*F+1.0 for i in S}
 
-x = model.variable(index=S, lb=0, value=0.0)
+x = model.add_variable(index=S, lb=0, value=0.0)
 
-model.add( A[1]*(x[1]-0.5)**2 +\
+model.add_objective( A[1]*(x[1]-0.5)**2 +\
            sum(A[i]*(x[i]+1.0)**2 for i in SS1) +\
            sum(A[i]*(x[i]-1.0)**2 for i in SS2) )
 
-model.add( -B[1]*x[1]+B[1] +\
+model.add_constraint( -B[1]*x[1]+B[1] +\
            sum(B[i]*(x[i]-0.0)**2 for i in SS1) +\
            sum(B[i]*(x[i]-1.0)**2 for i in SS2) == 0 )

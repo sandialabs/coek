@@ -29,13 +29,13 @@ exp = pk.exp
 model = pk.model()
 
 S = [1,2]
-x = model.variable(index=S, value=2.0)
-u = model.variable(value=1.0)
+x = model.add_variable(index=S, value=2.0)
+u = model.add_variable(value=1.0)
 
-model.add( u )
+model.add_objective( u )
 
-model.add( u-x[1]**4-x[2]**2 >= 0 )
+model.add_constraint( u-x[1]**4-x[2]**2 >= 0 )
 
-model.add( u-(2.0-x[1])**2-(2.0-x[2])**2 >= 0 )
+model.add_constraint( u-(2.0-x[1])**2-(2.0-x[2])**2 >= 0 )
 
-model.add( u-2*exp(x[2]-x[1]) >= 0 )
+model.add_constraint( u-2*exp(x[2]-x[1]) >= 0 )

@@ -39,13 +39,13 @@ RE = 4500.0
 S1 = list(range(-1,M+3))
 S2 = list(range(1,M+1))
 
-y = model.variable(index=list((i,j) for i in S1 for j in S1), value=0.0)
+y = model.add_variable(index=list((i,j) for i in S1 for j in S1), value=0.0)
 
-model.add( pk.expression(0) )
+model.add_objective( pk.expression(0) )
 
 for i in S2:
     for j in S2:
-        model.add( (20*y[i,j]-8*y[i-1,j]-8*y[i+1,j]\
+        model.add_constraint( (20*y[i,j]-8*y[i-1,j]-8*y[i+1,j]\
             -8*y[i,j-1]-8*y[i,j+1]+2*y[i-1,j+1]+2*y[i+1,j-1]+2*y[i-1,j-1]+2*y[i+1,j+1] +\
             y[i-2,j] + y[i+2,j] + y[i,j-2] + y[i,j+2] + (RE/4.0)*(y[i,j+1]-y[i,j-1])\
             *(y[i-2,j]+y[i-1,j-1]+y[i-1,j+1]-4*y[i-1,j]-4*y[i+1,j]-y[i+1,j-1] \

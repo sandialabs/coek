@@ -52,9 +52,9 @@ C = {i: 1 if i==0 else (-1)**i*B[K]/(B[i]*B[K-i]) for i in S}
 
 T = {i: (i-1.0)/(N+K-1.0) for i in R}
 
-x = model.variable(index=R, value=0.0)
+x = model.add_variable(index=R, value=0.0)
 
-model.add( sum(-(sqrt(T[i])+0.1*sin(i))*x[i] for i in R) + sum(0.5*(sqrt(T[i])+0.1*sin(i))**2 for i in R) + sum(0.5*x[i]**2 for i in R) )
+model.add_objective( sum(-(sqrt(T[i])+0.1*sin(i))*x[i] for i in R) + sum(0.5*(sqrt(T[i])+0.1*sin(i))**2 for i in R) + sum(0.5*x[i]**2 for i in R) )
 
 for j in Q:
-    model.add( sum(C[i]*x[j+K-i] for i in S) >= 0 )
+    model.add_constraint( sum(C[i]*x[j+K-i] for i in S) >= 0 )

@@ -27,12 +27,12 @@ model = pk.model()
 
 n = 250
 
-x = model.variable(index=range(1,n+1), value=1.0)
+x = model.add_variable(index=range(1,n+1), value=1.0)
 
-model.add( sum(exp(x[j]-x[i]) for i in range(1,n) for j in range(i+1,n+1)) )
-
-for i in range(1,n):
-    model.add( x[i]+x[i+1] >= 0.0 )
+model.add_objective( sum(exp(x[j]-x[i]) for i in range(1,n) for j in range(i+1,n+1)) )
 
 for i in range(1,n):
-    model.add( exp(x[i])+exp(x[i+1]) <= 20.0 )
+    model.add_constraint( x[i]+x[i+1] >= 0.0 )
+
+for i in range(1,n):
+    model.add_constraint( exp(x[i])+exp(x[i+1]) <= 20.0 )

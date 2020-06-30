@@ -29,6 +29,6 @@ import poek as pk
 model = pk.model()
 
 N = 5000
-x = model.variable(N, value=2.0)
+x = model.add_variable(N, value=2.0)
 
-model.add( sum((x[i]-i)**4 for i in x) )
+model.add_objective( sum((x[i]-i)**4 for i in x) )

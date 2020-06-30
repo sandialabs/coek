@@ -40,19 +40,19 @@ fmax = xt/t
 S = list(range(0,t+1))
 SS = list(range(1,t+1))
 
-x = model.variable(index=S)
+x = model.add_variable(index=S)
 for i in x:
     x[i].lb = 0
     x[i].ub = xt
-y = model.variable(index=S)
-z = model.variable(index=S)
-vx = model.variable(index=S, value=1.0)
-vy = model.variable(index=S)
-vz = model.variable(index=S)
+y = model.add_variable(index=S)
+z = model.add_variable(index=S)
+vx = model.add_variable(index=S, value=1.0)
+vy = model.add_variable(index=S)
+vz = model.add_variable(index=S)
 
-ux = model.variable(index=SS)
-uy = model.variable(index=SS)
-uz = model.variable(index=SS)
+ux = model.add_variable(index=SS)
+uy = model.add_variable(index=SS)
+uz = model.add_variable(index=SS)
 for i in SS:
     ux[i].lb = -fmax
     ux[i].ub =  fmax
@@ -80,19 +80,19 @@ vy[t].fixed=True
 vz[t].value = 0.0
 vz[t].fixed=True
 
-model.add( sum((i*h/w)*(x[i] - xt)**2 for i in SS) )
+model.add_objective( sum((i*h/w)*(x[i] - xt)**2 for i in SS) )
 
 for i in SS:
-    model.add( mass*(vx[i]-vx[i-1])/h - ux[i] == 0 )
+    model.add_constraint( mass*(vx[i]-vx[i-1])/h - ux[i] == 0 )
 for i in SS:
-    model.add( mass*(vy[i]-vy[i-1])/h - uy[i] == 0 )
+    model.add_constraint( mass*(vy[i]-vy[i-1])/h - uy[i] == 0 )
 for i in SS:
-    model.add( mass*(vz[i]-vz[i-1])/h - uz[i] == 0 )
+    model.add_constraint( mass*(vz[i]-vz[i-1])/h - uz[i] == 0 )
 for i in SS:
-    model.add( (x[i]-x[i-1])/h - vx[i] == 0 )
+    model.add_constraint( (x[i]-x[i-1])/h - vx[i] == 0 )
 for i in SS:
-    model.add( (y[i]-y[i-1])/h - vy[i] == 0 )
+    model.add_constraint( (y[i]-y[i-1])/h - vy[i] == 0 )
 for i in SS:
-    model.add( (z[i]-z[i-1])/h - vz[i] == 0 )
+    model.add_constraint( (z[i]-z[i-1])/h - vz[i] == 0 )
 for i in SS:
-    model.add( (y[i] - sin(x[i]))**2 + (z[i] - cos(x[i]))**2 - tol**2 <= 0 )
+    model.add_constraint( (y[i] - sin(x[i]))**2 + (z[i] - cos(x[i]))**2 - tol**2 <= 0 )

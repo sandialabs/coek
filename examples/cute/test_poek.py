@@ -25,10 +25,9 @@ def poek_baseline_test(self, name):
         self.skipTest('Ignoring test '+name)
         return
 
-    #print("RUNNING",name)
-    #timing.tic("")
+    timing.tic("RUNNING: "+name)
     self.poek( currdir+name+'.py', currdir+name+'.test.nl' )
-    #timing.toc(name)
+    timing.toc(name)
 
     # Check that the pyomo nl file matches its own baseline
     self.assertFileEqualsBaseline(

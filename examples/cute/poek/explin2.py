@@ -25,10 +25,10 @@ n = 120
 m = 10
 
 S = list(range(1,n+1))
-x = model.variable(index=S, lb=0, ub=10, value=0.0)
+x = model.add_variable(index=S, lb=0, ub=10, value=0.0)
 
 SS = list(range(1,m+1))
 
 sum1 = sum(exp(0.1*i*x[i]*x[i+1]/m)  for i in SS)
 sum2 = sum((-10.0*i*x[i]) for i in S)
-model.add( sum1 + sum2 )
+model.add_objective( sum1 + sum2 )

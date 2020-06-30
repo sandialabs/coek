@@ -36,13 +36,13 @@ h = diff/M
 S = [1,2]
 OP = list(range(0,M+1))
 
-u = model.variable()
-x = model.variable(index=S)
+u = model.add_variable()
+x = model.add_variable(index=S)
 
-model.add( u )
-
-for i in OP:
-    model.add( u - (i*h + lower)*x[1] - exp(i*h + lower)*x[2] - (i*h + lower)**2 >= 0 )
+model.add_objective( u )
 
 for i in OP:
-    model.add( u + (i*h + lower)*x[1] + exp(i*h + lower)*x[2] + (i*h + lower)**2 >= 0 )
+    model.add_constraint( u - (i*h + lower)*x[1] - exp(i*h + lower)*x[2] - (i*h + lower)**2 >= 0 )
+
+for i in OP:
+    model.add_constraint( u + (i*h + lower)*x[1] + exp(i*h + lower)*x[2] + (i*h + lower)**2 >= 0 )

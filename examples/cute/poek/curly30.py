@@ -27,10 +27,10 @@ model = pk.model()
 N = 10000
 K = 30
 
-x = model.variable(index=range(1,N+1), value=0.0001/(N+1))
+x = model.add_variable(index=range(1,N+1), value=0.0001/(N+1))
 
 Q = {i: sum(x[j] for j in range(i,i+K+1)) if i<=N-K else\
         sum(x[j] for j in range(i,N+1)) \
      for i in range(1,N+1)}
 
-model.add( sum(Q[i]*(Q[i]*(Q[i]**2-20)-0.1) for i in range(1,N+1)) )
+model.add_objective( sum(Q[i]*(Q[i]*(Q[i]**2-20)-0.1) for i in range(1,N+1)) )

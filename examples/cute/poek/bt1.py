@@ -29,10 +29,10 @@ model = pk.model()
 
 S = [1,2]
 
-x = model.variable(index=S)
+x = model.add_variable(index=S)
 x[1].value = 0.08
 x[2].value = 0.06
 
-model.add( 100*x[1]**2+100*x[2]**2-x[1]-100 )
+model.add_objective( 100*x[1]**2+100*x[2]**2-x[1]-100 )
 
-model.add( x[1]**2+x[2]**2-1.0 == 0 )
+model.add_constraint( x[1]**2+x[2]**2-1.0 == 0 )

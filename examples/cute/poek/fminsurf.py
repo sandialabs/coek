@@ -42,9 +42,9 @@ h01 = h00+slopej
 h10 = h00+slopei
 
 S = [(i,j) for i in range(1,p+1) for j in range(1,p+1)]
-x = model.variable(index=S)
+x = model.add_variable(index=S)
 
-model.add( sum((0.5*(p-1)**2*((x[i,j]-x[i+1,j+1])**2+(x[i+1,j]-x[i,j+1])**2)+1.0)\
+model.add_objective( sum((0.5*(p-1)**2*((x[i,j]-x[i+1,j+1])**2+(x[i+1,j]-x[i,j+1])**2)+1.0)\
     **0.5 for i in range(1,p) for j in range(1,p))/scale +\
     (sum(x[i,j] for j in range(1,p+1) for i in range(1,p+1)))**2/p**4 )
 

@@ -31,8 +31,8 @@ N = 10
 M = 20
 S = list(range(1,N+1))
 
-x = model.variable(index=S, value=1.0)
+x = model.add_variable(index=S, value=1.0)
 
-model.add( 2 + sum( (sum(x[j]*j*(i-1) for j in range(2,N)) - 1.0)**2 
+model.add_objective( 2 + sum( (sum(x[j]*j*(i-1) for j in range(2,N)) - 1.0)**2 
                     for i in range(2,M) ) )
 

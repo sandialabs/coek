@@ -35,9 +35,9 @@ M=99
 t = {i: i/100.0 for i in range(1,M+1)}
 y = {i: 25+ (-50*log(t[i]))**(2.0/3.0) for i in range(1,M+1)}
 
-x = model.variable(index=[1,2,3])
+x = model.add_variable(index=[1,2,3])
 x[1].value = 5.0;
 x[2].value = 2.5;
 x[3].value = 0.15;
 
-model.add( sum((pk.exp(abs(y[i]-x[2])**x[3]/(-x[1]))-t[i])**2 for i in range(1,M+1)) )
+model.add_objective( sum((pk.exp(abs(y[i]-x[2])**x[3]/(-x[1]))-t[i])**2 for i in range(1,M+1)) )

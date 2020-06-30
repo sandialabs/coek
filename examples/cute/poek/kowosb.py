@@ -37,10 +37,10 @@ with open('kowosb.json', 'r') as INPUT:
 y = {int(key):value for key,value in data["y"].items()}
 u = {int(key):value for key,value in data["u"].items()}
 
-x = model.variable(index=n)
+x = model.add_variable(index=n)
 x[1].value = 0.25
 x[2].value = 0.39
 x[3].value = 0.415
 x[4].value = 0.39
 
-model.add( sum((y[i]-x[1]*(u[i]**2+u[i]*x[2])/(u[i]**2+u[i]*x[3]+x[4]))**2 for i in m) )
+model.add_objective( sum((y[i]-x[1]*(u[i]**2+u[i]*x[2])/(u[i]**2+u[i]*x[3]+x[4]))**2 for i in m) )

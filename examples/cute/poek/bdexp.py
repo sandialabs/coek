@@ -31,9 +31,9 @@ model = pk.model()
 N = 5000
 ngs = N-2
 
-x = model.variable(index=range(1,N+1), value=1.0)
+x = model.add_variable(index=range(1,N+1), value=1.0)
 
-model.add( sum((x[i] + x[i+1]) * exp((x[i] + x[i+1])*(-x[i+2]))
+model.add_objective( sum((x[i] + x[i+1]) * exp((x[i] + x[i+1])*(-x[i+2]))
                for i in range(1,ngs+1)) )
 
 

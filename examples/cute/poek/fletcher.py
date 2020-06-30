@@ -29,12 +29,12 @@ model = pk.model()
 
 S1 = list(range(1,5))
 
-x = model.variable(index=S1, value=1)
+x = model.add_variable(index=S1, value=1)
 
-model.add( x[1]*x[2] )
+model.add_objective( x[1]*x[2] )
 
-model.add( (x[1]*x[3]+x[2]*x[4])**2/(x[1]**2+x[2]**2) - x[3]**2 - x[4]**2 + 1 == 0 )
-model.add( x[1]-x[3]-1 >= 0 )
-model.add( x[2]-x[4]-1 >= 0 )
-model.add( x[3]-x[4] >= 0 )
-model.add( x[4] >= 1 )
+model.add_constraint( (x[1]*x[3]+x[2]*x[4])**2/(x[1]**2+x[2]**2) - x[3]**2 - x[4]**2 + 1 == 0 )
+model.add_constraint( x[1]-x[3]-1 >= 0 )
+model.add_constraint( x[2]-x[4]-1 >= 0 )
+model.add_constraint( x[3]-x[4] >= 0 )
+model.add_constraint( x[4] >= 1 )

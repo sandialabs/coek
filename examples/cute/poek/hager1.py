@@ -30,15 +30,15 @@ model = pk.model()
 
 N = 5000
 
-x = model.variable(N+1, value=0.0)
-u = model.variable(index=range(1,N+1), value=0.0)
+x = model.add_variable(N+1, value=0.0)
+u = model.add_variable(index=range(1,N+1), value=0.0)
 
 sum_expr = sum((u[i]**2)/(2*N) for i in u)
 expr = 0.5*x[N]**2 + sum_expr
-model.add( expr )
+model.add_objective( expr )
 
 for i in u:
     body = (N-0.5)*x[i] + (-N - 0.5)*x[i-1] - u[i]
-    model.add( body == 0 )
+    model.add_constraint( body == 0 )
 
-model.add( x[0] == 1 )
+model.add_constraint( x[0] == 1 )

@@ -37,7 +37,7 @@ M = list(range(1,m+1))
 # LOAD DATA
 A = Param(M,N)
 
-X = model.variable(index=N)
+X = model.add_variable(index=N)
 x[1].value = 0
 x[2].value = 0
 x[3].value = 0
@@ -55,14 +55,14 @@ P3 = -0.716*X[1]*X[2])-(1.578*X[1]*X[4])+(1.132*X[4]*X[2])
 P4 = -1*X[1]*X[5]
 P5 = X[1]*X[4]
 
-model.add( (AX[1]+P1)**2 \
+model.add_objective( (AX[1]+P1)**2 \
           +(AX[2]+P2)**2 \
           +(AX[3]+P3)**2 \
           +(AX[4]+P4)**2 \
           +(AX[5]+P5)**2 )
 
-model.add( X[6] == -0.05 )
+model.add_constraint( X[6] == -0.05 )
 
-model.add( X[7] == 0.1 )
+model.add_constraint( X[7] == 0.1 )
 
-model.add( X[8] == 0.0 )
+model.add_constraint( X[8] == 0.0 )

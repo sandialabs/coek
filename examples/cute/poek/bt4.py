@@ -32,13 +32,13 @@ import poek as pk
 
 model = pk.model()
 
-x = model.variable(index=[1,2,3])
+x = model.add_variable(index=[1,2,3])
 x[1].value =  4.0382
 x[2].value = -2.9470
 x[3].value = -0.09115
 
-model.add( x[1]-x[2]+x[2]**3 )
+model.add_objective( x[1]-x[2]+x[2]**3 )
 
-model.add( -25+x[1]**2+x[2]**2+x[3]**2 == 0 )
+model.add_constraint( -25+x[1]**2+x[2]**2+x[3]**2 == 0 )
 
-model.add( x[1]+x[2]+x[3]-1 == 0 )
+model.add_constraint( x[1]+x[2]+x[3]-1 == 0 )

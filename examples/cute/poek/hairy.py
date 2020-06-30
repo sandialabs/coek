@@ -30,9 +30,9 @@ model = pk.model()
 hlength=30
 cslope=100
 
-x1 = model.variable(value=-5)
-x2 = model.variable(value=-7)
+x1 = model.add_variable(value=-5)
+x2 = model.add_variable(value=-7)
 
 
-model.add( sin(7*x1)**2*cos(7*x2)**2*hlength +\
+model.add_objective( sin(7*x1)**2*cos(7*x2)**2*hlength +\
     cslope*sqrt(0.01+(x1-x2)**2) + cslope*sqrt(0.01+x1**2) )

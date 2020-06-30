@@ -33,22 +33,22 @@ t = {
 }
 b = 32
 
-x = model.variable(index=M, lb=0, ub=1.58, value=0.5)
-q = model.variable(index=N)
-s = model.variable(index=N)
+x = model.add_variable(index=M, lb=0, ub=1.58, value=0.5)
+q = model.add_variable(index=N)
+s = model.add_variable(index=N)
 
-model.add( -(sum(a[j+1]*(t[j+1]-t[j])*cos(x[j]) for j in M)**2) )
+model.add_objective( -(sum(a[j+1]*(t[j+1]-t[j])*cos(x[j]) for j in M)**2) )
 
-model.add( q[8] == 1.0e+5 )
-model.add( s[8] == 1.0e+3 )
-model.add( q[1] == 0.0 )
-model.add( s[1] == 0.0 )
+model.add_constraint( q[8] == 1.0e+5 )
+model.add_constraint( s[8] == 1.0e+3 )
+model.add_constraint( q[1] == 0.0 )
+model.add_constraint( s[1] == 0.0 )
 for i in L:
-    model.add( q[i] == 0.5*(t[i]-t[i-1])**2*(a[i]*sin(x[i-1]) - b)\
+    model.add_constraint( q[i] == 0.5*(t[i]-t[i-1])**2*(a[i]*sin(x[i-1]) - b)\
      + (t[i]-t[i-1])*s[i-1] + q[i-1] )
 for i in L:
-    model.add( s[i] == (t[i]-t[i-1])*(a[i]*sin(x[i-1]) - b) + s[i-1] )
+    model.add_constraint( s[i] == (t[i]-t[i-1])*(a[i]*sin(x[i-1]) - b) + s[i-1] )
 
-#model.add( r[1] == 0 )
+#model.add_constraint( r[1] == 0 )
 
-#model.add( r[i] == a[i]*(t[i]-t[i-1])*cos(x[i-1]) + r[i-1] )
+#model.add_constraint( r[i] == a[i]*(t[i]-t[i-1])*cos(x[i-1]) + r[i-1] )

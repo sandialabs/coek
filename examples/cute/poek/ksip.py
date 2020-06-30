@@ -42,9 +42,9 @@ m = 1000
 N = list(range(1,n+1))
 M = list(range(0,m+1))
 
-x = model.variable(index=N, value=2.0)
+x = model.add_variable(index=N, value=2.0)
 
-model.add(sum((x[j]**2/(2.0*j) + x[j]/j) for j in N))
+model.add_objective(sum((x[j]**2/(2.0*j) + x[j]/j) for j in N))
 
 for i in M:
-    model.add( sum((i/m)**(j-1)*x[j] for j in N) >= sin(i/m) )
+    model.add_constraint( sum((i/m)**(j-1)*x[j] for j in N) >= sin(i/m) )

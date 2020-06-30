@@ -29,13 +29,13 @@ import poek as pk
 
 model = pk.model()
 
-x = model.variable(index=[1,2,3,4,5], value=2.0)
+x = model.add_variable(index=[1,2,3,4,5], value=2.0)
 
-model.add( (x[1]-1.0)**2 + (x[1]-x[2])**2 +\
+model.add_objective( (x[1]-1.0)**2 + (x[1]-x[2])**2 +\
     (x[2]-x[3])**2 + (x[3]-x[4])**4 + (x[4]-x[5])**4 )
 
-model.add( x[1]+x[2]**2+x[3]**3 == -2+(18.0)**0.5 )
+model.add_constraint( x[1]+x[2]**2+x[3]**3 == -2+(18.0)**0.5 )
 
-model.add( x[2]+x[4]-x[3]**2 == -2+(8.0)**0.5 )
+model.add_constraint( x[2]+x[4]-x[3]**2 == -2+(8.0)**0.5 )
 
-model.add( x[1]-x[5] == 2.0 )
+model.add_constraint( x[1]-x[5] == 2.0 )

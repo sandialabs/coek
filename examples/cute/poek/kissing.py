@@ -78,16 +78,16 @@ with open('kissing.csv') as csvfile:
     for i,j,init in reader:
         x_init[int(i),int(j)] = float(init)
 
-x = model.variable(index=x_index)
+x = model.add_variable(index=x_index)
 for i,j in x_index:
     x[i,j].value = x_init[i,j] if i <= 12 else 0.0
-z = model.variable()
+z = model.add_variable()
 
-model.add( z )
+model.add_objective( z )
 
 for i in range(1,np):
     for j in range(i+1,np+1):
-        model.add( sum(x[i,k]*x[j,k] for k in M) - z <= 0.0 )
+        model.add_constraint( sum(x[i,k]*x[j,k] for k in M) - z <= 0.0 )
 
 for i in N:
-    model.add( sum(x[i,k]**2 for k in M) == 1.0 )
+    model.add_constraint( sum(x[i,k]**2 for k in M) == 1.0 )

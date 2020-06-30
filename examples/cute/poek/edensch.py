@@ -30,7 +30,7 @@ import poek as pk
 model = pk.model()
 
 N = 2000
-x = model.variable(index=range(1,N+1), value=0.0)
+x = model.add_variable(index=range(1,N+1), value=0.0)
 
-model.add( sum((x[i]-2)**4 + (x[i]*x[i+1]-2*x[i+1])**2 +\
+model.add_objective( sum((x[i]-2)**4 + (x[i]*x[i+1]-2*x[i+1])**2 +\
     (x[i+1]+1)**2 for i in range(1,N)) + 16 )

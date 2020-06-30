@@ -30,13 +30,13 @@ model = pk.model()
 ri = 50
 t = -25.5 + 50
 
-x = model.variable(index=range(1,ri+1))
+x = model.add_variable(index=range(1,ri+1))
 for j in range(1,ri+1):
     x[j].value = -25.5+j
 
-u = model.variable() 
+u = model.add_variable() 
 
-model.add(u)
+model.add_objective(u)
 
 for i in range(1,ri+1):
-    model.add( u >= 50*x[i] - sum(x[i] for i in x) )
+    model.add_constraint( u >= 50*x[i] - sum(x[i] for i in x) )

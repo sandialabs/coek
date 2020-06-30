@@ -36,24 +36,24 @@ h = 1.0/ni
 
 S = list(range(ni+1))
 
-t = model.variable(index=S, lb=-1.0, ub=1.0)
+t = model.add_variable(index=S, lb=-1.0, ub=1.0)
 for i in S:
     t[i].value = 0.05*math.cos(i*h)
 
-x = model.variable(index=S, lb=-0.05, ub=0.05)
+x = model.add_variable(index=S, lb=-0.05, ub=0.05)
 for i in S:
     x[i].value = 0.05*math.cos(i*h)
 
-u = model.variable(index=S)
+u = model.add_variable(index=S)
 
-model.add( sum((0.5*h*(u[i+1]**2 + u[i]**2) + 0.5*alpha*h*(cos(t[i+1]) +\
+model.add_objective( sum((0.5*h*(u[i+1]**2 + u[i]**2) + 0.5*alpha*h*(cos(t[i+1]) +\
     cos(t[i]))) for i in range(ni)) )
 
 for i in range(ni):
-    model.add( x[i+1] - x[i] - 0.5*h*(sin(t[i+1]) + sin(t[i]))== 0 )
+    model.add_constraint( x[i+1] - x[i] - 0.5*h*(sin(t[i+1]) + sin(t[i]))== 0 )
 
 for i in range(ni):
-    model.add( t[i+1] - t[i] - 0.5*h*u[i+1] - 0.5*h*u[i] == 0 )
+    model.add_constraint( t[i+1] - t[i] - 0.5*h*u[i+1] - 0.5*h*u[i] == 0 )
 
 x[0].value = 0.0
 x[0].fixed = True

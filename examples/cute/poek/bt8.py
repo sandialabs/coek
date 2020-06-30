@@ -31,12 +31,12 @@ model = pk.model()
 
 S = [1,2,3,4,5]
 
-x = model.variable(index=S)
+x = model.add_variable(index=S)
 for i in S:
     x[i].value = 1 if i<=3 else 0
 
-model.add( x[1]**2+x[2]**2+x[3]**2 )
+model.add_objective( x[1]**2+x[2]**2+x[3]**2 )
 
-model.add( x[1]-1-x[4]**2+x[2]**2 == 0 )
+model.add_constraint( x[1]-1-x[4]**2+x[2]**2 == 0 )
 
-model.add( -1+x[1]**2+x[2]**2-x[5]**2 == 0 )
+model.add_constraint( -1+x[1]**2+x[2]**2-x[5]**2 == 0 )

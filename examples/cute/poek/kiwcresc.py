@@ -28,12 +28,12 @@ model = pk.model()
 
 N = [1,2]
 
-x = model.variable(index=N)
+x = model.add_variable(index=N)
 x[1].value = -1.5
 x[2].value =  2.0
-u = model.variable()
+u = model.add_variable()
 
-model.add( u )
+model.add_objective( u )
 
-model.add( -u+x[2]-1+x[1]**2+(x[2]-1.0)**2 <= 0.0 )
-model.add( -u+x[2]+1-x[1]**2-(x[2]-1.0)**2 <= 0.0 )
+model.add_constraint( -u+x[2]-1+x[1]**2+(x[2]-1.0)**2 <= 0.0 )
+model.add_constraint( -u+x[2]+1-x[1]**2-(x[2]-1.0)**2 <= 0.0 )

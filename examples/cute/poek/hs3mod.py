@@ -31,10 +31,10 @@ model = pk.model()
 
 N = [1,2]
 
-x = model.variable(index=N)
+x = model.add_variable(index=N)
 x[1].value = 10
 x[2].value = 1
 
-model.add( x[2]+(-x[1]+x[2])**2 )
+model.add_objective( x[2]+(-x[1]+x[2])**2 )
 
-model.add( x[2] >= 0 )
+model.add_constraint( x[2] >= 0 )

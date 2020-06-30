@@ -26,7 +26,7 @@ sin = pk.sin
 model = pk.model()
 zeta = 20.0
 
-x = model.variable(value=-506.0)
-y = model.variable(value=-506.2)
+x = model.add_variable(value=-506.0)
+y = model.add_variable(value=-506.2)
 
-model.add( 0.05*(x**2+y**2)+(sin(zeta*x)*sin(zeta*y))**2 )
+model.add_objective( 0.05*(x**2+y**2)+(sin(zeta*x)*sin(zeta*y))**2 )

@@ -33,10 +33,10 @@ num[3] = 19.0
 num[4] = 7.0
 num[5] = 1.0
 
-x = model.variable(index=S, lb=0.000001, value=1.0)
+x = model.add_variable(index=S, lb=0.000001, value=1.0)
 
 se = sum(x[i] for i in S)
-model.add( se*0.0624 )
+model.add_objective( se*0.0624 )
 
 see = sum(num[i]/x[i]**3 for i in S)
-model.add( see - 1.0 <= 0 )
+model.add_constraint( see - 1.0 <= 0 )

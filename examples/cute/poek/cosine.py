@@ -28,6 +28,6 @@ model = pk.model()
 
 N = 10000
 
-x = model.variable(index=range(1,N+1), value=1.0)
+x = model.add_variable(index=range(1,N+1), value=1.0)
     
-model.add( sum(cos(-0.5*x[i+1]+x[i]**2) for i in range(1,N)) )
+model.add_objective( sum(cos(-0.5*x[i+1]+x[i]**2) for i in range(1,N)) )

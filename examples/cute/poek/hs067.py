@@ -25,10 +25,10 @@ a[12]=  12.0
 a[13]=   4.0
 a[14]= 162.0
 
-x1 = model.variable(lb=1.0e-5, ub=2.0e+3)
-x2 = model.variable(lb=1.0e-5, ub=1.6e+4)
-x3 = model.variable(lb=1.0e-5, ub=1.2e+2)
-y  = model.variable(index=N, value=0.0)
+x1 = model.add_variable(lb=1.0e-5, ub=2.0e+3)
+x2 = model.add_variable(lb=1.0e-5, ub=1.6e+4)
+x3 = model.add_variable(lb=1.0e-5, ub=1.2e+2)
+y  = model.add_variable(index=N, value=0.0)
 x1.value =  1745.0
 x2.value = 12000.0
 x3.value =   110.0
@@ -59,16 +59,16 @@ while (1):
     if abs(y4old - y[4].value) < 0.001:
         break
 
-model.add( -(0.063*y[2]*y[5] - 5.04*x1 - 3.36*y[3] - 0.035*x2 - 10*x3) )
+model.add_objective( -(0.063*y[2]*y[5] - 5.04*x1 - 3.36*y[3] - 0.035*x2 - 10*x3) )
 
 for i in range(1,8):
-    model.add( y[i+1] >= a[i] )
+    model.add_constraint( y[i+1] >= a[i] )
 for i in range(8,15):
-    model.add( a[i] >= y[i-6] )
-model.add( y[3] == 1.22*y[2] - x1)
-model.add( y[6] == (x2+y[3])/x1)
-model.add( y[2] == 0.01*x1*(112 + 13.167*y[6] - 0.6667*y[6]**2))
-model.add( y[5] == 86.35 + 1.098*y[6] - 0.038*y[6]**2 + 0.325*(y[4]-89))
-model.add( y[8] == 3.0*y[5] - 133.0)
-model.add( y[7] == 35.82 - 0.222*y[8])
-model.add( y[4] == 98000.0*x3/(y[2]*y[7] + 1000.0*x3))
+    model.add_constraint( a[i] >= y[i-6] )
+model.add_constraint( y[3] == 1.22*y[2] - x1)
+model.add_constraint( y[6] == (x2+y[3])/x1)
+model.add_constraint( y[2] == 0.01*x1*(112 + 13.167*y[6] - 0.6667*y[6]**2))
+model.add_constraint( y[5] == 86.35 + 1.098*y[6] - 0.038*y[6]**2 + 0.325*(y[4]-89))
+model.add_constraint( y[8] == 3.0*y[5] - 133.0)
+model.add_constraint( y[7] == 35.82 - 0.222*y[8])
+model.add_constraint( y[4] == 98000.0*x3/(y[2]*y[7] + 1000.0*x3))

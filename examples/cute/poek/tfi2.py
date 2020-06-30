@@ -36,9 +36,9 @@ h = 1.0/M
 R1 = [1,2,3]
 Rc1 = list(range(0,M+1) )
 
-x = model.variable(index=R1)
+x = model.add_variable(index=R1)
 
-model.add( x[1]+0.5*x[2]+x[3]/3.0 )
+model.add_objective( x[1]+0.5*x[2]+x[3]/3.0 )
 
 for i in Rc1:
-    model.add( -x[1]-i*h*x[2]-(i*h)**2*x[3]+tan(i*h) <= 0 )
+    model.add_constraint( -x[1]-i*h*x[2]-(i*h)**2*x[3]+tan(i*h) <= 0 )

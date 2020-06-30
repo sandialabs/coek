@@ -31,11 +31,11 @@ model = pk.model()
 
 N=10
 
-x = model.variable(index=range(1,N+1))
+x = model.add_variable(index=range(1,N+1))
 for i in x:
     x[i].value = -4 if i==1 else 1
 
-model.add( sum((x[i]+x[i+1])**2 for i in range(1,N)) )
+model.add_objective( sum((x[i]+x[i+1])**2 for i in range(1,N)) )
     
 for i in range(1,N-1):
-    model.add( -1.0+x[i]+2*x[i+1]+3*x[i+2] == 0 )
+    model.add_constraint( -1.0+x[i]+2*x[i+1]+3*x[i+2] == 0 )

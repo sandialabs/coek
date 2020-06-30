@@ -61,12 +61,12 @@ D = {
 (5,5):27
 }
 
-x = model.variable(index=N,value=1.0)
+x = model.add_variable(index=N,value=1.0)
 
-model.add( 14463.0 + sum(D[i,j]*x[i]*x[j] for i in N for j in N) + -2*sum(B[i]*x[i] for i in N) )
+model.add_objective( 14463.0 + sum(D[i,j]*x[i]*x[j] for i in N for j in N) + -2*sum(B[i]*x[i] for i in N) )
 
-model.add( -sum(x[i] for i in N) + 5 >= 0 )
-model.add( 10*x[1]+10*x[2]-3*x[3]+5*x[4]+4*x[5]-20 >= 0 )
-model.add( -8*x[1]+x[2]-2*x[3]-5*x[4]+3*x[5]+40 >= 0 )
-model.add( 8*x[1]-x[2]+2*x[3]+5*x[4]-3*x[5]-11 >= 0 )
-model.add( -4*x[1]-2*x[2]+3*x[3]-5*x[4]+x[5]+30 >= 0 )
+model.add_constraint( -sum(x[i] for i in N) + 5 >= 0 )
+model.add_constraint( 10*x[1]+10*x[2]-3*x[3]+5*x[4]+4*x[5]-20 >= 0 )
+model.add_constraint( -8*x[1]+x[2]-2*x[3]-5*x[4]+3*x[5]+40 >= 0 )
+model.add_constraint( 8*x[1]-x[2]+2*x[3]+5*x[4]-3*x[5]-11 >= 0 )
+model.add_constraint( -4*x[1]-2*x[2]+3*x[3]-5*x[4]+x[5]+30 >= 0 )

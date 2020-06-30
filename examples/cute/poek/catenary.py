@@ -40,16 +40,16 @@ mg = mass*gamma
 
 S = list(range(0,N+2))
 
-x = model.variable(index=S)
+x = model.add_variable(index=S)
 for i in S:
     x[i].value = i*length/(N+1)
-y = model.variable(index=S, value=0)
-z = model.variable(index=S, value=0.0)
+y = model.add_variable(index=S, value=0)
+z = model.add_variable(index=S, value=0.0)
 
-model.add( mg*y[0]/2.0 + sum(mg*y[i] for i in range(1,N+1)) + mg*y[N+1]/2.0 )
+model.add_objective( mg*y[0]/2.0 + sum(mg*y[i] for i in range(1,N+1)) + mg*y[N+1]/2.0 )
 
 for i in range(1,N+2):
-    model.add( (x[i]-x[i-1])**2 + (y[i]-y[i-1])**2 + (x[i]-z[i-1])**2 == bl**2 )
+    model.add_constraint( (x[i]-x[i-1])**2 + (y[i]-y[i-1])**2 + (x[i]-z[i-1])**2 == bl**2 )
 
 x[0].value = 0.0
 x[0].fixed = True

@@ -35,7 +35,7 @@ xinit[1] = 0.0
 xinit[2] = 10.0
 xinit[3] = 1.0
 
-x = model.variable(index=S)
+x = model.add_variable(index=S)
 for i in S:
     x[i].value = xinit[i]
 
@@ -43,5 +43,5 @@ t = {}
 for i in range(1,M+1):
     t[i] = 0.1*i
     
-model.add( sum((pk.exp(-t[i]*x[1])-pk.exp(-t[i]*x[2])-x[3]\
+model.add_objective( sum((pk.exp(-t[i]*x[1])-pk.exp(-t[i]*x[2])-x[3]\
     *exp(-t[i])+x[3]*exp(-i))**2 for i in range(1,M+1)) )

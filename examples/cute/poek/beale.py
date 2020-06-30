@@ -28,6 +28,6 @@ model = pk.model()
 
 N = 2
 
-x = model.variable(index=list(range(1,N+1)), value=1.0)
+x = model.add_variable(index=list(range(1,N+1)), value=1.0)
 
-model.add( (-1.5+x[1]*(1.0-x[2]))**2 + (-2.25+x[1]*(1.0-x[2]**2))**2 + (-2.625+x[1]*(1.0-x[2]**3))**2 )
+model.add_objective( (-1.5+x[1]*(1.0-x[2]))**2 + (-2.25+x[1]*(1.0-x[2]**2))**2 + (-2.625+x[1]*(1.0-x[2]**3))**2 )

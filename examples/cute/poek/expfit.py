@@ -31,7 +31,7 @@ model = pk.model()
 p = 10
 h = 0.25
 
-alpha = model.variable()
-beta = model.variable()
+alpha = model.add_variable()
+beta = model.add_variable()
 
-model.add( sum((alpha*exp(i*h*beta)-i*h)**2 for i in range(1,p+1)) )
+model.add_objective( sum((alpha*exp(i*h*beta)-i*h)**2 for i in range(1,p+1)) )

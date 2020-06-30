@@ -33,8 +33,8 @@ model = pk.model()
 N = [1,2]
 xinit = {1:1, 2:0.1}
 
-x = model.variable(index=N)
+x = model.add_variable(index=N)
 x[1].value = 1
 x[2].value = 0.1
 
-model.add( 3*x[1]**4 - 2*(x[1]*x[2])**2 + 3*x[2]**4 )
+model.add_objective( 3*x[1]**4 - 2*(x[1]*x[2])**2 + 3*x[2]**4 )

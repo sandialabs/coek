@@ -31,7 +31,7 @@ model = pk.model()
 M = 10
 S = [1,2,3]
 
-x = model.variable(index=S)
+x = model.add_variable(index=S)
 x[1].value = 0.0
 x[2].value = 10.0
 x[3].value = 1.0
@@ -40,7 +40,7 @@ t = {}
 for i in range(1,M+1):
     t[i] = 0.1*i
     
-model.add( sum((pk.exp(-t[i]*x[1])-pk.exp(-t[i]*x[2])-x[3]\
+model.add_objective( sum((pk.exp(-t[i]*x[1])-pk.exp(-t[i]*x[2])-x[3]\
     *exp(-t[i])+x[3]*exp(-i))**2 for i in range(1,M+1)) )
 
-model.add( x[3]==1.0 )
+model.add_constraint( x[3]==1.0 )

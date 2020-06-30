@@ -29,9 +29,9 @@ model = pk.model()
 N = 100
 M = 200
 
-x = model.variable(index=range(1,N+1), value=1.0)
+x = model.add_variable(index=range(1,N+1), value=1.0)
 
-model.add( sum((sum(-2.0*x[j]/M for j in range(1,i)) + \
+model.add_objective( sum((sum(-2.0*x[j]/M for j in range(1,i)) + \
              x[i]*(1.0-2.0/M) + \
              sum(-2.0*x[j]/M for j in range(i+1,N+1)) - \
              1.0)**2 for i in range(1,N+1) )+ \

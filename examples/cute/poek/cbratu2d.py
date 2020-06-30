@@ -37,19 +37,19 @@ h = 1.0/(p-1.0)
 c = h**2/l
 S = [(i,j) for i in range(1,p+1) for j in range(1,p+1)]
 
-u = model.variable(index=S, value=0.0)
-x = model.variable(index=S, value=0.0)
+u = model.add_variable(index=S, value=0.0)
+x = model.add_variable(index=S, value=0.0)
 
-model.add( pk.expression(0) )
+model.add_objective( pk.expression(0) )
 
 for i in range(2,p):
     for j in range(2,p):
-        model.add( (4*u[i,j]-u[i+1,j]-u[i-1,j]-u[i,j+1]-\
+        model.add_constraint( (4*u[i,j]-u[i+1,j]-u[i-1,j]-u[i,j+1]-\
                    u[i,j-1]-c*exp(u[i,j])*cos(x[i,j])) == 0 )
 
 for i in range(2,p):
     for j in range(2,p):
-        model.add( (4*x[i,j]-x[i+1,j]-x[i-1,j]-x[i,j+1]-\
+        model.add_constraint( (4*x[i,j]-x[i+1,j]-x[i-1,j]-x[i,j+1]-\
                    x[i,j-1]-c*exp(u[i,j])*sin(x[i,j])) == 0 )
 
 for j in range(1,p+1):

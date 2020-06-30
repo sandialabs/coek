@@ -23,7 +23,7 @@ import poek as pk
 
 model = pk.model()
 
-x1 = model.variable(value=10)
-x2 = model.variable(lb=0, ub=0.5, value=1)
+x1 = model.add_variable(value=10)
+x2 = model.add_variable(lb=0, ub=0.5, value=1)
 
-model.add( x2 + (-x1+x2)**2 + (x1+x2)**2 )
+model.add_objective( x2 + (-x1+x2)**2 + (x1+x2)**2 )

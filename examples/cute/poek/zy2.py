@@ -31,9 +31,9 @@ model = pk.model()
 x = {}
 xinit = {1:0.1, 2:0.1, 3:3.0}
 for i in xinit:
-    x[i] = model.variable(lb=0, value=xinit[i])
+    x[i] = model.add_variable(lb=0, value=xinit[i])
 
-model.add( x[1]**3 - 6*x[1]**2 + 11*x[1] + x[2] + x[3] )
+model.add_objective( x[1]**3 - 6*x[1]**2 + 11*x[1] + x[2] + x[3] )
 
-model.add( pk.inequality(4, x[1]**2 + x[2]**2 + x[3]**2, 10) )
-model.add( x[3] <= 5 )
+model.add_constraint( pk.inequality(4, x[1]**2 + x[2]**2 + x[3]**2, 10) )
+model.add_constraint( x[3] <= 5 )

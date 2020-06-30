@@ -24,11 +24,11 @@ cos = pk.cos
 
 model = pk.model()
 
-x1 = model.variable()
-x2 = model.variable()
+x1 = model.add_variable()
+x2 = model.add_variable()
 
-model.add( pk.expression(0) )
+model.add_objective( pk.expression(0) )
 
-model.add( ((x1-x2*x2) * (x1-sin(x2))) == 0 )
+model.add_constraint( ((x1-x2*x2) * (x1-sin(x2))) == 0 )
 
-model.add( (((cos(x2))-x1) * (x2-cos(x1))) == 0 )
+model.add_constraint( (((cos(x2))-x1) * (x2-cos(x1))) == 0 )

@@ -33,7 +33,7 @@ M = 13
 S = list(range(1,N+1))
 SS = list(range(1,M+1))
 
-x = model.variable(index=S)
+x = model.add_variable(index=S)
 x[1].value = 1.0
 x[2].value = 2.0
 x[3].value = 1.0
@@ -45,8 +45,8 @@ sum1 = 0.0
 for i in SS:  
     sum1 +=(-exp(-0.1*i)+5*exp(-i)-3*exp(-0.4*i)+x[3]*pk.exp(-0.1*i*x[1])\
     -x[4]*pk.exp(-0.1*i*x[2])+x[6]*pk.exp(-0.1*i*x[5]))**2
-model.add( sum1 )
+model.add_objective( sum1 )
     
-model.add( x[3]==1 )
-model.add( x[5]==4 )
-model.add( x[6]==3 )
+model.add_constraint( x[3]==1 )
+model.add_constraint( x[5]==4 )
+model.add_constraint( x[6]==3 )

@@ -31,8 +31,8 @@ log = pk.log
 
 model = pk.model()
 
-x1 = model.variable(value=15.0)
-x2 = model.variable(value=-1.0)
+x1 = model.add_variable(value=15.0)
+x2 = model.add_variable(value=-1.0)
 
 if (-(x1-5)**2-(x2-5)**2+200+1 <= 0.0):
     obj1=(1E10*(-(x1-5)**2-(x2-5)**2+200)**2) 
@@ -67,4 +67,4 @@ if (x2+1<= 0.0):
 else:
     obj8=( -log(x2+1))
 
-model.add( (x1-10)**3+(x2-20)**3+obj1+obj2+obj3+obj4+obj5+obj6+obj7+obj8 )
+model.add_objective( (x1-10)**3+(x2-20)**3+obj1+obj2+obj3+obj4+obj5+obj6+obj7+obj8 )

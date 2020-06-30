@@ -25,8 +25,8 @@ import poek as pk
 
 model = pk.model()
 
-x1 = model.variable(value=0.25)
+x1 = model.add_variable(value=0.25)
 
-model.add( x1 + x1**2 )
+model.add_objective( x1 + x1**2 )
 
-model.add( pk.inequality(0.0, x1, 0.5) )
+model.add_constraint( pk.inequality(0.0, x1, 0.5) )

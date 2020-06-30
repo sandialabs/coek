@@ -35,15 +35,15 @@ maxarea = 250
 maxaspr = 2
 k = 1
 
-thick = model.variable(lb=minthick, value=0.5)
-wid = model.variable(lb=0.0, value=0.5)
-Len = model.variable(lb=0.0, value=0.5)
-tph = model.variable(lb=mintph, value=0.5)
-ipm = model.variable(lb=0.0, value=0.5)
+thick = model.add_variable(lb=minthick, value=0.5)
+wid = model.add_variable(lb=0.0, value=0.5)
+Len = model.add_variable(lb=0.0, value=0.5)
+tph = model.add_variable(lb=mintph, value=0.5)
+ipm = model.add_variable(lb=0.0, value=0.5)
 
-model.add( Len )
+model.add_objective( Len )
 
-model.add( 117.370892*tph/(wid*thick)-ipm == 0.0 )
-model.add( thick**2*ipm/48.0-Len == 0.0 )
-model.add( wid/thick <= maxaspr )
-model.add( pk.inequality(0.0, thick*wid - minarea, maxarea - minarea) )
+model.add_constraint( 117.370892*tph/(wid*thick)-ipm == 0.0 )
+model.add_constraint( thick**2*ipm/48.0-Len == 0.0 )
+model.add_constraint( wid/thick <= maxaspr )
+model.add_constraint( pk.inequality(0.0, thick*wid - minarea, maxarea - minarea) )

@@ -29,10 +29,10 @@ model = pk.model()
 
 N = 10
 
-x = model.variable(index=list(range(1,N+1)), value = 0.5)
+x = model.add_variable(index=list(range(1,N+1)), value = 0.5)
 
 expr = 1.0
 for j in range(1,N+1):
     expr *= x[j]
 expr -= 1.0
-model.add( sum((x[i]+sum(x[j] for j in range(1,N+1)) - (N+1))**2 for i in range(1,N))+expr**2 )
+model.add_objective( sum((x[i]+sum(x[j] for j in range(1,N+1)) - (N+1))**2 for i in range(1,N))+expr**2 )

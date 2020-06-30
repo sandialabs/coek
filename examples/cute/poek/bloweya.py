@@ -47,23 +47,23 @@ for i in range(0,N+1):
     else:
         v[i] = 1
 
-u = model.variable(N+1, lb=-1.0, ub=1.0)
+u = model.add_variable(N+1, lb=-1.0, ub=1.0)
 for i in u:
     u[i].value = v[i]
-w = model.variable(N+1, value=0.0)
+w = model.add_variable(N+1, value=0.0)
     
-model.add( -2*u[0]*u[1] + u[0]**2 + \
+model.add_objective( -2*u[0]*u[1] + u[0]**2 + \
     sum(-2*u[i]*u[i+1] + 2*u[i]**2 for i in range(1,int(N)))+\
     u[N]**2+sum(1/N**2*u[i]*w[i] for i in range(0,int(N)+1))+\
     sum(-1/N**2*v[i]*u[i]-2/N**2*v[i]*w[i] for i in range(0,int(N)+1))+\
     (v[1]-v[0])*u[0]\
     +sum((v[i-1]-2*v[i]+v[i+1])*u[i] for i in range(1,int(N))) + (v[N-1]-v[N])*u[N] )
     
-model.add( 0.5*u[0] + sum(u[i] for i in range(1,int(N))) + 0.5*u[N] == 0.2*INT )
+model.add_constraint( 0.5*u[0] + sum(u[i] for i in range(1,int(N))) + 0.5*u[N] == 0.2*INT )
 
-model.add( u[0] - u[1] - 1/N**2*w[0] == 0 )
+model.add_constraint( u[0] - u[1] - 1/N**2*w[0] == 0 )
 
 for i in range(1,N):
-    model.add( 2*u[i] - u[i+1] - u[i-1] - 1/N**2*w[i] == 0 )
+    model.add_constraint( 2*u[i] - u[i+1] - u[i-1] - 1/N**2*w[i] == 0 )
 
-model.add( u[N] - u[N-1] - 1/N**2*w[N]== 0 )
+model.add_constraint( u[N] - u[N-1] - 1/N**2*w[N]== 0 )

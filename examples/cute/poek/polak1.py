@@ -30,13 +30,13 @@ model = pk.model()
 
 N = [1,2]
 
-x = model.variable(index=N)
+x = model.add_variable(index=N)
 x[1].value = 50
 x[2].value = 0.05
-u = model.variable()
+u = model.add_variable()
 
-model.add( u )
+model.add_objective( u )
 
-model.add( -u + exp(0.001*x[1]**2 + (x[2] - 1)**2) <= 0 )
+model.add_constraint( -u + exp(0.001*x[1]**2 + (x[2] - 1)**2) <= 0 )
 
-model.add( -u + exp(0.001*x[1]**2 + (x[2] + 1)**2) <= 0 )
+model.add_constraint( -u + exp(0.001*x[1]**2 + (x[2] + 1)**2) <= 0 )

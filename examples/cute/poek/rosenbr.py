@@ -28,8 +28,8 @@ import poek as pk
 model = pk.model()
 
 N = [1,2]
-x = model.variable(index=N)
+x = model.add_variable(index=N)
 x[1].value = -1.2
 x[2].value = 1.0
 
-model.add( (x[2]-x[1]**2)**2/0.01 + (x[1]-1)**2 )
+model.add_objective( (x[2]-x[1]**2)**2/0.01 + (x[1]-1)**2 )

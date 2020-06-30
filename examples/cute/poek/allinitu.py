@@ -25,9 +25,9 @@ import poek as pk
 model = pk.model()
 sin = pk.sin
 
-x = model.variable(index=[1,2,3,4])
+x = model.add_variable(index=[1,2,3,4])
 
-model.add(x[3]-1 +
+model.add_objective(x[3]-1 +
     x[1]**2+\
     x[2]**2 + (x[3]+x[4])**2 +\
     sin(x[3])**2 + x[1]**2*x[2]**2 + x[4]-3 +\

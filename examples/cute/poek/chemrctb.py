@@ -44,15 +44,15 @@ cti = -1/h-2/((h**2)*pe)
 
 SS = list(range(2,n))
 
-t = model.variable(index=range(1,n+1), lb=0.0000001, value=1.0)
+t = model.add_variable(index=range(1,n+1), lb=0.0000001, value=1.0)
 
 
-model.add( pk.expression(0) )
+model.add_objective( pk.expression(0) )
 
-model.add( (ct1*t[2]-t[1]+h*pe) == 0 )
+model.add_constraint( (ct1*t[2]-t[1]+h*pe) == 0 )
 
 for i in SS:
-    model.add( (d*(b+1-t[i])*exp(gamma-gamma/t[i])+cti1*t[i-1]\
+    model.add_constraint( (d*(b+1-t[i])*exp(gamma-gamma/t[i])+cti1*t[i-1]\
                 +cti*t[i]+t[i+1]/(h**2*pe)) == 0 )
 
-model.add( (t[n]-t[n-1]) == 0 )
+model.add_constraint( (t[n]-t[n-1]) == 0 )

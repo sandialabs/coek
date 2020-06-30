@@ -41,7 +41,7 @@ x0 = {
 10:-0.16667
 }
 
-x = model.variable(index=S)
+x = model.add_variable(index=S)
 for i in S:
     x[i].value = x0[i]
 
@@ -52,14 +52,14 @@ es4 = sum((x[i+2]-1)**2 for i in SS)
 es5 = sum(10.1*(x[i+1]-1)**2 for i in SS)
 es6 = sum(10.1*(x[i+3]-1)**2 for i in SS)
 es7 = sum(19.8*(x[i+1]-1)*(x[i+3]-1) for i in SS)
-model.add( es1 + es2 + es3 + es4 + es5 + es6 + es7 )
+model.add_objective( es1 + es2 + es3 + es4 + es5 + es6 + es7 )
 
 
 for i in [2,4,6,8,10]:
     expr = 1.0
     for j in range(1,i+1):
         expr *= x[j]
-    model.add( expr == 1 )
+    model.add_constraint( expr == 1 )
 
 """
 def cons1(model):

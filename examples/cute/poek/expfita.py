@@ -35,20 +35,20 @@ R = 11
 T = {i: 5*(i-1)/(R-1) for i in range(1,R+1)}
 ET = {i: exp(T[i]) for i in range(1,R+1)}
 
-P = model.variable(index=[0,1,2])
+P = model.add_variable(index=[0,1,2])
 P[0].value = 1
 P[1].value = 1
 P[2].value = 6
-Q = model.variable(index=[1,2], value=0.0)
+Q = model.add_variable(index=[1,2], value=0.0)
 
-model.add( sum((\
+model.add_objective( sum((\
     (P[0]+P[1]*T[i]+P[2]*T[i]**2)/\
     (ET[i]*(1+Q[1]*(T[i]-5)+Q[2]*(T[i]-5)**2))\
     -1 )**2 for i in range(1,R+1)) )
 
 for i in range(1,R+1):
-    model.add( P[0]+P[1]*T[i]+P[2]*T[i]**2-(T[i]-5)*ET[i]*Q[1]-\
+    model.add_constraint( P[0]+P[1]*T[i]+P[2]*T[i]**2-(T[i]-5)*ET[i]*Q[1]-\
         (T[i]-5)**2*ET[i]*Q[2]-ET[i]>= 0 )
 
 for i in range(1,R+1):
-    model.add( (T[i]-5)*Q[1] + (T[i]-5)**2*Q[2]+0.99999 >= 0 )
+    model.add_constraint( (T[i]-5)*Q[1] + (T[i]-5)**2*Q[2]+0.99999 >= 0 )

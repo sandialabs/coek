@@ -32,9 +32,9 @@ p = 71
 wght = -0.1
 hp2 = 0.5*p**2
 
-x = model.variable((p,p), value=0.0)
+x = model.add_variable((p,p), value=0.0)
 
-model.add( sum(0.5*(x[i,j]-x[i,j-1])**2+\
+model.add_objective( sum(0.5*(x[i,j]-x[i,j-1])**2+\
     0.5*(x[i,j]-x[i-1,j])**2+\
     hp2*(x[i,j]-x[i,j-1])**4+\
     hp2*(x[i,j]-x[i-1,j])**4\

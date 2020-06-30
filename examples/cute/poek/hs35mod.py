@@ -26,9 +26,9 @@ import poek as pk
 model = pk.model()
 
 N = [1,2,3]
-x = model.variable(index=N, lb=0, value=0.5)
+x = model.add_variable(index=N, lb=0, value=0.5)
 
-model.add( -8.0*x[1]-6.0*x[2]-4.0*x[3]+9.0+2.0*x[1]**2+2.0*x[2]**2+x[3]**2+2.0*x[1]*x[2]+2.0*x[1]*x[3] )
+model.add_objective( -8.0*x[1]-6.0*x[2]-4.0*x[3]+9.0+2.0*x[1]**2+2.0*x[2]**2+x[3]**2+2.0*x[1]*x[2]+2.0*x[1]*x[3] )
 
-model.add( -x[1]-x[2]-2.0*x[3]+3.0 >= 0.0 )
-model.add( x[2] == 0.5 )
+model.add_constraint( -x[1]-x[2]-2.0*x[3]+3.0 >= 0.0 )
+model.add_constraint( x[2] == 0.5 )

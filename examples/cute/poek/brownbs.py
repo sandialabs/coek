@@ -29,9 +29,9 @@ model = pk.model()
 
 N = 2
 
-x = model.variable(index=list(range(1,N+1)), value=1.0)
+x = model.add_variable(index=list(range(1,N+1)), value=1.0)
 
     
-model.add( sum((x[i]-1000000)**2 for i in range(1,N))+\
+model.add_objective( sum((x[i]-1000000)**2 for i in range(1,N))+\
     sum((x[i+1]-0.000002)**2 for i in range(1,N))+\
     sum((x[i]*x[i+1]-2.0)**2 for i in range(1,N)) )

@@ -43,8 +43,8 @@ TO = Param(list(range(1,NO))
 U = Param(list(range(0,NT))
 oc_init = Param(list(range(1,NO))
 
-x = model.variable(list(range(1,NS),list(range(0,NT),bounds=(0,None),value=0.001)
-k = model.variable(list(range(1,NP),bounds=(0,None), value=0.001)
+x = model.add_variable(list(range(1,NS),list(range(0,NT),bounds=(0,None),value=0.001)
+k = model.add_variable(list(range(1,NP),bounds=(0,None), value=0.001)
 
 # For Pyomo testing,
 # generate the ConcreteModel version
@@ -59,17 +59,17 @@ x[2,0] = 0.0
 x[2,0].fixed = True
 
 def f_rule(model):
-model.add( sum(1000*(-(x[1,value(TO[t])]+x[2,value(TO[t])])*k[1]+x[1,value(TO[t])]+\
+model.add_objective( sum(1000*(-(x[1,value(TO[t])]+x[2,value(TO[t])])*k[1]+x[1,value(TO[t])]+\
     x[2,value(TO[t])]+U[value(TO[t])]*k[1]-oc_init[t])**2 for t in range(1,int(NO)+1))
 f = Objective(rule=f_rule)
 
 def cons1_rule(model,t):
-model.add( 1000*(H*(k[3]+k[4])*x[1,t]- H*k[5]*x[2,t] -\
+model.add_constraint( 1000*(H*(k[3]+k[4])*x[1,t]- H*k[5]*x[2,t] -\
     H*U[t]*k[2] + x[1,t+1] - x[1,t]) == 0
 cons1 = Constraint(list(range(0,int(NT)-1),rule=cons1_rule)
 
 def cons2_rule(model,t):
-model.add( 1000*(H*k[5]*x[2,t] - H*k[4]*x[1,t] + x[2,t+1] - x[2,t]) == 0
+model.add_constraint( 1000*(H*k[5]*x[2,t] - H*k[4]*x[1,t] + x[2,t+1] - x[2,t]) == 0
 cons2 = Constraint(list(range(0,int(NT)-1),rule=cons2_rule)
 
 

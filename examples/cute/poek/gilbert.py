@@ -30,10 +30,10 @@ model = pk.model()
 
 n = 1000
 
-x = model.variable(index=range(1,n+1))
+x = model.add_variable(index=range(1,n+1))
 for i in x:
     x[i].value = (-1.0)**(i+1)*10.0
 
-model.add( sum(((n+1-i)*x[i]/n-1.0)**2 for i in x)/2.0 )
+model.add_objective( sum(((n+1-i)*x[i]/n-1.0)**2 for i in x)/2.0 )
 
-model.add( (sum(x[i]**2 for i in x) - 1.0 )/2.0 == 0.0 )
+model.add_constraint( (sum(x[i]**2 for i in x) - 1.0 )/2.0 == 0.0 )

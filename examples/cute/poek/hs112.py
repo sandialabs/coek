@@ -21,12 +21,12 @@ c = {
  10:-22.179
 }
 
-x = model.variable(index=N, lb=.000001, value=0.1)
+x = model.add_variable(index=N, lb=.000001, value=0.1)
 
-model.add( sum(x[j]*(c[j] + log(x[j]/sum(x[k] for k in N))) for j in N) )
+model.add_objective( sum(x[j]*(c[j] + log(x[j]/sum(x[k] for k in N))) for j in N) )
 
-model.add( x[1] + 2.0*x[2] + 2.0*x[3] + x[6] + x[10] == 2.0 )
+model.add_constraint( x[1] + 2.0*x[2] + 2.0*x[3] + x[6] + x[10] == 2.0 )
 
-model.add( x[4] + 2.0*x[5] + x[6] + x[7] == 1.0 )
+model.add_constraint( x[4] + 2.0*x[5] + x[6] + x[7] == 1.0 )
 
-model.add( x[3] + x[7] + x[8] + 2.0*x[9] + x[10] == 1.0 )
+model.add_constraint( x[3] + x[7] + x[8] + 2.0*x[9] + x[10] == 1.0 )

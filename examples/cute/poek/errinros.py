@@ -31,8 +31,8 @@ alpha = Param(S)
 # LOAD DATA
 SS = RangeSet(2,N)
 
-x = model.variable(index=S, value=-1.0)
+x = model.add_variable(index=S, value=-1.0)
 
 sum1 = sum((x[i-1]-16*alpha[i]**2*x[i]**2)**2 for i in SS)
 sum2 = sum((x[i]-1.0)**2 for i in SS)
-model.add( sum1 + sum2 )
+model.add_objective( sum1 + sum2 )

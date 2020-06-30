@@ -29,8 +29,8 @@ exp = pk.exp
 
 model = pk.model()
 
-x = model.variable(index=[1,2])
+x = model.add_variable(index=[1,2])
 x[1].value =  0.0
 x[2].value = -1.0
 
-model.add( (0.01*x[1]-0.03)**2 -x[1]+x[2]+exp(20*(x[1]-x[2])) )
+model.add_objective( (0.01*x[1]-0.03)**2 -x[1]+x[2]+exp(20*(x[1]-x[2])) )

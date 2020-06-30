@@ -28,12 +28,12 @@ import poek as pk
 
 model = pk.model()
 
-x = model.variable(index=[1,2,3])
+x = model.add_variable(index=[1,2,3])
 x[1].value = 1
 x[2].value = 2
 x[3].value = 0
 
-model.add( (x[1]**2+x[2]**2+x[3]**2-1)**2\
+model.add_objective( (x[1]**2+x[2]**2+x[3]**2-1)**2\
     + (x[1]**2+x[2]**2+(x[3]-2)**2-1)**2\
     + (x[1]+x[2]+x[3]-1)**2\
     + (x[1]+x[2]-x[3]+1)**2\

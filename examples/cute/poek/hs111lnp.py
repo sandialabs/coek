@@ -33,7 +33,7 @@ model = pk.model()
 
 N = list(range(1,11))
 
-x = model.variable(index=N, value=-2.3)
+x = model.add_variable(index=N, value=-2.3)
 c = {
   1:-6.089,
   2:-17.164,
@@ -47,8 +47,8 @@ c = {
  10:-22.179
 }
 
-model.add( sum(exp(x[j])*(c[j] + x[j] - log(sum(exp(x[k]) for k in N))) for j in N) )
+model.add_objective( sum(exp(x[j])*(c[j] + x[j] - log(sum(exp(x[k]) for k in N))) for j in N) )
 
-model.add( exp(x[1]) + 2*exp(x[2]) + 2*exp(x[3]) + exp(x[6]) + exp(x[10]) == 2.0 )
-model.add( exp(x[4]) + 2*exp(x[5]) + exp(x[6]) + exp(x[7]) == 1 )
-model.add( exp(x[3]) + exp(x[7]) + exp(x[8]) + 2*exp(x[9]) + exp(x[10]) == 1 )
+model.add_constraint( exp(x[1]) + 2*exp(x[2]) + 2*exp(x[3]) + exp(x[6]) + exp(x[10]) == 2.0 )
+model.add_constraint( exp(x[4]) + 2*exp(x[5]) + exp(x[6]) + exp(x[7]) == 1 )
+model.add_constraint( exp(x[3]) + exp(x[7]) + exp(x[8]) + 2*exp(x[9]) + exp(x[10]) == 1 )

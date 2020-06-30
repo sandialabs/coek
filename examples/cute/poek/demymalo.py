@@ -28,11 +28,11 @@ import poek as pk
 model = pk.model()
 
 S = [1,2]
-x = model.variable(index=S, value=1)
-u = model.variable()
+x = model.add_variable(index=S, value=1)
+u = model.add_variable()
 
-model.add( u )
+model.add_objective( u )
 
-model.add( -u+5*x[1]+x[2] <= 0 )
-model.add( -u-5*x[1]+x[2] <= 0 )
-model.add( -u+4*x[2]+x[1]**2+x[2]**2 <= 0 )
+model.add_constraint( -u+5*x[1]+x[2] <= 0 )
+model.add_constraint( -u-5*x[1]+x[2] <= 0 )
+model.add_constraint( -u+4*x[2]+x[1]**2+x[2]**2 <= 0 )

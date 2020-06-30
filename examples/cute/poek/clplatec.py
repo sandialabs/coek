@@ -33,10 +33,10 @@ hp2 = 0.5*p**2
 wr = wght*0.99
 wl = wght*0.01
 
-x = model.variable((p,p), value=0.0)
+x = model.add_variable((p,p), value=0.0)
 
 
-model.add( sum(hp2*(x[i,j]-x[i,j-1])**2+\
+model.add_objective( sum(hp2*(x[i,j]-x[i,j-1])**2+\
     0.5*(x[i,j]-x[i-1,j])**2+\
     (x[i,j]-x[i,j-1])**4+\
     (x[i,j]-x[i-1,j])**4 for i in range(1,p) for j in range(1,p)) +\

@@ -47,8 +47,8 @@ scda = (a[1]-a[0])/2
 scdb = (b[1]- b[0])*n
 scdc = (c[1]- c[0])*n*n*0.5
 
-x = model.variable(index=Sx, value=0.0)
-u = model.variable(index=Su, ub=1, value=0.0)
+x = model.add_variable(index=Sx, value=0.0)
+u = model.add_variable(index=Su, ub=1, value=0.0)
 
 sum_expr_1 = 0
 sum_expr_2 = 0
@@ -56,10 +56,10 @@ for i in Su:
     sum_expr_1 += (scda*z[i-1]*x[i]**2 + scdb*z[i-1]*x[i]*(x[i-1]-x[i]) + scdc*z[i-1]*(x[i-1]-x[i])**2)
     sum_expr_2 += ((h)*(u[i])**2)*0.5
 obj = sum_expr_1 + sum_expr_2
-model.add( obj )
+model.add_objective( obj )
 
 for i in Su:
-    model.add( 0 == (n-1)*x[i] - n*x[i-1] - exp(t[i])*u[i] )
+    model.add_constraint( 0 == (n-1)*x[i] - n*x[i-1] - exp(t[i])*u[i] )
 
 x[0].value = xx0
 x[0].fixed = True

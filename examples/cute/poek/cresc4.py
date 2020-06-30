@@ -27,14 +27,14 @@ np = 4
 x = {1:1.0, 2:0.0, 3:0.0, 4:0.5}
 y = {1:0.0, 2:1.0, 3:-1.0, 4:0.0}
 
-v1 = model.variable(value=-40.0)
-w1 = model.variable(value=5.0)
-d = model.variable(lb=1e-8, value=1.0)
-a = model.variable(lb=1.0, value=2.0)
-t = model.variable(lb=0.0, ub=6.2831852, value=1.5)
-r = model.variable(lb=0.39, value=0.75)
+v1 = model.add_variable(value=-40.0)
+w1 = model.add_variable(value=5.0)
+d = model.add_variable(lb=1e-8, value=1.0)
+a = model.add_variable(lb=1.0, value=2.0)
+t = model.add_variable(lb=0.0, ub=6.2831852, value=1.5)
+r = model.add_variable(lb=0.39, value=0.75)
 
-model.add(\
+model.add_objective(\
     (d+r)**2*acos(-((a*d)**2 - (a*d+r)**2\
     +(d+r)**2)/(2*(d+r)*a*d))\
     -(a*d+r)**2*acos(((a*d)**2+(a*d+r)**2-\
@@ -44,7 +44,7 @@ model.add(\
     )
 
 for i in range(1,np+1):
-    model.add( (v1+a*d*cos(t)-x[i])**2+ (w1+a*d*sin(t)-y[i])**2 - (d+r)**2 <= 0.0 )
+    model.add_constraint( (v1+a*d*cos(t)-x[i])**2+ (w1+a*d*sin(t)-y[i])**2 - (d+r)**2 <= 0.0 )
 
 for i in range(1,np+1):
-    model.add( (v1-x[i])**2 + (w1-y[i])**2 - (a*d+r)**2 >= 0.0 )
+    model.add_constraint( (v1-x[i])**2 + (w1-y[i])**2 - (a*d+r)**2 >= 0.0 )

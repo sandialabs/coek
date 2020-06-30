@@ -46,14 +46,14 @@ rhs = {
 15:0.0009
 }
 
-x = model.variable(index=[1,2,3])
+x = model.add_variable(index=[1,2,3])
 x[1].value = 0.4
 x[2].value = 1
 x[3].value = 0
 
 
-model.add( pk.expression(0) )
+model.add_objective( pk.expression(0) )
 
 for i in range(1,16):
-    model.add( x[1]*exp(-0.5*x[2]*(0.5*(8-i)-x[3])**2) == rhs[i] )
+    model.add_constraint( x[1]*exp(-0.5*x[2]*(0.5*(8-i)-x[3])**2) == rhs[i] )
 

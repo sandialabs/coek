@@ -28,14 +28,14 @@ import poek as pk
 
 model = pk.model()
 
-rollrate = model.variable(value=0.0)
-pitchrat = model.variable(value=0.0)
-yawrate = model.variable(value=0.0)
-attckang = model.variable(value=0.0)
-sslipang = model.variable(value=0.0)
-elevator = model.variable(value=0.0)
-aileron = model.variable(value=0.0)
-rudderdf = model.variable(value=0.0)
+rollrate = model.add_variable(value=0.0)
+pitchrat = model.add_variable(value=0.0)
+yawrate = model.add_variable(value=0.0)
+attckang = model.add_variable(value=0.0)
+sslipang = model.add_variable(value=0.0)
+elevator = model.add_variable(value=0.0)
+aileron = model.add_variable(value=0.0)
+rudderdf = model.add_variable(value=0.0)
 
 elevator.value = 0.1
 elevator.fixed=True
@@ -44,23 +44,23 @@ aileron.fixed=True
 rudderdf.value = 0
 rudderdf.fixed=True
 
-model.add( pk.expression(0) )
+model.add_objective( pk.expression(0) )
 
 exp1 = -3.933*rollrate+0.107*pitchrat+0.126*yawrate-9.99*sslipang\
     - 45.83*aileron-7.64*rudderdf-0.727*pitchrat*yawrate+8.39*yawrate*attckang\
     - 684.4*attckang*sslipang+63.5*pitchrat*attckang
-model.add( 0 == exp1 )
+model.add_constraint( 0 == exp1 )
 
 exp2 = -0.987*pitchrat-22.95*attckang-28.37*elevator+0.949*rollrate*yawrate\
     + 0.173*rollrate*sslipang
-model.add( 0 == exp2 )
+model.add_constraint( 0 == exp2 )
 
 exp3 = 0.002*rollrate-0.235*yawrate+5.67*sslipang-0.921*aileron-6.51*rudderdf\
     - 0.716*rollrate*pitchrat-1.578*rollrate*attckang+1.132*pitchrat*attckang
-model.add( 0 == exp3 )
+model.add_constraint( 0 == exp3 )
 
 exp4 = pitchrat- attckang-1.168*elevator-rollrate*sslipang
-model.add( 0 == exp4 )
+model.add_constraint( 0 == exp4 )
 
 exp5 = -yawrate-0.196*sslipang-0.0071*aileron+rollrate*attckang
-model.add( 0 == exp5 )
+model.add_constraint( 0 == exp5 )

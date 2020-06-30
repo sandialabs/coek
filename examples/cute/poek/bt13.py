@@ -35,15 +35,15 @@ model = pk.model()
 
 S = [1,2,3,4,5]
 
-x = model.variable(index=S)
+x = model.add_variable(index=S)
 x[1].value = 1.0
 x[2].value = 2.0
 x[3].value = 3.0
 x[4].value = 4.0
 x[5].value = 228.0
 
-model.add( x[5] )
+model.add_objective( x[5] )
 
-model.add( x[1]**2+(x[1]-2*x[2])**2 + (x[2]-3*x[3])**2+(x[3]-4*x[4])**2-x[5]**2 == 0 )
+model.add_constraint( x[1]**2+(x[1]-2*x[2])**2 + (x[2]-3*x[3])**2+(x[3]-4*x[4])**2-x[5]**2 == 0 )
 
-model.add( x[5] >= 0 )
+model.add_constraint( x[5] >= 0 )

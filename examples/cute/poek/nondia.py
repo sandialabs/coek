@@ -34,6 +34,6 @@ N = 10
 S = list(range(1,N+1))
 SS = list(range(2,N+1))
 
-x = model.variable(index=S, value=-1.0)
+x = model.add_variable(index=S, value=-1.0)
 
-model.add( (x[1]-1)**2 + sum( 100*(x[1]-x[i-1]**2)**2 for i in SS ) )
+model.add_objective( (x[1]-1)**2 + sum( 100*(x[1]-x[i-1]**2)**2 for i in SS ) )

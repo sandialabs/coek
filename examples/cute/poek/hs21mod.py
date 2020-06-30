@@ -29,19 +29,19 @@ model = pk.model()
 
 N = list(range(1,8))
 
-x = model.variable(index=N)
+x = model.add_variable(index=N)
 for i in N:
     if i <= 2:
         x[i].value = -1.0
     else:
         x[i].value = 0.0
 
-model.add( -100+0.01*(x[1]**2+x[3]**2+x[5]**2+x[6]**2) + (x[2]**2+x[4]**2+x[7]**2) )
+model.add_objective( -100+0.01*(x[1]**2+x[3]**2+x[5]**2+x[6]**2) + (x[2]**2+x[4]**2+x[7]**2) )
 
-model.add( 10.0*x[1]-x[2]-10 >= 0 )
-model.add( pk.inequality(2, x[1], 50) )
-model.add( pk.inequality(-50, x[2], 50) )
-model.add( x[3] <= 50 )
-model.add( 2 <= x[4] )
-model.add( x[6] <= 0 )
-model.add( 0 <= x[7] )
+model.add_constraint( 10.0*x[1]-x[2]-10 >= 0 )
+model.add_constraint( pk.inequality(2, x[1], 50) )
+model.add_constraint( pk.inequality(-50, x[2], 50) )
+model.add_constraint( x[3] <= 50 )
+model.add_constraint( 2 <= x[4] )
+model.add_constraint( x[6] <= 0 )
+model.add_constraint( 0 <= x[7] )

@@ -32,11 +32,11 @@ n = 2*ns + 2
 
 x0 = {1:-3, 2:-1, 3:-3, 4:-1}
 
-x = model.variable(index=range(1,n+1))
+x = model.add_variable(index=range(1,n+1))
 for i in x:
     x[i].value = x0.get(i,-2)
 
-model.add(1.0+sum(100*(x[2*i]-x[2*i-1]**2)**2 +\
+model.add_objective(1.0+sum(100*(x[2*i]-x[2*i-1]**2)**2 +\
     (1.0-x[2*i-1])**2 +90*(x[2*i+2]-x[2*i+1]**2)**2 +\
     (1.0-x[2*i+1])**2 +\
     10*(x[2*i]+x[2*i+2]-2.0)**2 +\

@@ -33,9 +33,9 @@ model = pk.model()
 n = 10
 Rx = list(range(n))
 
-x = model.variable(n, lb=0.0, ub=1.0)
+x = model.add_variable(n, lb=0.0, ub=1.0)
 
-model.add( sum( -x[i]**2*x[j]**4 for i in Rx for j in Rx ) +\
+model.add_objective( sum( -x[i]**2*x[j]**4 for i in Rx for j in Rx ) +\
            sum(  x[i]**3*x[j]**3 for i in Rx for j in Rx ) )
 
 model.write("s368.nl")
