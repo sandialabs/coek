@@ -20,22 +20,22 @@ def model_variable(self, *args, **kwds):
             if 'index' in kwds:
                 _index = kwds.pop('index')
                 v = variable_(len(_index), **kwds)
-                self.use(v)
+                self.add_variable_(v)
                 ans = {}
                 for i, key in enumerate(_index):
                     ans[key] = v[i]
                 return ans
             else:
                 v = variable_(**kwds)
-                self.use(v)
+                self.add_variable_(v)
                 return v
         elif args[0].__class__ == ConcreteSet:
             v = IndexedVariable(*args)
-            self.use(v)
+            self.add_variable_(v)
             return v
         else:
             v = variable_(args[0], **kwds)
-            self.use(v)
+            self.add_variable_(v)
             return v
 
-setattr(model, 'variable', model_variable)
+setattr(model, 'add_variable', model_variable)
