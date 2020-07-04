@@ -8,7 +8,8 @@
 #include <set>
 #include <cmath>
 #include <assert.h>
-#include "coek/coek_expr.hpp"
+
+#include "coek/api/expression.hpp"
 
 
 namespace coek {

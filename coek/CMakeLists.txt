@@ -14,7 +14,12 @@ SET(sources
     expr/visitor_variables.cpp
     expr/visitor_exprtemplate.cpp
     expr/varray.cpp
-    expr/coek_expr.cpp
+    api/constants.cpp
+    api/expression.cpp
+    api/expression_visitor.cpp
+    api/objective.cpp
+    api/constraint.cpp
+    api/intrinsic_fn.cpp
     abstract/expr_rule.cpp
     set/ast_set.cpp
     set/coek_sets.cpp

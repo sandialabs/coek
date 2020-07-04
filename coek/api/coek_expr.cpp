@@ -2,8 +2,8 @@
 #include <cstdio>
 //#include <sstream>
 #include <map>
-#include "ast_operators.hpp"
-#include "ast_visitors.hpp"
+#include "../expr/ast_operators.hpp"
+#include "../expr/ast_visitors.hpp"
 #include "coek/coek_expr.hpp"
 
 namespace coek {

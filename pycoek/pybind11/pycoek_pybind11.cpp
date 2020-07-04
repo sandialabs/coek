@@ -12,6 +12,8 @@
 #include <pybind11/stl_bind.h>
 
 #include "coek/expr/ast_term.hpp"
+#include "coek/api/expression.hpp"
+#include "coek/api/intrinsic_fn.hpp"
 #include "coek/coek_model.hpp"
 
 namespace py = pybind11;

@@ -4,9 +4,11 @@
 #include <vector>
 #include <variant>
 #include <unordered_map>
-#include "coek_expr.hpp"
+//#include "coek_expr.hpp"
 #include "coek_sets.hpp"
 #include "coek_indexed.hpp"
+#include "coek/api/constraint.hpp"
+#include "coek/api/objective.hpp"
 
 namespace coek {
 

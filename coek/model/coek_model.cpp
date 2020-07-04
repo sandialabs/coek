@@ -7,7 +7,7 @@
 #include "coek/expr/varray.hpp"
 #include "coek/abstract/expr_rule.hpp"
 #include "coek/autograd/autograd.hpp"
-#include "coek/coek_expr.hpp"
+//#include "coek/coek_expr.hpp"
 #include "coek/coek_model.hpp"
 #include "coek/solvers/solver.hpp"
 #include "coek/expr/coek_exprterm.hpp"
