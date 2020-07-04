@@ -409,8 +409,6 @@ Expression& Expression::operator+=(const Variable& arg)
 
 Expression& Expression::operator+=(const Expression& arg)
 {
-// SHARED_PTR
-//repn = CREATE_POINTER(PlusTerm, repn, arg.repn);
 expr_pointer_t _repn = repn;
 repn = CREATE_POINTER(PlusTerm, _repn, arg.repn);
 DISOWN_POINTER(_repn);
@@ -436,8 +434,6 @@ Expression& Expression::operator-=(const Variable& arg)
 Expression& Expression::operator-=(const Expression& arg)
 {
 expr_pointer_t tmp = CREATE_POINTER(NegateTerm, arg.repn);
-// SHARED_PTR
-//repn = STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, tmp) );
 expr_pointer_t _repn = repn;
 repn = STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, _repn, tmp) );
 DISOWN_POINTER(_repn);
@@ -461,18 +457,13 @@ Expression& Expression::operator*=(const Variable& arg)
 { Expression e(arg); *this *= e; return *this; }
 
 Expression& Expression::operator*=(const Expression& arg)
-{ *this *= arg; return *this; }
-#if 0
 {
-// SHARED_PTR
-//repn = STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(TimesTerm, repn, arg.repn) );
 expr_pointer_t _repn = repn;
 repn = STATIC_CAST(BaseExpressionTerm, times(_repn, arg.repn) );
 DISOWN_POINTER(_repn);
 OWN_POINTER(repn);
 return *this;
 }
-#endif
 
 Expression& Expression::operator/=(int arg)
 { Expression e(arg); *this /= e; return *this; }
@@ -491,8 +482,6 @@ Expression& Expression::operator/=(const Variable& arg)
 
 Expression& Expression::operator/=(const Expression& arg)
 {
-// SHARED_PTR
-//repn = STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(DivideTerm, repn, arg.repn) );
 expr_pointer_t _repn = repn;
 repn = STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(DivideTerm, _repn, arg.repn) );
 DISOWN_POINTER(_repn);
