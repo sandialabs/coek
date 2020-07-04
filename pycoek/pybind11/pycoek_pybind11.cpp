@@ -265,7 +265,7 @@ parse_varargs<double>(kwargs, "ub", ub,  COEK_INFINITY);
 parse_varargs<double>(kwargs, "value", value, NAN);
 parse_varargs<bool>(kwargs, "binary", binary, false);
 parse_varargs<bool>(kwargs, "integer", integer, false);
-//parse_varargs<bool>(kwargs, "fixed", fixed, false);
+parse_varargs<bool>(kwargs, "fixed", fixed, false);
 
 Variable tmp;
 try {
