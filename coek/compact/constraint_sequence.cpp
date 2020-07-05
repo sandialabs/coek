@@ -1,7 +1,8 @@
 #include "coek/expr/ast_term.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/constraint.hpp"
-#include "ast_set.hpp"
+
+//#include "ast_set.hpp"
 #include "coek_sets.hpp"
 #include "sequence_context.hpp"
 #include "constraint_sequence.hpp"
@@ -20,13 +21,13 @@ class ConstraintSequenceRepn
 {
 public:
 
-    std::vector<Context> context;
     Constraint constraint_template;
+    SequenceContext context;
 
 public:
 
-    ConstraintSequenceRepn(const Constraint& con)
-        : constraint_template(con)
+    ConstraintSequenceRepn(const Constraint& con, const SequenceContext& context_)
+        : constraint_template(con), context(context_)
         {}
 };
 
@@ -59,9 +60,11 @@ public:
         if (!done) {
             context_iter.resize(seq->context.size());
 
-            auto cit = seq->context.begin();
-            for (auto it = context_iter.begin(); it != context_iter.end(); ++it, ++cit) {
-                *it = cit->index_set.begin(cit->indices);
+            //auto cit = seq->context.begin();
+            size_t i=0;
+            for (auto it = context_iter.begin(); it != context_iter.end(); ++it, ++i) {
+                Context& curr = seq->context[i];
+                *it = curr.index_set.begin(curr.indices);
                 }
             converted_con = convert_con_template(seq->constraint_template.repn);
             }
@@ -169,66 +172,20 @@ return repn->operator->();
 }
 
 //
-// Constraint
-//
-
-ConstraintSequenceAux Constraint::Forall(const std::vector<IndexParameter>& params)
-{
-auto repn = std::make_shared<ConstraintSequenceRepn>(*this);
-repn->context.emplace_back(params);
-return repn;
-}
-
-//
-// ConstraintSequenceAux
-//
-ConstraintSequenceAux::ConstraintSequenceAux(const std::shared_ptr<ConstraintSequenceRepn>& _repn)
-    : repn(_repn)
-{}
-
-ConstraintSequence ConstraintSequenceAux::In(const ConcreteSet& _index_set)
-{
-Context& curr = repn->context.back();
-curr.index_set = _index_set;
-return repn;
-}
-
-//
 // ConstraintSequence
 //
 ConstraintSequence::ConstraintSequence(const std::shared_ptr<ConstraintSequenceRepn>& _repn)
     : repn(_repn)
 {}
 
-ConstraintSequenceAux ConstraintSequence::Forall(const std::vector<IndexParameter>& params)
-{
-repn->context.emplace_back(params);
-return repn;
-}
 
-ConstraintSequence ConstraintSequence::ST(const Constraint& con)
-{
-auto curr = repn->context.back();
-curr.index_constraints.push_back(con);
-return repn;
-}
-
-ConstraintSequence ConstraintSequence::Where(const Constraint& con)
-{
-// TODO - parse these constraints here and use a more explicit data structure
-auto curr = repn->context.back();
-curr.index_values.push_back(con);
-return repn;
-}
+ConstraintSequence::ConstraintSequence(const Constraint& expr, const SequenceContext& context_)
+{ repn = std::make_shared<ConstraintSequenceRepn>(expr,context_); }
 
 ConstraintSeqIterator ConstraintSequence::begin()
-{
-return ConstraintSeqIterator(repn.get(), false);
-}
+{ return ConstraintSeqIterator(repn.get(), false); }
 
 ConstraintSeqIterator ConstraintSequence::end()
-{
-return ConstraintSeqIterator(repn.get(), true);
-}
+{ return ConstraintSeqIterator(repn.get(), true); }
 
 }

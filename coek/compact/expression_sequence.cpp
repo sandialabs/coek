@@ -1,14 +1,13 @@
-
-#include <cstdio>
-#include <memory>
-#include <sstream>
-#include <fstream>
-#include <map>
+//#include <cstdio>
+//#include <memory>
+//#include <sstream>
+//#include <fstream>
+//#include <map>
 
 #include "coek/expr/ast_term.hpp"
-#include "coek/expr/coek_exprterm.hpp"
 #include "coek/api/expression.hpp"
-#include "coek/api/constraint.hpp"
+#include "coek/compact/coek_exprterm.hpp"
+
 #include "coek_sets.hpp"
 #include "sequence_context.hpp"
 #include "expression_sequence.hpp"
@@ -27,13 +26,13 @@ class ExpressionSequenceRepn
 {
 public:
 
-    std::vector<Context> context;
     Expression expression_template;
+    SequenceContext context;
 
 public:
 
-    ExpressionSequenceRepn(const Expression& expr)
-        : expression_template(expr)
+    ExpressionSequenceRepn(const Expression& expr, const SequenceContext& context_)
+        : expression_template(expr), context(context_)
         {}
     
 };
@@ -67,9 +66,11 @@ public:
         if (!done) {
             context_iter.resize(seq->context.size());
             
-            auto cit = seq->context.begin();
-            for (auto it = context_iter.begin(); it != context_iter.end(); ++it, ++cit) {
-                *it = cit->index_set.begin(cit->indices);
+            //auto cit = seq->context.repn->context.begin();
+            size_t i=0;
+            for (auto it = context_iter.begin(); it != context_iter.end(); ++it, ++i) {
+                Context& curr = seq->context[i];
+                *it = curr.index_set.begin(curr.indices);
                 }
             converted_expr = convert_expr_template( seq->expression_template.repn );
             }
@@ -176,30 +177,6 @@ ExpressionSeqIterator::const_pointer ExpressionSeqIterator::operator->() const
 return repn->operator->();
 }
 
-//
-// Expression
-//
-
-ExpressionSequenceAux Expression::Forall(const std::vector<IndexParameter>& indices)
-{
-auto repn = std::make_shared<ExpressionSequenceRepn>(*this);
-repn->context.emplace_back(indices);
-return repn;
-}
-
-//
-// ExpressionSequenceAux
-//
-ExpressionSequenceAux::ExpressionSequenceAux(const std::shared_ptr<ExpressionSequenceRepn>& _repn)
-    : repn(_repn)
-{}
-
-ExpressionSequence ExpressionSequenceAux::In(const ConcreteSet& _index_set)
-{
-Context& curr = repn->context.back();
-curr.index_set = _index_set;
-return repn;
-}
 
 //
 // ExpressionSequence
@@ -208,36 +185,14 @@ ExpressionSequence::ExpressionSequence(const std::shared_ptr<ExpressionSequenceR
     : repn(_repn)
 {}
 
-ExpressionSequenceAux ExpressionSequence::Forall(const std::vector<IndexParameter>& params)
-{
-repn->context.emplace_back(params);
-return repn;
-}
-
-ExpressionSequence ExpressionSequence::ST(const Constraint& con)
-{
-auto curr = repn->context.back();
-curr.index_constraints.push_back(con);
-return repn;
-}
-
-ExpressionSequence ExpressionSequence::Where(const Constraint& con)
-{
-// TODO - parse these constraints here and use a more explicit data structure
-auto curr = repn->context.back();
-curr.index_values.push_back(con);
-return repn;
-}
+ExpressionSequence::ExpressionSequence(const Expression& expr, const SequenceContext& context_)
+{ repn = std::make_shared<ExpressionSequenceRepn>(expr,context_); }
 
 ExpressionSeqIterator ExpressionSequence::begin()
-{
-return ExpressionSeqIterator(repn.get(), false);
-}
+{ return ExpressionSeqIterator(repn.get(), false); }
 
 ExpressionSeqIterator ExpressionSequence::end()
-{
-return ExpressionSeqIterator(repn.get(), true);
-}
+{ return ExpressionSeqIterator(repn.get(), true); }
 
 
 
@@ -271,8 +226,9 @@ return curr;
 //
 // Sum
 //
-Expression Sum(const ExpressionSequence& seq)
+Expression Sum(const Expression& expr, const SequenceContext& context)
 {
+ExpressionSequence seq(expr, context);
 Expression ans( CREATE_POINTER(SumExpressionTerm, seq) );
 return ans;
 }

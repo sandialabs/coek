@@ -1,15 +1,11 @@
-//#include <cmath>
-//#include <cstdio>
-//#include <map>
-
 #include "../expr/ast_operators.hpp"
 #include "../expr/ast_visitors.hpp"
 #include "coek/api/expression.hpp"
 
+
 namespace coek {
 
 expr_pointer_t convert_expr_template(expr_pointer_t expr);
-//ConstraintTerm* convert_con_template(ConstraintTerm* con);
 
 
 //

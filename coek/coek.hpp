@@ -8,6 +8,8 @@
 
 #include "compact/coek_sets.hpp"
 #include "compact/coek_indexed.hpp"
+#include "compact/sequence_context.hpp"
 #include "compact/expression_sequence.hpp"
+#include "compact/objective_sequence.hpp"
 #include "compact/constraint_sequence.hpp"
 #include "coek_model.hpp"

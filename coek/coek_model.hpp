@@ -4,21 +4,29 @@
 #include <vector>
 #include <variant>
 #include <unordered_map>
-//#include "coek_expr.hpp"
+
 #include "compact/coek_sets.hpp"
 #include "compact/coek_indexed.hpp"
-#include "coek/api/constraint.hpp"
-#include "coek/api/objective.hpp"
+
+//#include "coek/api/constraint.hpp"
+//#include "coek/api/objective.hpp"
+
 
 namespace coek {
 
 class VariableArray;
+class Expression;
+class Constraint;
+//class ExpressionSeqIteratorRepn;
+//class ConstraintSeqIteratorRepn;
+class SequenceContext;
+class ObjectiveSequence;
+class ConstraintSequence;
+
 class ModelRepn;
 class NLPModelRepn;
 class SolverRepn;
 class NLPSolverRepn;
-class ExpressionSeqIteratorRepn;
-class ConstraintSeqIteratorRepn;
 
 
 // TODO - Move to *.cpp file
@@ -97,17 +105,17 @@ class CompactModel
 public:
 
     // TODO - define ObjectiveSequence
-    std::vector<std::variant<Objective, ExpressionSequence>> objectives;
+    std::vector<std::variant<Objective, ObjectiveSequence>> objectives;
     std::vector<std::variant<Constraint, ConstraintSequence>> constraints;
     std::vector<Variable> variables;
 
 public:
 
     Objective add_objective(const Expression& expr, bool _sense=Model::minimize);
-    void add_objective(const ExpressionSequence& seq, bool _sense=Model::minimize);
+    void add_objective(const Expression& expr, const SequenceContext& context, bool _sense=Model::minimize);
 
     Constraint add_constraint(const Constraint& expr);
-    void add_constraint(const ConstraintSequence& seq);
+    void add_constraint(const Constraint& expr, const SequenceContext& context);
 
     Variable add_variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
     Variable add_variable(const std::string& name, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);

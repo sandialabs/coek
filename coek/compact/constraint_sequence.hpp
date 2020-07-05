@@ -3,15 +3,17 @@
 #pragma once
 
 #include <vector>
-#include "coek_indexed.hpp"
-#include "coek/api/constraint.hpp"
-#include "coek/api/objective.hpp"
+//#include "coek_indexed.hpp"
+//#include "coek/api/constraint.hpp"
+//#include "coek/api/objective.hpp"
 
 namespace coek {
 
 class Constraint;
 class IndexParameter;
+class ConstraintSequenceRepn;
 class ConstraintSeqIteratorRepn;
+class SequenceContext;
 
 
 class ConstraintSeqIterator
@@ -51,36 +53,10 @@ public:
 public:
 
     ConstraintSequence(const std::shared_ptr<ConstraintSequenceRepn>& _repn);
-
-    template <typename... TYPES>
-    ConstraintSequenceAux Forall(const TYPES&... args)
-        {
-        std::vector<IndexParameter> arg;
-        collect_args(args..., arg);
-        return Forall(arg);
-        }
-    
-    ConstraintSequenceAux Forall(const std::vector<IndexParameter>& params);
-    ConstraintSequence ST(const Constraint& con);
-    ConstraintSequence Where(const Constraint& con);
+    ConstraintSequence(const Constraint& con, const SequenceContext& context);
 
     ConstraintSeqIterator begin();
     ConstraintSeqIterator end();
-
-protected:
-    
-    void collect_args(const IndexParameter& arg, std::vector<IndexParameter>& _arg)
-        {
-        _arg.emplace_back(arg);
-        }
-
-    template <typename... TYPES>
-    void collect_args(const IndexParameter& arg, const TYPES&... args, std::vector<IndexParameter>&  _arg)
-        {
-        _arg.emplace_back(arg);
-        collect_args(args..., _arg);
-        }
 };
-
 }
 #endif

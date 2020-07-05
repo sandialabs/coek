@@ -6,6 +6,7 @@
 #include <string>
 #include <list>
 
+
 namespace coek {
 
 class ObjectiveTerm;

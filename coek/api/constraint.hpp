@@ -8,34 +8,17 @@
 #include <vector>
 #include <memory>
 
+
 namespace coek {
 
 class ConstraintTerm;
 typedef ConstraintTerm* ConstraintRepn;
-
-class ConstraintSequenceRepn;
-class ConstraintSequence;
 
 class Parameter;
 class IndexParameter;
 class Variable;
 class Expression;
 class Constraint;
-class ConcreteSet;
-
-
-class ConstraintSequenceAux
-{
-public:
-
-    std::shared_ptr<ConstraintSequenceRepn> repn;
-
-public:
-
-    ConstraintSequenceAux(const std::shared_ptr<ConstraintSequenceRepn>& _repn);
-    ConstraintSequence In(const ConcreteSet& _index_set);
-};
-
 
 
 // Coek Constraint
@@ -67,34 +50,11 @@ public:
     double get_lb() const;
     double get_ub() const;
 
-    template <typename... TYPES>
-    ConstraintSequenceAux Forall(const TYPES&... args)
-        {
-        std::vector<IndexParameter> indices;
-        collect_args(indices, args...);
-        return Forall(indices);
-        }
-
-    ConstraintSequenceAux Forall(const std::vector<IndexParameter>& indices);
     Constraint expand();
 
     std::list<std::string> to_list() const;
 
     friend std::ostream& operator<<(std::ostream& ostr, const Constraint& arg);
-
-protected:
-
-    void collect_args(std::vector<IndexParameter>& indices, const IndexParameter& arg)
-        {
-        indices.emplace_back(arg);
-        }
-
-    template <typename... TYPES>
-    void collect_args(std::vector<IndexParameter>& indices, const IndexParameter& arg, const TYPES&... args)
-        {
-        indices.emplace_back(arg);
-        collect_args(indices, args...);
-        }
 };
 
 
@@ -270,6 +230,5 @@ Constraint operator==(const Expression&, const Expression&);
 Constraint inequality(int lower, const Expression& body, int upper, bool strict=false);
 Constraint inequality(double lower, const Expression& body, double upper, bool strict=false);
 Constraint inequality(const Expression& lower, const Expression& body, const Expression& upper, bool strict=false);
-
 }
 #endif

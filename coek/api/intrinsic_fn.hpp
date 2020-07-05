@@ -2,8 +2,8 @@
 #define COEK_API_INTRINSIC_FN_H
 #pragma once
 
-namespace coek {
 
+namespace coek {
 
 class Expression;
 

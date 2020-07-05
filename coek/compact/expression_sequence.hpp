@@ -3,15 +3,12 @@
 #pragma once
 
 #include <vector>
-#include "coek/api/expression.hpp"
 
 namespace coek {
 
 class ExpressionSequenceRepn;
 class ExpressionSeqIteratorRepn;
-//class IndexParameter;
-//class Expression;
-class Constraint;
+class SequenceContext;
 
 
 class ExpressionSeqIterator
@@ -51,38 +48,13 @@ public:
 public:
 
     ExpressionSequence(const std::shared_ptr<ExpressionSequenceRepn>& _repn);
-
-    template <typename... TYPES>
-    ExpressionSequenceAux Forall(const TYPES&... args)
-        {
-        std::vector<IndexParameter> arg;
-        collect_args(args..., arg);
-        return Forall(arg);
-        }
-    
-    ExpressionSequenceAux Forall(const std::vector<IndexParameter>& params);
-    ExpressionSequence ST(const Constraint& con);
-    ExpressionSequence Where(const Constraint& con);
+    ExpressionSequence(const Expression& expr, const SequenceContext& context);
 
     ExpressionSeqIterator begin();
     ExpressionSeqIterator end();
-
-protected:
-    
-    void collect_args(const IndexParameter& arg, std::vector<IndexParameter>& _arg)
-        {
-        _arg.emplace_back(arg);
-        }
-
-    template <typename... TYPES>
-    void collect_args(const IndexParameter& arg, const TYPES&... args, std::vector<IndexParameter>&  _arg)
-        {
-        _arg.emplace_back(arg);
-        collect_args(args..., _arg);
-        }
 };
 
 
-Expression Sum(const ExpressionSequence& seq);
+Expression Sum(const Expression& expr, const SequenceContext& context);
 }
 #endif

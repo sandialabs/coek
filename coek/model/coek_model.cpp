@@ -6,22 +6,18 @@
 
 #include "coek/expr/ast_term.hpp"
 #include "coek/expr/varray.hpp"
-#include "coek/expr/coek_exprterm.hpp"
-#include "coek/solvers/solver.hpp"
-#include "coek/compact/expression_sequence.hpp"
+#include "coek/api/objective.hpp"
+#include "coek/compact/objective_sequence.hpp"
 #include "coek/compact/constraint_sequence.hpp"
+#include "coek/compact/coek_exprterm.hpp"
 #include "coek/abstract/expr_rule.hpp"
 #include "coek/autograd/autograd.hpp"
 #include "coek/coek_model.hpp"
+#include "coek/solvers/solver.hpp"
 
 
 
 namespace coek {
-
-
-expr_pointer_t convert_expr_template(expr_pointer_t expr);
-ConstraintTerm* convert_con_template(ConstraintTerm* expr);
-
 
 //
 // Model
@@ -210,12 +206,10 @@ objectives.push_back( obj );
 return obj;
 }
 
-void CompactModel::add_objective(const ExpressionSequence& seq, bool _sense)
+void CompactModel::add_objective(const Expression& expr, const SequenceContext& context, bool _sense)
 {
-/*
+ObjectiveSequence seq(expr, context, _sense);
 objectives.push_back( seq );
-sense.push_back( _sense );
-*/
 }
 
 Constraint CompactModel::add_constraint(const Constraint& expr)
@@ -224,8 +218,9 @@ constraints.push_back(expr);
 return expr;
 }
 
-void CompactModel::add_constraint(const ConstraintSequence& seq)
+void CompactModel::add_constraint(const Constraint& expr, const SequenceContext& context)
 {
+ConstraintSequence seq(expr, context);
 constraints.push_back(seq);
 }
 

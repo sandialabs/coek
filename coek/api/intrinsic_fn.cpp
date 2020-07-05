@@ -2,6 +2,7 @@
 #include "../expr/ast_visitors.hpp"
 #include "expression.hpp"
 
+
 namespace coek {
 
 //
@@ -77,5 +78,4 @@ return intrinsic_ ## FN(_lhs.repn, rhs.repn);\
 }
 
 INTRINSIC_DEF2(pow);
-
 }

@@ -1,13 +1,9 @@
-//#include <cmath>
-//#include <cstdio>
-//#include <sstream>
-//#include <map>
-//#include "../expr/ast_operators.hpp"
 #include "../expr/ast_visitors.hpp"
 #include "expression.hpp"
 #include "objective.hpp"
 #include "constraint.hpp"
 #include "expression_visitor.hpp"
+
 
 namespace coek {
 

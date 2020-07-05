@@ -9,6 +9,5 @@
 namespace coek {
 
 extern double nan_value;
-
 }
 #endif

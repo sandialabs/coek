@@ -40,6 +40,7 @@
     Expression operator/(const Variable& arg) const;\
     Expression operator/(const Expression& arg) const;
 
+
 namespace coek {
 
 
@@ -57,11 +58,6 @@ class Parameter;
 class IndexParameter;
 class Variable;
 class Expression;
-class ExpressionSequence;
-class ExpressionSequenceRepn;
-class ConstraintSequence;
-class ConstraintSequenceRepn;
-class ConcreteSet;
 
 //
 // numerical operators
@@ -321,19 +317,6 @@ public:
 };
 
 
-class ExpressionSequenceAux
-{
-public:
-
-    std::shared_ptr<ExpressionSequenceRepn> repn;
-
-public:
-
-    ExpressionSequenceAux(const std::shared_ptr<ExpressionSequenceRepn>& _repn);
-    ExpressionSequence In(const ConcreteSet& _index_set);
-};
-
-
 /**
   * \class Expression
   * \brief Container for expressions in equations.
@@ -437,35 +420,8 @@ public:
 
     friend std::ostream& operator<<(std::ostream& ostr, const Expression& arg);
 
-    /** \returns a modifier to specify the indices used in this expression */
-    template <typename... TYPES>
-    ExpressionSequenceAux Forall(const TYPES&... args)
-        {
-        std::vector<IndexParameter> indices;
-        collect_args(indices, args...);
-        return Forall(indices);
-        }
-
-    /** \returns a modifier to specify the indices used in this expression */
-    ExpressionSequenceAux Forall(const std::vector<IndexParameter>& indices);
     /** \returns an expanded Expression */
     Expression expand();
-
-protected:
-
-    /** Collect template arguments. */
-    void collect_args(std::vector<IndexParameter>& indices, const IndexParameter& arg)
-        {
-        indices.emplace_back(arg);
-        }
-
-    /** Collect template arguments. */
-    template <typename... TYPES>
-    void collect_args(std::vector<IndexParameter>& indices, const IndexParameter& arg, const TYPES&... args)
-        {
-        indices.emplace_back(arg);
-        collect_args(indices, args...);
-        }
 };
 
 
