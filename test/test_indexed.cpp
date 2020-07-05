@@ -453,7 +453,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         coek::IndexParameter j("j");
 
         WHEN( "y(i)" ) {
-            auto tmp = (y(i)). forall(i).in( s );
+            auto tmp = (y(i)). Forall(i).In( s );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"y(" + std::to_string(v[ii]) + ")"};
@@ -463,7 +463,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         }
 
         WHEN( "1 + y(i)" ) {
-            auto tmp = (1+y(i)). forall(i).in( s );
+            auto tmp = (1+y(i)). Forall(i).In( s );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "+", "1.000", "y(" + std::to_string(v[ii]) + ")", "]"};
@@ -473,7 +473,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         }
 
         WHEN( "i + y(i)" ) {
-            auto tmp = (i+y(i)). forall(i).in( s );
+            auto tmp = (i+y(i)). Forall(i).In( s );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "+", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]) + ")", "]"};
@@ -485,7 +485,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         WHEN( "y(i+2)" ) {
             std::vector<int> w = {1,5,3};
             auto S = coek::SetOf( w );
-            auto tmp = (y(i+2)). forall(i).in( S );
+            auto tmp = (y(i+2)). Forall(i).In( S );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"y(" + std::to_string(v[ii]+2) + ")"};
@@ -497,7 +497,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         WHEN( "y(i)+i*y(i+2)" ) {
             std::vector<int> w = {1,5,3};
             auto S = coek::SetOf( w );
-            auto tmp = (y(i)+i*y(i+2)). forall(i).in( S );
+            auto tmp = (y(i)+i*y(i+2)). Forall(i).In( S );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "+", "y(" + std::to_string(v[ii]) + ")", "[", "*", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]+2) + ")", "]", "]"};
@@ -507,8 +507,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         }
 
         WHEN( "Sum( y(i) )" ) {
-            auto tmp = Sum( (y(i)). forall(i).in( s ) );
-            //auto tmp = Sum( ExprSeq(y(i)). forall(i).in(s) );
+            auto tmp = Sum( (y(i)). Forall(i).In( s ) );
+            //auto tmp = Sum( ExprSeq(y(i)). Forall(i).In(s) );
             //auto tmp = Sum(y(i)). Forall(i).In(s) );
             //auto tmp = Sum(y(i)). Forall(i).In(s).ST(i <= 10) );
             //auto tmp = Sum(y(i)). Forall(i).In(s).Where(i <= 10) );
@@ -519,35 +519,35 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         }
 
         WHEN( "Sum( x(i,i) )" ) {
-            auto tmp = Sum( (x(i,i)). forall(i).in( s ) );
+            auto tmp = Sum( (x(i,i)). Forall(i).In( s ) );
             auto e = tmp.expand();
             std::list<std::string> baseline = { "[", "+", "x(1,1)", "x(5,5)", "x(3,3)", "x(7,7)", "]" };
             REQUIRE( e.to_list() == baseline);
         }
 
         WHEN( "Sum( x(i,j) ) [1]" ) {
-            auto tmp = Sum( (x(i,j)). forall(i,j).in( s*s ) );
+            auto tmp = Sum( (x(i,j)). Forall(i,j).In( s*s ) );
             auto e = tmp.expand();
             std::list<std::string> baseline =  { "[", "+", "x(1,1)", "x(1,5)", "x(1,3)", "x(1,7)", "x(5,1)", "x(5,5)", "x(5,3)", "x(5,7)", "x(3,1)", "x(3,5)", "x(3,3)", "x(3,7)", "x(7,1)", "x(7,5)", "x(7,3)", "x(7,7)", "]" };
             REQUIRE( e.to_list() == baseline);
         }
 
         WHEN( "Sum( x(i,j) ) [2]" ) {
-            auto tmp = Sum( (x(i,j)) .forall(i).in(s) .forall(j).in(s) );
+            auto tmp = Sum( (x(i,j)) .Forall(i).In(s) .Forall(j).In(s) );
             auto e = tmp.expand();
             std::list<std::string> baseline = { "[", "+", "x(1,1)", "x(1,5)", "x(1,3)", "x(1,7)", "x(5,1)", "x(5,5)", "x(5,3)", "x(5,7)", "x(3,1)", "x(3,5)", "x(3,3)", "x(3,7)", "x(7,1)", "x(7,5)", "x(7,3)", "x(7,7)", "]" };
             REQUIRE( e.to_list() == baseline);
         }
 
         WHEN( "Sum( y(i)*x(i,i) )" ) {
-            auto tmp = Sum( (y(i)*x(i,i)). forall(i).in(s) );
+            auto tmp = Sum( (y(i)*x(i,i)). Forall(i).In(s) );
             auto e = tmp.expand();
             std::list<std::string> baseline = { "[", "+", "[", "*", "y(1)", "x(1,1)", "]", "[", "*", "y(5)", "x(5,5)", "]", "[", "*", "y(3)", "x(3,3)", "]", "[", "*", "y(7)", "x(7,7)", "]", "]" };
             REQUIRE( e.to_list() == baseline);
         }
 
         WHEN( "Sum_i( y(i)*Sum_j(x(i,j)) )" ) {
-            auto tmp = Sum( ( y(i)*Sum(x(i,j) .forall(j).in(s)) ). forall(i).in(s) );
+            auto tmp = Sum( ( y(i)*Sum(x(i,j) .Forall(j).In(s)) ). Forall(i).In(s) );
             auto e = tmp.expand();
             std::list<std::string> baseline =  { "[", "+", "[", "*", "y(1)", "[", "+", "x(1,1)", "x(1,5)", "x(1,3)", "x(1,7)", "]", "]", "[", "*", "y(5)", "[", "+", "x(5,1)", "x(5,5)", "x(5,3)", "x(5,7)", "]", "]", "[", "*", "y(3)", "[", "+", "x(3,1)", "x(3,5)", "x(3,3)", "x(3,7)", "]", "]", "[", "*", "y(7)", "[", "+", "x(7,1)", "x(7,5)", "x(7,3)", "x(7,7)", "]", "]", "]" };
             REQUIRE( e.to_list() == baseline);
@@ -562,7 +562,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         coek::IndexParameter i("i");
 
         WHEN( "y(i) == 0" ) {
-            auto tmp = (y(i) == 0). forall(i).in( s );
+            auto tmp = (y(i) == 0). Forall(i).In( s );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "y(" + std::to_string(v[ii]) + ")", "0.000", "]"};
@@ -572,7 +572,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         }
 
         WHEN( "1 + y(i) == 0" ) {
-            auto tmp = (1+y(i) == 0). forall(i).in( s );
+            auto tmp = (1+y(i) == 0). Forall(i).In( s );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "[", "+", "1.000", "y(" + std::to_string(v[ii]) + ")", "]", "0.000", "]"};
@@ -582,7 +582,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         }
 
         WHEN( "i + y(i) == 0" ) {
-            auto tmp = (i+y(i) == 0). forall(i).in( s );
+            auto tmp = (i+y(i) == 0). Forall(i).In( s );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "[", "+", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]) + ")", "]", "0.000", "]"};
@@ -594,7 +594,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         WHEN( "y(i+2) == 0" ) {
             std::vector<int> w = {1,5,3};
             auto S = coek::SetOf( w );
-            auto tmp = (y(i+2) == 0). forall(i).in( S );
+            auto tmp = (y(i+2) == 0). Forall(i).In( S );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "y(" + std::to_string(v[ii]+2) + ")", "0.000", "]"};
@@ -606,7 +606,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         WHEN( "y(i)+i*y(i+2) == 0" ) {
             std::vector<int> w = {1,5,3};
             auto S = coek::SetOf( w );
-            auto tmp = (y(i)+i*y(i+2) == 0). forall(i).in( S );
+            auto tmp = (y(i)+i*y(i+2) == 0). Forall(i).In( S );
             int ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "[", "+", "y(" + std::to_string(v[ii]) + ")", "[", "*", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]+2) + ")", "]", "]", "0.000", "]"};
@@ -616,14 +616,14 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         }
 
         WHEN( "Sum( y(i) ) == 0" ) {
-            auto tmp = Sum( (y(i)). forall(i).in( s ) ) == 0;
+            auto tmp = Sum( (y(i)). Forall(i).In( s ) ) == 0;
             auto e = tmp.expand();
             std::list<std::string> baseline = { "[", "==", "[", "+", "y(1)", "y(5)", "y(3)", "y(7)", "]", "0.000", "]" };
             REQUIRE( e.to_list() == baseline);
         }
 
         WHEN( "Sum( y(i)*x(i,i) ) == 0" ) {
-            auto tmp = Sum( (y(i)*x(i,i)). forall(i).in(s) ) == 0;
+            auto tmp = Sum( (y(i)*x(i,i)). Forall(i).In(s) ) == 0;
             auto e = tmp.expand();
             std::list<std::string> baseline = { "[", "==", "[", "+", "[", "*", "y(1)", "x(1,1)", "]", "[", "*", "y(5)", "x(5,5)", "]", "[", "*", "y(3)", "x(3,3)", "]", "[", "*", "y(7)", "x(7,7)", "]", "]", "0.000", "]" };
             REQUIRE( e.to_list() == baseline);

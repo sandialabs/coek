@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../expr/ast_term.hpp"
-#include "coek/coek_model.hpp"
+#include "coek/compact/expression_sequence.hpp"
 
 namespace coek {
 

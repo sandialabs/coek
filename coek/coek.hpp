@@ -6,6 +6,8 @@
 #include "api/objective.hpp"
 #include "api/constraint.hpp"
 
-#include "coek_sets.hpp"
-#include "coek_indexed.hpp"
+#include "compact/coek_sets.hpp"
+#include "compact/coek_indexed.hpp"
+#include "compact/expression_sequence.hpp"
+#include "compact/constraint_sequence.hpp"
 #include "coek_model.hpp"

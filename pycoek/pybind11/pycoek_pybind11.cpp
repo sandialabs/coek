@@ -12,9 +12,10 @@
 #include <pybind11/stl_bind.h>
 
 #include "coek/expr/ast_term.hpp"
-#include "coek/api/expression.hpp"
-#include "coek/api/intrinsic_fn.hpp"
-#include "coek/coek_model.hpp"
+//#include "coek/api/expression.hpp"
+//#include "coek/api/intrinsic_fn.hpp"
+//#include "coek/coek_model.hpp"
+#include "coek/coek.hpp"
 
 namespace py = pybind11;
 
@@ -735,9 +736,9 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     // ExpressionSequenceAux
     //
     py::class_<coek::ExpressionSequenceAux>(m, "ExpressionSequenceAux")
-        .def("In",[](coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.in(A);})
-        //.def("ST",[](const coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.in(A);})
-        //.def("Where",[](const coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.in(A);})
+        .def("In",[](coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.In(A);})
+        //.def("ST",[](const coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.In(A);})
+        //.def("Where",[](const coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.In(A);})
         ;
 
     //
@@ -748,7 +749,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
                                 std::vector<coek::IndexParameter> indices;
                                 for (py::handle h : args)
                                     indices.push_back(h.cast<coek::IndexParameter>());
-                                return x.forall(indices);
+                                return x.Forall(indices);
                                 })
         .def("__iter__", [](coek::ExpressionSequence& x) {return py::make_iterator(x.begin(), x.end());})
         ;
@@ -899,7 +900,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
                                 std::vector<coek::IndexParameter> indices;
                                 for (py::handle h : args)
                                     indices.push_back(h.cast<coek::IndexParameter>());
-                                return x.forall(indices);
+                                return x.Forall(indices);
                                 })
         .def("expand", [](coek::Expression& x) {return x.expand();})
         ;
@@ -932,9 +933,9 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     // ConstraintSequenceAux
     //
     py::class_<coek::ConstraintSequenceAux>(m, "ConstraintSequenceAux")
-        .def("In",[](coek::ConstraintSequenceAux& self, const coek::ConcreteSet& A){return self.in(A);})
-        //.def("ST",[](const coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.in(A);})
-        //.def("Where",[](const coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.in(A);})
+        .def("In",[](coek::ConstraintSequenceAux& self, const coek::ConcreteSet& A){return self.In(A);})
+        //.def("ST",[](const coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.In(A);})
+        //.def("Where",[](const coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.In(A);})
         ;
 
     //
@@ -945,7 +946,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
                                 std::vector<coek::IndexParameter> indices;
                                 for (py::handle h : args)
                                     indices.push_back(h.cast<coek::IndexParameter>());
-                                return x.forall(indices);
+                                return x.Forall(indices);
                                 })
         .def("__iter__", [](coek::ConstraintSequence& x) {return py::make_iterator(x.begin(), x.end());})
         ;
@@ -985,7 +986,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
                                 std::vector<coek::IndexParameter> indices;
                                 for (py::handle h : args)
                                     indices.push_back(h.cast<coek::IndexParameter>());
-                                return x.forall(indices);
+                                return x.Forall(indices);
                                 })
         .def("expand", [](coek::Constraint& x) {return x.expand();})
         ;

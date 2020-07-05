@@ -33,7 +33,7 @@ public:
 public:
 
     ConstraintSequenceAux(const std::shared_ptr<ConstraintSequenceRepn>& _repn);
-    ConstraintSequence in(const ConcreteSet& _index_set);
+    ConstraintSequence In(const ConcreteSet& _index_set);
 };
 
 
@@ -68,14 +68,14 @@ public:
     double get_ub() const;
 
     template <typename... TYPES>
-    ConstraintSequenceAux forall(const TYPES&... args)
+    ConstraintSequenceAux Forall(const TYPES&... args)
         {
         std::vector<IndexParameter> indices;
         collect_args(indices, args...);
-        return forall(indices);
+        return Forall(indices);
         }
 
-    ConstraintSequenceAux forall(const std::vector<IndexParameter>& indices);
+    ConstraintSequenceAux Forall(const std::vector<IndexParameter>& indices);
     Constraint expand();
 
     std::list<std::string> to_list() const;

@@ -1,6 +1,6 @@
 #include <any>
 #include "coek/expr/ast_term.hpp"
-#include "coek/coek_indexed.hpp"
+#include "coek/compact/coek_indexed.hpp"
 
 
 namespace std

@@ -330,7 +330,7 @@ public:
 public:
 
     ExpressionSequenceAux(const std::shared_ptr<ExpressionSequenceRepn>& _repn);
-    ExpressionSequence in(const ConcreteSet& _index_set);
+    ExpressionSequence In(const ConcreteSet& _index_set);
 };
 
 
@@ -439,15 +439,15 @@ public:
 
     /** \returns a modifier to specify the indices used in this expression */
     template <typename... TYPES>
-    ExpressionSequenceAux forall(const TYPES&... args)
+    ExpressionSequenceAux Forall(const TYPES&... args)
         {
         std::vector<IndexParameter> indices;
         collect_args(indices, args...);
-        return forall(indices);
+        return Forall(indices);
         }
 
     /** \returns a modifier to specify the indices used in this expression */
-    ExpressionSequenceAux forall(const std::vector<IndexParameter>& indices);
+    ExpressionSequenceAux Forall(const std::vector<IndexParameter>& indices);
     /** \returns an expanded Expression */
     Expression expand();
 
