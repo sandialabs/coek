@@ -3,6 +3,7 @@ import itertools
 import pycoek_cppyy
 
 constraint = pycoek_cppyy.coek.Constraint
+expression = pycoek_cppyy.coek.Expression
 model = pycoek_cppyy.coek.Model
 solver = pycoek_cppyy.coek.Solver
 nlp_model = pycoek_cppyy.coek.NLPModel
