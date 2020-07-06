@@ -6,8 +6,9 @@
 
 namespace coek {
 
-class ExpressionSequenceRepn;
 class ExpressionSeqIteratorRepn;
+class Expression;
+class ExpressionSequenceRepn;
 class SequenceContext;
 
 
@@ -52,6 +53,8 @@ public:
 
     ExpressionSeqIterator begin();
     ExpressionSeqIterator end();
+    const ExpressionSeqIterator begin() const;
+    const ExpressionSeqIterator end() const;
 };
 
 

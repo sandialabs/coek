@@ -1,6 +1,5 @@
-#include "catch.hpp"
-
 #include <typeinfo>
+#include "catch.hpp"
 #include "coek/expr/ast_term.hpp"
 #include "coek/coek.hpp"
 
@@ -507,12 +506,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         }
 
         WHEN( "Sum( y(i) )" ) {
-            auto tmp = Sum( y(i), coek::Forall(i).In(s) );
-            //auto tmp = Sum( ExprSeq(y(i)). Forall(i).In(s) );
-            //auto tmp = Sum(y(i)). Forall(i).In(s) );
-            //auto tmp = Sum(y(i)). Forall(i).In(s).ST(i <= 10) );
-            //auto tmp = Sum(y(i)). Forall(i).In(s).Where(i <= 10) );
-            //auto tmp = Sum(y(i)). Forall(i).In(s, i <= 10) );
+            auto tmp = coek::Sum( y(i), coek::Forall(i).In(s) );
             auto e = tmp.expand();
             std::list<std::string> baseline = { "[", "+", "y(1)", "y(5)", "y(3)", "y(7)", "]" };
             REQUIRE( e.to_list() == baseline);

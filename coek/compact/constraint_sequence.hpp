@@ -57,6 +57,8 @@ public:
 
     ConstraintSeqIterator begin();
     ConstraintSeqIterator end();
+    const ConstraintSeqIterator begin() const;
+    const ConstraintSeqIterator end() const;
 };
 }
 #endif

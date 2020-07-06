@@ -188,4 +188,10 @@ ConstraintSeqIterator ConstraintSequence::begin()
 ConstraintSeqIterator ConstraintSequence::end()
 { return ConstraintSeqIterator(repn.get(), true); }
 
+const ConstraintSeqIterator ConstraintSequence::begin() const
+{ return ConstraintSeqIterator(repn.get(), false); }
+
+const ConstraintSeqIterator ConstraintSequence::end() const
+{ return ConstraintSeqIterator(repn.get(), true); }
+
 }

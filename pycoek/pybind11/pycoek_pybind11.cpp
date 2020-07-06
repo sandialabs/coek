@@ -2,8 +2,6 @@
 // pycoek:  A Python Module that wraps Coek objects
 //
 
-// TODO: Replace __truediv__ in earlier versions of Python
-
 #include <iostream>
 #include <typeinfo>
 #include <pybind11/pybind11.h>
@@ -382,10 +380,6 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     m.def("RangeSet",[](int start, int stop, int step=1) {return coek::RangeSet(start, stop, step);});
     m.def("RangeSet",[](int start, int stop) {return coek::RangeSet(start, stop);});
 
-#if 0
-    m.def("Sum",[](const coek::ExpressionSequence& seq) {return Sum(seq);});
-#endif
-
     m.def("IndexedVariable",[](const coek::ConcreteSet& arg, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=0.0) {return coek::IndexedVariable(arg, lb, ub, value);});
     m.def("IndexedVariable",[](const coek::ConcreteSet& arg, double lb=-COEK_INFINITY, double ub=COEK_INFINITY) {return coek::IndexedVariable(arg, lb, ub);});
     m.def("IndexedVariable",[](const coek::ConcreteSet& arg) {return coek::IndexedVariable(arg);});
@@ -734,30 +728,6 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
                 py::keep_alive<0, 1>())
         ;
 
-#if 0
-    //
-    // ExpressionSequenceAux
-    //
-    py::class_<coek::ExpressionSequenceAux>(m, "ExpressionSequenceAux")
-        .def("In",[](coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.In(A);})
-        //.def("ST",[](const coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.In(A);})
-        //.def("Where",[](const coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.In(A);})
-        ;
-
-    //
-    // ExpressionSequence
-    //
-    py::class_<coek::ExpressionSequence>(m, "ExpressionSequence")
-        .def("Forall", [](coek::ExpressionSequence& x, py::args args){
-                                std::vector<coek::IndexParameter> indices;
-                                for (py::handle h : args)
-                                    indices.push_back(h.cast<coek::IndexParameter>());
-                                return x.Forall(indices);
-                                })
-        .def("__iter__", [](coek::ExpressionSequence& x) {return py::make_iterator(x.begin(), x.end());})
-        ;
-#endif
-
     //
     // Expression
     //
@@ -900,14 +870,6 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
                                     }
                                 begin++;
                                 return coek::to_nested_list(begin, end);})
-#if 0
-        .def("Forall", [](coek::Expression& x, py::args args){
-                                std::vector<coek::IndexParameter> indices;
-                                for (py::handle h : args)
-                                    indices.push_back(h.cast<coek::IndexParameter>());
-                                return x.Forall(indices);
-                                })
-#endif
         .def("expand", [](coek::Expression& x) {return x.expand();})
         ;
 
@@ -934,30 +896,6 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
                                 begin++;
                                 return coek::to_nested_list(begin, end);})
         ;
-
-#if 0
-    //
-    // ConstraintSequenceAux
-    //
-    py::class_<coek::ConstraintSequenceAux>(m, "ConstraintSequenceAux")
-        .def("In",[](coek::ConstraintSequenceAux& self, const coek::ConcreteSet& A){return self.In(A);})
-        //.def("ST",[](const coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.In(A);})
-        //.def("Where",[](const coek::ExpressionSequenceAux& self, const coek::ConcreteSet& A){return self.In(A);})
-        ;
-
-    //
-    // ConstraintSequence
-    //
-    py::class_<coek::ConstraintSequence>(m, "ConstraintSequence")
-        .def("Forall", [](coek::ConstraintSequence& x, py::args args){
-                                std::vector<coek::IndexParameter> indices;
-                                for (py::handle h : args)
-                                    indices.push_back(h.cast<coek::IndexParameter>());
-                                return x.Forall(indices);
-                                })
-        .def("__iter__", [](coek::ConstraintSequence& x) {return py::make_iterator(x.begin(), x.end());})
-        ;
-#endif
 
     //
     // Constraint
@@ -990,14 +928,6 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
                                     }
                                 begin++;
                                 return coek::to_nested_list(begin, end);})
-#if 0
-        .def("Forall", [](coek::Constraint& x, py::args args){
-                                std::vector<coek::IndexParameter> indices;
-                                for (py::handle h : args)
-                                    indices.push_back(h.cast<coek::IndexParameter>());
-                                return x.Forall(indices);
-                                })
-#endif
         .def("expand", [](coek::Constraint& x) {return x.expand();})
         ;
 
@@ -1121,6 +1051,47 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         ;
 
     //
+    // Functions for Compact Expressions
+    //
+    m.def("Sum",[](const coek::Expression& expr, const coek::SequenceContext& context) {return coek::Sum(expr, context);});
+#if 0
+    m.def("Sum",[](const coek::Variable& expr, const coek::SequenceContext& context) {return coek::Sum(expr, context);});
+#endif
+
+    m.def("Forall",[](py::args args){
+                                std::vector<coek::IndexParameter> indices;
+                                for (py::handle h : args)
+                                    indices.push_back(h.cast<coek::IndexParameter>());
+                                return coek::Forall(indices);
+                                });
+    //
+    // SequenceContext
+    //
+    py::class_<coek::SequenceContext>(m, "SequenceContext")
+        .def("Forall", [](coek::SequenceContext& x, py::args args){
+                                std::vector<coek::IndexParameter> indices;
+                                for (py::handle h : args)
+                                    indices.push_back(h.cast<coek::IndexParameter>());
+                                return x.Forall(indices);
+                                })
+        .def("In", [](coek::SequenceContext& x, coek::ConcreteSet& context) {return x.In(context);})
+        .def("ST", [](coek::SequenceContext& x, coek::Constraint& con) {return x.ST(con);})
+        .def("Where", [](coek::SequenceContext& x, coek::Constraint& con) {return x.Where(con);})
+        ;
+
+    py::class_<coek::ExpressionSequence>(m, "ExpressionSequence")
+        .def(py::init<coek::Expression&,coek::SequenceContext&>())
+        .def("__iter__", [](const coek::ExpressionSequence& seq) 
+            {return py::make_iterator(seq.begin(), seq.end());})
+        ;
+
+    py::class_<coek::ConstraintSequence>(m, "ConstraintSequence")
+        .def(py::init<coek::Constraint&,coek::SequenceContext&>())
+        .def("__iter__", [](const coek::ConstraintSequence& seq) 
+            {return py::make_iterator(seq.begin(), seq.end());})
+        ;
+
+    //
     // CompactModel
     //
     py::class_<coek::CompactModel>(m, "compact_model")
@@ -1132,30 +1103,58 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
             return m.add_variable(v);
             })
 #endif
-        .def("add_variable_", [](coek::CompactModel& m, coek::Variable& v){m.add_variable(v);})
-        .def("add_variable_", [](coek::CompactModel& m, coek::ConcreteIndexedVariable& v){m.add_variable(v);})
+        .def("add_variable_", [](coek::CompactModel& m, coek::Variable& v)
+            {m.add_variable(v);})
+        .def("add_variable_", [](coek::CompactModel& m, coek::ConcreteIndexedVariable& v)
+            {m.add_variable(v);})
         .def("add_variable_", [](coek::CompactModel& m, coek::VariableArray& v)
             {
             for (auto it=v.variables.begin(); it != v.variables.end(); ++it)
                 m.add_variable(*it);
             })
+
         .def("add_objective", [](coek::CompactModel& m, double f)
             {coek::Expression e(f);
             return m.add_objective(e);})
-        .def("add_objective", [](coek::CompactModel& m, const coek::Expression& e){return m.add_objective(e);})
-        .def("add_objective", [](coek::CompactModel& m, const coek::Parameter& e){return m.add_objective(e);})
-        .def("add_objective", [](coek::CompactModel& m, const coek::Variable& e){return m.add_objective(e);})
-        .def("add_objective", [](coek::CompactModel& m, const coek::Variable& e, bool sense){return m.add_objective(e, sense);})
-        .def("add_objective", [](coek::CompactModel& m, const coek::Expression& e, bool sense){return m.add_objective(e, sense);})
-#if 0
-        .def("add_objective", [](coek::CompactModel& m, const coek::ExpressionSequence& e){return m.add_objective(e);})
-        .def("add_objective", [](coek::CompactModel& m, const coek::ExpressionSequence& e, bool sense){return m.add_objective(e, sense);})
-#endif
+        .def("add_objective", [](coek::CompactModel& m, const coek::Expression& e)
+            {return m.add_objective(e);})
+        .def("add_objective", [](coek::CompactModel& m, const coek::Parameter& e)
+            {return m.add_objective(e);})
+        .def("add_objective", [](coek::CompactModel& m, const coek::Variable& e)
+            {return m.add_objective(e);})
+        .def("add_objective", [](coek::CompactModel& m, double f, bool sense)
+            {coek::Expression e(f);
+            return m.add_objective(e, sense);})
+        .def("add_objective", [](coek::CompactModel& m, const coek::Expression& e, bool sense)
+            {return m.add_objective(e, sense);})
+        .def("add_objective", [](coek::CompactModel& m, const coek::Parameter& e, bool sense)
+            {return m.add_objective(e, sense);})
+        .def("add_objective", [](coek::CompactModel& m, const coek::Variable& e, bool sense)
+            {return m.add_objective(e, sense);})
 
-        .def("add_constraint", [](coek::CompactModel& m, const coek::Constraint& c){return m.add_constraint(c);})
-#if 0
-        .def("add_constraint", [](coek::CompactModel& m, const coek::ConstraintSequence& c){m.add_constraint(c);})
-#endif
+        .def("add_objective", [](coek::CompactModel& m, double f, const coek::SequenceContext& context)
+            {coek::Expression e(f);
+            return m.add_objective(e,context);})
+        .def("add_objective", [](coek::CompactModel& m, const coek::Expression& e, const coek::SequenceContext& context)
+            {return m.add_objective(e,context);})
+        .def("add_objective", [](coek::CompactModel& m, const coek::Parameter& e, const coek::SequenceContext& context)
+            {return m.add_objective(e,context);})
+        .def("add_objective", [](coek::CompactModel& m, const coek::Variable& e, const coek::SequenceContext& context)
+            {return m.add_objective(e,context);})
+        .def("add_objective", [](coek::CompactModel& m, double f, const coek::SequenceContext& context, bool sense)
+            {coek::Expression e(f);
+            return m.add_objective(e, context, sense);})
+        .def("add_objective", [](coek::CompactModel& m, const coek::Expression& e, const coek::SequenceContext& context, bool sense)
+            {return m.add_objective(e, context, sense);})
+        .def("add_objective", [](coek::CompactModel& m, const coek::Parameter& e, const coek::SequenceContext& context, bool sense)
+            {return m.add_objective(e, context, sense);})
+        .def("add_objective", [](coek::CompactModel& m, const coek::Variable& e, const coek::SequenceContext& context, bool sense)
+            {return m.add_objective(e, context, sense);})
+
+        .def("add_constraint", [](coek::CompactModel& m, const coek::Constraint& c)
+            {return m.add_constraint(c);})
+        .def("add_constraint", [](coek::CompactModel& m, const coek::Constraint& c, const coek::SequenceContext& context)
+            {return m.add_constraint(c,context);})
 
         .def("write", [](coek::CompactModel& m, const std::string& s, std::map<int,int>& varmap, std::map<int,int>& conmap){m.write(s,varmap,conmap);})
         .def("write", [](coek::CompactModel& m, const std::string& s){m.write(s);})

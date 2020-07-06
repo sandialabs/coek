@@ -44,6 +44,20 @@ curr.index_set = _index_set;
 return repn;
 }
 
+SequenceContext SequenceContext::ST(const Constraint& con)
+{
+Context& curr = repn->context.back();
+curr.index_values.emplace_back(con);
+return repn;
+}
+
+SequenceContext SequenceContext::Where(const Constraint& con)
+{
+Context& curr = repn->context.back();
+curr.index_constraints.emplace_back(con);
+return repn;
+}
+
 size_t SequenceContext::size() const
 { return repn->context.size(); }
 

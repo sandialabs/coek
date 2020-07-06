@@ -194,6 +194,12 @@ ExpressionSeqIterator ExpressionSequence::begin()
 ExpressionSeqIterator ExpressionSequence::end()
 { return ExpressionSeqIterator(repn.get(), true); }
 
+const ExpressionSeqIterator ExpressionSequence::begin() const
+{ return ExpressionSeqIterator(repn.get(), false); }
+
+const ExpressionSeqIterator ExpressionSequence::end() const
+{ return ExpressionSeqIterator(repn.get(), true); }
+
 
 
 namespace visitors {
