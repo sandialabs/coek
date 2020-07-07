@@ -4,7 +4,7 @@
 # Take from CUTE test models
 
 import poek as pk
-from math import atan
+from math import atan, sqrt
 
 
 model = pk.model()
@@ -24,8 +24,8 @@ x_init[6] =  11.2
 x_init[7] =  13.2
 x_init[8] =  15.8
 
-# LOAD DATA
-y = Param(I)
+data = pk.util.load_data("hs105.json")
+y = data.y
 
 x = model.add_variable(index=N)
 for i in N:
@@ -33,16 +33,17 @@ for i in N:
 
 a = {}
 for i in I:
-    a[i] = pk.expression( (x[1]/x[6]) * exp(-(y[i] - x[3])**2 / (2 * x[6]**2)) )
+    a[i] = (x[1]/x[6]) * pk.exp(-(y[i] - x[3])**2 / (2 * x[6]**2))
 
 b = {}
 for i in I:
-    b[i] = pk.expression( (x[2]/x[7]) * exp(-(y[i] - x[4])**2 / (2 * x[7]**2)) )
+    b[i] = (x[2]/x[7]) * pk.exp(-(y[i] - x[4])**2 / (2 * x[7]**2))
 
+c = {}
 for i in I:
-    model.add_objective( ((1 - x[2] - x[1]) / x[8]) * exp(-(y[i] - x[5])**2 / (2 * x[8]**2)) )
+    c[i] = ((1 - x[2] - x[1]) / x[8]) * pk.exp(-(y[i] - x[5])**2 / (2 * x[8]**2))
 
-model.add_constraint( -sum(log((a[i] + b[i] + c[i]) / sqrt(2 * PI)) for i in I) )
+model.add_objective( -sum(pk.log((a[i] + b[i] + c[i]) / sqrt(2 * PI)) for i in I) )
 
 model.add_constraint( 1 - x[1] - x[2] >= 0 )
 model.add_constraint( pk.inequality(.001, x[1], .499 ) )

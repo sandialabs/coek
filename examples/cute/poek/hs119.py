@@ -12,10 +12,11 @@ model = pk.model()
 N = list(range(1,17))
 M = list(range(1,9))
 
-# LOAD DATA
-a = Param(N,N,default=0)
-b = Param(M,N,default=0)
-c = Param(M,default=0)
+data = pk.util.load_data("hs119.json")
+a,b,c = data.unpack('a','b','c', default=0)
+#a = Param(N,N,default=0)
+#b = Param(M,N,default=0)
+#c = Param(M,default=0)
 
 x = model.add_variable(index=N, lb=0, ub=5, value=10.0)
 
