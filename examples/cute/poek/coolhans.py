@@ -22,37 +22,27 @@
 import poek as pk
 
 
-model = AbstractModel()
+model = pk.model()
 
-N = RangeSet(1,3)
+N = [1,2,3]
 
-# LOAD DATA
-A = Param(N,N)
-B = Param(N,N)
-C = Param(N,N)
+data = pk.util.load_data('coolhans.json')
+A,B,C = data.unpack('A','B','C')
 
-X = Var(N,N,initialize=0.0)
+X = Var(N,N, value=0.0)
 
-def _AXX(model,i,j):
-    return sum(sum(A[i,k]*X[k,m] for k in range(1,4)) *X[m,j] for m in range(1,4))
-AXX = Expression(N, N, rule=_AXX)
+AXX = {}
+for i in N:
+    for j in N:
+        AXX[i,j] = sum(sum(A[i,k]*X[k,m] for k in range(1,4)) *X[m,j] for m in range(1,4))
 
-def _BX(model,i,j):
-    return sum(B[i,k]*X[k,j] for k in range(1,4))
-BX = Expression(N, N, rule=_BX)
+BX = {}
+for i in N:
+    for j in N:
+        BX[i,j] = sum(B[i,k]*X[k,j] for k in range(1,4))
 
-# For Pyomo testing,
-# generate the ConcreteModel version
-# by loading the data
-import os
-if os.path.isfile(os.path.abspath(__file__).replace('.pyc','.dat').replace('.py','.dat')):
-    model = create_instance(os.path.abspath(__file__).replace('.pyc','.dat').replace('.py','.dat'))
-
-def f(model):
-    return 0.0
-f = Objective(rule=f)
+model.add_objective( pk.expression(0) )
     
-def con1(model,i,j):
-    return (AXX[i,j] + BX[i,j] + C[i,j]) == 0
-matrix = Constraint(N,N,rule=con1)
+for i,j in AXX:
+    model.add_constraint( AXX[i,j] + BX[i,j] + C[i,j] == 0 )
     

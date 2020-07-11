@@ -16,6 +16,9 @@
 #   classification OOR2-MY-6-200
 
 import poek as pk
+sin = pk.sin
+cos = pk.cos
+acos = pk.acos
 
 
 model = pk.model()
@@ -23,9 +26,9 @@ model = pk.model()
 np = 100
 S = list(range(1,np+1))
 
-# LOAD DATA
-x = Param(S)
-y = Param(S)
+data = pk.util.load_data('cresc100.json')
+x = data.unpack('x', index=('i'))
+y = data.unpack('y', index=('i'))
 
 v1 = model.add_variable(value=-40.0)
 w1 = model.add_variable(value=5.0)

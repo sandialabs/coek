@@ -26,10 +26,11 @@ model = pk.model()
 
 N = 50
 S = list(range(1,N+1))
-alpha = Param(S)
 
-# LOAD DATA
-SS = RangeSet(2,N)
+data = pk.util.load_data('errinros.json')
+alpha = data.alpha
+
+SS = list(range(2,N+1))
 
 x = model.add_variable(index=S, value=-1.0)
 

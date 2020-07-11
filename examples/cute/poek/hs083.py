@@ -9,10 +9,8 @@ model = pk.model()
 N = list(range(1,6))
 M = list(range(1,13))
 
-# LOAD DATA
-a = Param(M)
-l = Param(N)
-u = Param(N)
+data = pk.util.load_data("hs083.json")
+a,l,u = data.unpack('a','l','u')
 
 x_init={}
 x_init[1] = 78.0
@@ -29,8 +27,8 @@ for i in N:
 
 model.add_objective( 5.3578547*x[3]**2 + 0.8356891*x[1]*x[5] + 37.293239*x[1] - 40792.141 )
 
-model.add_constraint( 0 <= a[1] + a[2]*x[2]*x[5] + a[3]*x[1]*x[4]\
-         - a[4]*x[3]*x[5] <= 92 )
+model.add_constraint( pk.inequality(0, a[1] + a[2]*x[2]*x[5] + a[3]*x[1]*x[4]\
+         - a[4]*x[3]*x[5], 92) )
 
 model.add_constraint( pk.inequality(0, a[5] + a[6]*x[2]*x[5] + a[7]*x[1]*x[2]\
          + a[8]*x[3]**2 - 90, 20) )

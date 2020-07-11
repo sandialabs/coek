@@ -20,35 +20,24 @@ import poek as pk
 
 model = pk.model()
 
-Flow_init = {1:5.797, 2:5.797, 3:9.997, 4:9.997, 5:16.076, 6:4.8, 7:0.766, \
-             8:-4.49, 9:11.586, 10:17.2404, 11:2.10363, 12:17.2404, 13:2.10363, \
-             14:11.5676, 15:1.41145, 16:10.838, 17:8.718, 18:9.918, 19:22.464, \
-             20:15.616, 21:2.141, 22:2.141, 23:2.141, 24:1.919}
+data = pk.util.load_data('core1.json')
+Region, loflows, hiflows, hisupply, loprods, hiprods, lopi, hipi, Flow_init = \
+    data.unpack('Region', 'loflows', 'hiflows', 'hisupply', 'loprods', 'hiprods', 'lopi', 'hipi', 'Flow_init')
 
-SF = list(range(1,24))
-SP = list(range(1,6))
-SD = list(range(1,9))
-SPi = list(range(1,20))
+SF = list(range(1,25))
+SP = list(range(1,7))
+SD = list(range(1,10))
+SPi = list(range(1,21))
 
-Flow = model.add_variable(SF)
+Flow = model.add_variable(index=SF)
 for i in SF:
     Flow[i].value = Flow_init[i]
-Prod = model.add_variable(SP)
-Supply = model.add_variable(SP)
-Demand = model.add_variable(SD)
-Pi = model.add_variable(SPi)
+Prod = model.add_variable(index=SP)
+Supply = model.add_variable(index=SP)
+Demand = model.add_variable(index=SD)
+Pi = model.add_variable(index=SPi)
 
-# LOAD DATA
-Region = Param(SD)
-loflows = Param(SF)
-hiflows = Param()
-hisupply = Param(SP)
-loprods = Param(SP)
-hiprods = Param(SP)
-lopi = Param(SPi)
-hipi = Param(SPi)
-
-model.add_objective( exp = 2.28*Prod[1] + 2.28*Prod[2] + 2.28*Prod[3] + 1.68*Prod[4] + 1.68*Prod[5] + 1.68*Prod[6] )
+model.add_objective( 2.28*Prod[1] + 2.28*Prod[2] + 2.28*Prod[3] + 1.68*Prod[4] + 1.68*Prod[5] + 1.68*Prod[6] )
 
 model.add_constraint( Flow[1] + Flow[2] - Supply[1] == 0 )
 model.add_constraint( -1*Flow[1] - Flow[2] + Flow[3] + Flow[4] - Supply[2] == 0 )

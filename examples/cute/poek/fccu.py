@@ -27,56 +27,55 @@ import poek as pk
 
 model = pk.model()
 
-S = RangeSet(1,19)
-w = Param(S)
-m = Param(S)
+data = pk.util.load_data('fccu.json')
+w,m = data.unpack('w','m')
 
-# LOAD DATA
-Feed = Var(initialize=1)
-Effluent = Var(initialize=1)
-MF_ohd = Var(initialize=1)
-HCN  = Var(initialize=1)
-LCO = Var(initialize=1)
-HCO = Var(initialize=1)
-MF_btms = Var(initialize=1)
-Decant = Var(initialize=1)
-Dec_recy = Var(initialize=1)
-Off_gas = Var(initialize=1)
-DC4_feed = Var(initialize=1)
-DC3_feed = Var(initialize=1)
-DC4_btms = Var(initialize=1)
-Lean_oil = Var(initialize=1)
-Propane = Var(initialize=1)
-Butane = Var(initialize=1)
-C8spl_fd = Var(initialize=1)
-LCN = Var(initialize=1)
-MCN  = Var(initialize=1)
+Feed = model.add_variable(value=1)
+Effluent = model.add_variable(value=1)
+MF_ohd = model.add_variable(value=1)
+HCN = model.add_variable(value=1)
+LCO = model.add_variable(value=1)
+HCO = model.add_variable(value=1)
+MF_btms = model.add_variable(value=1)
+Decant = model.add_variable(value=1)
+Dec_recy = model.add_variable(value=1)
+Off_gas = model.add_variable(value=1)
+DC4_feed = model.add_variable(value=1)
+DC3_feed = model.add_variable(value=1)
+DC4_btms = model.add_variable(value=1)
+Lean_oil = model.add_variable(value=1)
+Propane = model.add_variable(value=1)
+Butane = model.add_variable(value=1)
+C8spl_fd = model.add_variable(value=1)
+LCN = model.add_variable(value=1)
+MCN = model.add_variable(value=1)
 
-    return (Feed-value(m[1]))**2/value(w[1])\
-    +(Effluent-value(m[2]))**2/value(w[2])\
-    +(MF_ohd-value(m[3]))**2/value(w[3])\
-    +(HCN-value(m[4]))**2/value(w[4])\
-    +(LCO-value(m[5]))**2/value(w[5])\
-    +(HCO-value(m[6]))**2/value(w[6])\
-    +(MF_btms-value(m[7]))**2/value(w[7])\
-    +(Decant-value(m[8]))**2/value(w[8])\
-    +(Dec_recy-value(m[9]))**2/value(w[9])\
-    +(Off_gas-value(m[10]))**2/value(w[10])\
-    +(DC4_feed-value(m[11]))**2/value(w[11])\
-    +(DC3_feed-value(m[12]))**2/value(w[12])\
-    +(DC4_btms-value(m[13]))**2/value(w[13])\
-    +(Lean_oil-value(m[14]))**2/value(w[14])\
-    +(Propane-value(m[15]))**2/value(w[15])\
-    +(Butane-value(m[16]))**2/value(w[16])\
-    +(C8spl_fd-value(m[17]))**2/value(w[17])\
-    +(LCN-value(m[18]))**2/value(w[18])\
-    +(MCN-value(m[19]))**2/value(w[19])
+model.add_objective(
+    (Feed-m[1])**2/w[1]\
+    +(Effluent-m[2])**2/w[2]\
+    +(MF_ohd-m[3])**2/w[3]\
+    +(HCN-m[4])**2/w[4]\
+    +(LCO-m[5])**2/w[5]\
+    +(HCO-m[6])**2/w[6]\
+    +(MF_btms-m[7])**2/w[7]\
+    +(Decant-m[8])**2/w[8]\
+    +(Dec_recy-m[9])**2/w[9]\
+    +(Off_gas-m[10])**2/w[10]\
+    +(DC4_feed-m[11])**2/w[11]\
+    +(DC3_feed-m[12])**2/w[12]\
+    +(DC4_btms-m[13])**2/w[13]\
+    +(Lean_oil-m[14])**2/w[14]\
+    +(Propane-m[15])**2/w[15]\
+    +(Butane-m[16])**2/w[16]\
+    +(C8spl_fd-m[17])**2/w[17]\
+    +(LCN-m[18])**2/w[18]\
+    +(MCN-m[19])**2/w[19] )
 
-    return Feed + Dec_recy - Effluent == 0
-    return Effluent - MF_ohd - HCN - LCO - HCO - MF_btms == 0
-    return MF_btms - Decant - Dec_recy == 0
-    return MF_ohd + Lean_oil - Off_gas - DC4_feed == 0
-    return DC4_feed - DC3_feed - DC4_btms == 0
-    return DC4_btms - Lean_oil - C8spl_fd == 0
-    return DC3_feed - Propane - Butane == 0
-    return C8spl_fd - LCN - MCN == 0
+model.add_constraint( Feed + Dec_recy - Effluent == 0 )
+model.add_constraint( Effluent - MF_ohd - HCN - LCO - HCO - MF_btms == 0 )
+model.add_constraint( MF_btms - Decant - Dec_recy == 0 )
+model.add_constraint( MF_ohd + Lean_oil - Off_gas - DC4_feed == 0 )
+model.add_constraint( DC4_feed - DC3_feed - DC4_btms == 0 )
+model.add_constraint( DC4_btms - Lean_oil - C8spl_fd == 0 )
+model.add_constraint( DC3_feed - Propane - Butane == 0 )
+model.add_constraint( C8spl_fd - LCN - MCN == 0 )

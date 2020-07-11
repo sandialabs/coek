@@ -13,12 +13,6 @@ L = list(range(1,16))
 data = pk.util.load_data("hs117.json")
 a, b, c, d, e = data.unpack("a", "b", "c", "d", "e")
 
-print("a",a)
-print("b",b)
-print("c",c)
-print("d",d)
-print("e",e)
-
 x = model.add_variable(index=L, lb=0)
 x[1].value =   .001
 x[2].value =   .001
