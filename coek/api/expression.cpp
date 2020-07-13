@@ -755,7 +755,13 @@ return STATIC_CAST(BaseExpressionTerm,
         rhs.repn->const_mult(lhs, rhs.repn) );
 }
 Expression operator*(int lhs, const Expression& rhs)
-{return times(lhs, rhs.repn);}
+{
+if (lhs == 0)
+    return ZEROCONST;
+if (lhs == 1)
+    return rhs.repn;
+return times(lhs, rhs.repn);
+}
 Expression operator*(double lhs, const Parameter& rhs)
 {return times(lhs, rhs.repn);}
 Expression operator*(double lhs, const IndexParameter& rhs)
@@ -770,7 +776,13 @@ return STATIC_CAST(BaseExpressionTerm,
         rhs.repn->const_mult(lhs, rhs.repn) );
 }
 Expression operator*(double lhs, const Expression& rhs)
-{return times(lhs, rhs.repn);}
+{
+if (lhs == 0.0)
+    return ZEROCONST;
+if (lhs == 1.0)
+    return rhs.repn;
+return times(lhs, rhs.repn);
+}
 
 Expression Parameter::operator*(int arg) const
 { return times(repn, arg); }
@@ -786,7 +798,13 @@ return STATIC_CAST(BaseExpressionTerm,
         repn->const_mult(arg, repn) );
 }
 Expression Expression::operator*(int arg) const
-{ return times(repn, arg); }
+{
+if (arg == 0)
+    return ZEROCONST;
+if (arg == 1)
+    return repn;
+return times(repn, arg);
+}
 Expression Parameter::operator*(double arg) const
 { return times(repn, arg); }
 Expression IndexParameter::operator*(double arg) const
@@ -801,7 +819,13 @@ return STATIC_CAST(BaseExpressionTerm,
         repn->const_mult(arg, repn) );
 }
 Expression Expression::operator*(double arg) const
-{ return times(repn, arg); }
+{
+if (arg == 0.0)
+    return ZEROCONST;
+if (arg == 1.0)
+    return repn;
+return times(repn, arg);
+}
 
 
 Expression Parameter::operator*(const Parameter& arg) const
