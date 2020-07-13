@@ -94,14 +94,17 @@ class ModelDataFromJson(object):
                     tlist = [table]
                 for t in tlist:
                     if key in self._tables_[t]:
-                        ans = {}
                         table_ = self._tables_[t]
-                        for i in range(len(table_[key])):
-                            ndx = tuple(list(table_[index_][i] for index_ in index))
-                            if len(ndx) == 1:
-                                ans[ndx[0]] = table_[key][i]
-                            else:
-                                ans[ndx] = table_[key][i]
+                        if index is None:
+                            ans = table_[key]
+                        else:
+                            ans = {}
+                            for i in range(len(table_[key])):
+                                ndx = tuple(list(table_[index_][i] for index_ in index))
+                                if len(ndx) == 1:
+                                    ans[ndx[0]] = table_[key][i]
+                                else:
+                                    ans[ndx] = table_[key][i]
                         break
                 yield ans
 
