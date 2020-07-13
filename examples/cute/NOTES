@@ -1,0 +1,18 @@
+hs099 - Remove zero terms
+
+hs083 - No error when using a <= b <= c
+
+hs070 - Named expressions
+
+core1 - Change ordering of constraints?  Nonlinear constraints first?
+
+coolhans - Why does COEK expand linear*var when writing an NL file?
+
+avgasa
+avgasb - Should COEK indicate that there are 8 linear integer variables?
+
+brainpc0
+brainpc1 - Error in nonlinear variables reported (this is a COEK error)
+
+brainpc0
+brainpc1 - Discrepancies in number of nonzeros in Jacobian

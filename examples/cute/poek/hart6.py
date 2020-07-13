@@ -28,13 +28,12 @@ import poek as pk
 
 model = pk.model()
 
-# LOAD DATA
-c = Param(list(range(1,4))
-a = Param(list(range(1,4),list(range(1,6))
-p = Param(list(range(1,4),list(range(1,6))
+data = pk.util.load_data('hart6.json')
+c = data.c
+a,p = data.unpack('a','p', index=("i","j"))
 
-x = model.add_variable(index=list(range(1,6),bounds=(0.0,1.0),value=0.2)
+x = model.add_variable(index=range(1,7), lb=0, ub=1, value=0.2)
 
 model.add_objective( - sum(c[i]*\
-                exp(-sum(a[i,j]*(x[j]-p[i,j])**2 for j in range(1,7))) 
+                pk.exp(-sum(a[i,j]*(x[j]-p[i,j])**2 for j in range(1,7))) 
              for i in range(1,5)) )

@@ -29,6 +29,7 @@
 # Nonlinear constraints
 
 import poek as pk
+from math import cos, sin
 
 
 model = pk.model()
@@ -47,37 +48,37 @@ rate3 = 28
 rate4 = 29
 rate5 = 30
 
-N = RangeSet(1,6)
+N = list(range(1,7))
 
-z1 = Var()
-z2 = Var()
-x1 = Var()
-x2 = Var()
-x3 = Var()
-x4 = Var()
-x5 = Var()
-x6 = Var()
-x1.setlb(0.0)
-x1.setub(400.0)
-x2.setlb(0.0)
-x2.setub(1000.0)
-x3.setlb(340.0)
-x3.setub(420.0)
-x4.setlb(340.0)
-x4.setub(420.0)
-x5.setlb(-1000.0)
-x5.setub(1000.0)
-x6.setlb(0.0)
-x6.setub(0.5236)
+z1 = model.add_variable()
+z2 = model.add_variable()
+x1 = model.add_variable()
+x2 = model.add_variable()
+x3 = model.add_variable()
+x4 = model.add_variable()
+x5 = model.add_variable()
+x6 = model.add_variable()
+x1.set_lb(0.0)
+x1.set_ub(400.0)
+x2.set_lb(0.0)
+x2.set_ub(1000.0)
+x3.set_lb(340.0)
+x3.set_ub(420.0)
+x4.set_lb(340.0)
+x4.set_ub(420.0)
+x5.set_lb(-1000.0)
+x5.set_ub(1000.0)
+x6.set_lb(0.0)
+x6.set_ub(0.5236)
 
-x1 = 390.0
-x2 = 1000.0
-x3 = 419.5
-x4 = 340.5
-x5 = 198.175
-x6 = 0.5
+x1.value = 390.0
+x2.value = 1000.0
+x3.value = 419.5
+x4.value = 340.5
+x5.value = 198.175
+x6.value = 0.5
 
-obj = Objective(expr=z1 + z2)
+model.add_objective( z1 + z2 )
 
 def f1(model,x):
     if x == 0:

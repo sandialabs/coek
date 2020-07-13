@@ -21,22 +21,20 @@ model = pk.model()
 
 S = list(range(1,9))
 
-# LOAD DATA
-a = Param(list(range(1,8))
-b = Param(list(range(1,7))
-c = Param(list(range(2,8))
+data = pk.util.load_data('avgasa.json')
+a,b,c = data.unpack('a','b','c')
 
-x = model.add_variable(index=S, lb=0.0, ub=1.0, value=1)
+x = model.add_variable(index=range(1,9), lb=0.0, ub=1.0, integer=True, value=1)
 
-model.add_objective( (sum(a[j]*x[j]**2 for j in range(1,9)))+\
-    (sum(b[j]*x[j]*x[j+1] for j in range(1,8)))+\
-    (sum(c[j]*x[j] for j in range(2,9))) )
+model.add_objective( sum(a[j]*x[j]**2 for j in range(1,9))+\
+    sum(b[j]*x[j]*x[j+1] for j in range(1,8))+\
+    sum(c[j]*x[j] for j in range(2,9)) )
 
 for j in range(1,5):
-    model.add_constraint( x[2*j-1]+x[2*j]<=1.0 )
+    model.add_constraint( x[2*j-1]+x[2*j] <= 1.0 )
 
 for j in range(0,2):
-    model.add_constraint( sum(x[2*i-j] for i in range(1,5))<=2.0 )
+    model.add_constraint( sum(x[2*i-j] for i in range(1,5)) <= 2.0 )
 
 model.add_constraint( 2.0*x[1] + x[3] - x[7] >= 0 )
 
