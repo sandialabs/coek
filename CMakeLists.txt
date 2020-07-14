@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.12)
-
 PROJECT(Coek
         LANGUAGES CXX
         VERSION 0.1
         DESCRIPTION "C++ Optimization Expression Kernels"
         )
+set(CMAKE_CXX_STANDARD 17)
 
 if(DEFINED ENV{CONDA_PREFIX})
     message(STATUS "Building in a conda environment.")

@@ -8,3 +8,5 @@
 # ignore CppAD directory in top level third_party directory
 /third_party/CppAD/
 
+/.vs
+/out/build
