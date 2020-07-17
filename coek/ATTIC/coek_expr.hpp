@@ -167,14 +167,13 @@ Expression affine_expression(const std::vector<double>& coef, const std::vector<
 Expression affine_expression(const std::vector<Variable>& var, double offset);
 
 
-// Mutable Parameter 
 /**
- * @class Parameter
- * @brief Values that appear as mutable constants in expressions.
- *
- * Mutable parameters are used to declare expressions for which coefficients and
- * constant terms can be changed without reconstructing the expression.
- */
+  * \class Parameter
+  * \brief Values that appear as mutable constants in expressions.
+  *
+  * Mutable parameters are used to define coefficients and
+  * constant terms can be changed without reconstructing the expression.
+  */
 class Parameter
 {
 public:
@@ -183,70 +182,56 @@ public:
 
 public:
 
-    /**
-     * @name Constructors
-     */
-     //@{
-    /**
-     * Constructs a Parameter without defining its value.
-     */
+    /** Constructs a Parameter without defining its value. */
     Parameter();
     /**
-     * Constructs a Parameter initialized with a given value.
-     *
-     * @param value the initial value of the parameter
-     */
+      * Constructs a Parameter initialized with a given value.
+      *
+      * \param value   the initial value of the parameter
+      */
     Parameter(double value);
     /**
-     * Constructs a Parameter initialized with a given value and a name.
-     *
-     * @param value the initial value of the parameter
-     * @param name the name of the parameter
-     */
+      * Constructs a Parameter initialized with a given value and a name.
+      *  
+      * \param value   the initial value of the parameter
+      * \param name   the name of the parameter
+      */
     Parameter(double value, const std::string& name);
     /**
-     * Copy constructor
-     *
-     * @param arg a parameter whose value is shared
-     */
+      * Copy constructor
+      *
+      * \param arg   a parameter whose value is shared
+      */
     Parameter(const Parameter& arg);
     ~Parameter();
 
     Parameter& operator=(const Parameter& arg);
 
-    /**
-     * Get the value of the parameter
-     *
-     * @return the parameter value
-     */
+    /** \returns the value of the parameter.  */
     double get_value() const;
     /**
-     * Set the value of the parameter
-     *
-     * @param value the parameter value
-     */
+      * Set the value of the parameter
+      *
+      * \param value   the parameter value
+      */
     void set_value(double value);
 
     bool is_constant() const
         {return false;}
 
-    /**
-     * Get the name of the parameter
-     *
-     * @return the parameter name
-     */
+    /** \returns the name of the parameter. */
     std::string get_name() const;
 
     COEK_API_OPERATORS
 
     /**
-     * @name Stream operator
-     *
-     * Stream the parameter to an output stream.
-     *
-     * @param ostr output stream
-     * @param arg parameter
-     */
+      * \name Stream operator
+      *
+      * Stream the parameter to an output stream.
+      *
+      * \param ostr   output stream
+      * \param arg   parameter
+      */
     friend std::ostream& operator<<(std::ostream& ostr, const Parameter& arg);
 };
 
@@ -283,7 +268,12 @@ public:
 };
 
 
-// Decision Variables
+/**
+  * \class Variable
+  * \brief Decision variables that appear in expressions.
+  *
+  * Variables are used to define decision variables that are used in expressions.
+  */
 class Variable
 {
 public:
@@ -292,9 +282,35 @@ public:
 
 public:
 
-    Variable(const VariableRepn& _repn);
+    /**
+      * Constructs a Variable initialized with standard arguments.
+      *
+      * This constructor accepts one or more standard options.  When default values are used, this
+      * specifies an unbounded, continuous decision variable.
+      *
+      * \param lb   the lower bound (default is negative infinity)
+      * \param ub   the upper bound (default is infinity)
+      * \param value   the initial value (default is 0.0)
+      * \param binary   a boolean flag that indicates whether the variable is boolean (default is \c false)
+      * \param integer   a boolean flag that indicates whether the variable is a general integer (default is \c false)
+      */
     Variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=0.0, bool binary=false, bool integer=false);
+    /**
+      * Constructs a Variable initialized with standard arguments.
+      *
+      * This constructor accepts one or more standard options.  The first argument is the 
+      * name of the variable. When default values are used, this specifies an unbounded,
+      * continuous decision variable.
+      *
+      * \param name   the name of variable
+      * \param lb   the lower bound (default is negative infinity)
+      * \param ub   the upper bound (default is infinity)
+      * \param value   the initial value (default is 0.0)
+      * \param binary   a boolean flag that indicates whether the variable is boolean (default is \c false)
+      * \param integer   a boolean flag that indicates whether the variable is a general integer (default is \c false)
+      */
     Variable(const std::string& name, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=0.0, bool binary=false, bool integer=false);
+    Variable(const VariableRepn& _repn);
     Variable(const Variable& arg);
     virtual ~Variable();
 
@@ -303,31 +319,54 @@ public:
     void initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed);
     void initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed, const std::string& name);
 
+    /** \returns the value of the variable */
     double get_value() const;
+    /** Set the variable value */
     void set_value(double value);
 
+    /** \returns the lower bound */
     double get_lb() const;
+    /** Set the lower bound */
     void set_lb(double value);
 
+    /** \returns the upper bound */
     double get_ub() const;
+    /** Set the upper bound */
     void set_ub(double value);
 
+    /** \returns \c true if the variable is fixed */
     bool get_fixed() const;
+    /** Set a flag indicating if the variable is fixed */
     void set_fixed(bool flag);
 
+    /** \returns the value of the parameter.  */
     std::string get_name() const;
+    /** Set the name */
     void set_name(const std::string& name);
 
+    /** \returns \c true if the variable is continuous */
     bool is_continuous() const;
+    /** \returns \c true if the variable is binary */
     bool is_binary() const;
+    /** \returns \c true if the variable is integer */
     bool is_integer() const;
 
+    /** \returns the unique integer variable ID */
     unsigned int id() const;
+
     bool is_constant() const
         {return false;}
 
     COEK_API_OPERATORS
 
+    /**
+      * \name Stream operator
+      *
+      * Stream the variable to an output stream.
+      *
+      * \param ostr   output stream
+      * \param arg   variable
+      */
     friend std::ostream& operator<<(std::ostream& ostr, const Variable& arg);
 };
 
@@ -345,7 +384,12 @@ public:
 };
 
 
-// Coek AST Expression
+/**
+  * \class Expression
+  * \brief Container for expressions in equations.
+  *
+  * This class is the core container for expressions that appear in objectives and constraints.
+  */
 class Expression
 {
 public:
@@ -354,13 +398,20 @@ public:
 
 public:
 
+    /** Constructs an Expression without defining its value. */
     Expression();
-    Expression(const ExpressionRepn& _repn);
+    /** Explict construction of an Expression from a double. */
     explicit Expression(double value);
+    /** Explict construction of an Expression from an integer. */
     explicit Expression(int value);
+    /** Implicit construction of an Expression from a Parameter. */
     Expression(const Parameter& arg);
+    /** Implicit construction of an Expression from an IndexParameter. */
     Expression(const IndexParameter& arg);
+    /** Implicit construction of an Expression from a Variable. */
     Expression(const Variable& arg);
+
+    Expression(const ExpressionRepn& _repn);
     Expression(const Expression& arg);
     ~Expression();
 
@@ -368,43 +419,75 @@ public:
 
     bool is_constant() const;
 
+    /** \returns the value of the expression
+      *
+      * \note The expression value, is computed from the
+      * expression tree, using values for the associated
+      * Parameter and Variable objects.
+      */
     double get_value() const;
 
+    /** \returns a string representation of the expression. */
     std::list<std::string> to_list() const;
     Expression diff(const Variable& var) const;
 
+    /** Add an integer to the expression */
     Expression& operator+=(int arg);
+    /** Add a double to the expression */
     Expression& operator+=(double arg);
+    /** Add a Parameter to the expression */
     Expression& operator+=(const Parameter& arg);
+    /** Add an IndexParameter to the expression */
     Expression& operator+=(const IndexParameter& arg);
+    /** Add a Variable to the expression */
     Expression& operator+=(const Variable& arg);
+    /** Add an Expression to the expression */
     Expression& operator+=(const Expression& arg);
 
+    /** Subtract an integer from the expression */
     Expression& operator-=(int arg);
+    /** Subtract a double from the expression */
     Expression& operator-=(double arg);
+    /** Subtract a Parameter from the expression */
     Expression& operator-=(const Parameter& arg);
+    /** Subtract an IndexVariable from the expression */
     Expression& operator-=(const IndexParameter& arg);
+    /** Subtract a Variable from the expression */
     Expression& operator-=(const Variable& arg);
+    /** Subtract an Expression from the expression */
     Expression& operator-=(const Expression& arg);
 
+    /** Multiply the expression by an integer */
     Expression& operator*=(int arg);
+    /** Multiply the expression by a double */
     Expression& operator*=(double arg);
+    /** Multiply the expression by a Parameter */
     Expression& operator*=(const Parameter& arg);
+    /** Multiply the expression by an IndexParameter */
     Expression& operator*=(const IndexParameter& arg);
+    /** Multiply the expression by a Variable */
     Expression& operator*=(const Variable& arg);
+    /** Multiply the expression by an Expression */
     Expression& operator*=(const Expression& arg);
 
+    /** Divide the expression by an integer */
     Expression& operator/=(int arg);
+    /** Divide the expression by a double */
     Expression& operator/=(double arg);
+    /** Divide the expression by a Parameter */
     Expression& operator/=(const Parameter& arg);
+    /** Divide the expression by an IndexParameter */
     Expression& operator/=(const IndexParameter& arg);
+    /** Divide the expression by a Variable */
     Expression& operator/=(const Variable& arg);
+    /** Divide the expression by an Expression */
     Expression& operator/=(const Expression& arg);
 
     COEK_API_OPERATORS
 
     friend std::ostream& operator<<(std::ostream& ostr, const Expression& arg);
 
+    /** \returns a modifier to specify the indices used in this expression */
     template <typename... TYPES>
     ExpressionSequenceAux forall(const TYPES&... args)
         {
@@ -413,16 +496,20 @@ public:
         return forall(indices);
         }
 
+    /** \returns a modifier to specify the indices used in this expression */
     ExpressionSequenceAux forall(const std::vector<IndexParameter>& indices);
+    /** \returns an expanded Expression */
     Expression expand();
 
 protected:
 
+    /** Collect template arguments. */
     void collect_args(std::vector<IndexParameter>& indices, const IndexParameter& arg)
         {
         indices.emplace_back(arg);
         }
 
+    /** Collect template arguments. */
     template <typename... TYPES>
     void collect_args(std::vector<IndexParameter>& indices, const IndexParameter& arg, const TYPES&... args)
         {

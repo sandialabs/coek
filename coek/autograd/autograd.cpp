@@ -1,5 +1,7 @@
 
 #include "coek/expr/ast_visitors.hpp"
+#include "coek/api/objective.hpp"
+#include "coek/api/constraint.hpp"
 #include "autograd.hpp"
 
 #ifdef WITH_CPPAD

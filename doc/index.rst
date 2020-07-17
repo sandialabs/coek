@@ -1,27 +1,14 @@
-.. COEK documentation master file, created by
-   sphinx-quickstart on Wed Jun 24 13:23:20 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+COEK documentation |release|
+============================
 
-Welcome to COEK's documentation!
-================================
+COEK is a C++ library for expressing and solving optimization problems.
+COEK can express optimization problems with a high-level syntax, and it
+supports direct interfaces to solvers.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
-
-Docs
-====
-
-.. doxygenclass:: coek::Parameter
-   :members:
-
-.. doxygenclass:: coek::Variable
-   :members:
-
-.. doxygenclass:: coek::Expression
-   :members:
+   expressions.rst
 
 
 Indices and tables

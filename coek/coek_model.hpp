@@ -4,161 +4,29 @@
 #include <vector>
 #include <variant>
 #include <unordered_map>
-#include "coek_expr.hpp"
-#include "coek_sets.hpp"
-#include "coek_indexed.hpp"
+
+#include "compact/coek_sets.hpp"
+#include "compact/coek_indexed.hpp"
+
+//#include "coek/api/constraint.hpp"
+//#include "coek/api/objective.hpp"
+
 
 namespace coek {
 
 class VariableArray;
+class Expression;
+class Constraint;
+//class ExpressionSeqIteratorRepn;
+//class ConstraintSeqIteratorRepn;
+class SequenceContext;
+class ObjectiveSequence;
+class ConstraintSequence;
+
 class ModelRepn;
 class NLPModelRepn;
 class SolverRepn;
 class NLPSolverRepn;
-class ExpressionSeqIteratorRepn;
-class ConstraintSeqIteratorRepn;
-
-
-class ExpressionSeqIterator
-{
-public:
-
-    std::shared_ptr<ExpressionSeqIteratorRepn> repn;
-
-    typedef Expression* pointer;
-    typedef const Expression* const_pointer;
-    typedef Expression& reference;
-    typedef const Expression& const_reference;
-
-public:
-
-    ExpressionSeqIterator();
-    ExpressionSeqIterator(ExpressionSequenceRepn* seq, bool end=false);
-
-    ExpressionSeqIterator& operator++();
-
-    bool operator==(const ExpressionSeqIterator& other) const;
-    bool operator!=(const ExpressionSeqIterator& other) const;
-
-    reference operator*();
-    const_reference operator*() const;
-    pointer operator->();
-    const_pointer operator->() const;
-};
-
-
-class ExpressionSequence
-{
-public:
-
-  std::shared_ptr<ExpressionSequenceRepn> repn;
-
-public:
-
-    ExpressionSequence(const std::shared_ptr<ExpressionSequenceRepn>& _repn);
-
-    template <typename... TYPES>
-    ExpressionSequenceAux forall(const TYPES&... args)
-        {
-        std::vector<IndexParameter> arg;
-        collect_args(args..., arg);
-        return forall(arg);
-        }
-    
-    ExpressionSequenceAux forall(const std::vector<IndexParameter>& params);
-    ExpressionSequence st(const Constraint& con);
-    ExpressionSequence where(const Constraint& con);
-
-    ExpressionSeqIterator begin();
-    ExpressionSeqIterator end();
-
-protected:
-    
-    void collect_args(const IndexParameter& arg, std::vector<IndexParameter>& _arg)
-        {
-        _arg.emplace_back(arg);
-        }
-
-    template <typename... TYPES>
-    void collect_args(const IndexParameter& arg, const TYPES&... args, std::vector<IndexParameter>&  _arg)
-        {
-        _arg.emplace_back(arg);
-        collect_args(args..., _arg);
-        }
-};
-
-
-class ConstraintSeqIterator
-{
-public:
-
-    std::shared_ptr<ConstraintSeqIteratorRepn> repn;
-
-    typedef Constraint* pointer;
-    typedef const Constraint* const_pointer;
-    typedef Constraint& reference;
-    typedef const Constraint& const_reference;
-
-public:
-
-    ConstraintSeqIterator();
-    ConstraintSeqIterator(ConstraintSequenceRepn* seq, bool end=false);
-
-    ConstraintSeqIterator& operator++();
-
-    bool operator==(const ConstraintSeqIterator& other) const;
-    bool operator!=(const ConstraintSeqIterator& other) const;
-
-    reference operator*();
-    const_reference operator*() const;
-    pointer operator->();
-    const_pointer operator->() const;
-};
-
-
-class ConstraintSequence
-{
-public:
-
-  std::shared_ptr<ConstraintSequenceRepn> repn;
-
-public:
-
-    ConstraintSequence(const std::shared_ptr<ConstraintSequenceRepn>& _repn);
-
-    template <typename... TYPES>
-    ConstraintSequenceAux forall(const TYPES&... args)
-        {
-        std::vector<IndexParameter> arg;
-        collect_args(args..., arg);
-        return forall(arg);
-        }
-    
-    ConstraintSequenceAux forall(const std::vector<IndexParameter>& params);
-    ConstraintSequence st(const Constraint& con);
-    ConstraintSequence where(const Constraint& con);
-
-    ConstraintSeqIterator begin();
-    ConstraintSeqIterator end();
-
-protected:
-    
-    void collect_args(const IndexParameter& arg, std::vector<IndexParameter>& _arg)
-        {
-        _arg.emplace_back(arg);
-        }
-
-    template <typename... TYPES>
-    void collect_args(const IndexParameter& arg, const TYPES&... args, std::vector<IndexParameter>&  _arg)
-        {
-        _arg.emplace_back(arg);
-        collect_args(args..., _arg);
-        }
-};
-
-
-// BAD: This function doesn't logically belong in this header
-Expression Sum(const ExpressionSequence& seq);
 
 
 // TODO - Move to *.cpp file
@@ -237,17 +105,17 @@ class CompactModel
 public:
 
     // TODO - define ObjectiveSequence
-    std::vector<std::variant<Objective, ExpressionSequence>> objectives;
+    std::vector<std::variant<Objective, ObjectiveSequence>> objectives;
     std::vector<std::variant<Constraint, ConstraintSequence>> constraints;
     std::vector<Variable> variables;
 
 public:
 
     Objective add_objective(const Expression& expr, bool _sense=Model::minimize);
-    void add_objective(const ExpressionSequence& seq, bool _sense=Model::minimize);
+    void add_objective(const Expression& expr, const SequenceContext& context, bool _sense=Model::minimize);
 
     Constraint add_constraint(const Constraint& expr);
-    void add_constraint(const ConstraintSequence& seq);
+    void add_constraint(const Constraint& expr, const SequenceContext& context);
 
     Variable add_variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
     Variable add_variable(const std::string& name, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);

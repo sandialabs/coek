@@ -1,7 +1,7 @@
 #include <any>
 #include "coek/expr/ast_term.hpp"
-#include "coek/coek_sets.hpp"
-#include "ast_set.hpp"
+#include "coek/compact/coek_sets.hpp"
+#include "coek/compact/ast_set.hpp"
 
 namespace coek {
 

@@ -12,19 +12,28 @@ SET(sources
     expr/visitor_symdiff.cpp
     expr/visitor_mutable_values.cpp
     expr/visitor_variables.cpp
-    expr/visitor_exprtemplate.cpp
     expr/varray.cpp
-    expr/coek_expr.cpp
-    abstract/expr_rule.cpp
-    set/ast_set.cpp
-    set/coek_sets.cpp
-    set/coek_indexed.cpp
+    api/constants.cpp
+    api/expression.cpp
+    api/expression_visitor.cpp
+    api/objective.cpp
+    api/constraint.cpp
+    api/intrinsic_fn.cpp
+    compact/sequence_context.cpp
+    compact/expression_sequence.cpp
+    compact/objective_sequence.cpp
+    compact/constraint_sequence.cpp
+    compact/ast_set.cpp
+    compact/coek_sets.cpp
+    compact/coek_indexed.cpp
+    compact/visitor_exprtemplate.cpp
     model/coek_model.cpp
     model/writer_lp.cpp
     model/writer_nl.cpp
     solvers/solver.cpp
     solvers/testsolver.cpp
     autograd/autograd.cpp
+    abstract/expr_rule.cpp
    )
 
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)

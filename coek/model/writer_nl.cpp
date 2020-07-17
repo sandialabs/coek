@@ -1,6 +1,10 @@
 #include <iomanip>
 #include <map>
 #include "coek/expr/ast_visitors.hpp"
+#include "coek/api/expression.hpp"
+#include "coek/api/objective.hpp"
+#include "coek/api/constraint.hpp"
+#include "coek/api/expression_visitor.hpp"
 #include "coek/coek_model.hpp"
 
 #define EPSILON 1e-12

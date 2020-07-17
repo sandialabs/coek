@@ -1,3 +1,5 @@
+#include "coek/api/objective.hpp"
+#include "coek/api/constraint.hpp"
 #include "cppad_repn.hpp"
 
 namespace coek {

@@ -1,5 +1,9 @@
 #include <iostream>
+
+#include "coek/api/objective.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek/coek_model.hpp"
+
 #include "testsolver.hpp"
 
 

@@ -34,7 +34,7 @@ The C/C++ library that supports the definition of expressions used to formulate 
 * make
 * make test
 
-## Simple build with Pybind11 Python extensions (build a WHEEL and install with PIP)
+## Build with Pybind11 Python extensions (build a WHEEL and install with PIP)
 
 * cd third\_party
 * ./installPybind11.sh
@@ -43,20 +43,28 @@ The C/C++ library that supports the definition of expressions used to formulate 
 * cd build
 * cmake -Dwith\_pybind11=ON ..
 * make
-* make pip\_install
+* make pip\_install\_pybind11
 
-## Simple build with Cppyy Python extensions (build a WHEEL and install with PIP)
+## Build with Cppyy Python extensions (build a WHEEL and install with PIP)
 
 * conda create -n coek python=3 cmake
 * conda activate coek
-* conda install -y clangxx
-* conda install -y python-clang
-* conda install -y cppyy
+* conda install -y clang python-clang cppyy
 * mkdir build
 * cd build
 * cmake -Dwith\_cppyy=ON ..
 * make
-* make pip\_install
+* make pip\_install\_cppyy
+
+## Build with documentation
+
+* conda create -n coek python=3 cmake
+* conda activate coek
+* conda install -y doxygen sphinx breathe sphinx\_rtd\_theme
+* mkdir build
+* cd build
+* cmake -Dwith\_docs=ON ..
+* make
 
 ## Install
 

@@ -3,7 +3,9 @@
 #include <memory>
 #include <assert.h>
 #include <vector>
-#include "coek/coek_expr.hpp"
+
+#include "coek/api/constraint.hpp"
+#include "coek/api/expression.hpp"
 #include "coek/expr/varray.hpp"
 
 namespace coek {

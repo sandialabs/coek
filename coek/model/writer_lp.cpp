@@ -1,7 +1,14 @@
 #include <map>
 #include <exception>
 #include <string>
+
 #include "coek/expr/ast_visitors.hpp"
+#include "coek/api/expression.hpp"
+#include "coek/api/objective.hpp"
+#include "coek/api/constraint.hpp"
+#include "coek/api/expression_visitor.hpp"
+#include "coek/compact/objective_sequence.hpp"
+#include "coek/compact/constraint_sequence.hpp"
 #include "coek/coek_model.hpp"
 
 namespace coek {
