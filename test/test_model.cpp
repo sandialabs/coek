@@ -5,7 +5,8 @@
 #include <iostream>
 #include "catch.hpp"
 
-#include "coek/expr/ast_term.hpp"
+#include "coek/ast/base_terms.hpp"
+#include "coek/ast/value_terms.hpp"
 #include "coek/coek.hpp"
 
 const double PI = 3.141592653589793238463;

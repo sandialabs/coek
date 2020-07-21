@@ -34,7 +34,9 @@ public:
 
     unsigned int id() const;
 
+    void set_body(const Expression& body);
     Expression body() const;
+    void set_sense(bool sense);
     bool sense() const;
 
     std::list<std::string> to_list() const;

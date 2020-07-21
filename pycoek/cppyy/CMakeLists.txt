@@ -12,10 +12,10 @@ include(GNUInstallDirs)
 find_package(Cppyy)
 
 list(APPEND LIB_HEADERS 
+    ${CMAKE_SOURCE_DIR}/coek/ast/varray.hpp
     ${CMAKE_SOURCE_DIR}/coek/api/expression.hpp
     ${CMAKE_SOURCE_DIR}/coek/api/objective.hpp
     ${CMAKE_SOURCE_DIR}/coek/api/constraint.hpp
-    ${CMAKE_SOURCE_DIR}/coek/expr/varray.hpp
     ${CMAKE_SOURCE_DIR}/coek/coek_model.hpp
     )
 list(APPEND LIB_INCLUDE_DIRS 

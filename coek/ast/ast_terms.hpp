@@ -8,13 +8,16 @@
 #include <cmath>
 #include <variant>
 
-#include "ast_visitor.hpp"
+//#include "ast_visitor.hpp"
 
 #if defined(DEBUG)
 #define WITH_AST_ENV
 #endif
 
 namespace coek {
+
+class Visitor;
+class BaseExpressionTerm;
 
 // SHARED_PTR
 //typedef std::shared_ptr<BaseExpressionTerm> expr_pointer_t;

@@ -4,8 +4,8 @@
 #include <fstream>
 #include <map>
 
-#include "coek/expr/ast_term.hpp"
-#include "coek/expr/varray.hpp"
+//#include "coek/expr/ast_term.hpp"
+#include "../ast/varray.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/compact/objective_sequence.hpp"
 #include "coek/compact/constraint_sequence.hpp"

@@ -2,7 +2,8 @@
 #include <exception>
 #include <string>
 
-#include "coek/expr/ast_visitors.hpp"
+#include "../ast/visitor_fns.hpp"
+#include "../ast/value_terms.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"

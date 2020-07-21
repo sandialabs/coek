@@ -1,5 +1,8 @@
-#include "../expr/ast_operators.hpp"
-#include "../expr/ast_visitors.hpp"
+#include "../ast/value_terms.hpp"
+#include "../ast/expr_terms.hpp"
+#include "../ast/constraint_terms.hpp"
+#include "../ast/ast_operators.hpp"
+#include "../ast/visitor_fns.hpp"
 #include "expression.hpp"
 #include "constraint.hpp"
 

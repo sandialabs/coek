@@ -1,5 +1,5 @@
 #include <cassert>
-#include "../expr/ast_term.hpp"
+//#include "../expr/ast_term.hpp"
 #include "ast_set.hpp"
 
 namespace coek {

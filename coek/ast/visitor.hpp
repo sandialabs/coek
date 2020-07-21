@@ -1,3 +1,5 @@
+#ifndef COEK_EXPR_VISITOR_HPP
+#define COEK_EXPR_VISITOR_HPP
 #pragma once
 
 
@@ -87,7 +89,7 @@ public:
         { throw std::runtime_error("Visitor cannot handle SumExpressionTerm"); }
 };
 
-enum term_id {
+enum term_id : unsigned int {
     ConstantTerm_id =       1,
     ParameterTerm_id =      2,
     IndexParameterTerm_id = 100,
@@ -126,3 +128,4 @@ enum term_id {
     };
 
 }
+#endif

@@ -4,7 +4,7 @@
 //#include <fstream>
 //#include <map>
 
-#include "coek/expr/ast_term.hpp"
+//#include "../astcoek/expr/ast_term.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/compact/coek_exprterm.hpp"
 

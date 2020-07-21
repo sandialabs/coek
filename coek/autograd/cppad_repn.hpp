@@ -4,11 +4,13 @@
 #include <map>
 #include <cppad/cppad.hpp>
 
-#include "coek/expr/ast_term.hpp"
+//#include "coek/expr/ast_term.hpp"
 #include "autograd.hpp"
 
 
 namespace coek {
+
+class VariableTerm;
 
 //
 // An extension model that uses the CppAD library for autograd.

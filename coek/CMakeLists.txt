@@ -4,15 +4,20 @@
 OPTION(STATIC_LINK "STATIC_LINK" OFF)
 
 SET(sources
-    expr/ast_term.cpp
-    expr/visitor_to_list.cpp
-    expr/visitor_write_expr.cpp
-    expr/visitor_to_MutableNLPExpr.cpp
-    expr/visitor_to_QuadraticExpr.cpp
-    expr/visitor_symdiff.cpp
-    expr/visitor_mutable_values.cpp
-    expr/visitor_variables.cpp
-    expr/varray.cpp
+    ast/base_terms.cpp
+    ast/constraint_terms.cpp
+    ast/objective_terms.cpp
+    ast/value_terms.cpp
+    ast/expr_terms.cpp
+    ast/compact_terms.cpp
+    ast/visitor_to_list.cpp
+    ast/visitor_write_expr.cpp
+    ast/visitor_to_MutableNLPExpr.cpp
+    ast/visitor_to_QuadraticExpr.cpp
+    ast/visitor_symdiff.cpp
+    ast/visitor_mutable_values.cpp
+    ast/visitor_variables.cpp
+    ast/varray.cpp
     api/constants.cpp
     api/expression.cpp
     api/expression_visitor.cpp

@@ -1,4 +1,8 @@
-//#include "visitor_exprtemplate.hpp"
+#include <variant>
+#include "../ast/compact_terms.hpp"
+#include "../ast/constraint_terms.hpp"
+#include "../ast/objective_terms.hpp"
+#include "../ast/expr_terms.hpp"
 #include "coek/api/expression.hpp"
 #include "coek_exprterm.hpp"
 
