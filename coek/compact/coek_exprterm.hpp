@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../expr/ast_term.hpp"
+#include "../ast/base_terms.hpp"
 #include "coek/compact/expression_sequence.hpp"
 
 namespace coek {

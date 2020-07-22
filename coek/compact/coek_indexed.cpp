@@ -1,5 +1,6 @@
 #include <any>
-#include "coek/expr/ast_term.hpp"
+#include <cmath>
+#include "../ast/compact_terms.hpp"
 #include "coek/compact/coek_indexed.hpp"
 
 

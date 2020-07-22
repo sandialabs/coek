@@ -1,4 +1,3 @@
-#include "coek/expr/ast_term.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/compact/coek_exprterm.hpp"
@@ -71,8 +70,8 @@ public:
                 Context& curr = seq->context[i];
                 *it = curr.index_set.begin(curr.indices);
                 }
-            converted_expr.repn->body = convert_expr_template( seq->expression_template.repn->body );
-            converted_expr.repn->sense = seq->expression_template.repn->sense;
+            converted_expr.set_body( convert_expr_template( seq->expression_template.body().repn ) );
+            converted_expr.set_sense( seq->expression_template.sense() );
             }
         ncontexts = context_iter.size();
         }
@@ -93,8 +92,8 @@ public:
         if (i < 0)
             done = true;
         else {
-            converted_expr.repn->body = convert_expr_template(seq->expression_template.repn->body);
-            converted_expr.repn->sense = seq->expression_template.repn->sense;
+            converted_expr.set_body( convert_expr_template(seq->expression_template.body().repn ) );
+            converted_expr.set_sense( seq->expression_template.sense() );
             }
         }
 

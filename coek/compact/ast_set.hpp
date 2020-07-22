@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <any>
-//#include <variant>
 #include <iostream>
 #include <vector>
 #include <set>
@@ -464,7 +463,7 @@ public:
             throw std::runtime_error(std::string("Requested set index that is too large: i=") + std::to_string(i) + std::string(" size=") + std::to_string(data.size()));
         arg = data[i];
         if (index.repn)
-            index.repn->value = data[i];
+            index.set_value( data[i] );
         }
 };
 
@@ -712,7 +711,7 @@ public:
         : index(_index), start(_start), step(_step), count(_count)
         {
         _value = start;
-        index.repn->value = _value;
+        index.set_value(_value);
         }
 
     RangeSetIteratorRepn(TYPE _start, TYPE _step, size_t _count)
@@ -725,7 +724,7 @@ public:
         {
         _value += step;
         if (index.repn)
-            index.repn->value = _value;
+            index.set_value( _value );
         count++;
         }
 
@@ -767,7 +766,7 @@ public:
         {
         _value = start;
         vec.resize(1);
-        index.repn->value = _value;
+        index.set_value( _value );
         }
 
     RangeNDSetIteratorRepn(TYPE _start, TYPE _step, size_t _count)
@@ -781,7 +780,7 @@ public:
         {
         _value += step;
         if (index.repn)
-            index.repn->value = _value;
+            index.set_value( _value );
         count++;
         }
 
@@ -890,7 +889,7 @@ public:
         TYPE ans = start+step*i;
         arg = ans;
         if (index.repn)
-            index.repn->value = ans;
+            index.set_value( ans );
         }
 };
 

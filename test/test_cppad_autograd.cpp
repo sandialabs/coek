@@ -1,7 +1,7 @@
 #include <iostream>
 #include "catch.hpp"
 #include "coek/coek.hpp"
-#include "coek/expr/ast_term.hpp"
+#include "coek/ast/base_terms.hpp"
 
 const double PI = 3.141592653589793238463;
 const double E = exp(1.0);

@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include "coek/expr/ast_term.hpp"
+#include "coek/ast/base_terms.hpp"
 #include "coek/coek.hpp"
 
 TEST_CASE( "simple_finite", "[smoke]" ) {

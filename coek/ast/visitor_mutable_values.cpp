@@ -1,59 +1,50 @@
-
-#include "ast_visitors.hpp"
+#include "visitor_fns.hpp"
+#include "visitor.hpp"
+#include "base_terms.hpp"
+#include "constraint_terms.hpp"
+#include "objective_terms.hpp"
+#include "expr_terms.hpp"
+#include "value_terms.hpp"
+#include "compact_terms.hpp"
 
 
 namespace coek {
 
 namespace {
 
-class VariablesVisitor : public Visitor
+class MutableValuesVisitor : public Visitor
 {
 public:
 
-    std::unordered_set<VariableTerm*>& vars;
-    std::set<VariableTerm*>& fixed_vars;
-    std::set<ParameterTerm*>& params;
+    std::unordered_set<VariableTerm*>& fixed_vars;
+    std::unordered_set<ParameterTerm*>& params;
 
 public:
 
-    VariablesVisitor(std::unordered_set<VariableTerm*>& _vars,
-                    std::set<VariableTerm*>& _fixed_vars,
-                    std::set<ParameterTerm*>& _params)
-        : vars(_vars), fixed_vars(_fixed_vars), params(_params) {}
+    MutableValuesVisitor(std::unordered_set<VariableTerm*>& _fixed_vars,
+                         std::unordered_set<ParameterTerm*>& _params)
+        : fixed_vars(_fixed_vars), params(_params) {}
 
     void visit(ConstantTerm& )
         {}
 
     void visit(ParameterTerm& arg)
-        {
-        params.insert(&arg);
-        }
+        {params.insert(&arg);}
 
     void visit(IndexParameterTerm& arg)
         {}
 
     void visit(VariableTerm& arg)
-        {
-        if (arg.fixed)  fixed_vars.insert(&arg);
-        else            vars.insert(&arg);
-        }
+        { if (arg.fixed) fixed_vars.insert(&arg); }
 
     void visit(VariableRefTerm& arg)
-        {
-        throw std::runtime_error("Attempting to find variables in an abstract expression!");
-        }
+        {}
 
     void visit(IndexedVariableTerm& arg)
-        {
-        if (arg.fixed)  fixed_vars.insert(&arg);
-        else            vars.insert(&arg);
-        }
+        { if (arg.fixed) fixed_vars.insert(&arg); }
 
     void visit(MonomialTerm& arg)
-        {
-        if (arg.var->fixed) fixed_vars.insert(arg.var);
-        else                vars.insert(arg.var);
-        }
+        { if (arg.var->fixed) fixed_vars.insert(arg.var); }
 
     void visit(InequalityTerm& arg)
         {arg.body->accept(*this);}
@@ -133,26 +124,16 @@ public:
 
 }
 
-void find_vars_and_params(expr_pointer_t expr, 
-                    std::unordered_set<VariableTerm*>& vars,
-                    std::set<VariableTerm*>& fixed_vars,
-                    std::set<ParameterTerm*>& params
-                    )
+void mutable_values(expr_pointer_t expr, std::unordered_set<VariableTerm*>& fixed_vars,
+                                         std::unordered_set<ParameterTerm*>& params)
 {
 // GCOVR_EXCL_START
 if (expr == 0)
     return;
 // GCOVR_EXCL_STOP
 
-VariablesVisitor visitor(vars, fixed_vars, params);
+MutableValuesVisitor visitor(fixed_vars, params);
 expr->accept(visitor);
-}
-
-void find_variables(expr_pointer_t expr, std::unordered_set<VariableTerm*>& vars)
-{
-std::set<VariableTerm*> fixed_vars;
-std::set<ParameterTerm*> params;
-find_vars_and_params(expr, vars, fixed_vars, params);
 }
 
 }

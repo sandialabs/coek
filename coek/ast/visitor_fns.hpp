@@ -1,3 +1,5 @@
+#ifndef COEK_EXPR_AST_VISITORS_HPP
+#define COEK_EXPR_AST_VISITORS_HPP
 #pragma once
 
 #include <list>
@@ -5,10 +7,14 @@
 #include <map>
 #include <set>
 #include <unordered_set>
-#include "ast_term.hpp"
 
 
 namespace coek {
+
+class BaseExpressionTerm;
+class VariableTerm;
+class ParameterTerm;
+typedef BaseExpressionTerm* expr_pointer_t;
 
 
 void expr_to_list(expr_pointer_t expr, std::list<std::string>& repr);
@@ -29,3 +35,4 @@ void find_vars_and_params(expr_pointer_t expr,
 
 void find_variables(expr_pointer_t expr, std::unordered_set<VariableTerm*>& variables);
 }
+#endif

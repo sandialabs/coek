@@ -1,8 +1,14 @@
+#include "visitor_fns.hpp"
+#include "visitor.hpp"
+#include "base_terms.hpp"
+#include "constraint_terms.hpp"
+#include "objective_terms.hpp"
+#include "expr_terms.hpp"
+#include "value_terms.hpp"
+#include "compact_terms.hpp"
 
-//#include "ast_visitors.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/expression_visitor.hpp"
-#include "ast_term.hpp"
 
 
 namespace coek {

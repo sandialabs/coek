@@ -12,7 +12,7 @@
 #include "coek/compact/objective_sequence.hpp"
 #include "coek/compact/constraint_sequence.hpp"
 #include "coek_gurobi.hpp"
-#include "coek/expr/ast_term.hpp"
+#include "../ast/value_terms.hpp"
 #include "coek/coek_model.hpp"
 
 namespace coek {

@@ -1,6 +1,11 @@
 #include <iomanip>
 #include <map>
-#include "coek/expr/ast_visitors.hpp"
+#include "../ast/visitor_fns.hpp"
+#include "../ast/visitor.hpp"
+#include "../ast/value_terms.hpp"
+#include "../ast/objective_terms.hpp"
+#include "../ast/constraint_terms.hpp"
+#include "../ast/expr_terms.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"

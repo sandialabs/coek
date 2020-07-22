@@ -1,8 +1,6 @@
-#include "coek/expr/ast_term.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/constraint.hpp"
 
-//#include "ast_set.hpp"
 #include "coek_sets.hpp"
 #include "sequence_context.hpp"
 #include "constraint_sequence.hpp"

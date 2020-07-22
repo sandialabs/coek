@@ -6,7 +6,7 @@
 
 #include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
-#include "coek/expr/varray.hpp"
+#include "../ast/varray.hpp"
 
 namespace coek {
 

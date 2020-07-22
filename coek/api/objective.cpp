@@ -1,4 +1,5 @@
-#include "../expr/ast_visitors.hpp"
+#include "../ast/objective_terms.hpp"
+#include "../ast/visitor_fns.hpp"
 #include "expression.hpp"
 #include "objective.hpp"
 
@@ -46,8 +47,18 @@ if (repn)
 return 0;
 }
 
+void Objective::set_body(const Expression& body)
+{
+DISOWN_POINTER(repn->body);
+OWN_POINTER(body.repn);
+repn->body = body.repn;
+}
+
 Expression Objective::body() const
 { return repn->body; }
+
+void Objective::set_sense(bool sense)
+{ repn->sense = sense; }
 
 bool Objective::sense() const
 { return repn->sense; }

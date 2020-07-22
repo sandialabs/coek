@@ -1,5 +1,5 @@
 #include <any>
-#include "coek/expr/ast_term.hpp"
+#include "../ast/base_terms.hpp"
 #include "coek/compact/coek_sets.hpp"
 #include "coek/compact/ast_set.hpp"
 

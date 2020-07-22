@@ -1,7 +1,6 @@
-//#include <iostream>
 #include <cmath>
 #include "varray.hpp"
-#include "ast_term.hpp"
+#include "value_terms.hpp"
 
 
 namespace coek {

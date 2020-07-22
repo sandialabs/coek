@@ -3,9 +3,7 @@
 #pragma once
 
 #include <vector>
-//#include "coek_indexed.hpp"
-//#include "coek/api/constraint.hpp"
-//#include "coek/api/objective.hpp"
+
 
 namespace coek {
 

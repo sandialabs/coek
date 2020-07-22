@@ -8,31 +8,10 @@
 
 namespace coek {
 
-//class ParameterTerm;
-//class IndexParameterTerm;
 class VariableTerm;
-//class BaseExpressionTerm;
-//class ConstraintTerm;
-//class ObjectiveTerm;
-
-//typedef ParameterTerm* ParameterRepn;
-//typedef IndexParameterTerm* IndexParameterRepn;
-//typedef VariableTerm* VariableRepn;
-//typedef BaseExpressionTerm* ExpressionRepn;
-//typedef ConstraintTerm* ConstraintRepn;
-//typedef ObjectiveTerm* ObjectiveRepn;
-
-//class Parameter;
-//class IndexParameter;
-//class Variable;
 class Expression;
 class Objective;
 class Constraint;
-//class ExpressionSequence;
-//class ExpressionSequenceRepn;
-//class ConstraintSequence;
-//class ConstraintSequenceRepn;
-//class ConcreteSet;
 
 
 class QuadraticExpr

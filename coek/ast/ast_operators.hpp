@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cmath>
-#include "ast_term.hpp"
+#include "base_terms.hpp"
 
 namespace coek {
 

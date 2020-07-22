@@ -9,7 +9,8 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
-#include "coek/expr/ast_term.hpp"
+#include "coek/ast/base_terms.hpp"
+#include "coek/ast/value_terms.hpp"
 //#include "coek/api/expression.hpp"
 //#include "coek/api/intrinsic_fn.hpp"
 //#include "coek/coek_model.hpp"
