@@ -266,15 +266,10 @@ model.repn->variables = variables;
 
 int i=0;
 for (auto it=objectives.begin(); it != objectives.end(); ++it) {
-    /*
-    * WEH - TODO rework this to use Objective objects
-
     auto& val = *it;
-    bool osense = sense[i++];
-    if (auto eval = std::get_if<Expression>(&val)) {
-        Expression e = eval->expand();
-        model.add(e, osense); //repn->objectives.push_back(e);
-        //model.repn->sense.push_back(osense);
+    if (auto eval = std::get_if<Objective>(&val)) {
+        Expression e = eval->body().expand();
+        model.add_objective(e, eval->sense());
         }
     else {
 #if 0
@@ -286,7 +281,6 @@ for (auto it=objectives.begin(); it != objectives.end(); ++it) {
             }
 #endif
         }
-    */
     }
 
 i=0;
