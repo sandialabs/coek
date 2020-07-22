@@ -14,6 +14,11 @@ double yt(int j, double dx) {
 
 int main(int argc, char** argv) {
   
+  if (argc == 1) {
+    cout << "lqcp <size> <action=lp,nl,gurobi,ipopt>" << endl;
+    return 0;
+    }
+
   cout << "START" << endl << flush;
   string action = argv[2];
   bool lp_file = (action == "lp");

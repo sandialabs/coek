@@ -24,7 +24,7 @@ list(APPEND LIB_INCLUDE_DIRS
 
 if(${with_gurobi})
   LINK_DIRECTORIES($ENV{GUROBI_HOME}/lib)
-  list(APPEND OPT_LINK_LIBRARIES gurobi_g++5.2 gurobi81)
+  list(APPEND OPT_LINK_LIBRARIES gurobi_g++5.2 gurobi90)
 endif()
 if(${with_ipopt})
   LINK_DIRECTORIES($ENV{IPOPT_HOME}/lib)
