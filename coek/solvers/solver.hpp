@@ -8,7 +8,6 @@
 #include <unordered_set>
 #include <map>
 
-//#include "coek/coek_expr.hpp"
 #include "coek/api/expression_visitor.hpp"
 #include "coek/coek_model.hpp"
 

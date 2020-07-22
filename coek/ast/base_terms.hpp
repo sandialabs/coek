@@ -1,12 +1,7 @@
 #pragma once
 
-//#include <memory>
-//#include <string>
 #include <unordered_map>
-//#include <vector>
 #include <iostream>
-//#include <cmath>
-//#include <variant>
 
 #include "visitor.hpp"
 #if defined(DEBUG)

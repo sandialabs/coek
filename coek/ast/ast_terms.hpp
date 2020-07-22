@@ -8,8 +8,6 @@
 #include <cmath>
 #include <variant>
 
-//#include "ast_visitor.hpp"
-
 #if defined(DEBUG)
 #define WITH_AST_ENV
 #endif
