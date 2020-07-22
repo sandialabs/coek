@@ -1,10 +1,3 @@
-//#include <cstdio>
-//#include <memory>
-//#include <sstream>
-//#include <fstream>
-//#include <map>
-
-//#include "../astcoek/expr/ast_term.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/compact/coek_exprterm.hpp"
 

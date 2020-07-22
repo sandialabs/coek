@@ -1,4 +1,3 @@
-//#include "coek/expr/ast_term.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/compact/coek_exprterm.hpp"

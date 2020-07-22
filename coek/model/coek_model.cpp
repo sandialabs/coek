@@ -4,7 +4,6 @@
 #include <fstream>
 #include <map>
 
-//#include "coek/expr/ast_term.hpp"
 #include "../ast/varray.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/compact/objective_sequence.hpp"

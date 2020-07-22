@@ -1,4 +1,3 @@
-//#include "coek/expr/ast_visitors.hpp"
 #include <unordered_set>
 #include "../ast/visitor_fns.hpp"
 #include "../ast/objective_terms.hpp"
