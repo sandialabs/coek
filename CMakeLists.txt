@@ -30,19 +30,20 @@ option(with_debug "Debug build" OFF)
 option(with_verbose "Verbose build" OFF)
 option(with_gcov "Add code coverage using gcov" OFF)
 option(with_gprof "Profile build" OFF)
+option(with_caliper "Use the Caliper library" OFF)
 option(with_pybind11 "Build python interface using pybind11" OFF)
 option(with_cppyy "Build python interface using cppyy" OFF)
 option(with_docs "Build documentation" OFF)
 
 # Autograd Dependencies
-option(with_cppad "Use the CppAD Autograd Library" OFF)
-option(with_sacado "Use the Sacado Autograd Library" OFF)
-option(with_asl "Use the ASL Autograd Library" OFF)
+option(with_cppad "Use the CppAD autograd library" OFF)
+option(with_sacado "Use the Sacado autograd library" OFF)
+option(with_asl "Use the ASL autograd library" OFF)
 
 # Solver Dependencies
-option(with_ipopt "Use the Ipopt Solver" OFF)
+option(with_ipopt "Use the Ipopt solver" OFF)
 #set(IPOPT_HOME "" CACHE FILEPATH "Set the path to ipopt")
-option(with_gurobi "Use the Gurobi Solver" OFF)
+option(with_gurobi "Use the Gurobi solver" OFF)
 set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
 
 

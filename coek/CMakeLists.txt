@@ -43,6 +43,12 @@ SET(sources
 
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
+# Caliper LIBRARY
+if(with_caliper)
+  include_directories(BEFORE ${CALIPER_INCLUDE_DIR})
+  list(APPEND profiling_flags "-DWITH_CALIPER")
+endif()
+
 #
 # EXPRMODEL OPTIONS
 #
@@ -119,6 +125,7 @@ endif()
 ADD_LIBRARY(coek SHARED ${sources})
 TARGET_COMPILE_OPTIONS(coek PRIVATE ${solver_flags})
 TARGET_COMPILE_OPTIONS(coek PRIVATE ${autograd_flags})
+TARGET_COMPILE_OPTIONS(coek PRIVATE ${profiling_flags})
 if(${with_gcov})
   TARGET_COMPILE_OPTIONS(coek PUBLIC -fprofile-arcs -ftest-coverage -g)
   TARGET_LINK_LIBRARIES(coek PUBLIC gcov)

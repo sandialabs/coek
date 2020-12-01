@@ -4,6 +4,11 @@
 #include <vector>
 #include <string>
 #include <coek/coek.hpp>
+#ifdef WITH_CALIPER
+#include <caliper/cali.h>
+#else
+#define CALI_MARK_BEGIN
+#endif
 
 using namespace std;
 
@@ -13,6 +18,8 @@ double yt(int j, double dx) {
 
 
 int main(int argc, char** argv) {
+
+  CALI_MARK_BEGIN("main");
   
   if (argc == 1) {
     cout << "lqcp <size> <action=lp,nl,gurobi,ipopt>" << endl;
@@ -103,5 +110,7 @@ else {
     }
 
   cout << "DONE" << endl << flush;
+
+  CALI_MARK_BEGIN("main");
   return 0;
 }

@@ -2,13 +2,23 @@
 # Test whether a third-party package is a subdirectory.
 # If so, then configure Coek to build with CMake.
 #
+if(with_caliper AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Caliper)
+  MESSAGE("-- With Caliper Library: on")
+  #set(with_caliper ON PARENT_SCOPE)
+  set(CALIPER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Caliper/install/include PARENT_SCOPE)
+  set(CALIPER_LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Caliper/install/lib64 PARENT_SCOPE)
+else()
+  MESSAGE("-- With Caliper Library: off")
+  set(with_caliper OFF PARENT_SCOPE)
+endif()
+
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/CppAD)
-  MESSAGE("-- With CppAD Library: available")
+  MESSAGE("-- With CppAD Library: on")
   set(cppad_available ON PARENT_SCOPE)
   set(CPPAD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/CppAD/include PARENT_SCOPE)
 else()
   set(cppad_available OFF PARENT_SCOPE)
-  MESSAGE("-- With CppAD Library: missing")
+  MESSAGE("-- With CppAD Library: off")
 endif()
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Trilinos)
