@@ -11,6 +11,11 @@
 #include "coek/compact/objective_sequence.hpp"
 #include "coek/compact/constraint_sequence.hpp"
 #include "coek/coek_model.hpp"
+#ifdef WITH_CALIPER
+#include <caliper/cali.h>
+#else
+#define CALI_CXX_MARK_FUNCTION
+#endif
 
 namespace coek {
 
@@ -25,7 +30,7 @@ struct UnknownVariable : public std::exception
     }
 };
 
-int get_vid_value(const std::unordered_map<int,int>& vid, unsigned int id)
+inline int get_vid_value(const std::unordered_map<int,int>& vid, unsigned int id)
 {
 if (auto it{ vid.find(id) };  it != vid.end() )
     return it->second;
@@ -35,6 +40,8 @@ throw UnknownVariable();
 
 void print_repn(std::ostream& ostr, const QuadraticExpr& repn, const std::unordered_map<int,int>& vid)
 {
+CALI_CXX_MARK_FUNCTION;
+
 if (repn.linear_coefs.size() > 0) {
     std::map<int,double> vval;
     int i=0;
@@ -59,7 +66,6 @@ if (repn.linear_coefs.size() > 0) {
     }
 
 if (repn.quadratic_coefs.size() > 0) {
-    ostr << "+ [\n";
     std::map<std::pair<int,int>,double> qval;
     for (size_t ii=0; ii<repn.quadratic_coefs.size(); ++ii) {
         int lindex = get_vid_value(vid, repn.quadratic_lvars[ii]->index);
@@ -78,6 +84,7 @@ if (repn.quadratic_coefs.size() > 0) {
             qval[ tmp ] += repn.quadratic_coefs[ii];
         }
 
+    ostr << "+ [\n";
     for (std::map<std::pair<int,int>,double>::iterator it=qval.begin(); it != qval.end(); ++it) {
         const std::pair<int,int>& tmp = it->first;
         double val = it->second;
@@ -100,6 +107,8 @@ if (repn.quadratic_coefs.size() > 0) {
 
 void print_objective(std::ostream& ostr, const Objective& obj, bool& one_var_constant, const std::unordered_map<int,int>& vid)
 {
+CALI_CXX_MARK_FUNCTION;
+
 QuadraticExpr expr;
 expr.collect_terms(obj);
 print_repn(ostr, expr, vid);
@@ -114,6 +123,9 @@ if (tmp != 0) {
 
 void print_constraint(std::ostream& ostr, const Constraint& c, int ctr, const std::unordered_map<int,int>& vid)
 {
+CALI_CXX_MARK_FUNCTION;
+
+CALI_MARK_BEGIN("collect_terms");
 QuadraticExpr expr;
 expr.collect_terms(c);
 double tmp = expr.constval;
@@ -123,7 +135,9 @@ auto upper = c.upper();
 
 ostr << "c" << ctr << ":\n";
 ++ctr;
+CALI_MARK_END("collect_terms");
 if (c.is_inequality()) {
+    //CALI_MARK_BEGIN("IF");
     if (lower.repn) {
         ostr << lower.get_value() - tmp;
         ostr << " <= ";
@@ -133,19 +147,25 @@ if (c.is_inequality()) {
         ostr << " <= ";
         ostr << upper.get_value() - tmp;
         }
+    ostr << "\n\n";
+    //CALI_MARK_END("IF");
     }
 else {
     print_repn(ostr, expr, vid);
+    CALI_MARK_BEGIN("ELSE");
     ostr << "= ";
     ostr << lower.get_value() - tmp;
+    ostr << "\n\n";
+    CALI_MARK_END("ELSE");
     }
-ostr << "\n\n";
 }
 
 }
 
 void write_lp_problem(Model& model, std::ostream& ostr, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 {
+CALI_CXX_MARK_FUNCTION;
+
 if (model.repn->objectives.size() == 0) {
     std::cerr << "Error writing LP file: No objectives specified!" << std::endl;
     return;
@@ -240,6 +260,8 @@ ostr << "\nend" << std::endl;
 
 void write_lp_problem(CompactModel& model, std::ostream& ostr, std::map<int,int>& varmap, std::map<int,int>& conmap)
 {
+CALI_CXX_MARK_FUNCTION;
+
 if (model.objectives.size() == 0) {
     std::cerr << "Error writing LP file: No objectives specified!" << std::endl;
     return;
