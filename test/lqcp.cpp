@@ -31,6 +31,7 @@ int main(int argc, char** argv) {
   bool fmtlp_file = (action == "fmtlp");
   bool lp_file = (action == "lp");
   bool nl_file = (action == "nl");
+  bool fmtnl_file = (action == "fmtnl");
 
   int n = atoi(argv[1]);
   int m = n;
@@ -104,6 +105,10 @@ else if (fmtlp_file) {
 else if (nl_file) {
     cout << "WRITING NL" << endl << flush;
     model.write("foo.nl");
+    }
+else if (fmtnl_file) {
+    cout << "WRITING FMTNL" << endl << flush;
+    model.write("foo.fmtnl");
     }
 else {
     cout << "SOLVER: " << action << endl << flush;

@@ -418,10 +418,11 @@ if (repn.linear_coefs.size() > 0) {
     for (std::map<int,double>::iterator it=vval.begin(); it != vval.end(); ++it) {
         i = it->first;
         double tmp = it->second;
-        if (tmp > 0)
-            ostr.print("+{} x({})\n", tmp, i);     // << "+" << tmp << " x(" << i << ")\n";
-        else if (tmp < 0)
-            ostr.print("{} x({})\n", tmp, i);      // << tmp << " x(" << i << ")\n";
+        //if (tmp > 0)
+        //    ostr.print("+{} x({})\n", tmp, i);     // << "+" << tmp << " x(" << i << ")\n";
+        //else if (tmp < 0)
+        if (tmp != 0)
+            ostr.print("{:+} x({})\n", tmp, i);      // << tmp << " x(" << i << ")\n";
         }
     }
 
@@ -449,16 +450,20 @@ if (repn.quadratic_coefs.size() > 0) {
         const std::pair<int,int>& tmp = it->first;
         double val = it->second;
         if (tmp.first == tmp.second) {
-            if (val > 0)
-                ostr.print("+{} x({}) ^ 2\n", val, tmp.first);      // << "+" << val << " x(" << tmp.first << ") ^ 2\n";
-            else if (val < 0)
-                ostr.print("{} x({}) ^ 2\n", val, tmp.first);       // << val << " x(" << tmp.first << ") ^ 2\n";
+            //if (val > 0)
+            //    ostr.print("+{} x({}) ^ 2\n", val, tmp.first);      // << "+" << val << " x(" << tmp.first << ") ^ 2\n";
+            //else if (val < 0)
+            //    ostr.print("{} x({}) ^ 2\n", val, tmp.first);       // << val << " x(" << tmp.first << ") ^ 2\n";
+            if (val != 0)
+                ostr.print("{:+} x({}) ^ 2\n", val, tmp.first);       // << val << " x(" << tmp.first << ") ^ 2\n";
             }
         else {
-            if (val > 0)
-                ostr.print("+{} x({}) * x({})\n", val, tmp.first, tmp.second);  // << "+" << val << " x(" << tmp.first << ") * x(" << tmp.second << ")\n";
-            else if (val < 0)
-                ostr.print("{} x({}) * x({})\n", val, tmp.first, tmp.second);   // << val << " x(" << tmp.first << ") * x(" << tmp.second << ")\n";
+            //if (val > 0)
+            //    ostr.print("+{} x({}) * x({})\n", val, tmp.first, tmp.second);  // << "+" << val << " x(" << tmp.first << ") * x(" << tmp.second << ")\n";
+            //else if (val < 0)
+            //    ostr.print("{} x({}) * x({})\n", val, tmp.first, tmp.second);   // << val << " x(" << tmp.first << ") * x(" << tmp.second << ")\n";
+            if (val != 0)
+                ostr.print("{:+} x({}) * x({})\n", val, tmp.first, tmp.second);
             }
         }
     ostr.print("]\n");  // << "]\n";
@@ -475,9 +480,9 @@ print_repn(ostr, expr, vid);
 double tmp = expr.constval;
 if (tmp != 0) {
     one_var_constant=true;
-    if (tmp > 0)
-        ostr.print("+");
-    ostr.print("{} ONE_VAR_CONSTANT\n", tmp);   // << tmp << " ONE_VAR_CONSTANT\n";
+    //if (tmp > 0)
+    //    ostr.print("+");
+    ostr.print("{:+} ONE_VAR_CONSTANT\n", tmp);   // << tmp << " ONE_VAR_CONSTANT\n";
     }
 }
 
