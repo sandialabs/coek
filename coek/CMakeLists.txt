@@ -49,6 +49,12 @@ if(with_caliper)
   list(APPEND profiling_flags "-DWITH_CALIPER")
 endif()
 
+# fmtlib LIBRARY
+if(with_fmtlib)
+  include_directories(BEFORE ${FMTLIB_INCLUDE_DIR})
+  list(APPEND profiling_flags "-DWITH_FMTLIB")
+endif()
+
 #
 # EXPRMODEL OPTIONS
 #

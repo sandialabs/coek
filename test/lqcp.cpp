@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
 
   cout << "START" << endl << flush;
   string action = argv[2];
+  bool fmtlp_file = (action == "fmtlp");
   bool lp_file = (action == "lp");
   bool nl_file = (action == "nl");
 
@@ -95,6 +96,10 @@ int main(int argc, char** argv) {
 if (lp_file) {
     cout << "WRITING LP" << endl << flush;
     model.write("foo.lp");
+    }
+else if (fmtlp_file) {
+    cout << "WRITING FMTLP" << endl << flush;
+    model.write("foo.fmtlp");
     }
 else if (nl_file) {
     cout << "WRITING NL" << endl << flush;

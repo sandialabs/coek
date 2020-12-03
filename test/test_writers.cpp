@@ -293,6 +293,56 @@ REQUIRE( coek::env.check_memory() == true );
 #endif
 }
 
+TEST_CASE( "fmtlp_writer", "[smoke]" ) {
+
+  SECTION( "error1" ) {
+    coek::Model model;
+    //error1(model);
+    //REQUIRE_THROWS_WITH(model.write("error1.lp"),
+    //    "Error writing LP file: Unexpected variable encountered in a model expression");
+    }
+
+  SECTION( "small1" ) {
+    coek::Model model;
+    small1(model);
+    model.write("small1.fmtlp");
+    }
+
+  SECTION( "small2" ) {
+    coek::Model model;
+    small2(model);
+    model.write("small2.fmtlp");
+    }
+
+  SECTION( "small3" ) {
+    coek::Model model;
+    small3(model);
+    model.write("small3.fmtlp");
+    }
+
+  SECTION( "small4" ) {
+    coek::Model model;
+    small4(model);
+    model.write("small4.fmtlp");
+    }
+
+  SECTION( "small8" ) {
+    coek::Model model;
+    small8(model);
+    model.write("small8.fmtlp");
+    }
+
+  SECTION( "testing1" ) {
+    coek::Model model;
+    testing1(model);
+    model.write("testing1.fmtlp");
+    }
+
+#ifdef DEBUG
+REQUIRE( coek::env.check_memory() == true );
+#endif
+}
+
 TEST_CASE( "nl_writer", "[smoke]" ) {
 
   SECTION( "error1" ) {

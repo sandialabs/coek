@@ -3,6 +3,10 @@
 #include <sstream>
 #include <fstream>
 #include <map>
+#ifdef WITH_FMTLIB
+#include <fmt/core.h>
+#include <fmt/os.h>
+#endif
 
 #include "../ast/varray.hpp"
 #include "coek/api/objective.hpp"
@@ -164,6 +168,10 @@ static bool endsWith(const std::string& str, const std::string& suffix)
 
 void write_lp_problem(Model& model, std::ostream& ostr, std::map<int,int>& varmap, std::map<int,int>& conmap);
 void write_lp_problem(CompactModel& model, std::ostream& ostr, std::map<int,int>& varmap, std::map<int,int>& conmap);
+#ifdef WITH_FMTLIB
+void write_lp_problem(Model& model, fmt::ostream& ostr, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem(CompactModel& model, fmt::ostream& ostr, std::map<int,int>& varmap, std::map<int,int>& conmap);
+#endif
 void write_nl_problem(Model& model, std::ostream& ostr, std::map<int,int>& varmap, std::map<int,int>& conmap);
 
 
@@ -178,6 +186,14 @@ void Model::write(std::string fname, std::map<int,int>& varmap, std::map<int,int
 {
 if (endsWith(fname, ".lp")) {
     std::ofstream ofstr(fname);
+    write_lp_problem(*this, ofstr, varmap, conmap);
+    ofstr.close();
+    return;
+    }
+
+else if (endsWith(fname, ".fmtlp")) {
+    //std::ofstream ofstr(fname);
+    auto ofstr = fmt::output_file(fname, fmt::file::WRONLY | fmt::file::CREATE | FMT_POSIX(O_TRUNC));
     write_lp_problem(*this, ofstr, varmap, conmap);
     ofstr.close();
     return;
@@ -310,6 +326,14 @@ void CompactModel::write(std::string fname, std::map<int,int>& varmap, std::map<
 {
 if (endsWith(fname, ".lp")) {
     std::ofstream ofstr(fname);
+    write_lp_problem(*this, ofstr, varmap, conmap);
+    ofstr.close();
+    return;
+    }
+
+else if (endsWith(fname, ".fmtlp")) {
+    //std::ofstream ofstr(fname);
+    auto ofstr = fmt::output_file(fname, fmt::file::WRONLY | fmt::file::CREATE | FMT_POSIX(O_TRUNC));
     write_lp_problem(*this, ofstr, varmap, conmap);
     ofstr.close();
     return;
