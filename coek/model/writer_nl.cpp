@@ -1,5 +1,12 @@
 #include <iomanip>
 #include <map>
+#ifdef WITH_CALIPER
+#include <caliper/cali.h>
+#else
+#define CALI_CXX_MARK_FUNCTION
+#define CALI_MARK_BEGIN
+#define CALI_MARK_END
+#endif
 #ifdef WITH_FMTLIB
 #include <fmt/core.h>
 #include <fmt/os.h>
@@ -957,6 +964,8 @@ if (objective and (fabs(cval) > EPSILON)) {
 // TODO - Reorder variables per the AMPL solver hookup logic
 void write_nl_problem(Model& model, fmt::ostream& ostr, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 {
+CALI_CXX_MARK_FUNCTION;
+
 if (model.repn->objectives.size() == 0) {
     std::cerr << "Error writing NL file: No objectives specified!" << std::endl;
     return;
@@ -989,6 +998,7 @@ int num_nonlinear_both_int_vars=0;
 int nnz_Jacobian=0;
 int nnz_gradient=0;
 
+CALI_MARK_BEGIN("Prepare Objective Expressions");
 // Objectives
 std::vector<MutableNLPExpr> o_expr(model.repn->objectives.size());
 int ctr=0;
@@ -1021,25 +1031,31 @@ for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end();
         varobj[var->index] = var;
         }
     }
+CALI_MARK_END("Prepare Objective Expressions");
 
 // Since we have just one objective, the # of variables is the # of nonzeros in gradients
 nnz_gradient=vars.size();
 
+CALI_MARK_BEGIN("Prepare Constraint Expressions");
 // Constraints
 std::vector<MutableNLPExpr> c_expr(model.repn->constraints.size());
 std::vector<int> r(model.repn->constraints.size());
 std::vector<double> rval(2*model.repn->constraints.size());
 ctr=0;
-for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it, ++ctr) {
-    invconmap[ctr] = it->id();
-    c_expr[ctr].collect_terms(*it);
+for (auto jt=model.repn->constraints.begin(); jt != model.repn->constraints.end(); ++jt, ++ctr) {
+    auto& Expr = c_expr[ctr];
+    auto& Con = *jt;
 
-    double bodyconst = c_expr[ctr].constval.get_value();
-    if (it->is_inequality()) {
+    invconmap[ctr] = Con.id();
+
+    Expr.collect_terms(Con);
+
+    double bodyconst = Expr.constval.get_value();
+    if (Con.is_inequality()) {
         ++num_inequalities;
-        if (it->repn->lower and it->repn->upper) {
-            double lower = it->repn->lower->eval() - bodyconst;
-            double upper = it->repn->upper->eval() - bodyconst;
+        if (Con.repn->lower and Con.repn->upper) {
+            double lower = Con.repn->lower->eval() - bodyconst;
+            double upper = Con.repn->upper->eval() - bodyconst;
             if (fabs(upper-lower) < EPSILON) {
                 ++num_equalities;
                 r[ctr] = 4;
@@ -1052,13 +1068,13 @@ for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(
                 rval[2*ctr+1] = upper;
                 }
             }
-        else if (it->repn->lower) {
+        else if (Con.repn->lower) {
             r[ctr] = 2;
-            rval[2*ctr] = it->repn->lower->eval() - bodyconst;
+            rval[2*ctr] = Con.repn->lower->eval() - bodyconst;
             }
-        else if (it->repn->upper) {
+        else if (Con.repn->upper) {
             r[ctr] = 1;
-            rval[2*ctr] = it->repn->upper->eval() - bodyconst;
+            rval[2*ctr] = Con.repn->upper->eval() - bodyconst;
             }
         else {
             r[ctr] = 3;
@@ -1067,46 +1083,52 @@ for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(
     else {
         ++num_equalities;
         r[ctr] = 4;
-        rval[2*ctr] = it->repn->lower->eval() - bodyconst;
+        rval[2*ctr] = Con.repn->lower->eval() - bodyconst;
         }
-    if ((c_expr[ctr].quadratic_coefs.size() > 0) or (not c_expr[ctr].nonlinear.is_constant()))
+    if ((Expr.quadratic_coefs.size() > 0) or (not Expr.nonlinear.is_constant()))
         ++nonl_constraints;
 
     std::set<int> curr_vars;
 
-    for (auto it=c_expr[ctr].linear_vars.begin(); it != c_expr[ctr].linear_vars.end(); ++it) {
+    for (auto it=Expr.linear_vars.begin(); it != Expr.linear_vars.end(); ++it) {
         auto var = *it;
-        linear_vars.insert(var->index);
-        vars.insert(var->index);
-        varobj[var->index] = var;
-        curr_vars.insert(var->index);
+        auto index = var->index;
+        linear_vars.insert(index);
+        vars.insert(index);
+        varobj[index] = var;
+        curr_vars.insert(index);
         }
-    for (auto it=c_expr[ctr].quadratic_lvars.begin(); it != c_expr[ctr].quadratic_lvars.end(); ++it) {
+    for (auto it=Expr.quadratic_lvars.begin(); it != Expr.quadratic_lvars.end(); ++it) {
         auto var = *it;
-        nonlinear_vars_con.insert(var->index);
-        vars.insert(var->index);
-        varobj[var->index] = var;
-        curr_vars.insert(var->index);
+        auto index = var->index;
+        nonlinear_vars_con.insert(index);
+        vars.insert(index);
+        varobj[index] = var;
+        curr_vars.insert(index);
         }
-    for (auto it=c_expr[ctr].quadratic_rvars.begin(); it != c_expr[ctr].quadratic_rvars.end(); ++it) {
+    for (auto it=Expr.quadratic_rvars.begin(); it != Expr.quadratic_rvars.end(); ++it) {
         auto var = *it;
-        nonlinear_vars_con.insert(var->index);
-        vars.insert(var->index);
-        varobj[var->index] = var;
-        curr_vars.insert(var->index);
+        auto index = var->index;
+        nonlinear_vars_con.insert(index);
+        vars.insert(index);
+        varobj[index] = var;
+        curr_vars.insert(index);
         }
-    for (auto it=c_expr[ctr].nonlinear_vars.begin(); it != c_expr[ctr].nonlinear_vars.end(); ++it) {
+    for (auto it=Expr.nonlinear_vars.begin(); it != Expr.nonlinear_vars.end(); ++it) {
         auto var = *it;
-        nonlinear_vars_con.insert(var->index);
-        vars.insert(var->index);
-        varobj[var->index] = var;
-        curr_vars.insert(var->index);
+        auto index = var->index;
+        nonlinear_vars_con.insert(index);
+        vars.insert(index);
+        varobj[index] = var;
+        curr_vars.insert(index);
         }
 
     // Add Jacobian terms for each constraint
     nnz_Jacobian += curr_vars.size();
     }
+CALI_MARK_END("Prepare Constraint Expressions");
 
+CALI_MARK_BEGIN("Misc NL");
 check_that_expression_variables_are_declared(model, vars);
 
 for (auto it=linear_vars.begin(); it != linear_vars.end(); ++it) {
@@ -1119,7 +1141,8 @@ for (auto it=linear_vars.begin(); it != linear_vars.end(); ++it) {
 
 int nonlinear_vars_both=0;
 for (auto it=nonlinear_vars_obj.begin(); it != nonlinear_vars_obj.end(); ++it) {
-    bool flag = varobj[*it].is_binary() or varobj[*it].is_integer();
+    auto& var = varobj[*it];
+    bool flag = var.is_binary() or var.is_integer();
     if (flag)
        ++num_nonlinear_obj_int_vars;
     if (nonlinear_vars_con.find(*it) != nonlinear_vars_con.end()) {
@@ -1129,7 +1152,8 @@ for (auto it=nonlinear_vars_obj.begin(); it != nonlinear_vars_obj.end(); ++it) {
         }
     }
 for (auto it=nonlinear_vars_con.begin(); it != nonlinear_vars_con.end(); ++it) {
-    if (varobj[*it].is_binary() or varobj[*it].is_integer())
+    auto& var = varobj[*it];
+    if (var.is_binary() or var.is_integer())
        ++num_nonlinear_con_int_vars;
     }
 
@@ -1145,8 +1169,10 @@ if (vars.size() != varmap.size()) {
     std::cerr << "Error writing NL file: Variables with duplicate index values detected!" << std::endl;
     return;
     }
+CALI_MARK_END("Misc NL");
 
 // Compute linear Jacobian and Gradient values
+CALI_MARK_BEGIN("Compute Jacobian/Gradient");
 std::vector<std::set<int>> k_count(vars.size());
 std::vector<std::map<int,double>> G(o_expr.size());
 std::vector<std::map<int,double>> J(c_expr.size());
@@ -1197,6 +1223,7 @@ for (auto it=c_expr.begin(); it != c_expr.end(); ++it, ++ctr) {
             J[ctr][index] += it->linear_coefs[j].get_value();
         }
     }
+CALI_MARK_END("Compute Jacobian/Gradient");
 
 //
 // Write NL Header
@@ -1222,6 +1249,7 @@ ostr.print(" 0 0 0 0 0 # common exprs: b,c,o,c1,o1\n");
 //
 // "C" section - nonlinear constraint segments
 //
+CALI_MARK_BEGIN("C");
 ctr = 0;
 for (auto it=c_expr.begin(); it != c_expr.end(); ++it, ++ctr) {
     if ((not it->nonlinear.is_constant()) or (it->quadratic_coefs.size() > 0)) {
@@ -1232,10 +1260,12 @@ for (auto it=c_expr.begin(); it != c_expr.end(); ++it, ++ctr) {
         ostr.print("C{}\nn0\n", ctr);
         }
     }
+CALI_MARK_END("C");
 
 //
 // "O" section - nonlinear objective segments
 //
+CALI_MARK_BEGIN("O");
 ctr=0;
 for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ++ctr) {
     bool sense = model.repn->objectives[ctr].sense();
@@ -1250,15 +1280,18 @@ for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ++ctr) {
         ostr.print("n{}\n", it->constval.get_value());      // << "n" << it->constval.get_value() << '\n';
         }
     }
+CALI_MARK_END("O");
 
 //
 // "x" section - primal initial values
 //
 {
+#if 0
+CALI_MARK_BEGIN("x_orig");
 std::map<int, double> values;
 ctr=0;
-for (auto it=vars.begin(); it != vars.end(); ++it, ++ctr) {
-    auto tmp = varobj[*it].get_value();
+for (auto it=varobj.begin(); it != varobj.end(); ++it, ++ctr) {
+    auto tmp = it->second.get_value();
     if (not std::isnan(tmp))
         values[ctr] = tmp;
     }
@@ -1267,17 +1300,37 @@ if (values.size() > 0) {
     for (auto it=values.begin(); it != values.end(); ++it)
         ostr.print("{} {}\n", it->first, it->second);       // << it->first << " " << it->second << '\n';
     }
+CALI_MARK_END("x_orig");
+#else
+CALI_MARK_BEGIN("x_str");
+fmt::memory_buffer out;
+ctr=0;
+int num=0;
+for (auto it=varobj.begin(); it != varobj.end(); ++it, ++ctr) {
+    auto tmp = it->second.get_value();
+    if (not std::isnan(tmp)) {
+        num++;
+        fmt::format_to(out, "{} {}\n", ctr, tmp);
+        }
+    }
+if (num) {
+    ostr.print("x{}\n", num);
+    //ostr.print("{}", fmt::to_string(out));
+    ostr.print("{}", out.data());
+    }
+CALI_MARK_END("x_str");
+#endif
 }
 
 //
 // "r" section - bounds on constraints
 //
-
+CALI_MARK_BEGIN("r");
 if (model.repn->constraints.size() > 0) {
     ostr.print("r\n");
     ctr = 0;
-    for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it, ++ctr) {
-        switch (r[ctr]) {
+    for (auto it=r.begin(); it != r.end(); ++it, ++ctr) {
+        switch (*it) {
             case 0:
                 //ostr.print("0 ");
                 //format(ostr, rval[2*ctr]);
@@ -1307,13 +1360,15 @@ if (model.repn->constraints.size() > 0) {
         //ostr << '\n';
         }
     }
+CALI_MARK_END("r");
 
 //
 // "b" section - bounds on variables
 //
+CALI_MARK_BEGIN("b");
 ostr.print("b\n");
 for (auto it=vars.begin(); it != vars.end(); ++it) {
-    auto var = varobj[*it];
+    auto& var = varobj[*it];
     double lb = var.get_lb();
     double ub = var.get_ub();
     if (lb == -COEK_INFINITY) {
@@ -1351,31 +1406,38 @@ for (auto it=vars.begin(); it != vars.end(); ++it) {
             }
         }
     }
+CALI_MARK_END("b");
 
 //
 // "k" section - Jacobian column counts
 //
+CALI_MARK_BEGIN("k");
 ostr.print("k{}\n", k_count.size()-1);      // << "k" << (k_count.size()-1) << '\n';
 ctr = 0;
 for (size_t i=0; i<(k_count.size()-1); ++i) {
     ctr += k_count[i].size();
     ostr.print("{}\n", ctr);        // << ctr << '\n';
     }
+CALI_MARK_END("k");
 
+CALI_MARK_BEGIN("J");
 //
 // "J" section - Jacobian sparsity, linear terms
 //
-for (size_t i=0; i<J.size(); ++i) {
-    if (J[i].size() == 0) continue;
-    ostr.print("J{} {}\n", i, J[i].size());                 // << "J" << i << " " << J[i].size() << '\n';
-    for (auto it=J[i].begin(); it!=J[i].end(); ++it) {
+ctr=0;
+for (auto jt=J.begin(); jt != J.end(); ++ctr, ++jt) {
+    if (jt->size() == 0) continue;
+    ostr.print("J{} {}\n", ctr, jt->size());                 // << "J" << i << " " << J[i].size() << '\n';
+    for (auto it=jt->begin(); it != jt->end(); ++it) {
         ostr.print("{} {}\n", it->first, it->second);       // << it->first << " " << it->second << '\n';
         }
     }
+CALI_MARK_END("J");
 
 //
 // "G" section - Gradient sparsity, linear terms
 //
+CALI_MARK_BEGIN("G");
 for (size_t i=0; i<G.size(); ++i) {
     if (G[i].size() == 0) continue;
     ostr.print("G{} {}\n", i, G[i].size());                 // << "G" << i << " " << G[i].size() << '\n';
@@ -1383,6 +1445,7 @@ for (size_t i=0; i<G.size(); ++i) {
         ostr.print("{} {}\n", it->first, it->second);       // << it->first << " " << it->second << '\n';
         }
     }
+CALI_MARK_END("G");
 
 //ostr << std::flush;
 }
