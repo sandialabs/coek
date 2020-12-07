@@ -28,7 +28,7 @@ class PartialVisitor : public Visitor
 {
 public:
 
-    int i;
+    size_t i;
     expr_pointer_t partial;
 
 public:
@@ -74,27 +74,19 @@ public:
 
 // Not executed when doing symbolic differentiation
 // GCOVR_EXCL_START
-void PartialVisitor::visit(ConstantTerm& arg)
-{
-partial = ZEROCONST;
-}
+void PartialVisitor::visit(ConstantTerm& )
+{ partial = ZEROCONST; }
 
-void PartialVisitor::visit(ParameterTerm& arg)
-{
-partial = ZEROCONST;
-}
+void PartialVisitor::visit(ParameterTerm& )
+{ partial = ZEROCONST; }
 
-void PartialVisitor::visit(IndexParameterTerm& arg)
-{
-throw std::runtime_error("Cannot differentiate an expression using an abstract parameter term.");
-}
+void PartialVisitor::visit(IndexParameterTerm& )
+{ throw std::runtime_error("Cannot differentiate an expression using an abstract parameter term."); }
 
-void PartialVisitor::visit(VariableTerm& arg)
-{
-partial = ONECONST;
-}
+void PartialVisitor::visit(VariableTerm& )
+{ partial = ONECONST; }
 
-void PartialVisitor::visit(VariableRefTerm& arg)
+void PartialVisitor::visit(VariableRefTerm& )
 {
 //
 // We assume for now that a user cannot differentiate with respect to an referenced
@@ -104,41 +96,27 @@ void PartialVisitor::visit(VariableRefTerm& arg)
 partial = ZEROCONST;
 }
 
-void PartialVisitor::visit(IndexedVariableTerm& arg)
-{
-partial = ONECONST;
-}
+void PartialVisitor::visit(IndexedVariableTerm& )
+{ partial = ONECONST; }
 
 void PartialVisitor::visit(MonomialTerm& arg)
-{
-partial = CREATE_POINTER(ConstantTerm, arg.coef);
-}
+{ partial = CREATE_POINTER(ConstantTerm, arg.coef); }
 
-void PartialVisitor::visit(InequalityTerm& arg)
-{
-partial = 0;
-}
+void PartialVisitor::visit(InequalityTerm& )
+{ partial = 0; }
 
-void PartialVisitor::visit(EqualityTerm& arg)
-{
-partial = 0;
-}
+void PartialVisitor::visit(EqualityTerm& )
+{ partial = 0; }
 
-void PartialVisitor::visit(ObjectiveTerm& arg)
-{
-partial = 0;
-}
+void PartialVisitor::visit(ObjectiveTerm& )
+{ partial = 0; }
 // GCOVR_EXCL_STOP
 
-void PartialVisitor::visit(NegateTerm& arg)
-{
-partial = NEGATIVEONECONST;
-}
+void PartialVisitor::visit(NegateTerm& )
+{ partial = NEGATIVEONECONST; }
 
-void PartialVisitor::visit(PlusTerm& arg)
-{
-partial = ONECONST;
-}
+void PartialVisitor::visit(PlusTerm& )
+{ partial = ONECONST; }
 
 void PartialVisitor::visit(TimesTerm& arg)
 {
@@ -157,13 +135,13 @@ else
 }
 
 // GCOVR_EXCL_START
-void PartialVisitor::visit(AbsTerm& arg)
+void PartialVisitor::visit(AbsTerm& )
 { partial = 0; }
 
-void PartialVisitor::visit(CeilTerm& arg)
+void PartialVisitor::visit(CeilTerm& )
 { partial = 0; }
 
-void PartialVisitor::visit(FloorTerm& arg)
+void PartialVisitor::visit(FloorTerm& )
 { partial = 0; }
 // GCOVR_EXCL_STOP
 
@@ -272,7 +250,7 @@ else
 }
 
 // d curr / d child_i
-expr_pointer_t compute_partial(expr_pointer_t curr, int i, PartialVisitor& visitor)
+expr_pointer_t compute_partial(expr_pointer_t curr, size_t i, PartialVisitor& visitor)
 {
 visitor.i = i;
 curr->accept(visitor);
@@ -415,7 +393,7 @@ while (queue.size() > 0) {
     // Iterate over children.  Create partial and add them to the 
     // queue
     //
-    for (unsigned int i=0; i<curr->num_expressions(); i++) {
+    for (size_t i=0; i<curr->num_expressions(); i++) {
         expr_pointer_t _partial = compute_partial(curr, i, visitor);
         expr_pointer_t child = curr->expression(i);
         //if (child->is_constant()) {

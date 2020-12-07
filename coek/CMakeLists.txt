@@ -46,13 +46,13 @@ include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 # Caliper LIBRARY
 if(with_caliper)
   include_directories(BEFORE ${CALIPER_INCLUDE_DIR})
-  list(APPEND profiling_flags "-DWITH_CALIPER")
+  list(APPEND profiling_flags -DWITH_CALIPER)
 endif()
 
 # fmtlib LIBRARY
 if(with_fmtlib)
   include_directories(BEFORE ${FMTLIB_INCLUDE_DIR})
-  list(APPEND profiling_flags "-DWITH_FMTLIB")
+  list(APPEND profiling_flags -DWITH_FMTLIB -Wextra -Wconversion -Wpedantic -Wsign-conversion)
 endif()
 
 #

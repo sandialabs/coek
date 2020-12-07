@@ -13,11 +13,11 @@ class ConstraintTerm : public BaseExpressionTerm
 {
 public:
 
-    static int count;
+    static unsigned int count;
 
 public:
 
-    int index;
+    unsigned int index;
     expr_pointer_t lower;
     expr_pointer_t body;
     expr_pointer_t upper;

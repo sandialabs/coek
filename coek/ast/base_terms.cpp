@@ -99,7 +99,7 @@ return CREATE_POINTER(NegateTerm, repn);
 // ConstantTerm
 //
 
-expr_pointer_t ConstantTerm::negate(const expr_pointer_t& repn)
+expr_pointer_t ConstantTerm::negate(const expr_pointer_t& )
 {
 // SHARED_PTR
 //return std::static_pointer_cast<BaseExpressionTerm>( std::make_shared<ConstantTerm>(-1*value) );

@@ -1,3 +1,4 @@
+#include "../ast/base_terms.hpp"
 #include "../ast/constraint_terms.hpp"
 #include "../ast/expr_terms.hpp"
 #include "../ast/ast_operators.hpp"
@@ -29,24 +30,24 @@ if (body.repn->is_constant()) {\
 return intrinsic_ ## FN(body.repn);\
 }
 
-INTRINSIC_DEF1(ceil);
-INTRINSIC_DEF1(floor);
-INTRINSIC_DEF1(exp);
-INTRINSIC_DEF1(log);
-INTRINSIC_DEF1(log10);
-INTRINSIC_DEF1(sqrt);
-INTRINSIC_DEF1(sin);
-INTRINSIC_DEF1(cos);
-INTRINSIC_DEF1(tan);
-INTRINSIC_DEF1(sinh);
-INTRINSIC_DEF1(cosh);
-INTRINSIC_DEF1(tanh);
-INTRINSIC_DEF1(asin);
-INTRINSIC_DEF1(acos);
-INTRINSIC_DEF1(atan);
-INTRINSIC_DEF1(asinh);
-INTRINSIC_DEF1(acosh);
-INTRINSIC_DEF1(atanh);
+INTRINSIC_DEF1(ceil)
+INTRINSIC_DEF1(floor)
+INTRINSIC_DEF1(exp)
+INTRINSIC_DEF1(log)
+INTRINSIC_DEF1(log10)
+INTRINSIC_DEF1(sqrt)
+INTRINSIC_DEF1(sin)
+INTRINSIC_DEF1(cos)
+INTRINSIC_DEF1(tan)
+INTRINSIC_DEF1(sinh)
+INTRINSIC_DEF1(cosh)
+INTRINSIC_DEF1(tanh)
+INTRINSIC_DEF1(asin)
+INTRINSIC_DEF1(acos)
+INTRINSIC_DEF1(atan)
+INTRINSIC_DEF1(asinh)
+INTRINSIC_DEF1(acosh)
+INTRINSIC_DEF1(atanh)
 
 #define INTRINSIC_DEF2(FN)\
 Expression FN(const Expression& lhs, const Expression& rhs)\
@@ -79,5 +80,5 @@ Expression _lhs(lhs);\
 return intrinsic_ ## FN(_lhs.repn, rhs.repn);\
 }
 
-INTRINSIC_DEF2(pow);
+INTRINSIC_DEF2(pow)
 }

@@ -246,7 +246,7 @@ arg.rhs->accept(*this);
 ostr << ")";
 }
 
-void WriteExprVisitor::visit(SumExpressionTerm& arg)
+void WriteExprVisitor::visit(SumExpressionTerm& )
 {
 ostr << "Sum()";
 }

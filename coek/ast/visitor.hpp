@@ -85,7 +85,7 @@ public:
     virtual void visit(ATanhTerm& arg) = 0;
     virtual void visit(PowTerm& arg) = 0;
     virtual void visit(ObjectiveTerm& arg) = 0;
-    virtual void visit(SumExpressionTerm& arg)
+    virtual void visit(SumExpressionTerm& )
         { throw std::runtime_error("Visitor cannot handle SumExpressionTerm"); }
 };
 

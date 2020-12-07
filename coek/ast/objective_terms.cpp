@@ -5,7 +5,7 @@ namespace coek {
 //
 // ObjectiveTerm
 //
-int ObjectiveTerm::count = 0;
+unsigned int ObjectiveTerm::count = 0;
 
 ObjectiveTerm::ObjectiveTerm()
     : body(0), sense(true)

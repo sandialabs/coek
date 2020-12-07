@@ -114,11 +114,11 @@ class VariableTerm : public BaseVariableTerm
 {
 public:
 
-    static int count;
+    static unsigned int count;
 
 public:
 
-    int index;
+    unsigned int index;
     double value;
     double lb;
     double ub;
