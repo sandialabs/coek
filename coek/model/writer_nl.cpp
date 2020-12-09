@@ -5,8 +5,8 @@
 #include <caliper/cali.h>
 #else
 #define CALI_CXX_MARK_FUNCTION
-#define CALI_MARK_BEGIN
-#define CALI_MARK_END
+#define CALI_MARK_BEGIN(X)
+#define CALI_MARK_END(X)
 #endif
 #ifdef WITH_FMTLIB
 #include <fmt/core.h>

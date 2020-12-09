@@ -195,10 +195,12 @@ else if (endsWith(fname, ".ostrlp")) {
     return;
     }
 
+#ifdef WITH_FMTLIB
 else if (endsWith(fname, ".fmtlp")) {
     write_lp_problem_fmtlib(*this, fname, varmap, conmap);
     return;
     }
+#endif
 
 else if (endsWith(fname, ".nl")) {
     write_nl_problem(*this, fname, varmap, conmap);
@@ -210,10 +212,12 @@ else if (endsWith(fname, ".ostrnl")) {
     return;
     }
 
+#ifdef WITH_FMTLIB
 else if (endsWith(fname, ".fmtnl")) {
     write_nl_problem_fmtlib(*this, fname, varmap, conmap);
     return;
     }
+#endif
 
 throw std::runtime_error("Unknown problem type");
 }
@@ -343,10 +347,12 @@ else if (endsWith(fname, ".ostrlp")) {
     return;
     }
 
+#ifdef WITH_FMTLIB
 else if (endsWith(fname, ".fmtlp")) {
     write_lp_problem_fmtlib(*this, fname, varmap, conmap);
     return;
     }
+#endif
 
 Model model = expand();
 model.write(fname, varmap, conmap);
