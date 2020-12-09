@@ -1052,9 +1052,18 @@ class Test_DivExpression(unittest.TestCase):
             self.assertRaises(ValueError, a.__truediv__, 0)
             self.assertRaises(ValueError, a.__truediv__, 0.0)
         else:
-            self.assertRaises(TypeError, a.__truediv__, 0)
-            self.assertRaises(TypeError, a.__truediv__, 0.0)
-        #ans = r / q
+            try:
+                a.__truediv__(0)
+                self.fail("Expected TypeError when dividing by zero.")
+                print("Y")
+            except TypeError:
+                pass
+            try:
+                a.__truediv__(0.0)
+                self.fail("Expected TypeError when dividing by zero.")
+                print("Y")
+            except TypeError:
+                pass
 
         #
         # Check that dividing zero by anything non-zero gives zero

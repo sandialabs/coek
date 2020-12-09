@@ -4,7 +4,10 @@
 # This defines the order of resolution of poek interfaces
 # to pycoek.
 #
-imports = ['pycoek_cppyy', 'pycoek_pybind11']
+# NOTE: CFFI is currently not supported
+#
+imports = ['pycoek_pybind11']
+#imports = ['pycoek_cppyy', 'pycoek_pybind11']
 
 __using_cppyy__     = False
 __using_pybind11__  = False
@@ -45,4 +48,6 @@ elif __using_pybind11__:
     from poek.poek_pybind11 import *
 
 else:
-    print("<Error: no Poek interface installed>")
+    raise ImportError("No pycoek interface installed!")
+
+from . import util

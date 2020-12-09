@@ -18,7 +18,7 @@ class variable(object):
 def model_variable(self, *args, **kwds):
         if len(args) == 0 or args[0] == 1 or type(args[0]) == str:
             if 'index' in kwds:
-                _index = kwds.pop('index')
+                _index = list(kwds.pop('index'))
                 v = variable_(len(_index), **kwds)
                 self.add_variable_(v)
                 ans = {}

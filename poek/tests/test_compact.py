@@ -21,7 +21,7 @@ class TestExprSequence(unittest.TestCase):
         y = variable(A, "y")
         i = index("i")
         #
-        tmp = (y(i)) .Forall(i).In(A)
+        tmp = ExpressionSequence(y(i), Forall(i).In(A))
         i = 1
         for e in tmp:
             self.assertEqual( e.to_list(), ["y(%d)" % i ] )
@@ -33,7 +33,7 @@ class TestExprSequence(unittest.TestCase):
         y = variable(A, "y")
         i = index("i")
         #
-        tmp = (y(i)+1) .Forall(i).In(A)
+        tmp = ExpressionSequence(y(i)+1, Forall(i).In(A))
         i = 1
         for e in tmp:
             self.assertEqual( e.to_list(), ["+", "y(%d)" % i, "1.000" ] )
@@ -45,7 +45,7 @@ class TestExprSequence(unittest.TestCase):
         y = variable(A, "y")
         i = index("i")
         #
-        tmp = (y(i)+i) .Forall(i).In(A)
+        tmp = ExpressionSequence(y(i)+i, Forall(i).In(A))
         i = 1
         for e in tmp:
             self.assertEqual( e.to_list(), ["+", "y(%d)" % i, "%d.000" % i ] )
@@ -58,7 +58,7 @@ class TestExprSequence(unittest.TestCase):
         y = variable(B, "y")
         i = index("i")
         #
-        tmp = (y(i)+i*y(i+2)) .Forall(i).In(A)
+        tmp = ExpressionSequence(y(i)+i*y(i+2), Forall(i).In(A))
         i = 1
         for e in tmp:
             self.assertEqual( e.to_list(), ["+", "y(%d)" % i, ["*", "%d.000" % i, "y(%d)" % (i+2), ], ] )
@@ -70,7 +70,7 @@ class TestExprSequence(unittest.TestCase):
         y = variable(A, "y")
         i = index("i")
         #
-        tmp = Sum((y(i)) .Forall(i).In(A))
+        tmp = Sum(y(i), Forall(i).In(A))
         e = tmp.expand()
         self.assertEqual( e.to_list(), ["+", "y(1)", "y(2)", "y(3)", "y(4)"])
 
@@ -80,7 +80,7 @@ class TestExprSequence(unittest.TestCase):
         x = variable(A*A, "x")
         i = index("i")
         #
-        tmp = Sum((x(i,i)) .Forall(i).In(A))
+        tmp = Sum(x(i,i), Forall(i).In(A))
         e = tmp.expand()
         self.assertEqual( e.to_list(), ["+", "x(1,1)", "x(2,2)", "x(3,3)", "x(4,4)"])
 
@@ -91,7 +91,7 @@ class TestExprSequence(unittest.TestCase):
         i = index("i")
         j = index("j")
         #
-        tmp = Sum((x(i,i)) .Forall(i,j).In(A*A))
+        tmp = Sum(x(i,i), Forall(i,j).In(A*A))
         e = tmp.expand()
         self.assertEqual( e.to_list(), ["+", 'x(1,1)', 'x(1,1)', 'x(1,1)', 'x(1,1)', 'x(2,2)', 'x(2,2)', 'x(2,2)', 'x(2,2)', 'x(3,3)', 'x(3,3)', 'x(3,3)', 'x(3,3)', 'x(4,4)', 'x(4,4)', 'x(4,4)', 'x(4,4)'] )
 
@@ -102,7 +102,7 @@ class TestExprSequence(unittest.TestCase):
         i = index("i")
         j = index("j")
         #
-        tmp = Sum((x(i,i)) .Forall(i).In(A) .Forall(j).In(A))
+        tmp = Sum(x(i,i), Forall(i).In(A) .Forall(j).In(A))
         e = tmp.expand()
         self.assertEqual( e.to_list(), ["+", 'x(1,1)', 'x(1,1)', 'x(1,1)', 'x(1,1)', 'x(2,2)', 'x(2,2)', 'x(2,2)', 'x(2,2)', 'x(3,3)', 'x(3,3)', 'x(3,3)', 'x(3,3)', 'x(4,4)', 'x(4,4)', 'x(4,4)', 'x(4,4)'] )
 
@@ -114,7 +114,7 @@ class TestExprSequence(unittest.TestCase):
         i = index("i")
         j = index("j")
         #
-        tmp = Sum((y(i)*x(i,i)) .Forall(i).In(A))
+        tmp = Sum(y(i)*x(i,i), Forall(i).In(A))
         e = tmp.expand()
         self.assertEqual( e.to_list(), ['+', ['*', 'y(1)', 'x(1,1)'], ['*', 'y(2)', 'x(2,2)'], ['*', 'y(3)', 'x(3,3)'], ['*', 'y(4)', 'x(4,4)']] )
 
@@ -126,7 +126,7 @@ class TestExprSequence(unittest.TestCase):
         i = index("i")
         j = index("j")
         #
-        tmp = Sum((y(i)*Sum((x(i,j)) .Forall(j).In(A))) .Forall(i).In(A))
+        tmp = Sum(y(i)*Sum(x(i,j), Forall(j).In(A)), Forall(i).In(A))
         e = tmp.expand()
         self.assertEqual( e.to_list(),   ['+', ['*', 'y(1)', ['+', 'x(1,1)', 'x(1,2)', 'x(1,3)', 'x(1,4)']], ['*', 'y(2)', ['+', 'x(2,1)', 'x(2,2)', 'x(2,3)', 'x(2,4)']], ['*', 'y(3)', ['+', 'x(3,1)', 'x(3,2)', 'x(3,3)', 'x(3,4)']], ['*', 'y(4)', ['+', 'x(4,1)', 'x(4,2)', 'x(4,3)', 'x(4,4)']]] )
 
@@ -140,7 +140,7 @@ class TestConSequence(unittest.TestCase):
         y = variable(A, "y")
         i = index("i")
         #
-        tmp = (y(i)==0) .Forall(i).In(A)
+        tmp = ConstraintSequence(y(i)==0, Forall(i).In(A))
         i = 1
         for e in tmp:
             self.assertEqual( e.to_list(), ["==", "y(%d)" % i, "0.000" ] )
@@ -152,7 +152,7 @@ class TestConSequence(unittest.TestCase):
         y = variable(A, "y")
         i = index("i")
         #
-        tmp = (y(i)+1==0) .Forall(i).In(A)
+        tmp = ConstraintSequence(y(i)+1==0, Forall(i).In(A))
         i = 1
         for e in tmp:
             self.assertEqual( e.to_list(), ["==", ["+", "y(%d)" % i, "1.000"], "0.000" ] )
@@ -164,7 +164,7 @@ class TestConSequence(unittest.TestCase):
         y = variable(A, "y")
         i = index("i")
         #
-        tmp = (y(i)+i==0) .Forall(i).In(A)
+        tmp = ConstraintSequence(y(i)+i==0, Forall(i).In(A))
         i = 1
         for e in tmp:
             self.assertEqual( e.to_list(), ["==", ["+", "y(%d)" % i, "%d.000" % i] , "0.000"] )
@@ -177,7 +177,7 @@ class TestConSequence(unittest.TestCase):
         y = variable(B, "y")
         i = index("i")
         #
-        tmp = (y(i)+i*y(i+2)==0) .Forall(i).In(A)
+        tmp = ConstraintSequence(y(i)+i*y(i+2)==0, Forall(i).In(A))
         i = 1
         for e in tmp:
             self.assertEqual( e.to_list(), ["==", ["+", "y(%d)" % i, ["*", "%d.000" % i, "y(%d)" % (i+2)]], "0.000"] )
@@ -189,7 +189,7 @@ class TestConSequence(unittest.TestCase):
         y = variable(A, "y")
         i = index("i")
         #
-        tmp = Sum((y(i)) .Forall(i).In(A)) == 0
+        tmp = Sum(y(i), Forall(i).In(A)) == 0
         e = tmp.expand()
         self.assertEqual( e.to_list(), ["==", ["+", "y(1)", "y(2)", "y(3)", "y(4)" ], "0.000"])
 
@@ -199,7 +199,7 @@ class TestConSequence(unittest.TestCase):
         x = variable(A*A, "x")
         i = index("i")
         #
-        tmp = Sum((x(i,i)) .Forall(i).In(A)) == 0
+        tmp = Sum(x(i,i), Forall(i).In(A)) == 0
         e = tmp.expand()
         self.assertEqual( e.to_list(), ["==", ["+", "x(1,1)", "x(2,2)", "x(3,3)", "x(4,4)"], "0.000"])
 
@@ -210,7 +210,7 @@ class TestConSequence(unittest.TestCase):
         i = index("i")
         j = index("j")
         #
-        tmp = Sum((x(i,i)) .Forall(i,j).In(A*A)) == 0
+        tmp = Sum(x(i,i), Forall(i,j).In(A*A)) == 0
         e = tmp.expand()
         self.assertEqual( e.to_list(), ["==", ["+", 'x(1,1)', 'x(1,1)', 'x(1,1)', 'x(1,1)', 'x(2,2)', 'x(2,2)', 'x(2,2)', 'x(2,2)', 'x(3,3)', 'x(3,3)', 'x(3,3)', 'x(3,3)', 'x(4,4)', 'x(4,4)', 'x(4,4)', 'x(4,4)'], "0.000"] )
 
@@ -221,7 +221,7 @@ class TestConSequence(unittest.TestCase):
         i = index("i")
         j = index("j")
         #
-        tmp = Sum((x(i,i)) .Forall(i).In(A) .Forall(j).In(A)) == 0
+        tmp = Sum(x(i,i), Forall(i).In(A) .Forall(j).In(A)) == 0
         e = tmp.expand()
         self.assertEqual( e.to_list(), ["==", ["+", 'x(1,1)', 'x(1,1)', 'x(1,1)', 'x(1,1)', 'x(2,2)', 'x(2,2)', 'x(2,2)', 'x(2,2)', 'x(3,3)', 'x(3,3)', 'x(3,3)', 'x(3,3)', 'x(4,4)', 'x(4,4)', 'x(4,4)', 'x(4,4)'], "0.000"] )
 
@@ -233,7 +233,7 @@ class TestConSequence(unittest.TestCase):
         i = index("i")
         j = index("j")
         #
-        tmp = Sum((y(i)*x(i,i)) .Forall(i).In(A)) == 0
+        tmp = Sum(y(i)*x(i,i), Forall(i).In(A)) == 0
         e = tmp.expand()
         self.assertEqual( e.to_list(), ["==", ['+', ['*', 'y(1)', 'x(1,1)'], ['*', 'y(2)', 'x(2,2)'], ['*', 'y(3)', 'x(3,3)'], ['*', 'y(4)', 'x(4,4)']], "0.000"] )
 
@@ -245,7 +245,7 @@ class TestConSequence(unittest.TestCase):
         i = index("i")
         j = index("j")
         #
-        tmp = Sum((y(i)*Sum((x(i,j)) .Forall(j).In(A))) .Forall(i).In(A)) == 0
+        tmp = Sum(y(i)*Sum(x(i,j), Forall(j).In(A)), Forall(i).In(A)) == 0
         e = tmp.expand()
         self.assertEqual( e.to_list(),   ["==", ['+', ['*', 'y(1)', ['+', 'x(1,1)', 'x(1,2)', 'x(1,3)', 'x(1,4)']], ['*', 'y(2)', ['+', 'x(2,1)', 'x(2,2)', 'x(2,3)', 'x(2,4)']], ['*', 'y(3)', ['+', 'x(3,1)', 'x(3,2)', 'x(3,3)', 'x(3,4)']], ['*', 'y(4)', ['+', 'x(4,1)', 'x(4,2)', 'x(4,3)', 'x(4,4)']]], "0.000"] )
 

@@ -94,6 +94,22 @@ class Test_ConditionalValue(unittest.TestCase):
         self.relation_test(1.3<a, False)
         self.relation_test(2.0<a, False)
 
+    def test_le(self):
+        #
+        # Test the 'less than' operator
+        #
+        a=self.create(1.3)
+        b=self.create(2.0)
+        self.relation_test(a<=b, True)
+        self.relation_test(a<=a, True)
+        self.relation_test(b<=a, False)
+        self.relation_test(a<=2.0, True)
+        self.relation_test(a<=1.3, True)
+        self.relation_test(b<=1.3, False)
+        self.relation_test(1.3<=b, True)
+        self.relation_test(1.3<=a, True)
+        self.relation_test(2.0<=a, False)
+
     def test_gt(self):
         #
         # Test the 'greater than' operator
@@ -109,6 +125,22 @@ class Test_ConditionalValue(unittest.TestCase):
         self.relation_test(1.3>b, False)
         self.relation_test(1.3>a, False)
         self.relation_test(2.0>a, True)
+
+    def test_ge(self):
+        #
+        # Test the 'greater than' operator
+        #
+        a=self.create(1.3)
+        b=self.create(2.0)
+        self.relation_test(a>=b, False)
+        self.relation_test(a>=a, True)
+        self.relation_test(b>=a, True)
+        self.relation_test(a>=2.0, False)
+        self.relation_test(a>=1.3, True)
+        self.relation_test(b>=1.3, True)
+        self.relation_test(1.3>=b, False)
+        self.relation_test(1.3>=a, True)
+        self.relation_test(2.0>=a, True)
 
     def test_eq(self):
         #
@@ -174,8 +206,7 @@ class Test_VarValue(Test_ConditionalValue):
         self.model = None
 
     def create(self, val):
-        tmp=variable()
-        tmp.value=val
+        tmp=variable(value=val)
         return tmp
 
 

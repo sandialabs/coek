@@ -29,11 +29,10 @@ import poek as pk
 model = pk.model()
 
 N = 3
-M = 15
 
-S = list(range(1,M+1))
-# LOAD DATA
-y = Param(S)
+data = pk.util.load_data('bard.json')
+S = data.unpack('S')
+y = data.unpack('y', index=('S'))
 
 u = {}
 v = {}
@@ -43,8 +42,6 @@ for i in S:
     v[i] = 16-i
     w[i] = min(u[i], v[i])
 
-SS = list(range(1,N+1))
-x = model.add_variable(index=SS, value=1.0)
+x = model.add_variable(index=[1,2,3], value=1.0)
 
-model.add_objective( sum ([( value(y[i])-(x[1]+value(u[i])/(value(v[i])*x[2]+value(w[i])*x[3])) )**2 for i in S])
-f = Objective(rule=f,sense=minimize)
+model.add_objective( sum((y[i]-(x[1]+u[i]/(v[i]*x[2]+w[i]*x[3])))**2 for i in S) )

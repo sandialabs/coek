@@ -28,30 +28,27 @@ import poek as pk
 
 model = pk.model()
 
-n = 8
-m = 5
+data = pk.util.load_data('aircrftb.json')
+n, m, A = data.unpack('n', 'm', 'A')
 
 N = list(range(1,n+1))
 M = list(range(1,m+1))
 
-# LOAD DATA
-A = Param(M,N)
-
 X = model.add_variable(index=N)
-x[1].value = 0
-x[2].value = 0
-x[3].value = 0
-x[4].value = 0
-x[5].value = 0
-x[6].value = -0.05
-x[7].value = 0.1
-x[8].value = 0.0
+X[1].value = 0
+X[2].value = 0
+X[3].value = 0
+X[4].value = 0
+X[5].value = 0
+X[6].value = -0.05
+X[7].value = 0.1
+X[8].value = 0.0
 
 AX = {i: sum(A[i,j]*X[j] for j in N) for i in M}
 
-P1 = -0.727*X[2]*X[3])+(8.39*X[3]*X[4])-(684.4*X[4]*X[5])+(63.5*X[4]*X[2])
-P2 = 0.949*X[1]*X[3])+(0.173*X[1]*X[5])
-P3 = -0.716*X[1]*X[2])-(1.578*X[1]*X[4])+(1.132*X[4]*X[2])
+P1 = -0.727*X[2]*X[3]+8.39*X[3]*X[4]-684.4*X[4]*X[5]+63.5*X[4]*X[2]
+P2 = 0.949*X[1]*X[3]+0.173*X[1]*X[5]
+P3 = -0.716*X[1]*X[2]-1.578*X[1]*X[4]+1.132*X[4]*X[2]
 P4 = -1*X[1]*X[5]
 P5 = X[1]*X[4]
 

@@ -27,11 +27,8 @@ import poek as pk
 model = pk.model()
 
 N = 42
-
-# LOAD DATA
-r = Param(list(range(1,N))
-cx = Param(list(range(1,N))
-cy = Param(list(range(1,N))
+data = pk.util.load_data('airport.json')
+r,cx,cy = data.unpack('r','cx','cy')
 
 x = model.add_variable(index=range(1,N+1), lb=-10, ub=10)
 y = model.add_variable(index=range(1,N+1), lb=-10, ub=10)

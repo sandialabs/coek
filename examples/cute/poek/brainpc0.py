@@ -29,47 +29,32 @@
 
 #   classification SOR2-MY-6907-6900
 
-from pyomo.environ import *
-model = AbstractModel()
+from itertools import product
+import poek as pk
 
-NS = 2.0
-NP = 5.0
-NO = 26.0
-H = 1.0
-NT = 3450.0
+NS = 2
+NP = 5
+NO = 26
+H = 1
+NT = 3450
 
-# LOAD DATA
-TO = Param(list(range(1,NO))
-U = Param(list(range(0,NT))
-oc_init = Param(list(range(1,NO))
+data = pk.util.load_data('brainpc0.json')
+TO,U,oc_init = data.unpack('TO','U','oc_init')
 
-x = model.add_variable(list(range(1,NS),list(range(0,NT),bounds=(0,None),value=0.001)
-k = model.add_variable(list(range(1,NP),bounds=(0,None), value=0.001)
+model = pk.model()
 
-# For Pyomo testing,
-# generate the ConcreteModel version
-# by loading the data
-import os
-if os.path.isfile(os.path.abspath(__file__).replace('.pyc','.dat').replace('.py','.dat')):
-    model = create_instance(os.path.abspath(__file__).replace('.pyc','.dat').replace('.py','.dat'))
+x = model.add_variable(index=product(range(1,NS+1),range(0,NT+1)), lb=0, value=0.001)
+k = model.add_variable(index=range(1,NP+1), lb=0, value=0.001)
 
-x[1,0] = 0.0
+x[1,0].value = 0.0
 x[1,0].fixed = True
-x[2,0] = 0.0
+x[2,0].value = 0.0
 x[2,0].fixed = True
 
-def f_rule(model):
-model.add_objective( sum(1000*(-(x[1,value(TO[t])]+x[2,value(TO[t])])*k[1]+x[1,value(TO[t])]+\
-    x[2,value(TO[t])]+U[value(TO[t])]*k[1]-oc_init[t])**2 for t in range(1,int(NO)+1))
-f = Objective(rule=f_rule)
+model.add_objective( sum(1000*(-(x[1,TO[t]] + x[2,TO[t]])*k[1]+x[1,TO[t]] + x[2,TO[t]] + U[TO[t]]*k[1] - oc_init[t])**2 for t in range(1,NO+1)) )
 
-def cons1_rule(model,t):
-model.add_constraint( 1000*(H*(k[3]+k[4])*x[1,t]- H*k[5]*x[2,t] -\
-    H*U[t]*k[2] + x[1,t+1] - x[1,t]) == 0
-cons1 = Constraint(list(range(0,int(NT)-1),rule=cons1_rule)
+for t in range(0,NT):
+    model.add_constraint( 1000*(H*(k[3]+k[4])*x[1,t] - H*k[5]*x[2,t] - H*U[t]*k[2] + x[1,t+1] - x[1,t]) == 0 )
 
-def cons2_rule(model,t):
-model.add_constraint( 1000*(H*k[5]*x[2,t] - H*k[4]*x[1,t] + x[2,t+1] - x[2,t]) == 0
-cons2 = Constraint(list(range(0,int(NT)-1),rule=cons2_rule)
-
-
+for t in range(0,NT):
+    model.add_constraint( 1000*(H*k[5]*x[2,t] - H*k[4]*x[1,t] + x[2,t+1] - x[2,t]) == 0 )

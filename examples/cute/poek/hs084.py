@@ -5,13 +5,12 @@ import poek as pk
 
 
 model = pk.model()
+
 N = list(range(1,6))
 M = list(range(1,22))
 
-# LOAD DATA
-l = Param(N)
-u = Param(N)
-a = Param(M)
+data = pk.util.load_data('hs084.json')
+l,u,a = data.unpack('l','u','a')
 
 x_init={}
 x_init[1] = 2.52

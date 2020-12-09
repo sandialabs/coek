@@ -1,7 +1,7 @@
 import sys
-from pyutilib.misc import Options
 import poek as pk
 try:
+    from pyutilib.misc import Options
     from pyomo.core.expr.visitor import _EvaluationVisitor
     from pyomo.core.expr.numvalue import nonpyomo_leaf_types, value
     from pyomo.core.base import _ObjectiveData, Constraint, Objective

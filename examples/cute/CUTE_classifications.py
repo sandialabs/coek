@@ -21,33 +21,6 @@ if sys.version_info[0] == 3:
     baseline_skipped_models.append('aug3dcqp')
 
 baseline_skipped_models.append('hubfit')    # POEK does not support IF logic
-baseline_skipped_models.append('hs117')     # Needs to have data imported
-baseline_skipped_models.append('hs119')     # Needs to have data imported
-baseline_skipped_models.append('hs105')     # Needs to have data imported
-baseline_skipped_models.append('hs057')     # Needs to have data imported
-baseline_skipped_models.append('hs070')     # Needs to have data imported
-baseline_skipped_models.append('hs088')     # Needs to have data imported
-baseline_skipped_models.append('hs089')     # Needs to have data imported
-baseline_skipped_models.append('hs090')     # Needs to have data imported
-baseline_skipped_models.append('hs091')     # Needs to have data imported
-baseline_skipped_models.append('hs092')     # Needs to have data imported
-baseline_skipped_models.append('hs083')     # Needs to have data imported
-baseline_skipped_models.append('hs084')     # Needs to have data imported
-baseline_skipped_models.append('fccu')     # Needs to have data imported
-baseline_skipped_models.append('errinros')     # Needs to have data imported
-baseline_skipped_models.append('cresc50')     # Needs to have data imported
-baseline_skipped_models.append('cresc100')     # Needs to have data imported
-baseline_skipped_models.append('core1')     # Needs to have data imported
-baseline_skipped_models.append('coolhans')     # Needs to have data imported
-baseline_skipped_models.append('chnrosnb')     # Needs to have data imported
-baseline_skipped_models.append('bard')     # Needs to have data imported
-baseline_skipped_models.append('avgasb')     # Needs to have data imported
-baseline_skipped_models.append('avgasa')     # Needs to have data imported
-baseline_skipped_models.append('aircrftb')     # Needs to have data imported
-baseline_skipped_models.append('hart6')     # Needs to have data imported
-baseline_skipped_models.append('brainpc1')     # Needs to have data imported
-baseline_skipped_models.append('brainpc0')     # Needs to have data imported
-baseline_skipped_models.append('airport')     # Needs to have data imported
 
 # Smoke Models ( poek construct time < 0.5s )
 smoke_models.extend([\
@@ -83,7 +56,7 @@ smoke_models.extend([\
 'gausselm','genhs28','genhumps','genrose','gilbert','goffin','gottfr','gouldqp2','gouldqp3','growth','growthls','gulf','hairy','haldmads','harkerp2'])
 
 asl_skipped_models.append('hs087')         # uses Piecewise (naming scheme is different)
-asl_skipped_models.append('coolhans')      # AMPL does not eleminate Var*0 from expressions in NL file
+#asl_skipped_models.append('coolhans')      # AMPL does not eleminate Var*0 from expressions in NL file
 
 baseline_skipped_models.extend([])
 
@@ -104,11 +77,11 @@ moderate_models.extend([\
 'liswet1','liarwhd','liswet2',\
 'liswet12','liswet10','liswet5','liswet4','liswet3'])
 
-asl_skipped_models.append('hs085')         # AMPL model uses "substitution" vars exposing an ASL bug
+#asl_skipped_models.append('hs085')         # AMPL model uses "substitution" vars exposing an ASL bug
                                            # therefore we can't compare the models through asl (yet)
-asl_skipped_models.append('brainpc0')      # unexplained differences with AMPL
-asl_skipped_models.append('haldmads')      # AMPL does not reclassify a nonlinear constraint that becomes linear
-asl_skipped_models.append('djtl')          # unexplained differences with AMPL
+#asl_skipped_models.append('brainpc0')      # unexplained differences with AMPL
+#asl_skipped_models.append('haldmads')      # AMPL does not reclassify a nonlinear constraint that becomes linear
+#asl_skipped_models.append('djtl')          # unexplained differences with AMPL
 
 baseline_skipped_models.extend([])
 
