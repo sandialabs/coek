@@ -17,7 +17,7 @@
 # Python support for clang might not be available for Python3. We need to
 # find what we have.
 #
-find_library(LibClang_LIBRARY libclang.so PATH_SUFFIXES $ENV{CONDA_PREFIX}/lib x86_64-linux-gnu)
+find_library(LibClang_LIBRARY libclang.so PATH_SUFFIXES $ENV{CONDA_PREFIX}/lib x86_64-linux-gnu llvm llvm/6/lib64 llvm-6.0/lib)
 function(_find_libclang_python python_executable)
     #
     # Prefer python3 explicitly or implicitly over python2.
@@ -49,7 +49,7 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibClang REQUIRED_VARS  LibClang_LIBRARY LibCl
 
 find_program(CLANG_EXE clang++)
 EXECUTE_PROCESS( COMMAND ${CLANG_EXE} --version OUTPUT_VARIABLE clang_full_version_string )
-string (REGEX REPLACE ".*clang version ([0-9]+\\.[0-9]+\\.[0-9]+).*" "\\1" CLANG_VERSION_STRING ${clang_full_version_string})
+string (REGEX REPLACE ".*clang version ([0-9]+\\.[0-9]+\\.[0-9]+).*" "\\1" CLANG_VERSION_STRING "${clang_full_version_string}")
 
 set(CLANG_VERSION_STRING ${CLANG_VERSION_STRING} PARENT_SCOPE)
 
