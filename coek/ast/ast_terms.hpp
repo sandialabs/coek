@@ -190,7 +190,7 @@ public:
 
 public:
 
-    int index;
+    unsigned int index;
     double value;
     double lb;
     double ub;
@@ -289,7 +289,7 @@ public:
 
 public:
 
-    int index;
+    unsigned int index;
     expr_pointer_t lower;
     expr_pointer_t body;
     expr_pointer_t upper;
@@ -398,7 +398,7 @@ public:
 
     expr_pointer_t body;
     bool sense;
-    int index;
+    unsigned int index;
 
 public:
 
@@ -428,7 +428,7 @@ public:
 
     virtual unsigned int num_expressions() const = 0;
 
-    virtual expr_pointer_t expression(unsigned int) = 0;
+    virtual expr_pointer_t expression(size_t) = 0;
 };
 
 //
@@ -448,7 +448,7 @@ public:
 
     unsigned int num_expressions() const
         {return 1;}
-    expr_pointer_t expression(unsigned int)
+    expr_pointer_t expression(size_t)
         {return body;}
 };
 
@@ -470,7 +470,7 @@ public:
 
     unsigned int num_expressions() const
         {return 2;}
-    expr_pointer_t expression(unsigned int i)
+    expr_pointer_t expression(size_t i)
         {
         if (i == 0)
             return lhs;
@@ -497,7 +497,7 @@ public:
     unsigned int num_expressions() const
         {return n;}
 
-    expr_pointer_t expression(unsigned int i)
+    expr_pointer_t expression(size_t i)
         { return (*data)[i]; }
 };
 

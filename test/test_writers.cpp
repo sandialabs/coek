@@ -293,6 +293,58 @@ REQUIRE( coek::env.check_memory() == true );
 #endif
 }
 
+#ifdef WITH_FMTLIB
+TEST_CASE( "fmtlp_writer", "[smoke]" ) {
+
+  SECTION( "error1" ) {
+    coek::Model model;
+    //error1(model);
+    //REQUIRE_THROWS_WITH(model.write("error1.lp"),
+    //    "Error writing LP file: Unexpected variable encountered in a model expression");
+    }
+
+  SECTION( "small1" ) {
+    coek::Model model;
+    small1(model);
+    model.write("small1.fmtlp");
+    }
+
+  SECTION( "small2" ) {
+    coek::Model model;
+    small2(model);
+    model.write("small2.fmtlp");
+    }
+
+  SECTION( "small3" ) {
+    coek::Model model;
+    small3(model);
+    model.write("small3.fmtlp");
+    }
+
+  SECTION( "small4" ) {
+    coek::Model model;
+    small4(model);
+    model.write("small4.fmtlp");
+    }
+
+  SECTION( "small8" ) {
+    coek::Model model;
+    small8(model);
+    model.write("small8.fmtlp");
+    }
+
+  SECTION( "testing1" ) {
+    coek::Model model;
+    testing1(model);
+    model.write("testing1.fmtlp");
+    }
+
+#ifdef DEBUG
+REQUIRE( coek::env.check_memory() == true );
+#endif
+}
+#endif
+
 TEST_CASE( "nl_writer", "[smoke]" ) {
 
   SECTION( "error1" ) {
@@ -378,3 +430,91 @@ TEST_CASE( "nl_writer", "[smoke]" ) {
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
+
+#ifdef WITH_FMTLIB
+TEST_CASE( "fmtnl_writer", "[smoke]" ) {
+
+  SECTION( "error1" ) {
+    coek::Model model;
+    error1(model);
+    REQUIRE_THROWS_WITH(model.write("error1.fmtnl"),
+        "Model expressions contain variables that are not declared in the model.");
+    }
+
+  SECTION( "small1" ) {
+    coek::Model model;
+    small1(model);
+    model.write("small1.fmtnl");
+    }
+
+  SECTION( "small2" ) {
+    coek::Model model;
+    small2(model);
+    model.write("small2.fmtnl");
+    }
+
+  SECTION( "small3" ) {
+    coek::Model model;
+    small3(model);
+    model.write("small3.fmtnl");
+    }
+
+  SECTION( "small4" ) {
+    coek::Model model;
+    small4(model);
+    model.write("small4.fmtnl");
+    }
+
+  SECTION( "small5" ) {
+    coek::Model model;
+    small5(model);
+    model.write("small5.fmtnl");
+    }
+
+  SECTION( "small6" ) {
+    coek::Model model;
+    small6(model);
+    model.write("small6.fmtnl");
+    }
+
+  SECTION( "small7" ) {
+    coek::Model model;
+    small7(model);
+    model.write("small7.fmtnl");
+    }
+
+  SECTION( "small8" ) {
+    coek::Model model;
+    small8(model);
+    model.write("small8.fmtnl");
+    }
+
+  SECTION( "small9" ) {
+    coek::Model model;
+    small9(model);
+    model.write("small9.fmtnl");
+    }
+
+  SECTION( "small13" ) {
+    coek::Model model;
+    small13(model);
+    model.write("small13.fmtnl");
+    }
+
+  SECTION( "small14" ) {
+    coek::Model model;
+    small14(model);
+    model.write("small14.fmtnl");
+    }
+
+  SECTION( "testing1" ) {
+    coek::Model model;
+    testing1(model);
+    model.write("testing1.fmtnl");
+    }
+
+#ifdef DEBUG
+REQUIRE( coek::env.check_memory() == true );
+#endif
+}
+#endif

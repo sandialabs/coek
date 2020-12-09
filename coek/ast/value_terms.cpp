@@ -46,7 +46,7 @@ return CREATE_POINTER(IndexParameterTerm, name);
 // VariableTerm
 //
 
-int VariableTerm::count = 0;
+unsigned int VariableTerm::count = 0;
 
 VariableTerm::VariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _indexed)
     : value(_value),
@@ -90,7 +90,7 @@ MonomialTerm::~MonomialTerm()
 DISOWN_POINTER(var);
 }
 
-expr_pointer_t MonomialTerm::negate(const expr_pointer_t& repn)
+expr_pointer_t MonomialTerm::negate(const expr_pointer_t& )
 {
 // SHARED_PTR
 //return std::static_pointer_cast<BaseExpressionTerm>( std::make_shared<MonomialTerm>(-1*coef, var) );

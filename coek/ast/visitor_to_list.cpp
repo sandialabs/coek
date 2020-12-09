@@ -270,7 +270,7 @@ arg.rhs->accept(*this);
 repr.push_back( "]" );
 }
 
-void ToListVisitor::visit(SumExpressionTerm& arg)
+void ToListVisitor::visit(SumExpressionTerm& )
 {
 repr.push_back( "[" );
 repr.push_back( "Sum" );

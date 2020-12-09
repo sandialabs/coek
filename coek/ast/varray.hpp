@@ -56,36 +56,36 @@ class VariableArray
 {
 private:
 
-    void initialize(int n, double lb, double ub, double init,
+    void initialize(size_t n, double lb, double ub, double init,
                 bool binary, bool integer, bool fixed);
 
 public:
 
     std::vector<Variable> variables;
     std::string name;
-    std::map<std::vector<int>,int> index_map;
-    std::vector<int> dimen;
-    std::vector<int> order;
+    std::map<std::vector<size_t>,size_t> index_map;
+    std::vector<size_t> dimen;
+    std::vector<size_t> order;
 
 public:
 
-    VariableArray(std::vector<int>& _dimen, std::string _name, double lb, double ub, double init,
+    VariableArray(std::vector<size_t>& _dimen, std::string _name, double lb, double ub, double init,
                 bool binary, bool integer, bool fixed);
-    VariableArray(int n, std::string _name, double lb, double ub, double init,
+    VariableArray(size_t n, std::string _name, double lb, double ub, double init,
                 bool binary, bool integer, bool fixed);
 
-    Variable& operator[](int i)
+    Variable& operator[](size_t i)
         { return variables[i]; }
 
-    Variable& get(int i)
+    Variable& get(size_t i)
         { return variables[i]; }
 
-    Variable& get(std::vector<int>& index)
+    Variable& get(std::vector<size_t>& index)
         { return variables[index_map[index]]; }
 
     std::string get_name();
 
-    typedef MapKeyIterator<std::map<std::vector<int>,int> > map_key_t;
+    typedef MapKeyIterator<std::map<std::vector<size_t>,size_t> > map_key_t;
     typedef VecKeyIterator<std::vector<Variable> > vec_key_t;
     map_key_t indexed_begin() const { return map_key_t(index_map.cbegin()); }
     map_key_t indexed_end() const { return map_key_t(index_map.cend()); }

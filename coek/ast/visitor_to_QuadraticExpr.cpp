@@ -52,7 +52,9 @@ void visit(ParameterTerm& expr, QuadraticExpr& repn, double multiplier)
 repn.constval += multiplier * expr.value;
 }
 
-void visit(IndexParameterTerm& expr, QuadraticExpr& repn, double multiplier)
+void visit(IndexParameterTerm& /*expr*/, 
+           QuadraticExpr& /*repn*/, 
+           double /*multiplier*/)
 {
 throw std::runtime_error("Unexpected index parameter.");
 }
@@ -71,7 +73,9 @@ else {
     }
 }
 
-void visit(VariableRefTerm& expr, QuadraticExpr& repn, double multiplier)
+void visit(VariableRefTerm& /*expr*/,
+           QuadraticExpr& /*repn*/,
+           double /*multiplier*/)
 {
 throw std::runtime_error("Unexpected variable reference.");
 }
@@ -255,7 +259,7 @@ if ((body_repn.linear_coefs.size() + body_repn.quadratic_coefs.size()) > 0)\
 repn.constval += multiplier * ::FN(body_repn.constval);\
 }
 
-UNARY_VISITOR(AbsTerm, abs)
+UNARY_VISITOR(AbsTerm, fabs)
 UNARY_VISITOR(CeilTerm, ceil)
 UNARY_VISITOR(FloorTerm, floor)
 UNARY_VISITOR(ExpTerm, exp)

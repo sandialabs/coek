@@ -31,11 +31,9 @@ public:
         {}
 
     void visit(ParameterTerm& arg)
-        {
-        params.insert(&arg);
-        }
+        { params.insert(&arg); }
 
-    void visit(IndexParameterTerm& arg)
+    void visit(IndexParameterTerm& )
         {}
 
     void visit(VariableTerm& arg)
@@ -44,7 +42,7 @@ public:
         else            vars.insert(&arg);
         }
 
-    void visit(VariableRefTerm& arg)
+    void visit(VariableRefTerm& )
         {
         throw std::runtime_error("Attempting to find variables in an abstract expression!");
         }

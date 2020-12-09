@@ -13,13 +13,13 @@ class ObjectiveTerm : public BaseExpressionTerm
 {
 public:
 
-    static int count;
+    static unsigned int count;
 
 public:
 
     expr_pointer_t body;
     bool sense;
-    int index;
+    unsigned int index;
 
 public:
 

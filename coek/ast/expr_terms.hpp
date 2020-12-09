@@ -19,9 +19,9 @@ public:
     bool is_expression() const
         {return true;}
 
-    virtual unsigned int num_expressions() const = 0;
+    virtual size_t num_expressions() const = 0;
 
-    virtual expr_pointer_t expression(unsigned int) = 0;
+    virtual expr_pointer_t expression(size_t) = 0;
 };
 
 //
@@ -39,9 +39,9 @@ public:
     UnaryTerm(const expr_pointer_t& repn);
     ~UnaryTerm();
 
-    unsigned int num_expressions() const
+    size_t num_expressions() const
         {return 1;}
-    expr_pointer_t expression(unsigned int)
+    expr_pointer_t expression(size_t)
         {return body;}
 };
 
@@ -61,9 +61,9 @@ public:
     BinaryTerm(const expr_pointer_t& _lhs, const expr_pointer_t& _rhs);
     ~BinaryTerm();
 
-    unsigned int num_expressions() const
+    size_t num_expressions() const
         {return 2;}
-    expr_pointer_t expression(unsigned int i)
+    expr_pointer_t expression(size_t i)
         {
         if (i == 0)
             return lhs;
@@ -77,7 +77,7 @@ public:
 
     typedef std::vector<expr_pointer_t> shared_t;
     std::shared_ptr<shared_t> data;
-    unsigned int n;
+    size_t n;
 
     ~NAryPrefixTerm();
 
@@ -87,10 +87,10 @@ public:
 
     void push_back(const expr_pointer_t& rhs);
 
-    unsigned int num_expressions() const
+    size_t num_expressions() const
         {return n;}
 
-    expr_pointer_t expression(unsigned int i)
+    expr_pointer_t expression(size_t i)
         { return (*data)[i]; }
 };
 

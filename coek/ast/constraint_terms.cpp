@@ -1,3 +1,4 @@
+#include "base_terms.hpp"
 #include "constraint_terms.hpp"
 
 
@@ -7,7 +8,7 @@ namespace coek {
 // ConstraintTerm
 //
 
-int ConstraintTerm::count = 0;
+unsigned int ConstraintTerm::count = 0;
 
 ConstraintTerm::ConstraintTerm()
     : lower(0), body(0), upper(0)

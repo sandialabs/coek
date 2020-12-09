@@ -93,7 +93,7 @@ public:
 
     std::shared_ptr<SetIteratorRepnBase<std::vector<set_types>>> begin_NDiterator()
         { throw std::runtime_error("Cannot create an iterator for a SetRef"); }
-    std::shared_ptr<SetIteratorRepnBase<std::vector<set_types>>> begin_NDiterator(const IndexParameter& index)
+    std::shared_ptr<SetIteratorRepnBase<std::vector<set_types>>> begin_NDiterator(const IndexParameter& /*index*/)
         { throw std::runtime_error("Cannot create an iterator for a SetRef"); }
     std::shared_ptr<SetIteratorRepnBase<std::vector<set_types>>> end_NDiterator()
         { throw std::runtime_error("Cannot create an iterator for a SetRef"); }
@@ -117,11 +117,11 @@ public:
 
     std::shared_ptr<BaseSetExpression> set_product(const std::shared_ptr<BaseSetExpression>& lhs, const std::shared_ptr<BaseSetExpression>& rhs) const;
 
-    bool contains_any(const std::any& arg)
+    bool contains_any(const std::any& /*arg*/)
         { throw std::runtime_error("Cannot call contains_any() via a SetRef"); }
-    std::any value(size_t i)
+    std::any value(size_t /*i*/)
         { throw std::runtime_error("Cannot call value() via a SetRef"); }
-    void get_value(size_t i, set_types& arg, IndexParameter& index)
+    void get_value(size_t /*i*/, set_types& /*arg*/, IndexParameter& /*index*/)
         { throw std::runtime_error("Cannot call get_value() via a SetRef"); }
 };
 
@@ -817,6 +817,7 @@ public:
     TYPE start;
     TYPE stop;
     TYPE step;
+    // TODO - Integer tolerance?
     TYPE tolerance;
     size_t nelements;
 
@@ -966,7 +967,7 @@ public:
     std::shared_ptr<SetIteratorRepnBase<std::vector<set_types>>> begin_NDiterator(const std::vector<IndexParameter>& index);
     std::shared_ptr<SetIteratorRepnBase<std::vector<set_types>>> end_NDiterator();
 
-    virtual void add_unique(const std::vector<set_types>& arg)
+    virtual void add_unique(const std::vector<set_types>& )
         { throw std::runtime_error("Cannot add a value to a simple product set."); }
 
     unsigned int dim()

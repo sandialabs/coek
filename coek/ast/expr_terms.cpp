@@ -90,9 +90,7 @@ else {
     }
 }
 
-PlusTerm::PlusTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs, bool dummy)
-{
-initialize(lhs, rhs);
-}
+PlusTerm::PlusTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs, bool )
+{ initialize(lhs, rhs); }
 
 }

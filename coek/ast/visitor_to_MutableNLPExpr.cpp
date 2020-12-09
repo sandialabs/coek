@@ -51,9 +51,9 @@ else
 repn.mutable_values=true;
 }
 
-void visit(IndexParameterTerm& expr,
-                    MutableNLPExpr& repn,
-                    double multiplier)
+void visit(IndexParameterTerm& /*expr*/,
+                    MutableNLPExpr& /*repn*/,
+                    double /*multiplier*/)
 {
 throw std::runtime_error("Unexpected index parameter.");
 }
@@ -83,9 +83,9 @@ else {
     }
 }
 
-void visit(VariableRefTerm& expr,
-                    MutableNLPExpr& repn,
-                    double multiplier)
+void visit(VariableRefTerm& /*expr*/,
+                    MutableNLPExpr& /*repn*/,
+                    double /*multiplier*/)
 {
 throw std::runtime_error("Unexpected variable reference.");
 }

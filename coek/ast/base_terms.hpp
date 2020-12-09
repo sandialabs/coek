@@ -6,7 +6,6 @@
 #include "visitor.hpp"
 #if defined(DEBUG)
 #define WITH_AST_ENV
-#include "ast_constraint.hpp"
 #endif
 
 namespace coek {
@@ -110,6 +109,12 @@ public:
 
 
 #ifdef WITH_AST_ENV
+}
+#include "constraint_terms.hpp"
+
+namespace coek {
+
+//
 // GCOVR_EXCL_START
 class ASTEnvironment
 {

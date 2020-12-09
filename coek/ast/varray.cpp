@@ -11,28 +11,28 @@ class IndexedVariableTerm : public VariableTerm
 {
 public:
 
-    int varray_index;
+    size_t varray_index;
     VariableArray* varray;
 
 public:
 
-    IndexedVariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _fixed, int _i, VariableArray* _varray)
+    IndexedVariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _fixed, size_t _i, VariableArray* _varray)
         : VariableTerm(_lb, _ub, _value, _binary, _integer)
         { varray_index=_i; varray=_varray; fixed=_fixed; }
 
     std::string get_name();
 };
 
-void initialize_index_map(std::vector<int>& dimen, std::vector<int>& tmp, std::size_t curr, std::size_t& ctr, std::map<std::vector<int>,int>& index_map)
+void initialize_index_map(std::vector<size_t>& dimen, std::vector<size_t>& tmp, std::size_t curr, std::size_t& ctr, std::map<std::vector<size_t>,size_t>& index_map)
 {
 if (curr == (dimen.size()-1)) {
-    for (int i=0; i<dimen[curr]; i++) {
+    for (size_t i=0; i<dimen[curr]; i++) {
         tmp[curr] = i;
         index_map[tmp] = ctr++;
         }
     }
 else {
-    for (int i=0; i<dimen[curr]; i++) {
+    for (size_t i=0; i<dimen[curr]; i++) {
         tmp[curr] = i;
         initialize_index_map(dimen, tmp, curr+1, ctr, index_map);
         }
@@ -50,9 +50,9 @@ if (varray->order.size() == 0) {
     }
 else {
     std::string index_str;
-    int total=varray_index;
+    size_t total=varray_index;
     for (std::size_t i=0; i<varray->order.size(); i++) {
-        int val= total / varray->order[i];
+        size_t val= total / varray->order[i];
         total -= val*varray->order[i];
         if (i>0)
             index_str += ", ";
@@ -66,14 +66,13 @@ else {
 }
 
 
-VariableArray::VariableArray(std::vector<int>& _dimen, std::string _name, double init, double lb, double ub, 
-                bool binary, bool integer, bool fixed)
+VariableArray::VariableArray(std::vector<size_t>& _dimen, std::string _name, double init, double lb, double ub, bool binary, bool integer, bool fixed)
 {
 dimen = _dimen;
 //
 //  Initialize variable array
 //
-int n=1;
+size_t n=1;
 for (auto it=dimen.begin(); it != dimen.end(); ++it)
     n *= *it;
 name = _name;
@@ -81,29 +80,30 @@ initialize(n, init, lb, ub, binary, integer, fixed);
 //
 //  Initialize index_map
 //
-std::vector<int> tmp(dimen.size());
+std::vector<size_t> tmp(dimen.size());
 std::size_t ctr=0;
 local::initialize_index_map(dimen, tmp, 0, ctr, index_map);
 //
 //  Compute index order
 //
 order.resize(dimen.size());
-int i=dimen.size()-1;
-int oval = 1;
-while (i >= 0) {
+size_t i=dimen.size()-1;
+size_t oval = 1;
+while (i > 0) {
     order[i] = oval;
     oval *= dimen[i--];
     }
+order[i] = oval;
 }
 
-VariableArray::VariableArray(int n, std::string _name, double lb, double ub, double init,
+VariableArray::VariableArray(size_t n, std::string _name, double lb, double ub, double init,
                 bool binary, bool integer, bool fixed)
 {
 initialize(n, lb, ub, init, binary, integer, fixed);
 name = _name;
 }
 
-void VariableArray::initialize(int n, double lb, double ub, double init,
+void VariableArray::initialize(size_t n, double lb, double ub, double init,
             bool binary, bool integer, bool fixed)
 {
 if (std::isnan(lb))
@@ -112,7 +112,7 @@ if (std::isnan(ub))
     ub = COEK_INFINITY;
 
 variables.resize(n);
-for (int i=0; i<n; i++) {
+for (size_t i=0; i<n; i++) {
     auto tmp = CREATE_POINTER(local::IndexedVariableTerm, lb, ub, init, binary, integer, fixed, i, this);
     tmp->index = ++VariableTerm::count;
     variables[i] = Variable(tmp);
