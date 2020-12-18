@@ -142,10 +142,12 @@ endif()
 INSTALL(TARGETS coek
         DESTINATION lib
        )
-INSTALL(FILES
+if(with_fmtlib)
+    INSTALL(FILES
         ../third_party/fmtlib/install/lib64/libfmt.a
         DESTINATION lib
        )
+endif()
 INSTALL(FILES
         coek.hpp 
         coek_model.hpp
