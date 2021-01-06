@@ -90,7 +90,7 @@ public:
     double get_suffix(const std::string& name);
 
     void write(std::string filename);
-    void write(std::string filename, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
+    void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
     void print_equations() const;
     void print_values() const;
     void print_equations(std::ostream& ostr) const;
@@ -126,7 +126,7 @@ public:
     Model expand();
 
     void write(std::string filename);
-    void write(std::string filename, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
+    void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
 };
 
 
@@ -205,7 +205,7 @@ public:
     void get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol);
 
     void write(std::string filename);
-    void write(std::string filename, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
+    void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
     void print_equations() const;
     void print_values() const;
     void print_equations(std::ostream& ostr) const;

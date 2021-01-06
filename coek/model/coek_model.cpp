@@ -162,28 +162,28 @@ static bool endsWith(const std::string& str, const std::string& suffix)
     return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
 }
 
-void write_lp_problem(Model& model, std::string& fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
-void write_lp_problem(CompactModel& model, std::string& fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
-void write_nl_problem(Model& model, std::string& fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
+void write_lp_problem(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_nl_problem(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 
-void write_lp_problem_ostream(Model& model, std::string& fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
-void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
-void write_nl_problem_ostream(Model& model, std::string& fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
+void write_lp_problem_ostream(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_nl_problem_ostream(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 #ifdef WITH_FMTLIB
-void write_lp_problem_fmtlib(Model& model, std::string& fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
-void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
-void write_nl_problem_fmtlib(Model& model, std::string& fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
+void write_lp_problem_fmtlib(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_nl_problem_fmtlib(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 #endif
 
 
 void Model::write(std::string fname)
 {
-std::map<unsigned int,unsigned int> varmap;
-std::map<unsigned int,unsigned int> conmap;
+std::map<int,int> varmap;
+std::map<int,int> conmap;
 write(fname, varmap, conmap);
 }
 
-void Model::write(std::string fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap)
+void Model::write(std::string fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 {
 if (endsWith(fname, ".lp")) {
     write_lp_problem(*this, fname, varmap, conmap);
@@ -330,12 +330,12 @@ return model;
 
 void CompactModel::write(std::string fname)
 {
-std::map<unsigned int,unsigned int> varmap;
-std::map<unsigned int,unsigned int> conmap;
+std::map<int,int> varmap;
+std::map<int,int> conmap;
 write(fname, varmap, conmap);
 }
 
-void CompactModel::write(std::string fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap)
+void CompactModel::write(std::string fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 {
 if (endsWith(fname, ".lp")) {
     write_lp_problem(*this, fname, varmap, conmap);
@@ -515,12 +515,12 @@ void NLPModel::write(std::string fname)
 {
 if (repn == 0)
     throw std::runtime_error("Calling write() for uninitialized NLPModel.");
-std::map<unsigned int,unsigned int> varmap;
-std::map<unsigned int,unsigned int> conmap;
+std::map<int,int> varmap;
+std::map<int,int> conmap;
 repn->model.write(fname, varmap, conmap);
 }
 
-void NLPModel::write(std::string fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap)
+void NLPModel::write(std::string fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 {
 if (repn == 0)
     throw std::runtime_error("Calling write() for uninitialized NLPModel.");

@@ -281,7 +281,7 @@ if (objective and (fabs(cval) > EPSILON)) {
 
 // TODO - Reorder constraints to have nonlinear before linear
 // TODO - Reorder variables per the AMPL solver hookup logic
-void write_nl_problem_ostream(Model& model, std::string& fname, std::map<unsigned int,unsigned int>& invvarmap, std::map<unsigned int,unsigned int>& invconmap)
+void write_nl_problem_ostream(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 {
 if (model.repn->objectives.size() == 0) {
     std::cerr << "Error writing NL file: No objectives specified!" << std::endl;
@@ -974,7 +974,7 @@ if (objective and (fabs(cval) > EPSILON)) {
 
 // TODO - Reorder constraints to have nonlinear before linear
 // TODO - Reorder variables per the AMPL solver hookup logic
-void write_nl_problem_fmtlib(Model& model, std::string& fname, std::map<unsigned int,unsigned int>& invvarmap, std::map<unsigned int,unsigned int>& invconmap)
+void write_nl_problem_fmtlib(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 {
 CALI_CXX_MARK_FUNCTION;
 
@@ -1502,11 +1502,11 @@ ostr.close();
 }
 
 
-void write_nl_problem(Model& model, std::string& fname, std::map<unsigned int,unsigned int>& invvarmap, std::map<unsigned int,unsigned int>& invconmap)
+void write_nl_problem(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 { write_nl_problem_fmtlib(model, fname, invvarmap, invconmap); }
 #else
 
-void write_nl_problem(Model& model, std::string& fname, std::map<unsigned int,unsigned int>& invvarmap, std::map<unsigned int,unsigned int>& invconmap)
+void write_nl_problem(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 { write_nl_problem_ostream(model, fname, invvarmap, invconmap); }
 #endif
 
