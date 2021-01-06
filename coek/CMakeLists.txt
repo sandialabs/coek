@@ -142,7 +142,25 @@ endif()
 INSTALL(TARGETS coek
         DESTINATION lib
        )
-INSTALL(FILES coek_model.hpp coek_expr.hpp coek_sets.hpp coek_indexed.hpp
-        DESTINATION include
+INSTALL(FILES coek.hpp
+        DESTINATION include/coek
        )
+INSTALL(FILES 
+            api/expression.hpp
+            api/expression_visitor.hpp
+            api/intrinsic_fn.hpp
+            api/objective.hpp
+            api/constraint.hpp
+        DESTINATION include/coek/api
+       )
+INSTALL(FILES 
+            compact/coek_sets.hpp
+            compact/coek_indexed.hpp
+            compact/sequence_context.hpp
+            compact/expression_sequence.hpp
+            compact/objective_sequence.hpp
+            compact/constraint_sequence.hpp
+        DESTINATION include/coek/compact
+       )
+
 
