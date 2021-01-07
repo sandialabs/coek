@@ -560,9 +560,13 @@ return ostr;
 
 void Solver::initialize(std::string name)
 {
-std::shared_ptr<SolverRepn> tmp(create_solver(name));
-repn = tmp;
+SolverRepn* tmp = create_solver(name);
+if (tmp)
+    repn = std::shared_ptr<SolverRepn>(tmp);
 }
+
+bool Solver::available() const
+{ return repn.use_count() > 0; }
 
 int Solver::solve(Model& model)
 { return repn->solve(model); }

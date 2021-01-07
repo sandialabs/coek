@@ -5,8 +5,8 @@
 #include <variant>
 #include <unordered_map>
 
-#include "compact/coek_sets.hpp"
-#include "compact/coek_indexed.hpp"
+#include <coek/compact/coek_sets.hpp>
+#include <coek/compact/coek_indexed.hpp>
 
 //#include "coek/api/constraint.hpp"
 //#include "coek/api/objective.hpp"
@@ -144,6 +144,8 @@ public:
         {initialize(solver);}
 
     void initialize(std::string solver);
+
+    bool available() const;
 
     int solve(Model& model);
     int solve(CompactModel& model);
