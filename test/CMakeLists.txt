@@ -29,7 +29,7 @@ endif()
 # fmtlib LIBRARY
 if(with_fmtlib)
   include_directories(BEFORE ${FMTLIB_INCLUDE_DIR})
-  LINK_DIRECTORIES(${FMTLIB_LIBRARY_DIR})
+  #LINK_DIRECTORIES(${FMTLIB_LIBRARY_DIR})
 endif()
 
 # CppAD LIBRARY
