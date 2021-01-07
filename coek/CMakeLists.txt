@@ -143,6 +143,7 @@ INSTALL(TARGETS coek
         DESTINATION lib
        )
 INSTALL(FILES coek.hpp
+              coek_model.hpp
         DESTINATION include/coek
        )
 INSTALL(FILES 
@@ -151,6 +152,7 @@ INSTALL(FILES
             api/intrinsic_fn.hpp
             api/objective.hpp
             api/constraint.hpp
+            api/constants.hpp
         DESTINATION include/coek/api
        )
 INSTALL(FILES 
