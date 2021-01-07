@@ -22,6 +22,9 @@ list(APPEND LIB_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}
     )
 
+if(${with_fmtlib})
+  list(APPEND OPT_LINK_LIBRARIES fmt)
+endif()
 if(${with_gurobi})
   LINK_DIRECTORIES($ENV{GUROBI_HOME}/lib)
   list(APPEND OPT_LINK_LIBRARIES gurobi_g++5.2 gurobi90)
