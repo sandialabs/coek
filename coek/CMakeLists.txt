@@ -142,6 +142,11 @@ endif()
 INSTALL(TARGETS coek
         DESTINATION lib
        )
+if (${with_fmtlib})
+INSTALL(TARGETS fmt
+        DESTINATION lib
+       )
+endif()
 INSTALL(FILES coek.hpp
               coek_model.hpp
         DESTINATION include/coek
