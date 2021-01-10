@@ -1,3 +1,6 @@
+#ifndef __coek_model_hpp
+#define __coek_model_hpp
+
 #pragma once
 
 #include <memory>
@@ -350,3 +353,5 @@ std::ostream& operator<<(std::ostream& ostr, const Model& arg);
 std::ostream& operator<<(std::ostream& ostr, const NLPModel& arg);
 
 }
+
+#endif
