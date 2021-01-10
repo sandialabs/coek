@@ -142,32 +142,32 @@ endif()
 INSTALL(TARGETS coek
         DESTINATION lib
        )
-if (${with_fmtlib})
-INSTALL(TARGETS fmt
+if(with_fmtlib)
+    INSTALL(FILES
+        ../third_party/fmtlib/install/lib64/libfmt.a
         DESTINATION lib
        )
 endif()
-INSTALL(FILES coek.hpp
-              coek_model.hpp
+INSTALL(FILES
+        coek.hpp 
+        coek_model.hpp
         DESTINATION include/coek
        )
-INSTALL(FILES 
-            api/expression.hpp
-            api/expression_visitor.hpp
-            api/intrinsic_fn.hpp
-            api/objective.hpp
-            api/constraint.hpp
-            api/constants.hpp
+INSTALL(FILES
+        api/expression.hpp
+        api/expression_visitor.hpp
+        api/intrinsic_fn.hpp
+        api/objective.hpp
+        api/constraint.hpp
+        api/constants.hpp
         DESTINATION include/coek/api
        )
-INSTALL(FILES 
-            compact/coek_sets.hpp
-            compact/coek_indexed.hpp
-            compact/sequence_context.hpp
-            compact/expression_sequence.hpp
-            compact/objective_sequence.hpp
-            compact/constraint_sequence.hpp
+INSTALL(FILES
+        compact/coek_sets.hpp
+        compact/coek_indexed.hpp
+        compact/sequence_context.hpp
+        compact/expression_sequence.hpp
+        compact/objective_sequence.hpp
+        compact/constraint_sequence.hpp
         DESTINATION include/coek/compact
        )
-
-
