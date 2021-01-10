@@ -170,3 +170,4 @@ INSTALL(FILES
         compact/objective_sequence.hpp
         compact/constraint_sequence.hpp
         DESTINATION include/coek/compact
+       )
