@@ -1,3 +1,6 @@
+#ifndef __coek_hpp
+#define __coek_hpp
+
 #pragma once
 
 #include "coek/api/expression.hpp"
@@ -13,3 +16,5 @@
 #include "coek/compact/objective_sequence.hpp"
 #include "coek/compact/constraint_sequence.hpp"
 #include "coek/coek_model.hpp"
+
+#endif

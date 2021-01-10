@@ -1,3 +1,6 @@
+#ifndef __coek_sets_hpp
+#define __coek_sets_hpp
+
 #pragma once
 
 #include <iostream>
@@ -269,3 +272,5 @@ ConcreteSet RangeSet(int start, int stop, int step=1);
 //ConcreteSet RangeSet(double start, double stop, double step=1.0);
 
 }
+
+#endif

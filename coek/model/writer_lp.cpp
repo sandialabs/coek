@@ -169,7 +169,7 @@ else {
 
 }
 
-void write_lp_problem_ostream(Model& model, std::string& fname, std::map<unsigned int,unsigned int>& invvarmap, std::map<unsigned int,unsigned int>& invconmap)
+void write_lp_problem_ostream(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 {
 std::ofstream ostr(fname);
 
@@ -268,7 +268,7 @@ ostr.close();
 }
 
 
-void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap)
+void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 {
 std::ofstream ostr(fname);
 
@@ -528,7 +528,7 @@ else {
 }
 
 
-void write_lp_problem_fmtlib(Model& model, std::string& fname, std::map<unsigned int,unsigned int>& invvarmap, std::map<unsigned int,unsigned int>& invconmap)
+void write_lp_problem_fmtlib(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 {
 auto ostr = fmt::output_file(fname, fmt::file::WRONLY | fmt::file::CREATE | FMT_POSIX(O_TRUNC));
 
@@ -627,7 +627,7 @@ ostr.close();
 }
 
 
-void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap)
+void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 {
 auto ostr = fmt::output_file(fname, fmt::file::WRONLY | fmt::file::CREATE | FMT_POSIX(O_TRUNC));
 
@@ -764,17 +764,17 @@ ostr.close();
 }
 
 
-void write_lp_problem(Model& model, std::string& fname, std::map<unsigned int,unsigned int>& invvarmap, std::map<unsigned int,unsigned int>& invconmap)
+void write_lp_problem(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 { write_lp_problem_fmtlib(model, fname, invvarmap, invconmap); }
 
-void write_lp_problem(CompactModel& model, std::string& fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap)
+void write_lp_problem(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 { write_lp_problem_fmtlib(model, fname, varmap, conmap); }
 #else
 
-void write_lp_problem(Model& model, std::string& fname, std::map<unsigned int,unsigned int>& invvarmap, std::map<unsigned int,unsigned int>& invconmap)
+void write_lp_problem(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 { write_lp_problem_ostream(model, fname, invvarmap, invconmap); }
 
-void write_lp_problem(CompactModel& model, std::string& fname, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap)
+void write_lp_problem(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 { write_lp_problem_ostream(model, fname, varmap, conmap); }
 #endif
 

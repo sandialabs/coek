@@ -1,3 +1,6 @@
+#ifndef __coek_model_hpp
+#define __coek_model_hpp
+
 #pragma once
 
 #include <memory>
@@ -5,8 +8,8 @@
 #include <variant>
 #include <unordered_map>
 
-#include "compact/coek_sets.hpp"
-#include "compact/coek_indexed.hpp"
+#include <coek/compact/coek_sets.hpp>
+#include <coek/compact/coek_indexed.hpp>
 
 //#include "coek/api/constraint.hpp"
 //#include "coek/api/objective.hpp"
@@ -90,7 +93,7 @@ public:
     double get_suffix(const std::string& name);
 
     void write(std::string filename);
-    void write(std::string filename, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
+    void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
     void print_equations() const;
     void print_values() const;
     void print_equations(std::ostream& ostr) const;
@@ -126,7 +129,7 @@ public:
     Model expand();
 
     void write(std::string filename);
-    void write(std::string filename, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
+    void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
 };
 
 
@@ -144,6 +147,8 @@ public:
         {initialize(solver);}
 
     void initialize(std::string solver);
+
+    bool available() const;
 
     int solve(Model& model);
     int solve(CompactModel& model);
@@ -205,7 +210,7 @@ public:
     void get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol);
 
     void write(std::string filename);
-    void write(std::string filename, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap);
+    void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
     void print_equations() const;
     void print_values() const;
     void print_equations(std::ostream& ostr) const;
@@ -348,3 +353,5 @@ std::ostream& operator<<(std::ostream& ostr, const Model& arg);
 std::ostream& operator<<(std::ostream& ostr, const NLPModel& arg);
 
 }
+
+#endif

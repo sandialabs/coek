@@ -196,3 +196,5 @@ def pythonize_coek_all(klass, name):
         klass._add_variable_vararray = klass.add_variable.__overload__('coek::VariableArray&')
         klass.add_variable = Model_add_variable
 
+    elif name == 'Solver':
+        klass.available = property(lambda self: self.available(), doc="A flag that indicates if the solver is available")

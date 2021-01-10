@@ -31,6 +31,10 @@ endif()
 if(${with_ipopt})
   TARGET_LINK_LIBRARIES(pycoek_pybind11 PUBLIC ipopt gfortran)
 endif()
+if(${with_fmtlib})
+  TARGET_LINK_LIBRARIES(pycoek_pybind11 PUBLIC fmt)
+endif()
+
 
 
 INSTALL(TARGETS pycoek_pybind11

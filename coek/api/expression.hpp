@@ -9,7 +9,7 @@
 #include <set>
 #include <memory>
 
-#include "coek/api/constants.hpp"
+#include <coek/api/constants.hpp>
 
 #define COEK_API_OPERATORS\
     Expression operator+(int arg) const;\

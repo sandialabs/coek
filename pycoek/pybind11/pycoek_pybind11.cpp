@@ -1168,6 +1168,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         .def(py::init<>())
         .def(py::init<std::string&>())
         .def("initialize", &coek::Solver::initialize)
+        .def_property_readonly("available", &coek::Solver::available)
         .def("solve", [](coek::Solver& s, coek::Model& m){return s.solve(m);})
         .def("solve", [](coek::Solver& s, coek::CompactModel& m){return s.solve(m);})
         .def("load", [](coek::Solver& s, coek::Model& m){return s.load(m);})
