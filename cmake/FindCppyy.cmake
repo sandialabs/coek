@@ -24,8 +24,7 @@
 #
 #
 
-get_filename_component(BACKEND_PREFIX "${CMAKE_CURRENT_LIST_FILE}" PATH)
-get_filename_component(BACKEND_PREFIX "${BACKEND_PREFIX}" PATH)
+get_filename_component(BACKEND_PREFIX "${CMAKE_PARENT_LIST_FILE}" PATH)
 if(BACKEND_PREFIX STREQUAL "/")
   set(BACKEND_PREFIX "")
 endif()
@@ -542,7 +541,7 @@ function(cppyy_add_bindings pkg pkg_version author author_email)
     #
     # Copy pure python code
     #
-    file(COPY ${CMAKE_SOURCE_DIR}/py/ DESTINATION ${pkg_dir}
+    file(COPY ${BACKEND_PREFIX}/py/ DESTINATION ${pkg_dir}
          USE_SOURCE_PERMISSIONS
          FILES_MATCHING PATTERN "*.py")
 
