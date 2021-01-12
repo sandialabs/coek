@@ -1046,7 +1046,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         .def("num_constraints", [](coek::Model& m){return m.repn->constraints.size();})
 
         .def("write", [](coek::Model& m, const std::string& s){m.write(s);})
-        .def("write", [](coek::Model& m, const std::string& s, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap){m.write(s,varmap,conmap);})
+        .def("write", [](coek::Model& m, const std::string& s, std::map<int,int>& varmap, std::map<int,int>& conmap){m.write(s,varmap,conmap);})
         .def("print_equations", [](coek::Model& m){m.print_equations();})
         .def("print_values", [](coek::Model& m){m.print_values();})
         ;
@@ -1157,7 +1157,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         .def("add_constraint", [](coek::CompactModel& m, const coek::Constraint& c, const coek::SequenceContext& context)
             {return m.add_constraint(c,context);})
 
-        .def("write", [](coek::CompactModel& m, const std::string& s, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap){m.write(s,varmap,conmap);})
+        .def("write", [](coek::CompactModel& m, const std::string& s, std::map<int,int>& varmap, std::map<int,int>& conmap){m.write(s,varmap,conmap);})
         .def("write", [](coek::CompactModel& m, const std::string& s){m.write(s);})
         ;
 
@@ -1227,7 +1227,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         //.def("compute_H", [](coek::NLPModel& m){return m.compute_f();})
         //.def("compute_J", [](coek::NLPModel& m){return m.compute_f();})
         .def("write", [](coek::NLPModel& m, const std::string& s){m.write(s);})
-        .def("write", [](coek::NLPModel& m, const std::string& s, std::map<unsigned int,unsigned int>& varmap, std::map<unsigned int,unsigned int>& conmap){m.write(s,varmap,conmap);})
+        .def("write", [](coek::NLPModel& m, const std::string& s, std::map<int,int>& varmap, std::map<int,int>& conmap){m.write(s,varmap,conmap);})
         ;
 
     //
