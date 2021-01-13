@@ -143,8 +143,7 @@ INSTALL(TARGETS coek
         DESTINATION lib
        )
 if(with_fmtlib)
-    INSTALL(FILES
-        ../third_party/fmtlib/install/lib64/libfmt.a
+    INSTALL(TARGETS fmt
         DESTINATION lib
        )
 endif()
