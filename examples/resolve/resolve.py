@@ -16,18 +16,18 @@ def baseline_test(N):
             A[n,m] = random.uniform(0.0, 1.0)
     b = [random.uniform(0.0, 1.0) for i in range(N)]
 
-    x = pk.variable(N, lb=0.0, initial=0.0)
-    model.use(x)
+    x = model.add_variable(N, lb=0.0, initial=0.0)
 
     # obj
-    model.add( pk.quicksum(c[m]*x[m] for m in range(N)), False )
+    model.add_objective( pk.quicksum(c[m]*x[m] for m in range(N)), False )
 
     # Ax <= b
     for n in range(N):
-        model.add( pk.quicksum(A[n,m]*x[m] for m in range(N)) <= b[n] )
+        model.add_constraint( pk.quicksum(A[n,m]*x[m] for m in range(N)) <= b[n] )
 
     opt = pk.solver('gurobi')
-    opt.solve(model)
+    if opt.available:
+        opt.solve(model)
     print("Solve: 0  Objective: "+str(model.get_objective().value))
 
 
@@ -41,25 +41,25 @@ def obj_test(N, nsolves):
             A[n,m] = random.uniform(0.0, 1.0)
     b = [random.uniform(0.0, 1.0) for i in range(N)]
 
-    x = pk.variable(N, lb=0.0, initial=0.0)
-    model.use(x)
+    x = model.add_variable(N, lb=0.0, initial=0.0)
 
     # obj
-    model.add( pk.quicksum(c[m]*x[m] for m in range(N)), False )
+    model.add_objective( pk.quicksum(c[m]*x[m] for m in range(N)), False )
 
     # Ax <= b
     for n in range(N):
-        model.add( pk.quicksum(A[n,m]*x[m] for m in range(N)) <= b[n] )
+        model.add_constraint( pk.quicksum(A[n,m]*x[m] for m in range(N)) <= b[n] )
 
     opt = pk.solver('gurobi')
-    opt.load(model)
+    if opt.available:
+        opt.load(model)
 
-    for i in range(nsolves):
-        opt.resolve()
-        print("Solve: " + str(i) + "  Objective: "+str(model.get_objective().value), flush=True)
-        for i in range(N):
-            c[i].value = random.uniform(0.0, 1.0)
-        print("")
+        for i in range(nsolves):
+            opt.resolve()
+            print("Solve: " + str(i) + "  Objective: "+str(model.get_objective().value), flush=True)
+            for i in range(N):
+                c[i].value = random.uniform(0.0, 1.0)
+            print("")
 
 
 def row_test(N, nsolves):
@@ -75,28 +75,28 @@ def row_test(N, nsolves):
             A[n,m] = random.uniform(0.0, 1.0)
     b = [random.uniform(0.0, 1.0) for i in range(N)]
 
-    x = pk.variable(N, lb=0.0, initial=0.0)
-    model.use(x)
+    x = model.add_variable(N, lb=0.0, initial=0.0)
 
     # obj
-    model.add( pk.quicksum(c[m]*x[m] for m in range(N)), False )
+    model.add_objective( pk.quicksum(c[m]*x[m] for m in range(N)), False )
 
     # Ax <= b
     for n in range(N):
         if n != k:
-            model.add( pk.quicksum(A[n,m]*x[m] for m in range(N)) <= b[n] )
+            model.add_constraint( pk.quicksum(A[n,m]*x[m] for m in range(N)) <= b[n] )
         else:
-            model.add( pk.quicksum(A_[m]*x[m] for m in range(N)) <= b[n] )
+            model.add_constraint( pk.quicksum(A_[m]*x[m] for m in range(N)) <= b[n] )
 
     opt = pk.solver('gurobi')
-    opt.load(model)
+    if opt.available:
+        opt.load(model)
 
-    for i in range(nsolves):
-        opt.resolve()
-        print("Solve: " + str(i) + "  Objective: "+str(model.get_objective().value), flush=True)
-        for j in range(N):
-            A_[j].value = random.uniform(0.0, 1.0)
-        print("")
+        for i in range(nsolves):
+            opt.resolve()
+            print("Solve: " + str(i) + "  Objective: "+str(model.get_objective().value), flush=True)
+            for j in range(N):
+                A_[j].value = random.uniform(0.0, 1.0)
+            print("")
 
 
 def col_test(N, nsolves):
@@ -112,15 +112,14 @@ def col_test(N, nsolves):
             A[n,m] = random.uniform(0.0, 1.0)
     b = [random.uniform(0.0, 1.0) for i in range(N)]
 
-    x = pk.variable(N, lb=0.0, initial=0.0)
-    model.use(x)
+    x = model.add_variable(N, lb=0.0, initial=0.0)
 
     # obj
-    model.add( pk.quicksum(c[m]*x[m] for m in range(N)), False )
+    model.add_objective( pk.quicksum(c[m]*x[m] for m in range(N)), False )
 
     # Ax <= b
     for n in range(N):
-        model.add( pk.quicksum(A[n,m]*x[m] if m != k else A_[n]*x[m] for m in range(N)) <= b[n] )
+        model.add_constraint( pk.quicksum(A[n,m]*x[m] if m != k else A_[n]*x[m] for m in range(N)) <= b[n] )
 
     opt = pk.solver('gurobi')
     opt.load(model)
@@ -148,25 +147,25 @@ def rhs_test(N, nsolves):
             A[n,m] = random.uniform(0.0, 1.0)
     b = [pk.parameter(random.uniform(0.0, 1.0)) for i in range(N)]
 
-    x = pk.variable(N, lb=0.0, initial=0.0)
-    model.use(x)
+    x = model.add_variable(N, lb=0.0, initial=0.0)
 
     # obj
-    model.add( pk.quicksum(c[m]*x[m] for m in range(N)), False )
+    model.add_objective( pk.quicksum(c[m]*x[m] for m in range(N)), False )
 
     # Ax <= b
     for n in range(N):
-        model.add( pk.quicksum(A[n,m]*x[m] for m in range(N)) <= b[n] )
+        model.add_constraint( pk.quicksum(A[n,m]*x[m] for m in range(N)) <= b[n] )
 
     opt = pk.solver('gurobi')
-    opt.load(model)
+    if opt.available:
+        opt.load(model)
 
-    for i in range(nsolves):
-        opt.resolve()
-        print("Solve: " + str(i) + "  Objective: "+str(model.get_objective().value), flush=True)
-        for i in range(N):
-            b[i].value = random.uniform(0.0, 1.0)
-        print("")
+        for i in range(nsolves):
+            opt.resolve()
+            print("Solve: " + str(i) + "  Objective: "+str(model.get_objective().value), flush=True)
+            for i in range(N):
+                b[i].value = random.uniform(0.0, 1.0)
+            print("")
 
 
 if __name__ == "__main__":
