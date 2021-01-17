@@ -37,8 +37,8 @@ for (auto it=pcache.begin(); it != pcache.end(); ++it) {
     }
 
 //#ifdef DEBUG
-std::cout << "Updated Fixed Variables: " << vupdates.size() << std::endl;
-std::cout << "Updated Parameters:      " << pupdates.size() << std::endl;
+std::cout << "Updated Fixed Variables: " << vupdates.size() << " Cache Size: " << vcache.size() << std::endl;
+std::cout << "Updated Parameters:      " << pupdates.size() << " Cache Size: " << pcache.size() << std::endl;
 //#endif
 }
 
