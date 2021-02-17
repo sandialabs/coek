@@ -5,7 +5,9 @@
 #include "objective_terms.hpp"
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
+#ifdef COEK_WITH_COMPACT_MODEL
 #include "compact_terms.hpp"
+#endif
 
 
 namespace coek {
@@ -27,7 +29,9 @@ public:
     void visit(ParameterTerm& arg);
     void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
+#ifdef COEK_WITH_COMPACT_MODEL
     void visit(VariableRefTerm& arg);
+#endif
     void visit(IndexedVariableTerm& arg);
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
@@ -92,6 +96,7 @@ else {
     }
 }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void WriteExprVisitor::visit(VariableRefTerm& arg)
 {
 bool first=true;
@@ -119,6 +124,7 @@ for (auto it=arg.indices.begin(); it != arg.indices.end(); ++it) {
     }
 ostr << ")";
 }
+#endif
 
 void WriteExprVisitor::visit(IndexedVariableTerm& arg)
 {

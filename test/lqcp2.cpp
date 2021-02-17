@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
   double a = 0.001;
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
   coek::CompactModel model;
 
   auto M = coek::RangeSet(0, m);
@@ -85,5 +86,6 @@ int main(int argc, char** argv) {
     }
 
   cout << "DONE" << endl << flush;
+#endif
   return 0;
 }

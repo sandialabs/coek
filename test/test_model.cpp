@@ -2823,6 +2823,7 @@ TEST_CASE( "model_constraint", "[smoke]" ) {
 coek::Variable v("v", 0.0, 1.0, 1.0, false, false);
 coek::Parameter p(0.0, "p");
 coek::IndexParameter P("P");
+P.set_value(0);
 coek::Expression f;
 
   SECTION( "lt-operator" ) {

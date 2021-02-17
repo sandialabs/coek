@@ -383,7 +383,7 @@ public:
     Expression& operator-=(double arg);
     /** Subtract a Parameter from the expression */
     Expression& operator-=(const Parameter& arg);
-    /** Subtract an IndexVariable from the expression */
+    /** Subtract an IndexParameter from the expression */
     Expression& operator-=(const IndexParameter& arg);
     /** Subtract a Variable from the expression */
     Expression& operator-=(const Variable& arg);

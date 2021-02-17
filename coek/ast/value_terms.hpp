@@ -72,23 +72,29 @@ class IndexParameterTerm : public BaseExpressionTerm
 public:
 
     std::string name;
-    std::variant<int, double, std::string> value;
+    int type;
+    double double_value;
+    int int_value;
+    std::string string_value;
 
     IndexParameterTerm(const std::string& _name, int refcount=0)
         : BaseExpressionTerm(refcount), name(_name)
-        {non_variable=true;}
+        {
+        non_variable=true;
+        type = 0;
+        }
 
     bool is_abstract_parameter() const
         {return true;}
 
-    double eval() const
-        {
-        if (auto ival = std::get_if<int>(&value))
-            return *ival;
-        if (auto dval = std::get_if<double>(&value))
-            return *dval;
-        throw std::runtime_error("Accessing the value of a non-numeric abstract parameter");
-        }
+    double eval() const;
+
+    void set_value(double value);
+    void set_value(int value);
+    void set_value(const std::string& value);
+    void get_value(double& value);
+    void get_value(int& value);
+    void get_value(std::string& value);
 
     expr_pointer_t negate(const expr_pointer_t& repn);
 
@@ -169,7 +175,13 @@ public:
     IndexedVariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, unsigned int _vindex, void* _var)
         : VariableTerm(_lb, _ub, _value, _binary, _integer), var(_var), vindex(_vindex) {}
 
+    #if COEK_WITH_COMPACT_MODEL
+    // See coek_indexed.cpp
     virtual std::string get_name();
+    #else
+    virtual std::string get_name()
+        {return "Unknown";}
+    #endif
 
     void accept(Visitor& v)
         { v.visit(*this); }

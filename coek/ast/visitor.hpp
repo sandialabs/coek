@@ -7,7 +7,9 @@ namespace coek {
 
 class BaseExpressionTerm;
 class VariableTerm;
+#ifdef COEK_WITH_COMPACT_MODEL
 class VariableRefTerm;
+#endif
 class IndexedVariableTerm;
 class ConstantTerm;
 class ParameterTerm;
@@ -54,7 +56,9 @@ public:
     virtual void visit(ParameterTerm& arg) = 0;
     virtual void visit(IndexParameterTerm& arg) = 0;
     virtual void visit(VariableTerm& arg) = 0;
+#ifdef COEK_WITH_COMPACT_MODEL
     virtual void visit(VariableRefTerm& arg) = 0;
+#endif
     virtual void visit(IndexedVariableTerm& arg) = 0;
     virtual void visit(MonomialTerm& arg) = 0;
     virtual void visit(InequalityTerm& arg) = 0;

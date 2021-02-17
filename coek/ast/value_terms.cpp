@@ -42,6 +42,47 @@ expr_pointer_t create_abstract_parameter(const std::string& name)
 return CREATE_POINTER(IndexParameterTerm, name);
 }
 
+double IndexParameterTerm::eval() const
+{
+if (type == 0)
+   throw std::runtime_error("Accessing the value of an uninitialized abstract parameter");
+if (type == 1)
+    return double_value;
+if (type == 2)
+    return int_value;
+throw std::runtime_error("Accessing the value of a non-numeric abstract parameter: "+string_value);
+}
+
+void IndexParameterTerm::set_value(double value)
+{ type = 1; double_value = value; }
+
+void IndexParameterTerm::set_value(int value)
+{ type = 2; int_value = value; }
+
+void IndexParameterTerm::set_value(const std::string& value)
+{ type = 3; string_value = value; }
+
+void IndexParameterTerm::get_value(double& value)
+{
+if (type != 1)
+    throw std::runtime_error("No double value stored in index parameter.");
+value = double_value;
+}
+
+void IndexParameterTerm::get_value(int& value)
+{
+if (type != 2)
+    throw std::runtime_error("No integer value stored in index parameter.");
+value = int_value;
+}
+
+void IndexParameterTerm::get_value(std::string& value)
+{
+if (type != 3)
+    throw std::runtime_error("No string value stored in index parameter.");
+value = string_value;
+}
+
 //
 // VariableTerm
 //
@@ -74,6 +115,9 @@ expr_pointer_t VariableTerm::negate(const expr_pointer_t& repn)
 VariableTerm* var = dynamic_cast<VariableTerm*>(repn);
 return CREATE_POINTER(MonomialTerm, -1, var);
 }
+
+
+
 
 //
 // MonomialTerm

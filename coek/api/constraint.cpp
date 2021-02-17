@@ -9,7 +9,9 @@
 
 namespace coek {
 
+#ifdef COEK_WITH_COMPACT_MODEL
 ConstraintTerm* convert_con_template(ConstraintTerm* con);
+#endif
 
 
 //
@@ -88,7 +90,13 @@ return COEK_INFINITY;
 }
 
 Constraint Constraint::expand()
-{ return convert_con_template(repn); }
+{
+#ifdef COEK_WITH_COMPACT_MODEL
+return convert_con_template(repn);
+#else
+return repn;
+#endif
+}
 
 std::list<std::string> Constraint::to_list() const
 {

@@ -7,7 +7,9 @@
 #include "objective_terms.hpp"
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
+#ifdef COEK_WITH_COMPACT_MODEL
 #include "compact_terms.hpp"
+#endif
 
 #include "ast_operators.hpp"
 #include "coek/api/expression.hpp"
@@ -83,12 +85,14 @@ else {
     }
 }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void visit(VariableRefTerm& /*expr*/,
                     MutableNLPExpr& /*repn*/,
                     double /*multiplier*/)
 {
 throw std::runtime_error("Unexpected variable reference.");
 }
+#endif
 
 void visit(MonomialTerm& expr,
                     MutableNLPExpr& repn,
@@ -415,7 +419,9 @@ switch (expr->id()) {
     VISIT_CASE(IndexParameterTerm);
     VISIT_CASE(VariableTerm);
     VISIT_CASE(IndexedVariableTerm);
+#ifdef CoEK_WITH_COMPACT_MODEL
     VISIT_CASE(VariableRefTerm);
+#endif
     VISIT_CASE(MonomialTerm);
     VISIT_CASE(InequalityTerm);
     VISIT_CASE(EqualityTerm);

@@ -9,12 +9,15 @@
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
 
+#ifdef COEK_WITH_COMPACT_MODEL
 #include "coek/compact/coek_sets.hpp"
 #include "coek/compact/coek_indexed.hpp"
 #include "coek/compact/sequence_context.hpp"
 #include "coek/compact/expression_sequence.hpp"
 #include "coek/compact/objective_sequence.hpp"
 #include "coek/compact/constraint_sequence.hpp"
+#endif
+
 #include "coek/coek_model.hpp"
 
 #endif

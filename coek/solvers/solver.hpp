@@ -87,14 +87,16 @@ public:
         : SolverCache(), initial(true) {}
     virtual ~SolverRepn() {}
 
+    virtual int solve(Model& model) = 0;
     virtual void load(Model& model);
+
+#ifdef COEK_WITH_COMPACT_MODEL
+    virtual int solve(CompactModel& model);
     virtual void load(CompactModel& model);
+#endif
 
     virtual int resolve() = 0;
     virtual void reset();
-
-    virtual int solve(Model& model) = 0;
-    virtual int solve(CompactModel& model);
 
     bool initial_solve();
     void find_updated_coefs();

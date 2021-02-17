@@ -57,7 +57,9 @@ public:
     void visit(ParameterTerm& arg);
     void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
+#ifdef COEK_WITH_COMPACT_MODEL
     void visit(VariableRefTerm& arg);
+#endif
     void visit(IndexedVariableTerm& arg);
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
@@ -115,8 +117,10 @@ else
     ostr << "v" << varmap.at(arg.index) << '\n';
 }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void PrintExpr::visit(VariableRefTerm& )
 { throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
+#endif
 
 void PrintExpr::visit(IndexedVariableTerm& arg)
 { ostr << "v" << varmap.at(arg.index) << '\n'; }

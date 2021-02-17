@@ -3,13 +3,17 @@
 
 #pragma once
 
+#include <map>
 #include <memory>
 #include <vector>
-#include <variant>
 #include <unordered_map>
+#include <coek/api/constants.hpp>
 
+#ifdef COEK_WITH_COMPACT_MODEL
+#include <variant>
 #include <coek/compact/coek_sets.hpp>
 #include <coek/compact/coek_indexed.hpp>
+#endif
 
 //#include "coek/api/constraint.hpp"
 //#include "coek/api/objective.hpp"
@@ -77,7 +81,9 @@ public:
     Variable add_variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
     Variable add_variable(Variable& var);
     void add_variable(VariableArray& var);
+#ifdef COEK_WITH_COMPACT_MODEL
     void add_variable(ConcreteIndexedVariable& var);
+#endif
 
     Objective get_objective(unsigned int i=0);
     Constraint get_constraint(unsigned int i);
@@ -103,6 +109,7 @@ public:
 };
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 class CompactModel
 {
 public:
@@ -131,7 +138,7 @@ public:
     void write(std::string filename);
     void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
 };
-
+#endif
 
 class Solver
 {
@@ -151,10 +158,13 @@ public:
     bool available() const;
 
     int solve(Model& model);
-    int solve(CompactModel& model);
-
     void load(Model& model);
+
+    #ifdef COEK_WITH_COMPACT_MODEL
+    int solve(CompactModel& model);
     void load(CompactModel& model);
+    #endif
+
     int resolve();
     void reset();
 

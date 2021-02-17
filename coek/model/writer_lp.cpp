@@ -3,15 +3,6 @@
 #include <string>
 #include <fstream>
 
-#include "../ast/visitor_fns.hpp"
-#include "../ast/value_terms.hpp"
-#include "coek/api/expression.hpp"
-#include "coek/api/objective.hpp"
-#include "coek/api/constraint.hpp"
-#include "coek/api/expression_visitor.hpp"
-#include "coek/compact/objective_sequence.hpp"
-#include "coek/compact/constraint_sequence.hpp"
-#include "coek/coek_model.hpp"
 #ifdef WITH_CALIPER
 #include <caliper/cali.h>
 #else
@@ -22,6 +13,18 @@
 #ifdef WITH_FMTLIB
 #include <fmt/core.h>
 #include <fmt/os.h>
+#endif
+
+#include "../ast/visitor_fns.hpp"
+#include "../ast/value_terms.hpp"
+#include "coek/api/expression.hpp"
+#include "coek/api/objective.hpp"
+#include "coek/api/constraint.hpp"
+#include "coek/api/expression_visitor.hpp"
+#include "coek/coek_model.hpp"
+#ifdef COEK_WITH_COMPACT_MODEL
+#include "coek/compact/objective_sequence.hpp"
+#include "coek/compact/constraint_sequence.hpp"
 #endif
 
 namespace coek {
@@ -268,6 +271,7 @@ ostr.close();
 }
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 {
 std::ofstream ostr(fname);
@@ -403,6 +407,7 @@ if (ivars.size() > 0) {
 ostr << "\nend\n";
 ostr.close();
 }
+#endif
 
 
 #ifdef WITH_FMTLIB
@@ -627,6 +632,7 @@ ostr.close();
 }
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 {
 auto ostr = fmt::output_file(fname, fmt::file::WRONLY | fmt::file::CREATE | FMT_POSIX(O_TRUNC));
@@ -762,20 +768,24 @@ if (ivars.size() > 0) {
 ostr.print("\nend\n");      // << std::endl;
 ostr.close();
 }
-
+#endif
 
 void write_lp_problem(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 { write_lp_problem_fmtlib(model, fname, invvarmap, invconmap); }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void write_lp_problem(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 { write_lp_problem_fmtlib(model, fname, varmap, conmap); }
+#endif
 #else
 
 void write_lp_problem(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
 { write_lp_problem_ostream(model, fname, invvarmap, invconmap); }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void write_lp_problem(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 { write_lp_problem_ostream(model, fname, varmap, conmap); }
+#endif
 #endif
 
 }
