@@ -8,7 +8,9 @@
 #include "objective_terms.hpp"
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
+#ifdef COEK_WITH_COMPACT_MODEL
 #include "compact_terms.hpp"
+#endif
 
 #include "ast_operators.hpp"
 
@@ -39,7 +41,9 @@ public:
     void visit(ParameterTerm& arg);
     void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
+#ifdef COEK_WITH_COMPACT_MODEL
     void visit(VariableRefTerm& arg);
+#endif
     void visit(IndexedVariableTerm& arg);
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
@@ -86,6 +90,7 @@ void PartialVisitor::visit(IndexParameterTerm& )
 void PartialVisitor::visit(VariableTerm& )
 { partial = ONECONST; }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void PartialVisitor::visit(VariableRefTerm& )
 {
 //
@@ -95,6 +100,7 @@ void PartialVisitor::visit(VariableRefTerm& )
 //
 partial = ZEROCONST;
 }
+#endif
 
 void PartialVisitor::visit(IndexedVariableTerm& )
 { partial = ONECONST; }

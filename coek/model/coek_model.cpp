@@ -6,13 +6,15 @@
 
 #include "../ast/varray.hpp"
 #include "coek/api/objective.hpp"
-#include "coek/compact/objective_sequence.hpp"
-#include "coek/compact/constraint_sequence.hpp"
-#include "coek/compact/coek_exprterm.hpp"
 #include "coek/abstract/expr_rule.hpp"
 #include "coek/autograd/autograd.hpp"
 #include "coek/coek_model.hpp"
 #include "coek/solvers/solver.hpp"
+#ifdef COEK_WITH_COMPACT_MODEL
+#include "coek/compact/objective_sequence.hpp"
+#include "coek/compact/constraint_sequence.hpp"
+#include "coek/compact/coek_exprterm.hpp"
+#endif
 
 
 
@@ -111,6 +113,7 @@ for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
     }
 }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void Model::add_variable(ConcreteIndexedVariable& vars)
 {
 auto end = vars.end();
@@ -118,6 +121,7 @@ for (auto it=vars.begin(); it != end; ++it) {
     repn->variables.push_back(*it);
     }
 }
+#endif
 
 Objective Model::get_objective(unsigned int i)
 {
@@ -163,18 +167,22 @@ static bool endsWith(const std::string& str, const std::string& suffix)
 }
 
 void write_lp_problem(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
-void write_lp_problem(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 void write_nl_problem(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 
 void write_lp_problem_ostream(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
-void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 void write_nl_problem_ostream(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 #ifdef WITH_FMTLIB
 void write_lp_problem_fmtlib(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
-void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 void write_nl_problem_fmtlib(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 #endif
 
+#ifdef COEK_WITH_COMPACT_MODEL
+void write_lp_problem(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+#ifdef WITH_FMTLIB
+void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+#endif
+#endif
 
 void Model::write(std::string fname)
 {
@@ -227,6 +235,7 @@ throw std::runtime_error("Unknown problem type");
 // CompactModel
 //
 
+#ifdef COEK_WITH_COMPACT_MODEL
 Objective CompactModel::add_objective(const Expression& expr, bool _sense)
 {
 Objective obj(expr, _sense);
@@ -357,7 +366,7 @@ else if (endsWith(fname, ".fmtlp")) {
 Model model = expand();
 model.write(fname, varmap, conmap);
 }
-
+#endif
 
 //
 // NLPModel
@@ -571,14 +580,16 @@ bool Solver::available() const
 int Solver::solve(Model& model)
 { return repn->solve(model); }
 
-int Solver::solve(CompactModel& model)
-{ return repn->solve(model); }
-
 void Solver::load(Model& model)
 { repn->load(model); }
 
+#ifdef COEK_WITH_COMPACT_MODEL
+int Solver::solve(CompactModel& model)
+{ return repn->solve(model); }
+
 void Solver::load(CompactModel& model)
 { repn->load(model); }
+#endif
 
 int Solver::resolve()
 { return repn->resolve(); }

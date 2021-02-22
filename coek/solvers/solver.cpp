@@ -3,6 +3,7 @@
 #include "../ast/visitor_fns.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
+#include "coek/api/expression.hpp"
 #include "coek/coek_model.hpp"
 #include "testsolver.hpp"
 
@@ -171,6 +172,7 @@ std::cout << "# Mutable Expressions: " << nmutable << std::endl;
 }
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void SolverRepn::load(CompactModel& _model)
 {
 model = _model.expand();
@@ -183,6 +185,7 @@ int SolverRepn::solve(CompactModel& _model)
 model = _model.expand();
 return solve(model);
 }
+#endif
 
 
 bool SolverRepn::initial_solve()

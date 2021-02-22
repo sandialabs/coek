@@ -214,6 +214,7 @@ return 0;
 }
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 int GurobiSolver::solve(CompactModel& model)
 {
 std::cout << "STARTING GUROBI" << std::endl << std::flush;
@@ -337,6 +338,7 @@ env = 0;
 
 return 0;
 }
+#endif
 
 
 int GurobiSolver::resolve()

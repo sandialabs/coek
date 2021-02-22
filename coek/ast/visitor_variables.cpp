@@ -5,7 +5,9 @@
 #include "objective_terms.hpp"
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
+#ifdef COEK_WITH_COMPACT_MODEL
 #include "compact_terms.hpp"
+#endif
 
 
 namespace coek {
@@ -42,10 +44,12 @@ public:
         else            vars.insert(&arg);
         }
 
+#ifdef COEK_WITH_COMPACT_MODEL
     void visit(VariableRefTerm& )
         {
         throw std::runtime_error("Attempting to find variables in an abstract expression!");
         }
+#endif
 
     void visit(IndexedVariableTerm& arg)
         {

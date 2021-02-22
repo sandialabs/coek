@@ -9,7 +9,9 @@
 
 namespace coek {
 
+#ifdef COEK_WITH_COMPACT_MODEL
 expr_pointer_t convert_expr_template(expr_pointer_t expr);
+#endif
 
 
 //
@@ -118,58 +120,40 @@ return *this;
 void IndexParameter::set_value(double value)
 {
 if (repn)
-    repn->value = value;
+    repn->set_value(value);
 }
 
 void IndexParameter::set_value(int value)
 {
 if (repn)
-    repn->value = value;
+    repn->set_value(value);
 }
 
 void IndexParameter::set_value(const std::string& value)
 {
 if (repn)
-    repn->value = value;
+    repn->set_value(value);
 }
 
 void IndexParameter::get_value(double& value) const
 {
 if (!repn)
     throw std::runtime_error("No double value stored in index parameter.");
-
-if (auto pval = std::get_if<double>(&(repn->value))) {
-    value = *pval;
-}
-else {
-    throw std::runtime_error("No double value stored in index parameter.");
-    }
+repn->get_value(value);
 }
 
 void IndexParameter::get_value(int& value) const
 {
 if (!repn)
     throw std::runtime_error("No integer value stored in index parameter.");
-
-if (auto pval = std::get_if<int>(&(repn->value))) {
-    value = *pval;
-}
-else {
-    throw std::runtime_error("No integer value stored in index parameter.");
-    }
+repn->get_value(value);
 }
 
 void IndexParameter::get_value(std::string& value) const
 {
 if (!repn)
     throw std::runtime_error("No string value stored in index parameter.");
-
-if (auto pval = std::get_if<std::string>(&(repn->value))) {
-    value = *pval;
-}
-else {
-    throw std::runtime_error("No string value stored in index parameter.");
-    }
+repn->get_value(value);
 }
 
 std::string IndexParameter::get_name() const
@@ -384,7 +368,13 @@ return e;
 }
 
 Expression Expression::expand()
-{ return convert_expr_template(repn); }
+{
+#ifdef COEK_WITH_COMPACT_MODEL
+return convert_expr_template(repn);
+#else
+return *this;
+#endif
+}
 
 std::ostream& operator<<(std::ostream& ostr, const Expression& arg)
 {

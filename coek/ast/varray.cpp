@@ -7,7 +7,7 @@ namespace coek {
 
 namespace local {
 
-class IndexedVariableTerm : public VariableTerm
+class LocalIndexedVariableTerm : public VariableTerm
 {
 public:
 
@@ -16,7 +16,7 @@ public:
 
 public:
 
-    IndexedVariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _fixed, size_t _i, VariableArray* _varray)
+    LocalIndexedVariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _fixed, size_t _i, VariableArray* _varray)
         : VariableTerm(_lb, _ub, _value, _binary, _integer)
         { varray_index=_i; varray=_varray; fixed=_fixed; }
 
@@ -40,7 +40,7 @@ else {
 }
 
 
-std::string IndexedVariableTerm::get_name()
+std::string LocalIndexedVariableTerm::get_name()
 {
 if (varray->name == "")
     return get_simple_name();
@@ -113,7 +113,7 @@ if (std::isnan(ub))
 
 variables.resize(n);
 for (size_t i=0; i<n; i++) {
-    auto tmp = CREATE_POINTER(local::IndexedVariableTerm, lb, ub, init, binary, integer, fixed, i, this);
+    auto tmp = CREATE_POINTER(local::LocalIndexedVariableTerm, lb, ub, init, binary, integer, fixed, i, this);
     tmp->index = ++VariableTerm::count;
     variables[i] = Variable(tmp);
     }

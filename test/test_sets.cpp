@@ -3,6 +3,8 @@
 #include "coek/ast/base_terms.hpp"
 #include "coek/coek.hpp"
 
+#ifdef COEK_WITH_COMPACT_MODEL
+
 TEST_CASE( "simple_finite", "[smoke]" ) {
 
   SECTION( "setof_vector_int" ) {
@@ -1650,3 +1652,4 @@ TEST_CASE( "product_finite_operations", "[smoke]" ) {
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
+#endif

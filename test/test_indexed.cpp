@@ -97,8 +97,7 @@
 #endif
 
 
-void xxx() {}
-
+#ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE( "1D_indexed_var", "[smoke]" ) {
 
   SECTION( "int" ) {
@@ -1177,4 +1176,4 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
-
+#endif

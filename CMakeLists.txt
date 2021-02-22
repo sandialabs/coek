@@ -4,7 +4,6 @@ PROJECT(Coek
         VERSION 0.1
         DESCRIPTION "C++ Optimization Expression Kernels"
         )
-set(CMAKE_CXX_STANDARD 17)
 
 if(DEFINED ENV{CONDA_PREFIX})
     message(STATUS "Building in a conda environment.")
@@ -24,6 +23,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/third_party/pybind11/tools;${CMAKE_M
 ##################### Options #####################
 
 # Configuration options
+option(with_compact "Add support for compact expressions" OFF)
 option(with_tests "Build tests" OFF)
 option(with_examples "Build examples" OFF)
 option(with_debug "Debug build" OFF)
@@ -48,79 +48,41 @@ option(with_gurobi "Use the Gurobi solver" OFF)
 set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
 
 
-##################### Build Configurations #####################
-
-# define build type
-if(${with_gcov})
-  set(CMAKE_BUILD_TYPE debug)
-else()
-  set(CMAKE_BUILD_TYPE release)
-endif()
-if(${with_debug})
-  set(CMAKE_BUILD_TYPE debug)
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG")
-endif()
-if(${with_verbose})
-    set(CMAKE_VERBOSE_MAKEFILE ON)
-endif()
-if(${with_gprof})
-  set(CMAKE_CXX_FLAGS_RELEASE "-pg")
-  MESSAGE("-- With gprof: on")
-else()
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
-  MESSAGE("-- With gprof: off")
-endif()
-
-# docs
-if (with_docs)
-    MESSAGE("-- With Docs: on")
-else()
-    MESSAGE("-- With Docs: off")
-endif()
-
-# solvers
-if(with_ipopt)
-  list(APPEND solver_flags "-DWITH_IPOPT")
-  MESSAGE("-- With Ipopt Solver: on")
-else()
-  MESSAGE("-- With Ipopt Solver: off")
-endif()
-if(with_gurobi)
-  list(APPEND solver_flags "-DWITH_GUROBI")
-  MESSAGE("-- With Gurobi Solver: on")
-else()
-  MESSAGE("-- With Gurobi Solver: off")
-endif()
-
-
 ##################### Checks for compiler #####################
 
-# TODO: Verify these minimum requirements
-
 include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+if(with_compact)
+    CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+    set(CMAKE_CXX_STANDARD 17)
 
-if(COMPILER_SUPPORTS_CXX17)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+    if(COMPILER_SUPPORTS_CXX17)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+    else()
+      # TODO: Verify these minimum requirements
+      message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
+      if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.1)
+          message(FATAL_ERROR "CLANG version must be at least 3.1!")
+        endif()
+      elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.7)
+          message(FATAL_ERROR "GCC version must be at least 4.7!")
+        endif()
+      elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
+          message(FATAL_ERROR "ICC version must be at least 12.0!")
+        endif()
+      elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
+           message(FATAL_ERROR "MSVC version must be at least 12.0!")
+        endif()
+      endif()
+    endif()
+    MESSAGE("-- C++ version: C++17")
 else()
-  message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
-  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.1)
-      message(FATAL_ERROR "CLANG version must be at least 3.1!")
-    endif()
-  elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.7)
-      message(FATAL_ERROR "GCC version must be at least 4.7!")
-    endif()
-  elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
-      message(FATAL_ERROR "ICC version must be at least 12.0!")
-    endif()
-  elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
-       message(FATAL_ERROR "MSVC version must be at least 12.0!")
-    endif()
-  endif()
+    CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+    set(CMAKE_CXX_STANDARD 11)
+    MESSAGE("-- C++ version: C++11")
 endif()
 
 if (with_gcov)
@@ -148,11 +110,69 @@ else()
   MESSAGE("-- With Debug: off")
 endif()
 
+if(${with_gcov})
+  set(CMAKE_BUILD_TYPE debug)
+else()
+  set(CMAKE_BUILD_TYPE release)
+endif()
+if(${with_debug})
+  set(CMAKE_BUILD_TYPE debug)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG")
+endif()
+if(${with_verbose})
+    set(CMAKE_VERBOSE_MAKEFILE ON)
+endif()
+if(${with_gprof})
+  set(CMAKE_CXX_FLAGS_RELEASE "-pg")
+  MESSAGE("-- With gprof: on")
+else()
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
+  MESSAGE("-- With gprof: off")
+endif()
+
+
+##################### Other Config #####################
+
+# define build type
+if(with_compact)
+    MESSAGE("-- With Compact Models: on")
+    list(APPEND coek_compile_options "-DCOEK_WITH_COMPACT_MODEL")
+else()
+    MESSAGE("-- With Compact Models: off")
+endif()
+
 
 ##################### SubDirectories #####################
 
 # third_party
 add_subdirectory(third_party)
+
+
+##################### Solvers #####################
+
+# solvers
+if(with_ipopt)
+  list(APPEND solver_flags "-DWITH_IPOPT")
+  MESSAGE("-- With Ipopt Solver: on")
+else()
+  MESSAGE("-- With Ipopt Solver: off")
+endif()
+if(with_gurobi)
+  list(APPEND solver_flags "-DWITH_GUROBI")
+  MESSAGE("-- With Gurobi Solver: on")
+else()
+  MESSAGE("-- With Gurobi Solver: off")
+endif()
+
+# docs
+if (with_docs)
+    MESSAGE("-- With Docs: on")
+else()
+    MESSAGE("-- With Docs: off")
+endif()
+
+
+##################### SubDirectories #####################
 
 # coek
 add_subdirectory(coek)

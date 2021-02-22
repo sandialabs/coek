@@ -20,10 +20,11 @@ expr_pointer_t visit(SumExpressionTerm&);
 
 expr_pointer_t visit(IndexParameterTerm& arg)
 {
-if (auto pval = std::get_if<int>(&(arg.value)))
-    return CREATE_POINTER(ConstantTerm, *pval);
-else if (auto pval = std::get_if<double>(&(arg.value)))
-    return CREATE_POINTER(ConstantTerm, *pval);
+// TODO - embed this logic in the IndexParameterTerm class
+if (arg.type == 1)
+    return CREATE_POINTER(ConstantTerm, arg.double_value);
+else if (arg.type == 2)
+    return CREATE_POINTER(ConstantTerm, arg.int_value);
 else
     throw std::runtime_error("Unexpected index parameter in an expression being converted, with a non-numeric value.");
 }

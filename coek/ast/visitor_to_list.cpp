@@ -6,7 +6,9 @@
 #include "objective_terms.hpp"
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
+#ifdef COEK_WITH_COMPACT_MODEL
 #include "compact_terms.hpp"
+#endif
 
 
 std::ostream& operator<<(std::ostream& ostr, const std::list<std::string>& vals)
@@ -60,7 +62,9 @@ public:
     void visit(ParameterTerm& arg);
     void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
+#ifdef COEK_WITH_COMPACT_MODEL
     void visit(VariableRefTerm& arg);
+#endif
     void visit(IndexedVariableTerm& arg);
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
@@ -123,12 +127,14 @@ write_expr(&arg, sstr);
 repr.push_back( sstr.str() );
 }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void ToListVisitor::visit(VariableRefTerm& arg)
 {
 std::stringstream sstr;
 write_expr(&arg, sstr);
 repr.push_back( sstr.str() );
 }
+#endif
 
 void ToListVisitor::visit(IndexedVariableTerm& arg)
 {
