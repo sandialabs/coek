@@ -24,7 +24,7 @@ enable_testing()
 
 # runner
 add_executable(runner ${sources})
-TARGET_LINK_LIBRARIES(runner PUBLIC coek coekexamples Catch)
+TARGET_LINK_LIBRARIES(runner PUBLIC coek Catch ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(runner PUBLIC ${coek_compile_options})
 
 include(CTest)

@@ -742,7 +742,9 @@ public:
     void visit(ParameterTerm& arg);
     void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
+#ifdef COEK_WITH_COMPACT_MODEL
     void visit(VariableRefTerm& arg);
+#endif
     void visit(IndexedVariableTerm& arg);
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
@@ -802,8 +804,11 @@ else
     ostr.print("v{}\n", varmap.at(arg.index));  // << "v" << varmap.at(arg.index) << '\n';
 }
 
+
+#ifdef COEK_WITH_COMPACT_MODEL
 void PrintExprFmtlib::visit(VariableRefTerm& )
 { throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
+#endif
 
 void PrintExprFmtlib::visit(IndexedVariableTerm& arg)
 { ostr.print("v{}\n", varmap.at(arg.index)); }  // << "v" << varmap.at(arg.index) << '\n';
@@ -1150,9 +1155,9 @@ for (auto jt=model.repn->constraints.begin(); jt != model.repn->constraints.end(
 }
 CALI_MARK_END("Prepare Constraint Expressions");
 
-CALI_MARK_BEGIN("Misc NL");
 check_that_expression_variables_are_declared(model, vars);
 
+CALI_MARK_BEGIN("Misc NL");
 for (auto it=linear_vars.begin(); it != linear_vars.end(); ++it) {
     auto& var = varobj[*it];
     if (var.is_binary())
@@ -1188,12 +1193,13 @@ for (auto it=vars.begin(); it != vars.end(); ++it) {
     varmap[*it] = ctr;
     ++ctr;
     }
+CALI_MARK_END("Misc NL");
+
 if (vars.size() != varmap.size()) {
     std::cerr << "Error writing NL file: Variables with duplicate index values detected!" << std::endl;
     return;
     }
 }
-CALI_MARK_END("Misc NL");
 
 // Compute linear Jacobian and Gradient values
 CALI_MARK_BEGIN("Compute Jacobian/Gradient");
