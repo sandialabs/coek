@@ -48,56 +48,7 @@ option(with_gurobi "Use the Gurobi solver" OFF)
 set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
 
 
-##################### Build Configurations #####################
-
-# define build type
-if(with_compact)
-    list(APPEND coek_compile_options "-DCOEK_WITH_COMPACT_MODEL")
-endif()
-if(${with_gcov})
-  set(CMAKE_BUILD_TYPE debug)
-else()
-  set(CMAKE_BUILD_TYPE release)
-endif()
-if(${with_debug})
-  set(CMAKE_BUILD_TYPE debug)
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG")
-endif()
-if(${with_verbose})
-    set(CMAKE_VERBOSE_MAKEFILE ON)
-endif()
-if(${with_gprof})
-  set(CMAKE_CXX_FLAGS_RELEASE "-pg")
-  MESSAGE("-- With gprof: on")
-else()
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
-  MESSAGE("-- With gprof: off")
-endif()
-
-# docs
-if (with_docs)
-    MESSAGE("-- With Docs: on")
-else()
-    MESSAGE("-- With Docs: off")
-endif()
-
-# solvers
-if(with_ipopt)
-  list(APPEND solver_flags "-DWITH_IPOPT")
-  MESSAGE("-- With Ipopt Solver: on")
-else()
-  MESSAGE("-- With Ipopt Solver: off")
-endif()
-if(with_gurobi)
-  list(APPEND solver_flags "-DWITH_GUROBI")
-  MESSAGE("-- With Gurobi Solver: on")
-else()
-  MESSAGE("-- With Gurobi Solver: off")
-endif()
-
-
 ##################### Checks for compiler #####################
-
 
 include(CheckCXXCompilerFlag)
 if(with_compact)
@@ -159,11 +110,69 @@ else()
   MESSAGE("-- With Debug: off")
 endif()
 
+if(${with_gcov})
+  set(CMAKE_BUILD_TYPE debug)
+else()
+  set(CMAKE_BUILD_TYPE release)
+endif()
+if(${with_debug})
+  set(CMAKE_BUILD_TYPE debug)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG")
+endif()
+if(${with_verbose})
+    set(CMAKE_VERBOSE_MAKEFILE ON)
+endif()
+if(${with_gprof})
+  set(CMAKE_CXX_FLAGS_RELEASE "-pg")
+  MESSAGE("-- With gprof: on")
+else()
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
+  MESSAGE("-- With gprof: off")
+endif()
+
+
+##################### Other Config #####################
+
+# define build type
+if(with_compact)
+    MESSAGE("-- With Compact Models: on")
+    list(APPEND coek_compile_options "-DCOEK_WITH_COMPACT_MODEL")
+else()
+    MESSAGE("-- With Compact Models: off")
+endif()
+
 
 ##################### SubDirectories #####################
 
 # third_party
 add_subdirectory(third_party)
+
+
+##################### Solvers #####################
+
+# solvers
+if(with_ipopt)
+  list(APPEND solver_flags "-DWITH_IPOPT")
+  MESSAGE("-- With Ipopt Solver: on")
+else()
+  MESSAGE("-- With Ipopt Solver: off")
+endif()
+if(with_gurobi)
+  list(APPEND solver_flags "-DWITH_GUROBI")
+  MESSAGE("-- With Gurobi Solver: on")
+else()
+  MESSAGE("-- With Gurobi Solver: off")
+endif()
+
+# docs
+if (with_docs)
+    MESSAGE("-- With Docs: on")
+else()
+    MESSAGE("-- With Docs: off")
+endif()
+
+
+##################### SubDirectories #####################
 
 # coek
 add_subdirectory(coek)
