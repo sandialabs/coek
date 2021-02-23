@@ -123,6 +123,12 @@ for (auto it=vars.begin(); it != end; ++it) {
 }
 #endif
 
+size_t Model::num_objectives() const
+{ return repn->objectives.size(); }
+
+size_t Model::num_constraints() const
+{ return repn->constraints.size(); }
+
 Objective Model::get_objective(unsigned int i)
 {
 if (i > repn->objectives.size())

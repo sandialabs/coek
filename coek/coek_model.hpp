@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <string>
 #include <map>
 #include <memory>
 #include <vector>
@@ -85,6 +86,8 @@ public:
     void add_variable(ConcreteIndexedVariable& var);
 #endif
 
+    size_t num_objectives() const;
+    size_t num_constraints() const;
     Objective get_objective(unsigned int i=0);
     Constraint get_constraint(unsigned int i);
 
@@ -361,6 +364,9 @@ public:
 //
 std::ostream& operator<<(std::ostream& ostr, const Model& arg);
 std::ostream& operator<<(std::ostream& ostr, const NLPModel& arg);
+
+Model read_problem_from_jpof_file(const std::string& filename, std::map<int,int>& vmap);
+Model read_problem_from_jpof_string(const std::string& jpof, std::map<int,int>& vmap);
 
 }
 

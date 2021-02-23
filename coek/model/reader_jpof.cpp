@@ -20,6 +20,10 @@
 #include "coek/api/constraint.hpp"
 #include "coek/coek_model.hpp"
 
+#define RUNTIME_ASSERT(flag, msg)\
+if (not (flag))\
+    throw std::runtime_error(msg)
+
 
 namespace coek {
 
@@ -224,7 +228,7 @@ const rapidjson::Value& mdoc = doc["model"];
 //
 // Process variables
 //
-assert(mdoc["var"].IsArray());
+RUNTIME_ASSERT(mdoc["var"].IsArray(), "Missing 'var' in JPOF data");
 int ctr=0;
 for (auto& var : mdoc["var"].GetArray()) {
 
@@ -263,7 +267,7 @@ for (auto& var : mdoc["var"].GetArray()) {
     bool integer=false;
     if (var.HasMember("type")) {
         if (var["type"].IsString())
-            vtype = var["vtype"].GetString();
+            vtype = var["type"].GetString();
         else
             throw std::runtime_error("Error processing variable "+std::to_string(ctr)+": Non-string value for variable type");
         }
@@ -283,7 +287,7 @@ for (auto& var : mdoc["var"].GetArray()) {
     bool fixed=false;
     if (var.HasMember("fixed")) {
         if (var["fixed"].IsInt())
-            fixed = var["value"].GetInt();
+            fixed = var["fixed"].GetInt();
         else
             throw std::runtime_error("Error processing variable "+std::to_string(ctr)+": Non-integer value for variable fixed flag");
         }
@@ -297,7 +301,7 @@ for (auto& var : mdoc["var"].GetArray()) {
         if (var["id"].IsUint()) {
             int tmp = var["id"].GetUint();
             vmap[v.id()] = tmp;
-            jpof_vmap[tmp] = v;
+            jpof_vmap[tmp] = v;         // TODO - error check
             }
         else
             throw std::runtime_error("Error processing variable "+std::to_string(ctr)+": Variable id must be an unsigned integer");
@@ -307,12 +311,13 @@ for (auto& var : mdoc["var"].GetArray()) {
 
     ctr++;
     }
+RUNTIME_ASSERT(ctr > 0, "A JPOF problem must have one or more variables");
 
 //
 // Process mutable parameters
 //
 if (mdoc.HasMember("param")) {
-    assert(mdoc["param"].IsArray());
+    RUNTIME_ASSERT(mdoc["param"].IsArray(), "Missing 'param' in JPOF data");
     int ctr=0;
     for (auto& param : mdoc["param"].GetArray()) {
 
@@ -337,7 +342,7 @@ if (mdoc.HasMember("param")) {
 
         if (param.HasMember("id")) {
             if (param["id"].IsInt())
-                jpof_pmap[ param["id"].GetInt() ] = p;
+                jpof_pmap[ param["id"].GetInt() ] = p;      // TODO - error check
             else
                 throw std::runtime_error("Error processing parameter "+std::to_string(ctr)+": Non-integer value for parameter id");
             }
@@ -352,7 +357,7 @@ if (mdoc.HasMember("param")) {
 // Objective
 //
 if (mdoc.HasMember("obj")) {
-    assert(mdoc["obj"].IsArray());
+    RUNTIME_ASSERT(mdoc["obj"].IsArray(), "Missing 'obj' in JPOF data");
     int ctr=0;
     for (auto& obj : mdoc["obj"].GetArray()) {
 
@@ -396,7 +401,7 @@ if (mdoc.HasMember("obj")) {
 // Objective
 //
 if (mdoc.HasMember("con")) {
-    assert(mdoc["con"].IsArray());
+    RUNTIME_ASSERT(mdoc["con"].IsArray(), "Missing 'con' in JPOF data");
     int ctr=0;
     for (auto& con : mdoc["con"].GetArray()) {
 
@@ -459,19 +464,20 @@ if (mdoc.HasMember("con")) {
 Model create_model_from_dom(rapidjson::Document& d, std::map<int,int>& vmap)
 {
 // DOM sanity checks
-assert(d.IsObject());
-assert(d.HasMember("__metadata__"));
-assert(d["__metadata__"].IsObject());
-assert(d["__metadata__"].HasMember("version"));
-assert(d["__metadata__"]["version"].IsInt());
-assert(d["__metadata__"].HasMember("format"));
-assert(d["__metadata__"]["format"].IsString());
+RUNTIME_ASSERT(d.IsObject(), "JPOF data is not a valid JSON object");
+RUNTIME_ASSERT(d.HasMember("__metadata__"), "Missing '__metadata__' in JPOF data");
+RUNTIME_ASSERT(d["__metadata__"].IsObject(), "The '__metadata__' is not a valid JSON object");
+RUNTIME_ASSERT(d["__metadata__"].HasMember("version"), "Missing 'version' in JPOF data");
+RUNTIME_ASSERT(d["__metadata__"]["version"].IsInt(), "The 'version' is not an integer");
+RUNTIME_ASSERT(d["__metadata__"].HasMember("format"), "Missing 'format' in JPOF data");
+RUNTIME_ASSERT(d["__metadata__"]["format"].IsString(), "The 'format' is not a string");
 std::string format = d["__metadata__"]["format"].GetString();
-if (format != "JSON Parameterized Optimization Format")
+if (format != "JSON Parameterized Optimization Format (JPOF)")
     throw std::runtime_error("Unexpected JSON file format: "+format);
-assert(d.HasMember("model"));
+RUNTIME_ASSERT(d.HasMember("model"), "Missing 'model' in JPOF data");
+RUNTIME_ASSERT(d["model"].IsObject(), "The 'model' is not a valid JSON object");
 if (not d["model"].HasMember("var"))
-    throw std::runtime_error("JPOF model without \"var\" data: A JPOF model must contain variables");
+    throw std::runtime_error("JPOF model without 'var' data: A JPOF model must contain variables");
 
 // Process DOM data to populate a model
 Model model;
@@ -488,10 +494,12 @@ return model;
 }
 
 
-Model read_problem_from_file(std::string& fname, std::map<int,int>& vmap)
+Model read_problem_from_jpof_file(const std::string& fname, std::map<int,int>& vmap)
 {
 #ifdef WITH_RAPIDJSON
 FILE* fp = fopen(fname.c_str(), "r");
+if (!fp)
+    throw std::runtime_error("Unknown file: "+fname);
  
 char readBuffer[65536];
 rapidjson::FileReadStream is(fp, readBuffer, sizeof(readBuffer));
@@ -511,7 +519,7 @@ throw std::runtime_error("Must install RapidJSON to read a JPOF file.");
 #endif
 }
 
-Model read_problem_from_string(std::string& jpof, std::map<int,int>& vmap)
+Model read_problem_from_jpof_string(const std::string& jpof, std::map<int,int>& vmap)
 {
 #ifdef WITH_RAPIDJSON
 rapidjson::Document d;

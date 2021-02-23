@@ -10,6 +10,7 @@ SET(sources
     test_testsolver.cpp
     test_examples.cpp
     test_writers.cpp
+    test_readers.cpp
     test_sets.cpp
     test_indexed.cpp
    )
@@ -26,6 +27,7 @@ enable_testing()
 add_executable(runner ${sources})
 TARGET_LINK_LIBRARIES(runner PUBLIC coek Catch ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(runner PUBLIC ${coek_compile_options})
+target_compile_definitions(runner PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 
 include(CTest)
 include(Catch)
