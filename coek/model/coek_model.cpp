@@ -123,11 +123,21 @@ for (auto it=vars.begin(); it != end; ++it) {
 }
 #endif
 
+size_t Model::num_variables() const
+{ return repn->variables.size(); }
+
 size_t Model::num_objectives() const
 { return repn->objectives.size(); }
 
 size_t Model::num_constraints() const
 { return repn->constraints.size(); }
+
+Variable Model::get_variable(unsigned int i)
+{
+if (i > repn->variables.size())
+    throw std::out_of_range("Variable index " + std::to_string(i) + " is too large: " + std::to_string(repn->variables.size()) + "       variables available.");
+return repn->variables[i];
+}
 
 Objective Model::get_objective(unsigned int i)
 {

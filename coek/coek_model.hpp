@@ -86,8 +86,10 @@ public:
     void add_variable(ConcreteIndexedVariable& var);
 #endif
 
+    size_t num_variables() const;
     size_t num_objectives() const;
     size_t num_constraints() const;
+    Variable get_variable(unsigned int i);
     Objective get_objective(unsigned int i=0);
     Constraint get_constraint(unsigned int i);
 

@@ -93,6 +93,71 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
   SECTION( "small1" ) {
     std::map<int,int> vmap;
     auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small1.json", vmap);
+
+    REQUIRE( model.num_variables() == 2 );
+    REQUIRE( model.num_constraints() == 1 );
+    REQUIRE( model.num_objectives() == 1 );
+
+    auto v0 = model.get_variable(0);
+    REQUIRE( v0.get_name() == "x" );
+    REQUIRE( v0.get_value() == Approx(1.0) );
+    REQUIRE( v0.get_lb() == Approx(-COEK_INFINITY) );
+    REQUIRE( v0.get_ub() == Approx(COEK_INFINITY) );
+    REQUIRE( v0.get_fixed() == false );
+    REQUIRE( v0.is_continuous() );
+    auto v1 = model.get_variable(1);
+    REQUIRE( v1.get_name() == "y" );
+    REQUIRE( v1.get_value() == Approx(1.0) );
+    REQUIRE( v1.get_lb() == Approx(-COEK_INFINITY) );
+    REQUIRE( v1.get_ub() == Approx(COEK_INFINITY) );
+    REQUIRE( v1.get_fixed() == false );
+    REQUIRE( v1.is_continuous() );
+
+    auto obj = model.get_objective();
+    static std::list<std::string> obj_expr = {"[", "pow", "x", "2.000", "]"};
+    REQUIRE( obj.body().to_list() == obj_expr );
+
+    auto con = model.get_constraint(0);
+    static std::list<std::string> con_expr = {"[", "==", "[", "pow", "y", "2.000", "]", "4.000", "]"};
+    REQUIRE( con.to_list() == con_expr );
+    }
+
+  SECTION( "small2" ) {
+    std::map<int,int> vmap;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small2.json", vmap);
+
+    REQUIRE( model.num_variables() == 2 );
+    REQUIRE( model.num_constraints() == 1 );
+    REQUIRE( model.num_objectives() == 1 );
+
+    auto obj = model.get_objective();
+    static std::list<std::string> obj_expr = {"x"};
+    REQUIRE( obj.body().to_list() == obj_expr );
+    //REQUIRE( obj.get_name() == "OBJ" );
+
+    auto con = model.get_constraint(0);
+    static std::list<std::string> con_expr = {"[", "==", "[", "pow", "y", "2.000", "]", "4.000", "]"};
+    REQUIRE( con.to_list() == con_expr );
+    //REQUIRE( con.get_name() == "CON1" );
+    }
+
+  SECTION( "small3" ) {
+    std::map<int,int> vmap;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small3.json", vmap);
+
+    REQUIRE( model.num_variables() == 2 );
+    REQUIRE( model.num_constraints() == 1 );
+    REQUIRE( model.num_objectives() == 1 );
+
+    auto obj = model.get_objective();
+    static std::list<std::string> obj_expr = {"[", "*", "x", "y", "]"};
+    REQUIRE( obj.body().to_list() == obj_expr );
+    //REQUIRE( obj.get_name() == "OBJ" );
+
+    auto con = model.get_constraint(0);
+    static std::list<std::string> con_expr = {"[", "==", "[", "pow", "y", "2.000", "]", "4.000", "]"};
+    REQUIRE( con.to_list() == con_expr );
+    //REQUIRE( con.get_name() == "CON1" );
     }
 
 #ifdef DEBUG
