@@ -65,14 +65,13 @@ repn->value = value;
 }
 
 double Parameter::get_value() const
-{
-return repn->value;
-}
+{ return repn->value; }
 
 std::string Parameter::get_name() const
-{
-return repn->name;
-}
+{ return repn->name; }
+
+void Parameter::set_name(const std::string& name) 
+{ repn->name = name; }
 
 std::ostream& operator<<(std::ostream& ostr, const Parameter& arg)
 {
@@ -252,6 +251,9 @@ unsigned int Variable::id() const
 
 std::string Variable::get_name() const
 { return repn->get_name(); }
+
+void Variable::set_name(const std::string& name)
+{ repn->name = name; }
 
 bool Variable::is_continuous() const
 { return not (repn->binary or repn->integer); }

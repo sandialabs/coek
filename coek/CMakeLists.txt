@@ -26,6 +26,7 @@ SET(sources
     model/coek_model.cpp
     model/writer_lp.cpp
     model/writer_nl.cpp
+    model/reader_jpof.cpp
     solvers/solver.cpp
     solvers/testsolver.cpp
     autograd/autograd.cpp
@@ -63,6 +64,12 @@ if(with_fmtlib)
     list(APPEND coek_compile_options -DWITH_FMTLIB -Wextra -Wconversion -Wpedantic -Wsign-conversion)
     list(APPEND coek_link_libraries fmt)
     list(APPEND coek_include_directories ${FMTLIB_INCLUDE_DIR})
+endif()
+
+if(with_rapidjson)
+    include_directories(BEFORE ${RAPIDJSON_INCLUDE_DIR})
+    list(APPEND coek_compile_options -DWITH_RAPIDJSON)
+    list(APPEND coek_include_directories ${RAPIDJSON_INCLUDE_DIR})
 endif()
 
 # gcov
