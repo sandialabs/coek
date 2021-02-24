@@ -23,6 +23,8 @@
 namespace coek {
 
 class VariableArray;
+class Objective;
+class Variable;
 class Expression;
 class Constraint;
 //class ExpressionSeqIteratorRepn;

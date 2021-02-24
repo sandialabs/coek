@@ -25,7 +25,7 @@ enable_testing()
 
 # runner
 add_executable(runner ${sources})
-TARGET_LINK_LIBRARIES(runner PUBLIC coek Catch ${coek_link_libraries})
+TARGET_LINK_LIBRARIES(runner PUBLIC coek coekexamples Catch ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(runner PUBLIC ${coek_compile_options})
 target_compile_definitions(runner PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 
@@ -35,22 +35,22 @@ catch_discover_tests(runner)
 
 # lqcp
 add_executable(lqcp lqcp.cpp)
-TARGET_LINK_LIBRARIES(lqcp PUBLIC coek ${coek_link_libraries})
+TARGET_LINK_LIBRARIES(lqcp PUBLIC coek coekexamples ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(lqcp PUBLIC ${coek_compile_options})
 
 # lqcp2
 add_executable(lqcp2 lqcp2.cpp)
-TARGET_LINK_LIBRARIES(lqcp2 PUBLIC coek ${coek_link_libraries})
+TARGET_LINK_LIBRARIES(lqcp2 PUBLIC coek coekexamples ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(lqcp2 PUBLIC ${coek_compile_options})
 
 # rlqcp
 add_executable(rlqcp rlqcp.cpp)
-TARGET_LINK_LIBRARIES(rlqcp PUBLIC coek ${coek_link_libraries})
+TARGET_LINK_LIBRARIES(rlqcp PUBLIC coek coekexamples ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(rlqcp PUBLIC ${coek_compile_options})
 
 # resolve
 add_executable(resolve resolve.cpp)
-TARGET_LINK_LIBRARIES(resolve PUBLIC coek ${coek_link_libraries})
+TARGET_LINK_LIBRARIES(resolve PUBLIC coek coekexamples ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(resolve PUBLIC ${coek_compile_options})
 
 # demo1

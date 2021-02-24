@@ -15,15 +15,16 @@ const std::string currdir = COEK_TEST_DIR;
 int main(int argc, char** argv)
 {
 if (argc == 1) {
-    std::cout << "demo1 <n-solves>" << std::endl;
+    std::cout << "demo1 <jpof-file> <n-solves>" << std::endl;
     return 0;
     }
 
-int nsolves = atoi(argv[1]);    // Number of solvers
+char* filename = argv[1];       // Filename
+int nsolves = atoi(argv[2]);    // Number of solvers
 
 std::map<int,int> vmap;
 
-auto model = coek::read_problem_from_jpof_file(currdir+"jpof/dsrosen.jpof", vmap);
+auto model = coek::read_problem_from_jpof_file(currdir+"/jpof/"+filename, vmap);
 
 coek::NLPModel nlp(model, "cppad");
 coek::NLPSolver opt("ipopt");
@@ -32,7 +33,12 @@ opt.load(nlp);
 
 for (int i=0; i<nsolves; i++) {
     opt.resolve();
-    std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
+    std::cout << "Solve: " << 0 << std::endl;
+    std::cout << "Objective: " << nlp.compute_f() << std::endl;
+    std::cout << "Solution:" << std::endl;
+    for (size_t i=0; i<nlp.num_variables(); i++)
+        std::cout << "  " << i << "  " << nlp.get_variable(i).get_value() << std::endl;
+    std::cout << std::endl;
 
 /*
     for (int n=0; n<N; n++)

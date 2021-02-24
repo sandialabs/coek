@@ -128,7 +128,7 @@ if(with_gurobi)
     endif()
     list(APPEND coek_compile_options -DWITH_GUROBI)
     list(APPEND coek_link_libraries gurobi_g++5.2 gurobi90)
-    LINK_DIRECTORIES($ENV{GUROBI_HOME}/lib)
+    list(APPEND coek_link_directories $ENV{GUROBI_HOME}/lib)
 endif()
 
 #
@@ -145,7 +145,7 @@ if(with_ipopt)
     endif()
     list(APPEND coek_compile_options -DWITH_IPOPT)
     list(APPEND coek_link_libraries ipopt gfortran)
-    LINK_DIRECTORIES($ENV{IPOPT_HOME}/lib)
+    list(APPEND coek_link_directories $ENV{IPOPT_HOME}/lib)
 endif()
 
 #
