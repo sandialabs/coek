@@ -471,23 +471,43 @@ if (mdoc.HasMember("con")) {
                 throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Unexpected value for constraint eq");
             }
         else if (con.HasMember("geq") or con.HasMember("leq")) {
-            if (con.HasMember("geq") and not con["geq"].IsDouble())
-                throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Non-numeric value for constraint geq");
-            if (con.HasMember("leq") and not con["leq"].IsDouble())
-                throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Non-numeric value for constraint leq");
-            if (con.HasMember("geq") and con.HasMember("leq")) {
-                double lb = con["geq"].GetDouble();
-                double ub = con["leq"].GetDouble();
+            bool has_geq=false;
+            bool has_leq=false;
+            Expression lb;
+            Expression ub;
+
+            if (con.HasMember("geq")) {
+                if (con["geq"].IsDouble()) {
+                    has_geq=true;
+                    lb = Expression(con["geq"].GetDouble());
+                    }
+                else if (con["geq"].IsString()) {
+                    has_geq=true;
+                    lb = create_expression(con["geq"].GetString(), jpof_vmap, jpof_pmap);
+                    }
+                else
+                    throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Unexpected value for constraint geq");
+                }
+
+            if (con.HasMember("leq")) {
+                if (con["leq"].IsDouble()) {
+                    has_leq=true;
+                    ub = Expression(con["leq"].GetDouble());
+                    }
+                else if (con["leq"].IsString()) {
+                    has_leq=true;
+                    ub = create_expression(con["leq"].GetString(), jpof_vmap, jpof_pmap);
+                    }
+                else
+                    throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Unexpected value for constraint leq");
+                }
+
+            if (has_geq and has_leq)
                 c = inequality(lb, create_expression(expr, jpof_vmap, jpof_pmap), ub);
-                }
-            else if (con.HasMember("geq")) {
-                double lb = con["geq"].GetDouble();
+            else if (has_geq)
                 c = lb <= create_expression(expr, jpof_vmap, jpof_pmap);
-                }
-            else {
-                double ub = con["leq"].GetDouble();
+            else
                 c = create_expression(expr, jpof_vmap, jpof_pmap) <= ub;
-                }
             }
         else
             throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Must specify equality or inequality constraint values (eq, geq, leq)");

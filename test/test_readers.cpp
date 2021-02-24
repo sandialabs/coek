@@ -219,6 +219,24 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
   "]", "]", "]", "q", "]", "2.000", "]"}, "CON9");
     }
 
+  SECTION( "small5a" ) {
+    std::map<int,int> vmap;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small5a.json", vmap);
+
+    REQUIRE( model.num_variables() == 2 );
+    REQUIRE( model.num_constraints() == 3 );
+    REQUIRE( model.num_objectives() == 1 );
+
+    test_var(model, 0, "x", 0.0, 0, 1, false, "B");
+    test_var(model, 1, "y", 0.0, -COEK_INFINITY, COEK_INFINITY, false, "Z");
+
+    test_obj(model, 0, {"[", "min", "[", "*", "x", "y", "]", "]"}, "OBJ");
+
+    test_con(model, 0, {"[", "<=", "-Inf", "[", "+", "x", "y", "]", "[", "*", "2.000", "q", "]", "]"}, "CON1");
+    test_con(model, 1, {"[", "<=", "q", "[", "+", "x", "y", "]", "Inf", "]"}, "CON2");
+    test_con(model, 2, {"[", "<=", "q", "[", "+", "x", "y", "]", "[", "*", "2.000", "q", "]", "]"}, "CON3");
+    }
+
   SECTION( "small6" ) {
     std::map<int,int> vmap;
     auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small6.json", vmap);
@@ -415,6 +433,22 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     test_con(model, 16, {"[", "==", "[", "sqrt", "ONE", "]", "1.000", "]"}, "c_sqrt");
     test_con(model, 17, {"[", "==", "[", "tan", "ZERO", "]", "0.000", "]"}, "c_tan");
     test_con(model, 18, {"[", "==", "[", "tanh", "ZERO", "]", "0.000", "]"}, "c_tanh");
+    }
+
+  SECTION( "small15" ) {
+    std::map<int,int> vmap;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small15.json", vmap);
+
+    REQUIRE( model.num_variables() == 2 );
+    REQUIRE( model.num_constraints() == 1 );
+    REQUIRE( model.num_objectives() == 1 );
+
+    test_var(model, 0, "x", 1, -COEK_INFINITY, COEK_INFINITY, false, "R");
+    test_var(model, 1, "b.y", 1, -COEK_INFINITY, COEK_INFINITY, false, "R");
+
+    test_obj(model, 0, {"[", "min", "[", "pow", "x", "2.000", "]", "]"}, "OBJ");
+
+    test_con(model, 0, {"[", "==", "[", "pow", "b.y", "2.000", "]", "4.000", "]"}, "CON1");
     }
 
 #ifdef DEBUG
