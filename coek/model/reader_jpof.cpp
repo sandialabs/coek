@@ -41,6 +41,7 @@ std::map<std::string, Expression (*)(const Expression&)> unary_functions = {
         {"exp",exp},
         {"log",log},
         {"log10",log10},
+        {"sqrt",sqrt},
         {"sin",sin},
         {"cos",cos},
         {"tan",tan},
@@ -146,10 +147,10 @@ while (curr < tokens.size()) {
             nargs.push( 1 );
             }
         else if (op == "sum") {
-            curr++;
             int ival = stoi(tokens[curr]);          // TODO - error check
             nargs.push( ival );
             nargs.push( ival );
+            curr++;
             }
         else
             throw std::runtime_error("Error generating expression: token="+std::to_string(curr)+" op="+op);
@@ -157,10 +158,16 @@ while (curr < tokens.size()) {
     //
     // If we have completed an operator, create the expression
     //
-    if (nargs.top() == 0) {
+    // Keep iterating through completed operators, since we may
+    // be at the end of the expression.
+    //
+    while (nargs.top() == 0) {
         nargs.pop();
         int n = nargs.top(); // # of arguments to collect from the end of args
         nargs.pop();
+
+        if (estack.size() == 0)
+            break;
         std::string& op = tokens[estack.top()];
         estack.pop();
 
@@ -190,19 +197,41 @@ while (curr < tokens.size()) {
             else {
                 EType arg = args.top();
                 args.pop();
-                Expression e = unary_functions[op]( arg.as_expression() );
+                Expression e = unary_functions[op]( arg.as_expression() );      // ERROR CHECK
                 args.push(e);
                 }
             }
         else if (op == "sum") {
+#if 0
             // Process a sum operator
-            Expression e=0;
+            Expression e;
             for (int i=0; i<n; i++) {
                 EType arg = args.top();
                 args.pop();
-                e += arg.as_expression();
+                if (i == 0)             // Avoid having a zero in the expression
+                    e = arg.as_expression();
+                else                    // Keep things in order
+                    e = arg.as_expression() + e;
                 }
-            args.push(e);
+#else
+            if (n == 0) {
+                Expression e(0);
+                args.push(e);
+                }
+            else {
+                // Collect the arguments and then sum them in order
+                std::vector<Expression> arg(n);
+                for (int i=n-1; i>=0; i--) {
+                    EType a = args.top();
+                    args.pop();
+                    arg[i] = a.as_expression();
+                    }
+                Expression e = arg[0];
+                for (int i=1; i<n; i++)
+                    e += arg[i];
+                args.push(e);
+                }
+#endif
             }
         
         nargs.top()--;
@@ -354,7 +383,7 @@ if (mdoc.HasMember("param")) {
     }
 
 //
-// Objective
+// Objectives
 //
 if (mdoc.HasMember("obj")) {
     RUNTIME_ASSERT(mdoc["obj"].IsArray(), "Missing 'obj' in JPOF data");
@@ -394,11 +423,13 @@ if (mdoc.HasMember("obj")) {
             model.add_objective( create_expression(expr, jpof_vmap, jpof_pmap) );
         else
             model.add_objective( create_expression(expr, jpof_vmap, jpof_pmap), Model::maximize );
+
+        ctr++;
         }
     }
 
 //
-// Objective
+// Constraints
 //
 if (mdoc.HasMember("con")) {
     RUNTIME_ASSERT(mdoc["con"].IsArray(), "Missing 'con' in JPOF data");
@@ -431,31 +462,38 @@ if (mdoc.HasMember("con")) {
                 c = create_expression(expr, jpof_vmap, jpof_pmap) == con["eq"].GetInt();
             else if (con["eq"].IsDouble())
                 c = create_expression(expr, jpof_vmap, jpof_pmap) == con["eq"].GetDouble();
+            else if (con["eq"].IsString()) {
+                std::string eq = con["eq"].GetString();
+                auto rhs = create_expression(eq, jpof_vmap, jpof_pmap);
+                c = create_expression(expr, jpof_vmap, jpof_pmap) == rhs;
+                }
             else
-                throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Non-numeric value for constraint eq");
+                throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Unexpected value for constraint eq");
             }
-        else if (con.HasMember("lb") or con.HasMember("ub")) {
-            if (con.HasMember("lb") and not con["lb"].IsDouble())
-                throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Non-numeric value for constraint lb");
-            if (con.HasMember("ub") and not con["ub"].IsDouble())
-                throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Non-numeric value for constraint ub");
-            if (con.HasMember("lb") and con.HasMember("ub")) {
-                double lb = con["lb"].GetDouble();
-                double ub = con["ub"].GetDouble();
+        else if (con.HasMember("geq") or con.HasMember("leq")) {
+            if (con.HasMember("geq") and not con["geq"].IsDouble())
+                throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Non-numeric value for constraint geq");
+            if (con.HasMember("leq") and not con["leq"].IsDouble())
+                throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Non-numeric value for constraint leq");
+            if (con.HasMember("geq") and con.HasMember("leq")) {
+                double lb = con["geq"].GetDouble();
+                double ub = con["leq"].GetDouble();
                 c = inequality(lb, create_expression(expr, jpof_vmap, jpof_pmap), ub);
                 }
-            else if (con.HasMember("lb")) {
-                double lb = con["lb"].GetDouble();
+            else if (con.HasMember("geq")) {
+                double lb = con["geq"].GetDouble();
                 c = lb <= create_expression(expr, jpof_vmap, jpof_pmap);
                 }
             else {
-                double ub = con["ub"].GetDouble();
+                double ub = con["leq"].GetDouble();
                 c = create_expression(expr, jpof_vmap, jpof_pmap) <= ub;
                 }
             }
         else
-            throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Must specify equality or inequality constraint values (eq, lb, ub)");
+            throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Must specify equality or inequality constraint values (eq, geq, leq)");
         model.add_constraint(c);
+
+        ctr++;
         }
     }
 }
