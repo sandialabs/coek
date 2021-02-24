@@ -10,51 +10,51 @@ const std::string currdir = COEK_TEST_DIR;
 TEST_CASE( "jpof_reader_string", "[smoke]" ) {
 
   SECTION( "error1" ) {
-    std::map<int,int> vmap;
-    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("", vmap),
+    std::map<std::string,coek::Parameter> params;
+    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("", params),
         "Error parsing JPOF string (offset 0): The document is empty.");
-    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("1", vmap),
+    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("1", params),
         "JPOF data is not a valid JSON object");
-    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("{}", vmap),
+    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("{}", params),
         "Missing '__metadata__' in JPOF data");
-    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("{ \"__metadata__\":1 }", vmap),
+    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("{ \"__metadata__\":1 }", params),
         "The '__metadata__' is not a valid JSON object");
-    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("{ \"__metadata__\":{\"version\":1.5} }", vmap),
+    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("{ \"__metadata__\":{\"version\":1.5} }", params),
         "The 'version' is not an integer");
-    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("{ \"__metadata__\":{\"version\":1} }", vmap),
+    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("{ \"__metadata__\":{\"version\":1} }", params),
         "Missing 'format' in JPOF data");
-    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("{ \"__metadata__\":{\"version\":1, \"format\":1} }", vmap),
+    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("{ \"__metadata__\":{\"version\":1, \"format\":1} }", params),
         "The 'format' is not a string");
-    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("{ \"__metadata__\":{\"version\":1, \"format\":\"FORMAT\"} }", vmap),
+    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("{ \"__metadata__\":{\"version\":1, \"format\":\"FORMAT\"} }", params),
         "Unexpected JSON file format: FORMAT");
-    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("{ \"__metadata__\":{\"version\":1, \"format\":\"JSON Parameterized Optimization Format (JPOF)\"} }", vmap),
+    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string("{ \"__metadata__\":{\"version\":1, \"format\":\"JSON Parameterized Optimization Format (JPOF)\"} }", params),
         "Missing 'model' in JPOF data");
     REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string(
         "{ \"__metadata__\":{\"version\":1, \"format\":\"JSON Parameterized Optimization Format (JPOF)\"},"
-        "  \"model\":1 }", vmap),
+        "  \"model\":1 }", params),
         "The 'model' is not a valid JSON object");
     REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string(
         "{ \"__metadata__\":{\"version\":1, \"format\":\"JSON Parameterized Optimization Format (JPOF)\"},"
-        "  \"model\":{} }", vmap),
+        "  \"model\":{} }", params),
         "JPOF model without 'var' data: A JPOF model must contain variables");
     REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string(
         "{ \"__metadata__\":{\"version\":1, \"format\":\"JSON Parameterized Optimization Format (JPOF)\"},"
         "  \"model\":{"
         "       \"var\":[]"
         "   }"
-        "}", vmap),
+        "}", params),
         "Unexpected JPOF format version: 1");
     REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_string(
         "{ \"__metadata__\":{\"version\":20210301, \"format\":\"JSON Parameterized Optimization Format (JPOF)\"},"
         "  \"model\":{"
         "       \"var\":[]"
         "   }"
-        "}", vmap),
+        "}", params),
         "A JPOF problem must have one or more variables");
     }
 
   SECTION( "small1" ) {
-    std::map<int,int> vmap;
+    std::map<std::string,coek::Parameter> params;
     auto model = coek::read_problem_from_jpof_string(
         "{ \"__metadata__\":{\"version\":20210301, \"format\":\"JSON Parameterized Optimization Format (JPOF)\"},"
         "  \"model\":{"
@@ -70,7 +70,7 @@ TEST_CASE( "jpof_reader_string", "[smoke]" ) {
         "               ]"
         "   }"
         "}",
-        vmap);
+        params);
     REQUIRE( model.num_constraints() == 1 );
     REQUIRE( model.num_objectives() == 1 );
 
@@ -120,12 +120,13 @@ REQUIRE( con.to_list() == baseline );
 TEST_CASE( "jpof_reader_file", "[smoke]" ) {
 
   SECTION( "small1" ) {
-    std::map<int,int> vmap;
-    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small1.json", vmap);
+    std::map<std::string,coek::Parameter> params;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small1.json", params);
 
     REQUIRE( model.num_variables() == 2 );
     REQUIRE( model.num_constraints() == 1 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( params.size() == 0 );
 
     test_var(model, 0, "x", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
     test_var(model, 1, "y", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
@@ -135,12 +136,13 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     }
 
   SECTION( "small2" ) {
-    std::map<int,int> vmap;
-    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small2.json", vmap);
+    std::map<std::string,coek::Parameter> params;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small2.json", params);
 
     REQUIRE( model.num_variables() == 2 );
     REQUIRE( model.num_constraints() == 1 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( params.size() == 0 );
 
     test_var(model, 0, "x", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
     test_var(model, 1, "y", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
@@ -150,12 +152,13 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     }
 
   SECTION( "small3" ) {
-    std::map<int,int> vmap;
-    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small3.json", vmap);
+    std::map<std::string,coek::Parameter> params;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small3.json", params);
 
     REQUIRE( model.num_variables() == 2 );
     REQUIRE( model.num_constraints() == 1 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( params.size() == 0 );
 
     test_var(model, 0, "x", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
     test_var(model, 1, "y", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
@@ -165,12 +168,13 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     }
 
   SECTION( "small4" ) {
-    std::map<int,int> vmap;
-    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small4.json", vmap);
+    std::map<std::string,coek::Parameter> params;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small4.json", params);
 
     REQUIRE( model.num_variables() == 2 );
     REQUIRE( model.num_constraints() == 1 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( params.size() == 0 );
 
     test_var(model, 0, "x", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
     test_var(model, 1, "y", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
@@ -180,12 +184,13 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     }
 
   SECTION( "small5" ) {
-    std::map<int,int> vmap;
-    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small5.json", vmap);
+    std::map<std::string,coek::Parameter> params;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small5.json", params);
 
     REQUIRE( model.num_variables() == 3 );
     REQUIRE( model.num_constraints() == 12 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( params.size() == 1 );
 
     test_var(model, 0, "v", 3.0, -1.0, 1.0, false, "R");
     test_var(model, 1, "x", 1.0, -1.0, 1.0, false, "R");
@@ -220,12 +225,13 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     }
 
   SECTION( "small5a" ) {
-    std::map<int,int> vmap;
-    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small5a.json", vmap);
+    std::map<std::string,coek::Parameter> params;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small5a.json", params);
 
     REQUIRE( model.num_variables() == 2 );
     REQUIRE( model.num_constraints() == 3 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( params.size() == 1 );
 
     test_var(model, 0, "x", 0.0, 0, 1, false, "B");
     test_var(model, 1, "y", 0.0, -COEK_INFINITY, COEK_INFINITY, false, "Z");
@@ -238,12 +244,13 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     }
 
   SECTION( "small6" ) {
-    std::map<int,int> vmap;
-    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small6.json", vmap);
+    std::map<std::string,coek::Parameter> params;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small6.json", params);
 
     REQUIRE( model.num_variables() == 4 );
     REQUIRE( model.num_constraints() == 6 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( params.size() == 0 );
 
     test_var(model, 0, "p", 2.0, -COEK_INFINITY, COEK_INFINITY, true, "R");
     test_var(model, 1, "v", 3.0, -1.0, 1.0, false, "R");
@@ -266,12 +273,13 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     }
 
   SECTION( "small7" ) {
-    std::map<int,int> vmap;
-    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small7.json", vmap);
+    std::map<std::string,coek::Parameter> params;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small7.json", params);
 
     REQUIRE( model.num_variables() == 4 );
     REQUIRE( model.num_constraints() == 24 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( params.size() == 0 );
 
     test_var(model, 0, "p", 2.0, -COEK_INFINITY, COEK_INFINITY, true, "R");
     test_var(model, 1, "v", 3.0, -1.0, 1.0, false, "R");
@@ -312,12 +320,13 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     }
 
   SECTION( "small9" ) {
-    std::map<int,int> vmap;
-    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small9.json", vmap);
+    std::map<std::string,coek::Parameter> params;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small9.json", params);
 
     REQUIRE( model.num_variables() == 3 );
     REQUIRE( model.num_constraints() == 5 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( params.size() == 1 );
 
     test_var(model, 0, "x", 0.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
     test_var(model, 1, "y", 0.0, -COEK_INFINITY, COEK_INFINITY, true, "R");
@@ -335,12 +344,13 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     }
 
   SECTION( "small10" ) {
-    std::map<int,int> vmap;
-    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small10.json", vmap);
+    std::map<std::string,coek::Parameter> params;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small10.json", params);
 
     REQUIRE( model.num_variables() == 3 );
     REQUIRE( model.num_constraints() == 14 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( params.size() == 1 );
 
     test_var(model, 0, "x", 1.0, -COEK_INFINITY, COEK_INFINITY, true, "R");
     test_var(model, 1, "y", 0.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
@@ -365,12 +375,13 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     }
 
   SECTION( "small11" ) {
-    std::map<int,int> vmap;
-    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small11.json", vmap);
+    std::map<std::string,coek::Parameter> params;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small11.json", params);
 
     REQUIRE( model.num_variables() == 4 );
     REQUIRE( model.num_constraints() == 3 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( params.size() == 0 );
 
     test_var(model, 0, "x[1,1]", 1.0, -COEK_INFINITY, COEK_INFINITY, true, "R");
     test_var(model, 1, "x[1,2]", 0.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
@@ -385,12 +396,13 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     }
 
   SECTION( "small13" ) {
-    std::map<int,int> vmap;
-    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small13.json", vmap);
+    std::map<std::string,coek::Parameter> params;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small13.json", params);
 
     REQUIRE( model.num_variables() == 1 );
     REQUIRE( model.num_constraints() == 3 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( params.size() == 0 );
 
     test_var(model, 0, "x", 0.5, -COEK_INFINITY, COEK_INFINITY, false, "R");
 
@@ -402,12 +414,13 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     }
 
   SECTION( "small14" ) {
-    std::map<int,int> vmap;
-    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small14.json", vmap);
+    std::map<std::string,coek::Parameter> params;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small14.json", params);
 
     REQUIRE( model.num_variables() == 2 );
     REQUIRE( model.num_constraints() == 19 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( params.size() == 0 );
 
     test_var(model, 0, "ONE", 1, -COEK_INFINITY, COEK_INFINITY, false, "R");
     test_var(model, 1, "ZERO", 0, -COEK_INFINITY, COEK_INFINITY, false, "R");
@@ -436,12 +449,13 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     }
 
   SECTION( "small15" ) {
-    std::map<int,int> vmap;
-    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small15.json", vmap);
+    std::map<std::string,coek::Parameter> params;
+    auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small15.json", params);
 
     REQUIRE( model.num_variables() == 2 );
     REQUIRE( model.num_constraints() == 1 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( params.size() == 0 );
 
     test_var(model, 0, "x", 1, -COEK_INFINITY, COEK_INFINITY, false, "R");
     test_var(model, 1, "b.y", 1, -COEK_INFINITY, COEK_INFINITY, false, "R");

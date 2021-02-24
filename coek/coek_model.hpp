@@ -369,8 +369,8 @@ public:
 std::ostream& operator<<(std::ostream& ostr, const Model& arg);
 std::ostream& operator<<(std::ostream& ostr, const NLPModel& arg);
 
-Model read_problem_from_jpof_file(const std::string& filename, std::map<int,int>& vmap);
-Model read_problem_from_jpof_string(const std::string& jpof, std::map<int,int>& vmap);
+Model read_problem_from_jpof_file(const std::string& filename, std::map<std::string,Parameter>& params);
+Model read_problem_from_jpof_string(const std::string& jpof, std::map<std::string,Parameter>& params);
 
 }
 

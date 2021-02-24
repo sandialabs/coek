@@ -247,7 +247,7 @@ return arg.as_expression();
 //
 // Process JPOF file version 20210301
 //
-void process_jpof_v20210301(rapidjson::Document& doc, Model& model, std::map<int,int>& vmap)
+void process_jpof_v20210301(rapidjson::Document& doc, Model& model, std::map<std::string,Parameter>& params, std::map<int,int>& vmap)
 {
 std::map<int,Variable> jpof_vmap;
 std::map<int,Parameter> jpof_pmap;
@@ -363,8 +363,11 @@ if (mdoc.HasMember("param")) {
         Parameter p(value);
 
         if (param.HasMember("label")) {
-            if (param["label"].IsString())
-                p.set_name( param["label"].GetString() );
+            if (param["label"].IsString()) {
+                std::string name = param["label"].GetString();
+                p.set_name( name );
+                params[name] = p;
+                }
             else
                 throw std::runtime_error("Error processing parameter "+std::to_string(ctr)+": Non-string value for parameter label");
             }
@@ -519,7 +522,7 @@ if (mdoc.HasMember("con")) {
 }
 
 
-Model create_model_from_dom(rapidjson::Document& d, std::map<int,int>& vmap)
+Model create_model_from_dom(rapidjson::Document& d, std::map<std::string,Parameter>& params, std::map<int,int>& vmap)
 {
 // DOM sanity checks
 RUNTIME_ASSERT(d.IsObject(), "JPOF data is not a valid JSON object");
@@ -541,7 +544,7 @@ if (not d["model"].HasMember("var"))
 Model model;
 int version = d["__metadata__"]["version"].GetInt();
 if (version >= 20210301)
-    process_jpof_v20210301(d, model, vmap);
+    process_jpof_v20210301(d, model, params, vmap);
 else
     throw std::runtime_error("Unexpected JPOF format version: "+std::to_string(version));
 
@@ -552,7 +555,7 @@ return model;
 }
 
 
-Model read_problem_from_jpof_file(const std::string& fname, std::map<int,int>& vmap)
+Model read_problem_from_jpof_file(const std::string& fname, std::map<std::string,Parameter>& params)
 {
 #ifdef WITH_RAPIDJSON
 FILE* fp = fopen(fname.c_str(), "r");
@@ -571,13 +574,14 @@ if (d.HasParseError()) {
  
 fclose(fp);
 
-return reader_jpof::create_model_from_dom(d, vmap);
+std::map<int,int> vmap;
+return reader_jpof::create_model_from_dom(d, params, vmap);
 #else
 throw std::runtime_error("Must install RapidJSON to read a JPOF file.");
 #endif
 }
 
-Model read_problem_from_jpof_string(const std::string& jpof, std::map<int,int>& vmap)
+Model read_problem_from_jpof_string(const std::string& jpof, std::map<std::string,Parameter>& params)
 {
 #ifdef WITH_RAPIDJSON
 rapidjson::Document d;
@@ -587,7 +591,8 @@ if (d.HasParseError()) {
     throw std::runtime_error("Error parsing JPOF string (offset " + std::to_string((unsigned)d.GetErrorOffset()) +"): "+msg);
     }
 
-return reader_jpof::create_model_from_dom(d, vmap);
+std::map<int,int> vmap;
+return reader_jpof::create_model_from_dom(d, params, vmap);
 #else
 throw std::runtime_error("Must install RapidJSON to parse a JPOF string.");
 #endif
