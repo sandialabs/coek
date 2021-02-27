@@ -89,6 +89,12 @@ if (repn->upper)
 return COEK_INFINITY;
 }
 
+void Constraint::set_name(const std::string& name)
+{ repn->name = name; }
+
+std::string Constraint::get_name() const
+{ return repn->name; }
+
 Constraint Constraint::expand()
 {
 #ifdef COEK_WITH_COMPACT_MODEL

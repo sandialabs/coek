@@ -71,6 +71,8 @@ TEST_CASE( "jpof_reader_string", "[smoke]" ) {
         "   }"
         "}",
         params);
+    REQUIRE( model.num_variables() == 2 );
+    REQUIRE( model.variable_names() == std::set<std::string>({"x","y"}) );
     REQUIRE( model.num_constraints() == 1 );
     REQUIRE( model.num_objectives() == 1 );
 
@@ -108,12 +110,14 @@ void test_obj(coek::Model& model, int i, const std::list<std::string>& baseline,
 {
 auto obj = model.get_objective(i);
 REQUIRE( obj.to_list() == baseline );
+REQUIRE( obj.get_name() == name );
 }
 
 void test_con(coek::Model& model, int i, const std::list<std::string>& baseline, const std::string& name)
 {
 auto con = model.get_constraint(i);
 REQUIRE( con.to_list() == baseline );
+REQUIRE( con.get_name() == name );
 }
 
 
@@ -124,15 +128,19 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small1.json", params);
 
     REQUIRE( model.num_variables() == 2 );
-    REQUIRE( model.num_constraints() == 1 );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( model.num_constraints() == 1 );
     REQUIRE( params.size() == 0 );
+
+    REQUIRE( model.variable_names() == std::set<std::string>({"x","y"}) );
+    REQUIRE( model.objective_names() == std::set<std::string>({"OBJ"}) );
+    REQUIRE( model.constraint_names() == std::set<std::string>({"CON1"}) );
 
     test_var(model, 0, "x", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
     test_var(model, 1, "y", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
 
     test_obj(model, 0, {"[", "min", "[", "pow", "x", "2.000", "]", "]"}, "OBJ");
-    test_con(model, 0, {"[", "==", "[", "pow", "y", "2.000", "]", "4.000", "]"}, "CON");
+    test_con(model, 0, {"[", "==", "[", "pow", "y", "2.000", "]", "4.000", "]"}, "CON1");
     }
 
   SECTION( "small2" ) {
@@ -144,11 +152,15 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     REQUIRE( model.num_objectives() == 1 );
     REQUIRE( params.size() == 0 );
 
+    REQUIRE( model.variable_names() == std::set<std::string>({"x","y"}) );
+    REQUIRE( model.objective_names() == std::set<std::string>({"OBJ"}) );
+    REQUIRE( model.constraint_names() == std::set<std::string>({"CON1"}) );
+
     test_var(model, 0, "x", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
     test_var(model, 1, "y", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
 
     test_obj(model, 0, {"[", "min", "x", "]"}, "OBJ");
-    test_con(model, 0, {"[", "==", "[", "pow", "y", "2.000", "]", "4.000", "]"}, "CON");
+    test_con(model, 0, {"[", "==", "[", "pow", "y", "2.000", "]", "4.000", "]"}, "CON1");
     }
 
   SECTION( "small3" ) {
@@ -160,11 +172,15 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     REQUIRE( model.num_objectives() == 1 );
     REQUIRE( params.size() == 0 );
 
+    REQUIRE( model.variable_names() == std::set<std::string>({"x","y"}) );
+    REQUIRE( model.objective_names() == std::set<std::string>({"OBJ"}) );
+    REQUIRE( model.constraint_names() == std::set<std::string>({"CON1"}) );
+
     test_var(model, 0, "x", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
     test_var(model, 1, "y", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
 
     test_obj(model, 0, {"[", "min", "[", "*", "x", "y", "]", "]"}, "OBJ");
-    test_con(model, 0, {"[", "==", "[", "pow", "y", "2.000", "]", "4.000", "]"}, "CON");
+    test_con(model, 0, {"[", "==", "[", "pow", "y", "2.000", "]", "4.000", "]"}, "CON1");
     }
 
   SECTION( "small4" ) {
@@ -175,6 +191,10 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     REQUIRE( model.num_constraints() == 1 );
     REQUIRE( model.num_objectives() == 1 );
     REQUIRE( params.size() == 0 );
+
+    REQUIRE( model.variable_names() == std::set<std::string>({"x","y"}) );
+    REQUIRE( model.objective_names() == std::set<std::string>({"OBJ"}) );
+    REQUIRE( model.constraint_names() == std::set<std::string>({"CON1"}) );
 
     test_var(model, 0, "x", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
     test_var(model, 1, "y", 1.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
@@ -191,6 +211,10 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     REQUIRE( model.num_constraints() == 12 );
     REQUIRE( model.num_objectives() == 1 );
     REQUIRE( params.size() == 1 );
+
+    REQUIRE( model.variable_names() == std::set<std::string>({"v","x","y"}) );
+    REQUIRE( model.objective_names() == std::set<std::string>({"OBJ"}) );
+    REQUIRE( model.constraint_names() == std::set<std::string>({"CON1","CON2","CON3","CON4","CON5","CON6","CON7","CON8","CON9","CON10","CON11","CON12"}) );
 
     test_var(model, 0, "v", 3.0, -1.0, 1.0, false, "R");
     test_var(model, 1, "x", 1.0, -1.0, 1.0, false, "R");
@@ -233,6 +257,10 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     REQUIRE( model.num_objectives() == 1 );
     REQUIRE( params.size() == 1 );
 
+    REQUIRE( model.variable_names() == std::set<std::string>({"x","y"}) );
+    REQUIRE( model.objective_names() == std::set<std::string>({"OBJ"}) );
+    REQUIRE( model.constraint_names() == std::set<std::string>({"CON1","CON2","CON3"}) );
+
     test_var(model, 0, "x", 0.0, 0, 1, false, "B");
     test_var(model, 1, "y", 0.0, -COEK_INFINITY, COEK_INFINITY, false, "Z");
 
@@ -251,6 +279,10 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     REQUIRE( model.num_constraints() == 6 );
     REQUIRE( model.num_objectives() == 1 );
     REQUIRE( params.size() == 0 );
+
+    REQUIRE( model.variable_names() == std::set<std::string>({"p","v","x","y"}) );
+    REQUIRE( model.objective_names() == std::set<std::string>({"OBJ"}) );
+    REQUIRE( model.constraint_names() == std::set<std::string>({"CON1","CON2","CON3","CON4","CON5","CON6"}) );
 
     test_var(model, 0, "p", 2.0, -COEK_INFINITY, COEK_INFINITY, true, "R");
     test_var(model, 1, "v", 3.0, -1.0, 1.0, false, "R");
@@ -280,6 +312,17 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     REQUIRE( model.num_constraints() == 24 );
     REQUIRE( model.num_objectives() == 1 );
     REQUIRE( params.size() == 0 );
+
+    REQUIRE( model.variable_names() == std::set<std::string>({"p","v","x","y"}) );
+    REQUIRE( model.objective_names() == std::set<std::string>({"OBJ"}) );
+    REQUIRE( model.constraint_names() == std::set<std::string>({
+                                                               "CON1a","CON1b","CON1c","CON1d",
+                                                               "CON2a","CON2b","CON2c","CON2d",
+                                                               "CON3a","CON3b","CON3c","CON3d",
+                                                               "CON4a","CON4b","CON4c","CON4d",
+                                                               "CON5a","CON5b","CON5c","CON5d",
+                                                               "CON6a","CON6b","CON6c","CON6d"
+                                                                }) );
 
     test_var(model, 0, "p", 2.0, -COEK_INFINITY, COEK_INFINITY, true, "R");
     test_var(model, 1, "v", 3.0, -1.0, 1.0, false, "R");
@@ -328,6 +371,10 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     REQUIRE( model.num_objectives() == 1 );
     REQUIRE( params.size() == 1 );
 
+    REQUIRE( model.variable_names() == std::set<std::string>({"x","y","z"}) );
+    REQUIRE( model.objective_names() == std::set<std::string>({"obj"}) );
+    REQUIRE( model.constraint_names() == std::set<std::string>({"con1","con2","con3","con4","con5"}) );
+
     test_var(model, 0, "x", 0.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
     test_var(model, 1, "y", 0.0, -COEK_INFINITY, COEK_INFINITY, true, "R");
     test_var(model, 2, "z", 0.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
@@ -351,6 +398,10 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     REQUIRE( model.num_constraints() == 14 );
     REQUIRE( model.num_objectives() == 1 );
     REQUIRE( params.size() == 1 );
+
+    REQUIRE( model.variable_names() == std::set<std::string>({"x","y","z"}) );
+    REQUIRE( model.objective_names() == std::set<std::string>({"obj"}) );
+    REQUIRE( model.constraint_names() == std::set<std::string>({"con1","con2","con3","con4","con5","con6","con7","con8","con9","con12","con13","con14","con15","con17"}) );
 
     test_var(model, 0, "x", 1.0, -COEK_INFINITY, COEK_INFINITY, true, "R");
     test_var(model, 1, "y", 0.0, -COEK_INFINITY, COEK_INFINITY, false, "R");
@@ -379,8 +430,11 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     auto model = coek::read_problem_from_jpof_file(currdir+"jpof/small11.json", params);
 
     REQUIRE( model.num_variables() == 4 );
-    REQUIRE( model.num_constraints() == 3 );
+    REQUIRE( model.variable_names() == std::set<std::string>({"x[1,1]","x[1,2]","x[1,3]","x[3,3]"}) );
     REQUIRE( model.num_objectives() == 1 );
+    REQUIRE( model.objective_names() == std::set<std::string>({"obj"}) );
+    REQUIRE( model.num_constraints() == 3 );
+    REQUIRE( model.constraint_names() == std::set<std::string>({"var_bnd[1]", "var_bnd[2]", "var_bnd[3]"}) );
     REQUIRE( params.size() == 0 );
 
     test_var(model, 0, "x[1,1]", 1.0, -COEK_INFINITY, COEK_INFINITY, true, "R");
@@ -404,6 +458,10 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     REQUIRE( model.num_objectives() == 1 );
     REQUIRE( params.size() == 0 );
 
+    REQUIRE( model.variable_names() == std::set<std::string>({"x"}) );
+    REQUIRE( model.objective_names() == std::set<std::string>({"obj"}) );
+    REQUIRE( model.constraint_names() == std::set<std::string>({"c1","c2","c3"}) );
+
     test_var(model, 0, "x", 0.5, -COEK_INFINITY, COEK_INFINITY, false, "R");
 
     test_obj(model, 0, {"[", "max", "x", "]"}, "obj");
@@ -421,6 +479,10 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     REQUIRE( model.num_constraints() == 19 );
     REQUIRE( model.num_objectives() == 1 );
     REQUIRE( params.size() == 0 );
+
+    REQUIRE( model.variable_names() == std::set<std::string>({"ONE", "ZERO"}) );
+    REQUIRE( model.objective_names() == std::set<std::string>({"obj"}) );
+    REQUIRE( model.constraint_names() == std::set<std::string>({"c_abs","c_acos","c_acosh", "c_asin", "c_asinh", "c_atan", "c_atanh", "c_ceil", "c_cos", "c_cos", "c_cosh", "c_exp", "c_floor", "c_log", "c_log10", "c_sin", "c_sinh", "c_sqrt", "c_tan", "c_tanh"}) );
 
     test_var(model, 0, "ONE", 1, -COEK_INFINITY, COEK_INFINITY, false, "R");
     test_var(model, 1, "ZERO", 0, -COEK_INFINITY, COEK_INFINITY, false, "R");
@@ -456,6 +518,10 @@ TEST_CASE( "jpof_reader_file", "[smoke]" ) {
     REQUIRE( model.num_constraints() == 1 );
     REQUIRE( model.num_objectives() == 1 );
     REQUIRE( params.size() == 0 );
+
+    REQUIRE( model.variable_names() == std::set<std::string>({"x", "b.y"}) );
+    REQUIRE( model.objective_names() == std::set<std::string>({"OBJ"}) );
+    REQUIRE( model.constraint_names() == std::set<std::string>({"CON1"}) );
 
     test_var(model, 0, "x", 1, -COEK_INFINITY, COEK_INFINITY, false, "R");
     test_var(model, 1, "b.y", 1, -COEK_INFINITY, COEK_INFINITY, false, "R");

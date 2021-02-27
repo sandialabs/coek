@@ -321,9 +321,7 @@ for (auto& var : mdoc["var"].GetArray()) {
             throw std::runtime_error("Error processing variable "+std::to_string(ctr)+": Non-integer value for variable fixed flag");
         }
 
-    auto v = model.add_variable(lb, ub, value, binary, integer);
-    if (not (label == ""))
-        v.set_name(label);
+    auto v = model.add_variable(label, lb, ub, value, binary, integer);
     v.set_fixed(fixed);
 
     if (var.HasMember("id")) {
@@ -403,7 +401,6 @@ if (mdoc.HasMember("obj")) {
         else
             throw std::runtime_error("Error processing objective "+std::to_string(ctr)+": Objective expression not defined");
 
-        // NOTE: objective labels are currently ignored by COEK
         std::string label;
         if (obj.HasMember("label")) {
             if (obj["label"].IsString())
@@ -423,9 +420,9 @@ if (mdoc.HasMember("obj")) {
             }
 
         if (min)
-            model.add_objective( create_expression(expr, jpof_vmap, jpof_pmap) );
+            model.add_objective( label, create_expression(expr, jpof_vmap, jpof_pmap) );
         else
-            model.add_objective( create_expression(expr, jpof_vmap, jpof_pmap), Model::maximize );
+            model.add_objective( label, create_expression(expr, jpof_vmap, jpof_pmap), Model::maximize );
 
         ctr++;
         }
@@ -449,7 +446,6 @@ if (mdoc.HasMember("con")) {
         else
             throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Constraint expression not defined");
 
-        // NOTE: constraint labels are currently ignored by COEK
         std::string label;
         if (con.HasMember("label")) {
             if (con["label"].IsString())
@@ -458,7 +454,6 @@ if (mdoc.HasMember("con")) {
                 throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Non-string value for constraint label");
             }
 
-        // TODO: generalize logic to allow expressions for lower- and upper-bounds, using parameter values
         Constraint c;
         if (con.HasMember("eq")) {
             if (con["eq"].IsInt())
@@ -514,7 +509,7 @@ if (mdoc.HasMember("con")) {
             }
         else
             throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Must specify equality or inequality constraint values (eq, geq, leq)");
-        model.add_constraint(c);
+        model.add_constraint(label, c);
 
         ctr++;
         }

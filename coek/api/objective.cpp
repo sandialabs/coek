@@ -22,6 +22,13 @@ repn = CREATE_POINTER(ObjectiveTerm, arg.repn, sense);
 OWN_POINTER(repn);
 }
 
+Objective::Objective(const std::string& name, const Expression& arg, bool sense)
+{
+repn = CREATE_POINTER(ObjectiveTerm, arg.repn, sense);
+OWN_POINTER(repn);
+repn->name = name;
+}
+
 Objective::Objective(const Objective& expr)
 {
 repn = expr.repn;
@@ -62,6 +69,12 @@ void Objective::set_sense(bool sense)
 
 bool Objective::sense() const
 { return repn->sense; }
+
+void Objective::set_name(const std::string& name)
+{ repn->name = name; }
+
+std::string Objective::get_name() const
+{ return repn->name; }
 
 std::list<std::string> Objective::to_list() const
 {
