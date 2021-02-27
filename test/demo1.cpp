@@ -1,12 +1,9 @@
 //
-// Load and JPOF file and illustrate resolves with mutable parameters
+// Load an JPOF file and illustrate resolves with mutable parameters
 //
-//#include <chrono>
 #include <map>
 #include <vector>
 #include <iostream>
-//#include <random>
-//#include <functional>
 #include <coek/coek.hpp>
 
 const std::string currdir = COEK_TEST_DIR;
@@ -20,7 +17,7 @@ if (argc == 1) {
     }
 
 char* filename = argv[1];       // Filename
-int nsolves = atoi(argv[2]);    // Number of solvers
+int nsolves = atoi(argv[2]);    // Number of solves
 
 std::map<std::string,coek::Parameter> params;
 
