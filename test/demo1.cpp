@@ -24,6 +24,8 @@ std::map<std::string,coek::Parameter> params;
 auto model = coek::read_problem_from_jpof_file(currdir+"/jpof/"+filename, params);
 double p = params["p"].get_value();
 
+auto vnames = model.variable_names();
+
 coek::NLPModel nlp(model, "cppad");
 coek::NLPSolver opt("ipopt");
 opt.set_option("print_level", 0);
@@ -35,8 +37,8 @@ for (int i=0; i<nsolves; i++) {
     std::cout << "Objective: " << nlp.compute_f() << std::endl;
     std::cout << "p value: " << params["p"].get_value() << std::endl;
     std::cout << "Solution:" << std::endl;
-    for (size_t i=0; i<nlp.num_variables(); i++)
-        std::cout << "  " << i << "  " << nlp.get_variable(i).get_value() << std::endl;
+    for (auto const& vname: vnames)
+        std::cout << "  " << vname << "= " << model.get_variable(vname).get_value() << std::endl;
     std::cout << std::endl;
 
     // p = i+1
