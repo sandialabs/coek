@@ -1,4 +1,5 @@
 #include <unordered_set>
+#include <algorithm>
 
 #include "ast_operators.hpp"
 #include "coek/coek_expr.hpp"

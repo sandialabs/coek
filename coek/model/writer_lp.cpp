@@ -178,7 +178,7 @@ try {
         ++ctr;
         }
     }
-catch (UnknownVariable& e)
+catch (UnknownVariable& /*e*/)
     {
     // TODO - More comprehensive error reporting here.
     throw std::runtime_error("Error writing LP file: Unexpected variable encountered in a model expression");
@@ -309,7 +309,7 @@ try {
             }
         }
     }
-catch (UnknownVariable& e)
+catch (UnknownVariable& /*e*/)
     {
     // TODO - More comprehensive error reporting here.
     throw std::runtime_error("Error writing LP file: Unexpected variable encountered in a model expression");

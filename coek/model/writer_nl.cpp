@@ -211,7 +211,7 @@ if (quadratic) {
     }
 
 // Compute the number of terms in the sum
-int ctr=0;
+size_t ctr=0;
 if (objective and (fabs(cval) > EPSILON))
     ++ctr;
 if (nonlinear)
@@ -290,12 +290,12 @@ int num_nonlinear_obj_int_vars=0;
 int num_nonlinear_con_int_vars=0;
 int num_nonlinear_both_int_vars=0;
 
-int nnz_Jacobian=0;
-int nnz_gradient=0;
+size_t nnz_Jacobian=0;
+size_t nnz_gradient=0;
 
 // Objectives
 std::vector<MutableNLPExpr> o_expr(model.repn->objectives.size());
-int ctr=0;
+size_t ctr=0;
 for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it, ++ctr) {
     o_expr[ctr].collect_terms(*it);
     if ((o_expr[ctr].quadratic_coefs.size() > 0) or (not o_expr[ctr].nonlinear.is_constant()))
