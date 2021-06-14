@@ -276,6 +276,12 @@ void Variable::set_fixed(bool _flag)
 bool Variable::get_fixed() const
 { return repn->fixed; }
 
+void Variable::fix(double value)
+{
+repn->value = value;
+repn->fixed = true;
+}
+
 //
 // Expression
 //

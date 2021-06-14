@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iostream>
 #include <map>
+#include <cmath>
 
 #include "../util/map_utils.hpp"
 #include "../ast/varray.hpp"
@@ -16,7 +17,6 @@
 #include "coek/compact/constraint_sequence.hpp"
 #include "coek/compact/coek_exprterm.hpp"
 #endif
-
 
 
 namespace coek {
@@ -55,7 +55,16 @@ void Model::print_values() const
 { print_values(std::cout); }
 
 void Model::print_values(std::ostream& ostr) const
-{ ostr << "ERROR - Model::print_values is not implemented yet." << std::endl; }
+{
+ostr << "Model Variables: " << repn->variables_by_name.size() << "\n";
+ostr << "Nonzero Variables\n";
+for (auto const& var: repn->variables_by_name) {
+    double val = var.second.get_value();
+    if (::fabs(val) > 1e-7) {
+        ostr << "   " << var.first << " " << val << " " << var.second.get_fixed() << "\n";
+        }
+    }
+}
 
 Model::Model()
 { repn = std::make_shared<ModelRepn>(); }

@@ -287,6 +287,9 @@ public:
     /** Set a flag indicating if the variable is fixed */
     void set_fixed(bool flag);
 
+    /** Set the variable value and declare the variable fixed*/
+    void fix(double value);
+
     /** \returns the value of the variable.  */
     std::string get_name() const;
     /** Set the name of the variable */
