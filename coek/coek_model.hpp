@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <string>
 #include <map>
 #include <memory>
 #include <vector>
@@ -22,6 +23,8 @@
 namespace coek {
 
 class VariableArray;
+class Objective;
+class Variable;
 class Expression;
 class Constraint;
 //class ExpressionSeqIteratorRepn;
@@ -44,6 +47,10 @@ public:
     std::vector<Objective> objectives;
     std::vector<Constraint> constraints;
     std::vector<Variable> variables;
+
+    std::map<std::string, Objective> objectives_by_name;
+    std::map<std::string, Constraint> constraints_by_name;
+    std::map<std::string, Variable> variables_by_name;
 
     std::map<std::string, std::unordered_map<unsigned int,double> > vsuffix;
     std::map<std::string, std::unordered_map<unsigned int,double> > csuffix;
@@ -74,8 +81,11 @@ public:
     ~Model();
     Model& operator=(const Model&);
 
-    Objective add_objective(const Expression& expr, bool _sense=Model::minimize);
-    Constraint add_constraint(const Constraint& expr);
+    //
+    // Variables
+    //
+    size_t num_variables() const;
+    std::set<std::string> variable_names() const;
 
     Variable add_variable(const std::string& name, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
     Variable add_variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
@@ -85,8 +95,40 @@ public:
     void add_variable(ConcreteIndexedVariable& var);
 #endif
 
+    Variable get_variable(unsigned int i);
+    Variable get_variable(const std::string& name);
+
+    //
+    // Objectives
+    //
+    size_t num_objectives() const;
+    std::set<std::string> objective_names() const;
+
+    Objective add_objective(const Expression& expr, bool _sense=Model::minimize);
+    Objective add_objective(const std::string& name, const Expression& expr, bool _sense=Model::minimize);
+
     Objective get_objective(unsigned int i=0);
+    Objective get_objective(const std::string& name);
+
+    //
+    // Constraint
+    //
+    size_t num_constraints() const;
+    std::set<std::string> constraint_names() const;
+
+    Constraint add_constraint(const Constraint& expr);
+    Constraint add_constraint(const std::string& name, const Constraint& expr);
+
     Constraint get_constraint(unsigned int i);
+    Constraint get_constraint(const std::string& name);
+
+    //
+    // Suffixes
+    //
+    std::set<std::string> variable_suffix_names() const;
+    std::set<std::string> objective_suffix_names() const;
+    std::set<std::string> constraint_suffix_names() const;
+    std::set<std::string> model_suffix_names() const;
 
     void set_suffix(const std::string& name, Variable& var, double value);
     void set_suffix(const std::string& name, Constraint& con, double value);
@@ -97,6 +139,10 @@ public:
     double get_suffix(const std::string& name, Constraint& con);
     double get_suffix(const std::string& name, Objective& obj);
     double get_suffix(const std::string& name);
+
+    //
+    // I/O
+    //
 
     void write(std::string filename);
     void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
@@ -361,6 +407,9 @@ public:
 //
 std::ostream& operator<<(std::ostream& ostr, const Model& arg);
 std::ostream& operator<<(std::ostream& ostr, const NLPModel& arg);
+
+Model read_problem_from_jpof_file(const std::string& filename, std::map<std::string,Parameter>& params);
+Model read_problem_from_jpof_string(const std::string& jpof, std::map<std::string,Parameter>& params);
 
 }
 

@@ -66,6 +66,20 @@ The C/C++ library that supports the definition of expressions used to formulate 
 * cmake -Dwith\_docs=ON ..
 * make
 
+## Build with JPOF reader
+
+* cd third\_party
+* ./installCatch2.sh
+* ./installCppAD.sh
+* ./installRapidJSON.sh
+* cd ..
+* mkdir build
+* cd build
+* cmake -Dwith\_tests=ON -Dwith\_cppad=ON -Dwith\_ipopt=ON -Dwith\_rapidjson=ON ..
+* make
+* make test
+
+
 ## Install
 
 * cd build

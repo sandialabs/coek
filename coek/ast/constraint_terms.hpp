@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "base_terms.hpp"
 
 
@@ -21,6 +22,7 @@ public:
     expr_pointer_t lower;
     expr_pointer_t body;
     expr_pointer_t upper;
+    std::string name;
 
 public:
 

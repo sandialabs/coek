@@ -27,6 +27,7 @@ public:
     Objective();
     Objective(const ObjectiveRepn& _repn);
     Objective(const Expression& _repn, bool sense);
+    Objective(const std::string& name, const Expression& _repn, bool sense);
     Objective(const Objective& arg);
     ~Objective();
 
@@ -38,6 +39,8 @@ public:
     Expression body() const;
     void set_sense(bool sense);
     bool sense() const;
+    void set_name(const std::string& name);
+    std::string get_name() const;
 
     std::list<std::string> to_list() const;
 

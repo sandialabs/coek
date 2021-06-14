@@ -167,6 +167,8 @@ public:
 
     /** \returns the name of the parameter. */
     std::string get_name() const;
+    /** Set the name of the parameter */
+    void set_name(const std::string& name);
 
     COEK_API_OPERATORS
 
@@ -285,9 +287,12 @@ public:
     /** Set a flag indicating if the variable is fixed */
     void set_fixed(bool flag);
 
-    /** \returns the value of the parameter.  */
+    /** Set the variable value and declare the variable fixed*/
+    void fix(double value);
+
+    /** \returns the value of the variable.  */
     std::string get_name() const;
-    /** Set the name */
+    /** Set the name of the variable */
     void set_name(const std::string& name);
 
     /** \returns \c true if the variable is continuous */

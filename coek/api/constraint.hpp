@@ -50,6 +50,9 @@ public:
     double get_lb() const;
     double get_ub() const;
 
+    void set_name(const std::string& name);
+    std::string get_name() const;
+
     Constraint expand();
 
     std::list<std::string> to_list() const;

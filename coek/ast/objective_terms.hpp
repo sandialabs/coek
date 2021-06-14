@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "base_terms.hpp"
 
 
@@ -20,6 +21,7 @@ public:
     expr_pointer_t body;
     bool sense;
     unsigned int index;
+    std::string name;
 
 public:
 

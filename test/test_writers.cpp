@@ -5,6 +5,8 @@
 #include "coek/ast/base_terms.hpp"
 #include "coek/coek.hpp"
 
+namespace {
+
 void error1(coek::Model& model) 
 {
 auto x = model.add_variable();
@@ -242,6 +244,7 @@ coek::Variable d = model.add_variable(-COEK_INFINITY, 0);
 model.add_constraint(c + d == 0);
 }
 
+}
 
 TEST_CASE( "lp_writer", "[smoke]" ) {
 

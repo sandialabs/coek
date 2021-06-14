@@ -3,7 +3,9 @@
 #include <sstream>
 #include <iostream>
 #include <map>
+#include <cmath>
 
+#include "../util/map_utils.hpp"
 #include "../ast/varray.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/abstract/expr_rule.hpp"
@@ -15,7 +17,6 @@
 #include "coek/compact/constraint_sequence.hpp"
 #include "coek/compact/coek_exprterm.hpp"
 #endif
-
 
 
 namespace coek {
@@ -55,7 +56,14 @@ void Model::print_values() const
 
 void Model::print_values(std::ostream& ostr) const
 {
-ostr << "ERROR - Model::print_values is not implemented yet." << std::endl;
+ostr << "Model Variables: " << repn->variables_by_name.size() << "\n";
+ostr << "Nonzero Variables\n";
+for (auto const& var: repn->variables_by_name) {
+    double val = var.second.get_value();
+    if (::fabs(val) > 1e-7) {
+        ostr << "   " << var.first << " " << val << " " << var.second.get_fixed() << "\n";
+        }
+    }
 }
 
 Model::Model()
@@ -80,9 +88,26 @@ repn->objectives.push_back(tmp);
 return repn->objectives.back();
 }
 
+Objective Model::add_objective(const std::string& name, const Expression& expr, bool _sense)
+{
+Objective tmp(name, expr.repn, _sense);
+repn->objectives.push_back(tmp);
+repn->objectives_by_name.emplace(name, tmp);
+//return repn->objectives.back();
+return tmp;
+}
+
 Constraint Model::add_constraint(const Constraint& expr)
 {
 repn->constraints.push_back(expr);
+return expr;
+}
+
+Constraint Model::add_constraint(const std::string& name, const Constraint& expr)
+{
+repn->constraints.push_back(expr);
+repn->constraints.back().set_name(name);
+repn->constraints_by_name.emplace(name, expr);
 return expr;
 }
 
@@ -97,12 +122,18 @@ Variable Model::add_variable(const std::string& name, double lb, double ub, doub
 {
 Variable tmp(name,lb,ub,value,binary,integer);
 repn->variables.push_back(tmp);
+if (name != "")
+    repn->variables_by_name.emplace(name, tmp);
 return repn->variables.back();
+//return tmp;
 }
 
 Variable Model::add_variable(Variable& var)
 {
 repn->variables.push_back(var);
+auto name = var.get_name();
+if (name != "")
+    repn->variables_by_name.emplace(name, var);
 return var;
 }
 
@@ -110,6 +141,9 @@ void Model::add_variable(VariableArray& varray)
 {
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
     repn->variables.push_back(*it);
+    auto name = it->get_name();
+    if (name != "")
+        repn->variables_by_name.emplace(name, *it);
     }
 }
 
@@ -119,9 +153,28 @@ void Model::add_variable(ConcreteIndexedVariable& vars)
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
     repn->variables.push_back(*it);
+    auto name = it->get_name();
+    if (name != "")
+        repn->variables_by_name.emplace(name, *it);
     }
 }
 #endif
+
+size_t Model::num_variables() const
+{ return repn->variables.size(); }
+
+size_t Model::num_objectives() const
+{ return repn->objectives.size(); }
+
+size_t Model::num_constraints() const
+{ return repn->constraints.size(); }
+
+Variable Model::get_variable(unsigned int i)
+{
+if (i > repn->variables.size())
+    throw std::out_of_range("Variable index " + std::to_string(i) + " is too large: " + std::to_string(repn->variables.size()) + "       variables available.");
+return repn->variables[i];
+}
 
 Objective Model::get_objective(unsigned int i)
 {
@@ -137,17 +190,50 @@ if (i > repn->constraints.size())
 return repn->constraints[i];
 }
 
+Variable Model::get_variable(const std::string& name)
+{
+auto it = repn->variables_by_name.find(name);
+if (it == repn->variables_by_name.end()) 
+    throw std::runtime_error("Unknown variable name " + name);
+return it->second;
+}
+
+Objective Model::get_objective(const std::string& name)
+{
+auto it = repn->objectives_by_name.find(name);
+if (it == repn->objectives_by_name.end()) 
+    throw std::runtime_error("Unknown objective name " + name);
+return it->second;
+}
+
+Constraint Model::get_constraint(const std::string& name)
+{
+auto it = repn->constraints_by_name.find(name);
+if (it == repn->constraints_by_name.end()) 
+    throw std::runtime_error("Unknown constraint name " + name);
+return it->second;
+}
+
+std::set<std::string> Model::variable_names() const
+{ return map_keys(repn->variables_by_name); }
+
+std::set<std::string> Model::objective_names() const
+{ return map_keys(repn->objectives_by_name); }
+
+std::set<std::string> Model::constraint_names() const
+{ return map_keys(repn->constraints_by_name); }
+
 void Model::set_suffix(const std::string& name, Variable& var, double value)
-{ repn->vsuffix[name][var.id()] = value; }
+{ repn->vsuffix[name].emplace(var.id(), value); }
 
 void Model::set_suffix(const std::string& name, Constraint& con, double value)
-{ repn->csuffix[name][con.id()] = value; }
+{ repn->csuffix[name].emplace(con.id(), value); }
 
 void Model::set_suffix(const std::string& name, Objective& obj, double value)
-{ repn->osuffix[name][obj.id()] = value; }
+{ repn->osuffix[name].emplace(obj.id(), value); }
 
 void Model::set_suffix(const std::string& name, double value)
-{ repn->msuffix[name] = value; }
+{ repn->msuffix.emplace(name, value); }
 
 double Model::get_suffix(const std::string& name, Variable& var)
 { return repn->vsuffix[name][var.id()]; }
@@ -161,10 +247,20 @@ double Model::get_suffix(const std::string& name, Objective& obj)
 double Model::get_suffix(const std::string& name)
 { return repn->msuffix[name]; }
 
+std::set<std::string> Model::variable_suffix_names() const
+{ return map_keys(repn->vsuffix); }
+
+std::set<std::string> Model::objective_suffix_names() const
+{ return map_keys(repn->osuffix); }
+
+std::set<std::string> Model::constraint_suffix_names() const
+{ return map_keys(repn->csuffix); }
+
+std::set<std::string> Model::model_suffix_names() const
+{ return map_keys(repn->msuffix); }
+
 static bool endsWith(const std::string& str, const std::string& suffix)
-{
-    return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
-}
+{ return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix); }
 
 void write_lp_problem(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 void write_nl_problem(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
@@ -300,6 +396,11 @@ Model CompactModel::expand()
 {
 Model model;
 model.repn->variables = variables;
+for (auto it=variables.begin(); it != variables.end(); ++it) {
+    auto name = it->get_name();
+    if (name != "")
+        model.repn->variables_by_name.emplace(name, *it);
+    }
 
 //int i=0;
 for (auto it=objectives.begin(); it != objectives.end(); ++it) {
