@@ -13,7 +13,9 @@ public:
 
     int resolve();
     int solve(Model& );
+#ifdef COEK_WITH_COMPACT_MODEL
     int solve(CompactModel& );
+#endif
 };
 
 }

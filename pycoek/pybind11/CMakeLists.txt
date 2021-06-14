@@ -6,6 +6,9 @@ set(PYBIND11_CPP_STANDARD -std=c++17)
 
 include_directories("${PROJECT_SOURCE_DIR}")
 
+if(with_fmtlib)
+  LINK_DIRECTORIES(${FMTLIB_LIBRARY_DIR})
+endif()
 if(${with_gurobi})
   LINK_DIRECTORIES($ENV{GUROBI_HOME}/lib)
 endif()
@@ -19,12 +22,19 @@ else()
     pybind11_add_module(pycoek_pybind11 pycoek_pybind11.cpp)
 endif()
 TARGET_LINK_LIBRARIES(pycoek_pybind11 PUBLIC coek)
+if(${with_fmtlib})
+  TARGET_LINK_LIBRARIES(pycoek_pybind11 PUBLIC fmt)
+endif()
 if(${with_gurobi})
   TARGET_LINK_LIBRARIES(pycoek_pybind11 PUBLIC gurobi_g++5.2 gurobi90)
 endif()
 if(${with_ipopt})
   TARGET_LINK_LIBRARIES(pycoek_pybind11 PUBLIC ipopt gfortran)
 endif()
+if(${with_fmtlib})
+  TARGET_LINK_LIBRARIES(pycoek_pybind11 PUBLIC fmt)
+endif()
+
 
 
 INSTALL(TARGETS pycoek_pybind11

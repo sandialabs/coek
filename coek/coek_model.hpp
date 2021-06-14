@@ -1,164 +1,42 @@
+#ifndef __coek_model_hpp
+#define __coek_model_hpp
+
 #pragma once
 
+#include <string>
+#include <map>
 #include <memory>
 #include <vector>
-#include <variant>
 #include <unordered_map>
-#include "coek_expr.hpp"
-#include "coek_sets.hpp"
-#include "coek_indexed.hpp"
+#include <coek/api/constants.hpp>
+
+#ifdef COEK_WITH_COMPACT_MODEL
+#include <variant>
+#include <coek/compact/coek_sets.hpp>
+#include <coek/compact/coek_indexed.hpp>
+#endif
+
+//#include "coek/api/constraint.hpp"
+//#include "coek/api/objective.hpp"
+
 
 namespace coek {
 
 class VariableArray;
+class Objective;
+class Variable;
+class Expression;
+class Constraint;
+//class ExpressionSeqIteratorRepn;
+//class ConstraintSeqIteratorRepn;
+class SequenceContext;
+class ObjectiveSequence;
+class ConstraintSequence;
+
 class ModelRepn;
 class NLPModelRepn;
 class SolverRepn;
 class NLPSolverRepn;
-class ExpressionSeqIteratorRepn;
-class ConstraintSeqIteratorRepn;
-
-
-class ExpressionSeqIterator
-{
-public:
-
-    std::shared_ptr<ExpressionSeqIteratorRepn> repn;
-
-    typedef Expression* pointer;
-    typedef const Expression* const_pointer;
-    typedef Expression& reference;
-    typedef const Expression& const_reference;
-
-public:
-
-    ExpressionSeqIterator();
-    ExpressionSeqIterator(ExpressionSequenceRepn* seq, bool end=false);
-
-    ExpressionSeqIterator& operator++();
-
-    bool operator==(const ExpressionSeqIterator& other) const;
-    bool operator!=(const ExpressionSeqIterator& other) const;
-
-    reference operator*();
-    const_reference operator*() const;
-    pointer operator->();
-    const_pointer operator->() const;
-};
-
-
-class ExpressionSequence
-{
-public:
-
-  std::shared_ptr<ExpressionSequenceRepn> repn;
-
-public:
-
-    ExpressionSequence(const std::shared_ptr<ExpressionSequenceRepn>& _repn);
-
-    template <typename... TYPES>
-    ExpressionSequenceAux forall(const TYPES&... args)
-        {
-        std::vector<IndexParameter> arg;
-        collect_args(args..., arg);
-        return forall(arg);
-        }
-    
-    ExpressionSequenceAux forall(const std::vector<IndexParameter>& params);
-    ExpressionSequence st(const Constraint& con);
-    ExpressionSequence where(const Constraint& con);
-
-    ExpressionSeqIterator begin();
-    ExpressionSeqIterator end();
-
-protected:
-    
-    void collect_args(const IndexParameter& arg, std::vector<IndexParameter>& _arg)
-        {
-        _arg.emplace_back(arg);
-        }
-
-    template <typename... TYPES>
-    void collect_args(const IndexParameter& arg, const TYPES&... args, std::vector<IndexParameter>&  _arg)
-        {
-        _arg.emplace_back(arg);
-        collect_args(args..., _arg);
-        }
-};
-
-
-class ConstraintSeqIterator
-{
-public:
-
-    std::shared_ptr<ConstraintSeqIteratorRepn> repn;
-
-    typedef Constraint* pointer;
-    typedef const Constraint* const_pointer;
-    typedef Constraint& reference;
-    typedef const Constraint& const_reference;
-
-public:
-
-    ConstraintSeqIterator();
-    ConstraintSeqIterator(ConstraintSequenceRepn* seq, bool end=false);
-
-    ConstraintSeqIterator& operator++();
-
-    bool operator==(const ConstraintSeqIterator& other) const;
-    bool operator!=(const ConstraintSeqIterator& other) const;
-
-    reference operator*();
-    const_reference operator*() const;
-    pointer operator->();
-    const_pointer operator->() const;
-};
-
-
-class ConstraintSequence
-{
-public:
-
-  std::shared_ptr<ConstraintSequenceRepn> repn;
-
-public:
-
-    ConstraintSequence(const std::shared_ptr<ConstraintSequenceRepn>& _repn);
-
-    template <typename... TYPES>
-    ConstraintSequenceAux forall(const TYPES&... args)
-        {
-        std::vector<IndexParameter> arg;
-        collect_args(args..., arg);
-        return forall(arg);
-        }
-    
-    ConstraintSequenceAux forall(const std::vector<IndexParameter>& params);
-    ConstraintSequence st(const Constraint& con);
-    ConstraintSequence where(const Constraint& con);
-
-    ConstraintSeqIterator begin();
-    ConstraintSeqIterator end();
-
-protected:
-    
-    void collect_args(const IndexParameter& arg, std::vector<IndexParameter>& _arg)
-        {
-        _arg.emplace_back(arg);
-        }
-
-    template <typename... TYPES>
-    void collect_args(const IndexParameter& arg, const TYPES&... args, std::vector<IndexParameter>&  _arg)
-        {
-        _arg.emplace_back(arg);
-        collect_args(args..., _arg);
-        }
-};
-
-
-// BAD: This function doesn't logically belong in this header
-Expression Sum(const ExpressionSequence& seq);
 
 
 // TODO - Move to *.cpp file
@@ -170,9 +48,13 @@ public:
     std::vector<Constraint> constraints;
     std::vector<Variable> variables;
 
-    std::map<std::string, std::unordered_map<int,double> > vsuffix;
-    std::map<std::string, std::unordered_map<int,double> > csuffix;
-    std::map<std::string, std::unordered_map<int,double> > osuffix;
+    std::map<std::string, Objective> objectives_by_name;
+    std::map<std::string, Constraint> constraints_by_name;
+    std::map<std::string, Variable> variables_by_name;
+
+    std::map<std::string, std::unordered_map<unsigned int,double> > vsuffix;
+    std::map<std::string, std::unordered_map<unsigned int,double> > csuffix;
+    std::map<std::string, std::unordered_map<unsigned int,double> > osuffix;
     std::map<std::string, double > msuffix;
 };
 
@@ -199,17 +81,54 @@ public:
     ~Model();
     Model& operator=(const Model&);
 
-    Objective add_objective(const Expression& expr, bool _sense=Model::minimize);
-    Constraint add_constraint(const Constraint& expr);
+    //
+    // Variables
+    //
+    size_t num_variables() const;
+    std::set<std::string> variable_names() const;
 
     Variable add_variable(const std::string& name, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
     Variable add_variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
     Variable add_variable(Variable& var);
     void add_variable(VariableArray& var);
+#ifdef COEK_WITH_COMPACT_MODEL
     void add_variable(ConcreteIndexedVariable& var);
+#endif
+
+    Variable get_variable(unsigned int i);
+    Variable get_variable(const std::string& name);
+
+    //
+    // Objectives
+    //
+    size_t num_objectives() const;
+    std::set<std::string> objective_names() const;
+
+    Objective add_objective(const Expression& expr, bool _sense=Model::minimize);
+    Objective add_objective(const std::string& name, const Expression& expr, bool _sense=Model::minimize);
 
     Objective get_objective(unsigned int i=0);
+    Objective get_objective(const std::string& name);
+
+    //
+    // Constraint
+    //
+    size_t num_constraints() const;
+    std::set<std::string> constraint_names() const;
+
+    Constraint add_constraint(const Constraint& expr);
+    Constraint add_constraint(const std::string& name, const Constraint& expr);
+
     Constraint get_constraint(unsigned int i);
+    Constraint get_constraint(const std::string& name);
+
+    //
+    // Suffixes
+    //
+    std::set<std::string> variable_suffix_names() const;
+    std::set<std::string> objective_suffix_names() const;
+    std::set<std::string> constraint_suffix_names() const;
+    std::set<std::string> model_suffix_names() const;
 
     void set_suffix(const std::string& name, Variable& var, double value);
     void set_suffix(const std::string& name, Constraint& con, double value);
@@ -220,6 +139,10 @@ public:
     double get_suffix(const std::string& name, Constraint& con);
     double get_suffix(const std::string& name, Objective& obj);
     double get_suffix(const std::string& name);
+
+    //
+    // I/O
+    //
 
     void write(std::string filename);
     void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
@@ -232,22 +155,23 @@ public:
 };
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 class CompactModel
 {
 public:
 
     // TODO - define ObjectiveSequence
-    std::vector<std::variant<Objective, ExpressionSequence>> objectives;
+    std::vector<std::variant<Objective, ObjectiveSequence>> objectives;
     std::vector<std::variant<Constraint, ConstraintSequence>> constraints;
     std::vector<Variable> variables;
 
 public:
 
     Objective add_objective(const Expression& expr, bool _sense=Model::minimize);
-    void add_objective(const ExpressionSequence& seq, bool _sense=Model::minimize);
+    void add_objective(const Expression& expr, const SequenceContext& context, bool _sense=Model::minimize);
 
     Constraint add_constraint(const Constraint& expr);
-    void add_constraint(const ConstraintSequence& seq);
+    void add_constraint(const Constraint& expr, const SequenceContext& context);
 
     Variable add_variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
     Variable add_variable(const std::string& name, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
@@ -260,7 +184,7 @@ public:
     void write(std::string filename);
     void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
 };
-
+#endif
 
 class Solver
 {
@@ -277,11 +201,16 @@ public:
 
     void initialize(std::string solver);
 
-    int solve(Model& model);
-    int solve(CompactModel& model);
+    bool available() const;
 
+    int solve(Model& model);
     void load(Model& model);
+
+    #ifdef COEK_WITH_COMPACT_MODEL
+    int solve(CompactModel& model);
     void load(CompactModel& model);
+    #endif
+
     int resolve();
     void reset();
 
@@ -479,4 +408,9 @@ public:
 std::ostream& operator<<(std::ostream& ostr, const Model& arg);
 std::ostream& operator<<(std::ostream& ostr, const NLPModel& arg);
 
+Model read_problem_from_jpof_file(const std::string& filename, std::map<std::string,Parameter>& params);
+Model read_problem_from_jpof_string(const std::string& jpof, std::map<std::string,Parameter>& params);
+
 }
+
+#endif

@@ -1,631 +1,25 @@
 #include <cstdio>
 #include <memory>
 #include <sstream>
-#include <fstream>
+#include <iostream>
 #include <map>
-#include "coek/expr/ast_term.hpp"
-#include "coek/expr/varray.hpp"
+#include <cmath>
+
+#include "../util/map_utils.hpp"
+#include "../ast/varray.hpp"
+#include "coek/api/objective.hpp"
 #include "coek/abstract/expr_rule.hpp"
 #include "coek/autograd/autograd.hpp"
-#include "coek/coek_expr.hpp"
 #include "coek/coek_model.hpp"
 #include "coek/solvers/solver.hpp"
-#include "coek/expr/coek_exprterm.hpp"
-
-
-
-namespace coek {
-
-
-expr_pointer_t convert_expr_template(expr_pointer_t expr);
-ConstraintTerm* convert_con_template(ConstraintTerm* expr);
-
-
-//
-// Context
-//
-
-class Context
-{
-public:
-
-    std::vector<IndexParameter> indices;
-
-    ConcreteSet index_set;
-
-    std::list<Constraint> index_values;
-    std::list<Constraint> index_constraints;
-
-public:
-
-    Context(const std::vector<IndexParameter>& _indices)
-        : indices(_indices)
-        {}
-};
-
-
-//
-// ExpressionSequenceRepn
-//
-
-class ExpressionSequenceRepn
-{
-public:
-
-    std::vector<Context> context;
-    Expression expression_template;
-
-public:
-
-    ExpressionSequenceRepn(const Expression& expr)
-        : expression_template(expr)
-        {}
-    
-};
-
-
-//
-// ExpressionSeqIteratorRepn
-//
-
-class ExpressionSeqIteratorRepn
-{
-public:
-
-    ExpressionSequenceRepn* seq;
-    std::vector<SetIterator> context_iter;
-    size_t ncontexts;
-    Expression converted_expr;
-    bool done;
-
-    typedef Expression* pointer;
-    typedef const Expression* const_pointer;
-    typedef Expression& reference;
-    typedef const Expression& const_reference;
-
-public:
-
-    ExpressionSeqIteratorRepn(ExpressionSequenceRepn* _seq, bool end)
-        : seq(_seq)
-        {
-        done = end;
-        if (!done) {
-            context_iter.resize(seq->context.size());
-            
-            auto cit = seq->context.begin();
-            for (auto it = context_iter.begin(); it != context_iter.end(); ++it, ++cit) {
-                *it = cit->index_set.begin(cit->indices);
-                }
-            converted_expr = convert_expr_template( seq->expression_template.repn );
-            }
-        ncontexts = context_iter.size();
-        }
-
-    void operator++()
-        {
-        int i = ncontexts-1;
-        while (i >= 0) {
-            ++context_iter[i];
-            if (context_iter[i] == seq->context[i].index_set.end())
-                {
-                context_iter[i] = seq->context[i].index_set.begin(seq->context[i].indices);
-                i--;
-                }
-            else
-                break;
-            }
-        if (i < 0)
-            done = true;
-        else
-            converted_expr = convert_expr_template(seq->expression_template.repn);
-        }
-
-    bool operator==(const ExpressionSeqIteratorRepn* other) const
-        {
-        if (done != other->done)
-            return false;
-        if (done)
-            return true;
-        // BAD - Other comparisons here?
-        return true;
-        }
-
-    bool operator!=(const ExpressionSeqIteratorRepn* other) const
-        {
-        if (done == other->done)
-            return false;
-        if (other->done)
-            return true;
-        // BAD - Other comparisons here?
-        return true;
-        }
-
-    reference operator*()
-        { return converted_expr; }
-
-    const_reference operator*() const
-        { return converted_expr; }
-
-    pointer operator->()
-        { return &(converted_expr); }
-
-    const_pointer operator->() const
-        { return &(converted_expr); }
-};
-
-//
-// ExpressionSeqIterator
-//
-
-ExpressionSeqIterator::ExpressionSeqIterator()
-{}
-
-ExpressionSeqIterator::ExpressionSeqIterator(ExpressionSequenceRepn* _seq, bool end)
-{
-repn = std::make_shared<ExpressionSeqIteratorRepn>(_seq, end);
-}
-
-ExpressionSeqIterator& ExpressionSeqIterator::operator++()
-{
-repn->operator++();
-return *this;
-}
-
-bool ExpressionSeqIterator::operator==(const ExpressionSeqIterator& other) const
-{
-return repn->operator==(other.repn.get());
-}
-
-bool ExpressionSeqIterator::operator!=(const ExpressionSeqIterator& other) const
-{
-return repn->operator!=(other.repn.get());
-}
-
-ExpressionSeqIterator::reference ExpressionSeqIterator::operator*()
-{
-return repn->operator*();
-}
-
-ExpressionSeqIterator::const_reference ExpressionSeqIterator::operator*() const
-{
-return repn->operator*();
-}
-
-ExpressionSeqIterator::pointer ExpressionSeqIterator::operator->()
-{
-return repn->operator->();
-}
-
-ExpressionSeqIterator::const_pointer ExpressionSeqIterator::operator->() const
-{
-return repn->operator->();
-}
-
-//
-// Expression
-//
-
-ExpressionSequenceAux Expression::forall(const std::vector<IndexParameter>& indices)
-{
-auto repn = std::make_shared<ExpressionSequenceRepn>(*this);
-repn->context.emplace_back(indices);
-return repn;
-}
-
-//
-// ExpressionSequenceAux
-//
-ExpressionSequenceAux::ExpressionSequenceAux(const std::shared_ptr<ExpressionSequenceRepn>& _repn)
-    : repn(_repn)
-{}
-
-ExpressionSequence ExpressionSequenceAux::in(const ConcreteSet& _index_set)
-{
-Context& curr = repn->context.back();
-curr.index_set = _index_set;
-return repn;
-}
-
-//
-// ExpressionSequence
-//
-ExpressionSequence::ExpressionSequence(const std::shared_ptr<ExpressionSequenceRepn>& _repn)
-    : repn(_repn)
-{}
-
-ExpressionSequenceAux ExpressionSequence::forall(const std::vector<IndexParameter>& params)
-{
-repn->context.emplace_back(params);
-return repn;
-}
-
-ExpressionSequence ExpressionSequence::st(const Constraint& con)
-{
-auto curr = repn->context.back();
-curr.index_constraints.push_back(con);
-return repn;
-}
-
-ExpressionSequence ExpressionSequence::where(const Constraint& con)
-{
-// TODO - parse these constraints here and use a more explicit data structure
-auto curr = repn->context.back();
-curr.index_values.push_back(con);
-return repn;
-}
-
-ExpressionSeqIterator ExpressionSequence::begin()
-{
-return ExpressionSeqIterator(repn.get(), false);
-}
-
-ExpressionSeqIterator ExpressionSequence::end()
-{
-return ExpressionSeqIterator(repn.get(), true);
-}
-
-
-
-//
-// ConstraintSequenceRepn
-//
-
-class ConstraintSequenceRepn
-{
-public:
-
-    std::vector<Context> context;
-    Constraint constraint_template;
-
-public:
-
-    ConstraintSequenceRepn(const Constraint& con)
-        : constraint_template(con)
-        {}
-};
-
-
-//
-// ConstraintSeqIteratorRepn
-//
-
-class ConstraintSeqIteratorRepn
-{
-public:
-
-    ConstraintSequenceRepn* seq;
-    std::vector<SetIterator> context_iter;
-    size_t ncontexts;
-    Constraint converted_con;
-    bool done;
-
-    typedef Constraint* pointer;
-    typedef const Constraint* const_pointer;
-    typedef Constraint& reference;
-    typedef const Constraint& const_reference;
-
-public:
-
-    ConstraintSeqIteratorRepn(ConstraintSequenceRepn* _seq, bool end)
-        : seq(_seq)
-        {
-        done = end;
-        if (!done) {
-            context_iter.resize(seq->context.size());
-
-            auto cit = seq->context.begin();
-            for (auto it = context_iter.begin(); it != context_iter.end(); ++it, ++cit) {
-                *it = cit->index_set.begin(cit->indices);
-                }
-            converted_con = convert_con_template(seq->constraint_template.repn);
-            }
-        ncontexts = context_iter.size();
-        }
-
-    void operator++()
-        {
-        int i = ncontexts-1;
-        while (i >= 0) {
-            ++context_iter[i];
-            if (context_iter[i] == seq->context[i].index_set.end())
-                {
-                context_iter[i] = seq->context[i].index_set.begin(seq->context[i].indices);
-                i--;
-                }
-            else
-                break;
-            }
-        if (i < 0)
-            done = true;
-        else
-            converted_con = convert_con_template(seq->constraint_template.repn);
-        }
-
-    bool operator==(const ConstraintSeqIteratorRepn* other) const
-        {
-        if (done != other->done)
-            return false;
-        if (done)
-            return true;
-        // BAD - Other comparisons here?
-        return true;
-        }
-
-    bool operator!=(const ConstraintSeqIteratorRepn* other) const
-        {
-        if (done == other->done)
-            return false;
-        if (other->done)
-            return true;
-        // BAD - Other comparisons here?
-        return true;
-        }
-
-    reference operator*()
-        { return converted_con; }
-
-    const_reference operator*() const
-        { return converted_con; }
-
-    pointer operator->()
-        { return &(converted_con); }
-
-    const_pointer operator->() const
-        { return &(converted_con); }
-};
-
-//
-// ConstraintSeqIterator
-//
-
-ConstraintSeqIterator::ConstraintSeqIterator()
-{}
-
-ConstraintSeqIterator::ConstraintSeqIterator(ConstraintSequenceRepn* _seq, bool end)
-{
-repn = std::make_shared<ConstraintSeqIteratorRepn>(_seq, end);
-}
-
-ConstraintSeqIterator& ConstraintSeqIterator::operator++()
-{
-repn->operator++();
-return *this;
-}
-
-bool ConstraintSeqIterator::operator==(const ConstraintSeqIterator& other) const
-{
-return repn->operator==(other.repn.get());
-}
-
-bool ConstraintSeqIterator::operator!=(const ConstraintSeqIterator& other) const
-{
-return repn->operator!=(other.repn.get());
-}
-
-ConstraintSeqIterator::reference ConstraintSeqIterator::operator*()
-{
-return repn->operator*();
-}
-
-ConstraintSeqIterator::const_reference ConstraintSeqIterator::operator*() const
-{
-return repn->operator*();
-}
-
-ConstraintSeqIterator::pointer ConstraintSeqIterator::operator->()
-{
-return repn->operator->();
-}
-
-ConstraintSeqIterator::const_pointer ConstraintSeqIterator::operator->() const
-{
-return repn->operator->();
-}
-
-//
-// Constraint
-//
-
-ConstraintSequenceAux Constraint::forall(const std::vector<IndexParameter>& params)
-{
-auto repn = std::make_shared<ConstraintSequenceRepn>(*this);
-repn->context.emplace_back(params);
-return repn;
-}
-
-//
-// ConstraintSequenceAux
-//
-ConstraintSequenceAux::ConstraintSequenceAux(const std::shared_ptr<ConstraintSequenceRepn>& _repn)
-    : repn(_repn)
-{}
-
-ConstraintSequence ConstraintSequenceAux::in(const ConcreteSet& _index_set)
-{
-Context& curr = repn->context.back();
-curr.index_set = _index_set;
-return repn;
-}
-
-//
-// ConstraintSequence
-//
-ConstraintSequence::ConstraintSequence(const std::shared_ptr<ConstraintSequenceRepn>& _repn)
-    : repn(_repn)
-{}
-
-ConstraintSequenceAux ConstraintSequence::forall(const std::vector<IndexParameter>& params)
-{
-repn->context.emplace_back(params);
-return repn;
-}
-
-ConstraintSequence ConstraintSequence::st(const Constraint& con)
-{
-auto curr = repn->context.back();
-curr.index_constraints.push_back(con);
-return repn;
-}
-
-ConstraintSequence ConstraintSequence::where(const Constraint& con)
-{
-// TODO - parse these constraints here and use a more explicit data structure
-auto curr = repn->context.back();
-curr.index_values.push_back(con);
-return repn;
-}
-
-ConstraintSeqIterator ConstraintSequence::begin()
-{
-return ConstraintSeqIterator(repn.get(), false);
-}
-
-ConstraintSeqIterator ConstraintSequence::end()
-{
-return ConstraintSeqIterator(repn.get(), true);
-}
-
-
-#if 0
-//
-// ConstraintIteratorRepn
-//
-
-class ConstraintIteratorRepn
-{
-public:
-
-    Model* model;
-    std::vector<Constraint>::iterator constraints_iter;
-    std::vector<ConstraintSequence>::iterator constraint_sequences_iter;
-    ConstraintSeqIterator constraint_seq_iter;
-    bool sequences;
-
-    typedef Constraint* pointer;
-    typedef const Constraint* const_pointer;
-    typedef Constraint& reference;
-    typedef const Constraint& const_reference;
-
-public:
-
-    ConstraintIteratorRepn(Model* _model, bool end)
-        : model(_model), sequences(false)
-        {
-        if (end) {
-            constraints_iter = model->constraints.end(); 
-            constraint_sequences_iter = model->constraint_sequences.end(); 
-            }
-        else {
-            constraints_iter = model->constraints.begin(); 
-            constraint_sequences_iter = model->constraint_sequences.begin(); 
-            if (constraint_sequences_iter != model->constraint_sequences.end())
-                constraint_seq_iter = constraint_sequences_iter->begin();
-            }
-        }
-
-    void operator++()
-        {
-        if (sequences) {
-            ++constraint_seq_iter;
-            if (constraint_seq_iter == constraint_sequences_iter->end())
-                constraint_sequences_iter++;
-            }
-        else {
-            ++constraints_iter;
-            if (constraints_iter == model->constraints.end()) {
-                sequences = true;
-                if (constraint_sequences_iter != model->constraint_sequences.end())
-                    constraint_seq_iter = constraint_sequences_iter->begin();
-                }
-            }
-        }
-
-    bool operator==(const ConstraintIteratorRepn* other) const
-        {
-        if (sequences)
-            return (constraint_sequences_iter == other->constraint_sequences_iter);
-        else
-            return (constraints_iter == other->constraints_iter);
-        }
-
-    bool operator!=(const ConstraintIteratorRepn* other) const
-        {
-        if (sequences)
-            return (constraint_sequences_iter == other->constraint_sequences_iter);
-        else
-            return (constraints_iter == other->constraints_iter);
-        }
-
-    reference operator*()
-        {
-        if (sequences)
-            return *constraint_seq_iter;
-        else
-            return *constraints_iter;
-        }
-
-    const_reference operator*() const
-        {
-        if (sequences)
-            return *constraint_seq_iter;
-        else
-            return *constraints_iter;
-        }
-
-    pointer operator->()
-        {
-        if (sequences)
-            return constraint_seq_iter.operator->();
-        else
-            return constraints_iter.operator->();
-        }
-
-    const_pointer operator->() const
-        {
-        if (sequences)
-            return constraint_seq_iter.operator->();
-        else
-            return constraints_iter.operator->();
-        }
-};
+#ifdef COEK_WITH_COMPACT_MODEL
+#include "coek/compact/objective_sequence.hpp"
+#include "coek/compact/constraint_sequence.hpp"
+#include "coek/compact/coek_exprterm.hpp"
 #endif
 
 
-namespace visitors {
-
-expr_pointer_t visit(SumExpressionTerm& arg)
-{
-auto it=arg.seq.begin();
-if (it == arg.seq.end()) {
-    return ZEROCONST;
-    }
-
-expr_pointer_t curr;
-{
-Expression e = *it;
-++it;
-for (; it != arg.seq.end(); ++it) {
-    e += *it;
-    }
-curr = e.repn;
-OWN_POINTER(curr);
-}
-FREE_POINTER(curr);
-return curr;
-}
-
-}
-
-
-
-//
-// Sum
-//
-Expression Sum(const ExpressionSequence& seq)
-{
-Expression ans( CREATE_POINTER(SumExpressionTerm, seq) );
-return ans;
-}
+namespace coek {
 
 //
 // Model
@@ -662,7 +56,14 @@ void Model::print_values() const
 
 void Model::print_values(std::ostream& ostr) const
 {
-ostr << "ERROR - Model::print_values is not implemented yet." << std::endl;
+ostr << "Model Variables: " << repn->variables_by_name.size() << "\n";
+ostr << "Nonzero Variables\n";
+for (auto const& var: repn->variables_by_name) {
+    double val = var.second.get_value();
+    if (::fabs(val) > 1e-7) {
+        ostr << "   " << var.first << " " << val << " " << var.second.get_fixed() << "\n";
+        }
+    }
 }
 
 Model::Model()
@@ -687,9 +88,26 @@ repn->objectives.push_back(tmp);
 return repn->objectives.back();
 }
 
+Objective Model::add_objective(const std::string& name, const Expression& expr, bool _sense)
+{
+Objective tmp(name, expr.repn, _sense);
+repn->objectives.push_back(tmp);
+repn->objectives_by_name.emplace(name, tmp);
+//return repn->objectives.back();
+return tmp;
+}
+
 Constraint Model::add_constraint(const Constraint& expr)
 {
 repn->constraints.push_back(expr);
+return expr;
+}
+
+Constraint Model::add_constraint(const std::string& name, const Constraint& expr)
+{
+repn->constraints.push_back(expr);
+repn->constraints.back().set_name(name);
+repn->constraints_by_name.emplace(name, expr);
 return expr;
 }
 
@@ -704,12 +122,18 @@ Variable Model::add_variable(const std::string& name, double lb, double ub, doub
 {
 Variable tmp(name,lb,ub,value,binary,integer);
 repn->variables.push_back(tmp);
+if (name != "")
+    repn->variables_by_name.emplace(name, tmp);
 return repn->variables.back();
+//return tmp;
 }
 
 Variable Model::add_variable(Variable& var)
 {
 repn->variables.push_back(var);
+auto name = var.get_name();
+if (name != "")
+    repn->variables_by_name.emplace(name, var);
 return var;
 }
 
@@ -717,15 +141,39 @@ void Model::add_variable(VariableArray& varray)
 {
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
     repn->variables.push_back(*it);
+    auto name = it->get_name();
+    if (name != "")
+        repn->variables_by_name.emplace(name, *it);
     }
 }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void Model::add_variable(ConcreteIndexedVariable& vars)
 {
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
     repn->variables.push_back(*it);
+    auto name = it->get_name();
+    if (name != "")
+        repn->variables_by_name.emplace(name, *it);
     }
+}
+#endif
+
+size_t Model::num_variables() const
+{ return repn->variables.size(); }
+
+size_t Model::num_objectives() const
+{ return repn->objectives.size(); }
+
+size_t Model::num_constraints() const
+{ return repn->constraints.size(); }
+
+Variable Model::get_variable(unsigned int i)
+{
+if (i > repn->variables.size())
+    throw std::out_of_range("Variable index " + std::to_string(i) + " is too large: " + std::to_string(repn->variables.size()) + "       variables available.");
+return repn->variables[i];
 }
 
 Objective Model::get_objective(unsigned int i)
@@ -742,17 +190,50 @@ if (i > repn->constraints.size())
 return repn->constraints[i];
 }
 
+Variable Model::get_variable(const std::string& name)
+{
+auto it = repn->variables_by_name.find(name);
+if (it == repn->variables_by_name.end()) 
+    throw std::runtime_error("Unknown variable name " + name);
+return it->second;
+}
+
+Objective Model::get_objective(const std::string& name)
+{
+auto it = repn->objectives_by_name.find(name);
+if (it == repn->objectives_by_name.end()) 
+    throw std::runtime_error("Unknown objective name " + name);
+return it->second;
+}
+
+Constraint Model::get_constraint(const std::string& name)
+{
+auto it = repn->constraints_by_name.find(name);
+if (it == repn->constraints_by_name.end()) 
+    throw std::runtime_error("Unknown constraint name " + name);
+return it->second;
+}
+
+std::set<std::string> Model::variable_names() const
+{ return map_keys(repn->variables_by_name); }
+
+std::set<std::string> Model::objective_names() const
+{ return map_keys(repn->objectives_by_name); }
+
+std::set<std::string> Model::constraint_names() const
+{ return map_keys(repn->constraints_by_name); }
+
 void Model::set_suffix(const std::string& name, Variable& var, double value)
-{ repn->vsuffix[name][var.id()] = value; }
+{ repn->vsuffix[name].emplace(var.id(), value); }
 
 void Model::set_suffix(const std::string& name, Constraint& con, double value)
-{ repn->csuffix[name][con.id()] = value; }
+{ repn->csuffix[name].emplace(con.id(), value); }
 
 void Model::set_suffix(const std::string& name, Objective& obj, double value)
-{ repn->osuffix[name][obj.id()] = value; }
+{ repn->osuffix[name].emplace(obj.id(), value); }
 
 void Model::set_suffix(const std::string& name, double value)
-{ repn->msuffix[name] = value; }
+{ repn->msuffix.emplace(name, value); }
 
 double Model::get_suffix(const std::string& name, Variable& var)
 { return repn->vsuffix[name][var.id()]; }
@@ -766,15 +247,38 @@ double Model::get_suffix(const std::string& name, Objective& obj)
 double Model::get_suffix(const std::string& name)
 { return repn->msuffix[name]; }
 
+std::set<std::string> Model::variable_suffix_names() const
+{ return map_keys(repn->vsuffix); }
+
+std::set<std::string> Model::objective_suffix_names() const
+{ return map_keys(repn->osuffix); }
+
+std::set<std::string> Model::constraint_suffix_names() const
+{ return map_keys(repn->csuffix); }
+
+std::set<std::string> Model::model_suffix_names() const
+{ return map_keys(repn->msuffix); }
+
 static bool endsWith(const std::string& str, const std::string& suffix)
-{
-    return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
-}
+{ return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix); }
 
-void write_lp_problem(Model& model, std::ostream& ostr, std::map<int,int>& varmap, std::map<int,int>& conmap);
-void write_lp_problem(CompactModel& model, std::ostream& ostr, std::map<int,int>& varmap, std::map<int,int>& conmap);
-void write_nl_problem(Model& model, std::ostream& ostr, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_nl_problem(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 
+void write_lp_problem_ostream(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_nl_problem_ostream(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+#ifdef WITH_FMTLIB
+void write_lp_problem_fmtlib(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_nl_problem_fmtlib(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+#endif
+
+#ifdef COEK_WITH_COMPACT_MODEL
+void write_lp_problem(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+#ifdef WITH_FMTLIB
+void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+#endif
+#endif
 
 void Model::write(std::string fname)
 {
@@ -786,18 +290,38 @@ write(fname, varmap, conmap);
 void Model::write(std::string fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 {
 if (endsWith(fname, ".lp")) {
-    std::ofstream ofstr(fname);
-    write_lp_problem(*this, ofstr, varmap, conmap);
-    ofstr.close();
+    write_lp_problem(*this, fname, varmap, conmap);
     return;
     }
 
-else if (endsWith(fname, ".nl")) {
-    std::ofstream ofstr(fname);
-    write_nl_problem(*this, ofstr, varmap, conmap);
-    ofstr.close();
+else if (endsWith(fname, ".ostrlp")) {
+    write_lp_problem_ostream(*this, fname, varmap, conmap);
     return;
     }
+
+#ifdef WITH_FMTLIB
+else if (endsWith(fname, ".fmtlp")) {
+    write_lp_problem_fmtlib(*this, fname, varmap, conmap);
+    return;
+    }
+#endif
+
+else if (endsWith(fname, ".nl")) {
+    write_nl_problem(*this, fname, varmap, conmap);
+    return;
+    }
+
+else if (endsWith(fname, ".ostrnl")) {
+    write_nl_problem_ostream(*this, fname, varmap, conmap);
+    return;
+    }
+
+#ifdef WITH_FMTLIB
+else if (endsWith(fname, ".fmtnl")) {
+    write_nl_problem_fmtlib(*this, fname, varmap, conmap);
+    return;
+    }
+#endif
 
 throw std::runtime_error("Unknown problem type");
 }
@@ -807,6 +331,7 @@ throw std::runtime_error("Unknown problem type");
 // CompactModel
 //
 
+#ifdef COEK_WITH_COMPACT_MODEL
 Objective CompactModel::add_objective(const Expression& expr, bool _sense)
 {
 Objective obj(expr, _sense);
@@ -814,12 +339,10 @@ objectives.push_back( obj );
 return obj;
 }
 
-void CompactModel::add_objective(const ExpressionSequence& seq, bool _sense)
+void CompactModel::add_objective(const Expression& expr, const SequenceContext& context, bool _sense)
 {
-/*
+ObjectiveSequence seq(expr, context, _sense);
 objectives.push_back( seq );
-sense.push_back( _sense );
-*/
 }
 
 Constraint CompactModel::add_constraint(const Constraint& expr)
@@ -828,8 +351,9 @@ constraints.push_back(expr);
 return expr;
 }
 
-void CompactModel::add_constraint(const ConstraintSequence& seq)
+void CompactModel::add_constraint(const Constraint& expr, const SequenceContext& context)
 {
+ConstraintSequence seq(expr, context);
 constraints.push_back(seq);
 }
 
@@ -872,18 +396,18 @@ Model CompactModel::expand()
 {
 Model model;
 model.repn->variables = variables;
+for (auto it=variables.begin(); it != variables.end(); ++it) {
+    auto name = it->get_name();
+    if (name != "")
+        model.repn->variables_by_name.emplace(name, *it);
+    }
 
-int i=0;
+//int i=0;
 for (auto it=objectives.begin(); it != objectives.end(); ++it) {
-    /*
-    * WEH - TODO rework this to use Objective objects
-
     auto& val = *it;
-    bool osense = sense[i++];
-    if (auto eval = std::get_if<Expression>(&val)) {
-        Expression e = eval->expand();
-        model.add(e, osense); //repn->objectives.push_back(e);
-        //model.repn->sense.push_back(osense);
+    if (auto eval = std::get_if<Objective>(&val)) {
+        Expression e = eval->body().expand();
+        model.add_objective(e, eval->sense());
         }
     else {
 #if 0
@@ -895,10 +419,9 @@ for (auto it=objectives.begin(); it != objectives.end(); ++it) {
             }
 #endif
         }
-    */
     }
 
-i=0;
+//i=0;
 for (auto it=constraints.begin(); it != constraints.end(); ++it) {
     auto& val = *it;
     if (auto cval = std::get_if<Constraint>(&val)) {
@@ -925,16 +448,26 @@ write(fname, varmap, conmap);
 void CompactModel::write(std::string fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 {
 if (endsWith(fname, ".lp")) {
-    std::ofstream ofstr(fname);
-    write_lp_problem(*this, ofstr, varmap, conmap);
-    ofstr.close();
+    write_lp_problem(*this, fname, varmap, conmap);
     return;
     }
+
+else if (endsWith(fname, ".ostrlp")) {
+    write_lp_problem_ostream(*this, fname, varmap, conmap);
+    return;
+    }
+
+#ifdef WITH_FMTLIB
+else if (endsWith(fname, ".fmtlp")) {
+    write_lp_problem_fmtlib(*this, fname, varmap, conmap);
+    return;
+    }
+#endif
 
 Model model = expand();
 model.write(fname, varmap, conmap);
 }
-
+#endif
 
 //
 // NLPModel
@@ -1137,21 +670,27 @@ return ostr;
 
 void Solver::initialize(std::string name)
 {
-std::shared_ptr<SolverRepn> tmp(create_solver(name));
-repn = tmp;
+SolverRepn* tmp = create_solver(name);
+if (tmp)
+    repn = std::shared_ptr<SolverRepn>(tmp);
 }
 
-int Solver::solve(Model& model)
-{ return repn->solve(model); }
+bool Solver::available() const
+{ return repn.use_count() > 0; }
 
-int Solver::solve(CompactModel& model)
+int Solver::solve(Model& model)
 { return repn->solve(model); }
 
 void Solver::load(Model& model)
 { repn->load(model); }
 
+#ifdef COEK_WITH_COMPACT_MODEL
+int Solver::solve(CompactModel& model)
+{ return repn->solve(model); }
+
 void Solver::load(CompactModel& model)
 { repn->load(model); }
+#endif
 
 int Solver::resolve()
 { return repn->resolve(); }
@@ -1236,7 +775,7 @@ void NLPSolver::set_option(int option, const std::string value)
 
 void check_that_expression_variables_are_declared(Model& model, const std::set<unsigned int>& var_ids)
 {
-std::set<unsigned int> model_ids;
+std::unordered_set<unsigned int> model_ids;
 
 auto end = model.repn->variables.end();
 for (auto it=model.repn->variables.begin(); it != end; ++it)

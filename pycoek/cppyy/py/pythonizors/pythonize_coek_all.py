@@ -61,6 +61,27 @@ def pythonize_coek_all(klass, name):
             yield b.__deref__()
             b.__preinc__()
 
+    def Parameter_truediv(self, arg):
+        if arg.__class__ == int and arg == 0:
+            raise TypeError("Dividing by zero.")
+        if arg.__class__ == float and arg == 0:
+            raise TypeError("Dividing by zero.")
+        return pycoek.coek.Parameter_operator_truediv(self, arg)
+
+    def Variable_truediv(self, arg):
+        if arg.__class__ == int and arg == 0:
+            raise TypeError("Dividing by zero.")
+        if arg.__class__ == float and arg == 0:
+            raise TypeError("Dividing by zero.")
+        return pycoek.coek.Variable_operator_truediv(self, arg)
+
+    def Expression_truediv(self, arg):
+        if arg.__class__ == int and arg == 0:
+            raise TypeError("Dividing by zero.")
+        if arg.__class__ == float and arg == 0:
+            raise TypeError("Dividing by zero.")
+        return pycoek.coek.Expression_operator_truediv(self, arg)
+
     def bool_error(self):
         raise TypeError("bool() argument must be a boolean value.")
 
@@ -77,7 +98,27 @@ def pythonize_coek_all(klass, name):
             raise TypeError("Constraint argument cannot be used in a boolean expression.")
         return self.__init__bak(*args, **kwargs)
 
-    if name == 'Variable':
+    if name == 'Parameter':
+        klass.__init__ = klass.__init__.__overload__("double,const string&")
+        klass.value = property(klass.get_value, klass.set_value, doc="Value of this parameter")
+        klass.name = property(get_name_str_or_None, doc="Name of this parameter")
+        klass.__pos__ = pycoek.coek.Parameter_operator_pos
+        klass.__neg__ = pycoek.coek.Parameter_operator_neg
+        klass.__radd__ = pycoek.coek.Parameter_operator_radd
+        klass.__rsub__ = pycoek.coek.Parameter_operator_rsub
+        klass.__rmul__ = pycoek.coek.Parameter_operator_rmul
+        klass.__rtruediv__ = pycoek.coek.Parameter_operator_rtruediv
+        klass.__truediv__ = Parameter_truediv
+        klass.__pow__ = pycoek.coek.Parameter_pow
+        klass.__rpow__ = pycoek.coek.Parameter_rpow
+        klass.__eq__ = pycoek.coek.Parameter_operator_eq
+        klass.__lt__ = pycoek.coek.Parameter_operator_lt
+        klass.__le__ = pycoek.coek.Parameter_operator_le
+        klass.__gt__ = pycoek.coek.Parameter_operator_gt
+        klass.__ge__ = pycoek.coek.Parameter_operator_ge
+        klass.__bool__ = bool_error
+
+    elif name == 'Variable':
         klass.__init__ = klass.__init__.__overload__("const string&,double,double,double,bool,bool")
         klass.value = property(klass.get_value, klass.set_value, doc="Value of this variable")
         klass.name = property(get_name_str_or_None, doc="Name of this variable")
@@ -87,16 +128,15 @@ def pythonize_coek_all(klass, name):
         klass.__rsub__ = pycoek.coek.Variable_operator_rsub
         klass.__rmul__ = pycoek.coek.Variable_operator_rmul
         klass.__rtruediv__ = pycoek.coek.Variable_operator_rtruediv
-        klass.__truediv__ = pycoek.coek.Variable_operator_truediv
+        klass.__truediv__ = Variable_truediv
         klass.__pow__ = pycoek.coek.Variable_pow
         klass.__rpow__ = pycoek.coek.Variable_rpow
-        klass.__bool__ = bool_error
-        #klass.__eq__ = klass.__cpp_eq__
         klass.__eq__ = pycoek.coek.Variable_operator_eq
-
-    elif name == 'Objective':
-        klass.__to_list = klass.to_list
-        klass.to_list = to_list
+        klass.__le__ = pycoek.coek.Variable_operator_le
+        klass.__lt__ = pycoek.coek.Variable_operator_lt
+        klass.__ge__ = pycoek.coek.Variable_operator_ge
+        klass.__gt__ = pycoek.coek.Variable_operator_gt
+        klass.__bool__ = bool_error
 
     elif name == 'Expression':
         klass.__init__bak = klass.__init__
@@ -110,23 +150,19 @@ def pythonize_coek_all(klass, name):
         klass.__rsub__ = pycoek.coek.Expression_operator_rsub
         klass.__rmul__ = pycoek.coek.Expression_operator_rmul
         klass.__rtruediv__ = pycoek.coek.Expression_operator_rtruediv
+        klass.__truediv__ = Expression_truediv
         klass.__pow__ = pycoek.coek.Expression_pow
         klass.__rpow__ = pycoek.coek.Expression_rpow
+        klass.__eq__ = pycoek.coek.Expression_operator_eq
+        klass.__lt__ = pycoek.coek.Expression_operator_lt
+        klass.__le__ = pycoek.coek.Expression_operator_le
+        klass.__gt__ = pycoek.coek.Expression_operator_gt
+        klass.__ge__ = pycoek.coek.Expression_operator_ge
         klass.__bool__ = bool_error
 
-    elif name == 'Parameter':
-        klass.__init__ = klass.__init__.__overload__("double,const string&")
-        klass.value = property(klass.get_value, klass.set_value, doc="Value of this parameter")
-        klass.name = property(get_name_str_or_None, doc="Name of this parameter")
-        klass.__pos__ = pycoek.coek.Parameter_operator_pos
-        klass.__neg__ = pycoek.coek.Parameter_operator_neg
-        klass.__radd__ = pycoek.coek.Parameter_operator_radd
-        klass.__rsub__ = pycoek.coek.Parameter_operator_rsub
-        klass.__rmul__ = pycoek.coek.Parameter_operator_rmul
-        klass.__rtruediv__ = pycoek.coek.Parameter_operator_rtruediv
-        klass.__pow__ = pycoek.coek.Parameter_pow
-        klass.__rpow__ = pycoek.coek.Parameter_rpow
-        klass.__bool__ = bool_error
+    elif name == 'Objective':
+        klass.__to_list = klass.to_list
+        klass.to_list = to_list
 
     elif name == 'Constraint':
         klass.id = property(klass.id, doc="A unique integer id.")
@@ -160,3 +196,5 @@ def pythonize_coek_all(klass, name):
         klass._add_variable_vararray = klass.add_variable.__overload__('coek::VariableArray&')
         klass.add_variable = Model_add_variable
 
+    elif name == 'Solver':
+        klass.available = property(lambda self: self.available(), doc="A flag that indicates if the solver is available")

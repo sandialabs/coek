@@ -1,4 +1,9 @@
-#include "coek/expr/ast_visitors.hpp"
+#include <cmath>
+#include "../ast/value_terms.hpp"
+#include "../ast/visitor_fns.hpp"
+#include "coek/api/objective.hpp"
+#include "coek/api/constraint.hpp"
+#include "coek/api/expression.hpp"
 #include "coek/coek_model.hpp"
 #include "testsolver.hpp"
 
@@ -33,8 +38,8 @@ for (auto it=pcache.begin(); it != pcache.end(); ++it) {
     }
 
 //#ifdef DEBUG
-std::cout << "Updated Fixed Variables: " << vupdates.size() << std::endl;
-std::cout << "Updated Parameters:      " << pupdates.size() << std::endl;
+std::cout << "Updated Fixed Variables: " << vupdates.size() << " Cache Size: " << vcache.size() << std::endl;
+std::cout << "Updated Parameters:      " << pupdates.size() << " Cache Size: " << pcache.size() << std::endl;
 //#endif
 }
 
@@ -167,6 +172,7 @@ std::cout << "# Mutable Expressions: " << nmutable << std::endl;
 }
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void SolverRepn::load(CompactModel& _model)
 {
 model = _model.expand();
@@ -179,6 +185,7 @@ int SolverRepn::solve(CompactModel& _model)
 model = _model.expand();
 return solve(model);
 }
+#endif
 
 
 bool SolverRepn::initial_solve()

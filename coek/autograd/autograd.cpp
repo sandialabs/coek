@@ -1,5 +1,10 @@
-
-#include "coek/expr/ast_visitors.hpp"
+#include <unordered_set>
+#include "../ast/visitor_fns.hpp"
+#include "../ast/objective_terms.hpp"
+#include "../ast/constraint_terms.hpp"
+#include "../ast/value_terms.hpp"
+#include "coek/api/objective.hpp"
+#include "coek/api/constraint.hpp"
 #include "autograd.hpp"
 
 #ifdef WITH_CPPAD

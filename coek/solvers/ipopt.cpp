@@ -3,9 +3,12 @@
 #include "IpIpoptApplication.hpp"
 #include "IpSolveStatistics.hpp"
 #include "IpTNLP.hpp"
-#include "ipopt.hpp"
 
+#include "coek/api/expression.hpp"
+#include "coek/api/objective.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek/autograd/autograd.hpp"
+#include "ipopt.hpp"
 
 using namespace Ipopt;
 

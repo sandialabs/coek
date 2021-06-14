@@ -1,3 +1,10 @@
+#include <unordered_map>
+#include "../ast/value_terms.hpp"
+#include "../ast/objective_terms.hpp"
+#include "../ast/constraint_terms.hpp"
+#include "../ast/expr_terms.hpp"
+#include "coek/api/objective.hpp"
+#include "coek/api/constraint.hpp"
 #include "cppad_repn.hpp"
 
 namespace coek {

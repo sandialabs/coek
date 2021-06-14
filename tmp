@@ -1,9 +1,0 @@
-\rm -Rf build
-mkdir build
-cd build
-cmake -Dwith_cppad=ON -Dwith_cppyy=ON ..
-make
-cd cppyy
-pip uninstall -y pycoek
-python setup.py install
-cd ../..

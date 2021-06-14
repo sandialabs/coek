@@ -2,8 +2,11 @@
 #include <sstream>
 #include <iostream>
 #include "catch.hpp"
-#include "coek/expr/ast_term.hpp"
-#include "coek/expr/ast_visitors.hpp"
+#include "coek/ast/base_terms.hpp"
+#include "coek/ast/value_terms.hpp"
+#include "coek/ast/objective_terms.hpp"
+#include "coek/ast/constraint_terms.hpp"
+#include "coek/ast/visitor_fns.hpp"
 #include "coek/coek.hpp"
 
 #define WRITER_INTRINSIC_TEST1(FN)\

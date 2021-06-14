@@ -5,7 +5,8 @@
 #include <iostream>
 #include "catch.hpp"
 
-#include "coek/expr/ast_term.hpp"
+#include "coek/ast/base_terms.hpp"
+#include "coek/ast/value_terms.hpp"
 #include "coek/coek.hpp"
 
 const double PI = 3.141592653589793238463;
@@ -2822,6 +2823,7 @@ TEST_CASE( "model_constraint", "[smoke]" ) {
 coek::Variable v("v", 0.0, 1.0, 1.0, false, false);
 coek::Parameter p(0.0, "p");
 coek::IndexParameter P("P");
+P.set_value(0);
 coek::Expression f;
 
   SECTION( "lt-operator" ) {

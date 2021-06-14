@@ -5,8 +5,14 @@
 #include <unordered_map>
 #include "gurobi_c++.h"
 
+#include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
+#include "coek/api/objective.hpp"
+#include "coek/compact/expression_sequence.hpp"
+#include "coek/compact/objective_sequence.hpp"
+#include "coek/compact/constraint_sequence.hpp"
 #include "coek_gurobi.hpp"
-#include "coek/expr/ast_term.hpp"
+#include "../ast/value_terms.hpp"
 #include "coek/coek_model.hpp"
 
 namespace coek {
@@ -53,16 +59,36 @@ void add_gurobi_constraint(GRBModel* gmodel, Constraint& con, std::unordered_map
                 for (size_t i=0; i< repn.quadratic_coefs.size(); i++)
                     term2.addTerm(repn.quadratic_coefs[i], x[repn.quadratic_lvars[i]->index], x[repn.quadratic_rvars[i]->index]);
 
-                if (con.is_inequality())
-                    gmodel->addQConstr(term1 + term2, GRB_LESS_EQUAL, - repn.constval);
+                if (con.is_inequality()) {
+                    if (con.lower().repn) {
+                        double lower = con.lower().get_value();
+                        if (lower > -COEK_INFINITY)
+                            gmodel->addQConstr(term1 + term2, GRB_GREATER_EQUAL, - repn.constval + lower);
+                        }
+                    if (con.upper().repn) {
+                        double upper = con.upper().get_value();
+                        if (upper < COEK_INFINITY)
+                            gmodel->addQConstr(term1 + term2, GRB_LESS_EQUAL, - repn.constval + upper);
+                        }
+                    }
                 else
-                    gmodel->addQConstr(term1 + term2, GRB_EQUAL, - repn.constval);
+                    gmodel->addQConstr(term1 + term2, GRB_EQUAL, - repn.constval + con.lower().get_value());
                 }
             else {
-                if (con.is_inequality())
-                    gmodel->addConstr(term1, GRB_LESS_EQUAL, - repn.constval);
+                if (con.is_inequality()) {
+                    if (con.lower().repn) {
+                        double lower = con.lower().get_value();
+                        if (lower > -COEK_INFINITY)
+                            gmodel->addQConstr(term1, GRB_GREATER_EQUAL, - repn.constval + lower);
+                        }
+                    if (con.upper().repn) {
+                        double upper = con.upper().get_value();
+                        if (upper < COEK_INFINITY)
+                            gmodel->addQConstr(term1, GRB_LESS_EQUAL, - repn.constval + upper);
+                        }
+                    }
                 else
-                    gmodel->addConstr(term1, GRB_EQUAL, - repn.constval);
+                    gmodel->addConstr(term1, GRB_EQUAL, - repn.constval + con.lower().get_value());
                 }
             }
 }
@@ -89,14 +115,6 @@ gmodel = new GRBModel(*env);
 
 std::cout << "COLLECTING REPNS/VARS" << std::endl << std::flush;
 assert(_model->objectives.size() == 1);
-
-// Collect repns
-coek::QuadraticExpr orepn;
-orepn.collect_terms(_model->objectives[0]);
-
-std::vector<coek::QuadraticExpr> crepn(_model->constraints.size());
-for (size_t i=0; i<_model->constraints.size(); i++)
-    crepn[i].collect_terms(_model->constraints[i]);
 
 std::cout << "BUILDING GUROBI MODEL" << std::endl << std::flush;
 
@@ -126,65 +144,32 @@ for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _
 gmodel->update();
 
 // Add Gurobi objective
+int nobj=0;
 try {
-    if (orepn.linear_coefs.size() + orepn.quadratic_coefs.size() > 0) {
-        GRBLinExpr term1;
-        auto iv=orepn.linear_vars.begin();
-        for (auto it=orepn.linear_coefs.begin(); it != orepn.linear_coefs.end(); ++it, ++iv)
-            term1 += *it * x[(*iv)->index];
-        term1 += orepn.constval;
-        if (orepn.quadratic_coefs.size() > 0) {
-            GRBQuadExpr term2;
-            for (size_t i=0; i< orepn.quadratic_coefs.size(); i++)
-                term2.addTerm(orepn.quadratic_coefs[i], x[orepn.quadratic_lvars[i]->index], x[orepn.quadratic_rvars[i]->index]);
-            gmodel->setObjective(term1 + term2);
-            }
-        else
-            gmodel->setObjective(term1);
+    for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it) {
+        Expression tmp = it->body();
+        add_gurobi_objective(gmodel, tmp, it->sense(), x);
+        nobj++;
         }
-
-    if (_model->sense[0])
-        gmodel->set(GRB_IntAttr_ModelSense, GRB_MINIMIZE);
-    else
-        gmodel->set(GRB_IntAttr_ModelSense, GRB_MAXIMIZE);
     }
 catch (GRBException e) {
     std::cerr << "GUROBI Exception: (objective) " << e.getMessage() << std::endl;
     throw;
     }
+if (nobj > 1) {
+    //
+    // TODO - is this an error?
+    //
+    std::cerr << "Error initializing Gurobi: More than one objective defined!" << std::endl;
+    return -1;
+    }
 
 // Add Gurobi constraints
 try {
-    int ii=0;
-    for (std::vector<coek::QuadraticExpr>::iterator it=crepn.begin(); it != crepn.end(); ++it, ii++) {
-        coek::QuadraticExpr& repn = *it;
-        if (repn.linear_coefs.size() + repn.quadratic_coefs.size() > 0) {
-            GRBLinExpr term1;
-#if 0
-            auto iv=repn.linear_vars.begin();
-            for (auto it=repn.linear_coefs.begin(); it != repn.linear_coefs.end(); ++it, ++iv)
-                term1 += *it * x[(*iv)->index];
-#else
-            for (size_t i=0; i<repn.linear_coefs.size(); i++)
-                term1 += repn.linear_coefs[i] * x[repn.linear_vars[i]->index];
-#endif
-            if (repn.quadratic_coefs.size() > 0) {
-                GRBQuadExpr term2;
-                for (size_t i=0; i< repn.quadratic_coefs.size(); i++)
-                    term2.addTerm(repn.quadratic_coefs[i], x[repn.quadratic_lvars[i]->index], x[repn.quadratic_rvars[i]->index]);
-
-                if (_model->constraints[ii].is_inequality())
-                    gmodel->addQConstr(term1 + term2, GRB_LESS_EQUAL, - repn.constval);
-                else
-                    gmodel->addQConstr(term1 + term2, GRB_EQUAL, - repn.constval);
-                }
-            else {
-                if (_model->constraints[ii].is_inequality())
-                    gmodel->addConstr(term1, GRB_LESS_EQUAL, - repn.constval);
-                else
-                    gmodel->addConstr(term1, GRB_EQUAL, - repn.constval);
-                }
-            }
+    for (auto it=_model->constraints.begin(); it != _model->constraints.end(); ++it) {
+        //crepn[i].collect_terms(_model->constraints[i]);
+        //Constraint c = cval->expand();
+        add_gurobi_constraint(gmodel, *it, x);
         }
     }
 catch (GRBException e) {
@@ -197,6 +182,7 @@ std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
 for (auto it=string_options.begin(); it != string_options.end(); ++it)
     gmodel->set(it->first, it->second);
 try {
+    gmodel->write("foo.lp");
     gmodel->optimize();
 
     int status = gmodel->get(GRB_IntAttr_Status);
@@ -228,6 +214,7 @@ return 0;
 }
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 int GurobiSolver::solve(CompactModel& model)
 {
 std::cout << "STARTING GUROBI" << std::endl << std::flush;
@@ -269,15 +256,16 @@ int nobj=0;
 try {
     for (auto it=model.objectives.begin(); it != model.objectives.end(); ++it) {
         auto& val = *it;
-        if (auto eval = std::get_if<Expression>(&val)) {
-            Expression e = eval->expand();
-            add_gurobi_objective(gmodel, e, model.sense[nobj], x);
+        if (auto eval = std::get_if<Objective>(&val)) {
+            Expression tmp = eval->body().expand();             // TODO - revise API to avoid these tmp variables
+            add_gurobi_objective(gmodel, tmp, eval->sense(), x);
             nobj++;
             }
         else {
-            auto& seq = std::get<ExpressionSequence>(val);
+            auto& seq = std::get<ObjectiveSequence>(val);
             for (auto jt=seq.begin(); jt != seq.end(); ++jt) {
-                add_gurobi_objective(gmodel, *jt, model.sense[nobj], x);
+                Expression tmp = jt->body();
+                add_gurobi_objective(gmodel, tmp, jt->sense(), x);
                 nobj++;
                 }
             }
@@ -350,6 +338,7 @@ env = 0;
 
 return 0;
 }
+#endif
 
 
 int GurobiSolver::resolve()
@@ -390,30 +379,28 @@ if (initial_solve()) {
 
     gmodel->update();
 
-    size_t ii=0;
-    if (_model->objectives.size() != 1)
-        throw std::runtime_error("GUROBI Exception: multiple objectives declared");
-    
     // Add Gurobi objective
     try {
-        coek::MutableNLPExpr& _repn = repn[ii];
-        GRBLinExpr term1;
-        for (size_t i=0; i< _repn.linear_coefs.size(); i++)
-            term1 += _repn.linear_coefs[i].get_value() * x[_repn.linear_vars[i]->index];
-        term1 += _repn.constval.get_value();
-        if (_repn.quadratic_coefs.size() > 0) {
-            GRBQuadExpr term2;
-            for (size_t i=0; i< _repn.quadratic_coefs.size(); i++)
-                term2 += _repn.quadratic_coefs[i].get_value() * x[_repn.quadratic_lvars[i]->index] * x[_repn.quadratic_rvars[i]->index];
-            gmodel->setObjective(term1 + term2);
-            }
-        else
-            gmodel->setObjective(term1);
+        for (size_t ii=0; ii<model.repn->objectives.size(); ++ii) {
+            coek::MutableNLPExpr& _repn = repn[ii];
+            GRBLinExpr term1;
+            for (size_t i=0; i< _repn.linear_coefs.size(); i++)
+                term1 += _repn.linear_coefs[i].get_value() * x[_repn.linear_vars[i]->index];
+            term1 += _repn.constval.get_value();
+            if (_repn.quadratic_coefs.size() > 0) {
+                GRBQuadExpr term2;
+                for (size_t i=0; i< _repn.quadratic_coefs.size(); i++)
+                    term2 += _repn.quadratic_coefs[i].get_value() * x[_repn.quadratic_lvars[i]->index] * x[_repn.quadratic_rvars[i]->index];
+                gmodel->setObjective(term1 + term2);
+                }
+            else
+                gmodel->setObjective(term1);
 
-        if (_model->sense[0])
-            gmodel->set(GRB_IntAttr_ModelSense, GRB_MINIMIZE);
-        else
-            gmodel->set(GRB_IntAttr_ModelSense, GRB_MAXIMIZE);
+            if (model.repn->objectives[ii].sense())
+                gmodel->set(GRB_IntAttr_ModelSense, GRB_MINIMIZE);
+            else
+                gmodel->set(GRB_IntAttr_ModelSense, GRB_MAXIMIZE);
+            }
         }
     catch (GRBException e) {
         std::cerr << "GUROBI Exception: (objective) " << e.getMessage() << std::endl;
@@ -422,8 +409,9 @@ if (initial_solve()) {
 
     // Add Gurobi constraints
     try {
+        // TODO - confirm that we skip the first constraint... !?!
         size_t nobjectives = _model->objectives.size();
-        for (ii=1; ii<repn.size(); ii++) {
+        for (size_t ii=1; ii<repn.size(); ii++) {
             coek::MutableNLPExpr& _repn = repn[ii];
             if (_repn.linear_coefs.size() + _repn.quadratic_coefs.size() > 0) {
                 GRBLinExpr term1;
@@ -434,14 +422,36 @@ if (initial_solve()) {
                     for (size_t i=0; i< _repn.quadratic_coefs.size(); i++)
                         term2 += _repn.quadratic_coefs[i].get_value() * x[_repn.quadratic_lvars[i]->index] * x[_repn.quadratic_rvars[i]->index];
 
-                    if (_model->constraints[ii-nobjectives].is_inequality())
-                        gmodel->addQConstr(term1 + term2, GRB_LESS_EQUAL, - _repn.constval.get_value());
+                    auto& con = _model->constraints[ii-nobjectives];
+                    if (con.is_inequality()) {
+                        if (con.lower().repn) {
+                            double lower = con.lower().get_value();
+                            if (lower > -COEK_INFINITY)
+                                gmodel->addQConstr(term1 + term2, GRB_LESS_EQUAL, - _repn.constval.get_value() + lower);
+                            }
+                        if (con.upper().repn) {
+                            double upper = con.upper().get_value();
+                            if (upper < COEK_INFINITY)
+                                gmodel->addQConstr(term1 + term2, GRB_LESS_EQUAL, - _repn.constval.get_value() + upper);
+                            }
+                        }
                     else
                         gmodel->addQConstr(term1 + term2, GRB_EQUAL, - _repn.constval.get_value());
                     }
                 else {
-                    if (_model->constraints[ii-nobjectives].is_inequality())
-                        gmodel->addConstr(term1, GRB_LESS_EQUAL, - _repn.constval.get_value());
+                    auto& con = _model->constraints[ii-nobjectives];
+                    if (con.is_inequality()) {
+                        if (con.lower().repn) {
+                            double lower = con.lower().get_value();
+                            if (lower > -COEK_INFINITY)
+                                gmodel->addQConstr(term1, GRB_LESS_EQUAL, - _repn.constval.get_value() + lower);
+                            }
+                        if (con.upper().repn) {
+                            double upper = con.upper().get_value();
+                            if (upper < COEK_INFINITY)
+                                gmodel->addQConstr(term1, GRB_LESS_EQUAL, - _repn.constval.get_value() + upper);
+                            }
+                        }
                     else
                         gmodel->addConstr(term1, GRB_EQUAL, - _repn.constval.get_value());
                     }

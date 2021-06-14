@@ -1,14 +1,50 @@
 #
+# Add fmtlib
+#
+if (with_fmtlib)
+    add_subdirectory(fmtlib)
+endif()
+
+#
 # Test whether a third-party package is a subdirectory.
 # If so, then configure Coek to build with CMake.
 #
+if(with_caliper AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Caliper)
+  MESSAGE("-- With Caliper Library: on")
+  #set(with_caliper ON PARENT_SCOPE)
+  set(CALIPER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Caliper/install/include PARENT_SCOPE)
+  set(CALIPER_LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Caliper/install/lib64 PARENT_SCOPE)
+else()
+  MESSAGE("-- With Caliper Library: off")
+  set(with_caliper OFF PARENT_SCOPE)
+endif()
+
+if(with_fmtlib AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/fmtlib)
+  MESSAGE("-- With fmtlib Library: on")
+  #set(with_fmtlib ON PARENT_SCOPE)
+  set(FMTLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/fmtlib/include PARENT_SCOPE)
+  #set(FMTLIB_LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/fmtlib/lib64 PARENT_SCOPE)
+else()
+  MESSAGE("-- With fmtlib Library: off")
+  set(with_fmtlib OFF PARENT_SCOPE)
+endif()
+
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/rapidjson)
+  MESSAGE("-- With RapidJSON Library: on")
+  set(rapidjson_available ON PARENT_SCOPE)
+  set(RAPIDJSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rapidjson/include PARENT_SCOPE)
+else()
+  MESSAGE("-- With RapidJSON Library: off")
+  set(rapidjson_available OFF PARENT_SCOPE)
+endif()
+
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/CppAD)
-  MESSAGE("-- With CppAD Library: available")
+  MESSAGE("-- With CppAD Library: on")
   set(cppad_available ON PARENT_SCOPE)
   set(CPPAD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/CppAD/include PARENT_SCOPE)
 else()
+  MESSAGE("-- With CppAD Library: off")
   set(cppad_available OFF PARENT_SCOPE)
-  MESSAGE("-- With CppAD Library: missing")
 endif()
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Trilinos)

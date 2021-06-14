@@ -4,6 +4,12 @@
 #include <vector>
 #include <string>
 #include <coek/coek.hpp>
+#ifdef WITH_CALIPER
+#include <caliper/cali.h>
+#else
+#define CALI_MARK_BEGIN
+#define CALI_MARK_END
+#endif
 
 using namespace std;
 
@@ -13,11 +19,22 @@ double yt(int j, double dx) {
 
 
 int main(int argc, char** argv) {
+
+  CALI_MARK_BEGIN("main");
   
+  if (argc == 1) {
+    cout << "lqcp <size> <action=lp,nl,gurobi,ipopt>" << endl;
+    return 0;
+    }
+
   cout << "START" << endl << flush;
   string action = argv[2];
+  bool ostrlp_file = (action == "ostrlp");
+  bool fmtlp_file = (action == "fmtlp");
   bool lp_file = (action == "lp");
   bool nl_file = (action == "nl");
+  bool ostrnl_file = (action == "ostrnl");
+  bool fmtnl_file = (action == "fmtnl");
 
   int n = atoi(argv[1]);
   int m = n;
@@ -29,6 +46,7 @@ int main(int argc, char** argv) {
   double a = 0.001;
 
 
+  CALI_MARK_BEGIN("main:create model");
   coek::Model model;
 
   vector<vector<coek::Variable> > y(m+1, vector<coek::Variable>(n+1));
@@ -78,15 +96,33 @@ int main(int argc, char** argv) {
     model.add_constraint( y[i][2] - 4*y[i][1] + 3*y[i][0] == 0 );
   for (int i = 1; i <= m; i++)
     model.add_constraint( (y[i][n-2] - 4*y[i][n1] + 3*y[i][n])/(2*dx) == u[i]-y[i][n]);
+
+  CALI_MARK_END("main:create model");
   
   
 if (lp_file) {
     cout << "WRITING LP" << endl << flush;
     model.write("foo.lp");
     }
+else if (fmtlp_file) {
+    cout << "WRITING FMTLP" << endl << flush;
+    model.write("foo.fmtlp");
+    }
+else if (ostrlp_file) {
+    cout << "WRITING OSTRLP" << endl << flush;
+    model.write("foo.ostrlp");
+    }
 else if (nl_file) {
     cout << "WRITING NL" << endl << flush;
     model.write("foo.nl");
+    }
+else if (fmtnl_file) {
+    cout << "WRITING FMTNL" << endl << flush;
+    model.write("foo.fmtnl");
+    }
+else if (ostrnl_file) {
+    cout << "WRITING OSTRNL" << endl << flush;
+    model.write("foo.ostrnl");
     }
 else {
     cout << "SOLVER: " << action << endl << flush;
@@ -98,5 +134,7 @@ else {
     }
 
   cout << "DONE" << endl << flush;
+
+  CALI_MARK_END("main");
   return 0;
 }
