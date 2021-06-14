@@ -1,4 +1,5 @@
 #include <unordered_set>
+#include <algorithm>
 
 #include "visitor_fns.hpp"
 #include "visitor.hpp"

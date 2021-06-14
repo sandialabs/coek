@@ -318,8 +318,8 @@ int num_nonlinear_obj_int_vars=0;
 int num_nonlinear_con_int_vars=0;
 int num_nonlinear_both_int_vars=0;
 
-int nnz_Jacobian=0;
-int nnz_gradient=0;
+size_t nnz_Jacobian=0;
+size_t nnz_gradient=0;
 
 // Objectives
 std::vector<MutableNLPExpr> o_expr(model.repn->objectives.size());
