@@ -66,7 +66,7 @@ if(with_fmtlib)
     list(APPEND coek_include_directories ${FMTLIB_INCLUDE_DIR})
 endif()
 
-if(with_rapidjson)
+if(rapidjson_available)
     include_directories(BEFORE ${RAPIDJSON_INCLUDE_DIR})
     list(APPEND coek_compile_options -DWITH_RAPIDJSON)
     list(APPEND coek_include_directories ${RAPIDJSON_INCLUDE_DIR})
@@ -85,8 +85,8 @@ endif()
 #
 # CppAD LIBRARY
 #
-if(with_cppad)
-    MESSAGE("-- Building Source with AD:        CppAd")
+if(cppad_available)
+    #MESSAGE("-- Building Source with AD:        CppAd")
     list(APPEND sources
                 autograd/cppad_repn.cpp)
     include_directories(BEFORE ${CPPAD_INCLUDE_DIR})

@@ -9,7 +9,7 @@ extern "C" {
 #include "coek/model.hpp"
 #include "coek/expr/expr_types.hpp"
 
-#include "catch.hpp"
+#include "catch2/catch.hpp"
 
 const double PI = 3.141592653589793238463;
 const double E = exp(1.0);

@@ -1,7 +1,7 @@
 
 #include <sstream>
 #include <iostream>
-#include "catch.hpp"
+#include "catch2/catch.hpp"
 #include "coek/ast/base_terms.hpp"
 #include "coek/ast/value_terms.hpp"
 #include "coek/ast/objective_terms.hpp"

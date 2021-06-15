@@ -5,18 +5,18 @@ PROJECT(Coek
         DESCRIPTION "C++ Optimization Expression Kernels"
         )
 
+
 if(DEFINED ENV{CONDA_PREFIX})
     message(STATUS "Building in a conda environment.")
     set(CONDA_ACTIVE TRUE)
     set(CMAKE_INSTALL_PREFIX "$ENV{CONDA_PREFIX}")
-    set(CMAKE_PREFIX_PATH "$ENV{CONDA_PREFIX}")
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{CONDA_PREFIX}")
     set(CMAKE_INCLUDE_PATH "$ENV{CONDA_PREFIX}/include")
     #include_directories($ENV{CONDA_PREFIX}/include)
     set(CMAKE_LIBRARY_PATH "$ENV{CONDA_PREFIX}/lib")
 endif()
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/third_party/Catch2/contrib;${CMAKE_MODULE_PATH})
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/third_party/pybind11/tools;${CMAKE_MODULE_PATH})
 
 
@@ -47,6 +47,7 @@ option(with_ipopt "Use the Ipopt solver" OFF)
 option(with_gurobi "Use the Gurobi solver" OFF)
 set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
 
+message("Configuration Options")
 
 ##################### Checks for compiler #####################
 
@@ -153,10 +154,32 @@ else()
 endif()
 
 
-##################### SubDirectories #####################
+##################### Third Party Packages #############
 
-# third_party
 add_subdirectory(third_party)
+#
+# Summary after looking for third-party packages
+#
+MESSAGE("-- Third Party Package Dependencies")
+MESSAGE("   RapidJSON Library: ${rapidjson_available}")
+MESSAGE("   Catch2 Library:    ${catch2_available}")
+MESSAGE("   CppAD Library:     ${cppad_available}")
+if (catch2_available)
+    set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/third_party/Catch2/contrib;${CMAKE_MODULE_PATH})
+else()
+    set(with_tests OFF)
+endif()
+
+MESSAGE("-- Third Party Include Directories")
+if (rapidjson_available)
+    MESSAGE("   RapidJSON: ${RAPIDJSON_INCLUDE_DIR}")
+endif()
+if (catch2_available)
+    MESSAGE("   Catch2: ${CATCH2_INCLUDE_DIR}")
+endif()
+if (cppad_available)
+    MESSAGE("   CppAD: ${CPPAD_INCLUDE_DIR}")
+endif()
 
 
 ##################### Solvers #####################

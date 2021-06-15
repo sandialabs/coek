@@ -1,5 +1,5 @@
 #include <cmath>
-#include "catch.hpp"
+#include "catch2/catch.hpp"
 
 #include "coek/ast/base_terms.hpp"
 #include "coek/coek.hpp"
