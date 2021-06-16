@@ -1,12 +1,17 @@
 cmake_minimum_required(VERSION 3.12)
-PROJECT(Coek
+PROJECT(coek
         LANGUAGES CXX
         VERSION 0.1
         DESCRIPTION "C++ Optimization Expression Kernels"
         )
 
+#
+# GLOBAL INCLUDES
+#
+include(GNUInstallDirs)
+include(CheckCXXCompilerFlag)
 
-if(DEFINED ENV{CONDA_PREFIX})
+if( (DEFINED ENV{CONDA_PREFIX}) AND (with_pybind11 OR with_cppyy) )
     message(STATUS "Building in a conda environment.")
     set(CONDA_ACTIVE TRUE)
     set(CMAKE_INSTALL_PREFIX "$ENV{CONDA_PREFIX}")
@@ -51,7 +56,6 @@ message("Configuration Options")
 
 ##################### Checks for compiler #####################
 
-include(CheckCXXCompilerFlag)
 if(with_compact)
     CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
     set(CMAKE_CXX_STANDARD 17)
@@ -302,3 +306,15 @@ if(with_cffi)
 else()
     MESSAGE("-- With Cffi: off")
 endif()
+
+
+# =============================================================================
+# Provide config and version files to be used by other applications
+# =============================================================================
+
+install(EXPORT coekTargets
+        FILE coekTargets.cmake
+        NAMESPACE coek::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/coek
+)
+

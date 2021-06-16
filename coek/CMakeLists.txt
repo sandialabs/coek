@@ -47,11 +47,8 @@ if(with_compact)
         )
 endif()
 
-include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
-
 # Caliper LIBRARY
 if(with_caliper)
-    include_directories(BEFORE ${CALIPER_INCLUDE_DIR})
     list(APPEND coek_compile_options -DWITH_CALIPER)
     list(APPEND coek_link_libraries caliper)
     list(APPEND coek_link_directories ${CALIPER_LIBRARY_DIR})
@@ -60,14 +57,12 @@ endif()
 
 # fmtlib LIBRARY
 if(with_fmtlib)
-    include_directories(BEFORE ${FMTLIB_INCLUDE_DIR})
     list(APPEND coek_compile_options -DWITH_FMTLIB -Wextra -Wconversion -Wpedantic -Wsign-conversion)
     list(APPEND coek_link_libraries fmt)
     list(APPEND coek_include_directories ${FMTLIB_INCLUDE_DIR})
 endif()
 
 if(rapidjson_available)
-    include_directories(BEFORE ${RAPIDJSON_INCLUDE_DIR})
     list(APPEND coek_compile_options -DWITH_RAPIDJSON)
     list(APPEND coek_include_directories ${RAPIDJSON_INCLUDE_DIR})
 endif()
@@ -86,12 +81,9 @@ endif()
 # CppAD LIBRARY
 #
 if(cppad_available)
-    #MESSAGE("-- Building Source with AD:        CppAd")
     list(APPEND sources
                 autograd/cppad_repn.cpp)
-    include_directories(BEFORE ${CPPAD_INCLUDE_DIR})
     list(APPEND coek_compile_options "-DWITH_CPPAD")
-    #list(APPEND coek_link_libraries cppad)
     list(APPEND coek_include_directories ${CPPAD_INCLUDE_DIR})
 endif()
 
@@ -122,13 +114,13 @@ if(with_gurobi)
                 solvers/gurobi.cpp)
     if(NOT "$ENV{GUROBI_HOME}" STREQUAL "")
         MESSAGE("-- GUROBI_HOME $ENV{GUROBI_HOME}")
-        INCLUDE_DIRECTORIES($ENV{GUROBI_HOME}/include)
+        list(APPEND coek_include_directories $ENV{GUROBI_HOME}/include)
+        list(APPEND coek_link_directories $ENV{GUROBI_HOME}/lib)
     else()
         MESSAGE("-- GUROBI_HOME Not provided")
     endif()
     list(APPEND coek_compile_options -DWITH_GUROBI)
     list(APPEND coek_link_libraries gurobi_g++5.2 gurobi90)
-    list(APPEND coek_link_directories $ENV{GUROBI_HOME}/lib)
 endif()
 
 #
@@ -139,68 +131,81 @@ if(with_ipopt)
                 solvers/ipopt.cpp)
     if(NOT "$ENV{IPOPT_HOME}" STREQUAL "")
         MESSAGE("-- IPOPT_HOME=$ENV{IPOPT_HOME}")
-        INCLUDE_DIRECTORIES(PUBLIC $ENV{IPOPT_HOME}/include/coin)
+        list(APPEND coek_include_directories $ENV{IPOPT_HOME}/include/coin)
+        list(APPEND coek_link_directories $ENV{IPOPT_HOME}/lib)
     else()
         MESSAGE("-- IPOPT_HOME Not provided")
     endif()
     list(APPEND coek_compile_options -DWITH_IPOPT)
     list(APPEND coek_link_libraries ipopt gfortran)
-    list(APPEND coek_link_directories $ENV{IPOPT_HOME}/lib)
 endif()
 
 #
 # Solver Interface Options
 #
-if(with_cffi)
-    list(APPEND sources
-        capi/coek_capi.cpp)
-        INCLUDE_DIRECTORIES(PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/coek/capi)
-endif()
+#if(with_cffi)
+#    list(APPEND sources
+#        capi/coek_capi.cpp)
+#        include_directories(PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/coek/capi)
+#endif()
 
 #
 # Build library
 #
-ADD_LIBRARY(coek SHARED ${sources})
-TARGET_COMPILE_OPTIONS(coek PRIVATE ${solver_flags})
-TARGET_COMPILE_OPTIONS(coek PRIVATE ${coek_compile_options})
+add_library(coek SHARED ${sources})
+target_compile_options(coek PUBLIC ${coek_compile_options})
+target_include_directories(coek
+                           PUBLIC
+                           "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>"
+                           "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+)
+target_include_directories(coek
+                           PUBLIC
+                           ${coek_include_directories})
 if(${with_gcov})
-  TARGET_LINK_LIBRARIES(coek PUBLIC gcov)
+  target_link_libraries(coek PUBLIC gcov)
 endif()
+set_property(TARGET coek PROPERTY INTERFACE_LINK_LIBRARIES ${coek_link_libraries})
+set_property(TARGET coek PROPERTY INTERFACE_LINK_DIRECTORIES ${coek_link_directories})
 
 
 #
 # make install
 #
-INSTALL(TARGETS coek
-        DESTINATION lib
+install(TARGETS coek
+        EXPORT coekTargets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
        )
 if(with_fmtlib)
-    INSTALL(TARGETS fmt
+    install(TARGETS fmt
         DESTINATION lib
        )
 endif()
-INSTALL(FILES
+install(FILES
         coek.hpp 
         coek_model.hpp
-        DESTINATION include/coek
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek
        )
-INSTALL(FILES
+install(FILES
         api/expression.hpp
         api/expression_visitor.hpp
         api/intrinsic_fn.hpp
         api/objective.hpp
         api/constraint.hpp
         api/constants.hpp
-        DESTINATION include/coek/api
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/api
        )
-INSTALL(FILES
+install(FILES
         compact/coek_sets.hpp
         compact/coek_indexed.hpp
         compact/sequence_context.hpp
         compact/expression_sequence.hpp
         compact/objective_sequence.hpp
         compact/constraint_sequence.hpp
-        DESTINATION include/coek/compact
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/compact
        )
 
 #
