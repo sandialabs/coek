@@ -127,17 +127,22 @@ endif()
 # IPOPT LIBRARY
 #
 if(with_ipopt)
-    list(APPEND sources
-                solvers/ipopt.cpp)
-    if(NOT "$ENV{IPOPT_HOME}" STREQUAL "")
+    if (ipopt_dir)
+        MESSAGE("-- IPOPT_DIR=${ipopt_dir}")
+        list(APPEND coek_include_directories ${ipopt_dir}/include/coin)
+        list(APPEND coek_link_directories ${ipopt_dir}/lib ${ipopt_dir}/lib64)
+        list(APPEND coek_link_libraries ipopt)
+    elseif(NOT "$ENV{IPOPT_HOME}" STREQUAL "")
         MESSAGE("-- IPOPT_HOME=$ENV{IPOPT_HOME}")
         list(APPEND coek_include_directories $ENV{IPOPT_HOME}/include/coin)
         list(APPEND coek_link_directories $ENV{IPOPT_HOME}/lib)
+        list(APPEND coek_link_libraries ipopt gfortran)
     else()
         MESSAGE("-- IPOPT_HOME Not provided")
     endif()
+    list(APPEND sources
+                solvers/ipopt.cpp)
     list(APPEND coek_compile_options -DWITH_IPOPT)
-    list(APPEND coek_link_libraries ipopt gfortran)
 endif()
 
 #

@@ -48,7 +48,7 @@ option(with_asl "Use the ASL autograd library" OFF)
 
 # Solver Dependencies
 option(with_ipopt "Use the Ipopt solver" OFF)
-#set(IPOPT_HOME "" CACHE FILEPATH "Set the path to ipopt")
+option(ipopt_dir "Set the path to ipopt" "")
 option(with_gurobi "Use the Gurobi solver" OFF)
 set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
 
@@ -189,6 +189,9 @@ endif()
 ##################### Solvers #####################
 
 # solvers
+if(ipopt_dir)
+  set(with_ipopt ON)
+endif()
 if(with_ipopt)
   list(APPEND solver_flags "-DWITH_IPOPT")
   MESSAGE("-- With Ipopt Solver: on")
