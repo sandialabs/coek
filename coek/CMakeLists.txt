@@ -64,7 +64,7 @@ endif()
 
 if(rapidjson_available)
     list(APPEND coek_compile_options -DWITH_RAPIDJSON)
-    list(APPEND coek_include_directories ${RAPIDJSON_INCLUDE_DIR})
+    list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
 # gcov
@@ -84,7 +84,7 @@ if(cppad_available)
     list(APPEND sources
                 autograd/cppad_repn.cpp)
     list(APPEND coek_compile_options "-DWITH_CPPAD")
-    list(APPEND coek_include_directories ${CPPAD_INCLUDE_DIR})
+    list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
 # ASL LIBRARY

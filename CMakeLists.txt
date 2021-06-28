@@ -11,6 +11,20 @@ PROJECT(coek
 include(GNUInstallDirs)
 include(CheckCXXCompilerFlag)
 
+#
+# Change the default install directory for the sub-builds, as we will
+# seldom have access to nor want to install to /usr/local. This can be
+# overridden from the command line via cmake -DCMAKE_INSTALL_PREFIX=...
+#
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install"
+    CACHE PATH
+    "Top level directory for installation"
+    FORCE
+  )
+endif()
+
+
 if( (DEFINED ENV{CONDA_PREFIX}) AND (with_pybind11 OR with_cppyy) )
     message(STATUS "Building in a conda environment.")
     set(CONDA_ACTIVE TRUE)
@@ -21,13 +35,28 @@ if( (DEFINED ENV{CONDA_PREFIX}) AND (with_pybind11 OR with_cppyy) )
     set(CMAKE_LIBRARY_PATH "$ENV{CONDA_PREFIX}/lib")
 endif()
 
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/third_party/pybind11/tools;${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
+#set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/third_party/pybind11/tools;${CMAKE_MODULE_PATH})
 
 
 ##################### Options #####################
 
+# Build options
+option(insecure_downloads "If enabled, then builds with download third party software without verifying the SSL connection" OFF)
+option(build_catch2 "Build Catch2" OFF)
+option(build_cppad "Build the CppAD autograd library" OFF)
+option(build_rapidjson "Build the RapidJson library" OFF)
+option(build_all "Build the all third-party libraries" OFF)
+if (build_all)
+    set(build_catch2 ON)
+    set(build_cppad ON)
+    set(build_rapidjson ON)
+endif()
+
 # Configuration options
+option(with_catch2 "Add tests using Catch2" ${build_catch2})
+option(with_rapidjson "Add support for reading JSON/JPOF files" ${build_rapidjson})
 option(with_compact "Add support for compact expressions" OFF)
 option(with_tests "Build tests" OFF)
 option(with_examples "Build examples" OFF)
@@ -42,7 +71,7 @@ option(with_cppyy "Build python interface using cppyy" OFF)
 option(with_docs "Build documentation" OFF)
 
 # Autograd Dependencies
-option(with_cppad "Use the CppAD autograd library" OFF)
+option(with_cppad "Use the CppAD autograd library" ${build_cppad})
 option(with_sacado "Use the Sacado autograd library" OFF)
 option(with_asl "Use the ASL autograd library" OFF)
 
@@ -160,35 +189,20 @@ endif()
 
 ##################### Third Party Packages #############
 
-add_subdirectory(third_party)
+include(download_dir)
+include(BuildThirdParty)
+include(thirdparty)
+setup_builds()
 #
 # Summary after looking for third-party packages
 #
-MESSAGE("-- Third Party Package Dependencies")
-MESSAGE("   RapidJSON Library: ${rapidjson_available}")
-MESSAGE("   Catch2 Library:    ${catch2_available}")
-MESSAGE("   CppAD Library:     ${cppad_available}")
-if (catch2_available)
-    set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/third_party/Catch2/contrib;${CMAKE_MODULE_PATH})
-else()
+if (NOT catch2_available)
     set(with_tests OFF)
-endif()
-
-MESSAGE("-- Third Party Include Directories")
-if (rapidjson_available)
-    MESSAGE("   RapidJSON: ${RAPIDJSON_INCLUDE_DIR}")
-endif()
-if (catch2_available)
-    MESSAGE("   Catch2: ${CATCH2_INCLUDE_DIR}")
-endif()
-if (cppad_available)
-    MESSAGE("   CppAD: ${CPPAD_INCLUDE_DIR}")
 endif()
 
 
 ##################### Solvers #####################
 
-# solvers
 if(ipopt_dir)
   set(with_ipopt ON)
 endif()
@@ -205,7 +219,8 @@ else()
   MESSAGE("-- With Gurobi Solver: off")
 endif()
 
-# docs
+##################### Docs #####################
+
 if (with_docs)
     MESSAGE("-- With Docs: on")
 else()
