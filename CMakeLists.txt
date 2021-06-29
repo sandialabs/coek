@@ -67,6 +67,9 @@ if (use_superbuild)
         set(build_dependencies ON)
     endif()
 endif()
+if (build_catch2 OR build_cppad OR build_fmtlib OR build_pybind11 OR build_rapidjson)
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+endif()
 
 # Configuration options
 option(with_catch2 "Add tests using Catch2" ${build_catch2})
