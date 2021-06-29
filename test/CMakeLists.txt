@@ -1,7 +1,12 @@
 
-set(CATCH_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/Catch2/single_include/catch2)
+find_package(Catch2 REQUIRED)
 add_library(Catch INTERFACE)
-target_include_directories(Catch INTERFACE ${CATCH_INCLUDE_DIR})
+target_include_directories(Catch INTERFACE ${CMAKE_INSTALL_PREFIX}/include)
+
+if (fmtlib_available)
+    find_package(fmt REQUIRED)
+endif()
+
 
 SET(sources
     runner.cpp
@@ -25,7 +30,7 @@ enable_testing()
 
 # runner
 add_executable(runner ${sources})
-TARGET_LINK_LIBRARIES(runner PUBLIC coek coekexamples Catch ${coek_link_libraries})
+TARGET_LINK_LIBRARIES(runner PUBLIC coek coekexamples Catch2::Catch2 ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(runner PUBLIC ${coek_compile_options})
 target_compile_definitions(runner PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 

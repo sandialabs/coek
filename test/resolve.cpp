@@ -12,11 +12,11 @@
 #include <functional>
 #include <coek/coek.hpp>
 
-void baseline_test(int N, const std::string& solver);
-void objective_test(int N, int nsolves, const std::string& solver);
-void row_test(int N, int nsolves, const std::string& solver);
-void col_test(int N, int nsolves, const std::string& solver);
-void rhs_test(int N, int nsolves, const std::string& solver);
+void baseline_test(unsigned int N, const std::string& solver);
+void objective_test(unsigned int N, int nsolves, const std::string& solver);
+void row_test(unsigned int N, int nsolves, const std::string& solver);
+void col_test(unsigned int N, int nsolves, const std::string& solver);
+void rhs_test(unsigned int N, int nsolves, const std::string& solver);
 
 int main(int argc, char** argv)
 {
@@ -26,7 +26,7 @@ if (argc == 1) {
     return 0;
     }
 
-int N = atoi(argv[1]);          // A is an NxN matrix
+unsigned int N = static_cast<unsigned int>(atoi(argv[1]));          // A is an NxN matrix
 int nsolves = atoi(argv[2]);    // Number of solvers
 std::string test = argv[3];     // Specify the type of test that will be performed
 std::string solver = argv[4];   // Specify the solver used during the tests
@@ -50,7 +50,7 @@ return 0;
 }
 
 
-void baseline_test(int N, const std::string& solver)
+void baseline_test(unsigned int N, const std::string& solver)
 {
 std::mt19937 rng(10000) ;
 std::uniform_real_distribution<double> distribution(0,1);
@@ -59,32 +59,32 @@ auto uniform = std::bind( distribution, rng );
 coek::Model model;
 
 std::vector<std::vector<double>> A(N, std::vector<double>(N));
-for (int n=0; n<N; n++)
-    for (int m=0; m<N; m++)
+for (unsigned int n=0; n<N; n++)
+    for (unsigned int m=0; m<N; m++)
         A[n][m] = uniform();
 
 std::vector<double> c(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     c[n] = uniform();
 
 std::vector<double> b(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     b[n] = uniform();
 
 std::vector<coek::Variable> x(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     x[n] = model.add_variable(0, COEK_INFINITY, 1);
 
 // obj
 coek::Expression obj;
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     obj += c[n] * x[n];
 model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
-for (int n=0; n<N; n++) {
+for (unsigned int n=0; n<N; n++) {
     coek::Expression expr;
-    for (int m=0; m<N; m++)
+    for (unsigned int m=0; m<N; m++)
         expr += A[n][m] * x[m];
     model.add_constraint( expr <= b[n] );
     break;
@@ -107,7 +107,7 @@ else {
 }
 
 
-void objective_test(int N, int nsolves, const std::string& solver)
+void objective_test(unsigned int N, int nsolves, const std::string& solver)
 {
 auto start = std::chrono::high_resolution_clock::now();
 
@@ -118,32 +118,32 @@ auto uniform = std::bind( distribution, rng );
 coek::Model model;
 
 std::vector<std::vector<double>> A(N, std::vector<double>(N));
-for (int n=0; n<N; n++)
-    for (int m=0; m<N; m++)
+for (unsigned int n=0; n<N; n++)
+    for (unsigned int m=0; m<N; m++)
         A[n][m] = uniform();
 
 std::vector<coek::Parameter> c(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     c[n] = coek::Parameter(uniform());
 
 std::vector<double> b(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     b[n] = uniform();
 
 std::vector<coek::Variable> x(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     x[n] = model.add_variable(0, COEK_INFINITY, 0);
 
 // obj
 coek::Expression obj;
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     obj += c[n] * x[n];
 model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
-for (int n=0; n<N; n++) {
+for (unsigned int n=0; n<N; n++) {
     coek::Expression expr;
-    for (int m=0; m<N; m++)
+    for (unsigned int m=0; m<N; m++)
         expr += A[n][m] * x[m];
     model.add_constraint( expr <= b[n] );
     }
@@ -155,7 +155,7 @@ if (solver == "gurobi") {
         opt.resolve();
         std::cout << "Solve: " << i << "  Objective: " << model.repn->objectives[0].body().get_value() << std::endl;
 
-        for (int n=0; n<N; n++)
+        for (unsigned int n=0; n<N; n++)
             c[n].set_value( uniform() );
         std::cout << std::endl;
         }
@@ -181,7 +181,7 @@ else {
 
         std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
-        for (int n=0; n<N; n++)
+        for (unsigned int n=0; n<N; n++)
             c[n].set_value( uniform() );
         std::cout << std::endl;
         }
@@ -189,10 +189,10 @@ else {
 }
 
 
-void row_test(int N, int nsolves, const std::string& solver)
+void row_test(unsigned int N, int nsolves, const std::string& solver)
 {
 // Make this row have random values
-int row = std::min(10, N-1);
+unsigned int row = std::min(static_cast<unsigned int>(10), N-1);
 
 std::mt19937 rng(10000) ;
 std::uniform_real_distribution<double> distribution(0,1);
@@ -201,41 +201,41 @@ auto uniform = std::bind( distribution, rng );
 coek::Model model;
 
 std::vector<coek::Parameter> A_(N);
-for (int m=0; m<N; m++)
+for (unsigned int m=0; m<N; m++)
     A_[m] = coek::Parameter(uniform());
 
 std::vector<std::vector<double>> A(N, std::vector<double>(N));
-for (int n=0; n<N; n++)
-    for (int m=0; m<N; m++)
+for (unsigned int n=0; n<N; n++)
+    for (unsigned int m=0; m<N; m++)
         A[n][m] = uniform();
 
 std::vector<double> c(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     c[n] = uniform();
 
 std::vector<double> b(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     b[n] = uniform();
 
 std::vector<coek::Variable> x(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     x[n] = model.add_variable(0, COEK_INFINITY, 0);
 
 // obj
 coek::Expression obj;
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     obj += c[n] * x[n];
 model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
-for (int n=0; n<N; n++) {
+for (unsigned int n=0; n<N; n++) {
     coek::Expression expr;
     if (n != row) {
-        for (int m=0; m<N; m++)
+        for (unsigned int m=0; m<N; m++)
             expr += A[n][m] * x[m];
         }
     else {
-        for (int m=0; m<N; m++)
+        for (unsigned int m=0; m<N; m++)
             expr += A_[m] * x[m];
         }
     model.add_constraint( expr <= b[n] );
@@ -249,7 +249,7 @@ if (solver == "gurobi") {
         opt.resolve();
         std::cout << "Solve: " << i << "  Objective: " << model.repn->objectives[0].body().get_value() << std::endl;
 
-        for (int m=0; m<N; m++)
+        for (unsigned int m=0; m<N; m++)
             A_[m].set_value( uniform() );
         std::cout << std::endl;
         }
@@ -263,7 +263,7 @@ else {
         opt.resolve();
         std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
-        for (int m=0; m<N; m++)
+        for (unsigned int m=0; m<N; m++)
             A_[m].set_value( uniform() );
         std::cout << std::endl;
         }
@@ -271,10 +271,10 @@ else {
 }
 
 
-void col_test(int N, int nsolves, const std::string& solver)
+void col_test(unsigned int N, int nsolves, const std::string& solver)
 {
 // Make this col have random values
-int col = std::min(10, N-1);
+unsigned int col = std::min(static_cast<unsigned int>(10), N-1);
 
 std::mt19937 rng(10000) ;
 std::uniform_real_distribution<double> distribution(0,1);
@@ -283,36 +283,36 @@ auto uniform = std::bind( distribution, rng );
 coek::Model model;
 
 std::vector<coek::Parameter> A_(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     A_[n] = coek::Parameter(uniform());
 
 std::vector<std::vector<double>> A(N, std::vector<double>(N));
-for (int n=0; n<N; n++)
-    for (int m=0; m<N; m++)
+for (unsigned int n=0; n<N; n++)
+    for (unsigned int m=0; m<N; m++)
         A[n][m] = uniform();
 
 std::vector<double> c(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     c[n] = uniform();
 
 std::vector<double> b(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     b[n] = uniform();
 
 std::vector<coek::Variable> x(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     x[n] = model.add_variable(0, COEK_INFINITY, 0);
 
 // obj
 coek::Expression obj;
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     obj += c[n] * x[n];
 model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
-for (int n=0; n<N; n++) {
+for (unsigned int n=0; n<N; n++) {
     coek::Expression expr;
-    for (int m=0; m<N; m++)
+    for (unsigned int m=0; m<N; m++)
         if (m != col) {
             expr += A[n][m] * x[m];
         }
@@ -330,7 +330,7 @@ if (solver == "gurobi") {
         opt.resolve();
         std::cout << "Solve: " << i << "  Objective: " << model.repn->objectives[0].body().get_value() << std::endl;
 
-        for (int n=0; n<N; n++)
+        for (unsigned int n=0; n<N; n++)
             A_[n].set_value( uniform() );
         std::cout << std::endl;
         }
@@ -344,7 +344,7 @@ else {
         opt.resolve();
         std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
-        for (int n=0; n<N; n++)
+        for (unsigned int n=0; n<N; n++)
             A_[n].set_value( uniform() );
         std::cout << std::endl;
         }
@@ -352,7 +352,7 @@ else {
 }
 
 
-void rhs_test(int N, int nsolves, const std::string& solver)
+void rhs_test(unsigned int N, int nsolves, const std::string& solver)
 {
 std::mt19937 rng(10000) ;
 std::uniform_real_distribution<double> distribution(0,1);
@@ -361,32 +361,32 @@ auto uniform = std::bind( distribution, rng );
 coek::Model model;
 
 std::vector<std::vector<double>> A(N, std::vector<double>(N));
-for (int n=0; n<N; n++)
-    for (int m=0; m<N; m++)
+for (unsigned int n=0; n<N; n++)
+    for (unsigned int m=0; m<N; m++)
         A[n][m] = uniform();
 
 std::vector<double> c(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     c[n] = uniform();
 
 std::vector<coek::Parameter> b(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     b[n] = coek::Parameter(uniform());
 
 std::vector<coek::Variable> x(N);
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     x[n] = model.add_variable(0, COEK_INFINITY, 0);
 
 // obj
 coek::Expression obj;
-for (int n=0; n<N; n++)
+for (unsigned int n=0; n<N; n++)
     obj += c[n] * x[n];
 model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
-for (int n=0; n<N; n++) {
+for (unsigned int n=0; n<N; n++) {
     coek::Expression expr;
-    for (int m=0; m<N; m++)
+    for (unsigned int m=0; m<N; m++)
         expr += A[n][m] * x[m];
     model.add_constraint( expr <= b[n] );
     }
@@ -399,7 +399,7 @@ if (solver == "gurobi") {
         opt.resolve();
         std::cout << "Solve: " << i << "  Objective: " << model.repn->objectives[0].body().get_value() << std::endl;
 
-        for (int n=0; n<N; n++)
+        for (unsigned int n=0; n<N; n++)
             b[n].set_value( uniform() );
         std::cout << std::endl;
         }
@@ -413,7 +413,7 @@ else {
         opt.resolve();
         std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
-        for (int n=0; n<N; n++)
+        for (unsigned int n=0; n<N; n++)
             b[n].set_value( uniform() );
         std::cout << std::endl;
         }

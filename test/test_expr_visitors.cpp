@@ -1,7 +1,7 @@
 
 #include <sstream>
 #include <iostream>
-#include "catch.hpp"
+#include "catch2/catch.hpp"
 #include "coek/ast/base_terms.hpp"
 #include "coek/ast/value_terms.hpp"
 #include "coek/ast/objective_terms.hpp"
@@ -313,7 +313,7 @@ TEST_CASE( "expr_writer", "[smoke]" ) {
   SECTION( "affine_expression1" ) {
         std::vector<coek::Variable> v(4);
         std::vector<double> w(4);
-        for (int i=0; i<4; i++) {
+        for (unsigned int i=0; i<4; i++) {
             v[i] = coek::Variable("v[" + std::to_string(i) + "]", 0, 1, 0);
             w[i] = i+1;
             }
@@ -325,7 +325,7 @@ TEST_CASE( "expr_writer", "[smoke]" ) {
 
   SECTION( "affine_expression" ) {
         std::vector<coek::Variable> v(4);
-        for (int i=0; i<4; i++) {
+        for (unsigned int i=0; i<4; i++) {
             v[i] = coek::Variable("v[" + std::to_string(i) + "]", 0, 1, 0);
             }
         coek::Expression e = affine_expression(v, 5.0);

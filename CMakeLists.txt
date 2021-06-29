@@ -1,28 +1,82 @@
-cmake_minimum_required(VERSION 3.12)
-PROJECT(Coek
+cmake_minimum_required(VERSION 3.15)
+PROJECT(coek
         LANGUAGES CXX
         VERSION 0.1
         DESCRIPTION "C++ Optimization Expression Kernels"
         )
 
-if(DEFINED ENV{CONDA_PREFIX})
-    message(STATUS "Building in a conda environment.")
+#
+# GLOBAL INCLUDES
+#
+include(GNUInstallDirs)
+include(CheckCXXCompilerFlag)
+
+#
+# Change the default install directory for the sub-builds, as we will
+# seldom have access to nor want to install to /usr/local. This can be
+# overridden from the command line via cmake -DCMAKE_INSTALL_PREFIX=...
+#
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install"
+    CACHE PATH
+    "Top level directory for installation"
+    FORCE
+  )
+endif()
+
+option(conda_install "If enabled, then install in the current conda environment" OFF)
+
+if( (conda_install) AND (DEFINED ENV{CONDA_PREFIX}) AND (with_pybind11 OR with_cppyy) )
+    message(STATUS "Installing in a conda environment: $ENV{CONDA_PREFIX}")
     set(CONDA_ACTIVE TRUE)
     set(CMAKE_INSTALL_PREFIX "$ENV{CONDA_PREFIX}")
-    set(CMAKE_PREFIX_PATH "$ENV{CONDA_PREFIX}")
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{CONDA_PREFIX}")
     set(CMAKE_INCLUDE_PATH "$ENV{CONDA_PREFIX}/include")
     #include_directories($ENV{CONDA_PREFIX}/include)
     set(CMAKE_LIBRARY_PATH "$ENV{CONDA_PREFIX}/lib")
 endif()
 
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/third_party/Catch2/contrib;${CMAKE_MODULE_PATH})
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/third_party/pybind11/tools;${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/lib/cmake;${CMAKE_MODULE_PATH})
+
 
 
 ##################### Options #####################
 
+# Download options
+option(insecure_downloads "If enabled, then builds with download third party software without verifying the SSL connection" OFF)
+
+# Build options
+option(build_catch2 "Build Catch2" OFF)
+option(build_cppad "Build the CppAD autograd library" OFF)
+option(build_fmtlib "Build the FMT library" OFF)
+option(build_pybind11 "Build the Pybind11 library" OFF)
+option(build_rapidjson "Build the RapidJson library" OFF)
+option(build_all "Build the all third-party libraries" OFF)
+if (build_all)
+    set(build_catch2 ON)
+    set(build_cppad ON)
+    set(build_fmtlib ON)
+    set(build_pybind11 ON)
+    set(build_rapidjson ON)
+endif()
+option(use_superbuild "Use superbuild logic to build dependencies" ON)
+set(build_dependencies OFF)
+if (use_superbuild)
+    if (build_catch2 OR build_cppad OR build_fmtlib OR build_pybind11 OR build_rapidjson)
+        set(build_dependencies ON)
+    endif()
+endif()
+if (build_catch2 OR build_cppad OR build_fmtlib OR build_pybind11 OR build_rapidjson)
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+endif()
+
 # Configuration options
+option(with_catch2 "Add tests using Catch2" ${build_catch2})
+option(with_fmtlib "Use the fmtlib library" ${build_fmtlib})
+option(with_pybind11 "Build python interface using pybind11" OFF)
+option(with_rapidjson "Add support for reading JSON/JPOF files" ${build_rapidjson})
+
 option(with_compact "Add support for compact expressions" OFF)
 option(with_tests "Build tests" OFF)
 option(with_examples "Build examples" OFF)
@@ -31,26 +85,25 @@ option(with_verbose "Verbose build" OFF)
 option(with_gcov "Add code coverage using gcov" OFF)
 option(with_gprof "Profile build" OFF)
 option(with_caliper "Use the Caliper library" OFF)
-option(with_fmtlib "Use the fmtlib library" OFF)
-option(with_pybind11 "Build python interface using pybind11" OFF)
 option(with_cppyy "Build python interface using cppyy" OFF)
 option(with_docs "Build documentation" OFF)
 
 # Autograd Dependencies
-option(with_cppad "Use the CppAD autograd library" OFF)
+option(with_cppad "Use the CppAD autograd library" ${build_cppad})
 option(with_sacado "Use the Sacado autograd library" OFF)
 option(with_asl "Use the ASL autograd library" OFF)
 
 # Solver Dependencies
 option(with_ipopt "Use the Ipopt solver" OFF)
-#set(IPOPT_HOME "" CACHE FILEPATH "Set the path to ipopt")
+option(ipopt_dir "Set the path to ipopt" "")
 option(with_gurobi "Use the Gurobi solver" OFF)
 set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
+
+message("Configuration Options")
 
 
 ##################### Checks for compiler #####################
 
-include(CheckCXXCompilerFlag)
 if(with_compact)
     CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
     set(CMAKE_CXX_STANDARD 17)
@@ -153,15 +206,11 @@ else()
 endif()
 
 
-##################### SubDirectories #####################
-
-# third_party
-add_subdirectory(third_party)
-
-
 ##################### Solvers #####################
 
-# solvers
+if(ipopt_dir)
+  set(with_ipopt ON)
+endif()
 if(with_ipopt)
   list(APPEND solver_flags "-DWITH_IPOPT")
   MESSAGE("-- With Ipopt Solver: on")
@@ -175,7 +224,8 @@ else()
   MESSAGE("-- With Gurobi Solver: off")
 endif()
 
-# docs
+##################### Docs #####################
+
 if (with_docs)
     MESSAGE("-- With Docs: on")
 else()
@@ -183,8 +233,19 @@ else()
 endif()
 
 
-##################### SubDirectories #####################
 
+##################### Third Party Packages #############
+
+include(download_dir)
+include(BuildThirdParty)
+include(thirdparty.cmake)
+
+setup_builds()
+if (build_dependencies)
+    return()
+endif()
+
+##################### SubDirectories #####################
 # coek
 add_subdirectory(coek)
 
@@ -194,6 +255,9 @@ if (with_examples OR with_tests)
 endif()
 
 # testing
+if (NOT catch2_available)
+    set(with_tests OFF)
+endif()
 if (with_tests)
   MESSAGE("-- With Tests: on")
 
@@ -214,17 +278,14 @@ else()
   MESSAGE("-- With Tests: off")
 endif()
 
-#if(with_pybind11 OR with_cppyy OR with_cffi)
-#    if((with_cffi AND with_cppyy) OR (with_cffi AND with_pybind11) OR (with_cppyy AND with_pybind11))
-#        MESSAGE(FATAL_ERROR "Cannot configure multiple python interfaces!")
-#    endif()
-#endif()
-
 # pybind11
 if(with_pybind11)
     MESSAGE("-- With Pybind11: on")
-    add_subdirectory(third_party/pybind11)
+    find_package(pybind11)
     add_subdirectory(pycoek/pybind11)
+    if (build_pybind11)
+        set(CMAKE_MODULE_PATH ${download_dir}/pybind11/tools;${CMAKE_MODULE_PATH})
+    endif()
 
     #
     # Note that this target is automatically build when with_pybind11 is ON
@@ -279,3 +340,15 @@ if(with_cffi)
 else()
     MESSAGE("-- With Cffi: off")
 endif()
+
+
+# =============================================================================
+# Provide config and version files to be used by other applications
+# =============================================================================
+
+install(EXPORT coekTargets
+        FILE coekTargets.cmake
+        NAMESPACE coek::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/coek
+)
+
