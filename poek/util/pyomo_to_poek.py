@@ -74,7 +74,7 @@ class ToCoekExpression(_EvaluationVisitor):
                 if self.default_variable_value is None and node.value is None:
                     print("WARNING: Variable %s is not initialized.  Setting initial value to zero." % str(node))
                     val = 0
-                elif self.default_variable_value is None and node.value is None:
+                elif self.default_variable_value is not None and node.value is None:
                     val = self.default_variable_value
                 else:
                     val = node.value
