@@ -90,7 +90,7 @@ REQUIRE( coek::env.check_memory() == true );
 #endif
 }
 
-void test_var(coek::Model& model, int i, const std::string& name, double value, double lb, double ub, bool fixed, const std::string& vtype)
+void test_var(coek::Model& model, unsigned int i, const std::string& name, double value, double lb, double ub, bool fixed, const std::string& vtype)
 {
 auto v = model.get_variable(i);
 REQUIRE( v.get_name() == name );
@@ -106,14 +106,14 @@ else
     REQUIRE( v.is_binary() );
 }
 
-void test_obj(coek::Model& model, int i, const std::list<std::string>& baseline, const std::string& name)
+void test_obj(coek::Model& model, unsigned int i, const std::list<std::string>& baseline, const std::string& name)
 {
 auto obj = model.get_objective(i);
 REQUIRE( obj.to_list() == baseline );
 REQUIRE( obj.get_name() == name );
 }
 
-void test_con(coek::Model& model, int i, const std::list<std::string>& baseline, const std::string& name)
+void test_con(coek::Model& model, unsigned int i, const std::list<std::string>& baseline, const std::string& name)
 {
 auto con = model.get_constraint(i);
 REQUIRE( con.to_list() == baseline );
