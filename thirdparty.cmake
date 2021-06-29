@@ -9,20 +9,32 @@
 # endif()
 
 add_revision(catch2
+  SRC Catch2-2.13.6
   URL "https://github.com/catchorg/Catch2/archive/refs/tags/v2.13.6.tar.gz"
   URL_MD5 c7c7ef181b9e08418fd9f2ef8159d03f
-  SOURCE_DIR downloads/catch2/Catch2-2.13.6
   )
 
 add_revision(cppad
+  SRC CppAD-20210000.6
   URL "https://github.com/coin-or/CppAD/archive/refs/tags/20210000.6.tar.gz"
   URL_MD5 d63b03bce0417c420e610cb1cfb64d33
-  SOURCE_DIR downloads/cppad/CppAD-20210000.6
   )
 
 add_revision(rapidjson
+  SRC rapidjson-1.1.0
   URL "https://github.com/Tencent/rapidjson/archive/refs/tags/v1.1.0.tar.gz"
-  URL_MD5 d41d8cd98f00b204e9800998ecf8427e
-  SOURCE_DIR downloads/rapidjson/rapidjson-1.1.0
+  URL_MD5 badd12c511e081fec6c89c43a7027bce
+  )
+
+add_revision(pybind11
+  SRC ""
+  URL "https://github.com/pybind/pybind11/archive/refs/tags/v2.6.2.tar.gz"
+  URL_MD5 c5ea9c4c57082e05efe14e4b34323bfd
+  )
+
+add_revision(fmtlib
+  SRC ""
+  URL "https://github.com/fmtlib/fmt/archive/refs/tags/8.0.0.tar.gz"
+  URL_MD5 001d59c967115682aed0e836ba5753a8
   )
 

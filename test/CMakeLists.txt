@@ -1,8 +1,12 @@
 
 find_package(Catch2 REQUIRED)
-
 add_library(Catch INTERFACE)
 target_include_directories(Catch INTERFACE ${CMAKE_INSTALL_PREFIX}/include)
+
+if (fmtlib_available)
+    find_package(fmt REQUIRED)
+endif()
+
 
 SET(sources
     runner.cpp

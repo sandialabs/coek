@@ -47,6 +47,14 @@ if(with_compact)
         )
 endif()
 
+# fmtlib LIBRARY
+if(fmtlib_available)
+    find_package(fmt REQUIRED)
+    list(APPEND coek_compile_options -DWITH_FMTLIB -Wextra -Wconversion -Wpedantic -Wsign-conversion)
+    list(APPEND coek_link_libraries fmt::fmt)
+    list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
+endif()
+
 # Caliper LIBRARY
 if(with_caliper)
     list(APPEND coek_compile_options -DWITH_CALIPER)
@@ -55,14 +63,8 @@ if(with_caliper)
     list(APPEND coek_include_directories ${CALIPER_INCLUDE_DIR})
 endif()
 
-# fmtlib LIBRARY
-if(with_fmtlib)
-    list(APPEND coek_compile_options -DWITH_FMTLIB -Wextra -Wconversion -Wpedantic -Wsign-conversion)
-    list(APPEND coek_link_libraries fmt)
-    list(APPEND coek_include_directories ${FMTLIB_INCLUDE_DIR})
-endif()
-
 if(rapidjson_available)
+    find_package(RapidJSON REQUIRED)
     list(APPEND coek_compile_options -DWITH_RAPIDJSON)
     list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
 endif()
@@ -184,11 +186,6 @@ install(TARGETS coek
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
        )
-if(with_fmtlib)
-    install(TARGETS fmt
-        DESTINATION lib
-       )
-endif()
 install(FILES
         coek.hpp 
         coek_model.hpp

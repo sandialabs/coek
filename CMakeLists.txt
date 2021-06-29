@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 PROJECT(coek
         LANGUAGES CXX
         VERSION 0.1
@@ -26,7 +26,7 @@ endif()
 
 
 if( (DEFINED ENV{CONDA_PREFIX}) AND (with_pybind11 OR with_cppyy) )
-    message(STATUS "Building in a conda environment.")
+    message(STATUS "Installing in a conda environment: $ENV{CONDA_PREFIX}")
     set(CONDA_ACTIVE TRUE)
     set(CMAKE_INSTALL_PREFIX "$ENV{CONDA_PREFIX}")
     list(APPEND CMAKE_PREFIX_PATH "$ENV{CONDA_PREFIX}")
@@ -35,28 +35,43 @@ if( (DEFINED ENV{CONDA_PREFIX}) AND (with_pybind11 OR with_cppyy) )
     set(CMAKE_LIBRARY_PATH "$ENV{CONDA_PREFIX}/lib")
 endif()
 
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
-#set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/third_party/pybind11/tools;${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/lib/cmake;${CMAKE_MODULE_PATH})
 
 
 ##################### Options #####################
 
-# Build options
+# Download options
 option(insecure_downloads "If enabled, then builds with download third party software without verifying the SSL connection" OFF)
+
+# Build options
 option(build_catch2 "Build Catch2" OFF)
 option(build_cppad "Build the CppAD autograd library" OFF)
+option(build_fmtlib "Build the FMT library" OFF)
+option(build_pybind11 "Build the Pybind11 library" OFF)
 option(build_rapidjson "Build the RapidJson library" OFF)
 option(build_all "Build the all third-party libraries" OFF)
 if (build_all)
     set(build_catch2 ON)
     set(build_cppad ON)
+    set(build_fmtlib ON)
+    set(build_pybind11 ON)
     set(build_rapidjson ON)
+endif()
+option(use_superbuild "Use superbuild logic to build dependencies" ON)
+set(build_dependencies OFF)
+if (use_superbuild)
+    if (build_catch2 OR build_cppad OR build_fmtlib OR build_pybind11 OR build_rapidjson)
+        set(build_dependencies ON)
+    endif()
 endif()
 
 # Configuration options
 option(with_catch2 "Add tests using Catch2" ${build_catch2})
+option(with_fmtlib "Use the fmtlib library" ${build_fmtlib})
+option(with_pybind11 "Build python interface using pybind11" OFF)
 option(with_rapidjson "Add support for reading JSON/JPOF files" ${build_rapidjson})
+
 option(with_compact "Add support for compact expressions" OFF)
 option(with_tests "Build tests" OFF)
 option(with_examples "Build examples" OFF)
@@ -65,8 +80,6 @@ option(with_verbose "Verbose build" OFF)
 option(with_gcov "Add code coverage using gcov" OFF)
 option(with_gprof "Profile build" OFF)
 option(with_caliper "Use the Caliper library" OFF)
-option(with_fmtlib "Use the fmtlib library" OFF)
-option(with_pybind11 "Build python interface using pybind11" OFF)
 option(with_cppyy "Build python interface using cppyy" OFF)
 option(with_docs "Build documentation" OFF)
 
@@ -187,20 +200,6 @@ else()
 endif()
 
 
-##################### Third Party Packages #############
-
-include(download_dir)
-include(BuildThirdParty)
-include(thirdparty)
-setup_builds()
-#
-# Summary after looking for third-party packages
-#
-if (NOT catch2_available)
-    set(with_tests OFF)
-endif()
-
-
 ##################### Solvers #####################
 
 if(ipopt_dir)
@@ -228,8 +227,19 @@ else()
 endif()
 
 
-##################### SubDirectories #####################
 
+##################### Third Party Packages #############
+
+include(download_dir)
+include(BuildThirdParty)
+include(thirdparty.cmake)
+
+setup_builds()
+if (build_dependencies)
+    return()
+endif()
+
+##################### SubDirectories #####################
 # coek
 add_subdirectory(coek)
 
@@ -239,6 +249,9 @@ if (with_examples OR with_tests)
 endif()
 
 # testing
+if (NOT catch2_available)
+    set(with_tests OFF)
+endif()
 if (with_tests)
   MESSAGE("-- With Tests: on")
 
@@ -268,8 +281,11 @@ endif()
 # pybind11
 if(with_pybind11)
     MESSAGE("-- With Pybind11: on")
-    add_subdirectory(third_party/pybind11)
-    add_subdirectory(pycoek/pybind11)
+    #add_subdirectory(third_party/pybind11)
+    #add_subdirectory(pycoek/pybind11)
+    if (build_pybind11)
+        set(CMAKE_MODULE_PATH ${download_dir}/pybind11/tools;${CMAKE_MODULE_PATH})
+    endif()
 
     #
     # Note that this target is automatically build when with_pybind11 is ON
