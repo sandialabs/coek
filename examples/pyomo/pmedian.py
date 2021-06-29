@@ -16,6 +16,11 @@ from pyomo.environ import *
 from poek.util import pyomo_to_poek
 
 
+#
+# Create a p-median optimization problem.  
+# * Variables are initialized to zero to suppress warnings in the pyomo_to_poek function.
+# * Parameters are mutable to illustrate their capture in pyomo_to_poek.
+#
 def create_model():
 
     model = AbstractModel()
@@ -30,11 +35,11 @@ def create_model():
 
     model.Customers = RangeSet(1,model.M)
 
-    model.d = Param(model.Locations, model.Customers, initialize=lambda n, m, model : random.uniform(1.0,2.0), within=Reals)
+    model.d = Param(model.Locations, model.Customers, initialize=lambda n, m, model : random.uniform(1.0,2.0), within=Reals, mutable=True)
 
-    model.x = Var(model.Locations, model.Customers, bounds=(0.0,1.0))
+    model.x = Var(model.Locations, model.Customers, bounds=(0.0,1.0), initialize=0)
 
-    model.y = Var(model.Locations, within=Binary)
+    model.y = Var(model.Locations, within=Binary, initialize=0)
 
     def rule(model):
         return sum( model.d[n,m]*model.x[n,m] for n in model.Locations for m in model.Customers )
@@ -67,7 +72,7 @@ pm = pyomo_to_poek(instance)
 #
 # Display the model
 #
-pm.poek_model.display()
+pm.poek_model.print_equations()
 #
 # Mappings for variables and parameters
 #

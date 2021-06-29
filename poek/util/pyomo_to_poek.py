@@ -71,13 +71,15 @@ class ToCoekExpression(_EvaluationVisitor):
             if tmp in self._var:
                 var = self._var[tmp]
             else:
-                if self.default_variable_value is not None and node.value is None:
+                if self.default_variable_value is None and node.value is None:
                     print("WARNING: Variable %s is not initialized.  Setting initial value to zero." % str(node))
+                    val = 0
+                elif self.default_variable_value is None and node.value is None:
                     val = self.default_variable_value
                 else:
                     val = node.value
                 var = pk.variable(lb=node.lb, ub=node.ub, value=val, binary=node.is_binary(), integer=node.is_integer(), fixed=node.fixed, name=str(node))
-                self._model.use(var)
+                self._model.add_variable(var)
                 self._var[tmp] = var
             return True, var
 
@@ -96,18 +98,18 @@ def pyomo_to_poek(pyomo_model, default_variable_value=None):
     visitor = ToCoekExpression(poek_model, default_variable_value=default_variable_value)
     for cdata in pyomo_model.component_data_objects(Objective, active=True):
         e = visitor.dfs_postorder_stack(cdata.expr)
-        poek_model.add( e )
+        poek_model.add_objective( e )
     for cdata in pyomo_model.component_data_objects(Constraint, active=True):
         e = visitor.dfs_postorder_stack(cdata.body)
         if cdata.equality:
-            poek_model.add( e == value(cdata.lower) )
+            poek_model.add_constraint( e == value(cdata.lower) )
         else:
             if cdata.has_lb() and cdata.has_ub():
-                poek_model.add( inequality(value(cdata.lower), e, value(cdata.upper)) )
+                poek_model.add_constraint( inequality(value(cdata.lower), e, value(cdata.upper)) )
             elif cdata.has_lb():
-                poek_model.add( e >= value(cdata.lower) )
+                poek_model.add_constraint( e >= value(cdata.lower) )
             elif cdata.has_ub():
-                poek_model.add( e <= value(cdata.upper) )
+                poek_model.add_constraint( e <= value(cdata.upper) )
 
     data = Options()
     data.poek_model = poek_model
