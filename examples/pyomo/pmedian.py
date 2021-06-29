@@ -78,7 +78,7 @@ pm.poek_model.print_equations()
 #
 print("Variables: id(vardata) -> poek-variable")
 for key, vardata in pm.pyo2pk_var.items():
-    print(key, vardata)
+    print(key, vardata, vardata.name)
 print("Parameters: id(paramdata) -> poek-parameter")
 for key, paramdata in pm.pyo2pk_param.items():
-    print(key,paramdata)
+    print(key, paramdata, paramdata.name)

@@ -61,7 +61,7 @@ class ToCoekExpression(_EvaluationVisitor):
             if tmp in self._param:
                 param = self._param[tmp]
             else:
-                param = pk.parameter(value(node))
+                param = pk.parameter(value(node), str(node))
                 self._param[tmp] = param
             return True, param
 
