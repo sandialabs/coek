@@ -442,6 +442,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         .def(py::init<double>())
         .def(py::init<double, const std::string&>())
         .def("get_name",&coek::Parameter::get_name)
+        .def_property_readonly("name",&coek::Parameter::get_name)
         .def_property("value", &coek::Parameter::get_value, &coek::Parameter::set_value)
         .def("is_constraint",[](const coek::Parameter& x){return false;})
 
@@ -633,6 +634,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     py::class_<coek::Variable>(m, "variable_single")
         .def(py::init<const std::string&,double, double, double, bool, bool>())
         .def(py::init<double, double, double, bool, bool>())
+        .def("get_name",&coek::Variable::get_name)
         .def_property_readonly("name",&coek::Variable::get_name)
         .def_property("value", &coek::Variable::get_value, &coek::Variable::set_value)
         .def_property("lb", &coek::Variable::get_lb, &coek::Variable::set_lb)
