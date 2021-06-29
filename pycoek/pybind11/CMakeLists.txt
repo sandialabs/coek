@@ -26,8 +26,9 @@ TARGET_LINK_LIBRARIES(pycoek_pybind11 PUBLIC coek ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(pycoek_pybind11 PUBLIC ${coek_compile_options})
 
 
-INSTALL(TARGETS pycoek_pybind11
-        DESTINATION lib)
+install(TARGETS pycoek_pybind11
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}
+       )
 
 #
 # This is poorly named, but for consistency I'll stick with this for now
