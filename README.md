@@ -11,37 +11,38 @@ The C/C++ library that supports the definition of expressions used to formulate 
 * cd build
 * cmake ..
 
-## Build with Tests
+## Build TPLs and Tests
 
-* cd third\_party
-* ./installCatch2.sh
-* cd ..
 * mkdir build
 * cd build
-* cmake -Dwith\_tests=ON ..
+* cmake -Dbuild\_all=ON -Dwith\_tests=ON ..
+* make tpls
+* make
+* make test
+
+## Build with Tests
+
+* mkdir build
+* cd build
+* cmake -Dbuild\_catch2=ON -Dwith\_tests=ON ..
+* make tpls
 * make
 * make test
 
 ## Build with Solvers and CppAD (for NLP solvers)
 
-* cd third\_party
-* ./installCatch2.sh
-* ./installCppAD.sh
-* cd ..
 * mkdir build
 * cd build
-* cmake -Dwith\_tests=ON -Dwith\_cppad=ON -Dwith\_ipopt=ON -Dwith\_gurobi=ON ..
+* cmake -Dbuild\_catch2=ON -Dbuild\_cppad=ON -Dwith\_tests=ON -Dwith\_ipopt=ON -Dwith\_gurobi=ON ..
+* make tpls
 * make
 * make test
 
 ## Build with Pybind11 Python extensions (build a WHEEL and install with PIP)
 
-* cd third\_party
-* ./installPybind11.sh
-* cd ..
 * mkdir build
 * cd build
-* cmake -Dwith\_pybind11=ON ..
+* cmake -Dbuild\_pybind11=ON -Dwith\_pybind11=ON ..
 * make
 * make pip\_install\_pybind11
 
@@ -68,22 +69,21 @@ The C/C++ library that supports the definition of expressions used to formulate 
 
 ## Build with JPOF reader
 
-* cd third\_party
-* ./installCatch2.sh
-* ./installCppAD.sh
-* ./installRapidJSON.sh
-* cd ..
 * mkdir build
 * cd build
-* cmake -Dwith\_tests=ON -Dwith\_cppad=ON -Dwith\_ipopt=ON -Dwith\_rapidjson=ON ..
+* cmake -Dbuild\_all=ON -Dwith\_tests=ON -Dwith\_ipopt=ON ..
 * make
 * make test
 
 
 ## Install
 
+By default, coek is installed in the build/install directory:
+
+* mkdir build
 * cd build
-* cmake -DCMAKE\_INSTALL\_PREFIX=${COEK\_HOME} ..
+* cmake ..
+* make
 * make install
 
 
