@@ -1,5 +1,9 @@
 # poek.__init__.py
 
+import os
+import sys
+import os.path
+
 #
 # This defines the order of resolution of poek interfaces
 # to pycoek.
@@ -19,7 +23,13 @@ for import_ in imports:
             import pycoek_cppyy
             __using_cppyy__ = True
         except ImportError:
-            pass
+            if "COEK_HOME" in os.environ:
+                sys.path.insert(0, os.path.join(os.environ["COEK_HOME"],"lib"))
+            try:
+                import pycoek_cppyy
+                __using_cppyy__ = True
+            except ImportError:
+                pass
         if __using_cppyy__:
             break
 
@@ -28,6 +38,13 @@ for import_ in imports:
             import pycoek_pybind11
             __using_pybind11__ = True
         except ImportError:
+            if "COEK_HOME" in os.environ:
+                sys.path.insert(0, os.path.join(os.environ["COEK_HOME"],"lib"))
+            try:
+                import pycoek_pybind11
+                __using_pybind11__ = True
+            except ImportError:
+                pass
             pass
         if __using_pybind11__:
             break

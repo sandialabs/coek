@@ -5,6 +5,12 @@ from pycoek_pybind11 import variable_
 from pycoek_pybind11 import *
 from .func import quicksum, prod
 
+try:
+    compact_model
+except:
+    class _DummyConcreteSet(object): pass
+    ConcreteSet = _DummyConcreteSet
+
 class variable(object):
 
     def __new__(cls, *args, **kwds):
