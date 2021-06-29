@@ -110,6 +110,7 @@ macro(setup_builds)
                 -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
                 -DFMT_MASTER_PROJECT=OFF
                 -DFMT_INSTALL=ON
+                -DBUILD_SHARED_LIBS=ON
             BUILD_ALWAYS FALSE
             EXCLUDE_FROM_ALL TRUE
             )

@@ -5,47 +5,60 @@
 
 The C/C++ library that supports the definition of expressions used to formulate and solve optimization problems.
 
-## Simple Build
+## Setup and Configuration
+
+By default, Coek builds just its library and it assumes that third-party packages are installed and
+available.  The default installation directory is set to **build/install**.  
+
+Optionally, a user can used the **build\_\* ** options to build third-party packages locally. The packages are installed
+in the installation directory along with Coek.  This uses a CMAKE superbuild process that requires multiple 
+executions of the **make** command.  This is convenient for Coek developers, but installation with a package
+manager is probably a better long-term solution for users.
+
+## Build Examples
+
+### Simple Build
 
 * mkdir build
 * cd build
 * cmake ..
 
-## Build with Tests
+### Build TPLs and Tests
 
-* cd third\_party
-* ./installCatch2.sh
-* cd ..
 * mkdir build
 * cd build
-* cmake -Dwith\_tests=ON ..
+* cmake -Dbuild\_all=ON -Dwith\_tests=ON ..
+* make tpls
 * make
 * make test
 
-## Build with Solvers and CppAD (for NLP solvers)
+### Download and build TPLs with curl insecure flags
 
-* cd third\_party
-* ./installCatch2.sh
-* ./installCppAD.sh
-* cd ..
 * mkdir build
 * cd build
-* cmake -Dwith\_tests=ON -Dwith\_cppad=ON -Dwith\_ipopt=ON -Dwith\_gurobi=ON ..
+* cmake -Dbuild\_all=ON -Dinsecure\_downloads=ON -Dwith\_tests=ON ..
+* make tpls
 * make
 * make test
 
-## Build with Pybind11 Python extensions (build a WHEEL and install with PIP)
+### Build with Solvers and CppAD (for NLP solvers)
 
-* cd third\_party
-* ./installPybind11.sh
-* cd ..
 * mkdir build
 * cd build
-* cmake -Dwith\_pybind11=ON ..
+* cmake -Dbuild\_catch2=ON -Dbuild\_cppad=ON -Dwith\_tests=ON -Dwith\_ipopt=ON -Dwith\_gurobi=ON ..
+* make tpls
+* make
+* make test
+
+### Build with Pybind11 Python extensions (build a WHEEL and install with PIP)
+
+* mkdir build
+* cd build
+* cmake -Dbuild\_pybind11=ON -Dwith\_pybind11=ON ..
 * make
 * make pip\_install\_pybind11
 
-## Build with Cppyy Python extensions (build a WHEEL and install with PIP)
+### Build with Cppyy Python extensions (build a WHEEL and install with PIP)
 
 * conda create -n coek python=3 cmake
 * conda activate coek
@@ -56,7 +69,7 @@ The C/C++ library that supports the definition of expressions used to formulate 
 * make
 * make pip\_install\_cppyy
 
-## Build with documentation
+### Build with documentation
 
 * conda create -n coek python=3 cmake
 * conda activate coek
@@ -66,24 +79,15 @@ The C/C++ library that supports the definition of expressions used to formulate 
 * cmake -Dwith\_docs=ON ..
 * make
 
-## Build with JPOF reader
 
-* cd third\_party
-* ./installCatch2.sh
-* ./installCppAD.sh
-* ./installRapidJSON.sh
-* cd ..
+### Install
+
+By default, coek is installed in the build/install directory:
+
 * mkdir build
 * cd build
-* cmake -Dwith\_tests=ON -Dwith\_cppad=ON -Dwith\_ipopt=ON -Dwith\_rapidjson=ON ..
+* cmake ..
 * make
-* make test
-
-
-## Install
-
-* cd build
-* cmake -DCMAKE\_INSTALL\_PREFIX=${COEK\_HOME} ..
 * make install
 
 

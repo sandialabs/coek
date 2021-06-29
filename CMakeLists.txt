@@ -24,8 +24,9 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   )
 endif()
 
+option(conda_install "If enabled, then install in the current conda environment" OFF)
 
-if( (DEFINED ENV{CONDA_PREFIX}) AND (with_pybind11 OR with_cppyy) )
+if( (conda_install) AND (DEFINED ENV{CONDA_PREFIX}) AND (with_pybind11 OR with_cppyy) )
     message(STATUS "Installing in a conda environment: $ENV{CONDA_PREFIX}")
     set(CONDA_ACTIVE TRUE)
     set(CMAKE_INSTALL_PREFIX "$ENV{CONDA_PREFIX}")
@@ -37,6 +38,7 @@ endif()
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
 set(CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/lib/cmake;${CMAKE_MODULE_PATH})
+
 
 
 ##################### Options #####################
@@ -95,6 +97,7 @@ option(with_gurobi "Use the Gurobi solver" OFF)
 set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
 
 message("Configuration Options")
+
 
 ##################### Checks for compiler #####################
 
@@ -272,17 +275,11 @@ else()
   MESSAGE("-- With Tests: off")
 endif()
 
-#if(with_pybind11 OR with_cppyy OR with_cffi)
-#    if((with_cffi AND with_cppyy) OR (with_cffi AND with_pybind11) OR (with_cppyy AND with_pybind11))
-#        MESSAGE(FATAL_ERROR "Cannot configure multiple python interfaces!")
-#    endif()
-#endif()
-
 # pybind11
 if(with_pybind11)
     MESSAGE("-- With Pybind11: on")
-    #add_subdirectory(third_party/pybind11)
-    #add_subdirectory(pycoek/pybind11)
+    find_package(pybind11)
+    add_subdirectory(pycoek/pybind11)
     if (build_pybind11)
         set(CMAKE_MODULE_PATH ${download_dir}/pybind11/tools;${CMAKE_MODULE_PATH})
     endif()
