@@ -1358,19 +1358,21 @@ CALI_MARK_END("x_orig");
 #else
 CALI_MARK_BEGIN("x_str");
 {
-fmt::memory_buffer out;
+auto out = std::vector<char>();
+//fmt::memory_buffer out;
 int num=0;
 int ctr=0;
 for (auto it=varobj.begin(); it != varobj.end(); ++it, ++ctr) {
     auto tmp = it->second.get_value();
     if (not std::isnan(tmp)) {
         num++;
-        fmt::format_to(out, "{} {}\n", ctr, tmp);
+        fmt::format_to(std::back_inserter(out), "{} {}\n", ctr, tmp);
         }
     }
 if (num) {
     ostr.print("x{}\n", num);
     //ostr.print("{}", fmt::to_string(out));
+    out.push_back(0);
     ostr.print("{}", out.data());
     }
 }
