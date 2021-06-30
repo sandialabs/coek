@@ -68,7 +68,7 @@ if (use_superbuild)
     endif()
 endif()
 if (build_catch2 OR build_cppad OR build_fmtlib OR build_pybind11 OR build_rapidjson)
-    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib64")
 endif()
 
 # Configuration options
