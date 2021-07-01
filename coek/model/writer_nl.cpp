@@ -29,7 +29,7 @@
 
 namespace coek {
 
-void check_that_expression_variables_are_declared(Model& model, const std::set<unsigned int>& var_ids);
+void check_that_expression_variables_are_declared(Model& model, const std::map<unsigned int, Variable>& varobj);
 
 
 namespace {
@@ -439,7 +439,7 @@ for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(
     nnz_Jacobian += curr_vars.size();
     }
 
-check_that_expression_variables_are_declared(model, vars);
+check_that_expression_variables_are_declared(model, varobj);
 
 for (auto it=linear_vars.begin(); it != linear_vars.end(); ++it) {
     auto& var = varobj[*it];
@@ -1155,7 +1155,7 @@ for (auto jt=model.repn->constraints.begin(); jt != model.repn->constraints.end(
 }
 CALI_MARK_END("Prepare Constraint Expressions");
 
-check_that_expression_variables_are_declared(model, vars);
+check_that_expression_variables_are_declared(model, varobj);
 
 CALI_MARK_BEGIN("Misc NL");
 for (auto it=linear_vars.begin(); it != linear_vars.end(); ++it) {

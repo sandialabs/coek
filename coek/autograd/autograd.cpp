@@ -13,7 +13,7 @@
 
 namespace coek {
 
-void check_that_expression_variables_are_declared(Model& model, const std::set<unsigned int>& var_ids);
+void check_that_expression_variables_are_declared(Model& model, const std::unordered_set<VariableTerm*>& vars);
 
 
 NLPModelRepn* create_NLPModelRepn(Model& model, std::string& name)
@@ -39,11 +39,7 @@ for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end();
 for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it)
     find_vars_and_params(it->repn, vars, fixed_vars, params);
 
-//std::cout << "HERE x " << vars.size() << std::endl;
-std::set<unsigned int> used_ids;
-for (auto it=vars.begin(); it != vars.end(); ++it)
-    used_ids.insert((*it)->index);
-check_that_expression_variables_are_declared(model, used_ids);
+check_that_expression_variables_are_declared(model, vars);
 
 std::map<int,VariableTerm*> tmp;
 for (auto it=vars.begin(); it != vars.end(); ++it)

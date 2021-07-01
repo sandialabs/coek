@@ -7,6 +7,7 @@
 
 #include "../util/map_utils.hpp"
 #include "../ast/varray.hpp"
+#include "../ast/value_terms.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/abstract/expr_rule.hpp"
 #include "coek/autograd/autograd.hpp"
@@ -773,7 +774,7 @@ void NLPSolver::set_option(int option, const std::string value)
 { repn->set_option(option, value); }
 
 
-void check_that_expression_variables_are_declared(Model& model, const std::set<unsigned int>& var_ids)
+void check_that_expression_variables_are_declared(Model& model, const std::map<unsigned int,Variable>& varobj)
 {
 std::unordered_set<unsigned int> model_ids;
 
@@ -782,14 +783,29 @@ for (auto it=model.repn->variables.begin(); it != end; ++it)
     model_ids.insert( (*it).id() );
 
 // TODO - Make this faster because both sets are ordered
-for (auto it=var_ids.begin(); it != var_ids.end(); it++) {
-    auto tmp = model_ids.find(*it);
+for (auto it=varobj.begin(); it != varobj.end(); it++) {
+    auto tmp = model_ids.find(it->first);
     if (tmp == model_ids.end()) {
-        throw std::runtime_error("Model expressions contain variables that are not declared in the model.");
+        throw std::runtime_error("Model expressions contain variable '" + it->second.get_name() + "' that is not declared in the model.");
         }
     }
+}
 
-// TODO - More diagnostic analysis here
+void check_that_expression_variables_are_declared(Model& model, const std::unordered_set<VariableTerm*>& vars)
+{
+std::unordered_set<unsigned int> model_ids;
+
+auto end = model.repn->variables.end();
+for (auto it=model.repn->variables.begin(); it != end; ++it)
+    model_ids.insert( (*it).id() );
+
+// TODO - Make this faster because both sets are ordered
+for (auto it=vars.begin(); it != vars.end(); it++) {
+    auto tmp = model_ids.find((*it)->index);
+    if (tmp == model_ids.end()) {
+        throw std::runtime_error("Model expressions contain variable '" + (*it)->name + "' that is not declared in the model.");
+        }
+    }
 }
 
 }
