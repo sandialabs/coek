@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.12)
 PROJECT(coek
         LANGUAGES CXX
         VERSION 0.1
