@@ -52,7 +52,7 @@ macro(setup_builds)
     set(catch2_available OFF CACHE BOOL "Catch2 is available")
     if (build_catch2)
         define_download_command("NAME;catch2;${catch2_revision}")
-        list(POP_FRONT catch2_revision _d1 _d2)     # Remove SRC
+        list(REMOVE_AT catch2_revision 0 1)         # Remove SRC
         ExternalProject_Add(catch2
             ${catch2_revision}  # specified in thirdparth.cmake
             PREFIX              ${CMAKE_CURRENT_BINARY_DIR}/build/catch2
@@ -76,7 +76,7 @@ macro(setup_builds)
     set(cppad_available OFF CACHE BOOL "CppAD is available")
     if (build_cppad)
         define_download_command("NAME;cppad;${cppad_revision}")
-        list(POP_FRONT cppad_revision _d1 _d2)      # Remove SRC
+        list(REMOVE_AT cppad_revision 0 1)         # Remove SRC
         ExternalProject_Add(cppad
             ${cppad_revision}   # specified in thirdparth.cmake
             PREFIX              ${CMAKE_CURRENT_BINARY_DIR}/build/cppad
@@ -98,7 +98,7 @@ macro(setup_builds)
     set(fmtlib_available OFF CACHE BOOL "FMT is available")
     if (build_fmtlib)
         define_download_command("NAME;fmtlib;${fmtlib_revision}")
-        list(POP_FRONT fmtlib_revision _d1 _d2)      # Remove SRC
+        list(REMOVE_AT fmtlib_revision 0 1)         # Remove SRC
         ExternalProject_Add(fmtlib
             ${fmtlib_revision}   # specified in thirdparth.cmake
             PREFIX              ${CMAKE_CURRENT_BINARY_DIR}/build/fmtlib
@@ -122,7 +122,7 @@ macro(setup_builds)
     set(pybind11_available OFF CACHE BOOL "Pybind11 is available")
     if (build_pybind11)
         define_download_command("NAME;pybind11;${pybind11_revision}")
-        list(POP_FRONT pybind11_revision _d1 _d2)       # Remove SRC
+        list(REMOVE_AT pybind11_revision 0 1)         # Remove SRC
         ExternalProject_Add(pybind11
             ${pybind11_revision}   # specified in thirdparth.cmake
             PREFIX              ${CMAKE_CURRENT_BINARY_DIR}/build/pybind11
@@ -146,7 +146,7 @@ macro(setup_builds)
     set(rapidjson_available OFF CACHE BOOL "RapidJSON is available")
     if (build_rapidjson)
         define_download_command("NAME;rapidjson;${rapidjson_revision}")
-        list(POP_FRONT rapidjson_revision _d1 _d2)      # Remove SRC
+        list(REMOVE_AT rapidjson_revision 0 1)         # Remove SRC
         ExternalProject_Add(rapidjson
             ${rapidjson_revision}   # specified in thirdparth.cmake
             PREFIX              ${CMAKE_CURRENT_BINARY_DIR}/build/rapidjson
