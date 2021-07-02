@@ -10,7 +10,9 @@ namespace {
 void error1(coek::Model& model) 
 {
 auto x = model.add_variable();
+x.set_name("x");
 auto y = coek::Variable();
+y.set_name("y");
 
 model.add_objective( x );
 model.add_constraint( x*y == 4 );
@@ -354,7 +356,7 @@ TEST_CASE( "nl_writer", "[smoke]" ) {
     coek::Model model;
     error1(model);
     REQUIRE_THROWS_WITH(model.write("error1.nl"),
-        "Model expressions contain variables that are not declared in the model.");
+        "Model expressions contain variable 'y' that is not declared in the model.");
     }
 
   SECTION( "small1" ) {
@@ -441,7 +443,7 @@ TEST_CASE( "fmtnl_writer", "[smoke]" ) {
     coek::Model model;
     error1(model);
     REQUIRE_THROWS_WITH(model.write("error1.fmtnl"),
-        "Model expressions contain variables that are not declared in the model.");
+        "Model expressions contain variable 'y' that is not declared in the model.");
     }
 
   SECTION( "small1" ) {
