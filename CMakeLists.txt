@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 2.8)
 PROJECT(coek
-        LANGUAGES CXX
-        VERSION 0.1
-        DESCRIPTION "C++ Optimization Expression Kernels"
+        #LANGUAGES CXX
+        #VERSION 0.1
+        #DESCRIPTION "C++ Optimization Expression Kernels"
         )
 
 #
