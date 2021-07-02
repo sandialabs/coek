@@ -4,6 +4,9 @@ PROJECT(coek
         #VERSION 0.1
         #DESCRIPTION "C++ Optimization Expression Kernels"
         )
+if(${CMAKE_VERSION} VERSION_LESS "3.5.0")
+    cmake_policy(SET CMP0022 NEW)
+endif()
 
 #
 # GLOBAL INCLUDES
@@ -205,7 +208,6 @@ else()
     MESSAGE("-- With Compact Models: off")
 endif()
 
-
 ##################### Solvers #####################
 
 if(ipopt_dir)
@@ -244,6 +246,37 @@ setup_builds()
 if (build_dependencies)
     return()
 endif()
+
+if (with_catch2 AND (NOT build_catch2))
+    find_package(Catch2)
+    if (catch2_FOUND)
+        set(catch2_available ON)
+    else()
+        set(catch2_available OFF)
+    endif()
+endif()
+
+if (with_cppad AND (NOT build_cppad))
+    find_package(cppad)
+    if (cppad_FOUND)
+        set(cppad_available ON)
+    else()
+        set(cppad_available OFF)
+    endif()
+endif()
+
+if (with_rapidjson AND (NOT build_rapidjson))
+    find_package(RapidJSON)
+    if (RapidJSON_FOUND)
+        set(rapidjson_available ON)
+    else()
+        set(rapidjson_available OFF)
+    endif()
+endif()
+
+MESSAGE("-- Catch2 available:    ${catch2_available}")
+MESSAGE("-- CppAD available:     ${cppad_available}")
+MESSAGE("-- RapidJSON available: ${rapidjson_available}")
 
 ##################### SubDirectories #####################
 # coek
