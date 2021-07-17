@@ -129,7 +129,15 @@ endif()
 # IPOPT LIBRARY
 #
 if(with_ipopt)
-    if (ipopt_dir)
+    if (WIN32)
+        # This is a hack for a specific WIN32 build
+        # It's not clear what a general configuration would look like
+        MESSAGE("-- IPOPT_DIR=${ipopt_dir}")
+        list(APPEND coek_include_directories ${ipopt_dir}/include/coin)
+        list(APPEND coek_link_directories ${CMAKE_INSTALL_PREFIX}/${DEBUG_POSTFIX}/lib ${CMAKE_INSTALL_PREFIX}/${DEBUG_POSTFIX}/lib/static ${CMAKE_INSTALL_PREFIX}/${DEBUG_POSTFIX}/bin)
+        list(APPEND coek_link_libraries libipopt libblas libhsl libf2c)
+        list(APPEND coek_compile_options -DIPOPTLIB_EXPORT=)
+    elseif (ipopt_dir)
         MESSAGE("-- IPOPT_DIR=${ipopt_dir}")
         list(APPEND coek_include_directories ${ipopt_dir}/include/coin)
         list(APPEND coek_link_directories ${ipopt_dir}/lib ${ipopt_dir}/lib64)
@@ -160,6 +168,10 @@ endif()
 # Build library
 #
 add_library(coek SHARED ${sources})
+if (WIN32)
+    target_link_libraries(coek ${coek_link_libraries})
+    target_link_directories(coek PRIVATE ${coek_link_directories})
+endif()
 target_compile_options(coek PUBLIC ${coek_compile_options})
 target_include_directories(coek
                            PUBLIC
@@ -174,6 +186,10 @@ if(${with_gcov})
 endif()
 set_property(TARGET coek PROPERTY INTERFACE_LINK_LIBRARIES ${coek_link_libraries})
 set_property(TARGET coek PROPERTY INTERFACE_LINK_DIRECTORIES ${coek_link_directories})
+
+if (WIN32)
+    target_link_libraries(coek ${coek_link_libraries})
+endif()
 
 
 #
