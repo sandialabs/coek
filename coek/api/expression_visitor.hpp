@@ -34,9 +34,9 @@ public:
     void collect_terms(const Constraint& expr);
 
     bool is_constant() const
-        {return (linear_coefs.size() == 0) and (quadratic_coefs.size() == 0);}
+        {return (linear_coefs.size() == 0) && (quadratic_coefs.size() == 0);}
     bool is_linear() const
-        {return (linear_coefs.size() > 0) and (quadratic_coefs.size() == 0);}
+        {return (linear_coefs.size() > 0) && (quadratic_coefs.size() == 0);}
     bool is_quadratic() const
         {return quadratic_coefs.size() > 0;}
 };

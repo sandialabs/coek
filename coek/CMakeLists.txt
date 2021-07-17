@@ -168,6 +168,7 @@ endif()
 # Build library
 #
 add_library(coek SHARED ${sources})
+set_property(TARGET coek PROPERTY PREFIX lib)
 if (WIN32)
     target_link_libraries(coek ${coek_link_libraries})
     target_link_directories(coek PRIVATE ${coek_link_directories})
