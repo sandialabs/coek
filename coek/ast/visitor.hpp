@@ -2,6 +2,8 @@
 #define COEK_EXPR_VISITOR_HPP
 #pragma once
 
+#include <stdexcept>
+
 
 namespace coek {
 

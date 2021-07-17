@@ -42,7 +42,12 @@ struct UnknownVariable : public std::exception
 
 inline unsigned int get_vid_value(const std::unordered_map<unsigned int,unsigned int>& vid, unsigned int id)
 {
+/* C++-17
 if (auto it{ vid.find(id) };  it != vid.end() )
+    return it->second;
+*/
+auto it = vid.find(id);
+if (it != vid.end())
     return it->second;
 throw UnknownVariable();
 }
