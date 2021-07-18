@@ -50,6 +50,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/lib/cmake;${CMAKE_MODULE_PATH})
 option(insecure_downloads "If enabled, then builds with download third party software without verifying the SSL connection" OFF)
 
 # Build options
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 option(build_catch2 "Build Catch2" OFF)
 option(build_cppad "Build the CppAD autograd library" OFF)
 option(build_fmtlib "Build the FMT library" OFF)

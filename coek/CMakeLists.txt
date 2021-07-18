@@ -1,8 +1,6 @@
 
 ##################### Build Shared Library  #####################
 
-OPTION(STATIC_LINK "STATIC_LINK" OFF)
-
 SET(sources
     ast/base_terms.cpp
     ast/constraint_terms.cpp
@@ -165,32 +163,33 @@ endif()
 #endif()
 
 #
-# Build library
+# Build object library
 #
-add_library(coek SHARED ${sources})
-set_property(TARGET coek PROPERTY PREFIX lib)
-if (WIN32)
-    target_link_libraries(coek ${coek_link_libraries})
-    target_link_directories(coek PRIVATE ${coek_link_directories})
-endif()
+# this is the "object library" target: compiles the sources only once
+add_library(coek ${sources})
+set_target_properties(coek PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
+
 target_compile_options(coek PUBLIC ${coek_compile_options})
 target_include_directories(coek
                            PUBLIC
                            "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>"
                            "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
-)
+                           )
 target_include_directories(coek
                            PUBLIC
                            ${coek_include_directories})
-if(${with_gcov})
-  target_link_libraries(coek PUBLIC gcov)
-endif()
+
 set_property(TARGET coek PROPERTY INTERFACE_LINK_LIBRARIES ${coek_link_libraries})
-set_property(TARGET coek PROPERTY INTERFACE_LINK_DIRECTORIES ${coek_link_directories})
 
 if (WIN32)
     target_link_libraries(coek ${coek_link_libraries})
+    target_link_directories(coek PRIVATE ${coek_link_directories})
 endif()
+
+
+
+
+
 
 
 #
@@ -203,6 +202,8 @@ install(TARGETS coek
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
        )
+set_target_properties(coek PROPERTIES OUTPUT_NAME libcoek)
+
 install(FILES
         coek.hpp 
         coek_model.hpp
