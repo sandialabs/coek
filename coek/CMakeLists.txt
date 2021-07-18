@@ -202,7 +202,9 @@ install(TARGETS coek
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
        )
-set_target_properties(coek PROPERTIES OUTPUT_NAME libcoek)
+if (WIN32)
+    set_target_properties(coek PROPERTIES OUTPUT_NAME libcoek)
+endif()
 
 install(FILES
         coek.hpp 
