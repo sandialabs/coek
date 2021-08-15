@@ -155,10 +155,10 @@ if(with_ipopt)
         endif()
         list(APPEND coek_compile_options -DWITH_IPOPT_TNLP)
         list(APPEND sources
-                solvers/ipopt/ipopt_tnlp.cpp)
+                solvers/ipopt/ipopt_tnlp.cpp solvers/ipopt/ipopt_solver.cpp)
     else()
         list(APPEND sources
-                solvers/ipopt/ipopt_capi.cpp)
+                solvers/ipopt/ipopt_capi.cpp solvers/ipopt/ipopt_solver.cpp)
     endif()
     list(APPEND coek_compile_options -DWITH_IPOPT)
 endif()

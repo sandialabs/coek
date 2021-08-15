@@ -1,86 +1,102 @@
-#include <chrono>
+#include <memory>
 #include <cassert>
-//#include "IpIpoptApplication.hpp"
-//#include "IpSolveStatistics.hpp"
-//#include "IpTNLP.hpp"
 
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/autograd/autograd.hpp"
-#include "ipopt.hpp"
+#include "ipopt_solver.hpp"
+#include "IpStdCInterface.h"
 
 extern "C" {
 
- /* Function Declarations */
+/* Functions used to interface with IPOPT */
 Bool eval_f(
-   Index       n,
-   Number*     x,
-   Bool        new_x,
-   Number*     obj_value,
-   UserDataPtr user_data
-);
+    Index       n,
+    Number*     x,
+    Bool        new_x,
+    Number*     obj_value,
+    UserDataPtr user_data
+    )
+{
+return TRUE;
+}
 
 Bool eval_grad_f(
-   Index       n,
-   Number*     x,
-   Bool        new_x,
-   Number*     grad_f,
-   UserDataPtr user_data
-);
+    Index       n,
+    Number*     x,
+    Bool        new_x,
+    Number*     grad_f,
+    UserDataPtr user_data
+    )
+{
+return TRUE;
+}
 
 Bool eval_g(
-   Index       n,
-   Number*     x,
-   Bool        new_x,
-   Index       m,
-   Number*     g,
-   UserDataPtr user_data
-);
+    Index       n,
+    Number*     x,
+    Bool        new_x,
+    Index       m,
+    Number*     g,
+    UserDataPtr user_data
+    )
+{
+return TRUE;
+}
 
 Bool eval_jac_g(
-   Index       n,
-   Number*     x,
-   Bool        new_x,
-   Index       m,
-   Index       nele_jac,
-   Index*      iRow,
-   Index*      jCol,
-   Number*     values,
-   UserDataPtr user_data
-);
+    Index       n,
+    Number*     x,
+    Bool        new_x,
+    Index       m,
+    Index       nele_jac,
+    Index*      iRow,
+    Index*      jCol,
+    Number*     values,
+    UserDataPtr user_data
+    )
+{
+return TRUE;
+}
 
 Bool eval_h(
-   Index       n,
-   Number*     x,
-   Bool        new_x,
-   Number      obj_factor,
-   Index       m,
-   Number*     lambda,
-   Bool        new_lambda,
-   Index       nele_hess,
-   Index*      iRow,
-   Index*      jCol,
-   Number*     values,
-   UserDataPtr user_data
-);
+    Index       n,
+    Number*     x,
+    Bool        new_x,
+    Number      obj_factor,
+    Index       m,
+    Number*     lambda,
+    Bool        new_lambda,
+    Index       nele_hess,
+    Index*      iRow,
+    Index*      jCol,
+    Number*     values,
+    UserDataPtr user_data
+    )
+{
+return TRUE;
+}
 
 Bool intermediate_cb(
-   Index       alg_mod,
-   Index       iter_count,
-   Number      obj_value,
-   Number      inf_pr,
-   Number      inf_du,
-   Number      mu,
-   Number      d_norm,
-   Number      regularization_size,
-   Number      alpha_du,
-   Number      alpha_pr,
-   Index       ls_trials,
-   UserDataPtr user_data
-);
+    Index       alg_mod,
+    Index       iter_count,
+    Number      obj_value,
+    Number      inf_pr,
+    Number      inf_du,
+    Number      mu,
+    Number      d_norm,
+    Number      regularization_size,
+    Number      alpha_du,
+    Number      alpha_pr,
+    Index       ls_trials,
+    UserDataPtr user_data
+    )
+{
+return TRUE;
+}
  
-};
+}
 
 namespace coek {
 
@@ -95,7 +111,7 @@ return ostr;
 */
 
 
-class IpoptProblem : public TNLP
+class IpoptProblem 
 {
 public:
 
@@ -133,9 +149,11 @@ public:
     virtual ~IpoptProblem()
         {}
 
+/*
     // Method to return some info about the nlp
     bool get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                     Index& nnz_h_lag, IndexStyleEnum& index_style);
+*/
   
     // Method to return the bounds for my problem
     bool get_bounds_info(Index n, Number* x_l, Number* x_u, Index m, Number* g_l, Number* g_u);
@@ -170,6 +188,9 @@ public:
                       bool new_lambda, Index nele_hess, Index* iRow,
                       Index* jCol, Number* values);
 
+    int perform_solve();
+
+/*
     // This method is called when the algorithm is complete so the TNLP can store/write the solution
     void finalize_solution(SolverReturn status,
                  Index n, const Number* x, const Number* z_L, const Number* z_U,
@@ -177,6 +198,7 @@ public:
                  Number obj_value,
                  const IpoptData* ip_data,
                  IpoptCalculatedQuantities* ip_cq);
+*/
 
 private:
 
@@ -190,20 +212,7 @@ private:
 };
 
 
-class IpoptSolverRepn
-{
-public:
-
-    SmartPtr<IpoptProblem> problem;
-
-    IpoptSolverRepn(NLPModel& model)
-        { problem = new IpoptProblem(model); }
-
-    void build()
-        { problem->build(); }
-};
-
-
+/*
 bool IpoptProblem::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
                          Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
@@ -227,6 +236,7 @@ index_style = C_STYLE;
 
 return true;
 }
+*/
 
 bool IpoptProblem::get_bounds_info(Index n, Number* x_l, Number* x_u,
                             Index m, Number* g_l, Number* g_u)
@@ -277,7 +287,8 @@ bool IpoptProblem::get_starting_point(Index n, bool init_x, Number* x,
 
 // We only have starting values for x
 if (init_x) {
-    last_x.resize(n);
+    size_t n_ = static_cast<size_t>(n);
+    last_x.resize(n_);
     // Initialize the x[i];
     for (size_t i=0; i<model.num_variables(); i++) {
         auto v = model.get_variable(i);
@@ -290,17 +301,19 @@ if (init_x) {
     }
 
 if (init_z) {
-    last_zL.resize(n);
-    last_zU.resize(n);
-    for (int i=0; i<n; i++)
+    size_t n_ = static_cast<size_t>(n);
+    last_zL.resize(n_);
+    last_zU.resize(n_);
+    for (size_t i=0; i<n_; i++)
         z_L[i] = last_zL[i];
-    for (int i=0; i<n; i++)
+    for (size_t i=0; i<n_; i++)
         z_U[i] = last_zU[i];
     }
 
 if (init_lambda) {
-    last_lambda.resize(m);
-    for (int i=0; i<m; i++)
+    size_t m_ = static_cast<size_t>(m);
+    last_lambda.resize(m_);
+    for (size_t i=0; i<m_; i++)
         lambda[i] = last_lambda[i];
     }
 
@@ -312,7 +325,7 @@ bool IpoptProblem::eval_f(Index n, const Number* x, bool new_x, Number& obj_valu
 //std::cout << "EVAL F " << std::endl << std::flush;
 if (new_x) {
     //std::cout << "Set Vars " << std::endl << std::flush;
-    model.set_variables(x, n);
+    model.set_variables(x, static_cast<size_t>(n));
     }
 
 //std::cout << "Compute F - START" << std::endl << std::flush;
@@ -329,14 +342,14 @@ bool IpoptProblem::eval_grad_f(Index n, const Number* x, bool new_x, Number* gra
 //std::cout << "EVAL DF " << std::endl << std::flush;
 if (new_x) {
     //std::cout << "Set Vars " << std::endl << std::flush;
-    model.set_variables(x, n);
+    model.set_variables(x, static_cast<size_t>(n));
     }
 
 //std::cout << "Compute DF - START" << std::endl << std::flush;
 // return the gradient of the objective function grad_{x} f(x)
 double f;
 model.compute_df(f, tmp_grad, 0);
-int i=0;
+size_t i=0;
 for (std::vector<double>::iterator it=tmp_grad.begin(); it != tmp_grad.end(); it++)
     grad_f[i++] = *it;
 
@@ -350,13 +363,13 @@ bool IpoptProblem::eval_g(Index n, const Number* x, bool new_x, Index m, Number*
 //std::cout << "EVAL G " << std::endl << std::flush;
 if (new_x) {
     //std::cout << "Set Vars " << std::endl << std::flush;
-    model.set_variables(x, n);
+    model.set_variables(x, static_cast<size_t>(n));
     }
 
 //std::cout << "Compute G - START" << std::endl << std::flush;
 // return the value of the constraints: g(x)
 model.compute_c(tmp_c);
-int i=0;
+size_t i=0;
 for (std::vector<double>::iterator it=tmp_c.begin(); it != tmp_c.end(); it++)
     g[i++] = *it;
 
@@ -376,8 +389,8 @@ if (values == NULL) {
     std::vector<size_t> jcol;
     model.get_J_nonzeros(jrow, jcol);
     for (size_t i=0; i<jrow.size(); i++) {
-        jRow[i] = jrow[i];
-        jCol[i] = jcol[i];
+        jRow[i] = static_cast<Index>(jrow[i]);
+        jCol[i] = static_cast<Index>(jcol[i]);
         }
     //std::cout << "Get Structure " << std::endl << std::flush;
     //std::cout << jrow << std::endl;
@@ -390,7 +403,7 @@ else {
     //std::cout << "nele_jac " << nele_jac << std::endl << std::flush;
     // Return the values of the Jacobian of the constraints
     if (new_x) {
-        model.set_variables(x, n);
+        model.set_variables(x, static_cast<size_t>(n));
         }
     model.compute_J(tmp_j);
     for (size_t i=0; i<tmp_j.size(); i++)
@@ -416,8 +429,8 @@ if (values == NULL) {
     model.get_H_nonzeros(hrow, hcol);
     //std::cout << "HERE hrow_size " << hrow.size() << std::endl;
     for (size_t i=0; i<hrow.size(); i++) {
-        hRow[i] = hrow[i];
-        hCol[i] = hcol[i];
+        hRow[i] = static_cast<Index>(hrow[i]);
+        hCol[i] = static_cast<Index>(hcol[i]);
         //std::cout << hRow[i] << " " << hCol[i] << std::endl;
         }
     }
@@ -425,7 +438,7 @@ if (values == NULL) {
 else {
     // Return the values of the Hessian
     if (new_x) {
-        model.set_variables(x, n);
+        model.set_variables(x, static_cast<size_t>(n));
         }
     size_t nf = model.num_objectives();
     size_t nc = model.num_constraints();
@@ -442,7 +455,44 @@ else {
 return true;
 }
 
+int IpoptProblem::perform_solve()
+{
+/*
+SmartPtr<IpoptApplication> app = IpoptApplicationFactory();
 
+// Initialize the IpoptApplication and process the options
+ApplicationReturnStatus status = app->Initialize();
+if (status != Solve_Succeeded) {
+    std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
+    return (int) status;
+    }
+
+for (auto it=string_options.begin(); it != string_options.end(); ++it)
+    app->Options()->SetStringValue(it->first, it->second);
+for (auto it=integer_options.begin(); it != integer_options.end(); ++it)
+    app->Options()->SetIntegerValue(it->first, it->second);
+for (auto it=double_options.begin(); it != double_options.end(); ++it)
+    app->Options()->SetNumericValue(it->first, it->second);
+
+status = app->OptimizeTNLP(nlp->problem);
+
+if (status == Solve_Succeeded) {
+    // Retrieve some statistics about the solve
+    Index iter_count = app->Statistics()->IterationCount();
+    std::cout << std::endl << std::endl << "*** The problem solved in " << iter_count << " iterations!" << std::endl;
+
+    Number final_obj = app->Statistics()->FinalObjective();
+    std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
+    }
+
+return (int) status;
+*/
+return 1;
+}
+
+
+
+/*
 void IpoptProblem::finalize_solution(SolverReturn status,
                 Index n, const Number* x, const Number* z_L, const Number* z_U,
                 Index m, const Number* g, const Number* lambda,
@@ -474,79 +524,32 @@ for (int i=0; i<m; i++) {
     last_lambda[i] = lambda[i];
     }
 }
+*/
 
 
-
-int IpoptSolver::solve(NLPModel& _model)
+class IpoptSolverRepn_CAPI : public IpoptSolverRepn
 {
-load(_model);
-if (not initial_solve()) {
-    std::cout << "ERROR: must reset the model before solving" << std::endl;
-    return -1;
-    }
-return perform_solve();
-}
+public:
 
+    std::shared_ptr<IpoptProblem> problem;
 
-int IpoptSolver::resolve()
-{
-auto start = std::chrono::high_resolution_clock::now();
+    IpoptSolverRepn_CAPI(NLPModel& model)
+        { problem = std::make_shared<IpoptProblem>(model); }
 
-if (not initial_solve())
-    nlp->problem->model.reset();
+    int perform_solve()
+        { return problem->perform_solve(); }
 
-auto it = string_options.find("warm_start_init_point");
-if ((it != string_options.end()) and (it->second == "yes"))
-    nlp->problem->start_from_last_x = true;
-else    
-    nlp->problem->start_from_last_x = false;
-int status = perform_solve();
-
-auto curr = std::chrono::high_resolution_clock::now();
-std::chrono::duration<double> diff = curr-start;
-std::cout << "Time to solve: " << diff.count() << " s\n";
-
-return status;
-}
-
-int IpoptSolver::perform_solve()
-{
-SmartPtr<IpoptApplication> app = IpoptApplicationFactory();
-
-// Initialize the IpoptApplication and process the options
-ApplicationReturnStatus status = app->Initialize();
-if (status != Solve_Succeeded) {
-    std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
-    return (int) status;
-    }
-
-for (auto it=string_options.begin(); it != string_options.end(); ++it)
-    app->Options()->SetStringValue(it->first, it->second);
-for (auto it=integer_options.begin(); it != integer_options.end(); ++it)
-    app->Options()->SetIntegerValue(it->first, it->second);
-for (auto it=double_options.begin(); it != double_options.end(); ++it)
-    app->Options()->SetNumericValue(it->first, it->second);
-
-status = app->OptimizeTNLP(nlp->problem);
-
-if (status == Solve_Succeeded) {
-    // Retrieve some statistics about the solve
-    Index iter_count = app->Statistics()->IterationCount();
-    std::cout << std::endl << std::endl << "*** The problem solved in " << iter_count << " iterations!" << std::endl;
-
-    Number final_obj = app->Statistics()->FinalObjective();
-    std::cout << std::endl << std::endl << "*** The final value of the objective function is " << final_obj << '.' << std::endl;
-    }
-
-return (int) status;
-}
+    void set_start_from_last_x(bool flag)
+        { problem->start_from_last_x = flag; }
+};
 
 
 void IpoptSolver::load(NLPModel& _model)
 {
+auto nlp_capi = std::make_shared<IpoptSolverRepn_CAPI>(_model);
+nlp_capi->problem->build();
 model = &_model;
-nlp = std::make_shared<IpoptSolverRepn>(_model);
-nlp->build();
+nlp = std::dynamic_pointer_cast<IpoptSolverRepn>(nlp_capi);
 }
 
 }

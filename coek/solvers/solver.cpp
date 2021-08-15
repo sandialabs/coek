@@ -8,7 +8,7 @@
 #include "testsolver.hpp"
 
 #ifdef WITH_IPOPT
-#include "coek/solvers/ipopt/ipopt.hpp"
+#include "coek/solvers/ipopt/ipopt_solver.hpp"
 #endif
 
 #ifdef WITH_GUROBI
