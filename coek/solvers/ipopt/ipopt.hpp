@@ -1,7 +1,7 @@
 #pragma once
 
 #include "coek/coek_model.hpp"
-#include "solver.hpp"
+#include "coek/solvers/solver.hpp"
 
 
 namespace coek {

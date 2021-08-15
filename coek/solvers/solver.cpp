@@ -8,11 +8,11 @@
 #include "testsolver.hpp"
 
 #ifdef WITH_IPOPT
-#include "coek/ipopt/ipopt.hpp"
+#include "coek/solvers/ipopt/ipopt.hpp"
 #endif
 
 #ifdef WITH_GUROBI
-#include "coek/gurobi/coek_gurobi.hpp"
+#include "coek/solvers/gurobi/coek_gurobi.hpp"
 #endif
 
 
