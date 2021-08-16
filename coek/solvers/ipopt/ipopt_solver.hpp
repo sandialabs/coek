@@ -27,17 +27,25 @@ class IpoptSolver : public NLPSolverRepn
 {
 protected:
 
+    bool available_;
     std::shared_ptr<IpoptSolverRepn> repn;
+
+    void initialize();
 
 public:
 
-    IpoptSolver() : NLPSolverRepn() {}
+    IpoptSolver() 
+        : available_(true), NLPSolverRepn()
+        { initialize(); }
 
     void load(NLPModel& model);
 
     int resolve();
 
     int solve(NLPModel& model);
+
+    bool available()
+        {return available_;}
 };
 
 }

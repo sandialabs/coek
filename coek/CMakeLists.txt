@@ -157,6 +157,12 @@ if(with_ipopt)
         list(APPEND sources
                 solvers/ipopt/ipopt_tnlp.cpp solvers/ipopt/ipopt_solver.cpp)
     else()
+        if(WIN32)
+        else()
+            list(APPEND coek_compile_options -DUSING_DL)
+            list(APPEND sources solvers/loadlib.cpp)
+            list(APPEND coek_link_libraries dl)
+        endif()
         list(APPEND sources
                 solvers/ipopt/ipopt_capi.cpp solvers/ipopt/ipopt_solver.cpp)
     endif()

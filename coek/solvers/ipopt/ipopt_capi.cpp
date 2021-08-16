@@ -5,10 +5,48 @@
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/autograd/autograd.hpp"
+#include "coek/solvers/loadlib.h"
 #include "ipopt_solver.hpp"
-#include "IpStdCInterface.h"
+#include "IpStdCInterfaceTypes.h"
+
+extern "C" {
+
+static libHandle_t ipopt_handle=NULL;
+static CreateIpoptProblem_func_t CreateIpoptProblem_func_ptr=0;
+static FreeIpoptProblem_func_t FreeIpoptProblem_func_ptr=0;
+static AddIpoptStrOption_func_t AddIpoptStrOption_func_ptr=0;
+static AddIpoptNumOption_func_t AddIpoptNumOption_func_ptr=0;
+static AddIpoptIntOption_func_t AddIpoptIntOption_func_ptr=0;
+/* OpenIpoptOutputFile_func_t OpenIpoptOutputFile_func_ptr=0; */
+/* SetIpoptProblemScaling_func_t SetIpoptProblemScaling_func_ptr=0; */
+static SetIntermediateCallback_func_t SetIntermediateCallback_func_ptr=0;
+static IpoptSolve_func_t IpoptSolve_func_ptr=0;
+
+}
 
 namespace coek {
+
+int load_ipopt_library(const char* libname)
+{
+char buf[256];
+ipopt_handle = loadlib(libname, buf, 256);
+if (ipopt_handle == NULL)
+    // TODO - How should we handle failures setting up a solver?
+    return 1;
+
+CreateIpoptProblem_func_ptr = (CreateIpoptProblem_func_t)getsym(ipopt_handle, "CreateIpoptProblem", buf, 256);
+FreeIpoptProblem_func_ptr = (FreeIpoptProblem_func_t)getsym(ipopt_handle, "FreeIpoptProblem", buf, 256);
+AddIpoptStrOption_func_ptr = (AddIpoptStrOption_func_t)getsym(ipopt_handle, "AddIpoptStrOption", buf, 256);
+AddIpoptNumOption_func_ptr = (AddIpoptNumOption_func_t)getsym(ipopt_handle, "AddIpoptNumOption", buf, 256);
+AddIpoptIntOption_func_ptr = (AddIpoptIntOption_func_t)getsym(ipopt_handle, "AddIpoptIntOption", buf, 256);
+//OpenIpoptOutputFile_func_ptr = (OpenIpoptOutputFile_func_t)getsym(ipopt_handle, "OpenIpoptOutputFile", buf, 256);
+//SetIpoptProblemScaling_func_ptr = (SetIpoptProblemScaling_func_t)getsym(ipopt_handle, "SetIpoptProblemScaling", buf, 256);
+SetIntermediateCallback_func_ptr = (SetIntermediateCallback_func_t)getsym(ipopt_handle, "SetIntermediateCallback", buf, 256);
+IpoptSolve_func_ptr = (IpoptSolve_func_t)getsym(ipopt_handle, "IpoptSolve", buf, 256);
+
+return 0;
+}
+
 
 /*
 template <typename TYPE>
@@ -54,7 +92,7 @@ public:
     virtual ~IpoptModel()
         {
         if (app)
-            FreeIpoptProblem(app);
+            (*FreeIpoptProblem_func_ptr)(app);
         }
 
     // initialize using the COEK model
@@ -374,7 +412,7 @@ int IpoptModel::perform_solve()
 {
 enum ApplicationReturnStatus status;
 if (start_from_last_x) {
-    status = IpoptSolve(
+    status = (*IpoptSolve_func_ptr)(
         app,
         &(last_x[0]),
         &(last_g[0]),
@@ -389,7 +427,7 @@ else {
         auto v = model.get_variable(i);
         last_x[i] = v.get_value();
         }
-    status = IpoptSolve(
+    status = (*IpoptSolve_func_ptr)(
         app,
         &(last_x[0]),
         &(last_g[0]),
@@ -404,6 +442,11 @@ if (status == Solve_Succeeded) {
     std::cout << std::endl << std::endl << "*** The problem solved in " << last_iter_count << " iterations!" << std::endl;
 
     std::cout << std::endl << std::endl << "*** The final value of the objective function is " << last_objval << '.' << std::endl;
+
+    for (size_t i=0; i<model.num_variables(); i++) {
+        auto v = model.get_variable(i);
+        v.set_value( last_x[i] );
+        }
     }
 
 return (int) status;
@@ -578,7 +621,7 @@ std::vector<Number> g_L(m_);
 std::vector<Number> g_U(m_);
 get_bounds_info(n, &(x_L[0]), &(x_U[0]), m, &(g_L[0]), &(g_U[0]));
 
-app = CreateIpoptProblem(
+app = (*CreateIpoptProblem_func_ptr)(
                     n,
                     &(x_L[0]),
                     &(x_U[0]),
@@ -594,7 +637,7 @@ app = CreateIpoptProblem(
                     &ipopt_capi_eval_jac_g,
                     &ipopt_capi_eval_h
                     );
-SetIntermediateCallback(app, &ipopt_capi_intermediate_cb);
+(*SetIntermediateCallback_func_ptr)(app, &ipopt_capi_intermediate_cb);
 }
 
 
@@ -630,16 +673,23 @@ void IpoptSolverRepn_CAPI::set_options(
 for (auto it=string_options.begin(); it != string_options.end(); ++it) {
     char* tmp1 = const_cast<char*>(it->first.c_str());
     char* tmp2 = const_cast<char*>(it->second.c_str());
-    AddIpoptStrOption(nlp->app, tmp1, tmp2);
+    (*AddIpoptStrOption_func_ptr)(nlp->app, tmp1, tmp2);
     }
 for (auto it=integer_options.begin(); it != integer_options.end(); ++it) {
     char* tmp1 = const_cast<char*>(it->first.c_str());
-    AddIpoptIntOption(nlp->app, tmp1, it->second);
+    (*AddIpoptIntOption_func_ptr)(nlp->app, tmp1, it->second);
     }
 for (auto it=double_options.begin(); it != double_options.end(); ++it) {
     char* tmp1 = const_cast<char*>(it->first.c_str());
-    AddIpoptNumOption(nlp->app, tmp1, it->second);
+    (*AddIpoptNumOption_func_ptr)(nlp->app, tmp1, it->second);
     }
+}
+
+
+void IpoptSolver::initialize()
+{
+int status = load_ipopt_library("libipopt.so");
+available_ = status == 0;
 }
 
 

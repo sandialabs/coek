@@ -50,8 +50,12 @@ if (name == "test")
     return new TestSolver();
 
 #ifdef WITH_GUROBI
-if (name == "gurobi")
-    return new GurobiSolver();
+if (name == "gurobi") {
+    auto ptr = new GurobiSolver();
+    if (ptr->available())
+        return ptr;
+    return 0;
+    }
 #endif
 
 return 0;
@@ -62,8 +66,12 @@ NLPSolverRepn* create_nlpsolver(std::string& name)
 {
 
 #ifdef WITH_IPOPT
-if (name == "ipopt")
-    return new IpoptSolver();
+if (name == "ipopt") {
+    auto ptr = new IpoptSolver();
+    if (ptr->available())
+        return ptr;
+    return 0;
+    }
 #endif
 
 return 0;
