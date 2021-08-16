@@ -16,7 +16,8 @@ if (not initial_solve()) {
     std::cout << "ERROR: must reset the model before solving" << std::endl;
     return -1;
     }
-return nlp->perform_solve();
+repn->set_options(string_options, integer_options, double_options);
+return repn->perform_solve();
 }
 
 
@@ -29,10 +30,10 @@ if (not initial_solve())
 
 auto it = string_options.find("warm_start_init_point");
 if ((it != string_options.end()) and (it->second == "yes"))
-    nlp->set_start_from_last_x(true);
+    repn->set_start_from_last_x(true);
 else    
-    nlp->set_start_from_last_x(false);
-int status = nlp->perform_solve();
+    repn->set_start_from_last_x(false);
+int status = repn->perform_solve();
 
 auto curr = std::chrono::high_resolution_clock::now();
 std::chrono::duration<double> diff = curr-start;
