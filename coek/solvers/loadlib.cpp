@@ -8,7 +8,7 @@
 
 extern "C" libHandle_t loadlib(const char* libname, char* buf, size_t len)
 {
-#if defined(_MSC_VER) && !defined(USING_DL)
+#if !defined(_MSC_VER) && !defined(USING_DL)
 snprintf(buf, len, "ERROR: loadlib() - cannot load library without the DL library");
 return NULL;
 #endif
