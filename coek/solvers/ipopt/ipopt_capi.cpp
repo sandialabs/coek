@@ -26,13 +26,15 @@ static IpoptSolve_func_t IpoptSolve_func_ptr=0;
 
 namespace coek {
 
-int load_ipopt_library(const char* libname)
-{
-char buf[256];
-ipopt_handle = loadlib(libname, buf, 256);
-if (ipopt_handle == NULL)
-    // TODO - How should we handle failures setting up a solver?
-    return 1;
+    int load_ipopt_library(const char* libname)
+    {
+        char buf[256];
+        ipopt_handle = loadlib(libname, buf, 256);
+        if (ipopt_handle == NULL) {}
+        // TODO - How should we handle failures setting up a solver?
+        std::cout << "ERROR loading ipopt: " << buf << std::endl;
+        return 1;
+    }
 
 CreateIpoptProblem_func_ptr = (CreateIpoptProblem_func_t)getsym(ipopt_handle, "CreateIpoptProblem", buf, 256);
 FreeIpoptProblem_func_ptr = (FreeIpoptProblem_func_t)getsym(ipopt_handle, "FreeIpoptProblem", buf, 256);
@@ -688,7 +690,12 @@ for (auto it=double_options.begin(); it != double_options.end(); ++it) {
 
 void IpoptSolver::initialize()
 {
-int status = load_ipopt_library("libipopt.so");
+int status;
+#ifdef _MSC_VER
+status = load_ipopt_library("libipopt-3.dll");
+#else
+status = load_ipopt_library("libipopt.so");
+#endif
 available_ = status == 0;
 }
 
