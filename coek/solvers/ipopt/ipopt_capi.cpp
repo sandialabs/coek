@@ -410,18 +410,27 @@ return true;
 }
 
 
+Number* array_ptr(std::vector<Number>& v)
+{
+if (v.size() == 0)
+    return 0;
+return &(v[0]);
+}
+
+
 int IpoptModel::perform_solve()
 {
 enum ApplicationReturnStatus status;
+
 if (start_from_last_x) {
     status = (*IpoptSolve_func_ptr)(
         app,
-        &(last_x[0]),
-        &(last_g[0]),
+        array_ptr(last_x),
+        array_ptr(last_g),
         &last_objval,
-        &(last_lambda[0]),
-        &(last_zL[0]),
-        &(last_zU[0]),
+        array_ptr(last_lambda),
+        array_ptr(last_zL),
+        array_ptr(last_zU),
         this);
     }
 else {
@@ -431,8 +440,8 @@ else {
         }
     status = (*IpoptSolve_func_ptr)(
         app,
-        &(last_x[0]),
-        &(last_g[0]),
+        array_ptr(last_x),
+        array_ptr(last_g),
         &last_objval,
         0,
         0,
@@ -621,15 +630,15 @@ std::vector<Number> x_L(n_);
 std::vector<Number> x_U(n_);
 std::vector<Number> g_L(m_);
 std::vector<Number> g_U(m_);
-get_bounds_info(n, &(x_L[0]), &(x_U[0]), m, &(g_L[0]), &(g_U[0]));
+get_bounds_info(n, array_ptr(x_L), array_ptr(x_U), m, array_ptr(g_L), array_ptr(g_U));
 
 app = (*CreateIpoptProblem_func_ptr)(
                     n,
-                    &(x_L[0]),
-                    &(x_U[0]),
+                    array_ptr(x_L),
+                    array_ptr(x_U),
                     m,
-                    &(g_L[0]),
-                    &(g_U[0]),
+                    array_ptr(g_L),
+                    array_ptr(g_U),
                     nnz_jac_g,
                     nnz_h_lag,
                     index_style,
