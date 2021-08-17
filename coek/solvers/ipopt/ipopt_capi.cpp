@@ -30,11 +30,11 @@ namespace coek {
     {
         char buf[256];
         ipopt_handle = loadlib(libname, buf, 256);
-        if (ipopt_handle == NULL) {}
-        // TODO - How should we handle failures setting up a solver?
-        std::cout << "ERROR loading ipopt: " << buf << std::endl;
-        return 1;
-    }
+        if (ipopt_handle == NULL) {
+            // TODO - How should we handle failures setting up a solver?
+            std::cout << "ERROR loading ipopt: " << buf << std::endl;
+            return 1;
+            }
 
 CreateIpoptProblem_func_ptr = (CreateIpoptProblem_func_t)getsym(ipopt_handle, "CreateIpoptProblem", buf, 256);
 FreeIpoptProblem_func_ptr = (FreeIpoptProblem_func_t)getsym(ipopt_handle, "FreeIpoptProblem", buf, 256);
