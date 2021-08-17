@@ -35,7 +35,7 @@ protected:
 public:
 
     IpoptSolver() 
-        : available_(true), NLPSolverRepn()
+        : NLPSolverRepn(), available_(true)
         { initialize(); }
 
     void load(NLPModel& model);
