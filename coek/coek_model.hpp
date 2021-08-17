@@ -379,6 +379,8 @@ public:
 
     void initialize(std::string solver);
 
+    bool available() const;
+
     int solve(NLPModel& model);
 
     void load(NLPModel& model);

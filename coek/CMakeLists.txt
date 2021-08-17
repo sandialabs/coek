@@ -160,9 +160,9 @@ if(with_ipopt)
         if(WIN32)
         else()
             list(APPEND coek_compile_options -DUSING_DL)
-            list(APPEND sources solvers/loadlib.cpp)
             list(APPEND coek_link_libraries dl)
         endif()
+        list(APPEND sources solvers/loadlib.cpp)
         list(APPEND sources
                 solvers/ipopt/ipopt_capi.cpp solvers/ipopt/ipopt_solver.cpp)
     endif()
@@ -182,8 +182,14 @@ endif()
 # Build object library
 #
 # this is the "object library" target: compiles the sources only once
-add_library(coek ${sources})
-set_target_properties(coek PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
+if (build_shared_libs)
+    add_library(coek SHARED ${sources})
+    message("Building shared libcoek library")
+    set_target_properties(coek PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
+else()
+    add_library(coek STATIC ${sources})
+    message("Building static libcoek library")
+endif()
 
 target_compile_options(coek PUBLIC ${coek_compile_options})
 target_include_directories(coek
@@ -201,12 +207,6 @@ if (WIN32)
     target_link_libraries(coek ${coek_link_libraries})
     target_link_directories(coek PRIVATE ${coek_link_directories})
 endif()
-
-
-
-
-
-
 
 #
 # make install
@@ -253,4 +253,3 @@ set(coek_compile_options ${coek_compile_options} PARENT_SCOPE)
 set(coek_link_libraries ${coek_link_libraries} PARENT_SCOPE)
 set(coek_include_directories ${coek_include_directories} PARENT_SCOPE)
 set(coek_link_directories ${coek_link_directories} PARENT_SCOPE)
-

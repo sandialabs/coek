@@ -735,6 +735,11 @@ std::shared_ptr<NLPSolverRepn> tmp(create_nlpsolver(name));
 repn = tmp;
 }
 
+bool Solver::available() const
+{
+    return (repn.use_count() > 0) && repn->available();
+}
+
 int NLPSolver::solve(NLPModel& model)
 { return repn->solve(model); }
 

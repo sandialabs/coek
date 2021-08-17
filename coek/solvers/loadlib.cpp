@@ -19,9 +19,10 @@ if (libname == NULL) {
     }
 
 #if defined(_MSC_VER)
-libHandle_t h = LoadLibrary(libName);
-if (h == NULL)
+libHandle_t h = LoadLibrary(libname);
+if (h == NULL) {
     snprintf(buf, len, "ERROR: loadlib() Windows error while loading dynamic library %s, error = %d.\n", libname, GetLastError());
+}
 #else
 libHandle_t h = dlopen(libname, RTLD_NOW);
 if (h == NULL) {
@@ -113,4 +114,5 @@ std::transform(tmp.begin(), tmp.end(), tmp.begin(),
 s = getsym(handle, tmp.c_str(), buf, len);
 if (s != NULL)
     return s;
+return NULL;
 }
