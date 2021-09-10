@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gurobi_c++.h"
-#include "solver.hpp"
+#include "coek/solvers/solver.hpp"
 
 
 namespace coek {

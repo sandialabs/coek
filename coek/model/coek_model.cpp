@@ -677,7 +677,7 @@ if (tmp)
 }
 
 bool Solver::available() const
-{ return repn.use_count() > 0; }
+{ return repn.get(); }
 
 int Solver::solve(Model& model)
 { return repn->solve(model); }
@@ -734,6 +734,9 @@ void NLPSolver::initialize(std::string name)
 std::shared_ptr<NLPSolverRepn> tmp(create_nlpsolver(name));
 repn = tmp;
 }
+
+bool NLPSolver::available() const
+{ return repn.get() && repn->available(); }
 
 int NLPSolver::solve(NLPModel& model)
 { return repn->solve(model); }

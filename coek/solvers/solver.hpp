@@ -144,6 +144,9 @@ public:
             return false;
         }
 
+    virtual bool available()
+        { return true; }
+
 protected:
 
     bool initial;

@@ -5,6 +5,7 @@
 
 #include <string>
 #include <map>
+#include <set>
 #include <memory>
 #include <vector>
 #include <unordered_map>
@@ -25,6 +26,7 @@ namespace coek {
 class VariableArray;
 class Objective;
 class Variable;
+class Parameter;
 class Expression;
 class Constraint;
 //class ExpressionSeqIteratorRepn;
@@ -376,6 +378,8 @@ public:
         {initialize(solver);}
 
     void initialize(std::string solver);
+
+    bool available() const;
 
     int solve(NLPModel& model);
 

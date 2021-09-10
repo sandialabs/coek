@@ -111,7 +111,7 @@ endif()
 #
 if(with_gurobi)
     list(APPEND sources
-                solvers/gurobi.cpp)
+                solvers/gurobi/gurobi.cpp)
     if(NOT "$ENV{GUROBI_HOME}" STREQUAL "")
         MESSAGE("-- GUROBI_HOME $ENV{GUROBI_HOME}")
         list(APPEND coek_include_directories $ENV{GUROBI_HOME}/include)
@@ -127,33 +127,45 @@ endif()
 # IPOPT LIBRARY
 #
 if(with_ipopt)
-    if (WIN32)
-        # This is a hack for a specific WIN32 build
-        # It's not clear what a general configuration would look like
-        MESSAGE("-- IPOPT_DIR=${ipopt_dir}")
-        list(APPEND coek_include_directories ${ipopt_dir}/include/coin)
-        list(APPEND coek_link_directories ${CMAKE_INSTALL_PREFIX}/${DEBUG_POSTFIX}/lib ${CMAKE_INSTALL_PREFIX}/${DEBUG_POSTFIX}/lib/static ${CMAKE_INSTALL_PREFIX}/${DEBUG_POSTFIX}/bin)
-        list(APPEND coek_link_libraries libipopt libblas libhsl libf2c)
-        list(APPEND coek_compile_options -DIPOPTLIB_EXPORT=)
-    elseif (ipopt_dir)
-        MESSAGE("-- IPOPT_DIR=${ipopt_dir}")
-        list(APPEND coek_include_directories ${ipopt_dir}/include/coin)
-        list(APPEND coek_link_directories ${ipopt_dir}/lib ${ipopt_dir}/lib64)
-        list(APPEND coek_link_libraries ipopt dl blas f2c)
-    elseif(NOT "$ENV{IPOPT_HOME}" STREQUAL "")
-        MESSAGE("-- IPOPT_HOME=$ENV{IPOPT_HOME}")
-        list(APPEND coek_include_directories $ENV{IPOPT_HOME}/include/coin-or)
-        list(APPEND coek_link_directories $ENV{IPOPT_HOME}/lib)
-	if (NOT "$ENV{IPOPT_LIBS}" STREQUAL "")
-        	list(APPEND coek_link_libraries $ENV{IPOPT_LIBS})
-	else()
-        	list(APPEND coek_link_libraries ipopt dl blas gfortran)
-	endif()
+    if (with_ipopt_tnlp)
+        if (WIN32)
+            # This is a hack for a specific WIN32 build
+            # It's not clear what a general configuration would look like
+            MESSAGE("-- IPOPT_DIR=${ipopt_dir}")
+            list(APPEND coek_include_directories ${ipopt_dir}/include/coin)
+            list(APPEND coek_link_directories ${CMAKE_INSTALL_PREFIX}/${DEBUG_POSTFIX}/lib ${CMAKE_INSTALL_PREFIX}/${DEBUG_POSTFIX}/lib/static ${CMAKE_INSTALL_PREFIX}/${DEBUG_POSTFIX}/bin)
+            list(APPEND coek_link_libraries libipopt libblas libhsl libf2c)
+            list(APPEND coek_compile_options -DIPOPTLIB_EXPORT=)
+        elseif (ipopt_dir)
+            MESSAGE("-- IPOPT_DIR=${ipopt_dir}")
+            list(APPEND coek_include_directories ${ipopt_dir}/include/coin)
+            list(APPEND coek_link_directories ${ipopt_dir}/lib ${ipopt_dir}/lib64)
+            list(APPEND coek_link_libraries ipopt dl blas f2c)
+        elseif(NOT "$ENV{IPOPT_HOME}" STREQUAL "")
+            MESSAGE("-- IPOPT_HOME=$ENV{IPOPT_HOME}")
+            list(APPEND coek_include_directories $ENV{IPOPT_HOME}/include/coin-or)
+            list(APPEND coek_link_directories $ENV{IPOPT_HOME}/lib)
+        if (NOT "$ENV{IPOPT_LIBS}" STREQUAL "")
+                list(APPEND coek_link_libraries $ENV{IPOPT_LIBS})
+        else()
+                list(APPEND coek_link_libraries ipopt dl blas gfortran)
+        endif()
+        else()
+            MESSAGE("-- IPOPT_HOME Not provided")
+        endif()
+        list(APPEND coek_compile_options -DWITH_IPOPT_TNLP)
+        list(APPEND sources
+                solvers/ipopt/ipopt_tnlp.cpp solvers/ipopt/ipopt_solver.cpp)
     else()
-        MESSAGE("-- IPOPT_HOME Not provided")
+        if(WIN32)
+        else()
+            list(APPEND coek_compile_options -DUSING_DL)
+            list(APPEND coek_link_libraries dl)
+        endif()
+        list(APPEND sources solvers/loadlib.cpp)
+        list(APPEND sources
+                solvers/ipopt/ipopt_capi.cpp solvers/ipopt/ipopt_solver.cpp)
     endif()
-    list(APPEND sources
-                solvers/ipopt.cpp)
     list(APPEND coek_compile_options -DWITH_IPOPT)
 endif()
 
@@ -170,8 +182,14 @@ endif()
 # Build object library
 #
 # this is the "object library" target: compiles the sources only once
-add_library(coek ${sources})
-set_target_properties(coek PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
+if (build_shared_libs)
+    add_library(coek SHARED ${sources})
+    message("Building shared libcoek library")
+    set_target_properties(coek PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
+else()
+    add_library(coek STATIC ${sources})
+    message("Building static libcoek library")
+endif()
 
 target_compile_options(coek PUBLIC ${coek_compile_options})
 target_include_directories(coek
@@ -189,12 +207,6 @@ if (WIN32)
     target_link_libraries(coek ${coek_link_libraries})
     target_link_directories(coek PRIVATE ${coek_link_directories})
 endif()
-
-
-
-
-
-
 
 #
 # make install
@@ -241,4 +253,3 @@ set(coek_compile_options ${coek_compile_options} PARENT_SCOPE)
 set(coek_link_libraries ${coek_link_libraries} PARENT_SCOPE)
 set(coek_include_directories ${coek_include_directories} PARENT_SCOPE)
 set(coek_link_directories ${coek_link_directories} PARENT_SCOPE)
-
