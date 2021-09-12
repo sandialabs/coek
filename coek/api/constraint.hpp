@@ -21,7 +21,10 @@ class Expression;
 class Constraint;
 
 
-// Coek Constraint
+/**
+  * A constraint class for constraint expressions that represent
+  * equality constraints or inequality constraints.
+  */
 class Constraint
 {
 public:
@@ -30,6 +33,9 @@ public:
 
 public:
 
+    /**
+      * Creates an empty constraint object.
+      */
     Constraint();
     Constraint(const ConstraintRepn& _repn);
     Constraint(const Constraint& arg);
@@ -37,24 +43,36 @@ public:
 
     Constraint& operator=(const Constraint& arg);
 
+/** \returns the unique integer constraint ID */
     unsigned int id() const;
 
+    /** \returns \c if this is an inequality constraint */
     bool is_inequality() const;
+    /** \returns \c if this is an equality constraint */
     bool is_equality() const;
+    /** \returns \c if the constraint is feasible */
     bool is_feasible() const;
 
+    /** \returns the expressiong for the constraint lower bound */
     Expression lower() const;
+    /** \returns the expressiong for the constraint body */
     Expression body() const;
+    /** \returns the expressiong for the constraint upper bound */
     Expression upper() const;
 
+    /** \returns the value of the constraint lower bound */
     double get_lb() const;
+    /** \returns the value of the constraint upper bound */
     double get_ub() const;
 
+    /** Set the constraint name */
     void set_name(const std::string& name);
+    /** \returns the constraint name */
     std::string get_name() const;
 
     Constraint expand();
 
+    /** \returns a list reprseentation of the constraint */
     std::list<std::string> to_list() const;
 
     friend std::ostream& operator<<(std::ostream& ostr, const Constraint& arg);
