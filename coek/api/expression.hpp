@@ -12,32 +12,56 @@
 #include <coek/api/constants.hpp>
 
 #define COEK_API_OPERATORS\
+    /** \returns a new expression: (*this) + arg */\
     Expression operator+(int arg) const;\
+    /** \returns a new expression: (*this) + arg */\
     Expression operator+(double arg) const;\
+    /** \returns a new expression: (*this) + arg */\
     Expression operator+(const Parameter& arg) const;\
+    /** \returns a new expression: (*this) + arg */\
     Expression operator+(const IndexParameter& arg) const;\
+    /** \returns a new expression: (*this) + arg */\
     Expression operator+(const Variable& arg) const;\
+    /** \returns a new expression: (*this) + arg */\
     Expression operator+(const Expression& arg) const;\
 \
+    /** \returns a new expression: (*this) - arg */\
     Expression operator-(int arg) const;\
+    /** \returns a new expression: (*this) - arg */\
     Expression operator-(double arg) const;\
+    /** \returns a new expression: (*this) - arg */\
     Expression operator-(const Parameter& arg) const;\
+    /** \returns a new expression: (*this) - arg */\
     Expression operator-(const IndexParameter& arg) const;\
+    /** \returns a new expression: (*this) - arg */\
     Expression operator-(const Variable& arg) const;\
+    /** \returns a new expression: (*this) - arg */\
     Expression operator-(const Expression& arg) const;\
 \
+    /** \returns a new expression: (*this) * arg */\
     Expression operator*(int arg) const;\
+    /** \returns a new expression: (*this) * arg */\
     Expression operator*(double arg) const;\
+    /** \returns a new expression: (*this) * arg */\
     Expression operator*(const Parameter& arg) const;\
+    /** \returns a new expression: (*this) * arg */\
     Expression operator*(const IndexParameter& arg) const;\
+    /** \returns a new expression: (*this) * arg */\
     Expression operator*(const Variable& arg) const;\
+    /** \returns a new expression: (*this) * arg */\
     Expression operator*(const Expression& arg) const;\
 \
+    /** \returns a new expression: (*this) / arg */\
     Expression operator/(int arg) const;\
+    /** \returns a new expression: (*this) / arg */\
     Expression operator/(double arg) const;\
+    /** \returns a new expression: (*this) / arg */\
     Expression operator/(const Parameter& arg) const;\
+    /** \returns a new expression: (*this) / arg */\
     Expression operator/(const IndexParameter& arg) const;\
+    /** \returns a new expression: (*this) / arg */\
     Expression operator/(const Variable& arg) const;\
+    /** \returns a new expression: (*this) / arg */\
     Expression operator/(const Expression& arg) const;
 
 

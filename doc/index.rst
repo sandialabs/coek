@@ -33,6 +33,29 @@ capabilities are demonstrated.  Consequently, the following documentation
 does not provide a detailed specification of the Coek API.  Rather,
 we focus on examples that illustrate Coek capabilities.
 
+Installation
+------------
+
+Installation instructions are provided in the top-level Coek README.md
+file.  We add some notes here for reference:
+
+* Solvers
+  * Ipopt - Coek can dynamically load the Ipopt C interface.
+  * Gurobi - Coek links with the Gurobi C++ interface
+
+* Automatic Differentiation
+  * CppAD is currently supported
+  * There are general hooks in Coek for alternative AD packages
+
+* PyCoek
+  * Python wrappers are supported using pybind11 and cppyy
+  * The [Poek]_ library simplifies the use of PyCoek for end-users
+
+* Documentation
+  * Sphinx, Doxygen and Breathe are used to generate documentation
+
+
+
 .. toctree::
    :maxdepth: 2
 

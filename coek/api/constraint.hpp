@@ -22,7 +22,7 @@ class Constraint;
 
 
 /**
-  * A constraint class for constraint expressions that represent
+  * An object for constraint expressions that represent
   * equality constraints or inequality constraints.
   */
 class Constraint
@@ -46,18 +46,18 @@ public:
 /** \returns the unique integer constraint ID */
     unsigned int id() const;
 
-    /** \returns \c if this is an inequality constraint */
+    /** \returns \c true if this is an inequality constraint */
     bool is_inequality() const;
-    /** \returns \c if this is an equality constraint */
+    /** \returns \c true if this is an equality constraint */
     bool is_equality() const;
-    /** \returns \c if the constraint is feasible */
+    /** \returns \c true if the constraint is feasible */
     bool is_feasible() const;
 
-    /** \returns the expressiong for the constraint lower bound */
+    /** \returns the expression for the constraint lower bound */
     Expression lower() const;
-    /** \returns the expressiong for the constraint body */
+    /** \returns the expression for the constraint body */
     Expression body() const;
-    /** \returns the expressiong for the constraint upper bound */
+    /** \returns the expression for the constraint upper bound */
     Expression upper() const;
 
     /** \returns the value of the constraint lower bound */
@@ -72,7 +72,7 @@ public:
 
     Constraint expand();
 
-    /** \returns a list reprseentation of the constraint */
+    /** \returns a list representation of the constraint */
     std::list<std::string> to_list() const;
 
     friend std::ostream& operator<<(std::ostream& ostr, const Constraint& arg);

@@ -15,7 +15,9 @@ class Objective;
 class Expression;
 
 
-// Coek Objective
+/**
+  * An object that represents a model objective.
+  */
 class Objective
 {
 public:

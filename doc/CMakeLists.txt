@@ -53,7 +53,11 @@ add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
                     # Other doc files you want to track should go here
                     ${CMAKE_CURRENT_SOURCE_DIR}/index.rst
                     ${CMAKE_CURRENT_SOURCE_DIR}/reference.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/expressions.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/parameter.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/variable.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/expression.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/objective.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/constraint.rst
                     ${CMAKE_CURRENT_SOURCE_DIR}/expression_fn.rst
                     ${CMAKE_CURRENT_SOURCE_DIR}/models.rst
                     ${CMAKE_CURRENT_SOURCE_DIR}/examples.rst

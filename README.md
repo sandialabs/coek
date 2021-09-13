@@ -3,16 +3,20 @@
 ![coverage](https://gitlab.com/coopr/coek/badges/master/coverage.svg)
 
 
-The C/C++ library that supports the definition of expressions used to formulate and solve optimization problems.
+The C/C++ library that supports the definition of expressions used to
+formulate and solve optimization problems.
 
 ## Setup and Configuration
 
-By default, Coek builds just its library and it assumes that third-party packages are installed and
-available.  The default installation directory is set to **build/install**.  
+By default, Coek builds just its library and it assumes that third-party
+packages are installed and available.  The default installation directory
+is set to **build/install**.
 
-Optionally, a user can used the **build\_\* ** options to build third-party packages locally. The packages are installed
-in the installation directory along with Coek.  This uses a CMAKE superbuild process that requires multiple 
-executions of the **make** command.  This is convenient for Coek developers, but installation with a package
+Optionally, a user can used the **build\_\* ** options to build
+third-party packages locally. The packages are installed in the
+installation directory along with Coek.  This uses a CMAKE superbuild
+process that requires multiple executions of the **make** command.
+This is convenient for Coek developers, but installation with a package
 manager is probably a better long-term solution for users.
 
 ## Build Examples
@@ -92,6 +96,8 @@ By default, coek is installed in the build/install directory:
 
 
 ## Next Steps
+
+In no particular order...
 
 * Direct expression constraint for faster Gurobi interface
 * Integrate Sacado ... and maybe the Stan Math Library
