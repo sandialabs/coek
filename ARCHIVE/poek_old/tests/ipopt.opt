@@ -1,3 +1,0 @@
-#print_level 2
-hessian_approximation limited-memory
-max_iter 1
