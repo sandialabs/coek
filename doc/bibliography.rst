@@ -5,8 +5,6 @@ Bibliography
 
 .. [CppAD] https://github.com/coin-or/CppAD
  
-.. [Gravity] https://github.com/coin-or/Gravity
-
 .. [Gurobi] https://www.gurobi.com/
 
 .. [Pyomo] https://github.com/Pyomo/pyomo
