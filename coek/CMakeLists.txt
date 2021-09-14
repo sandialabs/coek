@@ -88,19 +88,19 @@ if(cppad_available)
 endif()
 
 # ASL LIBRARY
-#if(NOT with_cppad AND with_asl)
+# if(NOT with_cppad AND with_asl)
 #  MESSAGE("-- Building Source with AD:        ASL")
 #  list(APPEND sources
 #	autograd/asl_model.cpp)
-#endif()
+# endif()
 
 # Default AD LIBRARY
-#if(NOT with_cppad AND NOT with_asl)
+# if(NOT with_cppad AND NOT with_asl)
 #  MESSAGE("-- Building Source with AD:        Simple")
 #  list(APPEND sources
 #    admodel/simplead.cpp)
 #  add_definitions(-DWITH_ADMODEL_SIMPLEAD)
-#endif()
+# endif()
 
 #
 # SOLVER OPTIONS

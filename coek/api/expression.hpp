@@ -12,32 +12,56 @@
 #include <coek/api/constants.hpp>
 
 #define COEK_API_OPERATORS\
+    /** \returns a new expression: (*this) + arg */\
     Expression operator+(int arg) const;\
+    /** \returns a new expression: (*this) + arg */\
     Expression operator+(double arg) const;\
+    /** \returns a new expression: (*this) + arg */\
     Expression operator+(const Parameter& arg) const;\
+    /** \returns a new expression: (*this) + arg */\
     Expression operator+(const IndexParameter& arg) const;\
+    /** \returns a new expression: (*this) + arg */\
     Expression operator+(const Variable& arg) const;\
+    /** \returns a new expression: (*this) + arg */\
     Expression operator+(const Expression& arg) const;\
 \
+    /** \returns a new expression: (*this) - arg */\
     Expression operator-(int arg) const;\
+    /** \returns a new expression: (*this) - arg */\
     Expression operator-(double arg) const;\
+    /** \returns a new expression: (*this) - arg */\
     Expression operator-(const Parameter& arg) const;\
+    /** \returns a new expression: (*this) - arg */\
     Expression operator-(const IndexParameter& arg) const;\
+    /** \returns a new expression: (*this) - arg */\
     Expression operator-(const Variable& arg) const;\
+    /** \returns a new expression: (*this) - arg */\
     Expression operator-(const Expression& arg) const;\
 \
+    /** \returns a new expression: (*this) * arg */\
     Expression operator*(int arg) const;\
+    /** \returns a new expression: (*this) * arg */\
     Expression operator*(double arg) const;\
+    /** \returns a new expression: (*this) * arg */\
     Expression operator*(const Parameter& arg) const;\
+    /** \returns a new expression: (*this) * arg */\
     Expression operator*(const IndexParameter& arg) const;\
+    /** \returns a new expression: (*this) * arg */\
     Expression operator*(const Variable& arg) const;\
+    /** \returns a new expression: (*this) * arg */\
     Expression operator*(const Expression& arg) const;\
 \
+    /** \returns a new expression: (*this) / arg */\
     Expression operator/(int arg) const;\
+    /** \returns a new expression: (*this) / arg */\
     Expression operator/(double arg) const;\
+    /** \returns a new expression: (*this) / arg */\
     Expression operator/(const Parameter& arg) const;\
+    /** \returns a new expression: (*this) / arg */\
     Expression operator/(const IndexParameter& arg) const;\
+    /** \returns a new expression: (*this) / arg */\
     Expression operator/(const Variable& arg) const;\
+    /** \returns a new expression: (*this) / arg */\
     Expression operator/(const Expression& arg) const;
 
 
@@ -128,7 +152,7 @@ public:
 
 public:
 
-    /** Constructs a Parameter without defining its value. */
+    /** Constructs a Parameter with the default value zero. */
     Parameter();
     /**
       * Constructs a Parameter initialized with a given value.
@@ -153,7 +177,7 @@ public:
 
     Parameter& operator=(const Parameter& arg);
 
-    /** \returns the value of the parameter.  */
+    /** \returns the value of the parameter */
     double get_value() const;
     /**
       * Set the value of the parameter
@@ -161,11 +185,11 @@ public:
       * \param value   the parameter value
       */
     void set_value(double value);
-
+    /** \returns \c false because this is not a contant */
     bool is_constant() const
         {return false;}
 
-    /** \returns the name of the parameter. */
+    /** \returns the name of the parameter */
     std::string get_name() const;
     /** Set the name of the parameter */
     void set_name(const std::string& name);
@@ -220,7 +244,7 @@ public:
   * \class Variable
   * \brief Decision variables that appear in expressions.
   *
-  * Variables are used to define decision variables that are used in expressions.
+  * Variables are used to define decision variables that are optimized.
   */
 class Variable
 {
@@ -264,7 +288,28 @@ public:
 
     Variable& operator=(const Variable& arg);
 
+    /**
+      * Initialize a variable with standard arguments.
+      *
+      * \param lb   the lower bound
+      * \param ub   the upper bound
+      * \param value   the initial value
+      * \param binary   a boolean flag that indicates whether the variable is boolean 
+      * \param integer   a boolean flag that indicates whether the variable is a general integer
+      * \param fixed   a boolean flag that indicates whether the variable is fixed
+      */
     void initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed);
+    /**
+      * Initialize a variable with standard arguments.
+      *
+      * \param lb   the lower bound
+      * \param ub   the upper bound
+      * \param value   the initial value
+      * \param binary   a boolean flag that indicates whether the variable is boolean 
+      * \param integer   a boolean flag that indicates whether the variable is a general integer
+      * \param fixed   a boolean flag that indicates whether the variable is fixed
+      * \param name   the name of variable
+      */
     void initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed, const std::string& name);
 
     /** \returns the value of the variable */
@@ -305,6 +350,7 @@ public:
     /** \returns the unique integer variable ID */
     unsigned int id() const;
 
+    /** \returns \c false because this is not a constant expression */
     bool is_constant() const
         {return false;}
 
@@ -336,17 +382,17 @@ public:
 
 public:
 
-    /** Constructs an Expression without defining its value. */
+    /** Constructs an Expression without defining its value */
     Expression();
-    /** Explict construction of an Expression from a double. */
+    /** Explict construction of an Expression from a double */
     explicit Expression(double value);
-    /** Explict construction of an Expression from an integer. */
+    /** Explict construction of an Expression from an integer */
     explicit Expression(int value);
-    /** Implicit construction of an Expression from a Parameter. */
+    /** Implicit construction of an Expression from a Parameter */
     Expression(const Parameter& arg);
-    /** Implicit construction of an Expression from an IndexParameter. */
+    /** Implicit construction of an Expression from an IndexParameter */
     Expression(const IndexParameter& arg);
-    /** Implicit construction of an Expression from a Variable. */
+    /** Implicit construction of an Expression from a Variable */
     Expression(const Variable& arg);
 
     Expression(const ExpressionRepn& _repn);
@@ -355,18 +401,25 @@ public:
 
     Expression& operator=(const Expression& arg);
 
+    /** \returns \c true if this is a constant expression */
     bool is_constant() const;
 
     /** \returns the value of the expression
       *
-      * \note The expression value, is computed from the
-      * expression tree, using values for the associated
+      * \note The expression value is computed from the
+      * expression tree using values for the associated
       * Parameter and Variable objects.
       */
     double get_value() const;
 
-    /** \returns a string representation of the expression. */
+    /** \returns a list representation of the expression */
     std::list<std::string> to_list() const;
+    /**
+      * Create an expression that computes the partial derivative relative to a specified variable.
+      *
+      * \param var - The variable that will be used to cmopute the partial derivative
+      * \returns an expression that computes the partial derivative
+      */
     Expression diff(const Variable& var) const;
 
     /** Add an integer to the expression */

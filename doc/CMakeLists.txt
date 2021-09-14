@@ -46,12 +46,22 @@ add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
                   COMMAND
                     ${SPHINX_EXECUTABLE} -b html
                     # Tell Breathe where to find the Doxygen output
-                    -Dbreathe_projects.COEK=${DOXYGEN_OUTPUT_DIR}/xml
+                    -Dbreathe_projects.Coek=${DOXYGEN_OUTPUT_DIR}/xml
                     ${SPHINX_SOURCE} ${SPHINX_BUILD}
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                   DEPENDS
                     # Other doc files you want to track should go here
                     ${CMAKE_CURRENT_SOURCE_DIR}/index.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/reference.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/parameter.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/variable.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/expression.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/objective.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/constraint.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/expression_fn.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/models.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/examples.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/bibliography.rst
                     ${DOXYGEN_INDEX_FILE}
                   MAIN_DEPENDENCY ${SPHINX_SOURCE}/conf.py
                   COMMENT "Generating documentation with Sphinx")
