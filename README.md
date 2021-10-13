@@ -49,7 +49,7 @@ manager is probably a better long-term solution for users.
 
 * mkdir build
 * cd build
-* cmake -Dbuild\_catch2=ON -Dbuild\_cppad=ON -Dwith\_tests=ON -Dwith\_ipopt=ON -Dwith\_gurobi=ON ..
+* cmake -Dbuild\_catch2=ON -Dbuild\_cppad=ON -Dwith\_tests=ON -Dwith\_gurobi=ON ..
 * make tpls
 * make
 * make test

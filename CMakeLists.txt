@@ -99,7 +99,7 @@ option(with_sacado "Use the Sacado autograd library" OFF)
 option(with_asl "Use the ASL autograd library" OFF)
 
 # Solver Dependencies
-option(with_ipopt "Use the Ipopt solver" OFF)
+option(with_ipopt "Use the Ipopt solver" ${with_cppad})
 option(with_ipopt_tnlp "Use the Ipopt solver with the TNLP interface" OFF)
 option(ipopt_dir "Set the path to ipopt" "")
 option(with_gurobi "Use the Gurobi solver" OFF)

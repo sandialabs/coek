@@ -54,7 +54,7 @@ macro(setup_builds)
         define_download_command("NAME;catch2;${catch2_revision}")
         list(REMOVE_AT catch2_revision 0 1)         # Remove SRC
         ExternalProject_Add(catch2
-            ${catch2_revision}  # specified in thirdparth.cmake
+            ${catch2_revision}  # specified in thirdparty.cmake
             PREFIX              ${CMAKE_CURRENT_BINARY_DIR}/build/catch2
             DOWNLOAD_DIR        ${download_dir}
             DOWNLOAD_COMMAND    ${download_command}
@@ -78,7 +78,7 @@ macro(setup_builds)
         define_download_command("NAME;cppad;${cppad_revision}")
         list(REMOVE_AT cppad_revision 0 1)         # Remove SRC
         ExternalProject_Add(cppad
-            ${cppad_revision}   # specified in thirdparth.cmake
+            ${cppad_revision}   # specified in thirdparty.cmake
             PREFIX              ${CMAKE_CURRENT_BINARY_DIR}/build/cppad
             DOWNLOAD_DIR        ${download_dir}
             DOWNLOAD_COMMAND    ${download_command}
@@ -100,7 +100,7 @@ macro(setup_builds)
         define_download_command("NAME;fmtlib;${fmtlib_revision}")
         list(REMOVE_AT fmtlib_revision 0 1)         # Remove SRC
         ExternalProject_Add(fmtlib
-            ${fmtlib_revision}   # specified in thirdparth.cmake
+            ${fmtlib_revision}   # specified in thirdparty.cmake
             PREFIX              ${CMAKE_CURRENT_BINARY_DIR}/build/fmtlib
             DOWNLOAD_DIR        ${download_dir}
             DOWNLOAD_COMMAND    ${download_command}
@@ -124,7 +124,7 @@ macro(setup_builds)
         define_download_command("NAME;pybind11;${pybind11_revision}")
         list(REMOVE_AT pybind11_revision 0 1)         # Remove SRC
         ExternalProject_Add(pybind11
-            ${pybind11_revision}   # specified in thirdparth.cmake
+            ${pybind11_revision}   # specified in thirdparty.cmake
             PREFIX              ${CMAKE_CURRENT_BINARY_DIR}/build/pybind11
             DOWNLOAD_DIR        ${download_dir}
             DOWNLOAD_COMMAND    ${download_command}
@@ -148,7 +148,7 @@ macro(setup_builds)
         define_download_command("NAME;rapidjson;${rapidjson_revision}")
         list(REMOVE_AT rapidjson_revision 0 1)         # Remove SRC
         ExternalProject_Add(rapidjson
-            ${rapidjson_revision}   # specified in thirdparth.cmake
+            ${rapidjson_revision}   # specified in thirdparty.cmake
             PREFIX              ${CMAKE_CURRENT_BINARY_DIR}/build/rapidjson
             DOWNLOAD_DIR        ${download_dir}
             DOWNLOAD_COMMAND    ${download_command}
