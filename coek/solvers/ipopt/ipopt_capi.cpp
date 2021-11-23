@@ -459,6 +459,9 @@ if (status == Solve_Succeeded) {
         v.set_value( last_x[i] );
         }
     }
+else {
+    std::cout << std::endl << std::endl << "*** The problem was not solved successfully.  Status = " << status << std::endl;
+    }
 
 return (int) status;
 }
@@ -513,7 +516,10 @@ Bool ipopt_capi_eval_f(
     )
 {
 coek::IpoptModel* nlp = reinterpret_cast<coek::IpoptModel*>(user_data);
-return nlp->eval_f(n, x, new_x, *obj_value);
+Number ovalue;
+Bool retval = nlp->eval_f(n, x, new_x, ovalue);
+*obj_value = ovalue;
+return retval;
 }
 
 Bool ipopt_capi_eval_grad_f(
