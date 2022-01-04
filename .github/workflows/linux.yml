@@ -1,0 +1,19 @@
+name: COEK Linux Build and Tests
+
+on:
+  push:
+      branches: [ main ]
+  pull_request:
+      branches: [ main ]
+
+jobs:
+  simple-build-and-test:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v2
+      - name: configure
+      run: cmake ..
+      - name: make
+      run: make
+      - name: make test
+      run: make test
