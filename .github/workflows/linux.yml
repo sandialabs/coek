@@ -42,4 +42,4 @@ jobs:
       - name: test
         run: |
           cd build
-          make tests
+          make test
