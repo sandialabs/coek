@@ -39,4 +39,4 @@ jobs:
           cd build
           make tpls
           make
-          make tests
+          make test
