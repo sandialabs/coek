@@ -40,6 +40,6 @@ jobs:
           make tpls
           make
       - name: test
-        run:
+        run: |
           cd build
           make tests
