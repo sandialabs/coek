@@ -33,10 +33,13 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -Dwith_tests=ON ..
-      - name: make
+          cmake -Dbuild_all=ON -Dwith_tests=ON ..
+      - name: build
         run: |
           cd build
           make tpls
           make
+      - name: test
+        run:
+          cd build
           make tests
