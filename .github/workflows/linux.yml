@@ -8,7 +8,8 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+
+  simple-build:
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -22,7 +23,19 @@ jobs:
         run: |
           cd build
           make
-      - name: make test
+          
+  build-and-test-with-tpls:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: run cmake
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+      - name: make
         run: |
           cd build
-          make test
+          make tpls
+          make
