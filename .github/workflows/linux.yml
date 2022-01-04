@@ -12,8 +12,8 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      - name: configure
-        run: cmake ..
+      - name: run cmake
+        run: cd; cmake ..
       - name: make
         run: make
       - name: make test
