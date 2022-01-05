@@ -26,6 +26,7 @@
 #include "coek/compact/objective_sequence.hpp"
 #include "coek/compact/constraint_sequence.hpp"
 #endif
+#include "model_repn.hpp"
 
 namespace coek {
 
@@ -283,7 +284,7 @@ std::ofstream ostr(fname);
 
 CALI_CXX_MARK_FUNCTION;
 
-if (model.objectives.size() == 0) {
+if (model.repn->objectives.size() == 0) {
     std::cerr << "Error writing LP file: No objectives specified!" << std::endl;
     return;
     }
@@ -292,7 +293,7 @@ if (model.objectives.size() == 0) {
 std::unordered_map<unsigned int,unsigned int> vid;
 {
 unsigned int ctr=0;
-for(std::vector<Variable>::iterator it=model.variables.begin(); it != model.variables.end(); ++it) {
+for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
     vid[(*it).id()] = ctr;
     varmap[ctr] = (*it).id();
     ++ctr;
@@ -309,7 +310,7 @@ try {
     ostr << "obj:\n";
     int nobj=0;
 
-    for (auto it=model.objectives.begin(); it != model.objectives.end(); ++it) {
+    for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it) {
         auto& val = *it;
         if (std::get_if<Objective>(&val)) {
         //if (auto eval = std::get_if<Objective>(&val)) {
@@ -343,7 +344,7 @@ try {
     // Simple contraints
     //
     unsigned int ctr=0;
-    for (auto it=model.constraints.begin(); it != model.constraints.end(); ++it) {
+    for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it) {
         auto& val = *it;
         if (auto cval = std::get_if<Constraint>(&val)) {
             Constraint c = cval->expand();
@@ -380,7 +381,7 @@ if (one_var_constant) {
 std::map<unsigned int,VariableTerm*> bvars;
 std::map<unsigned int,VariableTerm*> ivars;
 ostr << "\nbounds\n";
-for(std::vector<Variable>::iterator it=model.variables.begin(); it != model.variables.end(); ++it) {
+for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
     VariableTerm* v = it->repn;
     if (v->lb <= -COEK_INFINITY)
         ostr << "-inf";
@@ -644,7 +645,7 @@ auto ostr = fmt::output_file(fname, fmt::file::WRONLY | fmt::file::CREATE | FMT_
 
 CALI_CXX_MARK_FUNCTION;
 
-if (model.objectives.size() == 0) {
+if (model.repn->objectives.size() == 0) {
     std::cerr << "Error writing LP file: No objectives specified!" << std::endl;
     return;
     }
@@ -653,7 +654,7 @@ if (model.objectives.size() == 0) {
 std::unordered_map<unsigned int, unsigned int> vid;
 {
 unsigned int ctr=0;
-for(std::vector<Variable>::iterator it=model.variables.begin(); it != model.variables.end(); ++it) {
+for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
     vid[(*it).id()] = ctr;
     varmap[ctr] = (*it).id();
     ++ctr;
@@ -670,7 +671,7 @@ try {
     ostr.print("obj:\n");
     int nobj=0;
 
-    for (auto it=model.objectives.begin(); it != model.objectives.end(); ++it) {
+    for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it) {
         auto& val = *it;
         if (std::get_if<Objective>(&val)) {
         //if (auto eval = std::get_if<Objective>(&val)) {
@@ -704,7 +705,7 @@ try {
     // Simple contraints
     //
     unsigned int ctr=0;
-    for (auto it=model.constraints.begin(); it != model.constraints.end(); ++it) {
+    for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it) {
         auto& val = *it;
         if (auto cval = std::get_if<Constraint>(&val)) {
             Constraint c = cval->expand();
@@ -741,7 +742,7 @@ if (one_var_constant) {
 std::map<unsigned int,VariableTerm*> bvars;
 std::map<unsigned int,VariableTerm*> ivars;
 ostr.print("\nbounds\n");
-for(std::vector<Variable>::iterator it=model.variables.begin(); it != model.variables.end(); ++it) {
+for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
     VariableTerm* v = it->repn;
     if (v->lb <= -COEK_INFINITY)
         ostr.print("-inf");

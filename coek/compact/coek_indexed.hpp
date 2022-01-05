@@ -37,8 +37,9 @@ public:
         : data(other.data)
         {}
 
+    // The vector length is stored in the first element.  This limits the size, but this is OK for small vectors
     size_t size() const
-        { return *data; }
+        { return static_cast<size_t>(*data); }
 
     int& operator[](size_t i)
         { return data[i+1]; }

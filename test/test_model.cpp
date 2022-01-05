@@ -4000,23 +4000,23 @@ coek::Parameter q(2, "q");
 
     WHEN( "objective" ) {
         coek::Expression e =  3*b + q;
-        REQUIRE( model.repn->objectives.size() == 0 );
+        REQUIRE( model.num_objectives() == 0 );
         model.add_objective( e );
-        REQUIRE( model.repn->objectives.size() == 1 );
+        REQUIRE( model.num_objectives() == 1 );
     }
 
     WHEN( "inequality" ) {
         coek::Constraint c = 3*b + q <= 0;
-        REQUIRE( model.repn->constraints.size() == 0 );
+        REQUIRE( model.num_constraints() == 0 );
         model.add_constraint(c);
-        REQUIRE( model.repn->constraints.size() == 1 );
+        REQUIRE( model.num_constraints() == 1 );
     }
 
     WHEN( "equality" ) {
         coek::Constraint c = 3*b + q == 0;
-        REQUIRE( model.repn->constraints.size() == 0 );
+        REQUIRE( model.num_constraints() == 0 );
         model.add_constraint(c);
-        REQUIRE( model.repn->constraints.size() == 1 );
+        REQUIRE( model.num_constraints() == 1 );
     }
   }
 

@@ -36,29 +36,12 @@ class ObjectiveSequence;
 class ConstraintSequence;
 
 class ModelRepn;
+class CompactModelRepn;
 class NLPModelRepn;
 class SolverRepn;
 class NLPSolverRepn;
 
-
-// TODO - Move to *.cpp file
-class ModelRepn
-{
-public:
-
-    std::vector<Objective> objectives;
-    std::vector<Constraint> constraints;
-    std::vector<Variable> variables;
-
-    std::map<std::string, Objective> objectives_by_name;
-    std::map<std::string, Constraint> constraints_by_name;
-    std::map<std::string, Variable> variables_by_name;
-
-    std::map<std::string, std::unordered_map<unsigned int,double> > vsuffix;
-    std::map<std::string, std::unordered_map<unsigned int,double> > csuffix;
-    std::map<std::string, std::unordered_map<unsigned int,double> > osuffix;
-    std::map<std::string, double > msuffix;
-};
+class VariableMap;
 
 //
 // Coek Model
@@ -291,15 +274,13 @@ class CompactModel
 {
 public:
 
-    // TODO - define ObjectiveSequence
-    std::vector<std::variant<Objective, ObjectiveSequence>> objectives;
-    std::vector<std::variant<Constraint, ConstraintSequence>> constraints;
-    std::vector<Variable> variables;
+    std::shared_ptr<CompactModelRepn> repn;
 
 public:
 
     Objective add_objective(const Expression& expr, bool _sense=Model::minimize);
     void add_objective(const Expression& expr, const SequenceContext& context, bool _sense=Model::minimize);
+    //void add_objective(const Expression& expr, bool _sense=Model::minimize, const SequenceContext& context);
 
     Constraint add_constraint(const Constraint& expr);
     void add_constraint(const Constraint& expr, const SequenceContext& context);
@@ -309,6 +290,8 @@ public:
     Variable add_variable(Variable& var);
     void add_variable(VariableArray& var);
     void add_variable(ConcreteIndexedVariable& var);
+    void add_variable(const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, const SequenceContext& context);
+    void add_variable(const std::string& name, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, const SequenceContext& context);
 
     Model expand();
 

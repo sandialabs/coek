@@ -24,6 +24,7 @@
 #include "coek/api/constraint.hpp"
 #include "coek/api/expression_visitor.hpp"
 #include "coek/coek_model.hpp"
+#include "model_repn.hpp"
 
 #define EPSILON 1e-12
 

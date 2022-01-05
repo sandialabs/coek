@@ -79,7 +79,7 @@ for (unsigned int n=0; n<N; n++)
 coek::Expression obj;
 for (unsigned int n=0; n<N; n++)
     obj += c[n] * x[n];
-model.add_objective( obj, coek::Model::maximize );
+auto obj_ = model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
 for (unsigned int n=0; n<N; n++) {
@@ -95,7 +95,7 @@ if (solver == "gurobi") {
     coek::Solver opt(solver);
     //opt.set_option("TimeLimit", 0);
     opt.solve(model);
-    std::cout << "Solve: " << 0 << "  Objective: " << model.repn->objectives[0].body().get_value() << std::endl;
+    std::cout << "Solve: " << 0 << "  Objective: " << obj_.body().get_value() << std::endl;
     }
 else {
     coek::NLPModel nlp(model, "cppad");
@@ -138,7 +138,7 @@ for (unsigned int n=0; n<N; n++)
 coek::Expression obj;
 for (unsigned int n=0; n<N; n++)
     obj += c[n] * x[n];
-model.add_objective( obj, coek::Model::maximize );
+auto obj_ = model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
 for (unsigned int n=0; n<N; n++) {
@@ -153,7 +153,7 @@ if (solver == "gurobi") {
     opt.load(model);
     for (int i=0; i<nsolves; i++) {
         opt.resolve();
-        std::cout << "Solve: " << i << "  Objective: " << model.repn->objectives[0].body().get_value() << std::endl;
+        std::cout << "Solve: " << i << "  Objective: " << obj_.body().get_value() << std::endl;
 
         for (unsigned int n=0; n<N; n++)
             c[n].set_value( uniform() );
@@ -225,7 +225,7 @@ for (unsigned int n=0; n<N; n++)
 coek::Expression obj;
 for (unsigned int n=0; n<N; n++)
     obj += c[n] * x[n];
-model.add_objective( obj, coek::Model::maximize );
+auto obj_ = model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
 for (unsigned int n=0; n<N; n++) {
@@ -247,7 +247,7 @@ if (solver == "gurobi") {
     opt.load(model);
     for (int i=0; i<nsolves; i++) {
         opt.resolve();
-        std::cout << "Solve: " << i << "  Objective: " << model.repn->objectives[0].body().get_value() << std::endl;
+        std::cout << "Solve: " << i << "  Objective: " << obj_.body().get_value() << std::endl;
 
         for (unsigned int m=0; m<N; m++)
             A_[m].set_value( uniform() );
@@ -307,7 +307,7 @@ for (unsigned int n=0; n<N; n++)
 coek::Expression obj;
 for (unsigned int n=0; n<N; n++)
     obj += c[n] * x[n];
-model.add_objective( obj, coek::Model::maximize );
+auto obj_ = model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
 for (unsigned int n=0; n<N; n++) {
@@ -328,7 +328,7 @@ if (solver == "gurobi") {
     opt.load(model);
     for (int i=0; i<nsolves; i++) {
         opt.resolve();
-        std::cout << "Solve: " << i << "  Objective: " << model.repn->objectives[0].body().get_value() << std::endl;
+        std::cout << "Solve: " << i << "  Objective: " << obj_.body().get_value() << std::endl;
 
         for (unsigned int n=0; n<N; n++)
             A_[n].set_value( uniform() );
@@ -381,7 +381,7 @@ for (unsigned int n=0; n<N; n++)
 coek::Expression obj;
 for (unsigned int n=0; n<N; n++)
     obj += c[n] * x[n];
-model.add_objective( obj, coek::Model::maximize );
+auto obj_ = model.add_objective( obj, coek::Model::maximize );
 
 // Ax <= b
 for (unsigned int n=0; n<N; n++) {
@@ -397,7 +397,7 @@ if (solver == "gurobi") {
     opt.load(model);
     for (int i=0; i<nsolves; i++) {
         opt.resolve();
-        std::cout << "Solve: " << i << "  Objective: " << model.repn->objectives[0].body().get_value() << std::endl;
+        std::cout << "Solve: " << i << "  Objective: " << obj_.body().get_value() << std::endl;
 
         for (unsigned int n=0; n<N; n++)
             b[n].set_value( uniform() );

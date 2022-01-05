@@ -18,6 +18,7 @@
 #include "coek/compact/constraint_sequence.hpp"
 #include "coek/compact/coek_exprterm.hpp"
 #endif
+#include "model_repn.hpp"
 
 
 namespace coek {
@@ -29,6 +30,7 @@ namespace coek {
 bool Model::minimize = true;
 bool Model::maximize = false;
 double Model::inf = COEK_INFINITY;
+
 
 std::ostream& operator<<(std::ostream& ostr, const Model& arg)
 {
@@ -336,52 +338,52 @@ throw std::runtime_error("Unknown problem type");
 Objective CompactModel::add_objective(const Expression& expr, bool _sense)
 {
 Objective obj(expr, _sense);
-objectives.push_back( obj );
+repn->objectives.push_back( obj );
 return obj;
 }
 
 void CompactModel::add_objective(const Expression& expr, const SequenceContext& context, bool _sense)
 {
 ObjectiveSequence seq(expr, context, _sense);
-objectives.push_back( seq );
+repn->objectives.push_back( seq );
 }
 
 Constraint CompactModel::add_constraint(const Constraint& expr)
 {
-constraints.push_back(expr);
+repn->constraints.push_back(expr);
 return expr;
 }
 
 void CompactModel::add_constraint(const Constraint& expr, const SequenceContext& context)
 {
 ConstraintSequence seq(expr, context);
-constraints.push_back(seq);
+repn->constraints.push_back(seq);
 }
 
 Variable CompactModel::add_variable(double lb, double ub, double value, bool binary, bool integer)
 {
 Variable tmp(lb,ub,value,binary,integer);
-variables.push_back(tmp);
-return variables.back();
+repn->variables.push_back(tmp);
+return repn->variables.back();
 }
 
 Variable CompactModel::add_variable(const std::string& name, double lb, double ub, double value, bool binary, bool integer)
 {
 Variable tmp(name,lb,ub,value,binary,integer);
-variables.push_back(tmp);
-return variables.back();
+repn->variables.push_back(tmp);
+return repn->variables.back();
 }
 
 Variable CompactModel::add_variable(Variable& var)
 {
-variables.push_back(var);
+repn->variables.push_back(var);
 return var;
 }
 
 void CompactModel::add_variable(VariableArray& varray)
 {
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
-    variables.push_back(*it);
+    repn->variables.push_back(*it);
     }
 }
 
@@ -389,22 +391,22 @@ void CompactModel::add_variable(ConcreteIndexedVariable& vars)
 {
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
-    variables.push_back(*it);
+    repn->variables.push_back(*it);
     }
 }
 
 Model CompactModel::expand()
 {
 Model model;
-model.repn->variables = variables;
-for (auto it=variables.begin(); it != variables.end(); ++it) {
+model.repn->variables = repn->variables;
+for (auto it=repn->variables.begin(); it != repn->variables.end(); ++it) {
     auto name = it->get_name();
     if (name != "")
         model.repn->variables_by_name.emplace(name, *it);
     }
 
 //int i=0;
-for (auto it=objectives.begin(); it != objectives.end(); ++it) {
+for (auto it=repn->objectives.begin(); it != repn->objectives.end(); ++it) {
     auto& val = *it;
     if (auto eval = std::get_if<Objective>(&val)) {
         Expression e = eval->body().expand();
@@ -423,7 +425,7 @@ for (auto it=objectives.begin(); it != objectives.end(); ++it) {
     }
 
 //i=0;
-for (auto it=constraints.begin(); it != constraints.end(); ++it) {
+for (auto it=repn->constraints.begin(); it != repn->constraints.end(); ++it) {
     auto& val = *it;
     if (auto cval = std::get_if<Constraint>(&val)) {
         Constraint c = cval->expand();

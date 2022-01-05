@@ -5,6 +5,7 @@
 #include "../ast/value_terms.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
+#include "coek/model/model_repn.hpp"
 #include "autograd.hpp"
 
 #ifdef WITH_CPPAD
