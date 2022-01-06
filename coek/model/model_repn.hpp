@@ -39,7 +39,7 @@ public:
 //
 // CompactModelRepn
 //
-
+#ifdef COEK_WITH_COMPACT_MODEL
 class CompactModelRepn
 {
 public:
@@ -50,5 +50,6 @@ public:
     //std::vector<std::variant<Variable, VariableSequence>> variables;
     //std::shared_ptr<coek::ModelVariables> varmap_data;
 };
+#endif
 
 }

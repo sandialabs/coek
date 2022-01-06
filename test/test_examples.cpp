@@ -37,7 +37,7 @@ TEST_CASE( "ipopt", "[smoke]" ) {
     solver.set_option("print_level", 0);
     solver.solve(nlp);
 
-    check(m.repn->variables, rosenbr_soln);
+    check(m.get_variables(), rosenbr_soln);
   }
 
   SECTION( "invquad" ) {
@@ -55,7 +55,7 @@ TEST_CASE( "ipopt", "[smoke]" ) {
         solver.set_option("print_level", 0);
         solver.solve(nlp);
 
-        check(m.repn->variables, invquad_soln_5);
+        check(m.get_variables(), invquad_soln_5);
     }
     WHEN( "resolve - Same start" ) {
         coek::Model m;
@@ -76,7 +76,7 @@ TEST_CASE( "ipopt", "[smoke]" ) {
         solver.resolve();
 
         std::vector<double> invquad_resolve_5 {10,10,10,10,10};
-        check(m.repn->variables, invquad_resolve_5);
+        check(m.get_variables(), invquad_resolve_5);
     }
     WHEN( "resolve - Current point" ) {
         coek::Model m;
@@ -94,7 +94,7 @@ TEST_CASE( "ipopt", "[smoke]" ) {
         solver.set_option("print_level", 0);
         solver.resolve();
 
-        check(m.repn->variables, invquad_soln_5);
+        check(m.get_variables(), invquad_soln_5);
     }
     WHEN( "resolve - Warm Start" ) {
         coek::Model m;
@@ -119,7 +119,7 @@ TEST_CASE( "ipopt", "[smoke]" ) {
         solver.set_option("print_level", 0);
         solver.resolve();
 
-        check(m.repn->variables, invquad_soln_5);
+        check(m.get_variables(), invquad_soln_5);
     }
   }
 
@@ -142,7 +142,7 @@ TEST_CASE( "gurobi", "[smoke]" ) {
     solver.set_option("OutputFlag", 0);
     solver.solve(m);
 
-    check(m.repn->variables, simplelp1_soln);
+    check(m.get_variables(), simplelp1_soln);
   }
 
 #ifdef DEBUG

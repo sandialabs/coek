@@ -200,7 +200,7 @@ target_include_directories(coek
 target_include_directories(coek
                            PUBLIC
                            ${coek_include_directories})
-
+target_link_libraries(coek PUBLIC ${coek_link_libraries})
 set_property(TARGET coek PROPERTY INTERFACE_LINK_LIBRARIES ${coek_link_libraries})
 
 if (WIN32)

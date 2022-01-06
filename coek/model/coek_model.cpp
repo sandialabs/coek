@@ -179,6 +179,9 @@ if (i > repn->variables.size())
 return repn->variables[i];
 }
 
+std::vector<Variable>& Model::get_variables()
+{ return repn->variables; }
+
 Objective Model::get_objective(unsigned int i)
 {
 if (i > repn->objectives.size())

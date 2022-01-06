@@ -131,6 +131,8 @@ public:
     Variable get_variable(unsigned int i);
     /** \returns the variable with the specified name */
     Variable get_variable(const std::string& name);
+    /** \returns the vector of variables added to this model */
+    std::vector<Variable>& get_variables();
 
     //
     // Objectives

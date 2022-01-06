@@ -38,6 +38,8 @@ include(CTest)
 include(Catch)
 catch_discover_tests(runner)
 
+message("LINK LIBS: ${coek_link_libraries}")
+
 # lqcp
 add_executable(lqcp lqcp.cpp)
 TARGET_LINK_LIBRARIES(lqcp PUBLIC coek coekexamples ${coek_link_libraries})

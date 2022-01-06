@@ -8,6 +8,8 @@
 #include "coek/solvers/loadlib.h"
 #include "ipopt_solver.hpp"
 #include "IpStdCInterfaceTypes.h"
+#include "coek/model/model_repn.hpp"
+
 
 extern "C" {
 
