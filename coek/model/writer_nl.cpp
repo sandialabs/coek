@@ -800,7 +800,7 @@ void PrintExprFmtlib::visit(IndexParameterTerm& )
 void PrintExprFmtlib::visit(VariableTerm& arg)
 { 
 if (arg.fixed)
-    ostr.print("n{}\n", arg.value);             // << "n" << arg.value << '\n';
+    ostr.print("n{}\n", arg.value->eval());             // << "n" << arg.value << '\n';
 else
     ostr.print("v{}\n", varmap.at(arg.index));  // << "v" << varmap.at(arg.index) << '\n';
 }
@@ -821,7 +821,7 @@ void PrintExprFmtlib::visit(MonomialTerm& arg)
 ostr.print("o2\nn{}\n", arg.coef);
                                                         // ostr << '\n';
 if (arg.var->fixed)
-    ostr.print("n{}\n", arg.var->value);              // ostr << "n" << arg.var->value << '\n';
+    ostr.print("n{}\n", arg.var->value->eval());              // ostr << "n" << arg.var->value << '\n';
 else
     ostr.print("v{}\n", varmap.at(arg.var->index));   // << "v" << varmap.at(arg.var->index) << '\n';
 }

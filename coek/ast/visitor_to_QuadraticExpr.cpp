@@ -67,7 +67,7 @@ void visit(VariableTerm& expr, QuadraticExpr& repn, double multiplier)
 //    throw std::runtime_error("Unexpected variable not owned by a model.");
 
 if (expr.fixed)  {
-    repn.constval += multiplier * expr.value;
+    repn.constval += multiplier * expr.value->eval();
     }
 else {
     repn.linear_vars.push_back(&expr);
@@ -90,7 +90,7 @@ void visit(IndexedVariableTerm& expr, QuadraticExpr& repn, double multiplier)
 //    throw std::runtime_error("Unexpected variable not owned by a model.");
 
 if (expr.fixed)  {
-    repn.constval += multiplier * expr.value;
+    repn.constval += multiplier * expr.value->eval();
     }
 else {
     repn.linear_vars.push_back(&expr);
@@ -104,7 +104,7 @@ void visit(MonomialTerm& expr, QuadraticExpr& repn, double multiplier)
 //    throw std::runtime_error("Unexpected variable not owned by a model.");
 
 if (expr.var->fixed) {
-    repn.constval += multiplier * expr.coef * expr.var->value;
+    repn.constval += multiplier * expr.coef * expr.var->value->eval();
     }
 else {
     repn.linear_vars.push_back(expr.var);

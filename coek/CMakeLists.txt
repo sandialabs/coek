@@ -36,6 +36,7 @@ if(with_compact)
         ast/compact_terms.cpp
         compact/sequence_context.cpp
         compact/expression_sequence.cpp
+        compact/variable_sequence.cpp
         compact/objective_sequence.cpp
         compact/constraint_sequence.cpp
         compact/ast_set.cpp

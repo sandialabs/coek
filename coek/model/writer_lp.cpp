@@ -245,15 +245,17 @@ std::map<unsigned int,VariableTerm*> ivars;
 ostr << "\nbounds\n";
 for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
     VariableTerm* v = it->repn;
-    if (v->lb <= -COEK_INFINITY)
+    auto lb = v->lb->eval();
+    if (lb <= -COEK_INFINITY)
         ostr << "-inf";
     else
-        ostr << v->lb;
+        ostr << lb;
     ostr << " <= x(" << vid[v->index] << ") <= ";
-    if (v->ub >= COEK_INFINITY)
+    auto ub = v->ub->eval();
+    if (ub >= COEK_INFINITY)
         ostr << "inf\n";
     else
-        ostr << v->ub << '\n';
+        ostr << ub << '\n';
     if (v->binary)
         bvars[vid[v->index]] = v;
     if (v->integer)
@@ -291,12 +293,31 @@ if (model.repn->objectives.size() == 0) {
 
 // Create variable ID map
 std::unordered_map<unsigned int,unsigned int> vid;
+std::vector<Variable> variables;
 {
 unsigned int ctr=0;
-for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
-    vid[(*it).id()] = ctr;
-    varmap[ctr] = (*it).id();
-    ++ctr;
+for (auto it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
+    auto& val = *it;
+    if (auto eval = std::get_if<Variable>(&val)) {
+        Expression lb = eval->get_lb_expression().expand();
+        Expression ub = eval->get_ub_expression().expand();
+        Expression value = eval->get_value_expression().expand();
+        Variable tmp(eval->get_name(),lb.get_value(),ub.get_value(),value.get_value(),eval->is_binary(),eval->is_integer());
+        variables.push_back(tmp);
+        // NOTE: Using variable index instead of id because this is a compact model
+        vid[variables.size()] = ctr;
+        varmap[ctr] = variables.size();
+        ++ctr;
+        }
+    else {
+        auto& seq = std::get<VariableSequence>(val);
+        for (auto jt=seq.begin(); jt != seq.end(); ++jt) {
+            variables.push_back(*jt);
+            vid[variables.size()] = ctr;
+            varmap[ctr] = variables.size();
+            ++ctr;
+            }
+        }
     }
 }
 
@@ -381,17 +402,19 @@ if (one_var_constant) {
 std::map<unsigned int,VariableTerm*> bvars;
 std::map<unsigned int,VariableTerm*> ivars;
 ostr << "\nbounds\n";
-for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
+for(auto it=variables.begin(); it != variables.end(); ++it) {
     VariableTerm* v = it->repn;
-    if (v->lb <= -COEK_INFINITY)
+    auto lb = v->lb->eval();
+    if (lb <= -COEK_INFINITY)
         ostr << "-inf";
     else
-        ostr << v->lb;
+        ostr << lb;
     ostr << " <= x(" << vid[v->index] << ") <= ";
-    if (v->ub >= COEK_INFINITY)
+    auto ub = v->ub->eval();
+    if (ub >= COEK_INFINITY)
         ostr << "inf\n";
     else
-        ostr << v->ub << '\n';
+        ostr << ub << '\n';
     if (v->binary)
         bvars[vid[v->index]] = v;
     if (v->integer)
@@ -606,15 +629,17 @@ std::map<unsigned int,VariableTerm*> ivars;
 ostr.print("\nbounds\n");
 for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
     VariableTerm* v = it->repn;
-    if (v->lb <= -COEK_INFINITY)
+    auto lb = v->lb->eval();
+    if (lb <= -COEK_INFINITY)
         ostr.print("-inf");
     else
-        ostr.print("{}", v->lb);
+        ostr.print("{}", lb);
     ostr.print(" <= x({}) <= ", vid[v->index]);     // << " <= x(" << vid[v->index] << ") <= ";
-    if (v->ub >= COEK_INFINITY)
+    auto ub = v->ub->eval();
+    if (ub >= COEK_INFINITY)
         ostr.print("inf\n");
     else
-        ostr.print("{}\n", v->ub);                  // << v->ub << '\n';
+        ostr.print("{}\n", ub);                  // << v->ub << '\n';
     if (v->binary)
         bvars[vid[v->index]] = v;
     if (v->integer)
@@ -652,12 +677,31 @@ if (model.repn->objectives.size() == 0) {
 
 // Create variable ID map
 std::unordered_map<unsigned int, unsigned int> vid;
+std::vector<Variable> variables;
 {
 unsigned int ctr=0;
-for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
-    vid[(*it).id()] = ctr;
-    varmap[ctr] = (*it).id();
-    ++ctr;
+for (auto it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
+    auto& val = *it;
+    if (auto eval = std::get_if<Variable>(&val)) {
+        Expression lb = eval->get_lb_expression().expand();
+        Expression ub = eval->get_ub_expression().expand();
+        Expression value = eval->get_value_expression().expand();
+        Variable tmp(eval->get_name(),lb.get_value(),ub.get_value(),value.get_value(),eval->is_binary(),eval->is_integer());
+        variables.push_back(tmp);
+        // NOTE: Using variable index instead of id because this is a compact model
+        vid[variables.size()] = ctr;
+        varmap[ctr] = variables.size();
+        ++ctr;
+        }
+    else {
+        auto& seq = std::get<VariableSequence>(val);
+        for (auto jt=seq.begin(); jt != seq.end(); ++jt) {
+            variables.push_back(*jt);
+            vid[variables.size()] = ctr;
+            varmap[ctr] = variables.size();
+            ++ctr;
+            }
+        }
     }
 }
 
@@ -742,17 +786,19 @@ if (one_var_constant) {
 std::map<unsigned int,VariableTerm*> bvars;
 std::map<unsigned int,VariableTerm*> ivars;
 ostr.print("\nbounds\n");
-for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
+for(auto it=variables.begin(); it != variables.end(); ++it) {
     VariableTerm* v = it->repn;
-    if (v->lb <= -COEK_INFINITY)
+    auto lb = v->lb->eval();
+    if (lb <= -COEK_INFINITY)
         ostr.print("-inf");
     else
-        ostr.print("{}", v->lb);
+        ostr.print("{}", lb);
     ostr.print(" <= x({}) <= ", vid[v->index]);     // << " <= x(" << vid[v->index] << ") <= ";
-    if (v->ub >= COEK_INFINITY)
+    auto ub = v->ub->eval();
+    if (ub >= COEK_INFINITY)
         ostr.print("inf\n");
     else
-        ostr.print("{}\n", v->ub);
+        ostr.print("{}\n", ub);
     if (v->binary)
         bvars[vid[v->index]] = v;
     if (v->integer)

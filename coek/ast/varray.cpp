@@ -16,7 +16,8 @@ public:
 
 public:
 
-    LocalIndexedVariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _fixed, size_t _i, VariableArray* _varray)
+    //LocalIndexedVariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _fixed, size_t _i, VariableArray* _varray)
+    LocalIndexedVariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub, const expr_pointer_t& _value, bool _binary, bool _integer, bool _fixed, size_t _i, VariableArray* _varray)
         : VariableTerm(_lb, _ub, _value, _binary, _integer)
         { varray_index=_i; varray=_varray; fixed=_fixed; }
 
@@ -113,7 +114,11 @@ if (std::isnan(ub))
 
 variables.resize(n);
 for (size_t i=0; i<n; i++) {
-    auto tmp = CREATE_POINTER(local::LocalIndexedVariableTerm, lb, ub, init, binary, integer, fixed, i, this);
+    auto tmp = CREATE_POINTER(local::LocalIndexedVariableTerm, 
+                    CREATE_POINTER(ConstantTerm,lb), 
+                    CREATE_POINTER(ConstantTerm,ub), 
+                    CREATE_POINTER(ConstantTerm,init), 
+                    binary, integer, fixed, i, this);
     tmp->index = ++VariableTerm::count;
     variables[i] = Variable(tmp);
     }

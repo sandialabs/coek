@@ -25,11 +25,11 @@ public:
 
 public:
 
-    ObjectiveSequenceRepn(const Objective& expr, const SequenceContext& context_)
+    ObjectiveSequenceRepn(const SequenceContext& context_, const Objective& expr)
         : expression_template(expr), context(context_)
         {}
     
-    ObjectiveSequenceRepn(const Expression& expr, const SequenceContext& context_, bool sense)
+    ObjectiveSequenceRepn(const SequenceContext& context_, const Expression& expr, bool sense)
         : expression_template(expr, sense), context(context_)
         {}
     
@@ -186,11 +186,11 @@ ObjectiveSequence::ObjectiveSequence(const std::shared_ptr<ObjectiveSequenceRepn
     : repn(_repn)
 {}
 
-ObjectiveSequence::ObjectiveSequence(const Objective& expr, const SequenceContext& context_)
-{ repn = std::make_shared<ObjectiveSequenceRepn>(expr,context_); }
+ObjectiveSequence::ObjectiveSequence(const SequenceContext& context_, const Objective& expr)
+{ repn = std::make_shared<ObjectiveSequenceRepn>(context_,expr); }
 
-ObjectiveSequence::ObjectiveSequence(const Expression& expr, const SequenceContext& context_, bool sense)
-{ repn = std::make_shared<ObjectiveSequenceRepn>(expr,context_,sense); }
+ObjectiveSequence::ObjectiveSequence(const SequenceContext& context_, const Expression& expr, bool sense)
+{ repn = std::make_shared<ObjectiveSequenceRepn>(context_,expr,sense); }
 
 ObjectiveSeqIterator ObjectiveSequence::begin()
 { return ObjectiveSeqIterator(repn.get(), false); }

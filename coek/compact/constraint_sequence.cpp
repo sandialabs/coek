@@ -24,7 +24,7 @@ public:
 
 public:
 
-    ConstraintSequenceRepn(const Constraint& con, const SequenceContext& context_)
+    ConstraintSequenceRepn(const SequenceContext& context_, const Constraint& con)
         : constraint_template(con), context(context_)
         {}
 };
@@ -177,8 +177,8 @@ ConstraintSequence::ConstraintSequence(const std::shared_ptr<ConstraintSequenceR
 {}
 
 
-ConstraintSequence::ConstraintSequence(const Constraint& expr, const SequenceContext& context_)
-{ repn = std::make_shared<ConstraintSequenceRepn>(expr,context_); }
+ConstraintSequence::ConstraintSequence(const SequenceContext& context_, const Constraint& expr)
+{ repn = std::make_shared<ConstraintSequenceRepn>(context_,expr); }
 
 ConstraintSeqIterator ConstraintSequence::begin()
 { return ConstraintSeqIterator(repn.get(), false); }

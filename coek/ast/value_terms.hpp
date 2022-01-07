@@ -126,19 +126,24 @@ public:
 public:
 
     unsigned int index;
-    double value;
-    double lb;
-    double ub;
+    expr_pointer_t value;
+    expr_pointer_t lb;
+    expr_pointer_t ub;
+    //double value;
+    //double lb;
+    //double ub;
     bool binary;
     bool integer;
     bool fixed;
     bool indexed;
     std::string name;
 
-    VariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _indexed=false);
+    //VariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _indexed=false);
+    VariableTerm(const expr_pointer_t& lb, const expr_pointer_t& ub, const expr_pointer_t& value, bool _binary, bool _integer, bool _indexed=false);
+    ~VariableTerm();
 
     double eval() const
-        { return value; }
+        { return value->eval(); }
 
     bool is_variable() const
         {return true;}
@@ -164,6 +169,10 @@ public:
         else
             return name;
         }
+
+    void set_lb(double val);
+    void set_ub(double val);
+    void set_value(double val);
 };
 
 class IndexedVariableTerm : public VariableTerm
@@ -173,7 +182,8 @@ public:
     void* var;      // ConcreteIndexedVariableRepn
     unsigned int vindex;
 
-    IndexedVariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, unsigned int _vindex, void* _var)
+    IndexedVariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub, const expr_pointer_t& _value, bool _binary, bool _integer, unsigned int _vindex, void* _var)
+    //IndexedVariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, unsigned int _vindex, void* _var)
         : VariableTerm(_lb, _ub, _value, _binary, _integer), var(_var), vindex(_vindex) {}
 
     #if COEK_WITH_COMPACT_MODEL
@@ -205,7 +215,7 @@ public:
     ~MonomialTerm();
 
     double eval() const
-        { return coef * var->value; }
+        { return coef * var->value->eval(); }
 
     bool is_monomial() const
         {return true;}

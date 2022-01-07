@@ -51,7 +51,7 @@ public:
 public:
 
     ConstraintSequence(const std::shared_ptr<ConstraintSequenceRepn>& _repn);
-    ConstraintSequence(const Constraint& con, const SequenceContext& context);
+    ConstraintSequence(const SequenceContext& context, const Constraint& con);
 
     ConstraintSeqIterator begin();
     ConstraintSeqIterator end();

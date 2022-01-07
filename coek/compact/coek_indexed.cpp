@@ -124,7 +124,11 @@ public:
         : concrete_set(_arg)
         {
         for (size_t i=0; i<concrete_set.size(); i++)
-            values.emplace_back(CREATE_POINTER(IndexedVariableTerm, lb, ub, value, false, false, i, this));
+            values.emplace_back(CREATE_POINTER(IndexedVariableTerm, 
+                                        CREATE_POINTER(ConstantTerm, lb),
+                                        CREATE_POINTER(ConstantTerm, ub),
+                                        CREATE_POINTER(ConstantTerm, value),
+                                        false, false, i, this));
         setup();
         }
 
@@ -132,7 +136,11 @@ public:
         : concrete_set(_arg), name(_name)
         {
         for (size_t i=0; i<concrete_set.size(); i++)
-            values.emplace_back(CREATE_POINTER(IndexedVariableTerm, lb, ub, value, false, false, i, this));
+            values.emplace_back(CREATE_POINTER(IndexedVariableTerm,
+                                        CREATE_POINTER(ConstantTerm, lb),
+                                        CREATE_POINTER(ConstantTerm, ub),
+                                        CREATE_POINTER(ConstantTerm, value),
+                                        false, false, i, this));
         setup();
         }
 
@@ -140,7 +148,11 @@ public:
         : concrete_set(_arg)
         {
         for (size_t i=0; i<concrete_set.size(); i++)
-            values.emplace_back(CREATE_POINTER(IndexedVariableTerm, lb, ub, value, binary, integer, i, this));
+            values.emplace_back(CREATE_POINTER(IndexedVariableTerm,
+                                        CREATE_POINTER(ConstantTerm, lb),
+                                        CREATE_POINTER(ConstantTerm, ub),
+                                        CREATE_POINTER(ConstantTerm, value),
+                                        false, false, i, this));
         setup();
         }
 
@@ -148,7 +160,11 @@ public:
         : concrete_set(_arg), name(_name)
         {
         for (size_t i=0; i<concrete_set.size(); i++)
-            values.emplace_back(CREATE_POINTER(IndexedVariableTerm, lb, ub, value, binary, integer, i, this));
+            values.emplace_back(CREATE_POINTER(IndexedVariableTerm,
+                                        CREATE_POINTER(ConstantTerm, lb),
+                                        CREATE_POINTER(ConstantTerm, ub),
+                                        CREATE_POINTER(ConstantTerm, value),
+                                        false, false, i, this));
         setup();
         }
 

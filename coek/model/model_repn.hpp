@@ -4,15 +4,20 @@
 #include <unordered_map>
 #include <vector>
 #include <variant>
+#ifdef COEK_WITH_COMPACT_MODEL
+#include "coek/compact/objective_sequence.hpp"
+#include "coek/compact/constraint_sequence.hpp"
+#include "coek/compact/variable_sequence.hpp"
+#endif
 
 namespace coek
 {
-
 class Objective;
 class Constraint;
 class Variable;
-class ObjectiveSequence;
-class ConstraintSequence;
+class VariableMap;
+class ObjectiveMap;
+class ConstraintMap;
 
 //
 // ModelRepn
@@ -45,10 +50,12 @@ class CompactModelRepn
 public:
 
     std::vector<std::variant<Objective, ObjectiveSequence>> objectives;
+    std::vector<std::string> objective_names;
     std::vector<std::variant<Constraint, ConstraintSequence>> constraints;
-    std::vector<Variable> variables;
-    //std::vector<std::variant<Variable, VariableSequence>> variables;
-    //std::shared_ptr<coek::ModelVariables> varmap_data;
+    std::vector<std::string> constraint_names;
+    std::vector<std::variant<Variable, VariableSequence>> variables;
+    std::vector<std::string> variable_names;
+    std::map<std::string, std::variant<VariableMap, ObjectiveMap, ConstraintMap>> mapped_data;
 };
 #endif
 

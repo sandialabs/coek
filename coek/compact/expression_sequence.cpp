@@ -24,7 +24,7 @@ public:
 
 public:
 
-    ExpressionSequenceRepn(const Expression& expr, const SequenceContext& context_)
+    ExpressionSequenceRepn(const SequenceContext& context_, const Expression& expr)
         : expression_template(expr), context(context_)
         {}
     
@@ -178,8 +178,8 @@ ExpressionSequence::ExpressionSequence(const std::shared_ptr<ExpressionSequenceR
     : repn(_repn)
 {}
 
-ExpressionSequence::ExpressionSequence(const Expression& expr, const SequenceContext& context_)
-{ repn = std::make_shared<ExpressionSequenceRepn>(expr,context_); }
+ExpressionSequence::ExpressionSequence(const SequenceContext& context_, const Expression& expr)
+{ repn = std::make_shared<ExpressionSequenceRepn>(context_,expr); }
 
 ExpressionSeqIterator ExpressionSequence::begin()
 { return ExpressionSeqIterator(repn.get(), false); }
@@ -225,9 +225,9 @@ return curr;
 //
 // Sum
 //
-Expression Sum(const Expression& expr, const SequenceContext& context)
+Expression Sum(const SequenceContext& context, const Expression& expr)
 {
-ExpressionSequence seq(expr, context);
+ExpressionSequence seq(context, expr);
 Expression ans( CREATE_POINTER(SumExpressionTerm, seq) );
 return ans;
 }

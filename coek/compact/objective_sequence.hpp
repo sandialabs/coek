@@ -49,8 +49,8 @@ public:
 public:
 
     ObjectiveSequence(const std::shared_ptr<ObjectiveSequenceRepn>& _repn);
-    ObjectiveSequence(const Objective& expr, const SequenceContext& context);
-    ObjectiveSequence(const Expression& expr, const SequenceContext& context, bool sense);
+    ObjectiveSequence(const SequenceContext& context, const Objective& expr);
+    ObjectiveSequence(const SequenceContext& context, const Expression& expr, bool sense);
 
     ObjectiveSeqIterator begin();
     ObjectiveSeqIterator end();
