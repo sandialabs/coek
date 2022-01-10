@@ -20,15 +20,11 @@ ConstraintTerm* convert_con_template(ConstraintTerm* con);
 
 Constraint::Constraint()
     : repn(DUMMYCONSTRAINT)
-{
-OWN_POINTER(repn);
-}
+{ OWN_POINTER(repn); }
 
 Constraint::Constraint(const ConstraintRepn& _repn)
     : repn(_repn)
-{
-OWN_POINTER(repn);
-}
+{ OWN_POINTER(repn); }
 
 Constraint::Constraint(const Constraint& expr)
 {
@@ -37,9 +33,7 @@ OWN_POINTER(repn);
 }
 
 Constraint::~Constraint()
-{
-DISOWN_POINTER(repn);
-}
+{ DISOWN_POINTER(repn); }
 
 Constraint& Constraint::operator=(const Constraint& expr)
 {
@@ -50,12 +44,7 @@ return *this;
 }
 
 unsigned int Constraint::id() const
-{
-if (repn)
-    return repn->index;
-// TODO - throw an exception here?
-return 0;
-}
+{ return repn->index; }
 
 bool Constraint::is_inequality() const
 { return repn->is_inequality(); }
@@ -75,6 +64,9 @@ Expression Constraint::body() const
 Expression Constraint::upper() const
 { return repn->upper; }
 
+#if 0
+WEH - See notes in header
+
 double Constraint::get_lb() const
 {
 if (repn->lower)
@@ -88,6 +80,7 @@ if (repn->upper)
     return repn->upper->eval();
 return COEK_INFINITY;
 }
+#endif
 
 void Constraint::set_name(const std::string& name)
 { repn->name = name; }
@@ -480,19 +473,13 @@ Constraint operator==(const Expression& lhs, const Expression& rhs)
 
 
 Constraint inequality(int lower, const Expression& body, int upper, bool strict)
-{
-return CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lower), body.repn, CREATE_POINTER(ConstantTerm, upper), strict);
-}
+{ return CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lower), body.repn, CREATE_POINTER(ConstantTerm, upper), strict); }
 
 Constraint inequality(double lower, const Expression& body, double upper, bool strict)
-{
-return CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lower), body.repn, CREATE_POINTER(ConstantTerm, upper), strict);
-}
+{ return CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lower), body.repn, CREATE_POINTER(ConstantTerm, upper), strict); }
 
 Constraint inequality(const Expression& lower, const Expression& body, const Expression& upper, bool strict)
-{
-return CREATE_POINTER(InequalityTerm, lower.repn, body.repn, upper.repn, strict);
-}
+{ return CREATE_POINTER(InequalityTerm, lower.repn, body.repn, upper.repn, strict); }
 
 
 }

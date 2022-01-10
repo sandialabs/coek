@@ -60,10 +60,14 @@ public:
     /** \returns the expression for the constraint upper bound */
     Expression upper() const;
 
+#if 0
+    WEH - redundant with lower() and upper(), which can be evaluated.
+
     /** \returns the value of the constraint lower bound */
     double get_lb() const;
     /** \returns the value of the constraint upper bound */
     double get_ub() const;
+#endif
 
     /** Set the constraint name */
     void set_name(const std::string& name);

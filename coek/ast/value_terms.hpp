@@ -93,9 +93,9 @@ public:
     void set_value(double value);
     void set_value(int value);
     void set_value(const std::string& value);
-    void get_value(double& value);
-    void get_value(int& value);
-    void get_value(std::string& value);
+    bool get_value(double& value);
+    bool get_value(int& value);
+    bool get_value(std::string& value);
 
     expr_pointer_t negate(const expr_pointer_t& repn);
 

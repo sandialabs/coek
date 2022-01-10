@@ -8,7 +8,7 @@ namespace coek {
 
 
 Objective::Objective()
-    : repn(0)
+    : repn(DummyObjective)
 { }
 
 Objective::Objective(const ObjectiveRepn& _repn)
@@ -17,7 +17,6 @@ Objective::Objective(const ObjectiveRepn& _repn)
 
 Objective::Objective(const Expression& arg, bool sense)
 {
-//repn = STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(ObjectiveTerm, _repn, sense) );
 repn = CREATE_POINTER(ObjectiveTerm, arg.repn, sense);
 OWN_POINTER(repn);
 }
@@ -47,12 +46,7 @@ return *this;
 }
 
 unsigned int Objective::id() const
-{
-if (repn)
-    return repn->index;
-// TODO - throw an exception here?
-return 0;
-}
+{ return repn->index; }
 
 void Objective::set_body(const Expression& body)
 {

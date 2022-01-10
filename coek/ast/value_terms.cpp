@@ -62,25 +62,28 @@ void IndexParameterTerm::set_value(int value)
 void IndexParameterTerm::set_value(const std::string& value)
 { type = 3; string_value = value; }
 
-void IndexParameterTerm::get_value(double& value)
+bool IndexParameterTerm::get_value(double& value)
 {
 if (type != 1)
-    throw std::runtime_error("No double value stored in index parameter.");
+    return false;
 value = double_value;
+return true;
 }
 
-void IndexParameterTerm::get_value(int& value)
+bool IndexParameterTerm::get_value(int& value)
 {
 if (type != 2)
-    throw std::runtime_error("No integer value stored in index parameter.");
+    return false;
 value = int_value;
+return true;
 }
 
-void IndexParameterTerm::get_value(std::string& value)
+bool IndexParameterTerm::get_value(std::string& value)
 {
 if (type != 3)
-    throw std::runtime_error("No string value stored in index parameter.");
+    return false;
 value = string_value;
+return true;
 }
 
 //

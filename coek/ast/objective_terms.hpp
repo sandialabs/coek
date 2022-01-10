@@ -38,4 +38,17 @@ public:
         {return ObjectiveTerm_id;}
 };
 
+class DummyObjectiveTerm : public ObjectiveTerm
+{
+public:
+
+    DummyObjectiveTerm()
+        : body(0), sense(false), index(0), name("")
+        {}
+
+    double eval() const
+        {return 0.0;}
+};
+
+
 }

@@ -224,9 +224,9 @@ public:
 
     IndexParameter& operator=(const IndexParameter& arg);
 
-    void get_value(double& value) const;
-    void get_value(int& value) const;
-    void get_value(std::string& value) const;
+    bool get_value(double& value) const;
+    bool get_value(int& value) const;
+    bool get_value(std::string& value) const;
 
     void set_value(double value);
     void set_value(int value);
