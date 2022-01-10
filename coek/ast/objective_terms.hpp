@@ -43,8 +43,7 @@ class DummyObjectiveTerm : public ObjectiveTerm
 public:
 
     DummyObjectiveTerm()
-        : body(0), sense(false), index(0), name("")
-        {}
+        : ObjectiveTerm() {}
 
     double eval() const
         {return 0.0;}

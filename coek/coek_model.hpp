@@ -37,8 +37,8 @@ class ConstraintMap;
 //class ExpressionSeqIteratorRepn;
 //class ConstraintSeqIteratorRepn;
 class SequenceContext;
-class ObjectiveSequence;
-class ConstraintSequence;
+//class ObjectiveSequence;
+//class ConstraintSequence;
 
 class ModelRepn;
 class CompactModelRepn;
@@ -436,7 +436,7 @@ public:
       *
       * \returns a map to the objectives
       */
-    VariableMap add_variable(const SequenceContext& context, const Expression& lb, const Expression& ub, const Expression& value, bool binary=false, bool integer=false);
+    VariableMap add_variable(const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, const SequenceContext& context);
     /** Create variables and add them to the model with standard arguments.
       *
       * This method accepts one or more standard options.  
@@ -452,7 +452,7 @@ public:
       *
       * \returns a map to the objectives
       */
-    VariableMap add_variable(const std::string& name, const SequenceContext& context, const Expression& lb, const Expression& ub, const Expression& value, bool binary=false, bool integer=false);
+    VariableMap add_variable(const std::string& name, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, const SequenceContext& context);
 
     Variable add_variable(Variable& var);
     void add_variable(VariableArray& var);
@@ -486,7 +486,7 @@ public:
       *
       * \returns a map to the objectives
       */
-    ObjectiveMap add_objective(const SequenceContext& context, const Expression& expr, bool _sense=Model::minimize);
+    ObjectiveMap add_objective(const Expression& expr, const SequenceContext& context, bool _sense=Model::minimize);
     /**
       * Create and add a sequence of objectives to the model.
       *
@@ -497,7 +497,7 @@ public:
       *
       * \returns a map to the objectives
       */
-    ObjectiveMap add_objective(const std::string& name, const SequenceContext& context, const Expression& expr, bool _sense=Model::minimize);
+    ObjectiveMap add_objective(const std::string& name, const Expression& expr, const SequenceContext& context, bool _sense=Model::minimize);
 
     /**
       * Add a constraint to the model.
@@ -524,7 +524,7 @@ public:
       *
       * \returns a map to the constraints
       */
-    ConstraintMap add_constraint(const SequenceContext& context, const Constraint& expr);
+    ConstraintMap add_constraint(const Constraint& expr, const SequenceContext& context);
     /**
       * Add constraints to the model.
       *
@@ -534,7 +534,7 @@ public:
       *
       * \returns a map to the constraints
       */
-    ConstraintMap add_constraint(const std::string& name, const SequenceContext& context, const Constraint& expr);
+    ConstraintMap add_constraint(const std::string& name, const Constraint& expr, const SequenceContext& context);
 
     Model expand();
 

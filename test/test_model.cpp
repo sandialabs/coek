@@ -4442,3 +4442,24 @@ coek::Parameter q(2, "q");
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
+
+#ifdef COEK_WITH_COMPACT_MODEL
+TEST_CASE( "compact_model", "[smoke]" ) {
+
+    SECTION("add_variable") {
+        auto I = coek::RangeSet(0,3);
+        coek::IndexParameter i("i");
+        coek::CompactModel Model;
+        Model.add_variable(i+1, 2*i, 3*i+2, false, false, Forall(i).In(I));
+        auto model = Model.expand();
+
+        REQUIRE( model.num_variables() == 3 );
+        static std::list<std::string> baseline = {"[", "==", "v", "0.000", "]"};
+        REQUIRE( model.get_variable(0).get_lb_expression().to_list() == baseline );
+    }
+
+#ifdef DEBUG
+REQUIRE( coek::env.check_memory() == true );
+#endif
+}
+#endif

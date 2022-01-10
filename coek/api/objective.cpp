@@ -8,7 +8,7 @@ namespace coek {
 
 
 Objective::Objective()
-    : repn(DummyObjective)
+    : repn(DUMMYOBJECTIVE)
 { }
 
 Objective::Objective(const ObjectiveRepn& _repn)

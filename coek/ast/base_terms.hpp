@@ -111,6 +111,7 @@ public:
 #ifdef WITH_AST_ENV
 }
 #include "constraint_terms.hpp"
+#include "objective_terms.hpp"
 
 namespace coek {
 

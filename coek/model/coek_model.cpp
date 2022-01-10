@@ -365,13 +365,13 @@ repn->variables.push_back(tmp);
 return tmp; //repn->variables.back();
 }
 
-VariableMap add_variable(const SequenceContext& context, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer)
+VariableMap CompactModel::add_variable(const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, const SequenceContext& context)
 {
 VariableMap tmp;
 return tmp;
 }
 
-VariableMap add_variable(const std::string& name, const SequenceContext& context, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer)
+VariableMap CompactModel::add_variable(const std::string& name, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, const SequenceContext& context)
 {
 VariableMap tmp;
 return tmp;
@@ -412,7 +412,7 @@ repn->objectives.push_back( obj );
 return obj;
 }
 
-ObjectiveMap CompactModel::add_objective(const SequenceContext& context, const Expression& expr, bool _sense)
+ObjectiveMap CompactModel::add_objective(const Expression& expr, const SequenceContext& context, bool _sense)
 {
 ObjectiveSequence seq(context, expr, _sense);
 repn->objectives.push_back( seq );
@@ -421,7 +421,7 @@ ObjectiveMap tmp;
 return tmp;
 }
 
-ObjectiveMap CompactModel::add_objective(const std::string& name, const SequenceContext& context, const Expression& expr, bool _sense)
+ObjectiveMap CompactModel::add_objective(const std::string& name, const Expression& expr, const SequenceContext& context, bool _sense)
 {
 ObjectiveSequence seq(context, expr, _sense);
 repn->objectives.push_back( seq );
@@ -442,7 +442,7 @@ repn->constraints.push_back(expr);
 return expr;
 }
 
-ConstraintMap CompactModel::add_constraint(const SequenceContext& context, const Constraint& expr)
+ConstraintMap CompactModel::add_constraint(const Constraint& expr, const SequenceContext& context)
 {
 ConstraintSequence seq(context, expr);
 repn->constraints.push_back(seq);
@@ -451,7 +451,7 @@ ConstraintMap tmp;
 return tmp;
 }
 
-ConstraintMap CompactModel::add_constraint(const std::string& name, const SequenceContext& context, const Constraint& expr)
+ConstraintMap CompactModel::add_constraint(const std::string& name, const Constraint& expr, const SequenceContext& context)
 {
 ConstraintSequence seq(context, expr);
 repn->constraints.push_back(seq);

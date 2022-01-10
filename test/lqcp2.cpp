@@ -69,21 +69,21 @@ int main(int argc, char** argv) {
 
   // PDE
   model.add_constraint( "pde",
-                        coek::Forall(i,j).In( coek::RangeSet(0, m-1)*coek::RangeSet(1, n-1) ),
-                        y(i+1,j) - y(i,j) == dt*0.5/h2*(y(i,j-1) - 2*y(i,j) + y(i,j+1) + y(i+1,j-1) - 2*y(i+1,j) + y(i+1,j+1)) );
+                        y(i+1,j) - y(i,j) == dt*0.5/h2*(y(i,j-1) - 2*y(i,j) + y(i,j+1) + y(i+1,j-1) - 2*y(i+1,j) + y(i+1,j+1)),
+                        coek::Forall(i,j).In( coek::RangeSet(0, m-1)*coek::RangeSet(1, n-1) ));
 
   // IC
   model.add_constraint( "ic",
-                        coek::Forall(j).In( coek::RangeSet(0, n) ),
-                        y(0,j) == 0 );
+                        y(0,j) == 0,
+                        coek::Forall(j).In( coek::RangeSet(0, n) ));
 
   // BC
   model.add_constraint( "bc1",
-                        coek::Forall(i).In( coek::RangeSet(1,m) ),
-                        y(i,2) - 4*y(i,1) + 3*y(i,0) == 0 );
+                        y(i,2) - 4*y(i,1) + 3*y(i,0) == 0,
+                        coek::Forall(i).In( coek::RangeSet(1,m) ));
   model.add_constraint( "bc2",
-                        coek::Forall(i).In( coek::RangeSet(1,m) ),
-                        (y(i,n-2) - 4*y(i,n-1) + 3*y(i,n))/(2*dx) == u(i) - y(i,n) );
+                        (y(i,n-2) - 4*y(i,n-1) + 3*y(i,n))/(2*dx) == u(i) - y(i,n),
+                        coek::Forall(i).In( coek::RangeSet(1,m) ));
   
   if (lp_file) {
     cout << "WRITING LP" << endl << flush;

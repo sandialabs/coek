@@ -20,7 +20,7 @@ class MonomialTerm;
 class InequalityTerm;
 class EqualityTerm;
 class DummyConstraintTerm;
-class DummyObjectiveTerm;
+//class DummyObjectiveTerm;
 class NegateTerm;
 class PlusTerm;
 class TimesTerm;
@@ -67,7 +67,7 @@ public:
     virtual void visit(InequalityTerm& arg) = 0;
     virtual void visit(EqualityTerm& arg) = 0;
     virtual void visit(DummyConstraintTerm& ) {}
-    virtual void visit(DummyObjectiveTerm& ) {}
+    //virtual void visit(DummyObjectiveTerm& ) {}
     virtual void visit(NegateTerm& arg) = 0;
     virtual void visit(PlusTerm& arg) = 0;
     virtual void visit(TimesTerm& arg) = 0;
