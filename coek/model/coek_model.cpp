@@ -351,10 +351,20 @@ throw std::runtime_error("Unknown problem type");
 //
 
 #ifdef COEK_WITH_COMPACT_MODEL
+CompactModel::CompactModel()
+{ repn = std::make_shared<CompactModelRepn>(); }
+
+CompactModel::CompactModel(const CompactModel& other)
+{ repn = other.repn; }
+
+CompactModel::~CompactModel()
+{}
+
 Variable CompactModel::add_variable(double lb, double ub, double value, bool binary, bool integer)
 {
 Variable tmp(lb,ub,value,binary,integer);
 repn->variables.push_back(tmp);
+repn->variable_names.push_back("");
 return tmp; //repn->variables.back();
 }
 
@@ -362,17 +372,26 @@ Variable CompactModel::add_variable(const std::string& name, double lb, double u
 {
 Variable tmp(name,lb,ub,value,binary,integer);
 repn->variables.push_back(tmp);
+repn->variable_names.push_back("");
 return tmp; //repn->variables.back();
 }
 
 VariableMap CompactModel::add_variable(const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, const SequenceContext& context)
 {
+VariableSequence seq(context, lb, ub, value, binary, integer);
+repn->variables.push_back( seq );
+repn->variable_names.push_back("");
+
 VariableMap tmp;
 return tmp;
 }
 
 VariableMap CompactModel::add_variable(const std::string& name, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, const SequenceContext& context)
 {
+VariableSequence seq(context, lb, ub, value, binary, integer);
+repn->variables.push_back( seq );
+repn->variable_names.push_back("");
+
 VariableMap tmp;
 return tmp;
 }
@@ -380,6 +399,7 @@ return tmp;
 Variable CompactModel::add_variable(Variable& var)
 {
 repn->variables.push_back(var);
+repn->variable_names.push_back("");
 return var;
 }
 
@@ -387,6 +407,7 @@ void CompactModel::add_variable(VariableArray& varray)
 {
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
     repn->variables.push_back(*it);
+    repn->variable_names.push_back("");
     }
 }
 
@@ -395,6 +416,7 @@ void CompactModel::add_variable(ConcreteIndexedVariable& vars)
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
     repn->variables.push_back(*it);
+    repn->variable_names.push_back("");
     }
 }
 

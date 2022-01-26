@@ -4,7 +4,6 @@
 SET(sources
     ast/base_terms.cpp
     ast/constraint_terms.cpp
-    ast/objective_terms.cpp
     ast/value_terms.cpp
     ast/expr_terms.cpp
     ast/visitor_to_list.cpp

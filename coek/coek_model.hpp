@@ -391,6 +391,11 @@ public:
 
 public:
 
+    /** Constructs an empty optimization model */
+    CompactModel();
+    CompactModel(const CompactModel& other);
+    ~CompactModel();
+
     /** Create a variable and add it to the model with standard arguments.
       *
       * This method accepts one or more standard options.  

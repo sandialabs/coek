@@ -1,6 +1,6 @@
 #include <unordered_set>
 #include "../ast/visitor_fns.hpp"
-#include "../ast/objective_terms.hpp"
+#include "../ast/base_terms.hpp"
 #include "../ast/constraint_terms.hpp"
 #include "../ast/value_terms.hpp"
 #include "coek/api/objective.hpp"

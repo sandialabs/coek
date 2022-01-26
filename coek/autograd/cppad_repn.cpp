@@ -1,6 +1,5 @@
 #include <unordered_map>
 #include "../ast/value_terms.hpp"
-#include "../ast/objective_terms.hpp"
 #include "../ast/constraint_terms.hpp"
 #include "../ast/expr_terms.hpp"
 #include "coek/api/objective.hpp"

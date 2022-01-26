@@ -63,19 +63,20 @@ public:
         if (!done) {
             context_iter.resize(seq->context.size());
             
-            //auto cit = seq->context.repn->context.begin();
             size_t i=0;
             for (auto it = context_iter.begin(); it != context_iter.end(); ++it, ++i) {
                 Context& curr = seq->context[i];
                 *it = curr.index_set.begin(curr.indices);
                 }
-            converted_expr.initialize( 
+            coek::Variable tmp;
+            tmp.initialize( 
                     convert_expr_template( seq->expression_template.get_lb_expression().repn ),
                     convert_expr_template( seq->expression_template.get_ub_expression().repn ),
                     convert_expr_template( seq->expression_template.get_value_expression().repn ),
                     seq->expression_template.is_binary(),
                     seq->expression_template.is_integer(),
                     seq->expression_template.get_fixed());
+            converted_expr = tmp;
             }
         ncontexts = context_iter.size();
         }
@@ -96,13 +97,15 @@ public:
         if (i < 0)
             done = true;
         else {
-            converted_expr.initialize( 
+            coek::Variable tmp;
+            tmp.initialize( 
                     convert_expr_template( seq->expression_template.get_lb_expression().repn ),
                     convert_expr_template( seq->expression_template.get_ub_expression().repn ),
                     convert_expr_template( seq->expression_template.get_value_expression().repn ),
                     seq->expression_template.is_binary(),
                     seq->expression_template.is_integer(),
                     seq->expression_template.get_fixed());
+            converted_expr = tmp;
             }
         }
 

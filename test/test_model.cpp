@@ -12,6 +12,7 @@
 const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
+//void zzz() {}
 
 /*
 TEST_CASE( "capi_misc", "[smoke]" ) {
@@ -4450,12 +4451,81 @@ TEST_CASE( "compact_model", "[smoke]" ) {
         auto I = coek::RangeSet(0,3);
         coek::IndexParameter i("i");
         coek::CompactModel Model;
+        //zzz();
         Model.add_variable(i+1, 2*i, 3*i+2, false, false, Forall(i).In(I));
         auto model = Model.expand();
 
-        REQUIRE( model.num_variables() == 3 );
-        static std::list<std::string> baseline = {"[", "==", "v", "0.000", "]"};
+        REQUIRE( model.num_variables() == 4 );
+        {
+        static std::list<std::string> baseline = {"[", "+", "0.000", "1.000", "]"};
         REQUIRE( model.get_variable(0).get_lb_expression().to_list() == baseline );
+        }
+        {
+        static std::list<std::string> baseline = {"[", "+", "1.000", "1.000", "]"};
+        REQUIRE( model.get_variable(1).get_lb_expression().to_list() == baseline );
+        }
+        {
+        static std::list<std::string> baseline = {"[", "+", "2.000", "1.000", "]"};
+        REQUIRE( model.get_variable(2).get_lb_expression().to_list() == baseline );
+        }
+        {
+        static std::list<std::string> baseline = {"[", "+", "3.000", "1.000", "]"};
+        REQUIRE( model.get_variable(3).get_lb_expression().to_list() == baseline );
+        }
+    }
+
+    SECTION("add_objective") {
+        auto I = coek::RangeSet(0,3);
+        coek::IndexParameter i("i");
+        coek::CompactModel Model;
+        auto x = Model.add_variable("x");
+        Model.add_objective(i*x, Forall(i).In(I), coek::Model::maximize);
+        auto model = Model.expand();
+
+        REQUIRE( model.num_objectives() == 4 );
+        {
+        static std::list<std::string> baseline = {"[", "*", "0.000", "x", "]"};
+        REQUIRE( model.get_objective(0).body().to_list() == baseline );
+        }
+        {
+        static std::list<std::string> baseline = {"[", "*", "1.000", "x", "]"};
+        REQUIRE( model.get_objective(1).body().to_list() == baseline );
+        }
+        {
+        static std::list<std::string> baseline = {"[", "*", "2.000", "x", "]"};
+        REQUIRE( model.get_objective(2).body().to_list() == baseline );
+        }
+        {
+        static std::list<std::string> baseline = {"[", "*", "3.000", "x", "]"};
+        REQUIRE( model.get_objective(3).body().to_list() == baseline );
+        }
+    }
+
+    SECTION("add_constraint") {
+        auto I = coek::RangeSet(0,3);
+        coek::IndexParameter i("i");
+        coek::CompactModel Model;
+        auto x = Model.add_variable("x");
+        Model.add_constraint(i*x == 0, Forall(i).In(I));
+        auto model = Model.expand();
+
+        REQUIRE( model.num_constraints() == 4 );
+        {
+        static std::list<std::string> baseline = {"[", "==", "[", "*", "0.000", "x", "]", "0.000", "]"};
+        REQUIRE( model.get_constraint(0).to_list() == baseline );
+        }
+        {
+        static std::list<std::string> baseline = {"[", "==", "[", "*", "1.000", "x", "]", "0.000", "]"};
+        REQUIRE( model.get_constraint(1).to_list() == baseline );
+        }
+        {
+        static std::list<std::string> baseline = {"[", "==", "[", "*", "2.000", "x", "]", "0.000", "]"};
+        REQUIRE( model.get_constraint(2).to_list() == baseline );
+        }
+        {
+        static std::list<std::string> baseline = {"[", "==", "[", "*", "3.000", "x", "]", "0.000", "]"};
+        REQUIRE( model.get_constraint(3).to_list() == baseline );
+        }
     }
 
 #ifdef DEBUG
