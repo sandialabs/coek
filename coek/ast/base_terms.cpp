@@ -1,6 +1,5 @@
 #include "base_terms.hpp"
 #include "constraint_terms.hpp"
-#include "objective_terms.hpp"
 #include "expr_terms.hpp"
 
 namespace coek {

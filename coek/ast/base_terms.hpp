@@ -110,8 +110,8 @@ public:
 
 #ifdef WITH_AST_ENV
 }
+class DummyConstraintTerm;
 #include "constraint_terms.hpp"
-#include "objective_terms.hpp"
 
 namespace coek {
 
@@ -136,7 +136,7 @@ public:
 public:
 
     ASTEnvironment()
-        : num_global_constants(4), OneConstant(1), ZeroConstant(0), NegativeOneConstant(-1), DummyConstraint(), DummyObjective()
+        : num_global_constants(5), OneConstant(1), ZeroConstant(0), NegativeOneConstant(-1), DummyConstraint(), DummyObjective()
         { reset(); }
 
     ~ASTEnvironment();
