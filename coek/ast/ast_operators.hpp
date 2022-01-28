@@ -12,12 +12,14 @@ inline expr_pointer_t plus_(expr_pointer_t lhs, expr_pointer_t rhs)
 {
 if (lhs == ZEROCONST)
     return rhs;
+/* WEH - Not seen in practice
 if (rhs == ZEROCONST)
     return lhs;
 if (lhs->is_constant() and (lhs->eval() == 0))
     return rhs;
 if (rhs->is_constant() and (rhs->eval() == 0))
     return lhs;
+*/
 if (lhs->is_constant() and rhs->is_constant()) {
     auto _lhs = dynamic_cast<ConstantTerm*>(lhs);
     auto _rhs = dynamic_cast<ConstantTerm*>(rhs);
@@ -187,14 +189,15 @@ return CREATE_POINTER(PlusTerm, lhs, _rhs);
 //
 inline expr_pointer_t times_(expr_pointer_t lhs, expr_pointer_t rhs)
 {
-if (lhs == ZEROCONST)
-    return ZEROCONST;
 if (lhs == ONECONST)
     return rhs;
-if (rhs == ZEROCONST)
-    return ZEROCONST;
 if (rhs == ONECONST)
     return lhs;
+/* WEH - Not seen in practice
+if (rhs == ZEROCONST)
+    return ZEROCONST;
+if (lhs == ZEROCONST)
+    return ZEROCONST;
 if (lhs->is_constant()) {
     auto _lhs = dynamic_cast<ConstantTerm*>(lhs);
     if (_lhs->value == 1) {
@@ -209,6 +212,7 @@ if (rhs->is_constant()) {
         return lhs;
         }
     }
+*/
 if (lhs->is_constant() and rhs->is_constant()) {
     auto _lhs = dynamic_cast<ConstantTerm*>(lhs);
     auto _rhs = dynamic_cast<ConstantTerm*>(rhs);
@@ -231,8 +235,8 @@ expr_pointer_t times(const LHS& lhs, double rhs)
 {
 if (rhs == 0.0)
     return ZEROCONST;
-//if (rhs == 1.0)
-//    return lhs;
+if (rhs == 1.0)
+    return lhs;
 //if (rhs == -1.0)
 //    return lhs->negate(lhs);
 
@@ -245,8 +249,8 @@ expr_pointer_t times(double lhs, const RHS& rhs)
 {
 if (lhs == 0.0)
     return ZEROCONST;
-//if (lhs == 1.0)
-//    return rhs;
+if (lhs == 1.0)
+    return rhs;
 //if (lhs == -1.0)
 //    return rhs->negate(rhs);
 
@@ -259,8 +263,8 @@ expr_pointer_t times(const LHS& lhs, int rhs)
 {
 if (rhs == 0)
     return ZEROCONST;
-//if (rhs == 1)
-//    return lhs;
+if (rhs == 1)
+    return lhs;
 //if (rhs == -1)
 //    return lhs->negate(lhs);
 
@@ -273,8 +277,8 @@ expr_pointer_t times(int lhs, const RHS& rhs)
 {
 if (lhs == 0)
     return ZEROCONST;
-//if (lhs == 1)
-//    return rhs;
+if (lhs == 1)
+    return rhs;
 //if (lhs == -1)
 //    return rhs->negate(rhs);
 

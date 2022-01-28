@@ -388,7 +388,7 @@ REQUIRE( coek::env.check_memory() == true );
 
 TEST_CASE( "model_monomial", "[smoke]" ) {
 
-  SECTION( "trivial" ) {
+  SECTION( "trivial - int*variable" ) {
     coek::Variable v("v",0,1,0);
     coek::Expression e = 1*v;
     REQUIRE( e.repn == v.repn );
@@ -396,10 +396,55 @@ TEST_CASE( "model_monomial", "[smoke]" ) {
     REQUIRE( e.to_list() == baseline );
   }
 
-  SECTION( "simple monomial" ) {
+  SECTION( "simple monomial - int*variable" ) {
     coek::Variable v("v",0,1,0);
     coek::Expression e = 2*v;
     static std::list<std::string> baseline = {"[", "*", "2", "v", "]"};
+    REQUIRE( e.to_list() == baseline );
+  }
+
+  SECTION( "trivial - int*parameter" ) {
+    coek::Parameter v(1,"v");
+    coek::Expression e = 1*v;
+    //REQUIRE( e.repn == v.repn );
+    static std::list<std::string> baseline = {"v"};
+    REQUIRE( e.to_list() == baseline );
+  }
+
+  SECTION( "simple monomial - int*parameter" ) {
+    coek::Parameter v(1,"v");
+    coek::Expression e = 2*v;
+    static std::list<std::string> baseline = {"[", "*", "2.000", "v", "]"};
+    REQUIRE( e.to_list() == baseline );
+  }
+
+  SECTION( "trivial - double*variable" ) {
+    coek::Variable v("v",0,1,0);
+    coek::Expression e = 1.0*v;
+    REQUIRE( e.repn == v.repn );
+    static std::list<std::string> baseline = {"v"};
+    REQUIRE( e.to_list() == baseline );
+  }
+
+  SECTION( "simple monomial - double*variable" ) {
+    coek::Variable v("v",0,1,0);
+    coek::Expression e = 2.0*v;
+    static std::list<std::string> baseline = {"[", "*", "2", "v", "]"};
+    REQUIRE( e.to_list() == baseline );
+  }
+
+  SECTION( "trivial - double*parameter" ) {
+    coek::Parameter v(1,"v");
+    coek::Expression e = 1.0*v;
+    //REQUIRE( e.repn == v.repn );
+    static std::list<std::string> baseline = {"v"};
+    REQUIRE( e.to_list() == baseline );
+  }
+
+  SECTION( "simple monomial - int*parameter" ) {
+    coek::Parameter v(1,"v");
+    coek::Expression e = 2.0*v;
+    static std::list<std::string> baseline = {"[", "*", "2.000", "v", "]"};
     REQUIRE( e.to_list() == baseline );
   }
 
