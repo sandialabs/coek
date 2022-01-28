@@ -10,6 +10,7 @@ endif()
 
 SET(sources
     runner.cpp
+    test_expr.cpp
     test_model.cpp
     test_expr_visitors.cpp
     test_testsolver.cpp
