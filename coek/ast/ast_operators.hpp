@@ -339,6 +339,8 @@ expr_pointer_t divide(const LHS& lhs, double rhs)
 {
 if (rhs == 0.0)
     throw std::domain_error("Division by zero.");
+if (rhs == 1.0)
+    return lhs;
 
 expr_pointer_t _rhs = CREATE_POINTER(ConstantTerm, rhs);
 return CREATE_POINTER(DivideTerm, lhs, _rhs);
@@ -359,6 +361,8 @@ expr_pointer_t divide(const LHS& lhs, int rhs)
 {
 if (rhs == 0)
     throw std::domain_error("Division by zero.");
+if (rhs == 1)
+    return lhs;
 
 expr_pointer_t _rhs = CREATE_POINTER(ConstantTerm, rhs);
 return CREATE_POINTER(DivideTerm, lhs, _rhs);
