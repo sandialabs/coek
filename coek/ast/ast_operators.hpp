@@ -294,12 +294,6 @@ inline expr_pointer_t divide_(expr_pointer_t lhs, expr_pointer_t rhs)
 {
 if (lhs == ZEROCONST)
     return ZEROCONST;
-if (rhs == ONECONST)
-    return lhs;
-if (rhs == NEGATIVEONECONST)
-    return lhs->negate(lhs);
-if (rhs == ZEROCONST)
-    throw std::domain_error("Division by zero");
 if (lhs->is_constant()) {
     auto _lhs = dynamic_cast<ConstantTerm*>(lhs);
     if (_lhs->value == 0) {
@@ -308,6 +302,13 @@ if (lhs->is_constant()) {
         return ZEROCONST;
         }
     }
+/* WEH - Not used in practice
+if (rhs == ONECONST)
+    return lhs;
+if (rhs == NEGATIVEONECONST)
+    return lhs->negate(lhs);
+if (rhs == ZEROCONST)
+    throw std::domain_error("Division by zero");
 if (rhs->is_constant()) {
     auto _rhs = dynamic_cast<ConstantTerm*>(rhs);
     if (_rhs->value == 1) {
@@ -323,9 +324,9 @@ if (lhs->is_constant() and rhs->is_constant()) {
     DISCARD_POINTER(_rhs);
     return ans;
     }
+*/
 return CREATE_POINTER(DivideTerm, lhs, rhs);
 }
-
 
 template <typename LHS, typename RHS>
 expr_pointer_t divide(const LHS& lhs, const RHS& rhs)
@@ -337,7 +338,7 @@ template <typename LHS>
 expr_pointer_t divide(const LHS& lhs, double rhs)
 {
 if (rhs == 0.0)
-    throw std::domain_error("Division by zero");
+    throw std::domain_error("Division by zero.");
 
 expr_pointer_t _rhs = CREATE_POINTER(ConstantTerm, rhs);
 return CREATE_POINTER(DivideTerm, lhs, _rhs);
@@ -357,7 +358,7 @@ template <typename LHS>
 expr_pointer_t divide(const LHS& lhs, int rhs)
 {
 if (rhs == 0)
-    throw std::domain_error("Division by zero");
+    throw std::domain_error("Division by zero.");
 
 expr_pointer_t _rhs = CREATE_POINTER(ConstantTerm, rhs);
 return CREATE_POINTER(DivideTerm, lhs, _rhs);
@@ -380,8 +381,10 @@ return CREATE_POINTER(DivideTerm, _lhs, rhs);
 template <typename BODY>
 expr_pointer_t intrinsic_abs(const BODY& body)
 {
+/* WEH - Doesn't show up
 if (body->is_constant())
    return CREATE_POINTER(ConstantTerm, ::fabs(body->eval()));
+*/
 return CREATE_POINTER(AbsTerm, body);
 }
 
@@ -432,16 +435,18 @@ if (lhs->is_constant()) {
     double _lhs = lhs->eval();
     if (_lhs == 0)
         return ZEROCONST;
-    if (_lhs == 1)
+    else if (_lhs == 1)
         return ONECONST;
-    if (rhs->is_constant())
-        return CREATE_POINTER(ConstantTerm, ::pow(lhs->eval(), rhs->eval()));
+    /* WEH - Not seen
+    else if (rhs->is_constant())
+        return CREATE_POINTER(ConstantTerm, ::pow(_lhs, rhs->eval()));
+    */
     }
 else if (rhs->is_constant()) {
     double _rhs = rhs->eval();
     if (_rhs == 0)
         return ONECONST;
-    if (_rhs == 1)
+    else if (_rhs == 1)
         return lhs;
     }
 return CREATE_POINTER(PowTerm, lhs, rhs);

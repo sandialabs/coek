@@ -1304,17 +1304,66 @@ coek::Expression f;
     coek::Parameter q(0, "q");
     coek::Parameter Q(0.0, "Q");
 
-    WHEN( "e = a - q{0}" ) {
-      coek::Expression e = a - q;
-
-      static std::list<std::string> baseline = {"[","+","a","[","-","q","]","]"};
-      REQUIRE( e.to_list() == baseline );
-    }
-
     WHEN( "e = a - 0*q" ) {
       coek::Expression e = a - 0*q;
 
       static std::list<std::string> baseline = {"[", "+", "a", "-0.000", "]"};
+      REQUIRE( e.to_list() == baseline );
+    }
+
+    WHEN( "e = a - q*0" ) {
+      coek::Expression e = a - q*0;
+
+      static std::list<std::string> baseline = {"[", "+", "a", "-0.000", "]"};
+      REQUIRE( e.to_list() == baseline );
+    }
+
+    WHEN( "e = a - 1*q" ) {
+      coek::Expression e = a - 1*q;
+
+      static std::list<std::string> baseline = {"[", "+", "a", "[", "-", "q", "]", "]"};
+      REQUIRE( e.to_list() == baseline );
+    }
+
+    WHEN( "e = a - q*1" ) {
+      coek::Expression e = a - q*1;
+
+      static std::list<std::string> baseline = {"[", "+", "a", "[", "-", "q", "]", "]"};
+      REQUIRE( e.to_list() == baseline );
+    }
+
+    WHEN( "e = a - 0.0*q" ) {
+      coek::Expression e = a - 0.0*q;
+
+      static std::list<std::string> baseline = {"[", "+", "a", "-0.000", "]"};
+      REQUIRE( e.to_list() == baseline );
+    }
+
+    WHEN( "e = a - q*0.0" ) {
+      coek::Expression e = a - q*0.0;
+
+      static std::list<std::string> baseline = {"[", "+", "a", "-0.000", "]"};
+      REQUIRE( e.to_list() == baseline );
+    }
+
+    WHEN( "e = a - 1.0*q" ) {
+      coek::Expression e = a - 1.0*q;
+
+      static std::list<std::string> baseline = {"[", "+", "a", "[", "-", "q", "]", "]"};
+      REQUIRE( e.to_list() == baseline );
+    }
+
+    WHEN( "e = a - q*1.0" ) {
+      coek::Expression e = a - q*1.0;
+
+      static std::list<std::string> baseline = {"[", "+", "a", "[", "-", "q", "]", "]"};
+      REQUIRE( e.to_list() == baseline );
+    }
+
+    WHEN( "e = a - q{0}" ) {
+      coek::Expression e = a - q;
+
+      static std::list<std::string> baseline = {"[","+","a","[","-","q","]","]"};
       REQUIRE( e.to_list() == baseline );
     }
 
@@ -1355,6 +1404,13 @@ coek::Expression f;
 
     WHEN( "e = a - Q_{0.0}" ) {
       coek::Expression e = a - 0.0*Q;
+
+      static std::list<std::string> baseline = {"[", "+", "a", "-0.000", "]"};
+      REQUIRE( e.to_list() == baseline );
+    }
+
+    WHEN( "e = a - Q_{0.0}" ) {
+      coek::Expression e = a - Q*0.0;
 
       static std::list<std::string> baseline = {"[", "+", "a", "-0.000", "]"};
       REQUIRE( e.to_list() == baseline );
@@ -2490,6 +2546,30 @@ coek::Expression f;
       REQUIRE( e.to_list() == baseline );
     }
 
+    WHEN( "e = a / 0" ) {
+      coek::Expression e;
+      REQUIRE_THROWS_WITH( a/0,
+        "Division by zero.");
+    }
+
+    WHEN( "e = a / 0.0" ) {
+      coek::Expression e;
+      REQUIRE_THROWS_WITH( a/0.0,
+        "Division by zero.");
+    }
+
+    WHEN( "e = r / 0" ) {
+      coek::Expression e;
+      REQUIRE_THROWS_WITH( r/0,
+        "Division by zero.");
+    }
+
+    WHEN( "e = r / 0.0" ) {
+      coek::Expression e;
+      REQUIRE_THROWS_WITH( r/0.0,
+        "Division by zero.");
+    }
+
 /*
     WHEN( "e = 3 / q_" ) {
       coek::Expression e = 3/q_;
@@ -2739,13 +2819,20 @@ TEST_CASE( "capi_pow_expression", "[smoke]" ) {
 */
 
 
-TEST_CASE( "capi_intrinsics", "[smoke]" ) {
+TEST_CASE( "intrinsics", "[smoke]" ) {
 
 {
 coek::Variable v("v", 0.0, 1.0, 0.0);
 coek::Parameter p(0.0, "p");
 
   SECTION( "Test abs" ) {
+    {
+    coek::Expression constant(-1);
+    REQUIRE( constant.is_constant() );
+    coek::Expression e = abs(constant);
+    REQUIRE( e.get_value() == 1.0 );
+    }
+
     coek::Expression e = abs(v);
     v.set_value(1);
     REQUIRE( e.get_value() == 1.0 );
@@ -2866,6 +2953,31 @@ coek::Parameter p(0.0, "p");
   }
 
   SECTION( "Test pow" ) {
+    {
+    coek::Expression constant0(0);
+    coek::Expression e = pow(constant0,p);
+    p.set_value(1);
+    REQUIRE( e.get_value() == Approx(0.0) );
+    }
+    {
+    coek::Expression constant1(1);
+    coek::Expression e = pow(constant1,p);
+    p.set_value(1);
+    REQUIRE( e.get_value() == Approx(1.0) );
+    }
+    {
+    coek::Expression constant2(2);
+    coek::Expression constant1(1);
+    coek::Expression e = pow(constant2,constant1);
+    REQUIRE( e.get_value() == Approx(2.0) );
+    }
+    {
+    v.set_value(2);
+    coek::Expression constant1(1);
+    coek::Expression e = pow(v,constant1);
+    REQUIRE( e.get_value() == Approx(2.0) );
+    }
+
     coek::Expression e = pow(v,p);
     v.set_value(2);
     p.set_value(0);
@@ -3373,6 +3485,34 @@ coek::Expression f;
 
   SECTION( "le-operator" ) {
 
+    WHEN( "0 <= p" ) {
+        coek::Constraint e = 0 <= p;
+        static std::list<std::string> baseline = {"[", "<=", "0.000", "p", "Inf", "]"};
+        REQUIRE( e.to_list() == baseline );
+        REQUIRE( e.is_feasible() == true );
+    }
+
+    WHEN( "p <= 0" ) {
+        coek::Constraint e = p <= 0;
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "p", "0.000", "]"};
+        REQUIRE( e.to_list() == baseline );
+        REQUIRE( e.is_feasible() == true );
+    }
+
+    WHEN( "0.0 <= p" ) {
+        coek::Constraint e = 0.0 <= p;
+        static std::list<std::string> baseline = {"[", "<=", "0.000", "p", "Inf", "]"};
+        REQUIRE( e.to_list() == baseline );
+        REQUIRE( e.is_feasible() == true );
+    }
+
+    WHEN( "p <= 0.0" ) {
+        coek::Constraint e = p <= 0.0;
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "p", "0.000", "]"};
+        REQUIRE( e.to_list() == baseline );
+        REQUIRE( e.is_feasible() == true );
+    }
+
     WHEN( "1 <= p" ) {
         coek::Constraint e = 1 <= p;
         static std::list<std::string> baseline = {"[", "<=", "1.000", "p", "Inf", "]"};
@@ -3579,6 +3719,30 @@ coek::Expression f;
   }
 
   SECTION( "eq-operator" ) {
+
+    WHEN( "0 == p" ) {
+        coek::Constraint e = 0 == p;
+        static std::list<std::string> baseline = {"[", "==", "p", "0.000", "]"};
+        REQUIRE( e.to_list() == baseline );
+    }
+
+    WHEN( "p == 0" ) {
+        coek::Constraint e = p == 0;
+        static std::list<std::string> baseline = {"[", "==", "p", "0.000", "]"};
+        REQUIRE( e.to_list() == baseline );
+    }
+
+    WHEN( "0.0 == p" ) {
+        coek::Constraint e = 0.0 == p;
+        static std::list<std::string> baseline = {"[", "==", "p", "0.000", "]"};
+        REQUIRE( e.to_list() == baseline );
+    }
+
+    WHEN( "p == 0.0" ) {
+        coek::Constraint e = p == 0.0;
+        static std::list<std::string> baseline = {"[", "==", "p", "0.000", "]"};
+        REQUIRE( e.to_list() == baseline );
+    }
 
     WHEN( "1 == p" ) {
         coek::Constraint e = 1 == p;
