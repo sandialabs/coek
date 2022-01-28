@@ -1614,6 +1614,17 @@ std::unordered_set<coek::ParameterTerm*> params;
     REQUIRE( params == pbaseline );
   }
 
+  SECTION( "indexparam" ) {
+    coek::IndexParameter p("p");
+    coek::Expression e = p;
+    mutable_values(e.repn, fixed_vars, params);
+
+    static std::unordered_set<coek::VariableTerm*> vbaseline {};
+    static std::unordered_set<coek::ParameterTerm*> pbaseline { };
+    REQUIRE( fixed_vars == vbaseline );
+    REQUIRE( params == pbaseline );
+  }
+
   SECTION( "var" ) {
     WHEN( "fixed" ) {
         coek::Variable v;
@@ -1855,6 +1866,21 @@ std::unordered_set<coek::ParameterTerm*> params;
     MV_INTRINSIC_TEST1(acosh)
     MV_INTRINSIC_TEST1(atanh)
     MV_INTRINSIC_TEST2(pow)
+  }
+
+  SECTION( "objective" ) {
+        coek::Model m;
+        coek::Variable w = m.add_variable("w", 0, 1, 0);
+        coek::Variable v = m.add_variable("v", 0, 1, 0);
+        auto o = m.add_objective(w*v + v*(2*w+1));
+        v.set_fixed(true);
+        w.set_fixed(true);
+        mutable_values(o.body().repn, fixed_vars, params);
+
+        static std::unordered_set<coek::VariableTerm*> vbaseline { v.repn, w.repn };
+        static std::unordered_set<coek::ParameterTerm*> pbaseline { };
+        REQUIRE( fixed_vars == vbaseline );
+        REQUIRE( params == pbaseline );
   }
 
   SECTION( "constraint" ) {

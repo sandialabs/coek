@@ -111,3 +111,4 @@ In no particular order...
 * Add SOS, MPEC, etc logic
 * Add cut generation call-backs
 * Add vector/matrix expression elements
+* Assess how to handle variable references when collecting mutable parameters and fixed variables
