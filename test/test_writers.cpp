@@ -1,9 +1,18 @@
 
 #include <cmath>
+#include <cstdio>
+#include <fstream>
+#include <iterator>
+#include <string>
+#include <algorithm>
+
 #include "catch2/catch.hpp"
 
 #include "coek/ast/base_terms.hpp"
 #include "coek/coek.hpp"
+
+const std::string currdir = COEK_TEST_DIR;
+
 
 namespace {
 
@@ -245,315 +254,140 @@ coek::Variable c = model.add_variable(0, COEK_INFINITY);
 coek::Variable d = model.add_variable(-COEK_INFINITY, 0);
 model.add_constraint(c + d == 0);
 }
-    
-#include <fstream>
-#include <iterator>
-#include <string>
-#include <algorithm>
 
-bool compareFiles(const std::string& p1, const std::string& p2) {
-  std::ifstream f1(p1, std::ifstream::binary|std::ifstream::ate);
-  std::ifstream f2(p2, std::ifstream::binary|std::ifstream::ate);
+bool compare_files(const std::string& fname1, const std::string& fname2)
+{
+std::ifstream f1(fname1, std::ifstream::binary|std::ifstream::ate);
+std::ifstream f2(fname2, std::ifstream::binary|std::ifstream::ate);
 
-  if (f1.fail() || f2.fail()) {
-    return false; //file problem
-  }
+// Problem opening files
+if (f1.fail() || f2.fail())
+    return false;
 
-  if (f1.tellg() != f2.tellg()) {
-    return false; //size mismatch
-  }
+// Size mismatch
+if (f1.tellg() != f2.tellg())
+    return false;
 
-  //seek back to beginning and use std::equal to compare contents
-  f1.seekg(0, std::ifstream::beg);
-  f2.seekg(0, std::ifstream::beg);
-  return std::equal(std::istreambuf_iterator<char>(f1.rdbuf()),
-                    std::istreambuf_iterator<char>(),
-                    std::istreambuf_iterator<char>(f2.rdbuf()));
+// seek back to beginning and use std::equal to compare contents
+f1.seekg(0, std::ifstream::beg);
+f2.seekg(0, std::ifstream::beg);
+return std::equal(
+            std::istreambuf_iterator<char>(f1.rdbuf()),
+            std::istreambuf_iterator<char>(),
+            std::istreambuf_iterator<char>(f2.rdbuf()));
 }
 
-
-
-
-void run_test(coek::Model& model, const std::string& name, const std::string& suffix)
+bool run_test(coek::Model& model, const std::string& name, const std::string& suffix)
 {
 std::string fname = name + "." + suffix;
+std::string baseline = currdir + "/baselines/" + fname;
 model.write(fname);
+auto same = compare_files(fname, baseline);
+if (same) {
+    if( std::remove( fname.c_str() ) != 0 )
+        return false;
+    }
+return same;
 }
 
 }
 
-TEST_CASE( "lp_writer", "[smoke]" ) {
-
-  SECTION( "error1" ) {
-    coek::Model model;
-    //error1(model);
-    //REQUIRE_THROWS_WITH(model.write("error1.lp"),
-    //    "Error writing LP file: Unexpected variable encountered in a model expression");
-    }
-
-  SECTION( "small1" ) {
-    coek::Model model;
-    small1(model);
-    model.write("small1.lp");
-    }
-
-  SECTION( "small2" ) {
-    coek::Model model;
-    small2(model);
-    model.write("small2.lp");
-    }
-
-  SECTION( "small3" ) {
-    coek::Model model;
-    small3(model);
-    model.write("small3.lp");
-    }
-
-  SECTION( "small4" ) {
-    coek::Model model;
-    small4(model);
-    model.write("small4.lp");
-    }
-
-  SECTION( "small8" ) {
-    coek::Model model;
-    small8(model);
-    model.write("small8.lp");
-    }
-
-  SECTION( "testing1" ) {
-    coek::Model model;
-    testing1(model);
-    model.write("testing1.lp");
-    }
-
-#ifdef DEBUG
-REQUIRE( coek::env.check_memory() == true );
-#endif
-}
-
+TEST_CASE( "writer", "[smoke]" ) {
+{
+    std::vector<std::string> nonlinear = {"nl"
 #ifdef WITH_FMTLIB
-TEST_CASE( "fmtlp_writer", "[smoke]" ) {
-
-  SECTION( "error1" ) {
-    coek::Model model;
-    //error1(model);
-    //REQUIRE_THROWS_WITH(model.write("error1.lp"),
-    //    "Error writing LP file: Unexpected variable encountered in a model expression");
-    }
-
-  SECTION( "small1" ) {
-    coek::Model model;
-    small1(model);
-    model.write("small1.fmtlp");
-    }
-
-  SECTION( "small2" ) {
-    coek::Model model;
-    small2(model);
-    model.write("small2.fmtlp");
-    }
-
-  SECTION( "small3" ) {
-    coek::Model model;
-    small3(model);
-    model.write("small3.fmtlp");
-    }
-
-  SECTION( "small4" ) {
-    coek::Model model;
-    small4(model);
-    model.write("small4.fmtlp");
-    }
-
-  SECTION( "small8" ) {
-    coek::Model model;
-    small8(model);
-    model.write("small8.fmtlp");
-    }
-
-  SECTION( "testing1" ) {
-    coek::Model model;
-    testing1(model);
-    model.write("testing1.fmtlp");
-    }
-
-#ifdef DEBUG
-REQUIRE( coek::env.check_memory() == true );
+                ,"fmtnl"
 #endif
-}
+                };
+    std::vector<std::string> linear = {"lp","nl"
+#ifdef WITH_FMTLIB
+                ,"fmtlp","fmtnl"
 #endif
-
-TEST_CASE( "nl_writer", "[smoke]" ) {
-
-  SECTION( "error1" ) {
+                };
     coek::Model model;
+
+SECTION( "error1" ) {
     error1(model);
     REQUIRE_THROWS_WITH(model.write("error1.nl"),
         "Model expressions contain variable 'y' that is not declared in the model.");
-    }
-
-  SECTION( "small1" ) {
-    coek::Model model;
-    small1(model);
-    model.write("small1.nl");
-    }
-
-  SECTION( "small2" ) {
-    coek::Model model;
-    small2(model);
-    model.write("small2.nl");
-    }
-
-  SECTION( "small3" ) {
-    coek::Model model;
-    small3(model);
-    model.write("small3.nl");
-    }
-
-  SECTION( "small4" ) {
-    coek::Model model;
-    small4(model);
-    model.write("small4.nl");
-    }
-
-  SECTION( "small5" ) {
-    coek::Model model;
-    small5(model);
-    model.write("small5.nl");
-    }
-
-  SECTION( "small6" ) {
-    coek::Model model;
-    small6(model);
-    model.write("small6.nl");
-    }
-
-  SECTION( "small7" ) {
-    coek::Model model;
-    small7(model);
-    model.write("small7.nl");
-    }
-
-  SECTION( "small8" ) {
-    coek::Model model;
-    small8(model);
-    model.write("small8.nl");
-    }
-
-  SECTION( "small9" ) {
-    coek::Model model;
-    small9(model);
-    model.write("small9.nl");
-    }
-
-  SECTION( "small13" ) {
-    coek::Model model;
-    small13(model);
-    model.write("small13.nl");
-    }
-
-  SECTION( "small14" ) {
-    coek::Model model;
-    small14(model);
-    model.write("small14.nl");
-    }
-
-  SECTION( "testing1" ) {
-    coek::Model model;
-    testing1(model);
-    model.write("testing1.nl");
-    }
-
-#ifdef DEBUG
-REQUIRE( coek::env.check_memory() == true );
-#endif
-}
-
-#ifdef WITH_FMTLIB
-TEST_CASE( "fmtnl_writer", "[smoke]" ) {
-
-  SECTION( "error1" ) {
-    coek::Model model;
-    error1(model);
     REQUIRE_THROWS_WITH(model.write("error1.fmtnl"),
         "Model expressions contain variable 'y' that is not declared in the model.");
     }
 
-  SECTION( "small1" ) {
-    coek::Model model;
+SECTION( "small1" ) {
     small1(model);
-    model.write("small1.fmtnl");
+    for (const std::string& suffix : linear)
+        REQUIRE( run_test(model, "small1", suffix) );
     }
 
-  SECTION( "small2" ) {
-    coek::Model model;
+SECTION( "small2" ) {
     small2(model);
-    model.write("small2.fmtnl");
+    for (const std::string& suffix : linear)
+        run_test(model, "small2", suffix);
     }
 
-  SECTION( "small3" ) {
-    coek::Model model;
+SECTION( "small3" ) {
     small3(model);
-    model.write("small3.fmtnl");
+    for (const std::string& suffix : linear)
+        run_test(model, "small3", suffix);
     }
 
-  SECTION( "small4" ) {
-    coek::Model model;
+SECTION( "small4" ) {
     small4(model);
-    model.write("small4.fmtnl");
+    for (const std::string& suffix : linear)
+        run_test(model, "small4", suffix);
     }
 
-  SECTION( "small5" ) {
-    coek::Model model;
+SECTION( "small5" ) {
     small5(model);
-    model.write("small5.fmtnl");
+    for (const std::string& suffix : nonlinear)
+        run_test(model, "small5", suffix);
     }
 
-  SECTION( "small6" ) {
-    coek::Model model;
+SECTION( "small6" ) {
     small6(model);
-    model.write("small6.fmtnl");
+    for (const std::string& suffix : nonlinear)
+        run_test(model, "small6", suffix);
     }
 
-  SECTION( "small7" ) {
-    coek::Model model;
+SECTION( "small7" ) {
     small7(model);
-    model.write("small7.fmtnl");
+    for (const std::string& suffix : nonlinear)
+        run_test(model, "small7", suffix);
     }
 
-  SECTION( "small8" ) {
-    coek::Model model;
+SECTION( "small8" ) {
     small8(model);
-    model.write("small8.fmtnl");
+    for (const std::string& suffix : linear)
+        run_test(model, "small8", suffix);
     }
 
-  SECTION( "small9" ) {
-    coek::Model model;
+SECTION( "small9" ) {
     small9(model);
-    model.write("small9.fmtnl");
+    for (const std::string& suffix : nonlinear)
+        run_test(model, "small9", suffix);
     }
 
-  SECTION( "small13" ) {
-    coek::Model model;
+SECTION( "small13" ) {
     small13(model);
-    model.write("small13.fmtnl");
+    for (const std::string& suffix : nonlinear)
+        run_test(model, "small13", suffix);
     }
 
-  SECTION( "small14" ) {
-    coek::Model model;
+SECTION( "small14" ) {
     small14(model);
-    model.write("small14.fmtnl");
+    for (const std::string& suffix : nonlinear)
+        run_test(model, "small14", suffix);
     }
 
-  SECTION( "testing1" ) {
-    coek::Model model;
+SECTION( "testing1" ) {
     testing1(model);
-    model.write("testing1.fmtnl");
+    for (const std::string& suffix : linear)
+        run_test(model, "testing1", suffix);
     }
+}
 
 #ifdef DEBUG
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
-#endif

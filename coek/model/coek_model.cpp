@@ -342,7 +342,7 @@ else if (endsWith(fname, ".fmtnl")) {
     }
 #endif
 
-throw std::runtime_error("Unknown problem type");
+throw std::runtime_error("Unknown problem type: "+fname);
 }
 
 
