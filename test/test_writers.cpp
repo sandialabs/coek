@@ -246,6 +246,15 @@ coek::Variable d = model.add_variable(-COEK_INFINITY, 0);
 model.add_constraint(c + d == 0);
 }
 
+
+
+
+void run_test(coek::Model& model, const std::string& name, const std::string& suffix)
+{
+std::string fname = name + "." + suffix;
+model.write(fname);
+}
+
 }
 
 TEST_CASE( "lp_writer", "[smoke]" ) {
