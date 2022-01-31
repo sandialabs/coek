@@ -5,6 +5,7 @@
 #include <iterator>
 #include <string>
 #include <algorithm>
+#include <sstream>
 
 #include "catch2/catch.hpp"
 
@@ -555,3 +556,88 @@ REQUIRE( coek::env.check_memory() == true );
 #endif
 }
 #endif
+
+TEST_CASE( "model_io", "[smoke]" ) {
+{
+SECTION("Model") {
+    coek::Model model;
+    auto a = model.add_variable("a");
+    auto b = model.add_variable("b");
+    coek::Parameter q(0, "q");
+
+    model.add_objective( 3*a + q );
+    model.add_constraint( 3*b + q <= 0 );
+    model.add_constraint( 3*b + q == 0 );
+
+    WHEN("simple") {
+        std::stringstream os;
+        os << model;
+        std::string tmp = os.str();
+        REQUIRE( tmp == "MODEL\n\
+  Objectives\n\
+    min( 3*a + q )\n\
+  Constraints\n\
+    3*b + q <= 0\n\
+    3*b + q == 0\n\
+");
+        }
+
+    WHEN("nlp - cppad") {
+        coek::NLPModel nlp(model, "cppad");
+        std::stringstream os;
+        os << nlp;
+        std::string tmp = os.str();
+        REQUIRE( tmp == "NLPModel:\n\
+  variables:         2\n\
+  all variables:     2\n\
+  fixed variables:   0\n\
+  parameters:        1\n\
+  objectives:        1\n\
+  constraints:       2\n\
+  nonzeros Jacobian: 2\n\
+  nonzeros Hessian:  0\n\
+\n\
+MODEL\n\
+  Objectives\n\
+    min( 3*a + q )\n\
+  Constraints\n\
+    3*b + q <= 0\n\
+    3*b + q == 0\n\n");
+        }
+    }
+
+SECTION("Model values") {
+    coek::Model model;
+    auto a = model.add_variable("a", 0, 1, 0);
+    auto b = model.add_variable("b", 0, 1, 0.5);
+    coek::Parameter q(0, "q");
+
+    model.add_objective( 3*a + q );
+    model.add_constraint( 3*b + q <= 0 );
+    model.add_constraint( 3*b + q == 0 );
+
+    WHEN("simple") {
+        std::stringstream os;
+        model.print_values(os);
+        std::string tmp = os.str();
+        REQUIRE( tmp == "Model Variables: 2\n\
+Nonzero Variables\n\
+   b 0.5 0\n");
+        }
+
+    WHEN("nlp - cppad") {
+        coek::NLPModel nlp(model, "cppad");
+        std::stringstream os;
+        nlp.print_values(os);
+        std::string tmp = os.str();
+        REQUIRE( tmp == "Model Variables: 2\n\
+Nonzero Variables\n\
+   1 0.5 0\n");
+        }
+    }
+}
+
+#ifdef DEBUG
+REQUIRE( coek::env.check_memory() == true );
+#endif
+}

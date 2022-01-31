@@ -42,7 +42,7 @@ for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(
 
 check_that_expression_variables_are_declared(model, vars);
 
-std::map<int,VariableTerm*> tmp;
+std::map<size_t,VariableTerm*> tmp;
 for (auto it=vars.begin(); it != vars.end(); ++it)
     tmp[(*it)->index] = *it;
 
@@ -78,10 +78,8 @@ v->fixed = _v->fixed;
 v->value = _v->value;
 }
 
-Constraint NLPModelRepn::get_constraint(int i)
-{
-return model.repn->constraints[i];
-}
+Constraint NLPModelRepn::get_constraint(unsigned int i)
+{ return model.repn->constraints[i]; }
 
 void NLPModelRepn::print_equations(std::ostream& ostr) const
 {
@@ -100,6 +98,15 @@ ostr << std::endl;
 }
 
 void NLPModelRepn::print_values(std::ostream& ostr) const
-{}
+{
+ostr << "Model Variables: " << num_variables() << "\n";
+ostr << "Nonzero Variables\n";
+for (auto const& var: used_variables) {
+    double val = var.second->eval();
+    if (::fabs(val) > 1e-7) {
+        ostr << "   " << var.first << " " << val << " " << var.second->fixed << "\n";
+        }
+    }
+}
 
 }

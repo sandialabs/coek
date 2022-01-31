@@ -39,7 +39,7 @@ public:
     virtual void set_variables(std::vector<double>& x) = 0;
     virtual void set_variables(const double* x, size_t n) = 0;
 
-    virtual Constraint get_constraint(int i);
+    virtual Constraint get_constraint(unsigned int i);
 
     virtual void print_equations(std::ostream& ostr) const = 0;
     virtual void print_values(std::ostream& ostr) const = 0;

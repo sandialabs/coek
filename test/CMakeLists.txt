@@ -21,6 +21,14 @@ SET(sources
     test_indexed.cpp
    )
 
+# CppAD LIBRARY
+if(with_cppad)
+  MESSAGE("-- Building Test with AD:        CppAd")
+  list(APPEND sources
+    test_cppad_autograd.cpp)
+  #include_directories(BEFORE ${CPPAD_INCLUDE_DIR})
+endif()
+
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(BEFORE ${coek_include_directories})
 LINK_DIRECTORIES(${coek_link_directories})

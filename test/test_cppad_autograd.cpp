@@ -10,23 +10,23 @@ const double E = exp(1.0);
 TEST_CASE( "cppad_add", "[smoke]" ) {
 
   SECTION( "error1" ) {
-    coek::Variable v;
+    coek::Variable v("v");
     coek::Model model;
     model.add_objective(v);
 
     coek::NLPModel nlp;
     REQUIRE_THROWS_WITH(nlp.initialize(model, "cppad"),
-            "Model expressions contain variables that are not declared in the model.");
+            "Model expressions contain variable 'v' that is not declared in the model.");
     }
 
   SECTION( "error2" ) {
-    coek::Variable v;
+    coek::Variable v("v");
     coek::Model model;
     model.add_objective(2*v);
 
     coek::NLPModel nlp;
     REQUIRE_THROWS_WITH(nlp.initialize(model, "cppad"),
-            "Model expressions contain variables that are not declared in the model.");
+            "Model expressions contain variable 'v' that is not declared in the model.");
     }
 
   SECTION( "error3" ) {

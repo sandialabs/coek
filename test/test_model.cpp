@@ -115,29 +115,6 @@ coek::Parameter q(2, "q");
     }
   }
 
-#if 0
-  SECTION( "model writing" ) {
-    coek::Expression e0 = 3*a + q;
-    model.add_objective( e0 );
-    coek::Constraint e2 = 3*b + q - a <= 0;
-    model.add_constraint( e2 );
-    coek::Constraint e3 = 3*b + b == 0;
-    model.add_constraint( e3 );
-    coek::Constraint e4 = 3*b*a + q + b*b + b*b == 0;
-    model.add_constraint( e4 );
-    coek::Constraint e5 = 3*b*b + q - a*b - a*a <= 0;
-    model.add_constraint( e5 );
-    coek::Variable c = model.add_variable();
-    c.set_lb(0.0);
-    coek::Variable d = model.add_variable();
-    d.set_ub(0.0);
-    model.add (c + d == 0);
-
-    model.write("testing.lp");
-  }
-#endif
-
-
 }
 #ifdef DEBUG
 REQUIRE( coek::env.check_memory() == true );
