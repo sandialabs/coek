@@ -49,6 +49,9 @@ return *this;
 unsigned int Objective::id() const
 { return repn->index; }
 
+double Objective::get_value() const
+{ return repn->eval(); }
+
 void Objective::set_body(const Expression& body)
 {
 DISOWN_POINTER(repn->body);

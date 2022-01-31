@@ -53,6 +53,9 @@ public:
 
     /** \returns the unique integer objective ID */
     unsigned int id() const;
+    /** \returns the value of the objective expression
+      */
+    double get_value() const;
 
     /** Set the objective expression body */
     void set_body(const Expression& body);

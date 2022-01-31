@@ -44,9 +44,10 @@ public:
 
     DummyObjectiveTerm()
         : ObjectiveTerm() {}
-
+#if 0
     double eval() const
         {return 0.0;}
+#endif
 };
 
 
@@ -83,8 +84,10 @@ public:
     virtual bool is_equality() const
         {return false;}
     virtual bool is_feasible() const = 0;
+    /* WEH - Not used (yet?)
     virtual bool is_trivial() const
         {return false;}
+    */
 };
 
 class InequalityTerm : public ConstraintTerm
@@ -145,11 +148,7 @@ public:
     ~DummyConstraintTerm()
         {body=0; lower=0; upper=0;}
 
-    bool is_equality() const
-        {return true;}
     bool is_feasible() const
-        {return true;}
-    virtual bool is_trivial() const
         {return true;}
 
     void accept(Visitor& v)

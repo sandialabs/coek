@@ -490,9 +490,12 @@ for (auto it=repn->variables.begin(); it != repn->variables.end(); ++it) {
     auto& val = *it;
     if (auto eval = std::get_if<Variable>(&val)) {
         Expression lb = eval->get_lb_expression().expand();
+        eval->set_lb(lb.get_value());
         Expression ub = eval->get_ub_expression().expand();
+        eval->set_ub(ub.get_value());
         Expression value = eval->get_value_expression().expand();
-        model.add_variable(lb, ub, value, eval->is_binary(), eval->is_integer());
+        eval->set_value(value.get_value());
+        model.add_variable(*eval);
         }
     else {
         auto& seq = std::get<VariableSequence>(val);
@@ -893,6 +896,15 @@ std::unordered_set<unsigned int> model_ids;
 auto end = model.repn->variables.end();
 for (auto it=model.repn->variables.begin(); it != end; ++it)
     model_ids.insert( (*it).id() );
+
+/*
+for (unsigned int i: model_ids)
+  std::cout << i << std::endl;
+std::cout << std::endl;
+for (const auto& i: varobj)
+  std::cout << i.first << " " << i.second << std::endl;
+std::cout << std::endl;
+*/
 
 // TODO - Make this faster because both sets are ordered
 for (auto it=varobj.begin(); it != varobj.end(); it++) {

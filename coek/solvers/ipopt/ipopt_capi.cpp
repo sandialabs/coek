@@ -190,8 +190,8 @@ return true;
 }
 
 
-bool IpoptModel::get_bounds_info(Index n, Number* x_l, Number* x_u,
-                            Index m, Number* g_l, Number* g_u)
+bool IpoptModel::get_bounds_info(Index /*n*/, Number* x_l, Number* x_u,
+                            Index /*m*/, Number* g_l, Number* g_u)
 {
 // x_l[i] - the lower bound of variable i
 // x_u[i] - the upper bound of variable i
@@ -314,7 +314,7 @@ return true;
 }
 
 
-bool IpoptModel::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
+bool IpoptModel::eval_g(Index n, const Number* x, bool new_x, Index /*m*/, Number* g)
 { 
 //std::cout << "EVAL G " << std::endl << std::flush;
 if (new_x) {
@@ -335,8 +335,9 @@ return true;
 
 
 bool IpoptModel::eval_jac_g(Index n, const Number* x, bool new_x,
-                       Index m, Index nele_jac, Index* jRow, Index *jCol,
-                       Number* values)
+                        Index /*m*/,
+                        Index nele_jac, Index* jRow, Index *jCol,
+                        Number* values)
 { 
 //std::cout << "EVAL J " << std::endl << std::flush;
 if (values == NULL) {
@@ -354,7 +355,7 @@ if (values == NULL) {
     }
 
 else {
-    assert(nele_jac == tmp_j.size());
+    assert(static_cast<size_t>(nele_jac) == tmp_j.size());
     //std::cout << "Do Eval - START" << std::endl << std::flush;
     //std::cout << "nele_jac " << nele_jac << std::endl << std::flush;
     // Return the values of the Jacobian of the constraints
@@ -373,9 +374,13 @@ return true;
 
 
 bool IpoptModel::eval_h(Index n, const Number* x, bool new_x,
-                   Number obj_factor, Index m, const Number* lambda,
-                   bool new_lambda, Index nele_hess, Index* hRow,
-                   Index* hCol, Number* values)
+                    Number obj_factor, 
+                    Index /*m*/,
+                    const Number* lambda,
+                    bool /*new_lambda*/, 
+                    Index /*nele_hess*/,
+                    Index* hRow,
+                    Index* hCol, Number* values)
 {
 if (values == NULL) {
     // Return the structure. This is a symmetric matrix, fill the lower left
@@ -585,17 +590,17 @@ return nlp->eval_h(n, x, new_x, obj_factor, m, lambda, new_lambda, nele_hess, iR
 }
 
 Bool ipopt_capi_intermediate_cb(
-    Index       alg_mod,
+    Index       /*alg_mod*/,
     Index       iter_count,
-    Number      obj_value,
-    Number      inf_pr,
-    Number      inf_du,
-    Number      mu,
-    Number      d_norm,
-    Number      regularization_size,
-    Number      alpha_du,
-    Number      alpha_pr,
-    Index       ls_trials,
+    Number      /*obj_value*/,
+    Number      /*inf_pr*/,
+    Number      /*inf_du*/,
+    Number      /*mu*/,
+    Number      /*d_norm*/,
+    Number      /*regularization_size*/,
+    Number      /*alpha_du*/,
+    Number      /*alpha_pr*/,
+    Index       /*ls_trials*/,
     UserDataPtr user_data
     )
 {

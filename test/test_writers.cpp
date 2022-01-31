@@ -16,7 +16,8 @@ const std::string currdir = COEK_TEST_DIR;
 
 namespace {
 
-void error1(coek::Model& model) 
+template <class ModelType>
+void error1(ModelType& model) 
 {
 auto x = model.add_variable();
 x.set_name("x");
@@ -24,7 +25,28 @@ auto y = coek::Variable();
 y.set_name("y");
 
 model.add_objective( x );
-model.add_constraint( x*y == 4 );
+model.add_constraint( x+y == 4 );
+}
+
+// Missing objective
+template <class ModelType>
+void error2(ModelType& model) 
+{
+auto x = model.add_variable();
+x.set_name("x");
+
+model.add_constraint( x == 4 );
+}
+
+// Multiple objectives
+template <class ModelType>
+void error3(ModelType& model) 
+{
+auto x = model.add_variable();
+x.set_name("x");
+
+model.add_objective( x );
+model.add_objective( 2*x );
 }
 
 void small1(coek::Model& model) 
@@ -255,6 +277,12 @@ coek::Variable d = model.add_variable(-COEK_INFINITY, 0);
 model.add_constraint(c + d == 0);
 }
 
+void compact1(coek::CompactModel& model)
+{
+auto v = model.add_variable("v");
+model.add_objective(v);
+}
+
 bool compare_files(const std::string& fname1, const std::string& fname2)
 {
 std::ifstream f1(fname1, std::ifstream::binary|std::ifstream::ate);
@@ -277,7 +305,8 @@ return std::equal(
             std::istreambuf_iterator<char>(f2.rdbuf()));
 }
 
-bool run_test(coek::Model& model, const std::string& name, const std::string& suffix)
+template <class ModelType>
+bool run_test(ModelType& model, const std::string& name, const std::string& suffix)
 {
 std::string fname = name + "." + suffix;
 std::string baseline = currdir + "/baselines/" + fname;
@@ -292,26 +321,84 @@ return same;
 
 }
 
-TEST_CASE( "writer", "[smoke]" ) {
+TEST_CASE( "model_writer", "[smoke]" ) {
 {
-    std::vector<std::string> nonlinear = {"nl"
-#ifdef WITH_FMTLIB
+    std::vector<std::string> nonlinear = {"nl", "ostrnl"
+                #ifdef WITH_FMTLIB
                 ,"fmtnl"
-#endif
+                #endif
                 };
-    std::vector<std::string> linear = {"lp","nl"
-#ifdef WITH_FMTLIB
+    std::vector<std::string> linear = {"lp","nl","ostrlp","ostrnl"
+                #ifdef WITH_FMTLIB
                 ,"fmtlp","fmtnl"
-#endif
+                #endif
                 };
     coek::Model model;
 
 SECTION( "error1" ) {
     error1(model);
     REQUIRE_THROWS_WITH(model.write("error1.nl"),
-        "Model expressions contain variable 'y' that is not declared in the model.");
+        "Error writing NL file: Model expressions contain variable 'y' that is not declared in the model.");
+    std::remove("error1.nl");
     REQUIRE_THROWS_WITH(model.write("error1.fmtnl"),
-        "Model expressions contain variable 'y' that is not declared in the model.");
+        "Error writing NL file: Model expressions contain variable 'y' that is not declared in the model.");
+    std::remove("error1.fmtnl");
+    REQUIRE_THROWS_WITH(model.write("error1.ostrnl"),
+        "Error writing NL file: Model expressions contain variable 'y' that is not declared in the model.");
+    std::remove("error1.ostrnl");
+    REQUIRE_THROWS_WITH(model.write("error1.lp"),
+        "Error writing LP file: Model expressions contain variable that is not declared in the model.");
+    std::remove("error1.lp");
+    REQUIRE_THROWS_WITH(model.write("error1.fmtlp"),
+        "Error writing LP file: Model expressions contain variable that is not declared in the model.");
+    std::remove("error1.fmtlp");
+    REQUIRE_THROWS_WITH(model.write("error1.ostrlp"),
+        "Error writing LP file: Model expressions contain variable that is not declared in the model.");
+    std::remove("error1.ostrlp");
+    }
+
+SECTION( "error2" ) {
+    error2(model);
+    REQUIRE_THROWS_WITH(model.write("error2.nl"),
+        "Error writing NL file: No objectives specified!");
+    std::remove("error2.nl");
+    REQUIRE_THROWS_WITH(model.write("error2.fmtnl"),
+        "Error writing NL file: No objectives specified!");
+    std::remove("error2.fmtnl");
+    REQUIRE_THROWS_WITH(model.write("error2.ostrnl"),
+        "Error writing NL file: No objectives specified!");
+    std::remove("error2.ostrnl");
+    REQUIRE_THROWS_WITH(model.write("error2.lp"),
+        "Error writing LP file: No objectives specified!");
+    std::remove("error2.lp");
+    REQUIRE_THROWS_WITH(model.write("error2.fmtlp"),
+        "Error writing LP file: No objectives specified!");
+    std::remove("error2.fmtlp");
+    REQUIRE_THROWS_WITH(model.write("error2.ostrlp"),
+        "Error writing LP file: No objectives specified!");
+    std::remove("error2.ostrlp");
+    }
+
+SECTION( "error3" ) {
+    error3(model);
+    REQUIRE_THROWS_WITH(model.write("error3.nl"),
+        "Error writing NL file: More than one objective defined!");
+    std::remove("error3.nl");
+    REQUIRE_THROWS_WITH(model.write("error3.fmtnl"),
+        "Error writing NL file: More than one objective defined!");
+    std::remove("error3.fmtnl");
+    REQUIRE_THROWS_WITH(model.write("error3.ostrnl"),
+        "Error writing NL file: More than one objective defined!");
+    std::remove("error3.ostrnl");
+    REQUIRE_THROWS_WITH(model.write("error3.lp"),
+        "Error writing LP file: More than one objective defined!");
+    std::remove("error3.lp");
+    REQUIRE_THROWS_WITH(model.write("error3.fmtlp"),
+        "Error writing LP file: More than one objective defined!");
+    std::remove("error3.fmtlp");
+    REQUIRE_THROWS_WITH(model.write("error3.ostrlp"),
+        "Error writing LP file: More than one objective defined!");
+    std::remove("error3.ostrlp");
     }
 
 SECTION( "small1" ) {
@@ -391,3 +478,80 @@ SECTION( "testing1" ) {
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
+
+
+#if 0
+TEST_CASE( "compact_model_writer", "[smoke]" ) {
+{
+    std::vector<std::string> nonlinear = {"nl", "ostrnl"
+                #ifdef WITH_FMTLIB
+                ,"fmtnl"
+                #endif
+                };
+    std::vector<std::string> linear = {"lp","nl","ostrlp","ostrnl"
+                #ifdef WITH_FMTLIB
+                ,"fmtlp","fmtnl"
+                #endif
+                };
+    coek::CompactModel model;
+
+#if 0
+SECTION( "error1" ) {
+    error1(model);
+    REQUIRE_THROWS_WITH(model.write("error1.lp"),
+        "Error writing LP file: Model expressions contain variable that is not declared in the model.");
+    std::remove("error1.lp");
+    REQUIRE_THROWS_WITH(model.write("error1.fmtlp"),
+        "Error writing LP file: Model expressions contain variable that is not declared in the model.");
+    std::remove("error1.fmtlp");
+    REQUIRE_THROWS_WITH(model.write("error1.ostrlp"),
+        "Error writing LP file: Model expressions contain variable that is not declared in the model.");
+    std::remove("error1.ostrlp");
+    }
+
+SECTION( "error2" ) {
+    error2(model);
+    REQUIRE_THROWS_WITH(model.write("error2.lp"),
+        "Error writing LP file: No objectives specified!");
+    std::remove("error2.lp");
+    REQUIRE_THROWS_WITH(model.write("error2.fmtlp"),
+        "Error writing LP file: No objectives specified!");
+    std::remove("error2.fmtlp");
+    REQUIRE_THROWS_WITH(model.write("error2.ostrlp"),
+        "Error writing LP file: No objectives specified!");
+    std::remove("error2.ostrlp");
+    }
+#endif
+
+SECTION( "error3" ) {
+    error3(model);
+#if 0
+    REQUIRE_THROWS_WITH(model.write("error3.lp"),
+        "Error writing LP file: More than one objective defined!");
+    std::remove("error3.lp");
+#endif
+    REQUIRE_THROWS_WITH(model.write("error3.fmtlp"),
+        "Error writing LP file: More than one objective defined!");
+    std::remove("error3.fmtlp");
+#if 0
+    REQUIRE_THROWS_WITH(model.write("error3.ostrlp"),
+        "Error writing LP file: More than one objective defined!");
+    std::remove("error3.ostrlp");
+#endif
+    }
+
+#if 0
+SECTION( "compact1" ) {
+    compact1(model);
+    for (const std::string& suffix : linear)
+        run_test(model, "compact1", suffix);
+    }
+#endif
+
+}
+
+#ifdef DEBUG
+REQUIRE( coek::env.check_memory() == true );
+#endif
+}
+#endif
