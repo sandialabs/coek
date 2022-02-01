@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 #include "coek/coek_model.hpp"
-#include "coek/solvers/solver.hpp"
+#include "coek/solvers/solver_repn.hpp"
 
 
 namespace coek {

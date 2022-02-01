@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include "../util/map_utils.hpp"
+#include "../util/endswith.hpp"
 #include "../ast/varray.hpp"
 #include "../ast/value_terms.hpp"
 #include "coek/api/objective.hpp"
@@ -21,6 +22,7 @@
 
 namespace coek {
 
+#if 0
 //
 // Model
 //
@@ -278,9 +280,6 @@ std::set<std::string> Model::constraint_suffix_names() const
 std::set<std::string> Model::model_suffix_names() const
 { return map_keys(repn->msuffix); }
 
-static bool endsWith(const std::string& str, const std::string& suffix)
-{ return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix); }
-
 void write_lp_problem(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 void write_nl_problem(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 
@@ -344,6 +343,15 @@ else if (endsWith(fname, ".fmtnl")) {
 
 throw std::runtime_error("Unknown problem type: "+fname);
 }
+#endif
+
+#ifdef COEK_WITH_COMPACT_MODEL
+void write_lp_problem(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+#ifdef WITH_FMTLIB
+void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+#endif
+#endif
 
 
 //

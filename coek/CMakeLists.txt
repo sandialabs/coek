@@ -20,11 +20,14 @@ SET(sources
     api/objective.cpp
     api/constraint.cpp
     api/intrinsic_fn.cpp
-    model/coek_model.cpp
+    model/model.cpp
+    model/compact_model.cpp
+    model/nlp_model.cpp
     model/writer_lp.cpp
     model/writer_nl.cpp
     model/reader_jpof.cpp
     solvers/solver.cpp
+    solvers/solver_repn.cpp
     solvers/testsolver.cpp
     autograd/autograd.cpp
     abstract/expr_rule.cpp

@@ -7,7 +7,7 @@
 
 #include "coek/ast/base_terms.hpp"
 #include "coek/coek.hpp"
-#include "coek/solvers/solver.hpp"
+#include "coek/solvers/solver_repn.hpp"
 
 
 TEST_CASE( "solver_test", "[smoke]" ) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "solver.hpp"
+#include "solver_repn.hpp"
 
 
 namespace coek {
