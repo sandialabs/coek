@@ -693,7 +693,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "lhs constant" ) {
         coek::Model m;
-        coek::Parameter p(2,"p");
+        coek::Parameter p("p",2);
         coek::Variable v = m.add_variable(0, 1, 0, "v");
         coek::Expression f = p*v;
         m.add_objective(f);
@@ -721,7 +721,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "rhs constant" ) {
         coek::Model m;
-        coek::Parameter p(2, "p");
+        coek::Parameter p("p",2);
         coek::Variable v = m.add_variable(0, 1, 0, "v");
         coek::Expression f = v*p;
         m.add_objective(f);
@@ -752,7 +752,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
   SECTION( "divide" ) {
     WHEN( "lhs zero" ) {
         coek::Model m;
-        coek::Parameter p(0,"p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         coek::Expression f = p/w;
         m.add_objective(f);
@@ -766,7 +766,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "rhs nonzero" ) {
         coek::Model m;
-        coek::Parameter p(2.0,"p");
+        coek::Parameter p("p",2.0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         coek::Expression f = w/p;
         m.add_objective(f);

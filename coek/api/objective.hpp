@@ -60,11 +60,11 @@ public:
     /** Set the objective expression body */
     void set_body(const Expression& body);
     /** \returns the objective expression body */
-    Expression body() const;
+    Expression get_body() const;
     /** Set the objective sense */
     void set_sense(bool sense);
     /** \returns the objective sense */
-    bool sense() const;
+    bool get_sense() const;
     /** Set the objective name */
     void set_name(const std::string& name);
     /** \returns the objective name */

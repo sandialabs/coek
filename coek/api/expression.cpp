@@ -30,7 +30,7 @@ repn = CREATE_POINTER(ParameterTerm, value);
 OWN_POINTER(repn);
 }
 
-Parameter::Parameter(double value, const std::string& name)
+Parameter::Parameter(const std::string& name, double value)
 {
 repn = CREATE_POINTER(ParameterTerm, value);
 OWN_POINTER(repn);

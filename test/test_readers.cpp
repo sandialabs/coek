@@ -78,7 +78,7 @@ TEST_CASE( "jpof_reader_string", "[smoke]" ) {
 
     auto obj = model.get_objective();
     static std::list<std::string> obj_expr = {"[", "pow", "x", "2.000", "]"};
-    REQUIRE( obj.body().to_list() == obj_expr );
+    REQUIRE( obj.get_body().to_list() == obj_expr );
 
     auto con = model.get_constraint(0);
     static std::list<std::string> con_expr = {"[", "==", "[", "pow", "y", "2.000", "]", "4.000", "]"};

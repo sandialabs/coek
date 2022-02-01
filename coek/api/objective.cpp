@@ -59,13 +59,13 @@ OWN_POINTER(body.repn);
 repn->body = body.repn;
 }
 
-Expression Objective::body() const
+Expression Objective::get_body() const
 { return repn->body; }
 
 void Objective::set_sense(bool sense)
 { repn->sense = sense; }
 
-bool Objective::sense() const
+bool Objective::get_sense() const
 { return repn->sense; }
 
 void Objective::set_name(const std::string& name)

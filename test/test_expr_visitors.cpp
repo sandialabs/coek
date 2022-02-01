@@ -173,7 +173,7 @@ TEST_CASE( "expr_writer", "[smoke]" ) {
         REQUIRE( sstr.str() == "3.000" );
     }
     WHEN( "named ") {
-        coek::Parameter q(3, "q");
+        coek::Parameter q("q",3);
         std::stringstream sstr;
         sstr << q;
         REQUIRE( sstr.str() == "q" );
@@ -731,7 +731,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "lhs constant" ) {
         coek::Model m;
-        coek::Parameter p(2,"p");
+        coek::Parameter p("p",2);
         coek::Variable v = m.add_variable("v", 0, 1, 0);
         coek::Expression f = p*v;
         auto e = f.diff(v);
@@ -749,7 +749,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "rhs constant" ) {
         coek::Model m;
-        coek::Parameter p(2, "p");
+        coek::Parameter p("p",2);
         coek::Variable v = m.add_variable("v", 0, 1, 0);
         coek::Expression f = v*p;
         auto e = f.diff(v);
@@ -779,7 +779,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
   SECTION( "divide" ) {
     WHEN( "lhs zero" ) {
         coek::Model m;
-        coek::Parameter p(0,"p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         coek::Expression f = p/w;
         auto e = f.diff(w);
@@ -788,7 +788,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "rhs nonzero" ) {
         coek::Model m;
-        coek::Parameter p(2.0,"p");
+        coek::Parameter p("p",2.0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         coek::Expression f = w/p;
         auto e = f.diff(w);
@@ -1020,7 +1020,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
   SECTION( "param" ) {
     WHEN( "simple" ) {
         {
-        coek::Parameter p(3, "p");
+        coek::Parameter p("p",3);
         coek::Expression e = p;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1037,7 +1037,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     }
     WHEN( "nontrivial multiplier" ) {
         {
-        coek::Parameter p(3, "p");
+        coek::Parameter p("p",3);
         coek::Expression e = p/2;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1235,7 +1235,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "lhs constant" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w",0,1,3);
         coek::Expression e = p*w;
         coek::MutableNLPExpr repn;
@@ -1256,7 +1256,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "rhs constant" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w",0,1,3);
         coek::Expression e = w*p;
         coek::MutableNLPExpr repn;
@@ -1386,7 +1386,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "lhs parameter - zero" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         coek::Expression e = p/w;
         coek::MutableNLPExpr repn;
@@ -1406,7 +1406,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "rhs parameter - zero" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         coek::Expression e = w/p;
         coek::MutableNLPExpr repn;
@@ -1447,7 +1447,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         {
         coek::Model m;
         coek::Expression p;
-        coek::Parameter w(1,"w");
+        coek::Parameter w("w",1);
         coek::Expression e = p/(w+1);
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1498,7 +1498,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "rhs nonzero" ) {
         {
         coek::Model m;
-        coek::Parameter p(2.0, "p");
+        coek::Parameter p("p",2.0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         coek::Expression e = (w*w+w+1)/p;
         coek::MutableNLPExpr repn;
@@ -1521,7 +1521,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "inequality" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w",0,1,3);
         coek::Constraint e = p*w + 1 <= 2;
         coek::MutableNLPExpr repn;
@@ -1542,7 +1542,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "equality" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w",0,1,3);
         coek::Constraint e = p*w -1 == 2;
         coek::MutableNLPExpr repn;
@@ -1721,7 +1721,7 @@ std::unordered_set<coek::ParameterTerm*> params;
   SECTION( "times" ) {
     WHEN( "lhs constant" ) {
         coek::Model m;
-        coek::Parameter p(2,"p");
+        coek::Parameter p("p",2);
         coek::Variable v = m.add_variable("v", 0, 1, 0);
         v.set_fixed(true);
         coek::Expression e = p*v;
@@ -1750,7 +1750,7 @@ std::unordered_set<coek::ParameterTerm*> params;
   SECTION( "divide" ) {
     WHEN( "lhs zero" ) {
         coek::Model m;
-        coek::Parameter p(0,"p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         w.set_fixed(true);
         coek::Expression e = p/w;
@@ -1763,7 +1763,7 @@ std::unordered_set<coek::ParameterTerm*> params;
     }
     WHEN( "rhs nonzero" ) {
         coek::Model m;
-        coek::Parameter p(2.0,"p");
+        coek::Parameter p("p",2.0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         w.set_fixed(true);
         coek::Expression e = w/p;
@@ -1875,7 +1875,7 @@ std::unordered_set<coek::ParameterTerm*> params;
         auto o = m.add_objective(w*v + v*(2*w+1));
         v.set_fixed(true);
         w.set_fixed(true);
-        mutable_values(o.body().repn, fixed_vars, params);
+        mutable_values(o.get_body().repn, fixed_vars, params);
 
         static std::unordered_set<coek::VariableTerm*> vbaseline { v.repn, w.repn };
         static std::unordered_set<coek::ParameterTerm*> pbaseline { };

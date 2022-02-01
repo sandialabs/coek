@@ -36,21 +36,21 @@ SECTION("body") {
     auto o = model.add_objective(2*v);
 
     static std::list<std::string> baseline1 = {"[", "*", "2", "v", "]"};
-    REQUIRE( o.body().to_list() == baseline1 );
+    REQUIRE( o.get_body().to_list() == baseline1 );
 
     o.set_body( 3*v );
     static std::list<std::string> baseline2 = {"[", "*", "3", "v", "]"};
-    REQUIRE( o.body().to_list() == baseline2 );
+    REQUIRE( o.get_body().to_list() == baseline2 );
     }
 
 SECTION("sense") {
     auto v = model.add_variable("v");
     auto o = model.add_objective(2*v);
 
-    REQUIRE(o.sense() == model.minimize);
+    REQUIRE(o.get_sense() == model.minimize);
 
     o.set_sense(model.maximize);
-    REQUIRE(o.sense() == model.maximize);
+    REQUIRE(o.get_sense() == model.maximize);
     }
 }
 
@@ -65,7 +65,7 @@ coek::Model model;
 coek::Variable a = model.add_variable("a",0.0, 1.0, 0.0, false, true);
 coek::Variable b("b", 0.0, 1.0, 0.0, true, false);
 model.add_variable(b);
-coek::Parameter q(2, "q");
+coek::Parameter q("q",2);
 
   SECTION( "add" ) {
 
@@ -162,19 +162,19 @@ TEST_CASE( "compact_model", "[smoke]" ) {
         REQUIRE( model.num_objectives() == 4 );
         {
         static std::list<std::string> baseline = {"[", "*", "0.000", "x", "]"};
-        REQUIRE( model.get_objective(0).body().to_list() == baseline );
+        REQUIRE( model.get_objective(0).get_body().to_list() == baseline );
         }
         {
         static std::list<std::string> baseline = {"[", "*", "1.000", "x", "]"};
-        REQUIRE( model.get_objective(1).body().to_list() == baseline );
+        REQUIRE( model.get_objective(1).get_body().to_list() == baseline );
         }
         {
         static std::list<std::string> baseline = {"[", "*", "2.000", "x", "]"};
-        REQUIRE( model.get_objective(2).body().to_list() == baseline );
+        REQUIRE( model.get_objective(2).get_body().to_list() == baseline );
         }
         {
         static std::list<std::string> baseline = {"[", "*", "3.000", "x", "]"};
-        REQUIRE( model.get_objective(3).body().to_list() == baseline );
+        REQUIRE( model.get_objective(3).get_body().to_list() == baseline );
         }
     }
 

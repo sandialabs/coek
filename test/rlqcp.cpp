@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
   double dt = T/m;
   double h2 = dx*dx;
   double a = 0.001;
-  coek::Parameter W(0.25, "W");
+  coek::Parameter W("W", 0.25);
 
 /*
   //env.debug = true;

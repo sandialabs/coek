@@ -147,8 +147,8 @@ QuadraticExpr expr;
 expr.collect_terms(c);
 double tmp = expr.constval;
 
-auto lower = c.lower();
-auto upper = c.upper();
+auto lower = c.get_lower();
+auto upper = c.get_upper();
 
 ostr << "c" << ctr << ":\n";
 ++ctr;
@@ -320,7 +320,7 @@ int nobj=0;
 for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it) {
     auto& val = *it;
     if (auto eval = std::get_if<Objective>(&val)) {
-        Objective obj(eval->body().expand(), eval->sense());
+        Objective obj(eval->get_body().expand(), eval->get_sense());
         print_objective(ostr, obj, one_var_constant, vid);
         ++nobj;
         }
@@ -509,8 +509,8 @@ QuadraticExpr expr;
 expr.collect_terms(c);
 double tmp = expr.constval;
 
-auto lower = c.lower();
-auto upper = c.upper();
+auto lower = c.get_lower();
+auto upper = c.get_upper();
 
 ostr.print("c{}:\n", ctr);  // << "c" << ctr << ":\n";
 ++ctr;
@@ -677,7 +677,7 @@ int nobj=0;
 for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it) {
     auto& val = *it;
     if (auto eval = std::get_if<Objective>(&val)) {
-        Objective obj(eval->body().expand(), eval->sense());
+        Objective obj(eval->get_body().expand(), eval->get_sense());
         print_objective(ostr, obj, one_var_constant, vid);
         ++nobj;
         }

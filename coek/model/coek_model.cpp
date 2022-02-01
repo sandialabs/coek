@@ -390,7 +390,7 @@ VariableMap CompactModel::add_variable(const std::string& name, const Expression
 {
 VariableSequence seq(context, lb, ub, value, binary, integer);
 repn->variables.push_back( seq );
-repn->variable_names.push_back("");
+repn->variable_names.push_back(name);
 
 VariableMap tmp;
 return tmp;
@@ -429,7 +429,7 @@ return obj;
 
 Objective CompactModel::add_objective(const std::string& name, const Expression& expr, bool _sense)
 {
-Objective obj(expr, _sense);
+Objective obj(name, expr, _sense);
 repn->objectives.push_back( obj );
 return obj;
 }
@@ -443,7 +443,7 @@ ObjectiveMap tmp;
 return tmp;
 }
 
-ObjectiveMap CompactModel::add_objective(const std::string& name, const Expression& expr, const SequenceContext& context, bool _sense)
+ObjectiveMap CompactModel::add_objective(const std::string& /*name*/, const Expression& expr, const SequenceContext& context, bool _sense)
 {
 ObjectiveSequence seq(context, expr, _sense);
 repn->objectives.push_back( seq );
@@ -458,7 +458,7 @@ repn->constraints.push_back(expr);
 return expr;
 }
 
-Constraint CompactModel::add_constraint(const std::string& name, const Constraint& expr)
+Constraint CompactModel::add_constraint(const std::string& /*name*/, const Constraint& expr)
 {
 repn->constraints.push_back(expr);
 return expr;
@@ -473,7 +473,7 @@ ConstraintMap tmp;
 return tmp;
 }
 
-ConstraintMap CompactModel::add_constraint(const std::string& name, const Constraint& expr, const SequenceContext& context)
+ConstraintMap CompactModel::add_constraint(const std::string& /*name*/, const Constraint& expr, const SequenceContext& context)
 {
 ConstraintSequence seq(context, expr);
 repn->constraints.push_back(seq);
@@ -508,8 +508,8 @@ for (auto it=repn->variables.begin(); it != repn->variables.end(); ++it) {
 for (auto it=repn->objectives.begin(); it != repn->objectives.end(); ++it) {
     auto& val = *it;
     if (auto eval = std::get_if<Objective>(&val)) {
-        Expression e = eval->body().expand();
-        model.add_objective(e, eval->sense());
+        Expression e = eval->get_body().expand();
+        model.add_objective(e, eval->get_sense());
         }
     else {
         auto& seq = std::get<ObjectiveSequence>(val);

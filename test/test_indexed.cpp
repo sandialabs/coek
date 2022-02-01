@@ -653,7 +653,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
   SECTION( "param" ) {
     WHEN( "simple" ) {
         {
-        coek::Parameter p(3, "p");
+        coek::Parameter p("p",3);
         coek::Expression e = p;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -668,7 +668,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     }
     WHEN( "nontrivial multiplier" ) {
         {
-        coek::Parameter p(3, "p");
+        coek::Parameter p("p",3);
         coek::Expression e = p/2;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -854,7 +854,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "lhs constant" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w",0,1,3);
         coek::Expression e = p*w;
         auto E = e.expand();
@@ -873,7 +873,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "rhs constant" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w",0,1,3);
         coek::Expression e = w*p;
         auto E = e.expand();
@@ -991,7 +991,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "lhs parameter - zero" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         coek::Expression e = p/w;
         auto E = e.expand();
@@ -1009,7 +1009,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "rhs parameter - zero" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         coek::Expression e = w/p;
         auto E = e.expand();
@@ -1046,7 +1046,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         {
         coek::Model m;
         coek::Expression p;
-        coek::Parameter w(1,"w");
+        coek::Parameter w("w",1);
         coek::Expression e = p/(w+1);
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -1091,7 +1091,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "rhs nonzero" ) {
         {
         coek::Model m;
-        coek::Parameter p(2.0, "p");
+        coek::Parameter p("p",2.0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         coek::Expression e = (w*w+w+1)/p;
         auto E = e.expand();
@@ -1112,7 +1112,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "inequality" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w",0,1,3);
         coek::Constraint e = p*w -3 <= 2;
         auto E = e.expand();
@@ -1131,7 +1131,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "equality" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w",0,1,3);
         coek::Constraint e = p*w +1 == 2;
         auto E = e.expand();

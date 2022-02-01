@@ -54,20 +54,11 @@ public:
     bool is_feasible() const;
 
     /** \returns the expression for the constraint lower bound */
-    Expression lower() const;
+    Expression get_lower() const;
     /** \returns the expression for the constraint body */
-    Expression body() const;
+    Expression get_body() const;
     /** \returns the expression for the constraint upper bound */
-    Expression upper() const;
-
-#if 0
-    WEH - redundant with lower() and upper(), which can be evaluated.
-
-    /** \returns the value of the constraint lower bound */
-    double get_lb() const;
-    /** \returns the value of the constraint upper bound */
-    double get_ub() const;
-#endif
+    Expression get_upper() const;
 
     /** Set the constraint name */
     void set_name(const std::string& name);

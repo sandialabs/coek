@@ -265,7 +265,7 @@ void testing1(coek::Model& model)
 coek::Variable a = model.add_variable("a", 0.0, 1.0, 0.0, false, true);
 coek::Variable b("b", 0.0, 1.0, 0.0, true, false);
 model.add_variable(b);
-coek::Parameter q(2, "q");
+coek::Parameter q("q",2);
     
 model.add_objective( 3*a + q );
 model.add_constraint( 3*b + q - a <= 0 );
@@ -563,7 +563,7 @@ SECTION("Model") {
     coek::Model model;
     auto a = model.add_variable("a");
     auto b = model.add_variable("b");
-    coek::Parameter q(0, "q");
+    coek::Parameter q("q",0);
 
     model.add_objective( 3*a + q );
     model.add_constraint( 3*b + q <= 0 );
@@ -610,7 +610,7 @@ SECTION("Model values") {
     coek::Model model;
     auto a = model.add_variable("a", 0, 1, 0);
     auto b = model.add_variable("b", 0, 1, 0.5);
-    coek::Parameter q(0, "q");
+    coek::Parameter q("q",0);
 
     model.add_objective( 3*a + q );
     model.add_constraint( 3*b + q <= 0 );

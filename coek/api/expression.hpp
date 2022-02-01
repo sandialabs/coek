@@ -166,7 +166,7 @@ public:
       * \param value   the initial value of the parameter
       * \param name   the name of the parameter
       */
-    Parameter(double value, const std::string& name);
+    Parameter(const std::string& name, double value=0.0);
     /**
       * Copy constructor
       *

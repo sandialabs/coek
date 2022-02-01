@@ -16,8 +16,8 @@ TEST_CASE( "solver_test", "[smoke]" ) {
     coek::Model model;
     coek::Variable v = model.add_variable("v", 0.0, 1.0, 0.0, false, true);
     coek::Variable w = model.add_variable("w", 0.0, 1.0, 0.0, false, true);
-    coek::Parameter p(2, "p");
-    coek::Parameter q(2, "q");
+    coek::Parameter p("p",2);
+    coek::Parameter q("q",2);
 
     model.add_objective( 2*v + 3*w );
     model.add_constraint( 4*v + 5*w <= q );
@@ -69,8 +69,8 @@ TEST_CASE( "solver_test", "[smoke]" ) {
     coek::Variable v = model.add_variable("v", 0.0, 1.0, 0.0, false, true);
     coek::Variable w = model.add_variable("w", 0.0, 1.0, 0.0, false, true);
     w.set_fixed(true);
-    coek::Parameter p(2, "p");
-    coek::Parameter q(2, "q");
+    coek::Parameter p("p",2);
+    coek::Parameter q("q",2);
 
     model.add_objective( 2*v + 3*w );
     model.add_constraint( 4*v + 5*w <= q );
@@ -123,8 +123,8 @@ TEST_CASE( "solver_test", "[smoke]" ) {
     coek::Model model;
     coek::Variable v = model.add_variable("v", 0.0, 1.0, 0.0, false, true);
     coek::Variable w = model.add_variable("w", 0.0, 1.0, 0.0, false, true);
-    coek::Parameter p(2, "p");
-    coek::Parameter q(2, "q");
+    coek::Parameter p("p",2);
+    coek::Parameter q("q",2);
 
     model.add_objective( 2*v + 3*w );
     model.add_constraint( 4*v + 5*w <= q );

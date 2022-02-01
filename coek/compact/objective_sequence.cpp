@@ -70,8 +70,8 @@ public:
                 Context& curr = seq->context[i];
                 *it = curr.index_set.begin(curr.indices);
                 }
-            Objective tmp( convert_expr_template( seq->expression_template.body().repn ),
-                           seq->expression_template.sense() );
+            Objective tmp( convert_expr_template( seq->expression_template.get_body().repn ),
+                           seq->expression_template.get_sense() );
             converted_expr = tmp;
             }
         ncontexts = context_iter.size();
@@ -93,8 +93,8 @@ public:
         if (i < 0)
             done = true;
         else {
-            Objective tmp( convert_expr_template( seq->expression_template.body().repn ),
-                           seq->expression_template.sense() );
+            Objective tmp( convert_expr_template( seq->expression_template.get_body().repn ),
+                           seq->expression_template.get_sense() );
             converted_expr = tmp;
             }
         }

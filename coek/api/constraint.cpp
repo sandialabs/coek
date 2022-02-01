@@ -55,32 +55,14 @@ bool Constraint::is_equality() const
 bool Constraint::is_feasible() const
 { return repn->is_feasible(); }
 
-Expression Constraint::lower() const
+Expression Constraint::get_lower() const
 { return repn->lower; }
 
-Expression Constraint::body() const
+Expression Constraint::get_body() const
 { return repn->body; }
 
-Expression Constraint::upper() const
+Expression Constraint::get_upper() const
 { return repn->upper; }
-
-#if 0
-WEH - See notes in header
-
-double Constraint::get_lb() const
-{
-if (repn->lower)
-    return repn->lower->eval();
-return -COEK_INFINITY;
-}
-
-double Constraint::get_ub() const
-{
-if (repn->upper)
-    return repn->upper->eval();
-return COEK_INFINITY;
-}
-#endif
 
 void Constraint::set_name(const std::string& name)
 { repn->name = name; }
