@@ -19,14 +19,14 @@ SET(sources
     test_readers.cpp
     test_sets.cpp
     test_indexed.cpp
+    test_autograd_unknown.cpp
    )
 
 # CppAD LIBRARY
 if(with_cppad)
   MESSAGE("-- Building Test with AD:        CppAd")
   list(APPEND sources
-    test_cppad_autograd.cpp)
-  #include_directories(BEFORE ${CPPAD_INCLUDE_DIR})
+    test_autograd_cppad.cpp)
 endif()
 
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
