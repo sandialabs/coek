@@ -1,5 +1,3 @@
-#ifndef COEK_EXPR_AST_VISITORS_HPP
-#define COEK_EXPR_AST_VISITORS_HPP
 #pragma once
 
 #include <list>
@@ -35,4 +33,3 @@ void find_vars_and_params(expr_pointer_t expr,
 
 void find_variables(expr_pointer_t expr, std::unordered_set<VariableTerm*>& variables);
 }
-#endif

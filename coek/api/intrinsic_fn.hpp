@@ -1,5 +1,3 @@
-#ifndef COEK_API_INTRINSIC_FN_H
-#define COEK_API_INTRINSIC_FN_H
 #pragma once
 
 
@@ -141,4 +139,3 @@ Expression pow(const Expression&, double);
 Expression pow(double, const Expression&);
 
 }
-#endif

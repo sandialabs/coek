@@ -4,7 +4,7 @@
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
-#include "coek/coek_model.hpp"
+#include "coek/model/nlp_model.hpp"
 #include "coek/model/model_repn.hpp"
 #include "testsolver.hpp"
 

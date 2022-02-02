@@ -1,5 +1,3 @@
-#ifndef COEK_EXPR_VISITOR_HPP
-#define COEK_EXPR_VISITOR_HPP
 #pragma once
 
 #include <stdexcept>
@@ -136,4 +134,3 @@ enum term_id : unsigned int {
     };
 
 }
-#endif

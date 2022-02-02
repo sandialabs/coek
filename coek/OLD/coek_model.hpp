@@ -1,6 +1,3 @@
-#ifndef __coek_model_hpp
-#define __coek_model_hpp
-
 #pragma once
 
 #include <string>
@@ -1184,5 +1181,3 @@ Model read_problem_from_jpof_file(const std::string& filename, std::map<std::str
 Model read_problem_from_jpof_string(const std::string& jpof, std::map<std::string,Parameter>& params);
 
 }
-
-#endif

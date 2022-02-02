@@ -9,7 +9,8 @@
 #include <map>
 
 #include "coek/api/expression_visitor.hpp"
-#include "coek/coek_model.hpp"
+#include "coek/model/model.hpp"
+#include "coek/model/compact_model.hpp"
 
 
 namespace coek {

@@ -1,20 +1,7 @@
-//#include <cstdio>
-//#include <memory>
-//#include <sstream>
-//#include <iostream>
-//#include <map>
-//#include <cmath>
-
-//#include "../util/map_utils.hpp"
-//#include "../util/endswith.hpp"
-//#include "../ast/varray.hpp"
-//#include "../ast/value_terms.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
-//#include "coek/abstract/expr_rule.hpp"
 #include "coek/autograd/autograd.hpp"
-#include "coek/coek_model.hpp"
-//#include "coek/solvers/solver.hpp"
+#include "coek/model/nlp_model.hpp"
 #include "model_repn.hpp"
 
 

@@ -1,5 +1,3 @@
-#ifndef COEK_API_CONSTRAINT_H
-#define COEK_API_CONSTRAINT_H
 #pragma once
 
 #include <iostream>
@@ -247,4 +245,3 @@ Constraint inequality(int lower, const Expression& body, int upper, bool strict=
 Constraint inequality(double lower, const Expression& body, double upper, bool strict=false);
 Constraint inequality(const Expression& lower, const Expression& body, const Expression& upper, bool strict=false);
 }
-#endif

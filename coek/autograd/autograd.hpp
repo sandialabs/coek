@@ -2,7 +2,8 @@
 
 #include <string>
 #include <vector>
-#include "coek/coek_model.hpp"
+#include "coek/api/expression.hpp"
+#include "coek/model/model.hpp"
 
 namespace coek {
 

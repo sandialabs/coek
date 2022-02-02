@@ -1,5 +1,3 @@
-#ifndef COEK_API_EXPRESSION_H
-#define COEK_API_EXPRESSION_H
 #pragma once
 
 #include <iostream>
@@ -526,4 +524,3 @@ std::ostream& operator<<(std::ostream& ostr, const Variable& arg);
 std::ostream& operator<<(std::ostream& ostr, const Expression& arg);
 
 }
-#endif

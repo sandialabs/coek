@@ -18,7 +18,7 @@
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
-#include "coek/coek_model.hpp"
+#include "coek/model/model.hpp"
 
 #define RUNTIME_ASSERT(flag, msg)\
 if (not (flag))\

@@ -1,5 +1,3 @@
-#ifndef COEK_COMPACT_SEQUENCE_CONTEXT_H
-#define COEK_COMPACT_SEQUENCE_CONTEXT_H
 #pragma once
 
 #include <list>
@@ -92,4 +90,3 @@ SequenceContext Forall(const TYPES&... args)
     return Forall(indices);
     }
 }
-#endif

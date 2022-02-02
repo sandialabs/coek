@@ -1,5 +1,3 @@
-//#ifndef COEK_COMPACT_OBJECTIVE_SEQUENCE_H
-//#define COEK_COMPACT_OBJECTIVE_SEQUENCE_H
 #pragma once
 
 #include <vector>
@@ -56,4 +54,3 @@ public:
     VariableSeqIterator end();
 };
 }
-//#endif

@@ -227,9 +227,8 @@ endif()
 
 install(FILES
         coek.hpp 
-        coek_model.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek
-       )
+        )
 install(FILES
         api/expression.hpp
         api/expression_visitor.hpp
@@ -238,7 +237,7 @@ install(FILES
         api/constraint.hpp
         api/constants.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/api
-       )
+        )
 install(FILES
         compact/coek_sets.hpp
         compact/coek_indexed.hpp
@@ -247,7 +246,17 @@ install(FILES
         compact/objective_sequence.hpp
         compact/constraint_sequence.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/compact
-       )
+        )
+install(FILES
+        model/model.hpp
+        model/nlp_model.hpp
+        model/compact_model.hpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/model
+        )
+install(FILES
+        solvers/solver.hpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/solvers
+        )
 
 #
 # Push the compile options to the parent scope

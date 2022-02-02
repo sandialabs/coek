@@ -1,5 +1,3 @@
-#ifndef COEK_COMPACT_EXPRESSION_SEQUENCE_H
-#define COEK_COMPACT_EXPRESSION_SEQUENCE_H
 #pragma once
 
 #include <vector>
@@ -60,4 +58,3 @@ public:
 
 Expression Sum(const SequenceContext& context, const Expression& expr);
 }
-#endif

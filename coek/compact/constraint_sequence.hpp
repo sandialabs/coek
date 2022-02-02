@@ -1,5 +1,3 @@
-#ifndef COEK_COMPACT_CONSTRAINT_SEQUENCE_H
-#define COEK_COMPACT_CONSTRAINT_SEQUENCE_H
 #pragma once
 
 #include <vector>
@@ -59,4 +57,3 @@ public:
     const ConstraintSeqIterator end() const;
 };
 }
-#endif

@@ -1,5 +1,3 @@
-#ifndef COEK_API_OBJECTIVE_H
-#define COEK_API_OBJECTIVE_H
 #pragma once
 
 #include <iostream>
@@ -77,4 +75,3 @@ public:
 };
 
 }
-#endif

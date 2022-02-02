@@ -1,24 +1,7 @@
-//#include <cstdio>
-//#include <memory>
-//#include <sstream>
-//#include <iostream>
-//#include <map>
-//#include <cmath>
-
-//#include "../util/map_utils.hpp"
-//#include "../util/endswith.hpp"
-//#include "../ast/varray.hpp"
-//#include "../ast/value_terms.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
-//#include "coek/abstract/expr_rule.hpp"
-//#include "coek/autograd/autograd.hpp"
-#include "coek/coek_model.hpp"
+#include "coek/solvers/solver.hpp"
 #include "coek/solvers/solver_repn.hpp"
-//#ifdef COEK_WITH_COMPACT_MODEL
-//#include "coek/compact/coek_exprterm.hpp"
-//#endif
-//#include "model_repn.hpp"
 
 
 namespace coek {
