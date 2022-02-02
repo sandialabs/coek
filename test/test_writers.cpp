@@ -17,6 +17,7 @@ const std::string currdir = COEK_TEST_DIR;
 
 namespace {
 
+// ERROR: Unknown variable
 template <class ModelType>
 void error1(ModelType& model) 
 {
@@ -29,7 +30,7 @@ model.add_objective( x );
 model.add_constraint( x+y == 4 );
 }
 
-// Missing objective
+// ERROR: Missing objective
 template <class ModelType>
 void error2(ModelType& model) 
 {
@@ -39,7 +40,7 @@ x.set_name("x");
 model.add_constraint( x == 4 );
 }
 
-// Multiple objectives
+// ERROR: Multiple objectives
 template <class ModelType>
 void error3(ModelType& model) 
 {
@@ -48,6 +49,17 @@ x.set_name("x");
 
 model.add_objective( x );
 model.add_objective( 2*x );
+}
+
+// ERROR: IndexParameter
+template <class ModelType>
+void error4(ModelType& model) 
+{
+auto x = model.add_variable();
+coek::IndexParameter i("i");
+x.set_name("x");
+
+model.add_objective( i*x );
 }
 
 void small1(coek::Model& model) 
@@ -267,7 +279,7 @@ coek::Variable b("b", 0.0, 1.0, 0.0, true, false);
 model.add_variable(b);
 coek::Parameter q("q",2);
     
-model.add_objective( 3*a + q );
+model.add_objective( 3*a + q , model.maximize);
 model.add_constraint( 3*b + q - a <= 0 );
 model.add_constraint( 3*b + b == 0 );
 model.add_constraint( 3*b*a + q + b*b + b*b == 0 );
@@ -276,7 +288,55 @@ model.add_constraint( inequality(-7, 3*b*b + q - a*b - a*a, 7) );
 coek::Variable c = model.add_variable(0, COEK_INFINITY);
 coek::Variable d = model.add_variable(-COEK_INFINITY, 0);
 model.add_constraint(c + d == 0);
+coek::Variable e = model.add_variable("e");
+e.fix(1.0);
+model.add_constraint(e + 3*d == 1);
+model.add_constraint( inequality(7, 3*b + q - a, 7) );      // This is really an equality
 }
+
+void testing2(coek::Model& model)
+{
+coek::Variable a = model.add_variable("a", 0.0, 1.0, 0.0, false, true);
+coek::Variable b("b", 0.0, 1.0, 0.0, true, false);
+model.add_variable(b);
+coek::Parameter q("q",2);
+
+b.fix(2.0);    
+auto e = 3*a +  q+ a*a*a*(-a + b + 3*a + 3*b) + sin(-cos(a));        // This forces the use of a Negate term
+model.add_objective( e );
+}
+
+void testing3(coek::Model& model)
+{
+coek::Variable a = model.add_variable("a", 0.0, 1.0, 0.0, false, true);
+coek::Variable b("b", 0.0, 1.0, 0.0, true, false);
+model.add_variable(b);
+
+coek::Expression e(0);
+model.add_objective(e);
+model.add_constraint( a + b == 1 );
+}
+
+// Confirming logic counting for integer nonlinear variables
+void testing4(coek::Model& model)
+{
+auto x = model.add_variable("x", 0, 1, 0, true, false);
+auto y = model.add_variable("y", 0, 1, 0, true, false);
+auto z = model.add_variable("z", 0, 1, 0, true, false);
+auto a = model.add_variable("a", 0, 1, 0, false, true);
+auto b = model.add_variable("b", 0, 1, 0, true, false);
+
+model.add_objective(a+cos(x)+cos(y));
+model.add_constraint(b+cos(y)+cos(z) == 1);
+}
+
+// Confirming logic for variables with same upper-and-lower bounds
+void testing5(coek::Model& model)
+{
+auto x = model.add_variable("x", 2, 2, 0);
+model.add_objective(x);
+}
+
 
 void compact1(coek::CompactModel& model)
 {
@@ -313,6 +373,7 @@ std::string fname = name + "." + suffix;
 std::string baseline = currdir + "/baselines/" + fname;
 model.write(fname);
 auto same = compare_files(fname, baseline);
+std::cout << "name " << name << " " << same << std::endl;
 if (same) {
     if( std::remove( fname.c_str() ) != 0 )
         return false;
@@ -403,6 +464,28 @@ SECTION( "error3" ) {
     }
 
 SECTION( "error4" ) {
+    error4(model);
+    REQUIRE_THROWS_WITH(model.write("error3.nl"),
+        "Error writing NL file: Unexpected index parameter.");
+    std::remove("error3.nl");
+    REQUIRE_THROWS_WITH(model.write("error3.fmtnl"),
+        "Error writing NL file: Unexpected index parameter.");
+    std::remove("error3.fmtnl");
+    REQUIRE_THROWS_WITH(model.write("error3.ostrnl"),
+        "Error writing NL file: Unexpected index parameter.");
+    std::remove("error3.ostrnl");
+    REQUIRE_THROWS_WITH(model.write("error3.lp"),
+        "Error writing LP file: Unexpected index parameter.");
+    std::remove("error3.lp");
+    REQUIRE_THROWS_WITH(model.write("error3.fmtlp"),
+        "Error writing LP file: Unexpected index parameter.");
+    std::remove("error3.fmtlp");
+    REQUIRE_THROWS_WITH(model.write("error3.ostrlp"),
+        "Error writing LP file: Unexpected index parameter.");
+    std::remove("error3.ostrlp");
+    }
+
+SECTION( "error5" ) {
     error1(model);
     REQUIRE_THROWS_WITH(model.write("error1.bad"),
         "Unknown problem type: error1.bad");
@@ -417,67 +500,91 @@ SECTION( "small1" ) {
 SECTION( "small2" ) {
     small2(model);
     for (const std::string& suffix : linear)
-        run_test(model, "small2", suffix);
+        REQUIRE( run_test(model, "small2", suffix) );
     }
 
 SECTION( "small3" ) {
     small3(model);
     for (const std::string& suffix : linear)
-        run_test(model, "small3", suffix);
+        REQUIRE( run_test(model, "small3", suffix) );
     }
 
 SECTION( "small4" ) {
     small4(model);
     for (const std::string& suffix : linear)
-        run_test(model, "small4", suffix);
+        REQUIRE( run_test(model, "small4", suffix) );
     }
 
 SECTION( "small5" ) {
     small5(model);
     for (const std::string& suffix : nonlinear)
-        run_test(model, "small5", suffix);
+        REQUIRE( run_test(model, "small5", suffix) );
     }
 
 SECTION( "small6" ) {
     small6(model);
     for (const std::string& suffix : nonlinear)
-        run_test(model, "small6", suffix);
+        REQUIRE( run_test(model, "small6", suffix) );
     }
 
 SECTION( "small7" ) {
     small7(model);
     for (const std::string& suffix : nonlinear)
-        run_test(model, "small7", suffix);
+        REQUIRE( run_test(model, "small7", suffix) );
     }
 
 SECTION( "small8" ) {
     small8(model);
     for (const std::string& suffix : linear)
-        run_test(model, "small8", suffix);
+        REQUIRE( run_test(model, "small8", suffix) );
     }
 
 SECTION( "small9" ) {
     small9(model);
     for (const std::string& suffix : nonlinear)
-        run_test(model, "small9", suffix);
+        REQUIRE( run_test(model, "small9", suffix) );
     }
 
 SECTION( "small13" ) {
     small13(model);
     for (const std::string& suffix : nonlinear)
-        run_test(model, "small13", suffix);
+        REQUIRE( run_test(model, "small13", suffix) );
     }
 
 SECTION( "small14" ) {
     small14(model);
     for (const std::string& suffix : nonlinear)
-        run_test(model, "small14", suffix);
+        REQUIRE( run_test(model, "small14", suffix) );
     }
 
 SECTION( "testing1" ) {
     testing1(model);
     for (const std::string& suffix : linear)
-        run_test(model, "testing1", suffix);
+        REQUIRE( run_test(model, "testing1", suffix) );
+    }
+
+SECTION( "testing2" ) {
+    testing2(model);
+    for (const std::string& suffix : nonlinear)
+        REQUIRE( run_test(model, "testing2", suffix) );
+    }
+
+SECTION( "testing3" ) {
+    testing3(model);
+    for (const std::string& suffix : nonlinear)
+        REQUIRE( run_test(model, "testing3", suffix) );
+    }
+
+SECTION( "testing4" ) {
+    testing4(model);
+    for (const std::string& suffix : nonlinear)
+        REQUIRE( run_test(model, "testing4", suffix) );
+    }
+
+SECTION( "testing5" ) {
+    testing5(model);
+    for (const std::string& suffix : linear)
+        REQUIRE( run_test(model, "testing5", suffix) );
     }
 
 // TODO - Add separate NLP writer tests to confirm the variable mappings
@@ -485,7 +592,7 @@ SECTION( "testing1-nlp" ) {
     testing1(model);
     coek::NLPModel nlp(model,"cppad");
     for (const std::string& suffix : linear)
-        run_test(nlp, "testing1", suffix);
+        REQUIRE( run_test(nlp, "testing1", suffix) );
     }
 }
 
