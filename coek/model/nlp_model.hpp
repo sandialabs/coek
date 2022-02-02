@@ -53,13 +53,11 @@ public:
 
     /** \returns the i-th variable in the model view */
     Variable get_variable(size_t i);
-    /** Sets the i-th variable in the model view */
-    void set_variable(size_t i, const Variable& v);
 
-    /** Sets the value of variables in the model view */
-    void set_variables(std::vector<double>& x);
-    /** Sets the value of variables in the model view */
-    void set_variables(const double* x, size_t n);
+    /** Sets the value of variables used in the model view */
+    void set_variable_view(std::vector<double>& x);
+    /** Sets the value of variables used in the model view */
+    void set_variable_view(const double* x, size_t n);
 
     /** \returns the i-th objective in the model view */
     Objective get_objective(size_t i);
@@ -124,7 +122,7 @@ public:
       */
     double compute_f(std::vector<double>& x)
         {
-        set_variables(x);
+        set_variable_view(x);
         return compute_f(0);
         }
     /**
@@ -139,7 +137,7 @@ public:
       */
     double compute_f(std::vector<double>& x, unsigned int i)
         {
-        set_variables(x);
+        set_variable_view(x);
         return compute_f(i);
         }
 
@@ -193,7 +191,7 @@ public:
       */
     void compute_df(std::vector<double>& x, std::vector<double>& df, unsigned int i)
         {
-        set_variables(x);
+        set_variable_view(x);
         double f;
         compute_df(f, df, i);
         }
@@ -207,7 +205,7 @@ public:
       */
     void compute_df(std::vector<double>& x, std::vector<double>& df)
         {
-        set_variables(x);
+        set_variable_view(x);
         double f;
         compute_df(f, df, 0);
         }
@@ -232,7 +230,7 @@ public:
       */
     void compute_H(std::vector<double>& x, std::vector<double>& w, std::vector<double>& H)
         {
-        set_variables(x);
+        set_variable_view(x);
         compute_H(w, H);
         }
 
@@ -254,7 +252,7 @@ public:
       */
     void compute_c(std::vector<double>& x, std::vector<double>& c)
         {
-        set_variables(x);
+        set_variable_view(x);
         compute_c(c);
         }
 
@@ -278,7 +276,7 @@ public:
       */
     void compute_dc(std::vector<double>& x, std::vector<double>& dc, unsigned int i)
         {
-        set_variables(x);
+        set_variable_view(x);
         compute_dc(dc, i);
         }
 
@@ -300,7 +298,7 @@ public:
       */
     void compute_J(std::vector<double>& x, std::vector<double>& J)
         {
-        set_variables(x);
+        set_variable_view(x);
         compute_J(J);
         }
 }; 

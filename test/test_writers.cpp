@@ -479,6 +479,14 @@ SECTION( "testing1" ) {
     for (const std::string& suffix : linear)
         run_test(model, "testing1", suffix);
     }
+
+// TODO - Add separate NLP writer tests to confirm the variable mappings
+SECTION( "testing1-nlp" ) {
+    testing1(model);
+    coek::NLPModel nlp(model,"cppad");
+    for (const std::string& suffix : linear)
+        run_test(nlp, "testing1", suffix);
+    }
 }
 
 #ifdef DEBUG

@@ -36,8 +36,13 @@ arg.print_equations(ostr);
 return ostr;
 }
 
+// GCOVR_EXCL_START
 void Model::print_equations() const
 { print_equations(std::cout); }
+
+void Model::print_values() const
+{ print_values(std::cout); }
+// GCOVR_EXCL_STOP
 
 void Model::print_equations(std::ostream& ostr) const
 {
@@ -51,9 +56,6 @@ for (auto it=repn->constraints.begin(); it != repn->constraints.end(); ++it) {
     ostr << "    " << *it << std::endl;
     }
 }
-
-void Model::print_values() const
-{ print_values(std::cout); }
 
 void Model::print_values(std::ostream& ostr) const
 {

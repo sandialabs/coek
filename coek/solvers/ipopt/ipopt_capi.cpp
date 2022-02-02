@@ -281,7 +281,7 @@ bool IpoptModel::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 //std::cout << "EVAL F " << std::endl << std::flush;
 if (new_x) {
     //std::cout << "Set Vars " << std::endl << std::flush;
-    model.set_variables(x, static_cast<size_t>(n));
+    model.set_variable_view(x, static_cast<size_t>(n));
     }
 
 //std::cout << "Compute F - START" << std::endl << std::flush;
@@ -298,7 +298,7 @@ bool IpoptModel::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_
 //std::cout << "EVAL DF " << std::endl << std::flush;
 if (new_x) {
     //std::cout << "Set Vars " << std::endl << std::flush;
-    model.set_variables(x, static_cast<size_t>(n));
+    model.set_variable_view(x, static_cast<size_t>(n));
     }
 
 //std::cout << "Compute DF - START" << std::endl << std::flush;
@@ -319,7 +319,7 @@ bool IpoptModel::eval_g(Index n, const Number* x, bool new_x, Index /*m*/, Numbe
 //std::cout << "EVAL G " << std::endl << std::flush;
 if (new_x) {
     //std::cout << "Set Vars " << std::endl << std::flush;
-    model.set_variables(x, static_cast<size_t>(n));
+    model.set_variable_view(x, static_cast<size_t>(n));
     }
 
 //std::cout << "Compute G - START" << std::endl << std::flush;
@@ -360,7 +360,7 @@ else {
     //std::cout << "nele_jac " << nele_jac << std::endl << std::flush;
     // Return the values of the Jacobian of the constraints
     if (new_x) {
-        model.set_variables(x, static_cast<size_t>(n));
+        model.set_variable_view(x, static_cast<size_t>(n));
         }
     model.compute_J(tmp_j);
     for (size_t i=0; i<tmp_j.size(); i++)
@@ -399,7 +399,7 @@ if (values == NULL) {
 else {
     // Return the values of the Hessian
     if (new_x) {
-        model.set_variables(x, static_cast<size_t>(n));
+        model.set_variable_view(x, static_cast<size_t>(n));
         }
     size_t nf = model.num_objectives();
     size_t nc = model.num_constraints();

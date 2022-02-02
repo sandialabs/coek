@@ -44,32 +44,14 @@ TEST_CASE( "cppad_add", "[smoke]" ) {
     coek::NLPModel m;
     m.initialize(model, "cppad");
 
-/*
-    WHEN ( "Set on variable" ) {
-        coek::Variable z("z",1,2,1);
-        m.set_variable(0, z);
-        auto Z = m.get_variable(0);
-        REQUIRE( Z.get_name() == "x" );
-        //REQUIRE( Z.get_lb() == 1 );
-        //REQUIRE( Z.get_ub() == 2 );
-        //REQUIRE( Z.get_value() == 1 );
-        }
-
     WHEN ( "Set vector of values" ) {
-        auto X = m.get_variable(0);
-        REQUIRE( X.get_value() == 0.0 );
-        auto Y = m.get_variable(1);
-        REQUIRE( Y.get_value() == 0.0 );
+        REQUIRE( m.compute_f() == 0.0 );
 
         std::vector<double> tmp = {1.0, 2.0};
-        m.set_variables(tmp);
+        m.set_variable_view(tmp);
 
-        auto XX = m.get_variable(0);
-        REQUIRE( XX.get_value() == 0.0 );
-        auto YY = m.get_variable(1);
-        REQUIRE( YY.get_value() == 0.0 );
+        REQUIRE( m.compute_f() == 3.0 );
         }
-*/
     }
 
   SECTION( "Add Objective" ) {
@@ -104,13 +86,18 @@ TEST_CASE( "cppad_add", "[smoke]" ) {
     auto y = model.add_variable("y",0,1,0);
 
     auto e = x + y <= 0;
-    model.add_constraint(e);
+    model.add_constraint("c", e);
 
     coek::NLPModel m;
     m.initialize(model, "cppad");
     REQUIRE( m.num_variables() == 2 );
     REQUIRE( m.num_objectives() == 0 );
     REQUIRE( m.num_constraints() == 1 );
+
+    auto c = m.get_constraint(0);
+    REQUIRE( c.get_name() == "c" );
+
+    REQUIRE_THROWS(m.get_constraint(1), "");
     }
 
   SECTION( "Add Equality" ) {

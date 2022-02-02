@@ -48,13 +48,10 @@ size_t NLPModel::num_nonzeros_Hessian_Lagrangian() const
 Variable NLPModel::get_variable(size_t i)
 { return repn->get_variable(i); }
 
-void NLPModel::set_variable(size_t i, const Variable& v)
-{ repn->set_variable(i, v.repn); }
-
-void NLPModel::set_variables(std::vector<double>& x)
+void NLPModel::set_variable_view(std::vector<double>& x)
 { repn->set_variables(x); }
 
-void NLPModel::set_variables(const double* x, size_t n)
+void NLPModel::set_variable_view(const double* x, size_t n)
 { repn->set_variables(x, n); }
 
 Objective NLPModel::get_objective(size_t i)
@@ -91,20 +88,22 @@ void NLPModel::write(std::string fname)
 {
 std::map<int,int> varmap;
 std::map<int,int> conmap;
-repn->model.write(fname, varmap, conmap);
+write(fname, varmap, conmap);
 }
 
 void NLPModel::write(std::string fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
 { repn->model.write(fname, varmap, conmap); }
 
+// GCOVR_EXCL_START
 void NLPModel::print_equations() const
 { print_equations(std::cout); }
 
-void NLPModel::print_equations(std::ostream& ostr) const
-{ repn->print_equations(ostr); }
-
 void NLPModel::print_values() const
 { print_values(std::cout); }
+// GCOVR_EXCL_STOP
+
+void NLPModel::print_equations(std::ostream& ostr) const
+{ repn->print_equations(ostr); }
 
 void NLPModel::print_values(std::ostream& ostr) const
 { repn->print_values(ostr); }
