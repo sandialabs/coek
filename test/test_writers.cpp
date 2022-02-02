@@ -402,6 +402,12 @@ SECTION( "error3" ) {
     std::remove("error3.ostrlp");
     }
 
+SECTION( "error4" ) {
+    error1(model);
+    REQUIRE_THROWS_WITH(model.write("error1.bad"),
+        "Unknown problem type: error1.bad");
+    }
+
 SECTION( "small1" ) {
     small1(model);
     for (const std::string& suffix : linear)

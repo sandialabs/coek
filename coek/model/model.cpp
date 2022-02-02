@@ -98,7 +98,7 @@ Variable tmp(name,lb,ub,value,binary,integer);
 repn->variables.push_back(tmp);
 if (name != "")
     repn->variables_by_name.emplace(name, tmp);
-return tmp;
+return repn->variables.back();
 }
 
 Variable Model::add_variable(const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer)
@@ -114,7 +114,7 @@ Variable tmp(name,lb,ub,value,binary,integer);
 repn->variables.push_back(tmp);
 if (name != "")
     repn->variables_by_name.emplace(name, tmp);
-return tmp;
+return repn->variables.back();
 }
 
 Variable Model::add_variable(Variable& var)
@@ -190,8 +190,8 @@ size_t Model::num_constraints() const
 
 Variable Model::get_variable(unsigned int i)
 {
-if (i > repn->variables.size())
-    throw std::out_of_range("Variable index " + std::to_string(i) + " is too large: " + std::to_string(repn->variables.size()) + "       variables available.");
+if (i >= repn->variables.size())
+    throw std::out_of_range("Variable index " + std::to_string(i) + " is too large: " + std::to_string(repn->variables.size()) + " variables available.");
 return repn->variables[i];
 }
 
@@ -200,15 +200,15 @@ std::vector<Variable>& Model::get_variables()
 
 Objective Model::get_objective(unsigned int i)
 {
-if (i > repn->objectives.size())
-    throw std::out_of_range("Objective index " + std::to_string(i) + " is too large: " + std::to_string(repn->objectives.size()) + "       objectives available.");
+if (i >= repn->objectives.size())
+    throw std::out_of_range("Objective index " + std::to_string(i) + " is too large: " + std::to_string(repn->objectives.size()) + " objectives available.");
 return repn->objectives[i];
 }
 
 Constraint Model::get_constraint(unsigned int i)
 {
-if (i > repn->constraints.size())
-    throw std::out_of_range("Constraint index " + std::to_string(i) + " is too large: " + std::to_string(repn->constraints.size()) + "      constraints available.");
+if (i >= repn->constraints.size())
+    throw std::out_of_range("Constraint index " + std::to_string(i) + " is too large: " + std::to_string(repn->constraints.size()) + " constraints available.");
 return repn->constraints[i];
 }
 
@@ -264,7 +264,7 @@ double Model::get_suffix(const std::string& name, Constraint& con)
 { return repn->csuffix[name][con.id()]; }
 
 double Model::get_suffix(const std::string& name, Objective& obj)
-{ return repn->csuffix[name][obj.id()]; }
+{ return repn->osuffix[name][obj.id()]; }
 
 double Model::get_suffix(const std::string& name)
 { return repn->msuffix[name]; }

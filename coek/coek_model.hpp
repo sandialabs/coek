@@ -756,6 +756,8 @@ public:
     /** Sets the value of variables in the model view */
     void set_variables(const double* x, size_t n);
 
+    /** \returns the i-th objective in the model view */
+    Objective get_objective(size_t i);
     /** \returns the i-th constraint in the model view */
     Constraint get_constraint(size_t i);
 

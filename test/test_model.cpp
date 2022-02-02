@@ -61,37 +61,108 @@ REQUIRE( coek::env.check_memory() == true );
 
 TEST_CASE( "model_setup", "[smoke]" ) {
 {
+coek::Parameter q("q",2);
 coek::Model model;
 coek::Variable a = model.add_variable("a",0.0, 1.0, 0.0, false, true);
 coek::Variable b("b", 0.0, 1.0, 0.0, true, false);
 model.add_variable(b);
-coek::Parameter q("q",2);
+auto c = model.add_variable(coek::Expression(0), coek::Expression(1), 3*q, true, false);
+auto d = model.add_variable("d", coek::Expression(0), coek::Expression(1), 4*q, true, false);
 
-  SECTION( "add" ) {
+  SECTION( "variables" ) {
 
-    WHEN( "objective" ) {
+    WHEN( "mutable initial values" ) {
+        REQUIRE( c.get_value() == 6 );
+        REQUIRE( d.get_value() == 8 );
+        q.set_value(3);
+        REQUIRE( c.get_value() == 9 );
+        REQUIRE( d.get_value() == 12 );
+        }
+
+    WHEN( "error1" ) {
+        REQUIRE( model.get_variable(0).get_name() == "a" );
+        REQUIRE_THROWS_WITH(model.get_variable(4),"Variable index 4 is too large: 4 variables available.");
+        }
+
+    WHEN( "error2" ) {
+        REQUIRE( model.get_variable("d").get_name() == "d" );
+        REQUIRE_THROWS_WITH(model.get_variable("e"),"Unknown variable name e");
+        }
+
+    WHEN( "suffix" ) {
+        model.set_suffix("varval", c, 2.0);
+        REQUIRE( model.get_suffix("varval", c) == 2.0 );
+        static std::set<std::string> names = {"varval"};
+        REQUIRE( model.variable_suffix_names() == names );
+        }
+    }
+
+  SECTION( "objectives" ) {
+
+    WHEN( "add" ) {
         coek::Expression e =  3*b + q;
         REQUIRE( model.num_objectives() == 0 );
         model.add_objective( e );
         REQUIRE( model.num_objectives() == 1 );
+        }
+
+    WHEN( "error1" ) {
+        model.add_objective( 3*b + q );
+        REQUIRE_THROWS_WITH(model.get_objective(1),"Objective index 1 is too large: 1 objectives available.");
+        }
+
+    WHEN( "error2" ) {
+        model.add_objective("obj", 3*b + q );
+        REQUIRE( model.get_objective("obj").get_name() == "obj" );
+        REQUIRE_THROWS_WITH(model.get_objective("OBJ"),"Unknown objective name OBJ");
+        }
+
+    WHEN( "suffix" ) {
+        auto o = model.add_objective("obj", 3*b + q );
+        model.set_suffix("objval", o, 2.0);
+        REQUIRE( model.get_suffix("objval", o) == 2.0 );
+        static std::set<std::string> names = {"objval"};
+        REQUIRE( model.objective_suffix_names() == names );
+        }
     }
+
+  SECTION( "constraints" ) {
 
     WHEN( "inequality" ) {
         coek::Constraint c = 3*b + q <= 0;
         REQUIRE( model.num_constraints() == 0 );
         model.add_constraint(c);
         REQUIRE( model.num_constraints() == 1 );
-    }
+        }
 
     WHEN( "equality" ) {
         coek::Constraint c = 3*b + q == 0;
         REQUIRE( model.num_constraints() == 0 );
         model.add_constraint(c);
         REQUIRE( model.num_constraints() == 1 );
-    }
-  }
+        }
 
-  SECTION( "model setup" ) {
+    WHEN( "error1" ) {
+        model.add_constraint( 3*b + q == 0);
+        REQUIRE_THROWS_WITH(model.get_constraint(1),"Constraint index 1 is too large: 1 constraints available.");
+        }
+
+    WHEN( "error2" ) {
+        model.add_constraint("c", 3*b + q == 0);
+        REQUIRE( model.get_constraint("c").get_name() == "c" );
+        REQUIRE_THROWS_WITH(model.get_constraint("C"),"Unknown constraint name C");
+        }
+
+    WHEN( "suffix" ) {
+        auto c = model.add_constraint("c", 3*b + q == 0);
+        model.set_suffix("conval", c, 2.0);
+        REQUIRE( model.get_suffix("conval", c) == 2.0 );
+        static std::set<std::string> names = {"conval"};
+        REQUIRE( model.constraint_suffix_names() == names );
+        }
+    }
+
+  SECTION( "model" ) {
     coek::Expression e0 = 3*a + q;
     model.add_objective( e0 );
 
@@ -112,8 +183,15 @@ coek::Parameter q("q",2);
     3*b + q <= 0\n\
     3*b + q == 0\n\
 ");
+        }
+
+    WHEN( "suffix" ) {
+        model.set_suffix("mval", 2.0);
+        REQUIRE( model.get_suffix("mval") == 2.0 );
+        static std::set<std::string> names = {"mval"};
+        REQUIRE( model.model_suffix_names() == names );
+        }
     }
-  }
 
 }
 #ifdef DEBUG

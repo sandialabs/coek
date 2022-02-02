@@ -600,8 +600,8 @@ namespace {
 void visit_expression(expr_pointer_t expr, 
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
-                    std::map<VariableTerm*,int>& fixed_variables,
-                    std::map<ParameterTerm*,int>& parameters,
+                    std::map<VariableTerm*,size_t>& fixed_variables,
+                    std::map<ParameterTerm*,size_t>& parameters,
                     std::vector<CppAD::AD<double> >& ADvars,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans);
@@ -610,8 +610,8 @@ void visit_expression(expr_pointer_t expr,
 void visit(ConstantTerm& expr, 
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
-                    std::map<VariableTerm*,int>& fixed_variables,
-                    std::map<ParameterTerm*,int>& parameters,
+                    std::map<VariableTerm*,size_t>& fixed_variables,
+                    std::map<ParameterTerm*,size_t>& parameters,
                     std::vector<CppAD::AD<double> >& ADvars,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)
@@ -622,8 +622,8 @@ ans += expr.value;
 void visit(ParameterTerm& expr,
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
-                    std::map<VariableTerm*,int>& fixed_variables,
-                    std::map<ParameterTerm*,int>& parameters,
+                    std::map<VariableTerm*,size_t>& fixed_variables,
+                    std::map<ParameterTerm*,size_t>& parameters,
                     std::vector<CppAD::AD<double> >& ADvars,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)
@@ -634,8 +634,8 @@ ans += dynamic_params[parameters[&expr]];
 void visit(VariableTerm& expr,
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
-                    std::map<VariableTerm*,int>& fixed_variables,
-                    std::map<ParameterTerm*,int>& parameters,
+                    std::map<VariableTerm*,size_t>& fixed_variables,
+                    std::map<ParameterTerm*,size_t>& parameters,
                     std::vector<CppAD::AD<double> >& ADvars,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)
@@ -649,8 +649,8 @@ else
 void visit(MonomialTerm& expr,
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
-                    std::map<VariableTerm*,int>& fixed_variables,
-                    std::map<ParameterTerm*,int>& parameters,
+                    std::map<VariableTerm*,size_t>& fixed_variables,
+                    std::map<ParameterTerm*,size_t>& parameters,
                     std::vector<CppAD::AD<double> >& ADvars,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)
@@ -664,8 +664,8 @@ else
 void visit(InequalityTerm& expr,
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
-                    std::map<VariableTerm*,int>& fixed_variables,
-                    std::map<ParameterTerm*,int>& parameters,
+                    std::map<VariableTerm*,size_t>& fixed_variables,
+                    std::map<ParameterTerm*,size_t>& parameters,
                     std::vector<CppAD::AD<double> >& ADvars,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)
@@ -676,8 +676,8 @@ visit_expression(expr.body, cache, used_variables, fixed_variables, parameters, 
 void visit(EqualityTerm& expr,
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
-                    std::map<VariableTerm*,int>& fixed_variables,
-                    std::map<ParameterTerm*,int>& parameters,
+                    std::map<VariableTerm*,size_t>& fixed_variables,
+                    std::map<ParameterTerm*,size_t>& parameters,
                     std::vector<CppAD::AD<double> >& ADvars,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)
@@ -688,8 +688,8 @@ visit_expression(expr.body, cache, used_variables, fixed_variables, parameters, 
 void visit(ObjectiveTerm& expr,
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
-                    std::map<VariableTerm*,int>& fixed_variables,
-                    std::map<ParameterTerm*,int>& parameters,
+                    std::map<VariableTerm*,size_t>& fixed_variables,
+                    std::map<ParameterTerm*,size_t>& parameters,
                     std::vector<CppAD::AD<double> >& ADvars,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)
@@ -700,8 +700,8 @@ visit_expression(expr.body, cache, used_variables, fixed_variables, parameters, 
 void visit(NegateTerm& expr,
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
-                    std::map<VariableTerm*,int>& fixed_variables,
-                    std::map<ParameterTerm*,int>& parameters,
+                    std::map<VariableTerm*,size_t>& fixed_variables,
+                    std::map<ParameterTerm*,size_t>& parameters,
                     std::vector<CppAD::AD<double> >& ADvars,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)
@@ -714,8 +714,8 @@ ans += - body;
 void visit(PlusTerm& expr,
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
-                    std::map<VariableTerm*,int>& fixed_variables,
-                    std::map<ParameterTerm*,int>& parameters,
+                    std::map<VariableTerm*,size_t>& fixed_variables,
+                    std::map<ParameterTerm*,size_t>& parameters,
                     std::vector<CppAD::AD<double> >& ADvars,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)
@@ -733,8 +733,8 @@ for( ; it != end; ++it) {
 void visit(TimesTerm& expr,
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
-                    std::map<VariableTerm*,int>& fixed_variables,
-                    std::map<ParameterTerm*,int>& parameters,
+                    std::map<VariableTerm*,size_t>& fixed_variables,
+                    std::map<ParameterTerm*,size_t>& parameters,
                     std::vector<CppAD::AD<double> >& ADvars,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)
@@ -749,8 +749,8 @@ ans += lhs*rhs;
 void visit(DivideTerm& expr,
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
-                    std::map<VariableTerm*,int>& fixed_variables,
-                    std::map<ParameterTerm*,int>& parameters,
+                    std::map<VariableTerm*,size_t>& fixed_variables,
+                    std::map<ParameterTerm*,size_t>& parameters,
                     std::vector<CppAD::AD<double> >& ADvars,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)
@@ -766,8 +766,8 @@ ans += lhs/rhs;
 void visit(TERM& expr,\
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,\
                     std::unordered_map<VariableTerm*,int>& used_variables,\
-                    std::map<VariableTerm*,int>& fixed_variables,\
-                    std::map<ParameterTerm*,int>& parameters,\
+                    std::map<VariableTerm*,size_t>& fixed_variables,\
+                    std::map<ParameterTerm*,size_t>& parameters,\
                     std::vector<CppAD::AD<double> >& ADvars,\
                     std::vector<CppAD::AD<double> >& dynamic_params,\
                     CppAD::AD<double>& ans)\
@@ -801,8 +801,8 @@ UNARY_VISITOR(ATanhTerm, atanh)
 void visit(TERM& expr,\
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,\
                     std::unordered_map<VariableTerm*,int>& used_variables,\
-                    std::map<VariableTerm*,int>& fixed_variables,\
-                    std::map<ParameterTerm*,int>& parameters,\
+                    std::map<VariableTerm*,size_t>& fixed_variables,\
+                    std::map<ParameterTerm*,size_t>& parameters,\
                     std::vector<CppAD::AD<double> >& ADvars,\
                     std::vector<CppAD::AD<double> >& dynamic_params,\
                     CppAD::AD<double>& ans)\
@@ -819,8 +819,8 @@ ans += CppAD::FN(lhs,rhs);\
 void visit(PowTerm& expr,
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
-                    std::map<VariableTerm*,int>& fixed_variables,
-                    std::map<ParameterTerm*,int>& parameters,
+                    std::map<VariableTerm*,size_t>& fixed_variables,
+                    std::map<ParameterTerm*,size_t>& parameters,
                     std::vector<CppAD::AD<double> >& ADvars,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)
@@ -851,8 +851,8 @@ ans += CppAD::pow(lhs,rhs);
 void visit_expression(expr_pointer_t expr, 
                     std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
                     std::unordered_map<VariableTerm*,int>& used_variables,
-                    std::map<VariableTerm*,int>& fixed_variables,
-                    std::map<ParameterTerm*,int>& parameters,
+                    std::map<VariableTerm*,size_t>& fixed_variables,
+                    std::map<ParameterTerm*,size_t>& parameters,
                     std::vector<CppAD::AD<double> >& ADvars,
                     std::vector<CppAD::AD<double> >& dynamic_params,
                     CppAD::AD<double>& ans)

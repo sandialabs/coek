@@ -34,9 +34,11 @@ namespace {
 
 inline unsigned int get_vid_value(const std::unordered_map<unsigned int,unsigned int>& vid, unsigned int id)
 {
+#if 0
 for (auto& i: vid) 
   std::cout << "A " << i.first << " " << i.second << std::endl;
 std::cout << "AA " << id << std::endl;
+#endif
 /* C++-17
 if (auto it{ vid.find(id) };  it != vid.end() )
     return it->second;
@@ -50,7 +52,7 @@ throw std::runtime_error("Error writing LP file: Model expressions contain varia
 
 void print_repn(std::ostream& ostr, const QuadraticExpr& repn, const std::unordered_map<unsigned int,unsigned int>& vid)
 {
-#if 1
+#if 0
 unsigned int ii=0;
 for (std::vector<VariableTerm*>::const_iterator it=repn.linear_vars.begin(); it != repn.linear_vars.end(); ++it, ++ii) {
    std::cout << "X " << ii << " " << (*it)->index << std::endl;
@@ -409,7 +411,7 @@ ostr.close();
 #ifdef WITH_FMTLIB
 void print_repn(fmt::ostream& ostr, const QuadraticExpr& repn, const std::unordered_map<unsigned int, unsigned int>& vid)
 {
-#if 1
+#if 0
 unsigned int ii=0;
 for (std::vector<VariableTerm*>::const_iterator it=repn.linear_vars.begin(); it != repn.linear_vars.end(); ++it, ++ii) {
    std::cout << "Y " << ii << " " << (*it)->index << std::endl;
