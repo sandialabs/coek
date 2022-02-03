@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
   CALI_MARK_BEGIN("main");
   
   if (argc == 1) {
-    cout << "lqcp <size> <action=lp,nl,gurobi,ipopt>" << endl;
+    cout << "lqcp <size> <action=lp,nl,fmtlp,ostrlp,fmtnl,ostrnl,gurobi,ipopt>" << endl;
     return 0;
     }
 

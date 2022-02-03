@@ -37,11 +37,6 @@ namespace {
 
 inline unsigned int get_vid_value(const std::unordered_map<unsigned int,unsigned int>& vid, unsigned int id)
 {
-#if 0
-for (auto& i: vid) 
-  std::cout << "A " << i.first << " " << i.second << std::endl;
-std::cout << "AA " << id << std::endl;
-#endif
 /* C++-17
 if (auto it{ vid.find(id) };  it != vid.end() )
     return it->second;
@@ -55,31 +50,25 @@ throw std::runtime_error("Model expressions contain variable that is not declare
 
 void print_repn(std::ostream& ostr, const QuadraticExpr& repn, const std::unordered_map<unsigned int,unsigned int>& vid)
 {
-#if 0
-unsigned int ii=0;
-for (std::vector<VariableTerm*>::const_iterator it=repn.linear_vars.begin(); it != repn.linear_vars.end(); ++it, ++ii) {
-   std::cout << "X " << ii << " " << (*it)->index << std::endl;
-   }
-#endif
-
 CALI_CXX_MARK_FUNCTION;
 
 if (repn.linear_coefs.size() > 0) {
     std::map<unsigned int,double> vval;
     unsigned int i=0;
-    for (std::vector<VariableTerm*>::const_iterator it=repn.linear_vars.begin(); it != repn.linear_vars.end(); ++it, ++i) {
-        unsigned int index = get_vid_value(vid, (*it)->index);
+    for (auto& it: repn.linear_vars) {
+        unsigned int index = get_vid_value(vid, it->index);
 
         std::map<unsigned int,double>::iterator curr = vval.find(index);
         if (curr == vval.end())
             vval[index] = repn.linear_coefs[i];
         else
             vval[index] += repn.linear_coefs[i];
+        i++;
         }
 
-    for (std::map<unsigned int,double>::iterator it=vval.begin(); it != vval.end(); ++it) {
-        i = it->first;
-        double tmp = it->second;
+    for (auto& it: vval) {
+        i = it.first;
+        double tmp = it.second;
         if (tmp > 0)
             ostr << "+" << tmp << " x(" << i << ")\n";
         else if (tmp < 0)
@@ -107,9 +96,9 @@ if (repn.quadratic_coefs.size() > 0) {
         }
 
     ostr << "+ [\n";
-    for (auto it=qval.begin(); it != qval.end(); ++it) {
-        const std::pair<unsigned int,unsigned int>& tmp = it->first;
-        double val = it->second;
+    for (auto& it: qval) {
+        const std::pair<unsigned int,unsigned int>& tmp = it.first;
+        double val = it.second;
         if (tmp.first == tmp.second) {
             if (val > 0)
                 ostr << "+" << val << " x(" << tmp.first << ") ^ 2\n";
@@ -204,9 +193,9 @@ if (model.repn->objectives.size() > 1) {
 std::unordered_map<unsigned int,unsigned int> vid;
 {
 unsigned int ctr=0;
-for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
-    vid[(*it).id()] = ctr;
-    invvarmap[ctr] = (*it).id();
+for(auto& it: model.repn->variables) {
+    vid[it.id()] = ctr;
+    invvarmap[ctr] = it.id();
     ++ctr;
     }
 }
@@ -249,8 +238,8 @@ if (one_var_constant) {
 std::map<unsigned int,VariableTerm*> bvars;
 std::map<unsigned int,VariableTerm*> ivars;
 ostr << "\nbounds\n";
-for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
-    VariableTerm* v = it->repn;
+for(auto& it: model.repn->variables) {
+    VariableTerm* v = it.repn;
     if (v->fixed)       // The values of fixed variables are included above
         continue;
 
@@ -273,14 +262,14 @@ for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != mode
 
 if (bvars.size() > 0) {
     ostr << "\nbinary\n";
-    for(std::map<unsigned int,VariableTerm*>::iterator it=bvars.begin(); it != bvars.end(); ++it)
-        ostr << "x(" << it->first << ")\n";
+    for(auto& it: bvars)
+        ostr << "x(" << it.first << ")\n";
     }
 
 if (ivars.size() > 0) {
     ostr << "\ninteger\n";
-    for(std::map<unsigned int,VariableTerm*>::iterator it=ivars.begin(); it != ivars.end(); ++it)
-        ostr << "x(" << it->first << ")\n";
+    for(auto& it: ivars)
+        ostr << "x(" << it.first << ")\n";
     }
 
 ostr << "\nend\n";
@@ -360,7 +349,7 @@ if (nobj > 1) {
 ostr << "\nsubject to\n\n";
 
 //
-// Simple contraints
+// Simple constraints
 //
 unsigned int ctr=0;
 for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it) {
@@ -433,13 +422,6 @@ ostr.close();
 #ifdef WITH_FMTLIB
 void print_repn(fmt::ostream& ostr, const QuadraticExpr& repn, const std::unordered_map<unsigned int, unsigned int>& vid)
 {
-#if 0
-unsigned int ii=0;
-for (std::vector<VariableTerm*>::const_iterator it=repn.linear_vars.begin(); it != repn.linear_vars.end(); ++it, ++ii) {
-   std::cout << "Y " << ii << " " << (*it)->index << std::endl;
-   }
-#endif
-
 CALI_CXX_MARK_FUNCTION;
 
 if (repn.linear_coefs.size() > 0) {
@@ -457,9 +439,6 @@ if (repn.linear_coefs.size() > 0) {
     for (auto it=vval.begin(); it != vval.end(); ++it) {
         i = it->first;
         double tmp = it->second;
-        //if (tmp > 0)
-        //    ostr.print("+{} x({})\n", tmp, i);     // << "+" << tmp << " x(" << i << ")\n";
-        //else if (tmp < 0)
         if (tmp != 0)
             ostr.print("{:+} x({})\n", tmp, i);      // << tmp << " x(" << i << ")\n";
         }
@@ -518,9 +497,7 @@ print_repn(ostr, expr, vid);
 double tmp = expr.constval;
 if (tmp != 0) {
     one_var_constant=true;
-    //if (tmp > 0)
-    //    ostr.print("+");
-    ostr.print("{:+} ONE_VAR_CONSTANT\n", tmp);   // << tmp << " ONE_VAR_CONSTANT\n";
+    ostr.print("{:+} ONE_VAR_CONSTANT\n", tmp);
     }
 }
 
@@ -536,28 +513,26 @@ double tmp = expr.constval;
 auto lower = c.get_lower();
 auto upper = c.get_upper();
 
-ostr.print("c{}:\n", ctr);  // << "c" << ctr << ":\n";
+ostr.print("c{}:\n", ctr);
 ++ctr;
 CALI_MARK_END("collect_terms");
 
 bool is_equality = not c.is_inequality() or (lower.repn and upper.repn and (fabs(lower.get_value()-upper.get_value()) < EPSILON));
 
 if (not is_equality) {
-    //CALI_MARK_BEGIN("IF");
     if (lower.repn) {
-        ostr.print("{} <= ", lower.get_value() - tmp);      // << lower.get_value() - tmp << " <= ";
+        ostr.print("{} <= ", lower.get_value() - tmp);
         }
     print_repn(ostr, expr, vid);
     if (upper.repn) {
-        ostr.print(" <= {}", upper.get_value() - tmp);      // << " <= " << upper.get_value() - tmp;
+        ostr.print(" <= {}", upper.get_value() - tmp);
         }
     ostr.print("\n\n");
-    //CALI_MARK_END("IF");
     }
 else {
     print_repn(ostr, expr, vid);
     CALI_MARK_BEGIN("ELSE");
-    ostr.print("= {}\n\n", lower.get_value() - tmp);        // << "= " << lower.get_value() - tmp << "\n\n";
+    ostr.print("= {}\n\n", lower.get_value() - tmp);
     CALI_MARK_END("ELSE");
     }
 }
