@@ -108,9 +108,10 @@ public:
 };
 
 
+class DummyConstraintTerm;
+class DummyObjectiveTerm;
 #ifdef WITH_AST_ENV
 }
-class DummyConstraintTerm;
 #include "constraint_terms.hpp"
 
 namespace coek {
