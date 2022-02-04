@@ -338,11 +338,13 @@ model.add_objective(x);
 }
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void compact1(coek::CompactModel& model)
 {
 auto v = model.add_variable("v");
 model.add_objective(v);
 }
+#endif
 
 bool compare_files(const std::string& fname1, const std::string& fname2)
 {
@@ -662,6 +664,7 @@ SECTION( "error3" ) {
 #endif
     }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 #if 0
 SECTION( "compact1" ) {
     compact1(model);
@@ -669,7 +672,7 @@ SECTION( "compact1" ) {
         run_test(model, "compact1", suffix);
     }
 #endif
-
+#endif
 }
 
 #ifdef DEBUG

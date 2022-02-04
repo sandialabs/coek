@@ -129,10 +129,17 @@ if (repn.linear_coefs.size() > 0) {
     for (auto& it: repn.linear_vars) {
         size_t index = get_vid_value(vid, it->index);
 
+        std::map<size_t,double>::iterator curr = vval.find(index);
+        if (curr == vval.end())
+            vval[index] = repn.linear_coefs[i];
+        else
+            curr->second += repn.linear_coefs[i];
+#if 0
         if (auto jt{ vval.find(index) };  jt != vval.end() )
             jt->second += repn.linear_coefs[i];
         else
             vval[index ] = repn.linear_coefs[i];
+#endif
         i++;
         }
 
@@ -155,10 +162,17 @@ if (repn.quadratic_coefs.size() > 0) {
         else
             tmp = std::pair<size_t,size_t>(rindex, lindex);
 
+        auto curr = qval.find(tmp);
+        if (curr == qval.end())
+            qval[ tmp ] = repn.quadratic_coefs[ii];
+        else
+            curr->second += repn.quadratic_coefs[ii];
+#if 0
         if (auto it{ qval.find(tmp) };  it != qval.end() )
             it->second += repn.quadratic_coefs[ii];
         else
             qval[ tmp ] = repn.quadratic_coefs[ii];
+#endif
         }
 
     ostr.print("+ [\n");
@@ -203,12 +217,16 @@ public:
     template <class StreamType>
     void print_objectives(StreamType& ostr, Model& model);
     template <class StreamType>
-    void print_objectives(StreamType& ostr, CompactModel& model);
-
-    template <class StreamType>
     void print_constraints(StreamType& ostr, Model& model);
+    void collect_variables(Model& model);
+
+    #ifdef COEK_WITH_COMPACT_MODEL
+    template <class StreamType>
+    void print_objectives(StreamType& ostr, CompactModel& model);
     template <class StreamType>
     void print_constraints(StreamType& ostr, CompactModel& model);
+    void collect_variables(CompactModel& model);
+    #endif
 
     void print_header(std::ostream& ostr);
     void print_objective(std::ostream& ostr, const Objective& obj);
@@ -224,8 +242,6 @@ public:
     void print_bounds(fmt::ostream& ostr);
     #endif
 
-    void collect_variables(Model& model);
-    void collect_variables(CompactModel& model);
 };
 
 //
@@ -241,6 +257,7 @@ auto obj = model.get_objective(0);
 print_objective(ostr, obj);
 }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 template <class StreamType>
 void LPWriter::print_objectives(StreamType& ostr, CompactModel& model)
 {
@@ -265,6 +282,7 @@ if (nobj > 1) {
   throw std::runtime_error("More than one objective defined!");
   }
 }
+#endif
 
 template <class StreamType>
 void LPWriter::print_constraints(StreamType& ostr, Model& model)
@@ -277,6 +295,7 @@ for (auto& it: model.repn->constraints) {
     }
 }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 template <class StreamType>
 void LPWriter::print_constraints(StreamType& ostr, CompactModel& model)
 {
@@ -298,6 +317,7 @@ for (auto& val: model.repn->constraints) {
       }
   }
 }
+#endif
 
 //
 // Collect variables
@@ -322,6 +342,7 @@ for (auto& it: model.repn->variables) {
     }
 }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void LPWriter::collect_variables(CompactModel& model)
 {
 size_t ctr=0;
@@ -361,6 +382,7 @@ for (auto& val: model.repn->variables) {
         }
     }
 }
+#endif
 
 //
 // Main writer
@@ -634,6 +656,7 @@ catch (std::exception& e) {
     }
 }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
 {
 std::ofstream ostr(fname);
@@ -647,6 +670,7 @@ catch (std::exception& e) {
     throw;
     }
 }
+#endif
 
 #ifdef WITH_FMTLIB
 void write_lp_problem_fmtlib(Model& model, std::string& fname, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
