@@ -47,11 +47,11 @@ public:
     virtual void print_equations(std::ostream& ostr) const = 0;
     virtual void print_values(std::ostream& ostr) const = 0;
 
-    virtual double compute_f(unsigned int i) = 0;
-    virtual void compute_df(double& f, std::vector<double>& df, unsigned int i) = 0;
+    virtual double compute_f(size_t i) = 0;
+    virtual void compute_df(double& f, std::vector<double>& df, size_t i) = 0;
     virtual void compute_H(std::vector<double>& w, std::vector<double>& H) = 0;
     virtual void compute_c(std::vector<double>& c) = 0;
-    virtual void compute_dc(std::vector<double>& dc, unsigned int i) = 0;
+    virtual void compute_dc(std::vector<double>& dc, size_t i) = 0;
     virtual void compute_J(std::vector<double>& J) = 0;
 
     virtual void get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol) = 0;

@@ -121,7 +121,7 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
         coek::IndexParameter j("j");
 
         std::vector<int> vals(4);
-        int ii=0;
+        size_t ii=0;
         for (auto it=s.begin({i}); it != s.end(); ++it) {
             i.get_value(vals[ii++]);
             }
@@ -155,7 +155,7 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
         coek::IndexParameter j("j");
 
         std::vector<int> vals(4);
-        int ii=0;
+        size_t ii=0;
         for (auto it=s.begin({i}); it != s.end(); ++it) {
             i.get_value(vals[ii++]);
             }
@@ -198,7 +198,7 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
         coek::IndexParameter j("j");
 
         std::vector<std::string> vals(4);
-        int ii=0;
+        size_t ii=0;
         for (auto it=s.begin({i}); it != s.end(); ++it) {
             i.get_value(vals[ii++]);
             }
@@ -453,7 +453,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
 
         WHEN( "y(i)" ) {
             auto tmp = coek::ExpressionSequence(coek::Forall(i).In(s), y(i));
-            int ii=0;
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"y(" + std::to_string(v[ii]) + ")"};
                 REQUIRE( it->to_list() == baseline);
@@ -463,7 +463,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
 
         WHEN( "1 + y(i)" ) {
             auto tmp = coek::ExpressionSequence(coek::Forall(i).In(s), 1+y(i));
-            int ii=0;
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "+", "1.000", "y(" + std::to_string(v[ii]) + ")", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -473,7 +473,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
 
         WHEN( "i + y(i)" ) {
             auto tmp = coek::ExpressionSequence(coek::Forall(i).In(s), i+y(i));
-            int ii=0;
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "+", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]) + ")", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -485,7 +485,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
             std::vector<int> w = {1,5,3};
             auto S = coek::SetOf( w );
             auto tmp = coek::ExpressionSequence(coek::Forall(i).In(S), y(i+2));
-            int ii=0;
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"y(" + std::to_string(v[ii]+2) + ")"};
                 REQUIRE( it->to_list() == baseline);
@@ -497,7 +497,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
             std::vector<int> w = {1,5,3};
             auto S = coek::SetOf( w );
             auto tmp = coek::ExpressionSequence(coek::Forall(i).In(S), y(i)+i*y(i+2));
-            int ii=0;
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "+", "y(" + std::to_string(v[ii]) + ")", "[", "*", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]+2) + ")", "]", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -557,7 +557,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
 
         WHEN( "y(i) == 0" ) {
             auto tmp = coek::ConstraintSequence(coek::Forall(i).In(s), y(i) == 0);
-            int ii=0;
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "y(" + std::to_string(v[ii]) + ")", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -567,7 +567,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
 
         WHEN( "1 + y(i) == 0" ) {
             auto tmp = coek::ConstraintSequence(coek::Forall(i).In(s), 1+y(i) == 0);
-            int ii=0;
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "[", "+", "1.000", "y(" + std::to_string(v[ii]) + ")", "]", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -577,7 +577,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
 
         WHEN( "i + y(i) == 0" ) {
             auto tmp = coek::ConstraintSequence(coek::Forall(i).In(s), i+y(i) == 0);
-            int ii=0;
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "[", "+", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]) + ")", "]", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -589,7 +589,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
             std::vector<int> w = {1,5,3};
             auto S = coek::SetOf( w );
             auto tmp = coek::ConstraintSequence(coek::Forall(i).In(S), y(i+2) == 0);
-            int ii=0;
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "y(" + std::to_string(v[ii]+2) + ")", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -601,7 +601,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
             std::vector<int> w = {1,5,3};
             auto S = coek::SetOf( w );
             auto tmp = coek::ConstraintSequence(Forall(i).In(S), y(i)+i*y(i+2)==0);
-            int ii=0;
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "[", "+", "y(" + std::to_string(v[ii]) + ")", "[", "*", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]+2) + ")", "]", "]", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);

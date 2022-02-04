@@ -78,14 +78,14 @@ repn->initialize();
 return repn;
 }
 
-unsigned int SetCore::dim()
+size_t SetCore::dim()
 { return repn->dim(); }
 
 //
 // AbstractSet
 //
 
-AbstractSet::AbstractSet(unsigned int dim)
+AbstractSet::AbstractSet(size_t dim)
 {
 if (dim == 0)
     throw std::runtime_error("Cannot declare an abstract set with less than one dimension.");
@@ -183,6 +183,12 @@ ConcreteSet::ConcreteSet(const ConcreteSet& other)
 
 ConcreteSet::~ConcreteSet()
 {}
+
+ConcreteSet& ConcreteSet::operator=(const ConcreteSet& other)
+{
+repn = other.repn;
+return *this;
+}
 
 bool ConcreteSet::finite()
 { return repn->finite(); }

@@ -47,7 +47,7 @@ public:
     virtual std::shared_ptr<SetIteratorRepnBase<std::vector<set_types>>> begin_NDiterator(const std::vector<IndexParameter>& index) = 0;
     virtual std::shared_ptr<SetIteratorRepnBase<std::vector<set_types>>> end_NDiterator() = 0;
 
-    virtual unsigned int dim() = 0;
+    virtual size_t dim() = 0;
 
     virtual void initialize() = 0;
 
@@ -98,7 +98,7 @@ public:
     std::shared_ptr<SetIteratorRepnBase<std::vector<set_types>>> end_NDiterator()
         { throw std::runtime_error("Cannot create an iterator for a SetRef"); }
 
-    unsigned int dim()
+    size_t dim()
         { return indexed_set->dim(); }
 
     void initialize()
@@ -179,7 +179,7 @@ public:
 
     virtual bool contains(const TYPE& arg) const = 0;
 
-    unsigned int dim()
+    size_t dim()
         { return 1; }
 
 };
@@ -202,7 +202,7 @@ public:
         return contains(val);
         }
 
-    unsigned int dim()
+    size_t dim()
         { return 1; }
 
     virtual void add_unique(const TYPE& arg) = 0;
@@ -809,6 +809,18 @@ public:
         }
 };
 
+inline size_t compute_nelements(int start, int stop, int step)
+{ return static_cast<size_t>( (stop-start)/step ); }
+
+inline bool contains_value(int value, int start, int stop, int step)
+{
+if ((value < start) or (value > stop))
+    return false;
+if ((value-start) % step > 0)
+    return false;
+return true;
+}
+
 template <typename TYPE>
 class RangeSet : public SimpleSet<TYPE>
 {
@@ -818,7 +830,7 @@ public:
     TYPE stop;
     TYPE step;
     // TODO - Integer tolerance?
-    TYPE tolerance;
+    double tolerance;
     size_t nelements;
 
 public:
@@ -829,9 +841,9 @@ public:
         {
         this->_finite = true;
         this->_countable = true;
-        nelements = std::rint((stop-start)/step);
-        if ((nelements == 0) or (fabs(start+step*nelements-stop) <= tolerance))
-            nelements++;
+        assert(stop > start);
+        assert(step > 0);
+        nelements = compute_nelements(start, stop, step);
         this->initialized = true;
         }
 
@@ -861,10 +873,7 @@ public:
         }
 
     bool contains(const TYPE& arg) const
-        {
-        int guess = std::rint((arg-start)/step);
-        return (fabs(arg - (start+step*guess)) <= tolerance) and (start <= (arg+tolerance)) and (arg <= (stop+tolerance));
-        }
+        { return contains_value(arg, start, stop, step); }
 
     void initialize()
         { }
@@ -879,7 +888,7 @@ public:
         {
         if (i >= nelements)
             throw std::runtime_error(std::string("Requested set index that is too large: i=") + std::to_string(i) + std::string(" size=") + std::to_string(nelements));
-        TYPE ans = start+step*i;
+        TYPE ans = start+step*static_cast<TYPE>(i);
         return ans;
         }
 
@@ -887,7 +896,7 @@ public:
         {
         if (i >= nelements)
             throw std::runtime_error(std::string("Requested set index that is too large: i=") + std::to_string(i) + std::string(" size=") + std::to_string(nelements));
-        TYPE ans = start+step*i;
+        TYPE ans = start+step*static_cast<TYPE>(i);
         arg = ans;
         if (index.repn)
             index.set_value( ans );
@@ -945,7 +954,7 @@ class ProductSet : public BaseSetExpression
 {
 public:
 
-    unsigned int _dim;
+    size_t _dim;
     std::vector<std::shared_ptr<BaseSetExpression>> simple_sets;
 
 public:
@@ -970,7 +979,7 @@ public:
     virtual void add_unique(const std::vector<set_types>& )
         { throw std::runtime_error("Cannot add a value to a simple product set."); }
 
-    unsigned int dim()
+    size_t dim()
         { return _dim; }
 
     void initialize();

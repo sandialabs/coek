@@ -79,18 +79,19 @@ public:
 
     void operator++()
         {
-        int i = ncontexts-1;
-        while (i >= 0) {
+        size_t i_=0;
+        while (i_ < ncontexts) {
+            size_t i = ncontexts-1 - i_;
             ++context_iter[i];
             if (context_iter[i] == seq->context[i].index_set.end())
                 {
                 context_iter[i] = seq->context[i].index_set.begin(seq->context[i].indices);
-                i--;
+                i_++;
                 }
             else
                 break;
             }
-        if (i < 0)
+        if (i_ == ncontexts)
             done = true;
         else {
             Objective tmp( convert_expr_template( seq->expression_template.get_body().repn ),

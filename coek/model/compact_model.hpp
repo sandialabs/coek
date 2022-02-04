@@ -255,7 +255,7 @@ public:
     Model expand();
 
     void write(std::string filename);
-    void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
+    void write(std::string filename, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap);
 };
 
 }

@@ -55,16 +55,16 @@ public:
 
 public:
 
-    double compute_f(unsigned int )
+    double compute_f(size_t)
         { throw std::runtime_error("Error accessing uninitialized NLPModel"); }
 
-    void compute_df(double& , std::vector<double>& , unsigned int )
+    void compute_df(double& , std::vector<double>& , size_t)
         { throw std::runtime_error("Error accessing uninitialized NLPModel"); }
 
     void compute_c(std::vector<double>& )
         { throw std::runtime_error("Error accessing uninitialized NLPModel"); }
 
-    void compute_dc(std::vector<double>& , unsigned int )
+    void compute_dc(std::vector<double>& , size_t)
         { throw std::runtime_error("Error accessing uninitialized NLPModel"); }
 
     void compute_H(std::vector<double>& , std::vector<double>& )

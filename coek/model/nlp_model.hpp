@@ -87,7 +87,7 @@ public:
       * \param varmap  varmap[i] contains the id of the i-th variable in this model
       * \param conmap  conmap[i] contains the id of the i-th constraint in this model
       */
-    void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
+    void write(std::string filename, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap);
     /** Print the equations in the model to \c std::cout */
     void print_equations() const;
     /** Print the equations in the model to the specified output stream */
@@ -110,7 +110,7 @@ public:
       *
       * \returns value of the specified objective function.
       */
-    double compute_f(unsigned int i=0);
+    double compute_f(size_t i=0);
     /**
       * Compute the value of the 0-th objective function.
       *
@@ -135,7 +135,7 @@ public:
       *
       * \returns value of the specified objective function.
       */
-    double compute_f(std::vector<double>& x, unsigned int i)
+    double compute_f(std::vector<double>& x, size_t i)
         {
         set_variable_view(x);
         return compute_f(i);
@@ -150,7 +150,7 @@ public:
       * \param df   reference that stores the gradient 
       * \param i   objective index
       */
-    void compute_df(double& f, std::vector<double>& df, unsigned int i);
+    void compute_df(double& f, std::vector<double>& df, size_t i);
     /**
       * Compute the value and gradient of the 0-th objective function.
       *
@@ -178,7 +178,7 @@ public:
       * \param df   reference that stores the gradient 
       * \param i   objective index
       */
-    void compute_df(std::vector<double>& df, unsigned int i)
+    void compute_df(std::vector<double>& df, size_t i)
         { double f; compute_df(f, df, i); }
     /**
       * Compute the gradient of the i-th objective function.
@@ -189,7 +189,7 @@ public:
       * \param df   reference that stores the gradient 
       * \param i   objective index
       */
-    void compute_df(std::vector<double>& x, std::vector<double>& df, unsigned int i)
+    void compute_df(std::vector<double>& x, std::vector<double>& df, size_t i)
         {
         set_variable_view(x);
         double f;
@@ -264,7 +264,7 @@ public:
       * \param dc   reference that stores the gradient 
       * \param i   constraint index
       */
-    void compute_dc(std::vector<double>& dc, unsigned int i);
+    void compute_dc(std::vector<double>& dc, size_t i);
     /**
       * Compute the gradient of the i-th constraint function.
       *
@@ -274,7 +274,7 @@ public:
       * \param dc   reference that stores the gradient 
       * \param i   constraint index
       */
-    void compute_dc(std::vector<double>& x, std::vector<double>& dc, unsigned int i)
+    void compute_dc(std::vector<double>& x, std::vector<double>& dc, size_t i)
         {
         set_variable_view(x);
         compute_dc(dc, i);

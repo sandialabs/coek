@@ -180,10 +180,9 @@ class IndexedVariableTerm : public VariableTerm
 public:
 
     void* var;      // ConcreteIndexedVariableRepn
-    unsigned int vindex;
+    size_t vindex;
 
-    IndexedVariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub, const expr_pointer_t& _value, bool _binary, bool _integer, unsigned int _vindex, void* _var)
-    //IndexedVariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, unsigned int _vindex, void* _var)
+    IndexedVariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub, const expr_pointer_t& _value, bool _binary, bool _integer, size_t _vindex, void* _var)
         : VariableTerm(_lb, _ub, _value, _binary, _integer), var(_var), vindex(_vindex) {}
 
     #if COEK_WITH_COMPACT_MODEL

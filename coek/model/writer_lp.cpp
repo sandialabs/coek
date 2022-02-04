@@ -35,7 +35,7 @@ namespace coek {
 
 namespace {
 
-inline unsigned int get_vid_value(const std::unordered_map<unsigned int,unsigned int>& vid, unsigned int id)
+inline size_t get_vid_value(const std::unordered_map<size_t,size_t>& vid, size_t id)
 {
 /* C++-17
 if (auto it{ vid.find(id) };  it != vid.end() )
@@ -48,17 +48,17 @@ throw std::runtime_error("Model expressions contain variable that is not declare
 }
 
 
-void print_repn(std::ostream& ostr, const QuadraticExpr& repn, const std::unordered_map<unsigned int,unsigned int>& vid)
+void print_repn(std::ostream& ostr, const QuadraticExpr& repn, const std::unordered_map<size_t,size_t>& vid)
 {
 CALI_CXX_MARK_FUNCTION;
 
 if (repn.linear_coefs.size() > 0) {
-    std::map<unsigned int,double> vval;
-    unsigned int i=0;
+    std::map<size_t,double> vval;
+    size_t i=0;
     for (auto& it: repn.linear_vars) {
-        unsigned int index = get_vid_value(vid, it->index);
+        size_t index = get_vid_value(vid, it->index);
 
-        std::map<unsigned int,double>::iterator curr = vval.find(index);
+        std::map<size_t,double>::iterator curr = vval.find(index);
         if (curr == vval.end())
             vval[index] = repn.linear_coefs[i];
         else
@@ -79,14 +79,14 @@ if (repn.linear_coefs.size() > 0) {
 if (repn.quadratic_coefs.size() > 0) {
     std::map<std::pair<int,int>,double> qval;
     for (size_t ii=0; ii<repn.quadratic_coefs.size(); ++ii) {
-        unsigned int lindex = get_vid_value(vid, repn.quadratic_lvars[ii]->index);
-        unsigned int rindex = get_vid_value(vid, repn.quadratic_rvars[ii]->index);
+        size_t lindex = get_vid_value(vid, repn.quadratic_lvars[ii]->index);
+        size_t rindex = get_vid_value(vid, repn.quadratic_rvars[ii]->index);
 
         std::pair<int,int> tmp;
         if (lindex < rindex)
-            tmp = std::pair<unsigned int,unsigned int>(lindex, rindex);
+            tmp = std::pair<size_t,size_t>(lindex, rindex);
         else
-            tmp = std::pair<unsigned int,unsigned int>(rindex, lindex);
+            tmp = std::pair<size_t,size_t>(rindex, lindex);
 
         auto curr = qval.find(tmp);
         if (curr == qval.end())
@@ -97,7 +97,7 @@ if (repn.quadratic_coefs.size() > 0) {
 
     ostr << "+ [\n";
     for (auto& it: qval) {
-        const std::pair<unsigned int,unsigned int>& tmp = it.first;
+        const std::pair<size_t,size_t>& tmp = it.first;
         double val = it.second;
         if (tmp.first == tmp.second) {
             if (val > 0)
@@ -116,7 +116,7 @@ if (repn.quadratic_coefs.size() > 0) {
     }
 }
 
-void print_objective(std::ostream& ostr, const Objective& obj, bool& one_var_constant, const std::unordered_map<unsigned int,unsigned int>& vid)
+void print_objective(std::ostream& ostr, const Objective& obj, bool& one_var_constant, const std::unordered_map<size_t,size_t>& vid)
 {
 CALI_CXX_MARK_FUNCTION;
 
@@ -132,7 +132,7 @@ if (tmp != 0) {
     }
 }
 
-void print_constraint(std::ostream& ostr, const Constraint& c, unsigned int ctr, const std::unordered_map<unsigned int,unsigned int>& vid)
+void print_constraint(std::ostream& ostr, const Constraint& c, size_t ctr, const std::unordered_map<size_t,size_t>& vid)
 {
 CALI_CXX_MARK_FUNCTION;
 
@@ -176,7 +176,7 @@ else {
 
 }
 
-void write_lp_problem_ostream(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
+void write_lp_problem_ostream(Model& model, std::string& fname, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
 {
 std::ofstream ostr(fname);
 
@@ -190,9 +190,9 @@ if (model.repn->objectives.size() > 1) {
     }
 
 // Create variable ID map
-std::unordered_map<unsigned int,unsigned int> vid;
+std::unordered_map<size_t,size_t> vid;
 {
-unsigned int ctr=0;
+size_t ctr=0;
 for(auto& it: model.repn->variables) {
     vid[it.id()] = ctr;
     invvarmap[ctr] = it.id();
@@ -217,7 +217,7 @@ try {
     print_objective(ostr, model.repn->objectives[0], one_var_constant, vid);
 
     ostr << "\nsubject to\n\n";
-    unsigned int ctr=0;
+    size_t ctr=0;
     for (std::vector<Constraint>::iterator it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it) {
         invconmap[it->id()] = ctr;
         print_constraint(ostr, *it, ctr, vid);
@@ -235,8 +235,8 @@ if (one_var_constant) {
     ostr << "\n";
     }
 
-std::map<unsigned int,VariableTerm*> bvars;
-std::map<unsigned int,VariableTerm*> ivars;
+std::map<size_t,VariableTerm*> bvars;
+std::map<size_t,VariableTerm*> ivars;
 ostr << "\nbounds\n";
 for(auto& it: model.repn->variables) {
     VariableTerm* v = it.repn;
@@ -278,7 +278,7 @@ ostr.close();
 
 
 #ifdef COEK_WITH_COMPACT_MODEL
-void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
+void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap)
 {
 std::ofstream ostr(fname);
 
@@ -289,10 +289,10 @@ if (model.repn->objectives.size() == 0) {
     }
 
 // Create variable ID map
-std::unordered_map<unsigned int,unsigned int> vid;
+std::unordered_map<size_t,size_t> vid;
 std::vector<Variable> variables;
 {
-unsigned int ctr=0;
+size_t ctr=0;
 for (auto it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
     auto& val = *it;
     if (auto eval = std::get_if<Variable>(&val)) {
@@ -351,7 +351,7 @@ ostr << "\nsubject to\n\n";
 //
 // Simple constraints
 //
-unsigned int ctr=0;
+size_t ctr=0;
 for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it) {
     auto& val = *it;
     if (auto cval = std::get_if<Constraint>(&val)) {
@@ -376,8 +376,8 @@ if (one_var_constant) {
     ostr << '\n';
     }
 
-std::map<unsigned int,VariableTerm*> bvars;
-std::map<unsigned int,VariableTerm*> ivars;
+std::map<size_t,VariableTerm*> bvars;
+std::map<size_t,VariableTerm*> ivars;
 ostr << "\nbounds\n";
 for(auto it=variables.begin(); it != variables.end(); ++it) {
     VariableTerm* v = it->repn;
@@ -403,13 +403,13 @@ for(auto it=variables.begin(); it != variables.end(); ++it) {
 
 if (bvars.size() > 0) {
     ostr << "\nbinary\n";
-    for(std::map<unsigned int,VariableTerm*>::iterator it=bvars.begin(); it != bvars.end(); ++it)
+    for(std::map<size_t,VariableTerm*>::iterator it=bvars.begin(); it != bvars.end(); ++it)
         ostr << "x(" << it->first << ")\n";
     }
 
 if (ivars.size() > 0) {
     ostr << "\ninteger\n";
-    for(std::map<unsigned int,VariableTerm*>::iterator it=ivars.begin(); it != ivars.end(); ++it)
+    for(std::map<size_t,VariableTerm*>::iterator it=ivars.begin(); it != ivars.end(); ++it)
         ostr << "x(" << it->first << ")\n";
     }
 
@@ -420,15 +420,15 @@ ostr.close();
 
 
 #ifdef WITH_FMTLIB
-void print_repn(fmt::ostream& ostr, const QuadraticExpr& repn, const std::unordered_map<unsigned int, unsigned int>& vid)
+void print_repn(fmt::ostream& ostr, const QuadraticExpr& repn, const std::unordered_map<size_t, size_t>& vid)
 {
 CALI_CXX_MARK_FUNCTION;
 
 if (repn.linear_coefs.size() > 0) {
-    std::map<unsigned int,double> vval;
-    unsigned int i=0;
+    std::map<size_t,double> vval;
+    size_t i=0;
     for (auto it=repn.linear_vars.begin(); it != repn.linear_vars.end(); ++it, ++i) {
-        unsigned int index = get_vid_value(vid, (*it)->index);
+        size_t index = get_vid_value(vid, (*it)->index);
 
         if (auto it{ vval.find(index) };  it != vval.end() )
             it->second += repn.linear_coefs[i];
@@ -447,14 +447,14 @@ if (repn.linear_coefs.size() > 0) {
 if (repn.quadratic_coefs.size() > 0) {
     std::map<std::pair<int,int>,double> qval;
     for (size_t ii=0; ii<repn.quadratic_coefs.size(); ++ii) {
-        unsigned int lindex = get_vid_value(vid, repn.quadratic_lvars[ii]->index);
-        unsigned int rindex = get_vid_value(vid, repn.quadratic_rvars[ii]->index);
+        size_t lindex = get_vid_value(vid, repn.quadratic_lvars[ii]->index);
+        size_t rindex = get_vid_value(vid, repn.quadratic_rvars[ii]->index);
 
         std::pair<int,int> tmp;
         if (lindex < rindex)
-            tmp = std::pair<unsigned int,unsigned int>(lindex, rindex);
+            tmp = std::pair<size_t,size_t>(lindex, rindex);
         else
-            tmp = std::pair<unsigned int,unsigned int>(rindex, lindex);
+            tmp = std::pair<size_t,size_t>(rindex, lindex);
 
         if (auto it{ qval.find(tmp) };  it != qval.end() )
             it->second += repn.quadratic_coefs[ii];
@@ -487,7 +487,7 @@ if (repn.quadratic_coefs.size() > 0) {
     }
 }
 
-void print_objective(fmt::ostream& ostr, const Objective& obj, bool& one_var_constant, const std::unordered_map<unsigned int,unsigned int>& vid)
+void print_objective(fmt::ostream& ostr, const Objective& obj, bool& one_var_constant, const std::unordered_map<size_t,size_t>& vid)
 {
 CALI_CXX_MARK_FUNCTION;
 
@@ -501,7 +501,7 @@ if (tmp != 0) {
     }
 }
 
-void print_constraint(fmt::ostream& ostr, const Constraint& c, unsigned int ctr, const std::unordered_map<unsigned int,unsigned int>& vid)
+void print_constraint(fmt::ostream& ostr, const Constraint& c, size_t ctr, const std::unordered_map<size_t,size_t>& vid)
 {
 CALI_CXX_MARK_FUNCTION;
 
@@ -538,7 +538,7 @@ else {
 }
 
 
-void write_lp_problem_fmtlib(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
+void write_lp_problem_fmtlib(Model& model, std::string& fname, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
 {
 auto ostr = fmt::output_file(fname, fmt::file::WRONLY | fmt::file::CREATE | FMT_POSIX(O_TRUNC));
 
@@ -552,9 +552,9 @@ if (model.repn->objectives.size() > 1) {
     }
 
 // Create variable ID map
-std::unordered_map<unsigned int, unsigned int> vid;
+std::unordered_map<size_t, size_t> vid;
 {
-unsigned int ctr=0;
+size_t ctr=0;
 for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
     vid[(*it).id()] = ctr;
     invvarmap[ctr] = (*it).id();
@@ -579,7 +579,7 @@ try {
     print_objective(ostr, model.repn->objectives[0], one_var_constant, vid);
 
     ostr.print("\nsubject to\n\n");
-    unsigned int ctr=0;
+    size_t ctr=0;
     for (std::vector<Constraint>::iterator it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it) {
         invconmap[it->id()] = ctr;
         print_constraint(ostr, *it, ctr, vid);
@@ -597,8 +597,8 @@ if (one_var_constant) {
     ostr.print("\n");
     }
 
-std::map<unsigned int,VariableTerm*> bvars;
-std::map<unsigned int,VariableTerm*> ivars;
+std::map<size_t,VariableTerm*> bvars;
+std::map<size_t,VariableTerm*> ivars;
 ostr.print("\nbounds\n");
 for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
     VariableTerm* v = it->repn;
@@ -624,13 +624,13 @@ for(std::vector<Variable>::iterator it=model.repn->variables.begin(); it != mode
 
 if (bvars.size() > 0) {
     ostr.print("\nbinary\n");
-    for(std::map<unsigned int,VariableTerm*>::iterator it=bvars.begin(); it != bvars.end(); ++it)
+    for(std::map<size_t,VariableTerm*>::iterator it=bvars.begin(); it != bvars.end(); ++it)
         ostr.print("x({})\n", it->first);           // << "x(" << it->first << ")\n";
     }
 
 if (ivars.size() > 0) {
     ostr.print("\ninteger\n");
-    for(std::map<unsigned int,VariableTerm*>::iterator it=ivars.begin(); it != ivars.end(); ++it)
+    for(std::map<size_t,VariableTerm*>::iterator it=ivars.begin(); it != ivars.end(); ++it)
         ostr.print("x({})\n", it->first);           // << "x(" << it->first << ")\n";
     }
 
@@ -640,7 +640,7 @@ ostr.close();
 
 
 #ifdef COEK_WITH_COMPACT_MODEL
-void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
+void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap)
 {
 auto ostr = fmt::output_file(fname, fmt::file::WRONLY | fmt::file::CREATE | FMT_POSIX(O_TRUNC));
 
@@ -651,10 +651,10 @@ if (model.repn->objectives.size() == 0) {
     }
 
 // Create variable ID map
-std::unordered_map<unsigned int, unsigned int> vid;
+std::unordered_map<size_t, size_t> vid;
 std::vector<Variable> variables;
 {
-unsigned int ctr=0;
+size_t ctr=0;
 for (auto it=model.repn->variables.begin(); it != model.repn->variables.end(); ++it) {
     auto& val = *it;
     if (auto eval = std::get_if<Variable>(&val)) {
@@ -713,7 +713,7 @@ ostr.print("\nsubject to\n\n");
 //
 // Simple contraints
 //
-unsigned int ctr=0;
+size_t ctr=0;
 for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it) {
     auto& val = *it;
     if (auto cval = std::get_if<Constraint>(&val)) {
@@ -738,8 +738,8 @@ if (one_var_constant) {
     ostr.print("\n");
     }
 
-std::map<unsigned int,VariableTerm*> bvars;
-std::map<unsigned int,VariableTerm*> ivars;
+std::map<size_t,VariableTerm*> bvars;
+std::map<size_t,VariableTerm*> ivars;
 ostr.print("\nbounds\n");
 for(auto it=variables.begin(); it != variables.end(); ++it) {
     VariableTerm* v = it->repn;
@@ -765,13 +765,13 @@ for(auto it=variables.begin(); it != variables.end(); ++it) {
 
 if (bvars.size() > 0) {
     ostr.print("\nbinary\n");
-    for(std::map<unsigned int,VariableTerm*>::iterator it=bvars.begin(); it != bvars.end(); ++it)
+    for(std::map<size_t,VariableTerm*>::iterator it=bvars.begin(); it != bvars.end(); ++it)
         ostr.print("x({})\n", it->first);       // << "x(" << it->first << ")\n";
     }
 
 if (ivars.size() > 0) {
     ostr.print("\ninteger\n");
-    for(std::map<unsigned int,VariableTerm*>::iterator it=ivars.begin(); it != ivars.end(); ++it)
+    for(std::map<size_t,VariableTerm*>::iterator it=ivars.begin(); it != ivars.end(); ++it)
         ostr.print("x({})\n", it->first);       // << "x(" << it->first << ")\n";
     }
 
@@ -780,20 +780,20 @@ ostr.close();
 }
 #endif
 
-void write_lp_problem(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
+void write_lp_problem(Model& model, std::string& fname, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
 { write_lp_problem_fmtlib(model, fname, invvarmap, invconmap); }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-void write_lp_problem(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
+void write_lp_problem(CompactModel& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap)
 { write_lp_problem_fmtlib(model, fname, varmap, conmap); }
 #endif
 #else
 
-void write_lp_problem(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
+void write_lp_problem(Model& model, std::string& fname, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
 { write_lp_problem_ostream(model, fname, invvarmap, invconmap); }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-void write_lp_problem(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
+void write_lp_problem(CompactModel& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap)
 { write_lp_problem_ostream(model, fname, varmap, conmap); }
 #endif
 #endif

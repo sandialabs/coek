@@ -21,35 +21,43 @@ class IndexVector
 {
 public:
 
+    size_t len;
     int* data;
 
 public:
 
+    // The vector length is stored in the first element.  This limits the size, but this is OK for small vectors
     IndexVector()
-        : data(0)
+        : len(0), data(0)
         {}
 
-    IndexVector(int* _data)
-        : data(_data)
+    explicit IndexVector(int* _data)
+        : len(static_cast<size_t>(_data[0])), data(_data+1)
+        {}
+
+    explicit IndexVector(int* _data, size_t _len)
+        : len(_len), data(_data)
         {}
 
     IndexVector(const IndexVector& other)
-        : data(other.data)
+        : len(other.len), data(other.data)
         {}
 
-    // The vector length is stored in the first element.  This limits the size, but this is OK for small vectors
+    IndexVector& operator=(const IndexVector& other)
+        {len = other.len; data=other.data; return *this;}
+
     size_t size() const
-        { return static_cast<size_t>(*data); }
+        { return static_cast<size_t>(len); }
 
     int& operator[](size_t i)
-        { return data[i+1]; }
+        { return data[i]; }
 
     const int& operator[](size_t i) const
-        { return data[i+1]; }
+        { return data[i]; }
 
     bool operator<(const IndexVector& other) const
         {
-        for (int i=1; i<=*data; i++) {
+        for (size_t i=0; i<len; i++) {
             if (data[i] < other.data[i])
                 return true;
             else if (data[i] > other.data[i])
@@ -60,14 +68,14 @@ public:
 
     bool operator==(const IndexVector& other) const
         {
-        if (*data == 1)
-            return data[1] == other.data[1];
-        else if (*data==2) {
-            return (data[1] == other.data[1]) and (data[2] == other.data[2]);
+        if (len == 1)
+            return data[0] == other.data[0];
+        else if (len == 2) {
+            return (data[0] == other.data[0]) and (data[1] == other.data[1]);
             }
-        int* curr = data+1;
-        int* end  = data+1+*data;
-        int* _other = other.data+1;
+        int* curr = data;
+        int* end  = data+len;
+        int* _other = other.data;
 
         for (; curr != end; ++curr, ++_other) {
             if (*curr != *_other)
@@ -103,7 +111,7 @@ public:
 
     size_t size() const;
 
-    void collect_args(unsigned int i, bool& refflag, const int& arg)
+    void collect_args(size_t i, bool& refflag, const int& arg)
         {
         if (refflag)
             reftmp[i++] = arg;
@@ -111,20 +119,20 @@ public:
             tmp[i++] = arg;
         }
 
-    void collect_args(unsigned int i, bool& refflag, const Expression& arg)
+    void collect_args(size_t i, bool& refflag, const Expression& arg)
         {
         if (!refflag) {
-            for (unsigned int j=0; j<i; j++)
+            for (size_t j=0; j<i; j++)
                 reftmp[j] = tmp[j];
             refflag=true;
             }
         reftmp[i++] = arg.repn;
         }
 
-    void collect_args(unsigned int i, bool& refflag, const IndexParameter& arg)
+    void collect_args(size_t i, bool& refflag, const IndexParameter& arg)
         {
         if (!refflag) {
-            for (unsigned int j=0; j<i; j++)
+            for (size_t j=0; j<i; j++)
                 reftmp[j] = tmp[j];
             refflag=true;
             }
@@ -133,7 +141,7 @@ public:
         }
 
     template <typename... ARGTYPES>
-    void collect_args(unsigned int i, bool& refflag, const int& arg, const ARGTYPES&... args)
+    void collect_args(size_t i, bool& refflag, const int& arg, const ARGTYPES&... args)
         {
         if (refflag)
             reftmp[i++] = arg;
@@ -143,10 +151,10 @@ public:
         }
 
     template <typename... ARGTYPES>
-    void collect_args(unsigned int i, bool& refflag, const Expression& arg, const ARGTYPES&... args)
+    void collect_args(size_t i, bool& refflag, const Expression& arg, const ARGTYPES&... args)
         {
         if (!refflag) {
-            for (unsigned int j=0; j<i; j++)
+            for (size_t j=0; j<i; j++)
                 reftmp[j] = tmp[j];
             refflag=true;
             }
@@ -155,10 +163,10 @@ public:
         }
 
     template <typename... ARGTYPES>
-    void collect_args(unsigned int i, bool& refflag, const IndexParameter& arg, const ARGTYPES&... args)
+    void collect_args(size_t i, bool& refflag, const IndexParameter& arg, const ARGTYPES&... args)
         {
         if (!refflag) {
-            for (unsigned int j=0; j<i; j++)
+            for (size_t j=0; j<i; j++)
                 reftmp[j] = tmp[j];
             refflag=true;
             }

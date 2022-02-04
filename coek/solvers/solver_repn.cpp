@@ -315,19 +315,19 @@ std::cout << "Updated Coefficients:    " << updated_coefs.size() << std::endl;
 }
 
 
-bool SolverCache::get_option(int option, int& value) const
+bool SolverCache::get_option(int , int& ) const
 { throw std::runtime_error("Solver does not support get_option with integer name and integer value");}
-bool SolverCache::get_option(int option, double& value) const
+bool SolverCache::get_option(int , double& ) const
 { throw std::runtime_error("Solver does not support get_option with integer name and double value");}
-bool SolverCache::get_option(int option, std::string& value) const
-{ throw std::runtime_error("Solver does not support get_option with integer name and double ngvalue");}
+bool SolverCache::get_option(int , std::string& ) const
+{ throw std::runtime_error("Solver does not support get_option with integer name and string");}
 
-void SolverCache::set_option(int option, int value)
+void SolverCache::set_option(int , int )
 { throw std::runtime_error("Solver does not support set_option with integer name and integer value");}
-void SolverCache::set_option(int option, double value)
+void SolverCache::set_option(int , double )
 { throw std::runtime_error("Solver does not support set_option with integer name and double value");}
-void SolverCache::set_option(int option, const std::string value)
-{ throw std::runtime_error("Solver does not support set_option with integer name and double ngvalue");}
+void SolverCache::set_option(int , const std::string )
+{ throw std::runtime_error("Solver does not support set_option with integer name and string");}
 
 bool SolverCache::get_option(const std::string& option, int& value) const
 {
@@ -357,20 +357,13 @@ return true;
 }
 
 void SolverCache::set_option(const std::string& option, int value)
-{
-integer_options[option] = value;
-}
+{ integer_options[option] = value; }
 
 void SolverCache::set_option(const std::string& option, double value)
-{
-double_options[option] = value;
-}
+{ double_options[option] = value; }
 
 void SolverCache::set_option(const std::string& option, const std::string value)
-{
-string_options[option] = value;
-}
-
+{ string_options[option] = value; }
 
 }
 

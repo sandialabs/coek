@@ -63,10 +63,10 @@ public:
         {
         assert((curr+_len+1) <= len);
         auto tmp = data+curr;
-        *tmp = _len;
+        *tmp = static_cast<int>(_len);
         //IndexVector vec(tmp);
         curr += _len+1;
-        return tmp;
+        return IndexVector(tmp);
         }
 };
 #endif
@@ -86,7 +86,7 @@ for (auto it=varref.indices.begin(); it != varref.indices.end(); ++it) {
     else {
         expr_pointer_t eval = std::get<expr_pointer_t>(reftmp);
         double vald = eval->eval();
-        int vali = std::lround(vald);
+        long int vali = std::lround(vald);
         assert(fabs(vald-vali) < 1e-7);
         index.push_back(vali);
         }
@@ -113,7 +113,7 @@ public:
     IndexVectorCache cache;
 #endif
     ConcreteSet concrete_set;
-    std::unordered_map<IndexVector, unsigned int> index;
+    std::unordered_map<IndexVector, size_t> index;
     std::vector<std::string> names;
     std::vector<Variable> values;
     std::string name;
@@ -144,7 +144,7 @@ public:
         setup();
         }
 
-    ConcreteIndexedVariableRepn(const ConcreteSet& _arg, double lb, double ub, double value, bool binary, bool integer)
+    ConcreteIndexedVariableRepn(const ConcreteSet& _arg, double lb, double ub, double value, bool /*binary*/, bool /*integer*/)
         : concrete_set(_arg)
         {
         for (size_t i=0; i<concrete_set.size(); i++)
@@ -156,7 +156,7 @@ public:
         setup();
         }
 
-    ConcreteIndexedVariableRepn(const ConcreteSet& _arg, double lb, double ub, double value, bool binary, bool integer, const std::string& _name)
+    ConcreteIndexedVariableRepn(const ConcreteSet& _arg, double lb, double ub, double value, bool /*binary*/, bool /*integer*/, const std::string& _name)
         : concrete_set(_arg), name(_name)
         {
         for (size_t i=0; i<concrete_set.size(); i++)
@@ -168,7 +168,7 @@ public:
         setup();
         }
 
-    std::string get_name(unsigned index)
+    std::string get_name(size_t index)
         {
         if (names.size() == 0) {
             for (auto it=concrete_set.begin(); it != concrete_set.end(); ++it) {

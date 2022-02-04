@@ -68,7 +68,7 @@ public:
     SetCore(const SetRepn& repn);
     virtual ~SetCore();
 
-    unsigned int dim();
+    size_t dim();
     ConcreteSet initialize();
 };
 
@@ -76,7 +76,7 @@ class AbstractSet : public SetCore
 {
 public:
 
-    AbstractSet(unsigned int);
+    AbstractSet(size_t);
     AbstractSet(const SetRepn& repn);
     virtual ~AbstractSet();
 
@@ -117,6 +117,7 @@ public:
     ConcreteSet(const SetRepn& repn);
     ConcreteSet(const ConcreteSet& repn);
     virtual ~ConcreteSet();
+    ConcreteSet& operator=(const ConcreteSet& repn);
 
     bool finite();
     bool countable();

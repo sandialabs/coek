@@ -26,12 +26,12 @@
 #include "model_repn.hpp"
 
 #define EPSILON 1e-12
-#define ITYPE unsigned int
+#define ITYPE size_t
 
 
 namespace coek {
 
-void check_that_expression_variables_are_declared(Model& model, const std::map<unsigned int, Variable>& varobj);
+void check_that_expression_variables_are_declared(Model& model, const std::map<size_t, Variable>& varobj);
 
 
 namespace {
@@ -154,13 +154,13 @@ else
 }
 
 // GCOVR_EXCL_START
-void PrintExpr::visit(InequalityTerm& arg)
+void PrintExpr::visit(InequalityTerm& )
 { throw std::runtime_error("Encountered an inequality constraint when printing an expression.  This error should have been caught earlier!"); }
 
-void PrintExpr::visit(EqualityTerm& arg)
+void PrintExpr::visit(EqualityTerm& )
 { throw std::runtime_error("Encountered an equality constraint when printing an expression.  This error should have been caught earlier!"); }
 
-void PrintExpr::visit(ObjectiveTerm& arg)
+void PrintExpr::visit(ObjectiveTerm& )
 { throw std::runtime_error("Encountered an objective when printing an expression.  This error should have been caught earlier!"); }
 // GCOVR_EXCL_STOP
 
@@ -328,13 +328,13 @@ else
 }
 
 // GCOVR_EXCL_START
-void PrintExprFmtlib::visit(InequalityTerm& arg)
+void PrintExprFmtlib::visit(InequalityTerm& )
 { throw std::runtime_error("Encountered an inequality constraint when printing an expression.  This error should have been caught earlier!"); }
 
-void PrintExprFmtlib::visit(EqualityTerm& arg)
+void PrintExprFmtlib::visit(EqualityTerm& )
 { throw std::runtime_error("Encountered an equality constraint when printing an expression.  This error should have been caught earlier!"); }
 
-void PrintExprFmtlib::visit(ObjectiveTerm& arg)
+void PrintExprFmtlib::visit(ObjectiveTerm& )
 { throw std::runtime_error("Encountered an objective when printing an expression.  This error should have been caught earlier!"); }
 // GCOVR_EXCL_STOP
 
@@ -414,14 +414,14 @@ double cval = repn.constval.get_value();
 if (not nonlinear)
     cval += repn.nonlinear.get_value();
 
-std::map<std::pair<int,int>,double> term;
+std::map<std::pair<size_t,size_t>,double> term;
 if (quadratic) {
     for (size_t i=0; i<repn.quadratic_coefs.size(); ++i) {
-        int lhs = varmap.at(repn.quadratic_lvars[i]->index);
-        int rhs = varmap.at(repn.quadratic_rvars[i]->index);
+        size_t lhs = varmap.at(repn.quadratic_lvars[i]->index);
+        size_t rhs = varmap.at(repn.quadratic_rvars[i]->index);
         if (rhs < lhs)
             std::swap(lhs,rhs);
-        auto key = std::pair<int,int>(lhs, rhs);
+        auto key = std::pair<size_t,size_t>(lhs, rhs);
         if (term.find(key) == term.end())
             term[key] = repn.quadratic_coefs[i].get_value();
         else
@@ -536,263 +536,6 @@ if (objective and (fabs(cval) > EPSILON)) {
 }
 
 
-
-/*
-void write_nl_problem_ostream(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
-{
-if (model.repn->objectives.size() == 0) {
-    throw std::runtime_error("Error writing NL file: No objectives specified!");
-    }
-if (model.repn->objectives.size() > 1) {
-    throw std::runtime_error("Error writing NL file: More than one objective defined!");
-    }
-
-std::ofstream ostr(fname);
-
-//
-// Process Model to Create NL Header
-//
-std::map<unsigned int,Variable> varobj;
-std::set<unsigned int> vars;
-std::set<unsigned int> nonlinear_vars_obj;
-std::set<unsigned int> nonlinear_vars_con;
-int num_inequalities=0;
-int num_ranges=0;
-int num_equalities=0;
-int nonl_objectives=0;
-int nonl_constraints=0;
-
-std::set<unsigned int> linear_vars;
-int num_linear_binary_vars=0;
-int num_linear_integer_vars=0;
-int num_nonlinear_obj_int_vars=0;
-int num_nonlinear_con_int_vars=0;
-int num_nonlinear_both_int_vars=0;
-
-size_t nnz_Jacobian=0;
-size_t nnz_gradient=0;
-
-size_t ctr=0;
-std::vector<MutableNLPExpr> o_expr(model.repn->objectives.size());
-std::vector<MutableNLPExpr> c_expr(model.repn->constraints.size());
-std::vector<int> r(model.repn->constraints.size());
-std::vector<double> rval(2*model.repn->constraints.size());
-
-try {
-    // Objectives
-    for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it, ++ctr) {
-        o_expr[ctr].collect_terms(*it);
-        if ((o_expr[ctr].quadratic_coefs.size() > 0) or (not o_expr[ctr].nonlinear.is_constant()))
-            ++nonl_objectives;
-        for (auto it=o_expr[ctr].linear_vars.begin(); it != o_expr[ctr].linear_vars.end(); ++it) {
-            auto var = *it;
-            linear_vars.insert(var->index);
-            vars.insert(var->index);
-            varobj[var->index] = var;
-            }
-        for (auto it=o_expr[ctr].quadratic_lvars.begin(); it != o_expr[ctr].quadratic_lvars.end(); ++it) {
-            auto var = *it;
-            nonlinear_vars_obj.insert(var->index);
-            vars.insert(var->index);
-            varobj[var->index] = var;
-            }
-        for (auto it=o_expr[ctr].quadratic_rvars.begin(); it != o_expr[ctr].quadratic_rvars.end(); ++it) {
-            auto var = *it;
-            nonlinear_vars_obj.insert(var->index);
-            vars.insert(var->index);
-            varobj[var->index] = var;
-            }
-        for (auto it=o_expr[ctr].nonlinear_vars.begin(); it != o_expr[ctr].nonlinear_vars.end(); ++it) {
-            auto var = *it;
-            nonlinear_vars_obj.insert(var->index);
-            vars.insert(var->index);
-            varobj[var->index] = var;
-            }
-        }
-
-    // Since we have just one objective, the # of variables is the # of nonzeros in gradients
-    nnz_gradient=vars.size();
-
-    // Constraints
-    ctr=0;
-    for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it, ++ctr) {
-        invconmap[ctr] = it->id();
-        c_expr[ctr].collect_terms(*it);
-
-        double bodyconst = c_expr[ctr].constval.get_value();
-        if (it->is_inequality()) {
-            if (it->repn->lower and it->repn->upper) {
-                double lower = it->repn->lower->eval() - bodyconst;
-                double upper = it->repn->upper->eval() - bodyconst;
-                if (fabs(upper-lower) < EPSILON) {
-                    ++num_equalities;
-                    r[ctr] = 4;
-                    rval[2*ctr] = lower;
-                    }
-                else {
-                    ++num_inequalities;
-                    ++num_ranges;
-                    r[ctr] = 0;
-                    rval[2*ctr] = lower;
-                    rval[2*ctr+1] = upper;
-                    }
-                }
-            else if (it->repn->lower) {
-                ++num_inequalities;
-                r[ctr] = 2;
-                rval[2*ctr] = it->repn->lower->eval() - bodyconst;
-                }
-            else if (it->repn->upper) {
-                ++num_inequalities;
-                r[ctr] = 1;
-                rval[2*ctr] = it->repn->upper->eval() - bodyconst;
-                }
-            else {
-                // TODO - test unbounded expressions like this
-                ++num_inequalities;
-                r[ctr] = 3;
-                }
-            }
-        else {
-            ++num_equalities;
-            r[ctr] = 4;
-            rval[2*ctr] = it->repn->lower->eval() - bodyconst;
-            }
-        if ((c_expr[ctr].quadratic_coefs.size() > 0) or (not c_expr[ctr].nonlinear.is_constant()))
-            ++nonl_constraints;
-
-        std::set<int> curr_vars;
-
-        for (auto it=c_expr[ctr].linear_vars.begin(); it != c_expr[ctr].linear_vars.end(); ++it) {
-            auto var = *it;
-            linear_vars.insert(var->index);
-            vars.insert(var->index);
-            varobj[var->index] = var;
-            curr_vars.insert(var->index);
-            }
-        for (auto it=c_expr[ctr].quadratic_lvars.begin(); it != c_expr[ctr].quadratic_lvars.end(); ++it) {
-            auto var = *it;
-            nonlinear_vars_con.insert(var->index);
-            vars.insert(var->index);
-            varobj[var->index] = var;
-            curr_vars.insert(var->index);
-            }
-        for (auto it=c_expr[ctr].quadratic_rvars.begin(); it != c_expr[ctr].quadratic_rvars.end(); ++it) {
-            auto var = *it;
-            nonlinear_vars_con.insert(var->index);
-            vars.insert(var->index);
-            varobj[var->index] = var;
-            curr_vars.insert(var->index);
-            }
-        for (auto it=c_expr[ctr].nonlinear_vars.begin(); it != c_expr[ctr].nonlinear_vars.end(); ++it) {
-            auto var = *it;
-            nonlinear_vars_con.insert(var->index);
-            vars.insert(var->index);
-            varobj[var->index] = var;
-            curr_vars.insert(var->index);
-            }
-
-        // Add Jacobian terms for each constraint
-        nnz_Jacobian += curr_vars.size();
-        }
-
-    check_that_expression_variables_are_declared(model, varobj);
-    }
-catch (std::exception& e)
-    {
-    throw std::runtime_error(std::string("Error writing NL file: ") + e.what());
-    }
-
-for (auto it=linear_vars.begin(); it != linear_vars.end(); ++it) {
-    auto& var = varobj[*it];
-    if (var.is_binary())
-        ++num_linear_binary_vars;
-    else if (var.is_integer())
-        ++num_linear_integer_vars;
-    }
-
-int nonlinear_vars_both=0;
-for (auto it=nonlinear_vars_obj.begin(); it != nonlinear_vars_obj.end(); ++it) {
-    bool flag = varobj[*it].is_binary() or varobj[*it].is_integer();
-    if (flag)
-       ++num_nonlinear_obj_int_vars;
-    if (nonlinear_vars_con.find(*it) != nonlinear_vars_con.end()) {
-        ++nonlinear_vars_both;
-        if (flag)
-           ++num_nonlinear_both_int_vars;
-        }
-    }
-for (auto it=nonlinear_vars_con.begin(); it != nonlinear_vars_con.end(); ++it) {
-    if (varobj[*it].is_binary() or varobj[*it].is_integer())
-       ++num_nonlinear_con_int_vars;
-    }
-
-// Map Variable index to NL variable ID (0 ... n_vars-1)
-std::unordered_map<int,int> varmap;
-ctr = 0;
-for (auto it=vars.begin(); it != vars.end(); ++it) {
-    invvarmap[ctr] = *it;
-    varmap[*it] = ctr;
-    ++ctr;
-    }
-// GCOVR_EXCL_START
-if (vars.size() != varmap.size())
-    throw std::runtime_error("Error writing NL file: Variables with duplicate index values detected!");
-// GCOVR_EXCL_STOP
-
-// Compute linear Jacobian and Gradient values
-std::vector<std::set<int>> k_count(vars.size());
-std::vector<std::map<int,double>> G(o_expr.size());
-std::vector<std::map<int,double>> J(c_expr.size());
-
-ctr=0;
-for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ++ctr) {
-    for (auto jt=it->quadratic_lvars.begin(); jt!= it->quadratic_lvars.end(); ++jt) {
-        G[ctr][ varmap[(*jt)->index] ] = 0;
-        }
-    for (auto jt=it->quadratic_rvars.begin(); jt!= it->quadratic_rvars.end(); ++jt) {
-        G[ctr][ varmap[(*jt)->index] ] = 0;
-        }
-    for (auto jt=it->nonlinear_vars.begin(); jt!= it->nonlinear_vars.end(); ++jt) {
-        G[ctr][ varmap[(*jt)->index] ] = 0;
-        }
-    for (size_t j=0; j<it->linear_coefs.size(); ++j) {
-        auto index = varmap[it->linear_vars[j]->index];
-        if (G[ctr].find(index) == G[ctr].end())
-            G[ctr][index] = it->linear_coefs[j].get_value();
-        else
-            G[ctr][index] += it->linear_coefs[j].get_value();
-        }
-    }
-ctr=0;
-for (auto it=c_expr.begin(); it != c_expr.end(); ++it, ++ctr) {
-    for (auto jt=it->quadratic_lvars.begin(); jt!= it->quadratic_lvars.end(); ++jt) {
-        int index = varmap[(*jt)->index];
-        k_count[ index ].insert(ctr);
-        J[ctr][ index ] = 0;
-        }
-    for (auto jt=it->quadratic_rvars.begin(); jt!= it->quadratic_rvars.end(); ++jt) {
-        int index = varmap[(*jt)->index];
-        k_count[ index ].insert(ctr);
-        J[ctr][ index ] = 0;
-        }
-    for (auto jt=it->nonlinear_vars.begin(); jt!= it->nonlinear_vars.end(); ++jt) {
-        int index = varmap[(*jt)->index];
-        k_count[ index ].insert(ctr);
-        J[ctr][ index ] = 0;
-        }
-    for (size_t j=0; j<it->linear_coefs.size(); ++j) {
-        int index = varmap[it->linear_vars[j]->index];
-        if (J[ctr].find(index) == J[ctr].end()) {
-            k_count[ index ].insert(ctr);
-            J[ctr][index] = it->linear_coefs[j].get_value();
-            }
-        else
-            J[ctr][index] += it->linear_coefs[j].get_value();
-        }
-    }
-*/
-
 class NLWriter
 {
 public:
@@ -800,23 +543,23 @@ public:
     //
     // Process Model to Create NL Header
     //
-    std::map<unsigned int,Variable> varobj;
-    std::set<unsigned int> vars;
-    std::set<unsigned int> nonlinear_vars_obj;
-    std::set<unsigned int> nonlinear_vars_con;
-    int num_inequalities;
-    int num_ranges;
-    int num_equalities;
-    int nonl_objectives;
-    int nonl_constraints;
-    int nonlinear_vars_both;
+    std::map<size_t,Variable> varobj;
+    std::set<size_t> vars;
+    std::set<size_t> nonlinear_vars_obj;
+    std::set<size_t> nonlinear_vars_con;
+    size_t num_inequalities;
+    size_t num_ranges;
+    size_t num_equalities;
+    size_t nonl_objectives;
+    size_t nonl_constraints;
+    size_t nonlinear_vars_both;
 
-    std::set<unsigned int> linear_vars;
-    int num_linear_binary_vars;
-    int num_linear_integer_vars;
-    int num_nonlinear_obj_int_vars;
-    int num_nonlinear_con_int_vars;
-    int num_nonlinear_both_int_vars;
+    std::set<size_t> linear_vars;
+    size_t num_linear_binary_vars;
+    size_t num_linear_integer_vars;
+    size_t num_nonlinear_obj_int_vars;
+    size_t num_nonlinear_con_int_vars;
+    size_t num_nonlinear_both_int_vars;
 
     size_t nnz_Jacobian;
     size_t nnz_gradient;
@@ -827,9 +570,9 @@ public:
     std::vector<double> rval;
 
     std::unordered_map<ITYPE,ITYPE> varmap;
-    std::vector<std::set<unsigned int>> k_count;
-    std::vector<std::map<unsigned int,double>> G;
-    std::vector<std::map<unsigned int,double>> J;
+    std::vector<std::set<size_t>> k_count;
+    std::vector<std::map<size_t,double>> G;
+    std::vector<std::map<size_t,double>> J;
 
     NLWriter()
     {
@@ -850,7 +593,7 @@ public:
     nnz_gradient=0;
     }
 
-    void collect_nl_data(Model& model, std::map<int,int>& invvarmap, std::map<int,int>& invconmap);
+    void collect_nl_data(Model& model, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap);
 
     void write_ostream(Model& model, std::string& fname);
     void write_fmtlib(Model& model, std::string& fname);
@@ -859,7 +602,7 @@ public:
 
 // TODO - Reorder constraints to have nonlinear before linear
 // TODO - Reorder variables per the AMPL solver hookup logic
-void NLWriter::collect_nl_data(Model& model, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
+void NLWriter::collect_nl_data(Model& model, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
 {
 o_expr.resize(model.repn->objectives.size());
 c_expr.resize(model.repn->constraints.size());
@@ -879,7 +622,7 @@ if (model.repn->objectives.size() > 1) {
 // Objectives
 try {
     {
-    unsigned int ctr=0;
+    size_t ctr=0;
     for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it, ++ctr) {
         o_expr[ctr].collect_terms(*it);
         if ((o_expr[ctr].quadratic_coefs.size() > 0) or (not o_expr[ctr].nonlinear.is_constant()))
@@ -1045,7 +788,7 @@ for (auto it=nonlinear_vars_con.begin(); it != nonlinear_vars_con.end(); ++it) {
 
 // Map Variable index to NL variable ID (0 ... n_vars-1)
 {
-unsigned int ctr = 0;
+size_t ctr = 0;
 for (auto it=vars.begin(); it != vars.end(); ++it) {
     invvarmap[ctr] = *it;
     varmap[*it] = ctr;
@@ -1087,25 +830,25 @@ for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ++ctr) {
     }
 }
 {
-unsigned int ctr=0;
+size_t ctr=0;
 for (auto it=c_expr.begin(); it != c_expr.end(); ++it, ++ctr) {
     for (auto jt=it->quadratic_lvars.begin(); jt!= it->quadratic_lvars.end(); ++jt) {
-        unsigned int index = varmap[(*jt)->index];
+        size_t index = varmap[(*jt)->index];
         k_count[ index ].insert(ctr);
         J[ctr][ index ] = 0;
         }
     for (auto jt=it->quadratic_rvars.begin(); jt!= it->quadratic_rvars.end(); ++jt) {
-        unsigned int index = varmap[(*jt)->index];
+        size_t index = varmap[(*jt)->index];
         k_count[ index ].insert(ctr);
         J[ctr][ index ] = 0;
         }
     for (auto jt=it->nonlinear_vars.begin(); jt!= it->nonlinear_vars.end(); ++jt) {
-        unsigned int index = varmap[(*jt)->index];
+        size_t index = varmap[(*jt)->index];
         k_count[ index ].insert(ctr);
         J[ctr][ index ] = 0;
         }
     for (size_t j=0; j<it->linear_coefs.size(); ++j) {
-        unsigned int index = varmap[it->linear_vars[j]->index];
+        size_t index = varmap[it->linear_vars[j]->index];
         if (auto jt{ J[ctr].find(index) };  jt != J[ctr].end() )
             jt->second += it->linear_coefs[j].get_value();
         else {
@@ -1178,7 +921,7 @@ try {
     // "x" section - primal initial values
     //
     {
-    std::map<int, double> values;
+    std::map<size_t, double> values;
     ctr=0;
     for (auto it=vars.begin(); it != vars.end(); ++it, ++ctr) {
         auto tmp = varobj[*it].get_value();
@@ -1512,7 +1255,7 @@ ostr.close();
 #endif
 
 
-void write_nl_problem_ostream(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
+void write_nl_problem_ostream(Model& model, std::string& fname, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
 {
 NLWriter writer;
 writer.collect_nl_data(model, invvarmap, invconmap);
@@ -1520,18 +1263,18 @@ writer.write_ostream(model, fname);
 }
 
 #ifdef WITH_FMTLIB
-void write_nl_problem_fmtlib(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
+void write_nl_problem_fmtlib(Model& model, std::string& fname, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
 {
 NLWriter writer;
 writer.collect_nl_data(model, invvarmap, invconmap);
 writer.write_fmtlib(model, fname);
 }
 
-void write_nl_problem(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
+void write_nl_problem(Model& model, std::string& fname, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
 { write_nl_problem_fmtlib(model, fname, invvarmap, invconmap); }
 #else
 
-void write_nl_problem(Model& model, std::string& fname, std::map<int,int>& invvarmap, std::map<int,int>& invconmap)
+void write_nl_problem(Model& model, std::string& fname, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
 { write_nl_problem_ostream(model, fname, invvarmap, invconmap); }
 #endif
 

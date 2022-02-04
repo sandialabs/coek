@@ -388,6 +388,9 @@ switch (expr->id()) {
     VISIT_CASE(ACoshTerm);
     VISIT_CASE(ATanhTerm);
     VISIT_CASE(PowTerm);
+
+      default:
+          throw std::runtime_error("Error in QuadraticExpr visitor!  Visiting unexpected expression term " + std::to_string(expr->id()));
     };
 }
 

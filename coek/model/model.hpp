@@ -135,7 +135,7 @@ public:
 #endif
 
     /** \returns the variable with the specified id */
-    Variable get_variable(unsigned int i);
+    Variable get_variable(size_t i);
     /** \returns the variable with the specified name */
     Variable get_variable(const std::string& name);
     /** \returns the vector of variables added to this model */
@@ -170,7 +170,7 @@ public:
     Objective add_objective(const std::string& name, const Expression& expr, bool _sense=Model::minimize);
 
     /** \returns the objective with the specified id */
-    Objective get_objective(unsigned int i=0);
+    Objective get_objective(size_t i=0);
     /** \returns the objective with the specified name */
     Objective get_objective(const std::string& name);
 
@@ -199,7 +199,7 @@ public:
     Constraint add_constraint(const std::string& name, const Constraint& expr);
 
     /** \returns the constraint with the specified id */
-    Constraint get_constraint(unsigned int i);
+    Constraint get_constraint(size_t i);
     /** \returns the constraint with the specified name */
     Constraint get_constraint(const std::string& name);
 
@@ -264,7 +264,7 @@ public:
       * \param varmap  varmap[i] contains the id of the i-th variable in this model
       * \param conmap  conmap[i] contains the id of the i-th constraint in this model
       */
-    void write(std::string filename, std::map<int,int>& varmap, std::map<int,int>& conmap);
+    void write(std::string filename, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap);
     /** Print the equations in the model to \c std::cout */
     void print_equations() const;
     /** Print the equations in the model to the specified output stream */

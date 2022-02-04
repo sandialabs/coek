@@ -71,7 +71,7 @@ if (arg.n == 2)
 
 PlusTerm* _curr = dynamic_cast<PlusTerm*>(curr);
 
-for (unsigned int i=2; i<arg.n; i++) {
+for (size_t i=2; i<arg.n; i++) {
     curr = visit_expression((*(arg.data))[i]);
     _curr->push_back(curr);
     }

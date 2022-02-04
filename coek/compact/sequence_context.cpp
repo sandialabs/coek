@@ -60,7 +60,7 @@ return repn;
 size_t SequenceContext::size() const
 { return repn->context.size(); }
 
-Context& SequenceContext::operator[](unsigned int i)
+Context& SequenceContext::operator[](size_t i)
 { return repn->context[i]; }
 
 SequenceContext SequenceContext::Forall(const std::vector<IndexParameter>& indices)

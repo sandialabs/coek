@@ -60,7 +60,7 @@ public:
 
     size_t size() const;
 
-    Context& operator[](unsigned int i);
+    Context& operator[](size_t i);
 
     /** \returns a modifier to specify the indices used in this expression */
     template <typename... TYPES>

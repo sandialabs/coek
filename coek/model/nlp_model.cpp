@@ -66,10 +66,10 @@ void NLPModel::get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jc
 void NLPModel::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol)
 { repn->get_H_nonzeros(hrow, hcol); }
 
-double NLPModel::compute_f(unsigned int i)
+double NLPModel::compute_f(size_t i)
 { return repn->compute_f(i); }
 
-void NLPModel::compute_df(double& f, std::vector<double>& df, unsigned int i)
+void NLPModel::compute_df(double& f, std::vector<double>& df, size_t i)
 { repn->compute_df(f, df, i); }
 
 void NLPModel::compute_H(std::vector<double>& w, std::vector<double>& H)
@@ -78,7 +78,7 @@ void NLPModel::compute_H(std::vector<double>& w, std::vector<double>& H)
 void NLPModel::compute_c(std::vector<double>& c)
 { repn->compute_c(c); }
 
-void NLPModel::compute_dc(std::vector<double>& dc, unsigned int i)
+void NLPModel::compute_dc(std::vector<double>& dc, size_t i)
 { repn->compute_dc(dc, i); }
 
 void NLPModel::compute_J(std::vector<double>& J)
@@ -86,12 +86,12 @@ void NLPModel::compute_J(std::vector<double>& J)
 
 void NLPModel::write(std::string fname)
 {
-std::map<int,int> varmap;
-std::map<int,int> conmap;
+std::map<size_t,size_t> varmap;
+std::map<size_t,size_t> conmap;
 write(fname, varmap, conmap);
 }
 
-void NLPModel::write(std::string fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
+void NLPModel::write(std::string fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap)
 { repn->model.write(fname, varmap, conmap); }
 
 // GCOVR_EXCL_START

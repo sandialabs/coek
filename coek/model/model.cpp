@@ -187,7 +187,7 @@ size_t Model::num_objectives() const
 size_t Model::num_constraints() const
 { return repn->constraints.size(); }
 
-Variable Model::get_variable(unsigned int i)
+Variable Model::get_variable(size_t i)
 {
 if (i >= repn->variables.size())
     throw std::out_of_range("Variable index " + std::to_string(i) + " is too large: " + std::to_string(repn->variables.size()) + " variables available.");
@@ -197,14 +197,14 @@ return repn->variables[i];
 std::vector<Variable>& Model::get_variables()
 { return repn->variables; }
 
-Objective Model::get_objective(unsigned int i)
+Objective Model::get_objective(size_t i)
 {
 if (i >= repn->objectives.size())
     throw std::out_of_range("Objective index " + std::to_string(i) + " is too large: " + std::to_string(repn->objectives.size()) + " objectives available.");
 return repn->objectives[i];
 }
 
-Constraint Model::get_constraint(unsigned int i)
+Constraint Model::get_constraint(size_t i)
 {
 if (i >= repn->constraints.size())
     throw std::out_of_range("Constraint index " + std::to_string(i) + " is too large: " + std::to_string(repn->constraints.size()) + " constraints available.");
@@ -280,25 +280,25 @@ std::set<std::string> Model::constraint_suffix_names() const
 std::set<std::string> Model::model_suffix_names() const
 { return map_keys(repn->msuffix); }
 
-void write_lp_problem(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
-void write_nl_problem(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem(Model& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap);
+void write_nl_problem(Model& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap);
 
-void write_lp_problem_ostream(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
-void write_nl_problem_ostream(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem_ostream(Model& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap);
+void write_nl_problem_ostream(Model& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap);
 #ifdef WITH_FMTLIB
-void write_lp_problem_fmtlib(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
-void write_nl_problem_fmtlib(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem_fmtlib(Model& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap);
+void write_nl_problem_fmtlib(Model& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap);
 #endif
 
 
 void Model::write(std::string fname)
 {
-std::map<int,int> varmap;
-std::map<int,int> conmap;
+std::map<size_t,size_t> varmap;
+std::map<size_t,size_t> conmap;
 write(fname, varmap, conmap);
 }
 
-void Model::write(std::string fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
+void Model::write(std::string fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap)
 {
 if (endsWith(fname, ".lp")) {
     write_lp_problem(*this, fname, varmap, conmap);
@@ -338,22 +338,13 @@ throw std::runtime_error("Unknown problem type: "+fname);
 }
 
 
-void check_that_expression_variables_are_declared(Model& model, const std::map<unsigned int,Variable>& varobj)
+void check_that_expression_variables_are_declared(Model& model, const std::map<size_t,Variable>& varobj)
 {
-std::unordered_set<unsigned int> model_ids;
+std::unordered_set<size_t> model_ids;
 
 auto end = model.repn->variables.end();
 for (auto it=model.repn->variables.begin(); it != end; ++it)
     model_ids.insert( (*it).id() );
-
-/*
-for (unsigned int i: model_ids)
-  std::cout << i << std::endl;
-std::cout << std::endl;
-for (const auto& i: varobj)
-  std::cout << i.first << " " << i.second << std::endl;
-std::cout << std::endl;
-*/
 
 // TODO - Make this faster because both sets are ordered
 for (auto it=varobj.begin(); it != varobj.end(); it++) {
@@ -366,7 +357,7 @@ for (auto it=varobj.begin(); it != varobj.end(); it++) {
 
 void check_that_expression_variables_are_declared(Model& model, const std::unordered_set<VariableTerm*>& vars)
 {
-std::unordered_set<unsigned int> model_ids;
+std::unordered_set<size_t> model_ids;
 
 auto end = model.repn->variables.end();
 for (auto it=model.repn->variables.begin(); it != end; ++it)

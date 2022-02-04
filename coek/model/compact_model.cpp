@@ -12,10 +12,10 @@
 namespace coek {
 
 #ifdef COEK_WITH_COMPACT_MODEL
-void write_lp_problem(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
-void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem(CompactModel& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap);
+void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap);
 #ifdef WITH_FMTLIB
-void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap);
 #endif
 
 
@@ -209,12 +209,12 @@ return model;
 
 void CompactModel::write(std::string fname)
 {
-std::map<int,int> varmap;
-std::map<int,int> conmap;
+std::map<size_t,size_t> varmap;
+std::map<size_t,size_t> conmap;
 write(fname, varmap, conmap);
 }
 
-void CompactModel::write(std::string fname, std::map<int,int>& varmap, std::map<int,int>& conmap)
+void CompactModel::write(std::string fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap)
 {
 if (endsWith(fname, ".lp")) {
     write_lp_problem(*this, fname, varmap, conmap);

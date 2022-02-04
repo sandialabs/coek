@@ -96,16 +96,16 @@ while (std::getline(tokenStream, token, delimiter)) {
     }
 }
 
-Expression create_expression(const std::string& expr, std::map<int,Variable>& jpof_vmap, std::map<int,Parameter>& jpof_pmap)
+Expression create_expression(const std::string& expr, std::map<size_t,Variable>& jpof_vmap, std::map<size_t,Parameter>& jpof_pmap)
 {
 // Split the expression string by commas
 std::vector<std::string> tokens;
 split(expr, ',', tokens);
 
 size_t curr = 0;
-std::stack<int> estack;     // stack of expression strings
+std::stack<size_t> estack;     // stack of expression strings
 std::stack<EType> args;     // stack of arguments that need to be processed
-std::stack<int> nargs;      // # of arguments that still need to be generated
+std::stack<size_t> nargs;      // # of arguments that still need to be generated
 nargs.push( 1 );
 nargs.push( 1 );
 
@@ -116,14 +116,14 @@ while (curr < tokens.size()) {
     std::string& op = tokens[curr];
     if (op == "V") {
         curr++;
-        int id = stoi(tokens[curr]);                // TODO - error check
+        size_t id = stoul(tokens[curr]);                // TODO - error check
         args.push( EType(jpof_vmap[id]) );     // TODO - error check
         nargs.top()--;
         curr++;
         }
     else if (op == "P") {
         curr++;
-        int id = stoi(tokens[curr]);                // TODO - error check
+        size_t id = stoul(tokens[curr]);                // TODO - error check
         args.push( EType(jpof_pmap[id]) );     // TODO - error check
         nargs.top()--;
         curr++;
@@ -147,7 +147,7 @@ while (curr < tokens.size()) {
             nargs.push( 1 );
             }
         else if (op == "sum") {
-            int ival = stoi(tokens[curr]);          // TODO - error check
+            size_t ival = stoul(tokens[curr]);          // TODO - error check
             nargs.push( ival );
             nargs.push( ival );
             curr++;
@@ -163,7 +163,7 @@ while (curr < tokens.size()) {
     //
     while (nargs.top() == 0) {
         nargs.pop();
-        int n = nargs.top(); // # of arguments to collect from the end of args
+        size_t n = nargs.top(); // # of arguments to collect from the end of args
         nargs.pop();
 
         if (estack.size() == 0)
@@ -221,13 +221,13 @@ while (curr < tokens.size()) {
             else {
                 // Collect the arguments and then sum them in order
                 std::vector<Expression> arg(n);
-                for (int i=n-1; i>=0; i--) {
+                for (size_t i=0; i<n; i++) {
                     EType a = args.top();
                     args.pop();
-                    arg[i] = a.as_expression();
+                    arg[n-1-i] = a.as_expression();
                     }
                 Expression e = arg[0];
-                for (int i=1; i<n; i++)
+                for (size_t i=1; i<n; i++)
                     e += arg[i];
                 args.push(e);
                 }
@@ -247,10 +247,10 @@ return arg.as_expression();
 //
 // Process JPOF file version 20210301
 //
-void process_jpof_v20210301(rapidjson::Document& doc, Model& model, std::map<std::string,Parameter>& params, std::map<int,int>& vmap)
+void process_jpof_v20210301(rapidjson::Document& doc, Model& model, std::map<std::string,Parameter>& params, std::map<size_t,size_t>& vmap)
 {
-std::map<int,Variable> jpof_vmap;
-std::map<int,Parameter> jpof_pmap;
+std::map<size_t,Variable> jpof_vmap;
+std::map<size_t,Parameter> jpof_pmap;
 
 const rapidjson::Value& mdoc = doc["model"];
 
@@ -258,7 +258,7 @@ const rapidjson::Value& mdoc = doc["model"];
 // Process variables
 //
 RUNTIME_ASSERT(mdoc["var"].IsArray(), "Missing 'var' in JPOF data");
-int ctr=0;
+size_t ctr=0;
 for (auto& var : mdoc["var"].GetArray()) {
 
     double value=0.0;
@@ -326,7 +326,7 @@ for (auto& var : mdoc["var"].GetArray()) {
 
     if (var.HasMember("id")) {
         if (var["id"].IsUint()) {
-            int tmp = var["id"].GetUint();
+            size_t tmp = var["id"].GetUint();
             vmap[v.id()] = tmp;
             jpof_vmap[tmp] = v;         // TODO - error check
             }
@@ -345,7 +345,7 @@ RUNTIME_ASSERT(ctr > 0, "A JPOF problem must have one or more variables");
 //
 if (mdoc.HasMember("param")) {
     RUNTIME_ASSERT(mdoc["param"].IsArray(), "Missing 'param' in JPOF data");
-    int ctr=0;
+    size_t ctr=0;
     for (auto& param : mdoc["param"].GetArray()) {
 
         double value=0.0;
@@ -372,7 +372,7 @@ if (mdoc.HasMember("param")) {
 
         if (param.HasMember("id")) {
             if (param["id"].IsInt())
-                jpof_pmap[ param["id"].GetInt() ] = p;      // TODO - error check
+                jpof_pmap[ param["id"].GetUint64() ] = p;      // TODO - error check
             else
                 throw std::runtime_error("Error processing parameter "+std::to_string(ctr)+": Non-integer value for parameter id");
             }
@@ -517,7 +517,7 @@ if (mdoc.HasMember("con")) {
 }
 
 
-Model create_model_from_dom(rapidjson::Document& d, std::map<std::string,Parameter>& params, std::map<int,int>& vmap)
+Model create_model_from_dom(rapidjson::Document& d, std::map<std::string,Parameter>& params, std::map<size_t,size_t>& vmap)
 {
 // DOM sanity checks
 RUNTIME_ASSERT(d.IsObject(), "JPOF data is not a valid JSON object");
@@ -569,7 +569,7 @@ if (d.HasParseError()) {
  
 fclose(fp);
 
-std::map<int,int> vmap;
+std::map<size_t,size_t> vmap;
 return reader_jpof::create_model_from_dom(d, params, vmap);
 #else
 throw std::runtime_error("Must install RapidJSON to read a JPOF file.");
@@ -586,7 +586,7 @@ if (d.HasParseError()) {
     throw std::runtime_error("Error parsing JPOF string (offset " + std::to_string((unsigned)d.GetErrorOffset()) +"): "+msg);
     }
 
-std::map<int,int> vmap;
+std::map<size_t,size_t> vmap;
 return reader_jpof::create_model_from_dom(d, params, vmap);
 #else
 throw std::runtime_error("Must install RapidJSON to parse a JPOF string.");

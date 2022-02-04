@@ -417,7 +417,7 @@ switch (expr->id()) {
     VISIT_CASE(IndexParameterTerm);
     VISIT_CASE(VariableTerm);
     VISIT_CASE(IndexedVariableTerm);
-#ifdef CoEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
     VISIT_CASE(VariableRefTerm);
 #endif
     VISIT_CASE(MonomialTerm);
@@ -448,6 +448,9 @@ switch (expr->id()) {
     VISIT_CASE(ACoshTerm);
     VISIT_CASE(ATanhTerm);
     VISIT_CASE(PowTerm);
+
+    default:
+        throw std::runtime_error("Error in MutableNLPExpr visitor!  Visiting unexpected expression term " + std::to_string(expr->id()));
     };
 }
 
