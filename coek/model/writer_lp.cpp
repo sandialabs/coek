@@ -1,3 +1,4 @@
+#include <cmath>
 #include <map>
 #include <exception>
 #include <string>
@@ -468,7 +469,7 @@ ostr << "c" << ctr << ":\n";
 ++ctr;
 CALI_MARK_END("collect_terms");
 
-bool is_equality = not c.is_inequality() or (lower.repn and upper.repn and (fabs(lower.get_value()-upper.get_value()) < EPSILON));
+bool is_equality = not c.is_inequality() or (lower.repn and upper.repn and (::fabs(lower.get_value()-upper.get_value()) < EPSILON));
 
 if (not is_equality) {
     //CALI_MARK_BEGIN("IF");
@@ -578,7 +579,7 @@ ostr.print("c{}:\n", ctr);
 ++ctr;
 CALI_MARK_END("collect_terms");
 
-bool is_equality = not c.is_inequality() or (lower.repn and upper.repn and (fabs(lower.get_value()-upper.get_value()) < EPSILON));
+bool is_equality = not c.is_inequality() or (lower.repn and upper.repn and (::fabs(lower.get_value()-upper.get_value()) < EPSILON));
 
 if (not is_equality) {
     //CALI_MARK_BEGIN("IF");
