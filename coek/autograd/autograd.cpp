@@ -1,3 +1,4 @@
+#include <cmath>
 #include <unordered_set>
 #include "../ast/visitor_fns.hpp"
 #include "../ast/base_terms.hpp"

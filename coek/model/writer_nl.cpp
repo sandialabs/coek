@@ -422,10 +422,11 @@ if (quadratic) {
         if (rhs < lhs)
             std::swap(lhs,rhs);
         auto key = std::pair<size_t,size_t>(lhs, rhs);
-        if (term.find(key) == term.end())
-            term[key] = repn.quadratic_coefs[i].get_value();
+        auto it = term.find(key);
+        if (it != term.end())
+            it->second += repn.quadratic_coefs[i].get_value();
         else
-            term[key] += repn.quadratic_coefs[i].get_value();
+            term[key] = repn.quadratic_coefs[i].get_value();
         }
     }
 
@@ -490,10 +491,18 @@ if (quadratic) {
         if (rhs < lhs)
             std::swap(lhs,rhs);
         auto key = std::pair<ITYPE,ITYPE>(lhs, rhs);
+
+        auto it = term.find(key);
+        if (it != term.end())
+            it->second += repn.quadratic_coefs[i].get_value();
+        else
+            term[key] = repn.quadratic_coefs[i].get_value();
+/*
         if (auto it{ term.find(key) };  it != term.end() )
             it->second += repn.quadratic_coefs[i].get_value();
         else
             term[key] = repn.quadratic_coefs[i].get_value();
+*/
         }
     }
 
@@ -822,10 +831,17 @@ for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ++ctr) {
         }
     for (size_t j=0; j<it->linear_coefs.size(); ++j) {
         auto index = varmap[it->linear_vars[j]->index];
+        auto jt = G[ctr].find(index);
+        if (jt != G[ctr].end())
+            jt->second += it->linear_coefs[j].get_value();
+        else
+            G[ctr][index] = it->linear_coefs[j].get_value();
+/*
         if (auto jt{ G[ctr].find(index) };  jt != G[ctr].end() )
             jt->second += it->linear_coefs[j].get_value();
         else
             G[ctr][index] = it->linear_coefs[j].get_value();
+*/
         }
     }
 }
@@ -849,12 +865,21 @@ for (auto it=c_expr.begin(); it != c_expr.end(); ++it, ++ctr) {
         }
     for (size_t j=0; j<it->linear_coefs.size(); ++j) {
         size_t index = varmap[it->linear_vars[j]->index];
+        auto jt = J[ctr].find(index);
+        if (jt != J[ctr].end())
+            jt->second += it->linear_coefs[j].get_value();
+        else {
+            k_count[ index ].insert(ctr);
+            J[ctr][index] = it->linear_coefs[j].get_value();
+            }
+/*
         if (auto jt{ J[ctr].find(index) };  jt != J[ctr].end() )
             jt->second += it->linear_coefs[j].get_value();
         else {
             k_count[ index ].insert(ctr);
             J[ctr][index] = it->linear_coefs[j].get_value();
             }
+*/
         }
     }
 }

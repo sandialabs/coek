@@ -62,11 +62,11 @@ if (repn.linear_coefs.size() > 0) {
     for (auto& it: repn.linear_vars) {
         size_t index = get_vid_value(vid, it->index);
 
-        std::map<size_t,double>::iterator curr = vval.find(index);
-        if (curr == vval.end())
-            vval[index] = repn.linear_coefs[i];
-        else
+        auto curr = vval.find(index);
+        if (curr != vval.end())
             vval[index] += repn.linear_coefs[i];
+        else
+            vval[index] = repn.linear_coefs[i];
         i++;
         }
 
@@ -92,10 +92,10 @@ if (repn.quadratic_coefs.size() > 0) {
             tmp = std::pair<size_t,size_t>(rindex, lindex);
 
         auto curr = qval.find(tmp);
-        if (curr == qval.end())
-            qval[ tmp ] = repn.quadratic_coefs[ii];
-        else
+        if (curr != qval.end())
             qval[ tmp ] += repn.quadratic_coefs[ii];
+        else
+            qval[ tmp ] = repn.quadratic_coefs[ii];
         }
 
     ostr << "+ [\n";
@@ -130,11 +130,11 @@ if (repn.linear_coefs.size() > 0) {
     for (auto& it: repn.linear_vars) {
         size_t index = get_vid_value(vid, it->index);
 
-        std::map<size_t,double>::iterator curr = vval.find(index);
-        if (curr == vval.end())
-            vval[index] = repn.linear_coefs[i];
-        else
+        auto curr = vval.find(index);
+        if (curr != vval.end())
             curr->second += repn.linear_coefs[i];
+        else
+            vval[index] = repn.linear_coefs[i];
 #if 0
         if (auto jt{ vval.find(index) };  jt != vval.end() )
             jt->second += repn.linear_coefs[i];
@@ -164,10 +164,10 @@ if (repn.quadratic_coefs.size() > 0) {
             tmp = std::pair<size_t,size_t>(rindex, lindex);
 
         auto curr = qval.find(tmp);
-        if (curr == qval.end())
-            qval[ tmp ] = repn.quadratic_coefs[ii];
-        else
+        if (curr != qval.end())
             curr->second += repn.quadratic_coefs[ii];
+        else
+            qval[ tmp ] = repn.quadratic_coefs[ii];
 #if 0
         if (auto it{ qval.find(tmp) };  it != qval.end() )
             it->second += repn.quadratic_coefs[ii];
