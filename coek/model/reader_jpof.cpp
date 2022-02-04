@@ -61,13 +61,13 @@ class EType
 public:
 
     int type;
-    int ival;           // 0
+    size_t ival;        // 0
     double dval;        // 1
     Variable vval;      // 2
     Parameter pval;     // 3
     Expression eval;    // 4
 
-    EType(int i) : type(0), ival(i) {}
+    EType(size_t i) : type(0), ival(i) {}
     EType(double d) : type(1), dval(d) {}
     EType(const Variable& v) : type(2), vval(v) {}
     EType(const Parameter& p) : type(3), pval(p) {}
@@ -77,7 +77,7 @@ public:
         {
         Expression e;
         switch (type) {
-            case 0: e=Expression(ival); break;
+            case 0: throw std::runtime_error("Unexpected unsigned integer value"); break;   // GCOVR_EXCL_LINE
             case 1: e=Expression(dval); break;
             case 2: e=Expression(vval); break;
             case 3: e=Expression(pval); break;
@@ -153,7 +153,7 @@ while (curr < tokens.size()) {
             curr++;
             }
         else
-            throw std::runtime_error("Error generating expression: token="+std::to_string(curr)+" op="+op);
+            throw std::runtime_error("Error generating expression: token="+std::to_string(curr)+" op="+op); // GCOVR_EXCL_LINE
         }
     //
     // If we have completed an operator, create the expression
@@ -215,8 +215,11 @@ while (curr < tokens.size()) {
                 }
 #else
             if (n == 0) {
+                // WEH - A sum with 0 terms is valid, but probably shouldn't occur in practice.
+                // GCOVR_EXCL_START
                 Expression e(0);
                 args.push(e);
+                // GCOVR_EXCL_STOP
                 }
             else {
                 // Collect the arguments and then sum them in order
@@ -268,7 +271,9 @@ for (auto& var : mdoc["var"].GetArray()) {
         else if (var["value"].IsDouble())
             value = var["value"].GetDouble();
         else
+            // GCOVR_EXCL_START
             throw std::runtime_error("Error processing variable "+std::to_string(ctr)+": Non-numeric value for variable value");
+            // GCOVR_EXCL_STOP
         }
 
     double lb=-COEK_INFINITY;
@@ -278,7 +283,9 @@ for (auto& var : mdoc["var"].GetArray()) {
         else if (var["lb"].IsDouble())
             lb = var["lb"].GetDouble();
         else
+            // GCOVR_EXCL_START
             throw std::runtime_error("Error processing variable "+std::to_string(ctr)+": Non-numeric value for variable lb");
+            // GCOVR_EXCL_STOP
         }
 
     double ub=COEK_INFINITY;
@@ -288,7 +295,9 @@ for (auto& var : mdoc["var"].GetArray()) {
         else if (var["ub"].IsDouble())
             ub = var["ub"].GetDouble();
         else
+            // GCOVR_EXCL_START
             throw std::runtime_error("Error processing variable "+std::to_string(ctr)+": Non-numeric value for variable ub");
+            // GCOVR_EXCL_STOP
         }
 
     std::string vtype = "R";
@@ -298,7 +307,9 @@ for (auto& var : mdoc["var"].GetArray()) {
         if (var["type"].IsString())
             vtype = var["type"].GetString();
         else
+            // GCOVR_EXCL_START
             throw std::runtime_error("Error processing variable "+std::to_string(ctr)+": Non-string value for variable type");
+            // GCOVR_EXCL_STOP
         }
     if (vtype == "B")
         binary = true;
@@ -310,7 +321,9 @@ for (auto& var : mdoc["var"].GetArray()) {
         if (var["label"].IsString())
             label = var["label"].GetString();
         else
+            // GCOVR_EXCL_START
             throw std::runtime_error("Error processing variable "+std::to_string(ctr)+": Non-string value for variable label");
+            // GCOVR_EXCL_STOP
         }
 
     bool fixed=false;
@@ -318,7 +331,9 @@ for (auto& var : mdoc["var"].GetArray()) {
         if (var["fixed"].IsInt())
             fixed = var["fixed"].GetInt();
         else
+            // GCOVR_EXCL_START
             throw std::runtime_error("Error processing variable "+std::to_string(ctr)+": Non-integer value for variable fixed flag");
+            // GCOVR_EXCL_STOP
         }
 
     auto v = model.add_variable(label, lb, ub, value, binary, integer);
@@ -331,10 +346,14 @@ for (auto& var : mdoc["var"].GetArray()) {
             jpof_vmap[tmp] = v;         // TODO - error check
             }
         else
+            // GCOVR_EXCL_START
             throw std::runtime_error("Error processing variable "+std::to_string(ctr)+": Variable id must be an unsigned integer");
+            // GCOVR_EXCL_STOP
         }
     else
+        // GCOVR_EXCL_START
         throw std::runtime_error("Error processing variable "+std::to_string(ctr)+": Variable id is required");
+        // GCOVR_EXCL_STOP
 
     ctr++;
     }
@@ -350,12 +369,15 @@ if (mdoc.HasMember("param")) {
 
         double value=0.0;
         if (param.HasMember("value")) {
-            if (param["value"].IsInt())
-                value = param["value"].GetInt();
-            else if (param["value"].IsDouble())
+            if (param["value"].IsDouble())
                 value = param["value"].GetDouble();
+            // WEH - Pyomo/POEK parameters are always double values.  Checking for integer values just to be complete.
+            // GCOVR_EXCL_START
+            else if (param["value"].IsInt())
+                value = param["value"].GetInt();
             else
                 throw std::runtime_error("Error processing parameter "+std::to_string(ctr)+": Non-numeric value for parameter value");
+            // GCOVR_EXCL_STOP
             }
 
         Parameter p(value);
@@ -367,17 +389,23 @@ if (mdoc.HasMember("param")) {
                 params[name] = p;
                 }
             else
+                // GCOVR_EXCL_START
                 throw std::runtime_error("Error processing parameter "+std::to_string(ctr)+": Non-string value for parameter label");
+                // GCOVR_EXCL_STOP
             }
 
         if (param.HasMember("id")) {
             if (param["id"].IsInt())
                 jpof_pmap[ param["id"].GetUint64() ] = p;      // TODO - error check
             else
+                // GCOVR_EXCL_START
                 throw std::runtime_error("Error processing parameter "+std::to_string(ctr)+": Non-integer value for parameter id");
+                // GCOVR_EXCL_STOP
             }
         else
+            // GCOVR_EXCL_START
             throw std::runtime_error("Error processing parameter "+std::to_string(ctr)+": Parameter id is required");
+            // GCOVR_EXCL_STOP
 
         ctr++;
         }
@@ -396,17 +424,23 @@ if (mdoc.HasMember("obj")) {
             if (obj["expr"].IsString())
                 expr = obj["expr"].GetString();
             else
+                // GCOVR_EXCL_START
                 throw std::runtime_error("Error processing objective "+std::to_string(ctr)+": Non-string value for objective expression");
+                // GCOVR_EXCL_STOP
             }
         else
+            // GCOVR_EXCL_START
             throw std::runtime_error("Error processing objective "+std::to_string(ctr)+": Objective expression not defined");
+            // GCOVR_EXCL_STOP
 
         std::string label;
         if (obj.HasMember("label")) {
             if (obj["label"].IsString())
                 label = obj["label"].GetString();
             else
+                // GCOVR_EXCL_START
                 throw std::runtime_error("Error processing objective "+std::to_string(ctr)+": Non-string value for objective label");
+                // GCOVR_EXCL_STOP
             }
 
         bool min=true;
@@ -416,7 +450,9 @@ if (mdoc.HasMember("obj")) {
                 min = (sense == "min");
                 }
             else
+                // GCOVR_EXCL_START
                 throw std::runtime_error("Error processing objective "+std::to_string(ctr)+": Non-string value for objective sense");
+                // GCOVR_EXCL_STOP
             }
 
         if (min)
@@ -441,17 +477,23 @@ if (mdoc.HasMember("con")) {
             if (con["expr"].IsString())
                 expr = con["expr"].GetString();
             else
+                // GCOVR_EXCL_START
                 throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Non-string value for constraint expression");
+                // GCOVR_EXCL_STOP
             }
         else
+            // GCOVR_EXCL_START
             throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Constraint expression not defined");
+            // GCOVR_EXCL_STOP
 
         std::string label;
         if (con.HasMember("label")) {
             if (con["label"].IsString())
                 label = con["label"].GetString();
             else
+                // GCOVR_EXCL_START
                 throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Non-string value for constraint label");
+                // GCOVR_EXCL_STOP
             }
 
         Constraint c;
@@ -466,7 +508,9 @@ if (mdoc.HasMember("con")) {
                 c = create_expression(expr, jpof_vmap, jpof_pmap) == rhs;
                 }
             else
+                // GCOVR_EXCL_START
                 throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Unexpected value for constraint eq");
+                // GCOVR_EXCL_STOP
             }
         else if (con.HasMember("geq") or con.HasMember("leq")) {
             bool has_geq=false;
@@ -484,7 +528,9 @@ if (mdoc.HasMember("con")) {
                     lb = create_expression(con["geq"].GetString(), jpof_vmap, jpof_pmap);
                     }
                 else
+                    // GCOVR_EXCL_START
                     throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Unexpected value for constraint geq");
+                    // GCOVR_EXCL_STOP
                 }
 
             if (con.HasMember("leq")) {
@@ -497,7 +543,9 @@ if (mdoc.HasMember("con")) {
                     ub = create_expression(con["leq"].GetString(), jpof_vmap, jpof_pmap);
                     }
                 else
+                    // GCOVR_EXCL_START
                     throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Unexpected value for constraint leq");
+                    // GCOVR_EXCL_STOP
                 }
 
             if (has_geq and has_leq)
@@ -508,7 +556,9 @@ if (mdoc.HasMember("con")) {
                 c = create_expression(expr, jpof_vmap, jpof_pmap) <= ub;
             }
         else
+            // GCOVR_EXCL_START
             throw std::runtime_error("Error processing constraint "+std::to_string(ctr)+": Must specify equality or inequality constraint values (eq, geq, leq)");
+            // GCOVR_EXCL_STOP
         model.add_constraint(label, c);
 
         ctr++;
@@ -541,7 +591,9 @@ int version = d["__metadata__"]["version"].GetInt();
 if (version >= 20210301)
     process_jpof_v20210301(d, model, params, vmap);
 else
+    // GCOVR_EXCL_START
     throw std::runtime_error("Unexpected JPOF format version: "+std::to_string(version));
+    // GCOVR_EXCL_STOP
 
 return model;
 }
@@ -589,7 +641,9 @@ if (d.HasParseError()) {
 std::map<size_t,size_t> vmap;
 return reader_jpof::create_model_from_dom(d, params, vmap);
 #else
+// GCOVR_EXCL_START
 throw std::runtime_error("Must install RapidJSON to parse a JPOF string.");
+// GCOVR_EXCL_STOP
 #endif
 }
 
