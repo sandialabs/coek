@@ -1,5 +1,3 @@
-#ifndef COEK_COMPACT_CONSTRAINT_SEQUENCE_H
-#define COEK_COMPACT_CONSTRAINT_SEQUENCE_H
 #pragma once
 
 #include <vector>
@@ -51,7 +49,7 @@ public:
 public:
 
     ConstraintSequence(const std::shared_ptr<ConstraintSequenceRepn>& _repn);
-    ConstraintSequence(const Constraint& con, const SequenceContext& context);
+    ConstraintSequence(const SequenceContext& context, const Constraint& con);
 
     ConstraintSeqIterator begin();
     ConstraintSeqIterator end();
@@ -59,4 +57,3 @@ public:
     const ConstraintSeqIterator end() const;
 };
 }
-#endif

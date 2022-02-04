@@ -37,7 +37,7 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
 
       WHEN( "value" ) {
         auto s = coek::SetOf( v );
-        for (int i=0; i<4; i++) {
+        for (size_t i=0; i<4; i++) {
             int ans;
             s.value(i, ans);
             REQUIRE( ans == v[i] );
@@ -46,7 +46,7 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
 
       WHEN( "contains" ) {
         auto s = coek::SetOf( v );
-        for (int i=0; i<4; i++) {
+        for (size_t i=0; i<4; i++) {
             REQUIRE( s.contains(v[i]) == true );
             }
         }
@@ -59,7 +59,7 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
 
       WHEN( "iterate" ) {
         auto s = coek::SetOf( v );
-        int i=0;
+        size_t i=0;
         for (auto it=s.begin(); it != s.end(); ++it) {
             //REQUIRE( v[i] == std::get<int>((*it)[0]) );
             REQUIRE( v[i] == (*it)[0] );
@@ -329,10 +329,10 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
       }
 
       WHEN( "value" ) {
-        for (int i=0; i<6; i++) {
+        for (size_t i=0; i<6; i++) {
             int ans;
             s.value(i, ans);
-            REQUIRE( ans == i*2 );
+            REQUIRE( ans == static_cast<int>(i*2) );
             }
       }
 
@@ -348,10 +348,10 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
         }
 
       WHEN( "iterate" ) {
-        int i=0;
+        size_t i=0;
         for (auto it=s.begin(); it != s.end(); ++it) {
             //REQUIRE( 2*i == std::get<int>((*it)[0]) );
-            REQUIRE( 2*i == (*it)[0] );
+            REQUIRE( static_cast<int>(2*i) == (*it)[0] );
             i++;
             }
         }
@@ -448,7 +448,7 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
 
       WHEN( "value" ) {
         auto s = coek::SetOf( {1,5,3,7} );
-        for (int i=0; i<4; i++) {
+        for (size_t i=0; i<4; i++) {
             int ans;
             s.value(i, ans);
             REQUIRE( ans == v[i] );
@@ -457,7 +457,7 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
 
       WHEN( "contains" ) {
         auto s = coek::SetOf( {1,5,3,7} );
-        for (int i=0; i<4; i++) {
+        for (size_t i=0; i<4; i++) {
             REQUIRE( s.contains(v[i]) == true );
             }
         }
@@ -470,7 +470,7 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
 
       WHEN( "iterate" ) {
         auto s = coek::SetOf( {1,5,3,7} );
-        int i=0;
+        size_t i=0;
         for (auto it=s.begin(); it != s.end(); ++it) {
             //REQUIRE( v[i] == std::get<int>((*it)[0]) );
             REQUIRE( v[i] == (*it)[0] );
@@ -635,7 +635,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "value" ) {
             auto S = s.initialize();
-            for (int i=0; i<2; i++) {
+            for (size_t i=0; i<2; i++) {
                 int ans;
                 S.value(i, ans);
                 REQUIRE( ans == v[i] );
@@ -644,7 +644,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "contains" ) {
             auto S = s.initialize();
-            for (int i=0; i<2; i++) {
+            for (size_t i=0; i<2; i++) {
                 REQUIRE( S.contains(v[i]) == true );
                 }
         }
@@ -657,7 +657,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "iterate" ) {
             auto S = s.initialize();
-            int i=0;
+            size_t i=0;
             for (auto it=S.begin(); it != S.end(); ++it) {
                 //REQUIRE( v[i] == std::get<int>((*it)[0]) );
                 REQUIRE( v[i] == (*it)[0] );
@@ -693,7 +693,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "value" ) {
             auto S = s.initialize();
-            for (int i=0; i<2; i++) {
+            for (size_t i=0; i<2; i++) {
                 int ans;
                 S.value(i, ans);
                 REQUIRE( ans == v[i] );
@@ -702,7 +702,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "contains" ) {
             auto S = s.initialize();
-            for (int i=0; i<2; i++) {
+            for (size_t i=0; i<2; i++) {
                 REQUIRE( S.contains(v[i]) == true );
                 }
         }
@@ -715,7 +715,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "iterate" ) {
             auto S = s.initialize();
-            int i=0;
+            size_t i=0;
             for (auto it=S.begin(); it != S.end(); ++it) {
                 //REQUIRE( v[i] == std::get<int>((*it)[0]) );
                 REQUIRE( v[i] == (*it)[0] );
@@ -751,7 +751,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "value" ) {
             auto S = s.initialize();
-            for (int i=0; i<9; i++) {
+            for (size_t i=0; i<9; i++) {
                 int ans;
                 S.value(i, ans);
                 REQUIRE( ans == v[i] );
@@ -760,7 +760,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "contains" ) {
             auto S = s.initialize();
-            for (int i=0; i<9; i++) {
+            for (size_t i=0; i<9; i++) {
                 REQUIRE( S.contains(v[i]) == true );
                 }
         }
@@ -773,7 +773,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "iterate" ) {
             auto S = s.initialize();
-            int i=0;
+            size_t i=0;
             for (auto it=S.begin(); it != S.end(); ++it) {
                 //REQUIRE( v[i] == std::get<int>((*it)[0]) );
                 REQUIRE( v[i] == (*it)[0] );
@@ -809,7 +809,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "value" ) {
             auto S = s.initialize();
-            for (int i=0; i<9; i++) {
+            for (size_t i=0; i<9; i++) {
                 int ans;
                 S.value(i, ans);
                 REQUIRE( ans == v[i] );
@@ -818,7 +818,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "contains" ) {
             auto S = s.initialize();
-            for (int i=0; i<9; i++) {
+            for (size_t i=0; i<9; i++) {
                 REQUIRE( S.contains(v[i]) == true );
                 }
         }
@@ -831,7 +831,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "iterate" ) {
             auto S = s.initialize();
-            int i=0;
+            size_t i=0;
             for (auto it=S.begin(); it != S.end(); ++it) {
                 //REQUIRE( v[i] == std::get<int>((*it)[0]) );
                 REQUIRE( v[i] == (*it)[0] );
@@ -867,7 +867,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "value" ) {
             auto S = s.initialize();
-            for (int i=0; i<9; i++) {
+            for (size_t i=0; i<9; i++) {
                 int ans;
                 S.value(i, ans);
                 REQUIRE( ans == v[i] );
@@ -876,7 +876,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "contains" ) {
             auto S = s.initialize();
-            for (int i=0; i<9; i++) {
+            for (size_t i=0; i<9; i++) {
                 REQUIRE( S.contains(v[i]) == true );
                 }
         }
@@ -889,7 +889,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "iterate" ) {
             auto S = s.initialize();
-            int i=0;
+            size_t i=0;
             for (auto it=S.begin(); it != S.end(); ++it) {
                 //REQUIRE( v[i] == std::get<int>((*it)[0]) );
                 REQUIRE( v[i] == (*it)[0] );
@@ -905,7 +905,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "iterate" ) {
             auto S = s.initialize();
-            int i=0;
+            size_t i=0;
             for (auto it=S.begin(); it != S.end(); ++it) {
                 //REQUIRE( v[i] == std::get<int>((*it)[0]) );
                 REQUIRE( v[i] == (*it)[0] );
@@ -941,7 +941,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "value" ) {
             auto S = s.initialize();
-            for (int i=0; i<2; i++) {
+            for (size_t i=0; i<2; i++) {
                 int ans;
                 S.value(i, ans);
                 REQUIRE( ans == v[i] );
@@ -950,7 +950,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "contains" ) {
             auto S = s.initialize();
-            for (int i=0; i<2; i++) {
+            for (size_t i=0; i<2; i++) {
                 REQUIRE( S.contains(v[i]) == true );
                 }
         }
@@ -963,7 +963,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "iterate" ) {
             auto S = s.initialize();
-            int i=0;
+            size_t i=0;
             for (auto it=S.begin(); it != S.end(); ++it) {
                 //REQUIRE( v[i] == std::get<int>((*it)[0]) );
                 REQUIRE( v[i] == (*it)[0] );
@@ -999,7 +999,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "value" ) {
             auto S = s.initialize();
-            for (int i=0; i<2; i++) {
+            for (size_t i=0; i<2; i++) {
                 int ans;
                 S.value(i, ans);
                 REQUIRE( ans == v[i] );
@@ -1008,7 +1008,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "contains" ) {
             auto S = s.initialize();
-            for (int i=0; i<2; i++) {
+            for (size_t i=0; i<2; i++) {
                 REQUIRE( S.contains(v[i]) == true );
                 }
         }
@@ -1021,7 +1021,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "iterate" ) {
             auto S = s.initialize();
-            int i=0;
+            size_t i=0;
             for (auto it=S.begin(); it != S.end(); ++it) {
                 //REQUIRE( v[i] == std::get<int>((*it)[0]) );
                 REQUIRE( v[i] == (*it)[0] );
@@ -1057,7 +1057,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "value" ) {
             auto S = s.initialize();
-            for (int i=0; i<7; i++) {
+            for (size_t i=0; i<7; i++) {
                 int ans;
                 S.value(i, ans);
                 REQUIRE( ans == v[i] );
@@ -1066,7 +1066,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "contains" ) {
             auto S = s.initialize();
-            for (int i=0; i<7; i++) {
+            for (size_t i=0; i<7; i++) {
                 REQUIRE( S.contains(v[i]) == true );
                 }
         }
@@ -1079,7 +1079,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "iterate" ) {
             auto S = s.initialize();
-            int i=0;
+            size_t i=0;
             for (auto it=S.begin(); it != S.end(); ++it) {
                 //REQUIRE( v[i] == std::get<int>((*it)[0]) );
                 REQUIRE( v[i] == (*it)[0] );
@@ -1115,7 +1115,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "value" ) {
             auto S = s.initialize();
-            for (int i=0; i<7; i++) {
+            for (size_t i=0; i<7; i++) {
                 int ans;
                 S.value(i, ans);
                 REQUIRE( ans == v[i] );
@@ -1124,7 +1124,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "contains" ) {
             auto S = s.initialize();
-            for (int i=0; i<7; i++) {
+            for (size_t i=0; i<7; i++) {
                 REQUIRE( S.contains(v[i]) == true );
                 }
         }
@@ -1137,7 +1137,7 @@ TEST_CASE( "finite_operations_int", "[smoke]" ) {
 
         WHEN( "iterate" ) {
             auto S = s.initialize();
-            int i=0;
+            size_t i=0;
             for (auto it=S.begin(); it != S.end(); ++it) {
                 //REQUIRE( v[i] == std::get<int>((*it)[0]) );
                 REQUIRE( v[i] == (*it)[0] );

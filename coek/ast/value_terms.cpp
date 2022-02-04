@@ -62,25 +62,28 @@ void IndexParameterTerm::set_value(int value)
 void IndexParameterTerm::set_value(const std::string& value)
 { type = 3; string_value = value; }
 
-void IndexParameterTerm::get_value(double& value)
+bool IndexParameterTerm::get_value(double& value)
 {
 if (type != 1)
-    throw std::runtime_error("No double value stored in index parameter.");
+    return false;
 value = double_value;
+return true;
 }
 
-void IndexParameterTerm::get_value(int& value)
+bool IndexParameterTerm::get_value(int& value)
 {
 if (type != 2)
-    throw std::runtime_error("No integer value stored in index parameter.");
+    return false;
 value = int_value;
+return true;
 }
 
-void IndexParameterTerm::get_value(std::string& value)
+bool IndexParameterTerm::get_value(std::string& value)
 {
 if (type != 3)
-    throw std::runtime_error("No string value stored in index parameter.");
+    return false;
 value = string_value;
+return true;
 }
 
 //
@@ -89,6 +92,7 @@ value = string_value;
 
 unsigned int VariableTerm::count = 0;
 
+/*
 VariableTerm::VariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _indexed)
     : value(_value),
       lb(_lb),
@@ -100,6 +104,35 @@ VariableTerm::VariableTerm(double _lb, double _ub, double _value, bool _binary, 
 {
 index = count++;
 }
+*/
+VariableTerm::VariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub, const expr_pointer_t& _value, bool _binary, bool _integer, bool _indexed)
+    : value(_value),
+      lb(_lb),
+      ub(_ub),
+      binary(_binary),
+      integer(_integer),
+      fixed(false),
+      indexed(_indexed)
+{
+index = count++;
+if (_lb)
+    OWN_POINTER(_lb);
+if (_ub)
+    OWN_POINTER(_ub);
+if (_value)
+    OWN_POINTER(_value);
+}
+
+VariableTerm::~VariableTerm()
+{
+if (lb)
+    DISOWN_POINTER(lb);
+if (ub)
+    DISOWN_POINTER(ub);
+if (value)
+    DISOWN_POINTER(value);
+}
+
 
 expr_pointer_t VariableTerm::const_mult(double coef, const expr_pointer_t& repn)
 {
@@ -116,6 +149,26 @@ VariableTerm* var = dynamic_cast<VariableTerm*>(repn);
 return CREATE_POINTER(MonomialTerm, -1, var);
 }
 
+void VariableTerm::set_lb(double val)
+{
+if (lb)
+    DISOWN_POINTER(lb);
+OWN_POINTER( lb = CREATE_POINTER(ConstantTerm, val) );
+}
+
+void VariableTerm::set_ub(double val)
+{
+if (ub)
+    DISOWN_POINTER(ub);
+OWN_POINTER( ub = CREATE_POINTER(ConstantTerm, val) );
+}
+
+void VariableTerm::set_value(double val)
+{
+if (value)
+    DISOWN_POINTER(value);
+OWN_POINTER( value = CREATE_POINTER(ConstantTerm, val) );
+}
 
 
 

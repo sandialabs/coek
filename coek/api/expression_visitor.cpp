@@ -1,5 +1,4 @@
 #include "../ast/value_terms.hpp"
-#include "../ast/objective_terms.hpp"
 #include "../ast/constraint_terms.hpp"
 #include "../ast/visitor_fns.hpp"
 #include "expression.hpp"

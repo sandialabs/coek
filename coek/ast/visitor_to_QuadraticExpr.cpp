@@ -2,7 +2,6 @@
 #include "visitor.hpp"
 #include "base_terms.hpp"
 #include "constraint_terms.hpp"
-#include "objective_terms.hpp"
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -67,7 +66,7 @@ void visit(VariableTerm& expr, QuadraticExpr& repn, double multiplier)
 //    throw std::runtime_error("Unexpected variable not owned by a model.");
 
 if (expr.fixed)  {
-    repn.constval += multiplier * expr.value;
+    repn.constval += multiplier * expr.value->eval();
     }
 else {
     repn.linear_vars.push_back(&expr);
@@ -90,7 +89,7 @@ void visit(IndexedVariableTerm& expr, QuadraticExpr& repn, double multiplier)
 //    throw std::runtime_error("Unexpected variable not owned by a model.");
 
 if (expr.fixed)  {
-    repn.constval += multiplier * expr.value;
+    repn.constval += multiplier * expr.value->eval();
     }
 else {
     repn.linear_vars.push_back(&expr);
@@ -104,7 +103,7 @@ void visit(MonomialTerm& expr, QuadraticExpr& repn, double multiplier)
 //    throw std::runtime_error("Unexpected variable not owned by a model.");
 
 if (expr.var->fixed) {
-    repn.constval += multiplier * expr.coef * expr.var->value;
+    repn.constval += multiplier * expr.coef * expr.var->value->eval();
     }
 else {
     repn.linear_vars.push_back(expr.var);
@@ -318,8 +317,11 @@ else {
     QuadraticExpr lhs_repn;
     visit_expression(expr.lhs, lhs_repn, 1.0);
     if (lhs_repn.is_constant())
+        // A**B - A and B constant
         repn.constval += multiplier * ::pow(lhs_repn.constval, rhs_repn.constval);
+
     else if (lhs_repn.is_linear() and (rhs_repn.constval == 2)) {
+        // A**B - A linear and B=2
         // Quadratic
         for (std::size_t i=0; i<lhs_repn.linear_coefs.size(); i++)
             for (std::size_t j=0; j<lhs_repn.linear_coefs.size(); j++) {
@@ -335,8 +337,9 @@ else {
         // Constant
         repn.constval += multiplier * lhs_repn.constval * lhs_repn.constval;
         }
+
     else {
-        throw std::runtime_error("Nonlinear expressions are not supported for QuadraticExpr: pow term with constant exponent.");
+        throw std::runtime_error("Nonlinear expressions are not supported for QuadraticExpr: pow term with nonlinear base or constant exponent other than 2.");
         }
     }
 }
@@ -389,6 +392,11 @@ switch (expr->id()) {
     VISIT_CASE(ACoshTerm);
     VISIT_CASE(ATanhTerm);
     VISIT_CASE(PowTerm);
+
+    // GCOVR_EXCL_START
+    default:
+        throw std::runtime_error("Error in QuadraticExpr visitor!  Visiting unexpected expression term " + std::to_string(expr->id()));
+    // GCOVR_EXCL_STOP
     };
 }
 

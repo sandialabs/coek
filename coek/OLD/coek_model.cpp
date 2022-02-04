@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include "../util/map_utils.hpp"
+#include "../util/endswith.hpp"
 #include "../ast/varray.hpp"
 #include "../ast/value_terms.hpp"
 #include "coek/api/objective.hpp"
@@ -14,14 +15,14 @@
 #include "coek/coek_model.hpp"
 #include "coek/solvers/solver.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL
-#include "coek/compact/objective_sequence.hpp"
-#include "coek/compact/constraint_sequence.hpp"
 #include "coek/compact/coek_exprterm.hpp"
 #endif
+#include "model_repn.hpp"
 
 
 namespace coek {
 
+#if 0
 //
 // Model
 //
@@ -29,6 +30,7 @@ namespace coek {
 bool Model::minimize = true;
 bool Model::maximize = false;
 double Model::inf = COEK_INFINITY;
+
 
 std::ostream& operator<<(std::ostream& ostr, const Model& arg)
 {
@@ -82,36 +84,6 @@ repn = other.repn;
 return *this;
 }
 
-Objective Model::add_objective(const Expression& expr, bool _sense)
-{
-Objective tmp(expr.repn, _sense);
-repn->objectives.push_back(tmp);
-return repn->objectives.back();
-}
-
-Objective Model::add_objective(const std::string& name, const Expression& expr, bool _sense)
-{
-Objective tmp(name, expr.repn, _sense);
-repn->objectives.push_back(tmp);
-repn->objectives_by_name.emplace(name, tmp);
-//return repn->objectives.back();
-return tmp;
-}
-
-Constraint Model::add_constraint(const Constraint& expr)
-{
-repn->constraints.push_back(expr);
-return expr;
-}
-
-Constraint Model::add_constraint(const std::string& name, const Constraint& expr)
-{
-repn->constraints.push_back(expr);
-repn->constraints.back().set_name(name);
-repn->constraints_by_name.emplace(name, expr);
-return expr;
-}
-
 Variable Model::add_variable(double lb, double ub, double value, bool binary, bool integer)
 {
 Variable tmp(lb,ub,value,binary,integer);
@@ -125,8 +97,23 @@ Variable tmp(name,lb,ub,value,binary,integer);
 repn->variables.push_back(tmp);
 if (name != "")
     repn->variables_by_name.emplace(name, tmp);
+return tmp;
+}
+
+Variable Model::add_variable(const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer)
+{
+Variable tmp(lb,ub,value,binary,integer);
+repn->variables.push_back(tmp);
 return repn->variables.back();
-//return tmp;
+}
+
+Variable Model::add_variable(const std::string& name, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer)
+{
+Variable tmp(name,lb,ub,value,binary,integer);
+repn->variables.push_back(tmp);
+if (name != "")
+    repn->variables_by_name.emplace(name, tmp);
+return tmp;
 }
 
 Variable Model::add_variable(Variable& var)
@@ -161,6 +148,36 @@ for (auto it=vars.begin(); it != end; ++it) {
 }
 #endif
 
+Objective Model::add_objective(const Expression& expr, bool _sense)
+{
+Objective tmp(expr.repn, _sense);
+repn->objectives.push_back(tmp);
+return repn->objectives.back();
+}
+
+Objective Model::add_objective(const std::string& name, const Expression& expr, bool _sense)
+{
+Objective tmp(name, expr.repn, _sense);
+repn->objectives.push_back(tmp);
+if (name != "")
+    repn->objectives_by_name.emplace(name, tmp);
+return repn->objectives.back();
+}
+
+Constraint Model::add_constraint(const Constraint& expr)
+{
+repn->constraints.push_back(expr);
+return expr;
+}
+
+Constraint Model::add_constraint(const std::string& name, const Constraint& expr)
+{
+repn->constraints.push_back(expr);
+repn->constraints.back().set_name(name);
+repn->constraints_by_name.emplace(name, expr);
+return expr;
+}
+
 size_t Model::num_variables() const
 { return repn->variables.size(); }
 
@@ -176,6 +193,9 @@ if (i > repn->variables.size())
     throw std::out_of_range("Variable index " + std::to_string(i) + " is too large: " + std::to_string(repn->variables.size()) + "       variables available.");
 return repn->variables[i];
 }
+
+std::vector<Variable>& Model::get_variables()
+{ return repn->variables; }
 
 Objective Model::get_objective(unsigned int i)
 {
@@ -260,9 +280,6 @@ std::set<std::string> Model::constraint_suffix_names() const
 std::set<std::string> Model::model_suffix_names() const
 { return map_keys(repn->msuffix); }
 
-static bool endsWith(const std::string& str, const std::string& suffix)
-{ return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix); }
-
 void write_lp_problem(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 void write_nl_problem(Model& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
 
@@ -324,8 +341,17 @@ else if (endsWith(fname, ".fmtnl")) {
     }
 #endif
 
-throw std::runtime_error("Unknown problem type");
+throw std::runtime_error("Unknown problem type: "+fname);
 }
+#endif
+
+#ifdef COEK_WITH_COMPACT_MODEL
+void write_lp_problem(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+void write_lp_problem_ostream(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+#ifdef WITH_FMTLIB
+void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<int,int>& varmap, std::map<int,int>& conmap);
+#endif
+#endif
 
 
 //
@@ -333,55 +359,63 @@ throw std::runtime_error("Unknown problem type");
 //
 
 #ifdef COEK_WITH_COMPACT_MODEL
-Objective CompactModel::add_objective(const Expression& expr, bool _sense)
-{
-Objective obj(expr, _sense);
-objectives.push_back( obj );
-return obj;
-}
+CompactModel::CompactModel()
+{ repn = std::make_shared<CompactModelRepn>(); }
 
-void CompactModel::add_objective(const Expression& expr, const SequenceContext& context, bool _sense)
-{
-ObjectiveSequence seq(expr, context, _sense);
-objectives.push_back( seq );
-}
+CompactModel::CompactModel(const CompactModel& other)
+{ repn = other.repn; }
 
-Constraint CompactModel::add_constraint(const Constraint& expr)
-{
-constraints.push_back(expr);
-return expr;
-}
-
-void CompactModel::add_constraint(const Constraint& expr, const SequenceContext& context)
-{
-ConstraintSequence seq(expr, context);
-constraints.push_back(seq);
-}
+CompactModel::~CompactModel()
+{}
 
 Variable CompactModel::add_variable(double lb, double ub, double value, bool binary, bool integer)
 {
 Variable tmp(lb,ub,value,binary,integer);
-variables.push_back(tmp);
-return variables.back();
+repn->variables.push_back(tmp);
+repn->variable_names.push_back("");
+return tmp; //repn->variables.back();
 }
 
 Variable CompactModel::add_variable(const std::string& name, double lb, double ub, double value, bool binary, bool integer)
 {
 Variable tmp(name,lb,ub,value,binary,integer);
-variables.push_back(tmp);
-return variables.back();
+repn->variables.push_back(tmp);
+repn->variable_names.push_back("");
+return tmp; //repn->variables.back();
+}
+
+VariableMap CompactModel::add_variable(const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, const SequenceContext& context)
+{
+VariableSequence seq(context, lb, ub, value, binary, integer);
+repn->variables.push_back( seq );
+repn->variable_names.push_back("");
+
+VariableMap tmp;
+return tmp;
+}
+
+VariableMap CompactModel::add_variable(const std::string& name, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, const SequenceContext& context)
+{
+VariableSequence seq(context, lb, ub, value, binary, integer);
+repn->variables.push_back( seq );
+repn->variable_names.push_back(name);
+
+VariableMap tmp;
+return tmp;
 }
 
 Variable CompactModel::add_variable(Variable& var)
 {
-variables.push_back(var);
+repn->variables.push_back(var);
+repn->variable_names.push_back("");
 return var;
 }
 
 void CompactModel::add_variable(VariableArray& varray)
 {
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
-    variables.push_back(*it);
+    repn->variables.push_back(*it);
+    repn->variable_names.push_back("");
     }
 }
 
@@ -389,41 +423,111 @@ void CompactModel::add_variable(ConcreteIndexedVariable& vars)
 {
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
-    variables.push_back(*it);
+    repn->variables.push_back(*it);
+    repn->variable_names.push_back("");
     }
+}
+
+Objective CompactModel::add_objective(const Expression& expr, bool _sense)
+{
+Objective obj(expr, _sense);
+repn->objectives.push_back( obj );
+return obj;
+}
+
+Objective CompactModel::add_objective(const std::string& name, const Expression& expr, bool _sense)
+{
+Objective obj(name, expr, _sense);
+repn->objectives.push_back( obj );
+return obj;
+}
+
+ObjectiveMap CompactModel::add_objective(const Expression& expr, const SequenceContext& context, bool _sense)
+{
+ObjectiveSequence seq(context, expr, _sense);
+repn->objectives.push_back( seq );
+
+ObjectiveMap tmp;
+return tmp;
+}
+
+ObjectiveMap CompactModel::add_objective(const std::string& /*name*/, const Expression& expr, const SequenceContext& context, bool _sense)
+{
+ObjectiveSequence seq(context, expr, _sense);
+repn->objectives.push_back( seq );
+
+ObjectiveMap tmp;
+return tmp;
+}
+
+Constraint CompactModel::add_constraint(const Constraint& expr)
+{
+repn->constraints.push_back(expr);
+return expr;
+}
+
+Constraint CompactModel::add_constraint(const std::string& /*name*/, const Constraint& expr)
+{
+repn->constraints.push_back(expr);
+return expr;
+}
+
+ConstraintMap CompactModel::add_constraint(const Constraint& expr, const SequenceContext& context)
+{
+ConstraintSequence seq(context, expr);
+repn->constraints.push_back(seq);
+
+ConstraintMap tmp;
+return tmp;
+}
+
+ConstraintMap CompactModel::add_constraint(const std::string& /*name*/, const Constraint& expr, const SequenceContext& context)
+{
+ConstraintSequence seq(context, expr);
+repn->constraints.push_back(seq);
+
+ConstraintMap tmp;
+return tmp;
 }
 
 Model CompactModel::expand()
 {
 Model model;
-model.repn->variables = variables;
-for (auto it=variables.begin(); it != variables.end(); ++it) {
-    auto name = it->get_name();
-    if (name != "")
-        model.repn->variables_by_name.emplace(name, *it);
-    }
 
-//int i=0;
-for (auto it=objectives.begin(); it != objectives.end(); ++it) {
+for (auto it=repn->variables.begin(); it != repn->variables.end(); ++it) {
     auto& val = *it;
-    if (auto eval = std::get_if<Objective>(&val)) {
-        Expression e = eval->body().expand();
-        model.add_objective(e, eval->sense());
+    if (auto eval = std::get_if<Variable>(&val)) {
+        Expression lb = eval->get_lb_expression().expand();
+        eval->set_lb(lb.get_value());
+        Expression ub = eval->get_ub_expression().expand();
+        eval->set_ub(ub.get_value());
+        Expression value = eval->get_value_expression().expand();
+        eval->set_value(value.get_value());
+        model.add_variable(*eval);
         }
     else {
-#if 0
-        auto& seq = std::get<ExpressionSequence>(val);
+        auto& seq = std::get<VariableSequence>(val);
         for (auto jt=seq.begin(); jt != seq.end(); ++jt) {
-            //model.repn->objectives.push_back(*jt);
-            model.add( *jt, osense); //repn->objectives.push_back(*jt);
-            //model.repn->sense.push_back(osense);
+            model.repn->variables.push_back(*jt);
             }
-#endif
         }
     }
 
-//i=0;
-for (auto it=constraints.begin(); it != constraints.end(); ++it) {
+for (auto it=repn->objectives.begin(); it != repn->objectives.end(); ++it) {
+    auto& val = *it;
+    if (auto eval = std::get_if<Objective>(&val)) {
+        Expression e = eval->get_body().expand();
+        model.add_objective(e, eval->get_sense());
+        }
+    else {
+        auto& seq = std::get<ObjectiveSequence>(val);
+        for (auto jt=seq.begin(); jt != seq.end(); ++jt) {
+            model.repn->objectives.push_back(*jt);
+            }
+        }
+    }
+
+for (auto it=repn->constraints.begin(); it != repn->constraints.end(); ++it) {
     auto& val = *it;
     if (auto cval = std::get_if<Constraint>(&val)) {
         Constraint c = cval->expand();
@@ -800,6 +904,15 @@ std::unordered_set<unsigned int> model_ids;
 auto end = model.repn->variables.end();
 for (auto it=model.repn->variables.begin(); it != end; ++it)
     model_ids.insert( (*it).id() );
+
+/*
+for (unsigned int i: model_ids)
+  std::cout << i << std::endl;
+std::cout << std::endl;
+for (const auto& i: varobj)
+  std::cout << i.first << " " << i.second << std::endl;
+std::cout << std::endl;
+*/
 
 // TODO - Make this faster because both sets are ordered
 for (auto it=varobj.begin(); it != varobj.end(); it++) {

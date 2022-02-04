@@ -25,11 +25,11 @@ public:
 
 public:
 
-    ObjectiveSequenceRepn(const Objective& expr, const SequenceContext& context_)
+    ObjectiveSequenceRepn(const SequenceContext& context_, const Objective& expr)
         : expression_template(expr), context(context_)
         {}
     
-    ObjectiveSequenceRepn(const Expression& expr, const SequenceContext& context_, bool sense)
+    ObjectiveSequenceRepn(const SequenceContext& context_, const Expression& expr, bool sense)
         : expression_template(expr, sense), context(context_)
         {}
     
@@ -70,30 +70,33 @@ public:
                 Context& curr = seq->context[i];
                 *it = curr.index_set.begin(curr.indices);
                 }
-            converted_expr.set_body( convert_expr_template( seq->expression_template.body().repn ) );
-            converted_expr.set_sense( seq->expression_template.sense() );
+            Objective tmp( convert_expr_template( seq->expression_template.get_body().repn ),
+                           seq->expression_template.get_sense() );
+            converted_expr = tmp;
             }
         ncontexts = context_iter.size();
         }
 
     void operator++()
         {
-        int i = ncontexts-1;
-        while (i >= 0) {
+        size_t i_=0;
+        while (i_ < ncontexts) {
+            size_t i = ncontexts-1 - i_;
             ++context_iter[i];
             if (context_iter[i] == seq->context[i].index_set.end())
                 {
                 context_iter[i] = seq->context[i].index_set.begin(seq->context[i].indices);
-                i--;
+                i_++;
                 }
             else
                 break;
             }
-        if (i < 0)
+        if (i_ == ncontexts)
             done = true;
         else {
-            converted_expr.set_body( convert_expr_template(seq->expression_template.body().repn ) );
-            converted_expr.set_sense( seq->expression_template.sense() );
+            Objective tmp( convert_expr_template( seq->expression_template.get_body().repn ),
+                           seq->expression_template.get_sense() );
+            converted_expr = tmp;
             }
         }
 
@@ -186,11 +189,11 @@ ObjectiveSequence::ObjectiveSequence(const std::shared_ptr<ObjectiveSequenceRepn
     : repn(_repn)
 {}
 
-ObjectiveSequence::ObjectiveSequence(const Objective& expr, const SequenceContext& context_)
-{ repn = std::make_shared<ObjectiveSequenceRepn>(expr,context_); }
+ObjectiveSequence::ObjectiveSequence(const SequenceContext& context_, const Objective& expr)
+{ repn = std::make_shared<ObjectiveSequenceRepn>(context_,expr); }
 
-ObjectiveSequence::ObjectiveSequence(const Expression& expr, const SequenceContext& context_, bool sense)
-{ repn = std::make_shared<ObjectiveSequenceRepn>(expr,context_,sense); }
+ObjectiveSequence::ObjectiveSequence(const SequenceContext& context_, const Expression& expr, bool sense)
+{ repn = std::make_shared<ObjectiveSequenceRepn>(context_,expr,sense); }
 
 ObjectiveSeqIterator ObjectiveSequence::begin()
 { return ObjectiveSeqIterator(repn.get(), false); }

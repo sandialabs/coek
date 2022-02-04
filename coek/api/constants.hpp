@@ -1,5 +1,3 @@
-#ifndef COEK_API_CONSTANTS_H
-#define COEK_API_CONSTANTS_H
 #pragma once
 
 #define COEK_INFINITY   1e100
@@ -10,4 +8,3 @@ namespace coek {
 
 extern double nan_value;
 }
-#endif

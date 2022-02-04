@@ -5,7 +5,6 @@
 #include "visitor.hpp"
 #include "base_terms.hpp"
 #include "constraint_terms.hpp"
-#include "objective_terms.hpp"
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -57,9 +56,7 @@ repn.mutable_values=true;
 void visit(IndexParameterTerm& /*expr*/,
                     MutableNLPExpr& /*repn*/,
                     double /*multiplier*/)
-{
-throw std::runtime_error("Unexpected index parameter.");
-}
+{ throw std::runtime_error("Unexpected index parameter."); }
 
 void visit(VariableTerm& expr,
                     MutableNLPExpr& repn,
@@ -420,7 +417,7 @@ switch (expr->id()) {
     VISIT_CASE(IndexParameterTerm);
     VISIT_CASE(VariableTerm);
     VISIT_CASE(IndexedVariableTerm);
-#ifdef CoEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
     VISIT_CASE(VariableRefTerm);
 #endif
     VISIT_CASE(MonomialTerm);
@@ -451,6 +448,11 @@ switch (expr->id()) {
     VISIT_CASE(ACoshTerm);
     VISIT_CASE(ATanhTerm);
     VISIT_CASE(PowTerm);
+
+    // GCOVR_EXCL_START
+    default:
+        throw std::runtime_error("Error in MutableNLPExpr visitor!  Visiting unexpected expression term " + std::to_string(expr->id()));
+    // GCOVR_EXCL_STOP
     };
 }
 
@@ -458,9 +460,7 @@ switch (expr->id()) {
 
 void to_MutableNLPExpr(expr_pointer_t expr,
                     MutableNLPExpr& repn)
-{
-visit_expression(expr, repn, 1.0);
-}
+{ visit_expression(expr, repn, 1.0); }
 
 }
 

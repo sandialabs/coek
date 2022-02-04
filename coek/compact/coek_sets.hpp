@@ -1,6 +1,3 @@
-#ifndef __coek_sets_hpp
-#define __coek_sets_hpp
-
 #pragma once
 
 #include <iostream>
@@ -71,7 +68,7 @@ public:
     SetCore(const SetRepn& repn);
     virtual ~SetCore();
 
-    unsigned int dim();
+    size_t dim();
     ConcreteSet initialize();
 };
 
@@ -79,7 +76,7 @@ class AbstractSet : public SetCore
 {
 public:
 
-    AbstractSet(unsigned int);
+    AbstractSet(size_t);
     AbstractSet(const SetRepn& repn);
     virtual ~AbstractSet();
 
@@ -120,6 +117,7 @@ public:
     ConcreteSet(const SetRepn& repn);
     ConcreteSet(const ConcreteSet& repn);
     virtual ~ConcreteSet();
+    ConcreteSet& operator=(const ConcreteSet& repn);
 
     bool finite();
     bool countable();
@@ -272,5 +270,3 @@ ConcreteSet RangeSet(int start, int stop, int step=1);
 //ConcreteSet RangeSet(double start, double stop, double step=1.0);
 
 }
-
-#endif

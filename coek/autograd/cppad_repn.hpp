@@ -116,13 +116,13 @@ public:
 
 public:
 
-    double compute_f(unsigned int i);
+    double compute_f(size_t i);
 
-    void compute_df(double& f, std::vector<double>& df, unsigned int i);
+    void compute_df(double& f, std::vector<double>& df, size_t i);
 
     void compute_c(std::vector<double>& c);
 
-    void compute_dc(std::vector<double>& dc, unsigned int i);
+    void compute_dc(std::vector<double>& dc, size_t i);
 
     void compute_H(std::vector<double>& w, std::vector<double>& H);
 
@@ -130,7 +130,7 @@ public:
 
 public:
 
-    void build_expression(expr_pointer_t root, std::vector<CppAD::AD<double> >& ADvars, CppAD::AD<double>& range, std::unordered_map<VariableTerm*,int>& _used_variables);
+    void build_expression(expr_pointer_t root, std::vector<CppAD::AD<double> >& ADvars, CppAD::AD<double>& range, std::unordered_map<VariableTerm*,size_t>& _used_variables);
 
 };
 

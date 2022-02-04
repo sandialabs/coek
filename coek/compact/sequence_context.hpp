@@ -1,5 +1,3 @@
-#ifndef COEK_COMPACT_SEQUENCE_CONTEXT_H
-#define COEK_COMPACT_SEQUENCE_CONTEXT_H
 #pragma once
 
 #include <list>
@@ -62,7 +60,7 @@ public:
 
     size_t size() const;
 
-    Context& operator[](unsigned int i);
+    Context& operator[](size_t i);
 
     /** \returns a modifier to specify the indices used in this expression */
     template <typename... TYPES>
@@ -92,4 +90,3 @@ SequenceContext Forall(const TYPES&... args)
     return Forall(indices);
     }
 }
-#endif

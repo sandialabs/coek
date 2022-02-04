@@ -30,7 +30,7 @@ repn = CREATE_POINTER(ParameterTerm, value);
 OWN_POINTER(repn);
 }
 
-Parameter::Parameter(double value, const std::string& name)
+Parameter::Parameter(const std::string& name, double value)
 {
 repn = CREATE_POINTER(ParameterTerm, value);
 OWN_POINTER(repn);
@@ -85,8 +85,10 @@ return ostr;
 
 // TODO - Does it make sense to allow an empty IndexParameter?
 IndexParameter::IndexParameter()
-    : repn(0)
-{}
+{
+repn = CREATE_POINTER(IndexParameterTerm, "unknown");
+OWN_POINTER(repn);
+}
 
 IndexParameter::IndexParameter(const std::string& name)
 {
@@ -97,75 +99,44 @@ OWN_POINTER(repn);
 IndexParameter::IndexParameter(const IndexParameter& expr)
 {
 repn = expr.repn;
-if (repn)
-    OWN_POINTER(repn);
+OWN_POINTER(repn);
 }
 
 IndexParameter::~IndexParameter()
-{
-if (repn)
-    DISOWN_POINTER(repn);
-}
+{ DISOWN_POINTER(repn); }
 
 IndexParameter& IndexParameter::operator=(const IndexParameter& expr)
 {
-if (repn)
-    DISOWN_POINTER(repn);
+DISOWN_POINTER(repn);
 repn = expr.repn;
 OWN_POINTER(repn);
 return *this;
 }
 
 void IndexParameter::set_value(double value)
-{
-if (repn)
-    repn->set_value(value);
-}
+{ repn->set_value(value); }
 
 void IndexParameter::set_value(int value)
-{
-if (repn)
-    repn->set_value(value);
-}
+{ repn->set_value(value); }
 
 void IndexParameter::set_value(const std::string& value)
-{
-if (repn)
-    repn->set_value(value);
-}
+{ repn->set_value(value); }
 
-void IndexParameter::get_value(double& value) const
-{
-if (!repn)
-    throw std::runtime_error("No double value stored in index parameter.");
-repn->get_value(value);
-}
+bool IndexParameter::get_value(double& value) const
+{ return repn->get_value(value); }
 
-void IndexParameter::get_value(int& value) const
-{
-if (!repn)
-    throw std::runtime_error("No integer value stored in index parameter.");
-repn->get_value(value);
-}
+bool IndexParameter::get_value(int& value) const
+{ return repn->get_value(value); }
 
-void IndexParameter::get_value(std::string& value) const
-{
-if (!repn)
-    throw std::runtime_error("No string value stored in index parameter.");
-repn->get_value(value);
-}
+bool IndexParameter::get_value(std::string& value) const
+{ return repn->get_value(value); }
 
 std::string IndexParameter::get_name() const
-{
-if (repn)
-    return repn->name;
-return "";
-}
+{ return repn->name; }
 
 std::ostream& operator<<(std::ostream& ostr, const IndexParameter& arg)
 {
-if (arg.repn)
-    write_expr(arg.repn, ostr);
+write_expr(arg.repn, ostr);
 return ostr;
 }
 
@@ -185,17 +156,38 @@ repn = expr.repn;
 OWN_POINTER(repn);
 }
 
+Variable::Variable(double lb, double ub, double value, bool binary, bool integer)
+{
+repn = CREATE_POINTER(VariableTerm, 
+            CREATE_POINTER(ConstantTerm, lb),
+            CREATE_POINTER(ConstantTerm, ub),
+            CREATE_POINTER(ConstantTerm, value),
+            binary, integer);
+OWN_POINTER(repn);
+}
+
 Variable::Variable(const std::string& name, double lb, double ub, double value, bool binary, bool integer)
 {
-repn = CREATE_POINTER(VariableTerm, lb, ub, value, binary, integer);
+repn = CREATE_POINTER(VariableTerm, 
+            CREATE_POINTER(ConstantTerm, lb),
+            CREATE_POINTER(ConstantTerm, ub),
+            CREATE_POINTER(ConstantTerm, value),
+            binary, integer);
 OWN_POINTER(repn);
 repn->name = name;
 }
 
-Variable::Variable(double lb, double ub, double value, bool binary, bool integer)
+Variable::Variable(const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer)
 {
-repn = CREATE_POINTER(VariableTerm, lb, ub, value, binary, integer);
+repn = CREATE_POINTER(VariableTerm, lb.repn, ub.repn, value.repn, binary, integer);
 OWN_POINTER(repn);
+}
+
+Variable::Variable(const std::string& name, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer)
+{
+repn = CREATE_POINTER(VariableTerm, lb.repn, ub.repn, value.repn, binary, integer);
+OWN_POINTER(repn);
+repn->name = name;
 }
 
 Variable::~Variable()
@@ -206,18 +198,28 @@ if (repn)
 
 void Variable::initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed)
 {
-repn->lb = lb;
-repn->ub = ub;
-repn->value = value;
+repn->set_lb(lb);
+repn->set_ub(ub);
+repn->set_value(value);
 repn->binary = binary;
 repn->integer = integer;
 repn->fixed = fixed;
 }
 
-void Variable::initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed, const std::string& name)
+void Variable::initialize(const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, bool fixed)
 {
-initialize(lb, ub, value, binary, integer, fixed);
-repn->name = name;
+if (repn->lb)
+    DISOWN_POINTER(repn->lb);
+OWN_POINTER( repn->lb = lb.repn );
+if (repn->ub)
+    DISOWN_POINTER(repn->ub);
+OWN_POINTER( repn->ub = ub.repn );
+if (repn->value)
+    DISOWN_POINTER(repn->value);
+OWN_POINTER( repn->value = value.repn );
+repn->binary = binary;
+repn->integer = integer;
+repn->fixed = fixed;
 }
 
 Variable& Variable::operator=(const Variable& expr)
@@ -229,22 +231,31 @@ return *this;
 }
 
 double Variable::get_value() const
+{ return repn->value->eval(); }
+
+Expression Variable::get_value_expression() const
 { return repn->value; }
 
 void Variable::set_value(double value)
-{ repn->value = value; }
+{ repn->set_value(value); }
 
 double Variable::get_lb() const
+{ return repn->lb->eval(); }
+
+Expression Variable::get_lb_expression() const
 { return repn->lb; }
 
 void Variable::set_lb(double value)
-{ repn->lb = value; }
+{ repn->set_lb(value); }
 
 double Variable::get_ub() const
+{ return repn->ub->eval(); }
+
+Expression Variable::get_ub_expression() const
 { return repn->ub; }
 
 void Variable::set_ub(double value)
-{ repn->ub = value; }
+{ repn->set_ub(value); }
 
 unsigned int Variable::id() const
 { return repn->index; }
@@ -278,7 +289,7 @@ bool Variable::get_fixed() const
 
 void Variable::fix(double value)
 {
-repn->value = value;
+repn->set_value(value);
 repn->fixed = true;
 }
 

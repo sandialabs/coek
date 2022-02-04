@@ -1,5 +1,4 @@
-#ifndef __map_utils
-#define __map_utils
+#pragma once
 
 #include <map>
 #include <set>
@@ -12,4 +11,3 @@ for (auto const& element : input)
     keys.insert(element.first);
 return keys;
 }
-#endif

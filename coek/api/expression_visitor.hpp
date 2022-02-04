@@ -1,5 +1,3 @@
-#ifndef COEK_API_EXPRESSION_VISITOR_H
-#define COEK_API_EXPRESSION_VISITOR_H
 #pragma once
 
 #include <iostream>
@@ -83,4 +81,3 @@ public:
 std::ostream& operator<<(std::ostream& ostr, const QuadraticExpr& arg);
 
 }
-#endif

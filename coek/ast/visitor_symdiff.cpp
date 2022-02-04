@@ -5,7 +5,6 @@
 #include "visitor.hpp"
 #include "base_terms.hpp"
 #include "constraint_terms.hpp"
-#include "objective_terms.hpp"
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -269,50 +268,6 @@ bool variable_comparator(const VariableTerm* lhs, const VariableTerm* rhs)
 
 typedef std::set<VariableTerm*, bool(*)(const VariableTerm*, const VariableTerm*)> ordered_variableset_t;
 typedef ordered_variableset_t::iterator ordered_variableset_iterator_t;
-
-#if 0
-expr_pointer_t times_(expr_pointer_t lhs, expr_pointer_t rhs)
-{
-// GCOVR_EXCL_START
-if (lhs == ZEROCONST)
-    return ZEROCONST;
-if (lhs == ONECONST)
-    return rhs;
-if (rhs == ZEROCONST)
-    return ZEROCONST;
-if (rhs == ONECONST)
-    return lhs;
-if (lhs->is_constant() and rhs->is_constant()) {
-    auto _lhs = dynamic_cast<ConstantTerm*>(lhs);
-    auto _rhs = dynamic_cast<ConstantTerm*>(rhs);
-    auto ans = CREATE_POINTER(ConstantTerm, _lhs->value * _rhs->value);
-    DISCARD_POINTER(_lhs);
-    DISCARD_POINTER(_rhs);
-    return ans;
-    }
-// GCOVR_EXCL_STOP
-return times(lhs, rhs);
-}
-
-expr_pointer_t plus_(expr_pointer_t lhs, expr_pointer_t rhs)
-{
-// GCOVR_EXCL_START
-if (lhs == ZEROCONST) 
-    return rhs;
-if (rhs == ZEROCONST)
-    return lhs;
-if (lhs->is_constant() and rhs->is_constant()) {
-    auto _lhs = dynamic_cast<ConstantTerm*>(lhs);
-    auto _rhs = dynamic_cast<ConstantTerm*>(rhs);
-    auto ans = CREATE_POINTER(ConstantTerm, _lhs->value + _rhs->value);
-    DISCARD_POINTER(_lhs);
-    DISCARD_POINTER(_rhs);
-    return ans;
-    }
-// GCOVR_EXCL_STOP
-return plus(lhs, rhs);
-}
-#endif
 
 }
 

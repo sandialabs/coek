@@ -1,31 +1,35 @@
 #include <unordered_set>
 #include "../ast/visitor_fns.hpp"
-#include "../ast/objective_terms.hpp"
+#include "../ast/base_terms.hpp"
 #include "../ast/constraint_terms.hpp"
 #include "../ast/value_terms.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
+#include "coek/model/model_repn.hpp"
 #include "autograd.hpp"
 
 #ifdef WITH_CPPAD
 #include "cppad_repn.hpp"
 #endif
+#include "unknownad_repn.hpp"
 
 namespace coek {
 
 void check_that_expression_variables_are_declared(Model& model, const std::unordered_set<VariableTerm*>& vars);
 
 
-NLPModelRepn* create_NLPModelRepn(Model& model, std::string& name)
+NLPModelRepn* create_NLPModelRepn(Model& model, const std::string& name)
 {
 #ifdef WITH_CPPAD
 if (name == "cppad")
     return new CppAD_Repn(model);
 #endif
 
-throw std::runtime_error("Unknown autograd type.");
-return 0;
+throw std::runtime_error("Unexpected NLP model type: " + name);
 }
+
+NLPModelRepn* create_NLPModelRepn(const std::string& name)
+{ return new UnknownAD_Repn(name); }
 
 
 void NLPModelRepn::find_used_variables()
@@ -41,12 +45,12 @@ for (auto it=model.repn->constraints.begin(); it != model.repn->constraints.end(
 
 check_that_expression_variables_are_declared(model, vars);
 
-std::map<int,VariableTerm*> tmp;
+std::map<size_t,VariableTerm*> tmp;
 for (auto it=vars.begin(); it != vars.end(); ++it)
     tmp[(*it)->index] = *it;
 
 used_variables.clear();
-int i=0;
+size_t i=0;
 for (auto it=tmp.begin(); it != tmp.end(); ++it)
     used_variables[i++] = it->second;
 
@@ -60,12 +64,10 @@ for (auto it=params.begin(); it != params.end(); ++it)
     parameters[*it] = i++;
 }
 
-VariableTerm* NLPModelRepn::get_variable(int i)
-{
-return used_variables[i];
-}
+VariableTerm* NLPModelRepn::get_variable(size_t i)
+{ return used_variables[i]; }
 
-void NLPModelRepn::set_variable(int i, const VariableTerm* _v)
+void NLPModelRepn::set_variable(size_t i, const VariableTerm* _v)
 {
 auto v = used_variables[i];
 
@@ -77,10 +79,11 @@ v->fixed = _v->fixed;
 v->value = _v->value;
 }
 
-Constraint NLPModelRepn::get_constraint(int i)
-{
-return model.repn->constraints[i];
-}
+Objective NLPModelRepn::get_objective(size_t i)
+{ return model.get_objective(i); }
+
+Constraint NLPModelRepn::get_constraint(size_t i)
+{ return model.get_constraint(i); }
 
 void NLPModelRepn::print_equations(std::ostream& ostr) const
 {
@@ -99,6 +102,15 @@ ostr << std::endl;
 }
 
 void NLPModelRepn::print_values(std::ostream& ostr) const
-{}
+{
+ostr << "Model Variables: " << num_variables() << "\n";
+ostr << "Nonzero Variables\n";
+for (auto const& var: used_variables) {
+    double val = var.second->eval();
+    if (::fabs(val) > 1e-7) {
+        ostr << "   " << var.first << " " << val << " " << var.second->fixed << "\n";
+        }
+    }
+}
 
 }

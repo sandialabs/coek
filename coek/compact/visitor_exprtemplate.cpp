@@ -1,11 +1,12 @@
 #include <variant>
 #include "../ast/compact_terms.hpp"
 #include "../ast/constraint_terms.hpp"
-#include "../ast/objective_terms.hpp"
 #include "../ast/expr_terms.hpp"
 #include "coek/api/expression.hpp"
 #include "coek_exprterm.hpp"
 
+
+//void xxx() {}
 
 namespace coek {
 
@@ -20,6 +21,7 @@ expr_pointer_t visit(SumExpressionTerm&);
 
 expr_pointer_t visit(IndexParameterTerm& arg)
 {
+//xxx();
 // TODO - embed this logic in the IndexParameterTerm class
 if (arg.type == 1)
     return CREATE_POINTER(ConstantTerm, arg.double_value);
@@ -69,7 +71,7 @@ if (arg.n == 2)
 
 PlusTerm* _curr = dynamic_cast<PlusTerm*>(curr);
 
-for (unsigned int i=2; i<arg.n; i++) {
+for (size_t i=2; i<arg.n; i++) {
     curr = visit_expression((*(arg.data))[i]);
     _curr->push_back(curr);
     }

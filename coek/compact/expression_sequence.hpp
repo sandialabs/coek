@@ -1,5 +1,3 @@
-#ifndef COEK_COMPACT_EXPRESSION_SEQUENCE_H
-#define COEK_COMPACT_EXPRESSION_SEQUENCE_H
 #pragma once
 
 #include <vector>
@@ -49,7 +47,7 @@ public:
 public:
 
     ExpressionSequence(const std::shared_ptr<ExpressionSequenceRepn>& _repn);
-    ExpressionSequence(const Expression& expr, const SequenceContext& context);
+    ExpressionSequence(const SequenceContext& context, const Expression& expr);
 
     ExpressionSeqIterator begin();
     ExpressionSeqIterator end();
@@ -58,6 +56,5 @@ public:
 };
 
 
-Expression Sum(const Expression& expr, const SequenceContext& context);
+Expression Sum(const SequenceContext& context, const Expression& expr);
 }
-#endif

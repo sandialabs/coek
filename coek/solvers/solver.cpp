@@ -1,374 +1,120 @@
-#include <cmath>
-#include "../ast/value_terms.hpp"
-#include "../ast/visitor_fns.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
-#include "coek/api/expression.hpp"
-#include "coek/coek_model.hpp"
-#include "testsolver.hpp"
-
-#ifdef WITH_IPOPT
-#include "coek/solvers/ipopt/ipopt_solver.hpp"
-#endif
-
-#ifdef WITH_GUROBI
-#include "coek/solvers/gurobi/coek_gurobi.hpp"
-#endif
+#include "coek/solvers/solver.hpp"
+#include "coek/solvers/solver_repn.hpp"
 
 
 namespace coek {
 
+//
+// Solver
+//
 
-void SolverCache::find_updated_values()
+void Solver::initialize(std::string name)
 {
-vupdates.clear();
-pupdates.clear();
-
-for (auto it=vcache.begin(); it != vcache.end(); ++it) {
-    if (fabs(it->second - it->first->value) > tolerance) {
-        vupdates.insert(it->first);
-        it->second = it->first->value;
-        }
-    }
-for (auto it=pcache.begin(); it != pcache.end(); ++it) {
-    if (fabs(it->second - it->first->value) > tolerance) {
-        pupdates.insert(it->first);
-        it->second = it->first->value;
-        }
-    }
-
-//#ifdef DEBUG
-std::cout << "Updated Fixed Variables: " << vupdates.size() << " Cache Size: " << vcache.size() << std::endl;
-std::cout << "Updated Parameters:      " << pupdates.size() << " Cache Size: " << pcache.size() << std::endl;
-//#endif
+SolverRepn* tmp = create_solver(name);
+if (tmp)
+    repn = std::shared_ptr<SolverRepn>(tmp);
 }
 
+bool Solver::available() const
+{ return repn.get(); }
 
-SolverRepn* create_solver(std::string& name)
-{
-if (name == "test")
-    return new TestSolver();
+int Solver::solve(Model& model)
+{ return repn->solve(model); }
 
-#ifdef WITH_GUROBI
-if (name == "gurobi") {
-    auto ptr = new GurobiSolver();
-    if (ptr->available())
-        return ptr;
-    return 0;
-    }
-#endif
-
-return 0;
-}
-
-
-NLPSolverRepn* create_nlpsolver(std::string& name)
-{
-
-#ifdef WITH_IPOPT
-if (name == "ipopt") {
-    auto ptr = new IpoptSolver();
-    if (ptr->available())
-        return ptr;
-    return 0;
-    }
-#endif
-
-return 0;
-}
-
-
-template <typename K, typename V>
-V& GetWithDef(std::unordered_map <K,V> & m, const K & key)
-{
-typename std::unordered_map<K,V>::iterator it = m.find( key );
-if ( it == m.end() ) {
-    V tmp;
-    m[key] = tmp;
-    return m[key];
-    }
-else {
-    return it->second;
-    }
-}
-
-
-void SolverRepn::reset()
-{
-initial=true;
-vcache.clear();
-pcache.clear();
-}
-
-
-void SolverRepn::load(Model& _model)
-{
-model = _model;
-reset();
-
-vconstvals.clear();
-pconstvals.clear();
-vlinvals.clear();
-plinvals.clear();
-vquadvals.clear();
-pquadvals.clear();
-vnonlvals.clear();
-pnonlvals.clear();
-
-repn.resize(model.repn->objectives.size() + model.repn->constraints.size());
-
-
-// Collect mutable repn data
-{
-size_t j=0;
-for (size_t i=0; i<model.repn->objectives.size(); i++, j++)
-    repn[j].collect_terms( model.repn->objectives[i] );
-for (size_t i=0; i<model.repn->constraints.size(); i++, j++)
-    repn[j].collect_terms( model.repn->constraints[i] );
-}
-
-// Populate the maps that identify mutable model values
-int nmutable=0;
-for (size_t j=0; j<repn.size(); j++) {
-    MutableNLPExpr& _repn = repn[j];
-    if (! _repn.is_mutable())
-        continue;
-
-    nmutable++;
-    std::unordered_set<VariableTerm*> fixed_vars;    
-    std::unordered_set<ParameterTerm*> params;    
-    
-    mutable_values(_repn.constval.repn, fixed_vars, params);
-    for (auto it=fixed_vars.begin(); it != fixed_vars.end(); ++it)
-        GetWithDef(vconstvals, *it).insert(j);
-    for (auto it=params.begin(); it != params.end(); ++it)
-        GetWithDef(pconstvals, *it).insert(j);
-
-    for (size_t i=0; i<_repn.linear_coefs.size(); i++) {
-        fixed_vars.clear();
-        params.clear();
-        mutable_values(_repn.linear_coefs[i].repn, fixed_vars, params);
-        for (auto it=fixed_vars.begin(); it != fixed_vars.end(); ++it)
-            GetWithDef(vlinvals, *it).insert(std::pair<size_t,size_t>(j, i));
-        for (auto it=params.begin(); it != params.end(); ++it)
-            GetWithDef(plinvals, *it).insert(std::pair<size_t,size_t>(j, i));
-        }
-
-    for (size_t i=0; i<_repn.quadratic_coefs.size(); i++) {
-        fixed_vars.clear();
-        params.clear();
-        mutable_values(_repn.quadratic_coefs[i].repn, fixed_vars, params);
-        for (auto it=fixed_vars.begin(); it != fixed_vars.end(); ++it)
-            GetWithDef(vquadvals, *it).insert(std::pair<size_t,size_t>(j, i));
-        for (auto it=params.begin(); it != params.end(); ++it)
-            GetWithDef(pquadvals, *it).insert(std::pair<size_t,size_t>(j, i));
-        }
-
-    fixed_vars.clear();
-    params.clear();
-    mutable_values(_repn.nonlinear.repn, fixed_vars, params);
-    for (auto it=fixed_vars.begin(); it != fixed_vars.end(); ++it)
-        GetWithDef(vnonlvals, *it).insert(j);
-    for (auto it=params.begin(); it != params.end(); ++it)
-        GetWithDef(pnonlvals, *it).insert(j);
-    }
-
-//#ifdef DEBUG
-std::cout << "# Model Expressions:   " << repn.size() << std::endl;
-std::cout << "# Mutable Expressions: " << nmutable << std::endl;
-//#endif
-}
-
+void Solver::load(Model& model)
+{ repn->load(model); }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-void SolverRepn::load(CompactModel& _model)
-{
-model = _model.expand();
-load(model);
-}
+int Solver::solve(CompactModel& model)
+{ return repn->solve(model); }
 
-
-int SolverRepn::solve(CompactModel& _model)
-{
-model = _model.expand();
-return solve(model);
-}
+void Solver::load(CompactModel& model)
+{ repn->load(model); }
 #endif
 
+int Solver::resolve()
+{ return repn->resolve(); }
 
-bool SolverRepn::initial_solve()
+void Solver::reset()
+{ repn->reset(); }
+
+bool Solver::get_option(const std::string& option, int& value) const
+{ return repn->get_option(option, value); }
+bool Solver::get_option(const std::string& option, double& value) const
+{ return repn->get_option(option, value); }
+bool Solver::get_option(const std::string& option, std::string& value) const
+{ return repn->get_option(option, value); }
+bool Solver::get_option(int option, int& value) const
+{ return repn->get_option(option, value); }
+bool Solver::get_option(int option, double& value) const
+{ return repn->get_option(option, value); }
+bool Solver::get_option(int option, std::string& value) const
+{ return repn->get_option(option, value); }
+
+void Solver::set_option(const std::string& option, int value)
+{ repn->set_option(option, value); }
+void Solver::set_option(const std::string& option, double value)
+{ repn->set_option(option, value); }
+void Solver::set_option(const std::string& option, const std::string value)
+{ repn->set_option(option, value); }
+void Solver::set_option(int option, int value)
+{ repn->set_option(option, value); }
+void Solver::set_option(int option, double value)
+{ repn->set_option(option, value); }
+void Solver::set_option(int option, const std::string value)
+{ repn->set_option(option, value); }
+
+//
+// NLPSolver
+//
+
+void NLPSolver::initialize(std::string name)
 {
-if (initial) {
-    for (auto it=vconstvals.begin(); it != vconstvals.end(); ++it)
-        vcache[it->first] = it->first->value;
-    for (auto it=pconstvals.begin(); it != pconstvals.end(); ++it)
-        pcache[it->first] = it->first->value;
-
-    for (auto it=vlinvals.begin(); it != vlinvals.end(); ++it)
-        vcache[it->first] = it->first->value;
-    for (auto it=plinvals.begin(); it != plinvals.end(); ++it)
-        pcache[it->first] = it->first->value;
-
-    for (auto it=vquadvals.begin(); it != vquadvals.end(); ++it)
-        vcache[it->first] = it->first->value;
-    for (auto it=pquadvals.begin(); it != pquadvals.end(); ++it)
-        pcache[it->first] = it->first->value;
-
-    for (auto it=vnonlvals.begin(); it != vnonlvals.end(); ++it)
-        vcache[it->first] = it->first->value;
-    for (auto it=pnonlvals.begin(); it != pnonlvals.end(); ++it)
-        pcache[it->first] = it->first->value;
-
-    vupdates.clear();
-    pupdates.clear();
-
-    initial=false;
-    return true;
-    }
-else {
-    find_updated_values();
-    find_updated_coefs();
-    return false;
-    }
+std::shared_ptr<NLPSolverRepn> tmp(create_nlpsolver(name));
+repn = tmp;
 }
 
+bool NLPSolver::available() const
+{ return repn.get() && repn->available(); }
 
-void SolverRepn::find_updated_coefs()
-{
-updated_coefs.clear();
+int NLPSolver::solve(NLPModel& model)
+{ return repn->solve(model); }
 
-for (auto it=vupdates.begin(); it != vupdates.end(); ++it) {
-    try {
-        std::set<size_t>& expr = vconstvals[*it];
-        for (auto jt=expr.begin(); jt != expr.end(); ++jt)
-            updated_coefs.insert( std::tuple<size_t, size_t, size_t>(*jt, 0, 0) );
-        }
-    catch (...) {
-        // TODO
-        }
-    try {
-        std::set<std::tuple<size_t,size_t> >& expr = vlinvals[*it];
-        for (auto jt=expr.begin(); jt != expr.end(); ++jt)
-            updated_coefs.insert( std::tuple<size_t, size_t, size_t>(std::get<0>(*jt), 1, std::get<1>(*jt)) );
-        }
-    catch (...) {
-        // TODO
-        }
-    try {
-        std::set<std::tuple<size_t,size_t> >& expr = vquadvals[*it];
-        for (auto jt=expr.begin(); jt != expr.end(); ++jt)
-            updated_coefs.insert( std::tuple<size_t, size_t, size_t>(std::get<0>(*jt), 2, std::get<1>(*jt)) );
-        }
-    catch (...) {
-        // TODO
-        }
-    try {
-        std::set<size_t>& expr = vnonlvals[*it];
-        for (auto jt=expr.begin(); jt != expr.end(); ++jt)
-            updated_coefs.insert( std::tuple<size_t, size_t, size_t>(*jt, 3, 0) );
-        }
-    catch (...) {
-        // TODO
-        }
-    }
+void NLPSolver::load(NLPModel& model)
+{ repn->load(model); }
 
-for (auto it=pupdates.begin(); it != pupdates.end(); ++it) {
-    try {
-        std::set<size_t>& expr = pconstvals[*it];
-        for (auto jt=expr.begin(); jt != expr.end(); ++jt)
-            updated_coefs.insert( std::tuple<size_t, size_t, size_t>(*jt, 0, 0) );
-        }
-    catch (...) {
-        // TODO
-        }
-    try {
-        std::set<std::tuple<size_t,size_t> >& expr = plinvals[*it];
-        for (auto jt=expr.begin(); jt != expr.end(); ++jt)
-            updated_coefs.insert( std::tuple<size_t, size_t, size_t>(std::get<0>(*jt), 1, std::get<1>(*jt)) );
-        }
-    catch (...) {
-        // TODO
-        }
-    try {
-        std::set<std::tuple<size_t,size_t> >& expr = pquadvals[*it];
-        for (auto jt=expr.begin(); jt != expr.end(); ++jt)
-            updated_coefs.insert( std::tuple<size_t, size_t, size_t>(std::get<0>(*jt), 2, std::get<1>(*jt)) );
-        }
-    catch (...) {
-        // TODO
-        }
-    try {
-        std::set<size_t>& expr = pnonlvals[*it];
-        for (auto jt=expr.begin(); jt != expr.end(); ++jt)
-            updated_coefs.insert( std::tuple<size_t, size_t, size_t>(*jt, 3, 0) );
-        }
-    catch (...) {
-        // TODO
-        }
-    }
+int NLPSolver::resolve()
+{ return repn->resolve(); }
 
-//#ifdef DEBUG
-std::cout << "Updated Coefficients:    " << updated_coefs.size() << std::endl;
-//#endif
-}
+void NLPSolver::reset()
+{ repn->reset(); }
 
+bool NLPSolver::get_option(const std::string& option, int& value) const
+{ return repn->get_option(option, value); }
+bool NLPSolver::get_option(const std::string& option, double& value) const
+{ return repn->get_option(option, value); }
+bool NLPSolver::get_option(const std::string& option, std::string& value) const
+{ return repn->get_option(option, value); }
+bool NLPSolver::get_option(int option, int& value) const
+{ return repn->get_option(option, value); }
+bool NLPSolver::get_option(int option, double& value) const
+{ return repn->get_option(option, value); }
+bool NLPSolver::get_option(int option, std::string& value) const
+{ return repn->get_option(option, value); }
 
-bool SolverCache::get_option(int option, int& value) const
-{ throw std::runtime_error("Solver does not support get_option with integer name and integer value");}
-bool SolverCache::get_option(int option, double& value) const
-{ throw std::runtime_error("Solver does not support get_option with integer name and double value");}
-bool SolverCache::get_option(int option, std::string& value) const
-{ throw std::runtime_error("Solver does not support get_option with integer name and double ngvalue");}
-
-void SolverCache::set_option(int option, int value)
-{ throw std::runtime_error("Solver does not support set_option with integer name and integer value");}
-void SolverCache::set_option(int option, double value)
-{ throw std::runtime_error("Solver does not support set_option with integer name and double value");}
-void SolverCache::set_option(int option, const std::string value)
-{ throw std::runtime_error("Solver does not support set_option with integer name and double ngvalue");}
-
-bool SolverCache::get_option(const std::string& option, int& value) const
-{
-auto curr = integer_options.find(option);
-if (curr == integer_options.end())
-    return false;
-value = curr->second;
-return true;
-}
-
-bool SolverCache::get_option(const std::string& option, double& value) const
-{
-auto curr = double_options.find(option);
-if (curr == double_options.end())
-    return false;
-value = curr->second;
-return true;
-}
-
-bool SolverCache::get_option(const std::string& option, std::string& value) const
-{
-auto curr = string_options.find(option);
-if (curr == string_options.end())
-    return false;
-value = curr->second;
-return true;
-}
-
-void SolverCache::set_option(const std::string& option, int value)
-{
-integer_options[option] = value;
-}
-
-void SolverCache::set_option(const std::string& option, double value)
-{
-double_options[option] = value;
-}
-
-void SolverCache::set_option(const std::string& option, const std::string value)
-{
-string_options[option] = value;
-}
-
+void NLPSolver::set_option(const std::string& option, int value)
+{ repn->set_option(option, value); }
+void NLPSolver::set_option(const std::string& option, double value)
+{ repn->set_option(option, value); }
+void NLPSolver::set_option(const std::string& option, const std::string value)
+{ repn->set_option(option, value); }
+void NLPSolver::set_option(int option, int value)
+{ repn->set_option(option, value); }
+void NLPSolver::set_option(int option, double value)
+{ repn->set_option(option, value); }
+void NLPSolver::set_option(int option, const std::string value)
+{ repn->set_option(option, value); }
 
 }
-

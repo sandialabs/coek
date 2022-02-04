@@ -52,8 +52,9 @@ public:
         {
         if (done) return;
 
-        int i=curr.size()-1;
-        while (i >= 0) {
+        size_t i_=0;
+        while (i_ < curr.size()) {
+            size_t i=curr.size()-1 - i_;
             size_t val = ++curr[i];
             if (val < sizes[i]) {
                 ref->simple_sets[i]->get_value(curr[i], _value[i], indices[i]);
@@ -61,10 +62,10 @@ public:
                 }
             curr[i] = 0;
             ref->simple_sets[i]->get_value(0, _value[i], indices[i]);
-            i--;
+            i_++;
             }
 
-        done = (i<0);
+        done = (i_ == curr.size());
         }
 
     bool equals(const SetIteratorRepnBase<std::vector<set_types>>* repn) const
@@ -275,15 +276,11 @@ std::vector<set_types> val = std::any_cast<std::vector<set_types>>(arg);
 return contains(val);
 }
 
-std::any ProductSet::value(size_t i)
-{
-return 0;
-}
+std::any ProductSet::value(size_t /*i*/)
+{ return 0; }
 
-void ProductSet::get_value(size_t i, set_types& arg, IndexParameter& index)
-{
-throw std::runtime_error("get_value() cannot be called from a ProductSet.");
-}
+void ProductSet::get_value(size_t /*i*/, set_types& /*arg*/, IndexParameter& /*index*/)
+{ throw std::runtime_error("get_value() cannot be called from a ProductSet."); }
 
 class FiniteProductSetIteratorRepn : public SetIteratorRepnBase<std::vector<set_types>>
 {

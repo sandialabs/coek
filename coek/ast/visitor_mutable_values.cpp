@@ -2,7 +2,6 @@
 #include "visitor.hpp"
 #include "base_terms.hpp"
 #include "constraint_terms.hpp"
-#include "objective_terms.hpp"
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL

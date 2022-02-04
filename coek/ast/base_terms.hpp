@@ -108,6 +108,8 @@ public:
 };
 
 
+class DummyConstraintTerm;
+class DummyObjectiveTerm;
 #ifdef WITH_AST_ENV
 }
 #include "constraint_terms.hpp"
@@ -130,11 +132,12 @@ public:
     ConstantTerm ZeroConstant;
     ConstantTerm NegativeOneConstant; 
     DummyConstraintTerm DummyConstraint; 
+    DummyObjectiveTerm DummyObjective; 
 
 public:
 
     ASTEnvironment()
-        : num_global_constants(4), OneConstant(1), ZeroConstant(0), NegativeOneConstant(-1), DummyConstraint()
+        : num_global_constants(5), OneConstant(1), ZeroConstant(0), NegativeOneConstant(-1), DummyConstraint(), DummyObjective()
         { reset(); }
 
     ~ASTEnvironment();
@@ -219,16 +222,19 @@ extern ASTEnvironment env;
 #define ONECONST &(env.OneConstant)
 #define NEGATIVEONECONST &(env.NegativeOneConstant)
 #define DUMMYCONSTRAINT &(env.DummyConstraint)
+#define DUMMYOBJECTIVE &(env.DummyObjective)
 
 #else
 extern ConstantTerm ZeroConstant;
 extern ConstantTerm OneConstant;
 extern ConstantTerm NegativeOneConstant;
 extern DummyConstraintTerm DummyConstraint;
+extern DummyObjectiveTerm DummyObjective;
 #define ZEROCONST &(ZeroConstant)
 #define ONECONST &(OneConstant)
 #define NEGATIVEONECONST &(NegativeOneConstant)
 #define DUMMYCONSTRAINT &(DummyConstraint)
+#define DUMMYOBJECTIVE &(DummyObjective)
 // GCOVR_EXCL_STOP
 #endif
 

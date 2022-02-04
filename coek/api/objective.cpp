@@ -1,4 +1,5 @@
-#include "../ast/objective_terms.hpp"
+#include "../ast/base_terms.hpp"
+#include "../ast/constraint_terms.hpp"
 #include "../ast/visitor_fns.hpp"
 #include "expression.hpp"
 #include "objective.hpp"
@@ -8,8 +9,8 @@ namespace coek {
 
 
 Objective::Objective()
-    : repn(0)
-{ }
+    : repn(DUMMYOBJECTIVE)
+{ OWN_POINTER(repn); }
 
 Objective::Objective(const ObjectiveRepn& _repn)
     : repn(_repn)
@@ -17,7 +18,6 @@ Objective::Objective(const ObjectiveRepn& _repn)
 
 Objective::Objective(const Expression& arg, bool sense)
 {
-//repn = STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(ObjectiveTerm, _repn, sense) );
 repn = CREATE_POINTER(ObjectiveTerm, arg.repn, sense);
 OWN_POINTER(repn);
 }
@@ -47,12 +47,10 @@ return *this;
 }
 
 unsigned int Objective::id() const
-{
-if (repn)
-    return repn->index;
-// TODO - throw an exception here?
-return 0;
-}
+{ return repn->index; }
+
+double Objective::get_value() const
+{ return repn->eval(); }
 
 void Objective::set_body(const Expression& body)
 {
@@ -61,13 +59,13 @@ OWN_POINTER(body.repn);
 repn->body = body.repn;
 }
 
-Expression Objective::body() const
+Expression Objective::get_body() const
 { return repn->body; }
 
 void Objective::set_sense(bool sense)
 { repn->sense = sense; }
 
-bool Objective::sense() const
+bool Objective::get_sense() const
 { return repn->sense; }
 
 void Objective::set_name(const std::string& name)

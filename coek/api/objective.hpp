@@ -1,5 +1,3 @@
-#ifndef COEK_API_OBJECTIVE_H
-#define COEK_API_OBJECTIVE_H
 #pragma once
 
 #include <iostream>
@@ -53,15 +51,18 @@ public:
 
     /** \returns the unique integer objective ID */
     unsigned int id() const;
+    /** \returns the value of the objective expression
+      */
+    double get_value() const;
 
     /** Set the objective expression body */
     void set_body(const Expression& body);
     /** \returns the objective expression body */
-    Expression body() const;
+    Expression get_body() const;
     /** Set the objective sense */
     void set_sense(bool sense);
     /** \returns the objective sense */
-    bool sense() const;
+    bool get_sense() const;
     /** Set the objective name */
     void set_name(const std::string& name);
     /** \returns the objective name */
@@ -74,4 +75,3 @@ public:
 };
 
 }
-#endif

@@ -24,7 +24,7 @@ public:
 
 public:
 
-    ExpressionSequenceRepn(const Expression& expr, const SequenceContext& context_)
+    ExpressionSequenceRepn(const SequenceContext& context_, const Expression& expr)
         : expression_template(expr), context(context_)
         {}
     
@@ -72,18 +72,19 @@ public:
 
     void operator++()
         {
-        int i = ncontexts-1;
-        while (i >= 0) {
+        size_t i_=0;
+        while (i_ < ncontexts) {
+            size_t i = ncontexts-1 - i_;
             ++context_iter[i];
             if (context_iter[i] == seq->context[i].index_set.end())
                 {
                 context_iter[i] = seq->context[i].index_set.begin(seq->context[i].indices);
-                i--;
+                i_++;
                 }
             else
                 break;
             }
-        if (i < 0)
+        if (i_ == ncontexts)
             done = true;
         else
             converted_expr = convert_expr_template(seq->expression_template.repn);
@@ -178,8 +179,8 @@ ExpressionSequence::ExpressionSequence(const std::shared_ptr<ExpressionSequenceR
     : repn(_repn)
 {}
 
-ExpressionSequence::ExpressionSequence(const Expression& expr, const SequenceContext& context_)
-{ repn = std::make_shared<ExpressionSequenceRepn>(expr,context_); }
+ExpressionSequence::ExpressionSequence(const SequenceContext& context_, const Expression& expr)
+{ repn = std::make_shared<ExpressionSequenceRepn>(context_,expr); }
 
 ExpressionSeqIterator ExpressionSequence::begin()
 { return ExpressionSeqIterator(repn.get(), false); }
@@ -225,9 +226,9 @@ return curr;
 //
 // Sum
 //
-Expression Sum(const Expression& expr, const SequenceContext& context)
+Expression Sum(const SequenceContext& context, const Expression& expr)
 {
-ExpressionSequence seq(expr, context);
+ExpressionSequence seq(context, expr);
 Expression ans( CREATE_POINTER(SumExpressionTerm, seq) );
 return ans;
 }

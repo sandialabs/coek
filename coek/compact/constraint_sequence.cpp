@@ -24,7 +24,7 @@ public:
 
 public:
 
-    ConstraintSequenceRepn(const Constraint& con, const SequenceContext& context_)
+    ConstraintSequenceRepn(const SequenceContext& context_, const Constraint& con)
         : constraint_template(con), context(context_)
         {}
 };
@@ -71,18 +71,19 @@ public:
 
     void operator++()
         {
-        int i = ncontexts-1;
-        while (i >= 0) {
+        size_t i_=0;
+        while (i_ < ncontexts) {
+            size_t i = ncontexts-1 - i_;
             ++context_iter[i];
             if (context_iter[i] == seq->context[i].index_set.end())
                 {
                 context_iter[i] = seq->context[i].index_set.begin(seq->context[i].indices);
-                i--;
+                i_++;
                 }
             else
                 break;
             }
-        if (i < 0)
+        if (i_ == ncontexts)
             done = true;
         else
             converted_con = convert_con_template(seq->constraint_template.repn);
@@ -177,8 +178,8 @@ ConstraintSequence::ConstraintSequence(const std::shared_ptr<ConstraintSequenceR
 {}
 
 
-ConstraintSequence::ConstraintSequence(const Constraint& expr, const SequenceContext& context_)
-{ repn = std::make_shared<ConstraintSequenceRepn>(expr,context_); }
+ConstraintSequence::ConstraintSequence(const SequenceContext& context_, const Constraint& expr)
+{ repn = std::make_shared<ConstraintSequenceRepn>(context_,expr); }
 
 ConstraintSeqIterator ConstraintSequence::begin()
 { return ConstraintSeqIterator(repn.get(), false); }

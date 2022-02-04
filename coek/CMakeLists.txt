@@ -4,7 +4,6 @@
 SET(sources
     ast/base_terms.cpp
     ast/constraint_terms.cpp
-    ast/objective_terms.cpp
     ast/value_terms.cpp
     ast/expr_terms.cpp
     ast/visitor_to_list.cpp
@@ -21,11 +20,14 @@ SET(sources
     api/objective.cpp
     api/constraint.cpp
     api/intrinsic_fn.cpp
-    model/coek_model.cpp
+    model/model.cpp
+    model/compact_model.cpp
+    model/nlp_model.cpp
     model/writer_lp.cpp
     model/writer_nl.cpp
     model/reader_jpof.cpp
     solvers/solver.cpp
+    solvers/solver_repn.cpp
     solvers/testsolver.cpp
     autograd/autograd.cpp
     abstract/expr_rule.cpp
@@ -36,6 +38,7 @@ if(with_compact)
         ast/compact_terms.cpp
         compact/sequence_context.cpp
         compact/expression_sequence.cpp
+        compact/variable_sequence.cpp
         compact/objective_sequence.cpp
         compact/constraint_sequence.cpp
         compact/ast_set.cpp
@@ -200,7 +203,7 @@ target_include_directories(coek
 target_include_directories(coek
                            PUBLIC
                            ${coek_include_directories})
-
+target_link_libraries(coek PUBLIC ${coek_link_libraries})
 set_property(TARGET coek PROPERTY INTERFACE_LINK_LIBRARIES ${coek_link_libraries})
 
 if (WIN32)
@@ -224,9 +227,8 @@ endif()
 
 install(FILES
         coek.hpp 
-        coek_model.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek
-       )
+        )
 install(FILES
         api/expression.hpp
         api/expression_visitor.hpp
@@ -235,7 +237,7 @@ install(FILES
         api/constraint.hpp
         api/constants.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/api
-       )
+        )
 install(FILES
         compact/coek_sets.hpp
         compact/coek_indexed.hpp
@@ -244,7 +246,17 @@ install(FILES
         compact/objective_sequence.hpp
         compact/constraint_sequence.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/compact
-       )
+        )
+install(FILES
+        model/model.hpp
+        model/nlp_model.hpp
+        model/compact_model.hpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/model
+        )
+install(FILES
+        solvers/solver.hpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/solvers
+        )
 
 #
 # Push the compile options to the parent scope

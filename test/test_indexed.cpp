@@ -121,7 +121,7 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
         coek::IndexParameter j("j");
 
         std::vector<int> vals(4);
-        int ii=0;
+        size_t ii=0;
         for (auto it=s.begin({i}); it != s.end(); ++it) {
             i.get_value(vals[ii++]);
             }
@@ -155,7 +155,7 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
         coek::IndexParameter j("j");
 
         std::vector<int> vals(4);
-        int ii=0;
+        size_t ii=0;
         for (auto it=s.begin({i}); it != s.end(); ++it) {
             i.get_value(vals[ii++]);
             }
@@ -198,7 +198,7 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
         coek::IndexParameter j("j");
 
         std::vector<std::string> vals(4);
-        int ii=0;
+        size_t ii=0;
         for (auto it=s.begin({i}); it != s.end(); ++it) {
             i.get_value(vals[ii++]);
             }
@@ -452,8 +452,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         coek::IndexParameter j("j");
 
         WHEN( "y(i)" ) {
-            auto tmp = coek::ExpressionSequence(y(i), coek::Forall(i).In(s));
-            int ii=0;
+            auto tmp = coek::ExpressionSequence(coek::Forall(i).In(s), y(i));
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"y(" + std::to_string(v[ii]) + ")"};
                 REQUIRE( it->to_list() == baseline);
@@ -462,8 +462,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         }
 
         WHEN( "1 + y(i)" ) {
-            auto tmp = coek::ExpressionSequence(1+y(i), coek::Forall(i).In(s));
-            int ii=0;
+            auto tmp = coek::ExpressionSequence(coek::Forall(i).In(s), 1+y(i));
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "+", "1.000", "y(" + std::to_string(v[ii]) + ")", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -472,8 +472,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         }
 
         WHEN( "i + y(i)" ) {
-            auto tmp = coek::ExpressionSequence(i+y(i), coek::Forall(i).In(s));
-            int ii=0;
+            auto tmp = coek::ExpressionSequence(coek::Forall(i).In(s), i+y(i));
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "+", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]) + ")", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -484,8 +484,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         WHEN( "y(i+2)" ) {
             std::vector<int> w = {1,5,3};
             auto S = coek::SetOf( w );
-            auto tmp = coek::ExpressionSequence(y(i+2), coek::Forall(i).In(S));
-            int ii=0;
+            auto tmp = coek::ExpressionSequence(coek::Forall(i).In(S), y(i+2));
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"y(" + std::to_string(v[ii]+2) + ")"};
                 REQUIRE( it->to_list() == baseline);
@@ -496,8 +496,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         WHEN( "y(i)+i*y(i+2)" ) {
             std::vector<int> w = {1,5,3};
             auto S = coek::SetOf( w );
-            auto tmp = coek::ExpressionSequence(y(i)+i*y(i+2), coek::Forall(i).In(S));
-            int ii=0;
+            auto tmp = coek::ExpressionSequence(coek::Forall(i).In(S), y(i)+i*y(i+2));
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "+", "y(" + std::to_string(v[ii]) + ")", "[", "*", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]+2) + ")", "]", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -506,42 +506,42 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         }
 
         WHEN( "Sum( y(i) )" ) {
-            auto tmp = coek::Sum( y(i), coek::Forall(i).In(s) );
+            auto tmp = coek::Sum( coek::Forall(i).In(s), y(i) );
             auto e = tmp.expand();
             std::list<std::string> baseline = { "[", "+", "y(1)", "y(5)", "y(3)", "y(7)", "]" };
             REQUIRE( e.to_list() == baseline);
         }
 
         WHEN( "Sum( x(i,i) )" ) {
-            auto tmp = Sum( x(i,i), coek::Forall(i).In(s) );
+            auto tmp = Sum( coek::Forall(i).In(s), x(i,i) );
             auto e = tmp.expand();
             std::list<std::string> baseline = { "[", "+", "x(1,1)", "x(5,5)", "x(3,3)", "x(7,7)", "]" };
             REQUIRE( e.to_list() == baseline);
         }
 
         WHEN( "Sum( x(i,j) ) [1]" ) {
-            auto tmp = Sum( x(i,j), coek::Forall(i,j).In(s*s) );
+            auto tmp = Sum( coek::Forall(i,j).In(s*s), x(i,j) );
             auto e = tmp.expand();
             std::list<std::string> baseline =  { "[", "+", "x(1,1)", "x(1,5)", "x(1,3)", "x(1,7)", "x(5,1)", "x(5,5)", "x(5,3)", "x(5,7)", "x(3,1)", "x(3,5)", "x(3,3)", "x(3,7)", "x(7,1)", "x(7,5)", "x(7,3)", "x(7,7)", "]" };
             REQUIRE( e.to_list() == baseline);
         }
 
         WHEN( "Sum( x(i,j) ) [2]" ) {
-            auto tmp = Sum( x(i,j), coek::Forall(i).In(s) .Forall(j).In(s) );
+            auto tmp = Sum( coek::Forall(i).In(s) .Forall(j).In(s), x(i,j) );
             auto e = tmp.expand();
             std::list<std::string> baseline = { "[", "+", "x(1,1)", "x(1,5)", "x(1,3)", "x(1,7)", "x(5,1)", "x(5,5)", "x(5,3)", "x(5,7)", "x(3,1)", "x(3,5)", "x(3,3)", "x(3,7)", "x(7,1)", "x(7,5)", "x(7,3)", "x(7,7)", "]" };
             REQUIRE( e.to_list() == baseline);
         }
 
         WHEN( "Sum( y(i)*x(i,i) )" ) {
-            auto tmp = Sum( y(i)*x(i,i), coek::Forall(i).In(s) );
+            auto tmp = Sum( coek::Forall(i).In(s), y(i)*x(i,i) );
             auto e = tmp.expand();
             std::list<std::string> baseline = { "[", "+", "[", "*", "y(1)", "x(1,1)", "]", "[", "*", "y(5)", "x(5,5)", "]", "[", "*", "y(3)", "x(3,3)", "]", "[", "*", "y(7)", "x(7,7)", "]", "]" };
             REQUIRE( e.to_list() == baseline);
         }
 
         WHEN( "Sum_i( y(i)*Sum_j(x(i,j)) )" ) {
-            auto tmp = Sum( y(i)*Sum(x(i,j), coek::Forall(j).In(s)), coek::Forall(i).In(s) );
+            auto tmp = Sum( coek::Forall(i).In(s), y(i)*Sum(coek::Forall(j).In(s), x(i,j)) );
             auto e = tmp.expand();
             std::list<std::string> baseline =  { "[", "+", "[", "*", "y(1)", "[", "+", "x(1,1)", "x(1,5)", "x(1,3)", "x(1,7)", "]", "]", "[", "*", "y(5)", "[", "+", "x(5,1)", "x(5,5)", "x(5,3)", "x(5,7)", "]", "]", "[", "*", "y(3)", "[", "+", "x(3,1)", "x(3,5)", "x(3,3)", "x(3,7)", "]", "]", "[", "*", "y(7)", "[", "+", "x(7,1)", "x(7,5)", "x(7,3)", "x(7,7)", "]", "]", "]" };
             REQUIRE( e.to_list() == baseline);
@@ -556,8 +556,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         coek::IndexParameter i("i");
 
         WHEN( "y(i) == 0" ) {
-            auto tmp = coek::ConstraintSequence(y(i) == 0, coek::Forall(i).In(s));
-            int ii=0;
+            auto tmp = coek::ConstraintSequence(coek::Forall(i).In(s), y(i) == 0);
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "y(" + std::to_string(v[ii]) + ")", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -566,8 +566,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         }
 
         WHEN( "1 + y(i) == 0" ) {
-            auto tmp = coek::ConstraintSequence(1+y(i) == 0, coek::Forall(i).In(s));
-            int ii=0;
+            auto tmp = coek::ConstraintSequence(coek::Forall(i).In(s), 1+y(i) == 0);
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "[", "+", "1.000", "y(" + std::to_string(v[ii]) + ")", "]", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -576,8 +576,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         }
 
         WHEN( "i + y(i) == 0" ) {
-            auto tmp = coek::ConstraintSequence(i+y(i) == 0, coek::Forall(i).In(s));
-            int ii=0;
+            auto tmp = coek::ConstraintSequence(coek::Forall(i).In(s), i+y(i) == 0);
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "[", "+", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]) + ")", "]", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -588,8 +588,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         WHEN( "y(i+2) == 0" ) {
             std::vector<int> w = {1,5,3};
             auto S = coek::SetOf( w );
-            auto tmp = coek::ConstraintSequence(y(i+2) == 0, coek::Forall(i).In(S));
-            int ii=0;
+            auto tmp = coek::ConstraintSequence(coek::Forall(i).In(S), y(i+2) == 0);
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "y(" + std::to_string(v[ii]+2) + ")", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -600,8 +600,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         WHEN( "y(i)+i*y(i+2) == 0" ) {
             std::vector<int> w = {1,5,3};
             auto S = coek::SetOf( w );
-            auto tmp = coek::ConstraintSequence(y(i)+i*y(i+2) == 0, Forall(i).In(S));
-            int ii=0;
+            auto tmp = coek::ConstraintSequence(Forall(i).In(S), y(i)+i*y(i+2)==0);
+            size_t ii=0;
             for (auto it=tmp.begin(); it != tmp.end(); ++it) {
                 std::list<std::string> baseline = {"[", "==", "[", "+", "y(" + std::to_string(v[ii]) + ")", "[", "*", std::to_string(v[ii])+".000", "y(" + std::to_string(v[ii]+2) + ")", "]", "]", "0.000", "]"};
                 REQUIRE( it->to_list() == baseline);
@@ -610,14 +610,14 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         }
 
         WHEN( "Sum( y(i) ) == 0" ) {
-            auto tmp = Sum( y(i), coek::Forall(i).In(s) ) == 0;
+            auto tmp = Sum( coek::Forall(i).In(s), y(i) ) == 0;
             auto e = tmp.expand();
             std::list<std::string> baseline = { "[", "==", "[", "+", "y(1)", "y(5)", "y(3)", "y(7)", "]", "0.000", "]" };
             REQUIRE( e.to_list() == baseline);
         }
 
         WHEN( "Sum( y(i)*x(i,i) ) == 0" ) {
-            auto tmp = Sum( y(i)*x(i,i), coek::Forall(i).In(s) ) == 0;
+            auto tmp = Sum( coek::Forall(i).In(s), y(i)*x(i,i) ) == 0;
             auto e = tmp.expand();
             std::list<std::string> baseline = { "[", "==", "[", "+", "[", "*", "y(1)", "x(1,1)", "]", "[", "*", "y(5)", "x(5,5)", "]", "[", "*", "y(3)", "x(3,3)", "]", "[", "*", "y(7)", "x(7,7)", "]", "]", "0.000", "]" };
             REQUIRE( e.to_list() == baseline);
@@ -653,7 +653,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
   SECTION( "param" ) {
     WHEN( "simple" ) {
         {
-        coek::Parameter p(3, "p");
+        coek::Parameter p("p",3);
         coek::Expression e = p;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -668,7 +668,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     }
     WHEN( "nontrivial multiplier" ) {
         {
-        coek::Parameter p(3, "p");
+        coek::Parameter p("p",3);
         coek::Expression e = p/2;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -854,7 +854,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "lhs constant" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w",0,1,3);
         coek::Expression e = p*w;
         auto E = e.expand();
@@ -873,7 +873,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "rhs constant" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w",0,1,3);
         coek::Expression e = w*p;
         auto E = e.expand();
@@ -991,7 +991,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "lhs parameter - zero" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         coek::Expression e = p/w;
         auto E = e.expand();
@@ -1009,7 +1009,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "rhs parameter - zero" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         coek::Expression e = w/p;
         auto E = e.expand();
@@ -1046,7 +1046,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         {
         coek::Model m;
         coek::Expression p;
-        coek::Parameter w(1,"w");
+        coek::Parameter w("w",1);
         coek::Expression e = p/(w+1);
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -1091,7 +1091,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "rhs nonzero" ) {
         {
         coek::Model m;
-        coek::Parameter p(2.0, "p");
+        coek::Parameter p("p",2.0);
         coek::Variable w = m.add_variable("w", 0, 1, 0);
         coek::Expression e = (w*w+w+1)/p;
         auto E = e.expand();
@@ -1112,7 +1112,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "inequality" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w",0,1,3);
         coek::Constraint e = p*w -3 <= 2;
         auto E = e.expand();
@@ -1131,7 +1131,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "equality" ) {
         {
         coek::Model m;
-        coek::Parameter p(0, "p");
+        coek::Parameter p("p",0);
         coek::Variable w = m.add_variable("w",0,1,3);
         coek::Constraint e = p*w +1 == 2;
         auto E = e.expand();

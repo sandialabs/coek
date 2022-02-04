@@ -10,6 +10,7 @@ endif()
 
 SET(sources
     runner.cpp
+    test_expr.cpp
     test_model.cpp
     test_expr_visitors.cpp
     test_testsolver.cpp
@@ -18,7 +19,15 @@ SET(sources
     test_readers.cpp
     test_sets.cpp
     test_indexed.cpp
+    test_autograd_unknown.cpp
    )
+
+# CppAD LIBRARY
+if(with_cppad)
+  MESSAGE("-- Building Test with AD:        CppAd")
+  list(APPEND sources
+    test_autograd_cppad.cpp)
+endif()
 
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(BEFORE ${coek_include_directories})
@@ -37,6 +46,8 @@ target_compile_definitions(runner PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_D
 include(CTest)
 include(Catch)
 catch_discover_tests(runner)
+
+message("LINK LIBS: ${coek_link_libraries}")
 
 # lqcp
 add_executable(lqcp lqcp.cpp)

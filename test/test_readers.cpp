@@ -78,7 +78,7 @@ TEST_CASE( "jpof_reader_string", "[smoke]" ) {
 
     auto obj = model.get_objective();
     static std::list<std::string> obj_expr = {"[", "pow", "x", "2.000", "]"};
-    REQUIRE( obj.body().to_list() == obj_expr );
+    REQUIRE( obj.get_body().to_list() == obj_expr );
 
     auto con = model.get_constraint(0);
     static std::list<std::string> con_expr = {"[", "==", "[", "pow", "y", "2.000", "]", "4.000", "]"};
@@ -122,6 +122,18 @@ REQUIRE( con.get_name() == name );
 
 
 TEST_CASE( "jpof_reader_file", "[smoke]" ) {
+
+  SECTION( "bad" ) {
+    std::map<std::string,coek::Parameter> params;
+    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_file("bad.json", params), "Unknown file: bad.json");
+    }
+
+  SECTION( "error1" ) {
+    std::map<std::string,coek::Parameter> params;
+    std::cout << currdir+"jpof/error1.json" << std::endl;
+    REQUIRE_THROWS_WITH(coek::read_problem_from_jpof_file(currdir+"jpof/error1.json", params),
+                    "Error parsing JPOF file (offset 114): Missing a name for object member.");
+    }
 
   SECTION( "small1" ) {
     std::map<std::string,coek::Parameter> params;

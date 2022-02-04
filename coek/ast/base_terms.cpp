@@ -70,6 +70,7 @@ cache(&OneConstant, 1);
 cache(&ZeroConstant, 1);
 cache(&NegativeOneConstant, 1);
 cache(&DummyConstraint, 1);
+cache(&DummyObjective, 1);
 }
 #else
 
@@ -78,6 +79,7 @@ ConstantTerm ZeroConstant(0, 1);
 ConstantTerm OneConstant(1, 1);
 ConstantTerm NegativeOneConstant(-1, 1);
 DummyConstraintTerm DummyConstraint;
+DummyObjectiveTerm DummyObjective;
 #endif
 // GCOVR_EXCL_STOP
 

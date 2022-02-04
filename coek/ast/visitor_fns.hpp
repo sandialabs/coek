@@ -1,5 +1,3 @@
-#ifndef COEK_EXPR_AST_VISITORS_HPP
-#define COEK_EXPR_AST_VISITORS_HPP
 #pragma once
 
 #include <list>
@@ -18,7 +16,6 @@ typedef BaseExpressionTerm* expr_pointer_t;
 
 
 void expr_to_list(expr_pointer_t expr, std::list<std::string>& repr);
-std::list<std::string> to_list(expr_pointer_t expr);
 
 void write_expr(expr_pointer_t expr, std::ostream& ostr);
 
@@ -35,4 +32,3 @@ void find_vars_and_params(expr_pointer_t expr,
 
 void find_variables(expr_pointer_t expr, std::unordered_set<VariableTerm*>& variables);
 }
-#endif

@@ -1,5 +1,3 @@
-#ifndef COEK_API_CONSTRAINT_H
-#define COEK_API_CONSTRAINT_H
 #pragma once
 
 #include <iostream>
@@ -54,16 +52,11 @@ public:
     bool is_feasible() const;
 
     /** \returns the expression for the constraint lower bound */
-    Expression lower() const;
+    Expression get_lower() const;
     /** \returns the expression for the constraint body */
-    Expression body() const;
+    Expression get_body() const;
     /** \returns the expression for the constraint upper bound */
-    Expression upper() const;
-
-    /** \returns the value of the constraint lower bound */
-    double get_lb() const;
-    /** \returns the value of the constraint upper bound */
-    double get_ub() const;
+    Expression get_upper() const;
 
     /** Set the constraint name */
     void set_name(const std::string& name);
@@ -252,4 +245,3 @@ Constraint inequality(int lower, const Expression& body, int upper, bool strict=
 Constraint inequality(double lower, const Expression& body, double upper, bool strict=false);
 Constraint inequality(const Expression& lower, const Expression& body, const Expression& upper, bool strict=false);
 }
-#endif

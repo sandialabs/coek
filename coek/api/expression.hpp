@@ -1,5 +1,3 @@
-#ifndef COEK_API_EXPRESSION_H
-#define COEK_API_EXPRESSION_H
 #pragma once
 
 #include <iostream>
@@ -166,7 +164,7 @@ public:
       * \param value   the initial value of the parameter
       * \param name   the name of the parameter
       */
-    Parameter(double value, const std::string& name);
+    Parameter(const std::string& name, double value=0.0);
     /**
       * Copy constructor
       *
@@ -224,9 +222,9 @@ public:
 
     IndexParameter& operator=(const IndexParameter& arg);
 
-    void get_value(double& value) const;
-    void get_value(int& value) const;
-    void get_value(std::string& value) const;
+    bool get_value(double& value) const;
+    bool get_value(int& value) const;
+    bool get_value(std::string& value) const;
 
     void set_value(double value);
     void set_value(int value);
@@ -257,31 +255,61 @@ public:
     /**
       * Constructs a Variable initialized with standard arguments.
       *
-      * This constructor accepts one or more standard options.  When default values are used, this
-      * specifies an unbounded, continuous decision variable.
+      * This constructor accepts one or more standard options.
+      * When default values are used, this specifies a
+      * continuous decision variable.
       *
-      * \param lb   the lower bound (default is negative infinity)
-      * \param ub   the upper bound (default is infinity)
-      * \param value   the initial value (default is 0.0)
+      * \param lb   the lower bound
+      * \param ub   the upper bound
+      * \param value   the initial value
       * \param binary   a boolean flag that indicates whether the variable is boolean (default is \c false)
       * \param integer   a boolean flag that indicates whether the variable is a general integer (default is \c false)
       */
-    Variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=0.0, bool binary=false, bool integer=false);
+    Variable(const double lb=-COEK_INFINITY, const double ub=COEK_INFINITY, const double value=0.0, bool binary=false, bool integer=false);
     /**
       * Constructs a Variable initialized with standard arguments.
       *
-      * This constructor accepts one or more standard options.  The first argument is the 
-      * name of the variable. When default values are used, this specifies an unbounded,
+      * This constructor accepts one or more standard options.
+      * When default values are used, this specifies a
       * continuous decision variable.
       *
       * \param name   the name of variable
-      * \param lb   the lower bound (default is negative infinity)
-      * \param ub   the upper bound (default is infinity)
-      * \param value   the initial value (default is 0.0)
+      * \param lb   the lower bound
+      * \param ub   the upper bound
+      * \param value   the initial value
       * \param binary   a boolean flag that indicates whether the variable is boolean (default is \c false)
       * \param integer   a boolean flag that indicates whether the variable is a general integer (default is \c false)
       */
-    Variable(const std::string& name, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=0.0, bool binary=false, bool integer=false);
+    Variable(const std::string& name, const double lb=-COEK_INFINITY, const double ub=COEK_INFINITY, const double value=0.0, bool binary=false, bool integer=false);
+    /**
+      * Constructs a Variable initialized with standard arguments.
+      *
+      * This constructor accepts one or more standard options.
+      * When default values are used, this specifies a
+      * continuous decision variable.
+      *
+      * \param lb   the lower bound
+      * \param ub   the upper bound
+      * \param value   the initial value
+      * \param binary   a boolean flag that indicates whether the variable is boolean (default is \c false)
+      * \param integer   a boolean flag that indicates whether the variable is a general integer (default is \c false)
+      */
+    Variable(const Expression& lb, const Expression& ub, const Expression& value, bool binary=false, bool integer=false);
+    /**
+      * Constructs a Variable initialized with standard arguments.
+      *
+      * This constructor accepts one or more standard options.
+      * When default values are used, this specifies a
+      * continuous decision variable.
+      *
+      * \param name   the name of variable
+      * \param lb   the lower bound
+      * \param ub   the upper bound
+      * \param value   the initial value
+      * \param binary   a boolean flag that indicates whether the variable is boolean (default is \c false)
+      * \param integer   a boolean flag that indicates whether the variable is a general integer (default is \c false)
+      */
+    Variable(const std::string& name, const Expression& lb, const Expression& ub, const Expression& value, bool binary=false, bool integer=false);
     Variable(const VariableRepn& _repn);
     Variable(const Variable& arg);
     virtual ~Variable();
@@ -308,22 +336,27 @@ public:
       * \param binary   a boolean flag that indicates whether the variable is boolean 
       * \param integer   a boolean flag that indicates whether the variable is a general integer
       * \param fixed   a boolean flag that indicates whether the variable is fixed
-      * \param name   the name of variable
       */
-    void initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed, const std::string& name);
+    void initialize(const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, bool fixed);
 
     /** \returns the value of the variable */
     double get_value() const;
+    /** \returns the expression defining the variable value */
+    Expression get_value_expression() const;
     /** Set the variable value */
     void set_value(double value);
 
     /** \returns the lower bound */
     double get_lb() const;
+    /** \returns the expression defining the variable lower bound */
+    Expression get_lb_expression() const;
     /** Set the lower bound */
     void set_lb(double value);
 
     /** \returns the upper bound */
     double get_ub() const;
+    /** \returns the expression defining the variable upper bound */
+    Expression get_ub_expression() const;
     /** Set the upper bound */
     void set_ub(double value);
 
@@ -491,4 +524,3 @@ std::ostream& operator<<(std::ostream& ostr, const Variable& arg);
 std::ostream& operator<<(std::ostream& ostr, const Expression& arg);
 
 }
-#endif
