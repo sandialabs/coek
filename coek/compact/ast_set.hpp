@@ -810,7 +810,7 @@ public:
 };
 
 inline size_t compute_nelements(int start, int stop, int step)
-{ return static_cast<size_t>( (stop-start)/step ); }
+{ return static_cast<size_t>( (stop-start)/step )+1; }
 
 inline bool contains_value(int value, int start, int stop, int step)
 {

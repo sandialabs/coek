@@ -337,7 +337,7 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
       }
 
       WHEN( "contains" ) {
-        for (size_t i=0; i<6; i++) {
+        for (int i=0; i<6; i++) {
             REQUIRE( s.contains(2*i) == true );
             }
         }
