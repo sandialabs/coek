@@ -317,8 +317,11 @@ else {
     QuadraticExpr lhs_repn;
     visit_expression(expr.lhs, lhs_repn, 1.0);
     if (lhs_repn.is_constant())
+        // A**B - A and B constant
         repn.constval += multiplier * ::pow(lhs_repn.constval, rhs_repn.constval);
+
     else if (lhs_repn.is_linear() and (rhs_repn.constval == 2)) {
+        // A**B - A linear and B=2
         // Quadratic
         for (std::size_t i=0; i<lhs_repn.linear_coefs.size(); i++)
             for (std::size_t j=0; j<lhs_repn.linear_coefs.size(); j++) {
@@ -334,8 +337,9 @@ else {
         // Constant
         repn.constval += multiplier * lhs_repn.constval * lhs_repn.constval;
         }
+
     else {
-        throw std::runtime_error("Nonlinear expressions are not supported for QuadraticExpr: pow term with constant exponent.");
+        throw std::runtime_error("Nonlinear expressions are not supported for QuadraticExpr: pow term with nonlinear base or constant exponent other than 2.");
         }
     }
 }
@@ -389,8 +393,10 @@ switch (expr->id()) {
     VISIT_CASE(ATanhTerm);
     VISIT_CASE(PowTerm);
 
-      default:
-          throw std::runtime_error("Error in QuadraticExpr visitor!  Visiting unexpected expression term " + std::to_string(expr->id()));
+    // GCOVR_EXCL_START
+    default:
+        throw std::runtime_error("Error in QuadraticExpr visitor!  Visiting unexpected expression term " + std::to_string(expr->id()));
+    // GCOVR_EXCL_STOP
     };
 }
 

@@ -686,9 +686,11 @@ SECTION("Model") {
     auto b = model.add_variable("b");
     coek::Parameter q("q",0);
 
-    model.add_objective( 3*a + q );
+    model.add_objective( 3*a + q, model.maximize );
     model.add_constraint( 3*b + q <= 0 );
     model.add_constraint( 3*b + q == 0 );
+    model.add_constraint( coek::inequality(0, 3*b + q, 1) );
+    model.add_constraint( coek::inequality(2, 3*b + q, 3, true) );
 
     WHEN("simple") {
         std::stringstream os;
@@ -696,10 +698,12 @@ SECTION("Model") {
         std::string tmp = os.str();
         REQUIRE( tmp == "MODEL\n\
   Objectives\n\
-    min( 3*a + q )\n\
+    max( 3*a + q )\n\
   Constraints\n\
     3*b + q <= 0\n\
     3*b + q == 0\n\
+    0 <= 3*b + q <= 1\n\
+    2 < 3*b + q < 3\n\
 ");
         }
 
@@ -714,16 +718,18 @@ SECTION("Model") {
   fixed variables:   0\n\
   parameters:        1\n\
   objectives:        1\n\
-  constraints:       2\n\
-  nonzeros Jacobian: 2\n\
+  constraints:       4\n\
+  nonzeros Jacobian: 4\n\
   nonzeros Hessian:  0\n\
 \n\
 MODEL\n\
   Objectives\n\
-    min( 3*a + q )\n\
+    max( 3*a + q )\n\
   Constraints\n\
     3*b + q <= 0\n\
-    3*b + q == 0\n\n");
+    3*b + q == 0\n\
+    0 <= 3*b + q <= 1\n\
+    2 < 3*b + q < 3\n\n");
         }
     }
 

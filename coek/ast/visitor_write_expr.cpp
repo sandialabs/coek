@@ -65,9 +65,7 @@ public:
 
 
 void WriteExprVisitor::visit(ConstantTerm& arg)
-{
-ostr << arg.value;
-}
+{ ostr << arg.value; }
 
 void WriteExprVisitor::visit(ParameterTerm& arg)
 {
@@ -81,9 +79,7 @@ else
 }
 
 void WriteExprVisitor::visit(IndexParameterTerm& arg)
-{
-ostr << arg.name;
-}
+{ ostr << arg.name; }
 
 void WriteExprVisitor::visit(VariableTerm& arg)
 {
@@ -183,10 +179,12 @@ ostr << ")";
 void WriteExprVisitor::visit(PlusTerm& arg)
 {
 std::vector<expr_pointer_t>& vec = *(arg.data);
+// GCOVR_EXCL_START
 if (vec.size() == 0) {
     ostr << "NULL-SUM";
     return;
     }
+// GCOVR_EXCL_STOP
 vec[0]->accept(*this);
 
 for (size_t i=1; i<arg.n; i++) {
@@ -252,18 +250,18 @@ ostr << ")";
 }
 
 void WriteExprVisitor::visit(SumExpressionTerm& )
-{
-ostr << "Sum()";
-}
+{ ostr << "Sum()"; }
 
 }
 
 void write_expr(expr_pointer_t expr, std::ostream& ostr)
 {
+// GCOVR_EXCL_START
 if (expr == 0) {
     ostr << "<none>";
     return;
     }
+// GCOVR_EXCL_STOP
 WriteExprVisitor visitor(ostr);
 expr->accept(visitor);
 }

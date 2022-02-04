@@ -16,7 +16,6 @@ typedef BaseExpressionTerm* expr_pointer_t;
 
 
 void expr_to_list(expr_pointer_t expr, std::list<std::string>& repr);
-std::list<std::string> to_list(expr_pointer_t expr);
 
 void write_expr(expr_pointer_t expr, std::ostream& ostr);
 

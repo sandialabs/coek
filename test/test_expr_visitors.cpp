@@ -596,6 +596,42 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     REPN_INTRINSIC_TEST1(acosh)
     REPN_INTRINSIC_TEST1(atanh)
     REPN_INTRINSIC_TEST2(pow)
+
+    WHEN( "pow(x,0)" ) {
+        coek::Model m;
+        auto x = m.add_variable("x");
+        coek::Parameter p("p",0);
+        coek::Expression e = pow(x,p);
+        coek::QuadraticExpr repn;
+        repn.collect_terms(e);
+
+        REQUIRE( repn.constval == 1 );
+        REQUIRE( repn.linear_coefs.size() == 0 );
+        REQUIRE( repn.quadratic_coefs.size() == 0 );
+        }
+
+    WHEN( "pow(x,1)" ) {
+        coek::Model m;
+        auto x = m.add_variable("x");
+        coek::Parameter p("p",1);
+        coek::Expression e = pow(x,p);
+        coek::QuadraticExpr repn;
+        repn.collect_terms(e);
+
+        REQUIRE( repn.constval == 0 );
+        REQUIRE( repn.linear_coefs.size() == 1 );
+        REQUIRE( repn.linear_coefs[0] == 1.0 );
+        REQUIRE( repn.quadratic_coefs.size() == 0 );
+        }
+
+    WHEN( "pow(x,1)" ) {
+        coek::Model m;
+        auto x = m.add_variable("x");
+        coek::Parameter p("p",2);
+        coek::Expression e = pow(x*x,p);
+        coek::QuadraticExpr repn;
+        REQUIRE_THROWS(repn.collect_terms(e));
+        }
   }
 
 #ifdef DEBUG
@@ -1375,6 +1411,26 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         REQUIRE( repn.quadratic_coefs[0].to_list() == qcoefval );
         REQUIRE( repn.quadratic_lvars[0] == w.repn );
         REQUIRE( repn.quadratic_rvars[0] == w.repn );
+        }
+        #ifdef DEBUG
+        REQUIRE( coek::env.check_memory() == true );
+        #endif
+    }
+    WHEN( "complex nonlinear" ) {
+        {
+        // Force use of ceil and floor functions within a nested product.
+        // Force expression of multiplication between constant parameter and quadratic term
+        coek::Model m;
+        coek::Variable w = m.add_variable("w", 0, 1, 0);
+        coek::Parameter p("p");
+        coek::Expression e = ceil(w)*floor(w) + p*(w*w);
+        coek::MutableNLPExpr repn;
+        repn.collect_terms(e);
+
+        REQUIRE( repn.linear_coefs.size() == 0 );
+        REQUIRE( repn.quadratic_coefs.size() == 1 );
+        static std::list<std::string> baseline = { "[", "*", "[", "ceil", "w", "]", "[", "floor", "w", "]", "]" };
+        REQUIRE( repn.nonlinear.to_list() == baseline );
         }
         #ifdef DEBUG
         REQUIRE( coek::env.check_memory() == true );

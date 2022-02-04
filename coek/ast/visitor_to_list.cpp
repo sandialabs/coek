@@ -10,39 +10,7 @@
 #endif
 
 
-std::ostream& operator<<(std::ostream& ostr, const std::list<std::string>& vals)
-{
-auto it = vals.begin();
-auto end = vals.end();
-if (it == end)
-    return ostr;
-ostr << *it;
-++it;
-
-for (; it != end; ++it) {
-    ostr << " " << *it;
-    }
-return ostr;
-}
-
-
 namespace coek {
-
-std::ostream& operator<<(std::ostream& ostr, const std::list<std::string>& vals)
-{
-auto it = vals.begin();
-auto end = vals.end();
-if (it == end)
-    return ostr;
-ostr << *it;
-++it;
-
-for (; it != end; ++it) {
-    ostr << " " << *it;
-    }
-return ostr;
-}
-
 
 namespace {
 
@@ -152,9 +120,12 @@ sstr << arg.coef;
 repr.push_back( sstr.str() );
 }
 if (arg.var->name.size() == 0) {
+    // WEH - It's hard to test this logic, since the variable index is dynamically generated
+    // GCOVR_EXCL_START
     std::stringstream sstr;
     sstr << "x" << arg.var->index;
     repr.push_back( sstr.str() );
+    // GCOVR_EXCL_STOP
     }
 else {
     repr.push_back( arg.var->name );
@@ -289,14 +260,6 @@ void expr_to_list(expr_pointer_t expr, std::list<std::string>& repr)
 {
 ToListVisitor visitor(repr);
 expr->accept(visitor);
-}
-
-std::list<std::string> to_list(expr_pointer_t expr)
-{
-std::list<std::string> repr;
-ToListVisitor visitor(repr);
-expr->accept(visitor);
-return repr;
 }
 
 }

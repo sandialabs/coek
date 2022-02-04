@@ -449,8 +449,10 @@ switch (expr->id()) {
     VISIT_CASE(ATanhTerm);
     VISIT_CASE(PowTerm);
 
+    // GCOVR_EXCL_START
     default:
         throw std::runtime_error("Error in MutableNLPExpr visitor!  Visiting unexpected expression term " + std::to_string(expr->id()));
+    // GCOVR_EXCL_STOP
     };
 }
 
@@ -458,9 +460,7 @@ switch (expr->id()) {
 
 void to_MutableNLPExpr(expr_pointer_t expr,
                     MutableNLPExpr& repn)
-{
-visit_expression(expr, repn, 1.0);
-}
+{ visit_expression(expr, repn, 1.0); }
 
 }
 
