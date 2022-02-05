@@ -8,10 +8,7 @@
 #include "coek/model/model_repn.hpp"
 #include "testsolver.hpp"
 
-#ifdef WITH_IPOPT
 #include "coek/solvers/ipopt/ipopt_solver.hpp"
-#endif
-
 #ifdef WITH_GUROBI
 #include "coek/solvers/gurobi/coek_gurobi.hpp"
 #endif
@@ -46,6 +43,17 @@ std::cout << "Updated Parameters:      " << pupdates.size() << " Cache Size: " <
 }
 
 
+void SolverCache::reset()
+{
+error_occurred=false;
+error_message="";
+error_code=0;
+initial=true;
+vcache.clear();
+pcache.clear();
+}
+
+
 SolverRepn* create_solver(std::string& name)
 {
 if (name == "test")
@@ -53,10 +61,7 @@ if (name == "test")
 
 #ifdef WITH_GUROBI
 if (name == "gurobi") {
-    auto ptr = new GurobiSolver();
-    if (ptr->available())
-        return ptr;
-    return 0;
+    return new GurobiSolver();
     }
 #endif
 
@@ -66,15 +71,9 @@ return 0;
 
 NLPSolverRepn* create_nlpsolver(std::string& name)
 {
-
-#ifdef WITH_IPOPT
 if (name == "ipopt") {
-    auto ptr = new IpoptSolver();
-    if (ptr->available())
-        return ptr;
-    return 0;
+    return new IpoptSolver();
     }
-#endif
 
 return 0;
 }
@@ -92,14 +91,6 @@ if ( it == m.end() ) {
 else {
     return it->second;
     }
-}
-
-
-void SolverRepn::reset()
-{
-initial=true;
-vcache.clear();
-pcache.clear();
 }
 
 

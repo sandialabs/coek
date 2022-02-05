@@ -24,110 +24,106 @@ for (size_t i=0; i<variables.size(); i++)
 }
 
 
-#ifdef WITH_IPOPT
-TEST_CASE( "ipopt", "[smoke]" ) {
-
-  SECTION( "rosenbr" ) {
-    coek::Model m;
-    rosenbr_example(m);
-
-    coek::NLPModel nlp(m, "cppad");
-    coek::NLPSolver solver("ipopt");
+TEST_CASE( "ipopt", "[smoke]" )
+{
+{
+coek::NLPSolver solver("ipopt");
+if (solver.available()) {
+    REQUIRE( not solver.error_status());
+    REQUIRE(solver.error_code() == 0);
 
     solver.set_option("print_level", 0);
-    solver.solve(nlp);
 
-    check(m.get_variables(), rosenbr_soln);
-  }
-
-  SECTION( "invquad" ) {
-    std::vector<coek::Parameter> p(5);
-    for (auto it=p.begin(); it != p.end(); ++it)
-        it->set_value(0.5);
-
-    WHEN( "solve" ) {
+    SECTION( "rosenbr" ) {
         coek::Model m;
-        invquad_example(m, p);
+        rosenbr_example(m);
 
         coek::NLPModel nlp(m, "cppad");
-        coek::NLPSolver solver("ipopt");
-
-        solver.set_option("print_level", 0);
         solver.solve(nlp);
 
-        check(m.get_variables(), invquad_soln_5);
-    }
-    WHEN( "resolve - Same start" ) {
-        coek::Model m;
-        invquad_example(m, p);
+        check(m.get_variables(), rosenbr_soln);
+        }
 
-        coek::NLPModel nlp(m, "cppad");
-        coek::NLPSolver solver("ipopt");
-
-        solver.set_option("print_level", 0);
-        solver.solve(nlp);
-
+    SECTION( "invquad" ) {
+        std::vector<coek::Parameter> p(5);
         for (auto it=p.begin(); it != p.end(); ++it)
-            it->set_value(-0.5);
+            it->set_value(0.5);
 
-        for (size_t i=0; i<nlp.num_variables(); i++)
-            nlp.get_variable(i).set_value(0);
-        solver.set_option("print_level", 0);
-        solver.resolve();
+        WHEN( "solve" ) {
+            coek::Model m;
+            invquad_example(m, p);
 
-        std::vector<double> invquad_resolve_5 {10,10,10,10,10};
-        check(m.get_variables(), invquad_resolve_5);
+            coek::NLPModel nlp(m, "cppad");
+            solver.solve(nlp);
+
+            check(m.get_variables(), invquad_soln_5);
+        }
+        WHEN( "resolve - Same start" ) {
+            coek::Model m;
+            invquad_example(m, p);
+
+            coek::NLPModel nlp(m, "cppad");
+            solver.solve(nlp);
+
+            for (auto it=p.begin(); it != p.end(); ++it)
+                it->set_value(-0.5);
+
+            for (size_t i=0; i<nlp.num_variables(); i++)
+                nlp.get_variable(i).set_value(0);
+            solver.set_option("print_level", 0);
+            solver.resolve();
+
+            std::vector<double> invquad_resolve_5 {10,10,10,10,10};
+            check(m.get_variables(), invquad_resolve_5);
+        }
+        WHEN( "resolve - Current point" ) {
+            coek::Model m;
+            invquad_example(m, p);
+
+            coek::NLPModel nlp(m, "cppad");
+            solver.solve(nlp);
+
+            for (auto it=p.begin(); it != p.end(); ++it)
+                it->set_value(-0.5);
+
+            solver.resolve();
+
+            check(m.get_variables(), invquad_soln_5);
+        }
+        WHEN( "resolve - Warm Start" ) {
+            coek::Model m;
+            invquad_example(m, p);
+
+            coek::NLPModel nlp(m, "cppad");
+            solver.solve(nlp);
+
+            for (auto it=p.begin(); it != p.end(); ++it)
+                it->set_value(-0.5);
+
+            // Even though we set the value of the initial point,
+            // the warm starting option should ignore this and 
+            // restart the solve from where it ended last time.
+            for (size_t i=0; i<nlp.num_variables(); i++)
+                nlp.get_variable(i).set_value(0);
+
+            solver.set_option("warm_start_init_point", "yes");
+            //solver.set_option("print_level", 0);
+            solver.resolve();
+
+            check(m.get_variables(), invquad_soln_5);
+        }
+        }
     }
-    WHEN( "resolve - Current point" ) {
-        coek::Model m;
-        invquad_example(m, p);
-
-        coek::NLPModel nlp(m, "cppad");
-        coek::NLPSolver solver("ipopt");
-
-        solver.set_option("print_level", 0);
-        solver.solve(nlp);
-
-        for (auto it=p.begin(); it != p.end(); ++it)
-            it->set_value(-0.5);
-
-        solver.set_option("print_level", 0);
-        solver.resolve();
-
-        check(m.get_variables(), invquad_soln_5);
+else {
+    REQUIRE(solver.error_status());
+    REQUIRE(solver.error_code() != 0);
     }
-    WHEN( "resolve - Warm Start" ) {
-        coek::Model m;
-        invquad_example(m, p);
-
-        coek::NLPModel nlp(m, "cppad");
-        coek::NLPSolver solver("ipopt");
-
-        solver.set_option("print_level", 0);
-        solver.solve(nlp);
-
-        for (auto it=p.begin(); it != p.end(); ++it)
-            it->set_value(-0.5);
-
-        // Even though we set the value of the initial point,
-        // the warm starting option should ignore this and 
-        // restart the solve from where it ended last time.
-        for (size_t i=0; i<nlp.num_variables(); i++)
-            nlp.get_variable(i).set_value(0);
-
-        solver.set_option("warm_start_init_point", "yes");
-        solver.set_option("print_level", 0);
-        solver.resolve();
-
-        check(m.get_variables(), invquad_soln_5);
-    }
-  }
+}
 
 #ifdef DEBUG
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
-#endif
 
 
 #ifdef WITH_GUROBI

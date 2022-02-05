@@ -129,48 +129,15 @@ endif()
 #
 # IPOPT LIBRARY
 #
-if(with_ipopt)
-    if (with_ipopt_tnlp)
-        if (WIN32)
-            # This is a hack for a specific WIN32 build
-            # It's not clear what a general configuration would look like
-            MESSAGE("-- IPOPT_DIR=${ipopt_dir}")
-            list(APPEND coek_include_directories ${ipopt_dir}/include/coin)
-            list(APPEND coek_link_directories ${CMAKE_INSTALL_PREFIX}/${DEBUG_POSTFIX}/lib ${CMAKE_INSTALL_PREFIX}/${DEBUG_POSTFIX}/lib/static ${CMAKE_INSTALL_PREFIX}/${DEBUG_POSTFIX}/bin)
-            list(APPEND coek_link_libraries libipopt libblas libhsl libf2c)
-            list(APPEND coek_compile_options -DIPOPTLIB_EXPORT=)
-        elseif (ipopt_dir)
-            MESSAGE("-- IPOPT_DIR=${ipopt_dir}")
-            list(APPEND coek_include_directories ${ipopt_dir}/include/coin)
-            list(APPEND coek_link_directories ${ipopt_dir}/lib ${ipopt_dir}/lib64)
-            list(APPEND coek_link_libraries ipopt dl blas f2c)
-        elseif(NOT "$ENV{IPOPT_HOME}" STREQUAL "")
-            MESSAGE("-- IPOPT_HOME=$ENV{IPOPT_HOME}")
-            list(APPEND coek_include_directories $ENV{IPOPT_HOME}/include/coin-or)
-            list(APPEND coek_link_directories $ENV{IPOPT_HOME}/lib)
-        if (NOT "$ENV{IPOPT_LIBS}" STREQUAL "")
-                list(APPEND coek_link_libraries $ENV{IPOPT_LIBS})
-        else()
-                list(APPEND coek_link_libraries ipopt dl blas gfortran)
-        endif()
-        else()
-            MESSAGE("-- IPOPT_HOME Not provided")
-        endif()
-        list(APPEND coek_compile_options -DWITH_IPOPT_TNLP)
-        list(APPEND sources
-                solvers/ipopt/ipopt_tnlp.cpp solvers/ipopt/ipopt_solver.cpp)
-    else()
-        if(WIN32)
-        else()
-            list(APPEND coek_compile_options -DUSING_DL)
-            list(APPEND coek_link_libraries dl)
-        endif()
-        list(APPEND sources solvers/loadlib.cpp)
-        list(APPEND sources
-                solvers/ipopt/ipopt_capi.cpp solvers/ipopt/ipopt_solver.cpp)
-    endif()
-    list(APPEND coek_compile_options -DWITH_IPOPT)
+if(WIN32)
+else()
+    list(APPEND coek_compile_options -DUSING_DL)
+    list(APPEND coek_link_libraries dl)
 endif()
+list(APPEND sources solvers/loadlib.cpp)
+list(APPEND sources
+        solvers/ipopt/ipopt_capi.cpp
+        solvers/ipopt/ipopt_solver.cpp)
 
 #
 # Solver Interface Options

@@ -16,6 +16,7 @@ coek::Expression yt(TYPE j, double dx) {
 int main(int argc, char** argv) {
   
   cout << "START" << endl << flush;
+#ifdef COEK_WITH_COMPACT_MODEL
   string action = argv[2];
   bool lp_file = (action == "lp");
 
@@ -28,7 +29,6 @@ int main(int argc, char** argv) {
   double a = 0.001;
 
 
-#ifdef COEK_WITH_COMPACT_MODEL
   coek::CompactModel model;
 
   coek::IndexParameter i("i");
