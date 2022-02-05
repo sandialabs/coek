@@ -21,7 +21,7 @@ if (libname == NULL) {
 #if defined(_MSC_VER)
 libHandle_t h = LoadLibrary(libname);
 if (h == NULL) {
-    snprintf(buf, len, "ERROR: loadlib() Windows error while loading dynamic library %s, error = %d.\n", libname, GetLastError());
+    snprintf(buf, len, "ERROR: loadlib() - MS Windows error while loading dynamic library %s, error = %d.\n", libname, GetLastError());
 }
 #else
 libHandle_t h = dlopen(libname, RTLD_NOW);
