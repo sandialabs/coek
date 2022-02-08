@@ -244,6 +244,16 @@ std::set<std::string> Model::objective_names() const
 std::set<std::string> Model::constraint_names() const
 { return map_keys(repn->constraints_by_name); }
 
+std::map<std::string,Variable>& Model::get_variables_by_name()
+{ return repn->variables_by_name; }
+
+std::map<std::string,Objective>& Model::get_objectives_by_name()
+{ return repn->objectives_by_name; }
+
+std::map<std::string,Constraint>& Model::get_constraints_by_name()
+{ return repn->constraints_by_name; }
+
+
 void Model::set_suffix(const std::string& name, Variable& var, double value)
 { repn->vsuffix[name].emplace(var.id(), value); }
 
