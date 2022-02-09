@@ -24,7 +24,6 @@ public:
     std::unordered_map<VariableTerm*, double> vcache;
     std::unordered_map<ParameterTerm*, double> pcache;
 
-    double tolerance;
     std::unordered_set<VariableTerm*> vupdates;
     std::unordered_set<ParameterTerm*> pupdates;
 
@@ -32,10 +31,19 @@ public:
     std::map<std::string,int> integer_options;
     std::map<std::string,double> double_options;
 
+    //
+    double tolerance;
+    // Error flag
+    bool error_occurred;
+    // Solver-specific error code
+    int error_code;
+    // Solver-specific error message
+    std::string error_message;
+
 public:
 
     SolverCache(void)
-        : tolerance(1e-12) {}
+        : tolerance(1e-12), error_occurred(false), error_code(0), initial(true) {}
 
     virtual void find_updated_values();
 
@@ -54,6 +62,13 @@ public:
     virtual void set_option(int option, int value);
     virtual void set_option(int option, double value);
     virtual void set_option(int option, const std::string value);
+
+    virtual void reset();
+
+protected:
+
+    //
+    bool initial;
 };
 
 
@@ -85,7 +100,7 @@ public:
 public:
     
     SolverRepn(void) 
-        : SolverCache(), initial(true) {}
+        : SolverCache() {}
     virtual ~SolverRepn() {}
 
     virtual int solve(Model& model) = 0;
@@ -97,14 +112,9 @@ public:
 #endif
 
     virtual int resolve() = 0;
-    virtual void reset();
 
     bool initial_solve();
     void find_updated_coefs();
-
-protected:
-
-    bool initial;
 };
 
 
@@ -120,7 +130,7 @@ public:
 public:
 
     NLPSolverRepn(void) 
-        : SolverCache(), model(0), initial(true) {}
+        : SolverCache(), model(0) {}
     virtual ~NLPSolverRepn() {}
 
     virtual void load(NLPModel& _model)
@@ -130,8 +140,6 @@ public:
         }
 
     virtual int resolve() = 0;
-    virtual void reset()
-        { initial=true; }
 
     virtual int solve(NLPModel& model) = 0;
 
@@ -147,10 +155,6 @@ public:
 
     virtual bool available()
         { return true; }
-
-protected:
-
-    bool initial;
 };
 
 NLPSolverRepn* create_nlpsolver(std::string& name);

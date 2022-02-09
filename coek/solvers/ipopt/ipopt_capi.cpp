@@ -4,11 +4,11 @@
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
+#include "coek/model/model_repn.hpp"
 #include "coek/autograd/autograd.hpp"
 #include "coek/solvers/loadlib.h"
 #include "ipopt_solver.hpp"
 #include "IpStdCInterfaceTypes.h"
-#include "coek/model/model_repn.hpp"
 
 
 extern "C" {
@@ -28,15 +28,14 @@ static IpoptSolve_func_t IpoptSolve_func_ptr=0;
 
 namespace coek {
 
-    int load_ipopt_library(const char* libname)
-    {
-        char buf[256];
-        ipopt_handle = loadlib(libname, buf, 256);
-        if (ipopt_handle == NULL) {
-            // TODO - How should we handle failures setting up a solver?
-            std::cout << "ERROR loading ipopt: " << buf << std::endl;
-            return 1;
-            }
+int load_ipopt_library(const char* libname, std::string& error_message )
+{
+char buf[256];
+ipopt_handle = loadlib(libname, buf, 256);
+if (ipopt_handle == NULL) {
+    error_message = buf;
+    return 1;
+    }
 
 CreateIpoptProblem_func_ptr = (CreateIpoptProblem_func_t)getsym(ipopt_handle, "CreateIpoptProblem", buf, 256);
 FreeIpoptProblem_func_ptr = (FreeIpoptProblem_func_t)getsym(ipopt_handle, "FreeIpoptProblem", buf, 256);
@@ -50,17 +49,6 @@ IpoptSolve_func_ptr = (IpoptSolve_func_t)getsym(ipopt_handle, "IpoptSolve", buf,
 
 return 0;
 }
-
-
-/*
-template <typename TYPE>
-std::ostream& operator<<(std::ostream& ostr, const std::vector<TYPE>& vec)
-{
-for (size_t i=0; i<vec.size(); i++)
-  ostr << vec[i] << " ";
-return ostr;
-}
-*/
 
 
 class IpoptModel
@@ -712,13 +700,16 @@ for (auto it=double_options.begin(); it != double_options.end(); ++it) {
 
 void IpoptSolver::initialize()
 {
-int status;
 #ifdef _MSC_VER
-status = load_ipopt_library("libipopt-3.dll");
+error_code = load_ipopt_library("libipopt-3.dll", error_message);
 #else
-status = load_ipopt_library("libipopt.so");
+error_code = load_ipopt_library("libipopt.so", error_message);
 #endif
-available_ = status == 0;
+if (error_code == 1) {
+    error_code = NonIpopt_Exception_Thrown;
+    error_occurred = true;
+    }
+available_ = error_code == 0;
 }
 
 

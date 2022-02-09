@@ -140,6 +140,8 @@ public:
     Variable get_variable(const std::string& name);
     /** \returns the vector of variables added to this model */
     std::vector<Variable>& get_variables();
+    /** \returns a map from variable names to variables */
+    std::map<std::string,Variable>& get_variables_by_name();
 
     //
     // Objectives
@@ -173,6 +175,8 @@ public:
     Objective get_objective(size_t i=0);
     /** \returns the objective with the specified name */
     Objective get_objective(const std::string& name);
+    /** \returns a map from objective names to objectives */
+    std::map<std::string,Objective>& get_objectives_by_name();
 
     //
     // Constraint
@@ -202,6 +206,8 @@ public:
     Constraint get_constraint(size_t i);
     /** \returns the constraint with the specified name */
     Constraint get_constraint(const std::string& name);
+    /** \returns a map from constraint names to constraints */
+    std::map<std::string,Constraint>& get_constraints_by_name();
 
     //
     // Suffixes

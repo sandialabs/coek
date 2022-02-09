@@ -56,6 +56,13 @@ public:
     /** Resets the state of the optimizer */
     void reset();
 
+    /** Returns \c true if an error occurred */
+    bool error_status() const;
+    /** Returns the integer error code */
+    int error_code() const;
+    /** Returns a string error message*/
+    std::string error_message() const;
+
     // Solver Options
 
     /** Get the value of an integer option
@@ -205,6 +212,13 @@ public:
     /** Resets the state of the optimizer */
     void reset();
     
+    /** Returns \c true if an error occurred */
+    bool error_status() const;
+    /** Returns the integer error code */
+    int error_code() const;
+    /** Returns a string error message*/
+    std::string error_message() const;
+
     /** Get the value of an integer option
       *
       * The option value is returned by reference if it has

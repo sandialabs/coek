@@ -41,6 +41,25 @@ int Solver::resolve()
 void Solver::reset()
 { repn->reset(); }
 
+bool Solver::error_status() const
+{
+if (not repn.get())
+    return true;
+return repn->error_occurred;
+}
+int Solver::error_code() const
+{
+if (not repn.get())
+    return -1;
+return repn->error_code;
+}
+std::string Solver::error_message() const
+{
+if (not repn.get())
+    return "Error constructing solver.";
+return repn->error_message;
+}
+
 bool Solver::get_option(const std::string& option, int& value) const
 { return repn->get_option(option, value); }
 bool Solver::get_option(const std::string& option, double& value) const
@@ -91,6 +110,25 @@ int NLPSolver::resolve()
 
 void NLPSolver::reset()
 { repn->reset(); }
+
+bool NLPSolver::error_status() const
+{
+if (not repn.get())
+    return true;
+return repn->error_occurred;
+}
+int NLPSolver::error_code() const
+{
+if (not repn.get())
+    return -1;
+return repn->error_code;
+}
+std::string NLPSolver::error_message() const
+{
+if (not repn.get())
+    return "Error constructing solver.";
+return repn->error_message;
+}
 
 bool NLPSolver::get_option(const std::string& option, int& value) const
 { return repn->get_option(option, value); }

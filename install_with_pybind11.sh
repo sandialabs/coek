@@ -2,7 +2,7 @@
 #
 # NOTE: This script can pass-in cmake configuration options:
 #
-#     ./install_with_pybind11.sh --Dwith_ipopt=ON 
+#     ./install_with_pybind11.sh -Dwith_compact=ON 
 #
 
 \rm -Rf build
