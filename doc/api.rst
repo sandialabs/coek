@@ -243,6 +243,22 @@ For example:
     I don't see how we can dynamically create those references here and
     scope them relative to the variable declaration.
 
+    Here's a possible syntax that would limit the scope of i and j, by making their
+    values directly tied to the indexing set:
+
+    auto M = coek::RangeSet(1,m);
+    auto N = coek::RangeSet(1,n);
+    auto x_index = M*N;
+
+    auto i = x_index.index("i");
+    auto j = x_index.index("j");
+    auto x = model.add_variable("x", x_index).
+                lower(0).
+                upper(i*(j+p)).
+                initial(i+j);
+
+    This seems less intuitively clear, IMHO.
+
 Note that this syntax can be extended to allow for the use of mutable
 parameters as well:
 
