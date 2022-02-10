@@ -95,12 +95,12 @@ A minimal variable specification includes a name and/or indexing information.  T
     auto y = model.add_variable("y", n);
 
 
-    // A tensor of continuous random variables:  R^{2 x 3 x 5}
+    // A tensor of continuous variables:  R^{2 x 3 x 5}
     std::tuple<size_t> dim = {2,3,5};
     auto x = model.add_variable(dim);
     auto y = model.add_variable("y", dim);
 
-    // A tensor of continuous random variables indexed by COEK set objects
+    // A tensor of continuous variables indexed by COEK set objects
     auto A = coek::RangeSet(1,10);
     auto B = coek::RangeSet(11,20);
     auto x = model.add_variable(A*B);
@@ -280,4 +280,134 @@ after the variable is declared.  COEK uses the expression logic to appropriately
 account for that change to the model.
 
 
+
+Parameters
+----------
+
+Mutable parameters can be declared in a similar manner to variables:
+
+... code::
+
+    // A single parameter
+    auto p = parameter();
+    auto q = parameter("q");
+
+
+    // An array of parameter of length 'n'
+    size_t n=100;
+    auto x = parameter(n);
+    auto q = parameter("q", n);
+
+
+    // A tensor of parameters:  R^{2 x 3 x 5}
+    std::tuple<size_t> dim = {2,3,5};
+    auto x = parameter(dim);
+    auto q = parameter("q", dim);
+
+    // A tensor of parameters indexed by COEK set objects
+    auto A = coek::RangeSet(1,10);
+    auto B = coek::RangeSet(11,20);
+    auto p = parameter(A*B);
+    auto q = parameter("q", A*B);
+
+Note that parameter are always continuous, and their value defaults
+to zero.  Initializing parameters can be similarly executed using
+function chaining:
+
+... code::
+
+    // A single parameter initialized to 1.0
+    auto q = parameter("q").value(1.0);
+
+
+    // An array of parameter of length 'n' initialized to 1.0
+    size_t n=100;
+    auto q = parameter(n).value(1.0);
+
+
+    // A tensor of parameters:  R^{2 x 3 x 5}, initialized to 1.0
+    std::tuple<size_t> dim = {2,3,5};
+    auto q = parameter("q", dim).value(1.0);
+
+    // A tensor of parameters indexed by COEK set objects, initialized to 1.0
+    auto A = coek::RangeSet(1,10);
+    auto B = coek::RangeSet(11,20);
+    auto q = parameter("q", A*B).value(1.0);
+
+    // A tensor of parameters indexed by COEK set objects, initialized to i+j
+    auto i = set_index("i");
+    auto j = set_index("j");
+    auto Q = parameter("Q", Forall(i,j).In(A*B)).value(i+j);
+
+.. WEH::
+
+    Note that this syntax is different from what is currently implemented in COEK:
+
+        coek::Parameter p("p", 1.0);
+
+    The use of a numeric value to specify the array length precludes the use of the second
+    argument to specify the parameter value.  Hence, support for arrays of parameters seems to
+    preclude the simple specification of parameter values.
+
+.. question::
+
+    Do we forsee a need for non-double parameters?  I could imagine doing the following?
+
+        auto qi = parameter<int>("q");
+
+    Gravity allows for this type of typing of values.
+
+
+
+Expressions
+-----------
+
+A COEK expression is formed by performing arithmetic operations on
+COEK variables, parameters and set indices, including operations with
+constant values.  For example:
+
+.. code::
+
+    auto v = variable("v");
+    auto e = sin(3*x+1);
+
+Note that thse fundamental types are not owned by a COEK model, so such
+an expression can be used and re-used within multiple expressions and
+within multiple COEK models.
+
+.. note::
+
+    COEK does not have support for first-order named expressions right
+    now.  The re-use described here is part of what a named expression
+    provides.  I think more fundamentally a named expression allows users
+    to interact with expressions that reflect fundamental values in their
+    model, hence it is still worth considering how we would support them.
+
+    Maybe something like the following is sufficient:
+
+    auto v = variable("v");
+    auto e = sin(3*x+1);
+    auto E = expression("E").value(e);
+
+    This would imply an annotation of the expression tree where the string
+    "E" is associated with a sub-expression.
+
+    Support for named expressions would naturally involve support for
+    arrays of named expressions.  Hence, 
+
+        auto E = expression("E", 10);
+
+    would refer to an array of named expressions, and 
+
+        auto E = expression("E").value(10);
+
+    would refer to an array of named expressions with value 10.
+
+.. question::
+
+
+    If we did this, would the user need to add the named expression
+    explicitly to the model to track it there?  I think so.  Thus, the following would also make sense:
+
+    auto E = model.add_expression("E", e);
 
