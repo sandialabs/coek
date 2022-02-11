@@ -280,6 +280,65 @@ after the variable is declared.  COEK uses the expression logic to appropriately
 account for that change to the model.
 
 
+Indexing Variables
+~~~~~~~~~~~~~~~~~~
+
+Variables declared over sets can be indexed using the `()` operator in a natural manner.  For example:
+
+... code::
+
+    // An array of continuous variables of length 'n'
+    size_t n=100;
+    auto x = model.add_variable(n);
+    // Value of the 4th element of the array
+    auto v = x[3].value();
+
+    // A tensor of continuous variables:  R^{2 x 3 x 5}
+    std::tuple<size_t> dim = {2,3,5};
+    auto x = model.add_variable(dim);
+    // Value of the variable indexed by (0,2,1)
+    auto v = x[0,2,1].value();
+
+    // A tensor of continuous variables indexed by COEK set objects
+    auto A = coek::RangeSet(1,10);
+    auto B = coek::RangeSet(11,20);
+    auto x = model.add_variable(A*B);
+    // Value of the variable indexed by (1,11)
+    auto v = x[1,11].value();
+
+Note that variables can be indexed by expressions, but the evaluation of those expressions is deferred.  For example:
+
+.. code::
+
+    auto p = parameter().value(1.0);
+    auto i = set_index();
+
+    // An array of continuous variables of length 'n'
+    size_t n=100;
+    auto x = model.add_variable(n);
+
+    // Create a reference to the variable
+    auto x0 = x[3+p];
+    // Evaluate the reference to the variable, resolving the parameter value
+    auto v = x0.value();
+
+    // Create a reference to the variable
+    auto x0 = x[3+i];
+    // Evaluate the reference to the variable, resolving the parameter value
+    auto v = x0.value();
+
+.. note::
+
+    COEK confirms that expressions used to index variables do not contain a variable unless it is fixed.  Thus,
+    the following creates a runtime error:
+
+    auto x = variable(100);
+    auto y = variable();
+    auto v = x[y+3].value();
+
+    Similarly, if a set index used in an indexing expression is not being processed by a context, then COEK will create
+    an error at runtime.
+
 
 Parameters
 ----------
@@ -357,6 +416,12 @@ function chaining:
 
     Gravity allows for this type of typing of values.
 
+.. note::
+
+    These are still 'concrete' parameters.  They are assumed to have values that can be 
+    used immediately.  In that sense, they differ from the abstract approach used in Pyomo.
+    But I the expression management is the same;  the parameters are included in the 
+    expression tree and not pulled out a constant values.
 
 
 Expressions
@@ -410,4 +475,147 @@ within multiple COEK models.
     explicitly to the model to track it there?  I think so.  Thus, the following would also make sense:
 
     auto E = model.add_expression("E", e);
+
+
+Objectives
+----------
+
+In COEK and POEK, objectives are not owned by a model, but they are typically associated with
+a model.  Thus, the following are equivalent:
+
+... code::
+
+    auto x = variable("x");
+    auto o = objective("o", 2*x, coek::Model::maximize);
+
+and
+
+... code::
+
+    auto x = variable("x");
+    auto o = model.add_objective("o", 2*x, coek::Model::maximize);
+
+Although not often used, we can also support various ways to declare groups of objectives:
+
+... code::
+
+    // A single objective
+    auto a = model.add_objective(2*x);
+    auto b = model.add_objective("b", 2*x);
+
+    // An array of objectives
+    size_t n=100;
+    auto a = model.add_objective(n);
+    auto b = model.add_objective("y", n);
+
+    // A tensor of objectives:  R^{2 x 3 x 5}
+    std::tuple<size_t> dim = {2,3,5};
+    auto a = model.add_objective(dim);
+    auto b = model.add_objective("b", dim);
+
+    // A tensor of objectives indexed by COEK set objects
+    auto A = coek::RangeSet(1,10);
+    auto B = coek::RangeSet(11,20);
+    auto a = model.add_objective(A*B);
+    auto b = model.add_objective("b", A*B);
+
+The `expr` method is used to set and get the objective expression, and
+the `sense` method is used to get and set the objective sense (which
+default to minimization).  For example:
+
+.. code::
+
+    auto o = model.add_objective("o").
+                    expr(2*x).
+                    sense(coek::Model::minimize);
+
+Finally, objectives can be declared using set indices:
+
+.. code::
+
+    auto x = model.add_variable("x", M*N);
+    auto o = model.add_objective("o", Forall(i,j).In(M*N)).
+                    expr( i*j*x(i,j) )
+    auto O = model.add_objective("O", Forall(i).In(M)).
+                    expr( i*Sum(x(i,j), Forall(j).In(M)) )
+
+
+Constraints
+-----------
+
+In COEK and POEK, constraints are not owned by a model, but they are typically associated with
+a model.  Thus, the following are equivalent:
+
+... code::
+
+    auto x = variable("x");
+    auto c = constraint("c", 2*x == 0);
+
+and
+
+... code::
+
+    auto x = variable("x");
+    auto o = model.add_constraint("o", 2*x == 0);
+
+Further, we can declare groups of constraints:
+
+... code::
+
+    // A single constraint
+    auto a = model.add_constraint(2*x == 0);
+    auto b = model.add_constraint("b", 2*x == 0);
+
+    // An array of constraints
+    size_t n=100;
+    auto a = model.add_constraint(n);
+    auto b = model.add_constraint("b", n);
+
+    // A tensor of constraints:  R^{2 x 3 x 5}
+    std::tuple<size_t> dim = {2,3,5};
+    auto a = model.add_constraint(dim);
+    auto b = model.add_constraint("b", dim);
+
+    // A tensor of constraints indexed by COEK set objects
+    auto A = coek::RangeSet(1,10);
+    auto B = coek::RangeSet(11,20);
+    auto a = model.add_constraint(A*B);
+    auto b = model.add_constraint("b", A*B);
+
+The `expr` method is used to set and get the constraint expression.  For example:
+
+.. code::
+
+    auto c = model.add_constraint("c").
+                    expr(2*x);
+
+Finally, constraints can be declared using set indices:
+
+.. code::
+
+    auto x = model.add_variable("x", M*N);
+    auto c = model.add_constraint("c", Forall(i,j).In(M*N)).
+                    expr( i*j*x(i,j) == 0 )
+    auto C = model.add_constraint("C", Forall(i).In(M)).
+                    expr( i*Sum(x(i,j), Forall(j).In(M)) == 0 )
+
+Constraint Expressions
+~~~~~~~~~~~~~~~~~~~~~~
+
+There are several forms of constraint expressions supported by COEK: inequalities, equalities and ranges.  For example:
+
+.. code::
+
+    auto x = variable();
+    auto y = variable();
+
+    // Inequalities
+    auto c1 = x >= y;
+    auto c2 = x > y;
+    auto c3 = x <= y;
+    auto c4 = x < y;
+    // Equality
+    auto c5 = x == y;
+    // Ranged
+    auto c6 = inequality( 0, x + y, 1);
 
