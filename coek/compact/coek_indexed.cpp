@@ -117,129 +117,110 @@ public:
     std::vector<std::string> names;
     std::vector<Variable> values;
     std::string name;
+    Variable variable_template;
+    bool call_setup;
 
 public:
 
-    ConcreteIndexedVariableRepn(const ConcreteSet& _arg, double lb, double ub, double value)
-        : concrete_set(_arg)
+    ConcreteIndexedVariableRepn(const ConcreteSet& _arg)
+        : concrete_set(_arg), call_setup(true)
         {
-        for (size_t i=0; i<concrete_set.size(); i++)
-            values.emplace_back(CREATE_POINTER(IndexedVariableTerm, 
-                                        CREATE_POINTER(ConstantTerm, lb),
-                                        CREATE_POINTER(ConstantTerm, ub),
-                                        CREATE_POINTER(ConstantTerm, value),
-                                        false, false, i, this));
-        setup();
+        size_t dim = concrete_set.dim();
+        cache.resize((dim+2)*concrete_set.size());
         }
 
-    ConcreteIndexedVariableRepn(const ConcreteSet& _arg, double lb, double ub, double value, const std::string& _name)
-        : concrete_set(_arg), name(_name)
+    ConcreteIndexedVariableRepn(const ConcreteSet& _arg, const std::string& _name)
+        : concrete_set(_arg), name(_name), call_setup(true)
         {
-        for (size_t i=0; i<concrete_set.size(); i++)
-            values.emplace_back(CREATE_POINTER(IndexedVariableTerm,
-                                        CREATE_POINTER(ConstantTerm, lb),
-                                        CREATE_POINTER(ConstantTerm, ub),
-                                        CREATE_POINTER(ConstantTerm, value),
-                                        false, false, i, this));
-        setup();
-        }
-
-    ConcreteIndexedVariableRepn(const ConcreteSet& _arg, double lb, double ub, double value, bool /*binary*/, bool /*integer*/)
-        : concrete_set(_arg)
-        {
-        for (size_t i=0; i<concrete_set.size(); i++)
-            values.emplace_back(CREATE_POINTER(IndexedVariableTerm,
-                                        CREATE_POINTER(ConstantTerm, lb),
-                                        CREATE_POINTER(ConstantTerm, ub),
-                                        CREATE_POINTER(ConstantTerm, value),
-                                        false, false, i, this));
-        setup();
-        }
-
-    ConcreteIndexedVariableRepn(const ConcreteSet& _arg, double lb, double ub, double value, bool /*binary*/, bool /*integer*/, const std::string& _name)
-        : concrete_set(_arg), name(_name)
-        {
-        for (size_t i=0; i<concrete_set.size(); i++)
-            values.emplace_back(CREATE_POINTER(IndexedVariableTerm,
-                                        CREATE_POINTER(ConstantTerm, lb),
-                                        CREATE_POINTER(ConstantTerm, ub),
-                                        CREATE_POINTER(ConstantTerm, value),
-                                        false, false, i, this));
-        setup();
+        size_t dim = concrete_set.dim();
+        cache.resize((dim+2)*concrete_set.size());
         }
 
     std::string get_name(size_t index)
         {
-        if (names.size() == 0) {
-            for (auto it=concrete_set.begin(); it != concrete_set.end(); ++it) {
-                auto indices = *it;
-                if (indices.size() == 1) {
-                    auto tmp = indices[0];
-#if 1
-                    names.push_back(name + "(" + std::to_string(tmp) + ")");
-#else
-                    if (auto ival = std::get_if<int>(&tmp)) {
-                        names.push_back(name + "(" + std::to_string(*ival) + ")");
-                        }
-                    else if (auto dval = std::get_if<double>(&tmp)) {
-                        names.push_back(name + "(" + std::to_string(*dval) + ")");
-                        }
-                    else {
-                        auto sval = std::get<std::string>(tmp);
-                        names.push_back(name + "(" + sval + ")");
-                        }
-#endif
-                    }
-                else {
-                    std::string _name = name + "(";
-                    auto tmp = indices[0];
-#if 1
-                    _name += std::to_string(tmp);
-#else
-                    if (auto ival = std::get_if<int>(&tmp)) {
-                        _name += std::to_string(*ival);
-                        }
-                    else if (auto dval = std::get_if<double>(&tmp)) {
-                        _name += std::to_string(*dval);
-                        }
-                    else {
-                        auto sval = std::get<std::string>(tmp);
-                        _name += sval;
-                        }
-#endif
-                    for (size_t j=1; j<indices.size(); j++) {
-                        auto tmp = indices[j];
-#if 1
-                        _name += "," + std::to_string(tmp);
-#else
-                        if (auto ival = std::get_if<int>(&tmp)) {
-                            _name += "," + std::to_string(*ival);
-                            }
-                        else if (auto dval = std::get_if<double>(&tmp)) {
-                            _name += "," + std::to_string(*dval);
-                            }
-                        else {
-                            auto sval = std::get<std::string>(tmp);
-                            _name += "," + sval;
-                            }
-#endif
-                        }
-                    names.push_back(_name + ")");
-                    }
-                }
-            }
+        if (call_setup)
+            setup();
         if (index >= names.size())
             throw std::runtime_error("Asking for name with an index that is greater than the number of elements in the index set.");
         return names[index];
         }
 
-protected:
-
     void setup()
         {
+        call_setup=false;
+
+        auto vtype = variable_template.within();
+        bool binary = (vtype == Boolean) or (vtype == Binary);
+        bool integer = vtype == Integers;
+        for (size_t i=0; i<concrete_set.size(); i++) {
+            auto lower = variable_template.lower_expression().expand().get_value();
+            auto upper = variable_template.upper_expression().expand().get_value();
+            auto value = variable_template.value_expression().expand().get_value();
+            values.emplace_back(CREATE_POINTER(IndexedVariableTerm, 
+                                        CREATE_POINTER(ConstantTerm, lower),
+                                        CREATE_POINTER(ConstantTerm, upper),
+                                        CREATE_POINTER(ConstantTerm, value),
+                                        binary, integer, i, this));
+            }
+
+        for (auto it=concrete_set.begin(); it != concrete_set.end(); ++it) {
+            auto indices = *it;
+            if (indices.size() == 1) {
+                auto tmp = indices[0];
+#if 1
+                names.push_back(name + "(" + std::to_string(tmp) + ")");
+#else
+                if (auto ival = std::get_if<int>(&tmp)) {
+                    names.push_back(name + "(" + std::to_string(*ival) + ")");
+                    }
+                else if (auto dval = std::get_if<double>(&tmp)) {
+                    names.push_back(name + "(" + std::to_string(*dval) + ")");
+                    }
+                else {
+                    auto sval = std::get<std::string>(tmp);
+                    names.push_back(name + "(" + sval + ")");
+                    }
+#endif
+                }
+            else {
+                std::string _name = name + "(";
+                auto tmp = indices[0];
+#if 1
+                _name += std::to_string(tmp);
+#else
+                if (auto ival = std::get_if<int>(&tmp)) {
+                    _name += std::to_string(*ival);
+                    }
+                else if (auto dval = std::get_if<double>(&tmp)) {
+                    _name += std::to_string(*dval);
+                    }
+                else {
+                    auto sval = std::get<std::string>(tmp);
+                    _name += sval;
+                    }
+#endif
+                for (size_t j=1; j<indices.size(); j++) {
+                    auto tmp = indices[j];
+#if 1
+                    _name += "," + std::to_string(tmp);
+#else
+                    if (auto ival = std::get_if<int>(&tmp)) {
+                        _name += "," + std::to_string(*ival);
+                        }
+                    else if (auto dval = std::get_if<double>(&tmp)) {
+                        _name += "," + std::to_string(*dval);
+                        }
+                    else {
+                        auto sval = std::get<std::string>(tmp);
+                        _name += "," + sval;
+                        }
+#endif
+                    }
+                names.push_back(_name + ")");
+                }
+            }
 #ifdef USING_INDEXVECTOR
         size_t dim = concrete_set.dim();
-        cache.resize((dim+2)*concrete_set.size());
         size_t i=0;
         for (auto it=concrete_set.begin(); it != concrete_set.end(); ++it) {
             auto& vec = *it;
@@ -263,9 +244,9 @@ return _var->get_name(vindex);
 }
 
 
-ConcreteIndexedVariable::ConcreteIndexedVariable(const ConcreteSet& arg, double lb, double ub, double value)
+ConcreteIndexedVariable::ConcreteIndexedVariable(const ConcreteSet& arg)
 {
-repn = std::make_shared<ConcreteIndexedVariableRepn>(arg, lb, ub, value);
+repn = std::make_shared<ConcreteIndexedVariableRepn>(arg);
 #ifdef USING_INDEXVECTOR
 tmp = repn->cache.alloc(repn->concrete_set.dim());
 #else
@@ -274,9 +255,9 @@ tmp.resize(repn->concrete_set.dim());
 reftmp.resize(repn->concrete_set.dim());
 }
 
-ConcreteIndexedVariable::ConcreteIndexedVariable(const ConcreteSet& arg, double lb, double ub, double value, const std::string& name)
+ConcreteIndexedVariable::ConcreteIndexedVariable(const ConcreteSet& arg, const std::string& name)
 {
-repn = std::make_shared<ConcreteIndexedVariableRepn>(arg, lb, ub, value, name);
+repn = std::make_shared<ConcreteIndexedVariableRepn>(arg, name);
 #ifdef USING_INDEXVECTOR
 tmp = repn->cache.alloc(repn->concrete_set.dim());
 #else
@@ -285,46 +266,77 @@ tmp.resize(repn->concrete_set.dim());
 reftmp.resize(repn->concrete_set.dim());
 }
 
-ConcreteIndexedVariable::ConcreteIndexedVariable(const ConcreteSet& arg, double lb, double ub, double value, bool binary, bool integer, const std::string& name)
+ConcreteIndexedVariable& ConcreteIndexedVariable::value(double value)
 {
-repn = std::make_shared<ConcreteIndexedVariableRepn>(arg, lb, ub, value, binary, integer, name);
-#ifdef USING_INDEXVECTOR
-tmp = repn->cache.alloc(repn->concrete_set.dim());
-#else
-tmp.resize(repn->concrete_set.dim());
-#endif
-reftmp.resize(repn->concrete_set.dim());
+repn->variable_template.value(value);
+repn->call_setup = true;
+return *this;
 }
 
-ConcreteIndexedVariable::ConcreteIndexedVariable(const ConcreteSet& arg, double lb, double ub, double value, bool binary, bool integer)
+ConcreteIndexedVariable& ConcreteIndexedVariable::value(const Expression& value)
 {
-repn = std::make_shared<ConcreteIndexedVariableRepn>(arg, lb, ub, value, binary, integer);
-#ifdef USING_INDEXVECTOR
-tmp = repn->cache.alloc(repn->concrete_set.dim());
-#else
-tmp.resize(repn->concrete_set.dim());
-#endif
-reftmp.resize(repn->concrete_set.dim());
+repn->variable_template.value(value);
+repn->call_setup = true;
+return *this;
+}
+
+ConcreteIndexedVariable& ConcreteIndexedVariable::lower(double value)
+{
+repn->variable_template.lower(value);
+repn->call_setup = true;
+return *this;
+}
+
+ConcreteIndexedVariable& ConcreteIndexedVariable::lower(const Expression& value)
+{
+repn->variable_template.lower(value);
+repn->call_setup = true;
+return *this;
+}
+
+ConcreteIndexedVariable& ConcreteIndexedVariable::upper(double value)
+{
+repn->variable_template.upper(value);
+repn->call_setup = true;
+return *this;
+}
+
+ConcreteIndexedVariable& ConcreteIndexedVariable::upper(const Expression& value)
+{
+repn->variable_template.upper(value);
+repn->call_setup = true;
+return *this;
+}
+
+ConcreteIndexedVariable& ConcreteIndexedVariable::name(const std::string& name)
+{
+repn->name = name;
+repn->call_setup = true;
+return *this;
+}
+
+ConcreteIndexedVariable& ConcreteIndexedVariable::within(VariableTypes vtype)
+{
+repn->variable_template.within(vtype);
+repn->call_setup = true;
+return *this;
 }
 
 size_t ConcreteIndexedVariable::size() const
-{
-return repn->concrete_set.size();
-}
+{ return repn->concrete_set.size(); }
 
 std::vector<Variable>::iterator ConcreteIndexedVariable::begin()
-{
-return repn->values.begin();
-}
+{ return repn->values.begin(); }
 
 std::vector<Variable>::iterator ConcreteIndexedVariable::end()
-{
-return repn->values.end();
-}
+{ return repn->values.end(); }
 
 Expression ConcreteIndexedVariable::index(const IndexVector& args)
 {
 auto _repn = repn.get();
+if (_repn->call_setup)
+    _repn->setup();
+
 auto curr = _repn->index.find(tmp);
 if (curr == _repn->index.end()) {
     std::string err = "Unknown index value: "+_repn->name+"(";
@@ -349,9 +361,7 @@ return _repn->values[curr->second];
 }
 
 Expression ConcreteIndexedVariable::create_varref(const std::vector<refarg_types>& args)
-{
-return coek::create_varref(args, repn->name, this);
-}
+{ return coek::create_varref(args, repn->name, this); }
 
 //
 // AbstractIndexedVariable
@@ -368,48 +378,49 @@ return tmp;
 }
 
 Expression AbstractIndexedVariable::index(const std::vector<refarg_types>& args)
-{
-return create_varref(args, name, this);
-}
+{ return create_varref(args, name, this); }
 
 //
 // Other
 //
 
-AbstractIndexedVariable IndexedVariable(const AbstractSet& arg, const std::string& name)
+AbstractIndexedVariable variable(const std::string& name, const AbstractSet& arg)
+{ return AbstractIndexedVariable(arg, name); }
+
+ConcreteIndexedVariable variable(const ConcreteSet& arg)
+{ return ConcreteIndexedVariable(arg); }
+
+ConcreteIndexedVariable variable(const std::string& name, const ConcreteSet& arg)
+{ return ConcreteIndexedVariable(arg, name); }
+
+ConcreteIndexedVariable variable(size_t n)
 {
-AbstractIndexedVariable tmp(arg, name);
-return tmp;
+auto arg = coek::RangeSet(0, n-1);
+return ConcreteIndexedVariable(arg);
 }
 
-ConcreteIndexedVariable IndexedVariable(const ConcreteSet& arg, double lb, double ub, double value)
+ConcreteIndexedVariable variable(const std::string& name, const std::vector<size_t>& dim)
 {
-ConcreteIndexedVariable tmp(arg, lb, ub, value);
-return tmp;
+assert(dim.size() > 0);
+auto arg = coek::RangeSet(0, dim[0]-1);
+if (dim.size() == 1) {
+    return ConcreteIndexedVariable(arg);
+    }
+for (size_t i=1; i<dim.size(); i++)
+    arg *= coek::RangeSet(0, dim[i]-1);
+return ConcreteIndexedVariable(arg, name);
 }
 
-ConcreteIndexedVariable IndexedVariable(const ConcreteSet& arg, const std::string& name)
+ConcreteIndexedVariable variable(const std::vector<size_t>& dim)
 {
-ConcreteIndexedVariable tmp(arg, -COEK_INFINITY, COEK_INFINITY, 0.0, name);
-return tmp;
-}
-
-ConcreteIndexedVariable IndexedVariable(const ConcreteSet& arg, double lb, double ub, double     value, const std::string& name)
-{
-ConcreteIndexedVariable tmp(arg, lb, ub, value, name);
-return tmp;
-}
-
-ConcreteIndexedVariable IndexedVariable(const ConcreteSet& arg, double lb, double ub, double     value, bool binary, bool integer, const std::string& name)
-{
-ConcreteIndexedVariable tmp(arg, lb, ub, value, binary, integer, name);
-return tmp;
-}
-
-ConcreteIndexedVariable IndexedVariable(const ConcreteSet& arg, double lb, double ub, double     value, bool binary, bool integer)
-{
-ConcreteIndexedVariable tmp(arg, lb, ub, value, binary, integer);
-return tmp;
+assert(dim.size() > 0);
+auto arg = coek::RangeSet(0, dim[0]-1);
+if (dim.size() == 1) {
+    return ConcreteIndexedVariable(arg);
+    }
+for (size_t i=1; i<dim.size(); i++)
+    arg *= coek::RangeSet(0, dim[i]-1);
+return ConcreteIndexedVariable(arg);
 }
 
 }

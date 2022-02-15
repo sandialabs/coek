@@ -38,7 +38,7 @@ for (int i=0; i<nsolves; i++) {
     std::cout << "p value: " << params["p"].get_value() << std::endl;
     std::cout << "Solution:" << std::endl;
     for (auto const& vname: vnames)
-        std::cout << "  " << vname << "= " << model.get_variable(vname).get_value() << std::endl;
+        std::cout << "  " << vname << "= " << model.get_variable(vname).value() << std::endl;
     std::cout << std::endl;
 
     // p = i+1

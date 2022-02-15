@@ -345,6 +345,13 @@ tmp->initialize();
 return tmp;
 }
 
+ConcreteSet& ConcreteSet::operator*=(const ConcreteSet& arg)
+{
+repn = repn->set_product(repn, arg.repn);
+repn->initialize();
+return *this;
+}
+
 /// ------------------------------------------------------------
 
 ConcreteSet SetOf(const std::vector<int>& arg)

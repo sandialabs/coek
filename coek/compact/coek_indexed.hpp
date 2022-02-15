@@ -92,24 +92,7 @@ typedef typename std::vector<set_types> IndexVector;
 
 class ConcreteIndexedVariable
 {
-public:
-
-    std::shared_ptr<ConcreteIndexedVariableRepn> repn;
-    IndexVector tmp;
-    std::vector<refarg_types> reftmp;
-
-public:
-
-    ConcreteIndexedVariable(const ConcreteSet& arg, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=0.0);
-    ConcreteIndexedVariable(const ConcreteSet& arg, double lb, double ub, double value, const std::string& name);
-    ConcreteIndexedVariable(const ConcreteSet& arg, double lb, double ub, double value, bool binary, bool integer, const std::string& name);
-    ConcreteIndexedVariable(const ConcreteSet& arg, double lb, double ub, double value, bool binary, bool integer);
-    ~ConcreteIndexedVariable() {}
-
-    std::vector<Variable>::iterator begin();
-    std::vector<Variable>::iterator end();
-
-    size_t size() const;
+protected:
 
     void collect_args(size_t i, bool& refflag, const int& arg)
         {
@@ -175,11 +158,49 @@ public:
         collect_args(i, refflag, args...);
         }
 
+public:
+
+    std::shared_ptr<ConcreteIndexedVariableRepn> repn;
+    IndexVector tmp;
+    std::vector<refarg_types> reftmp;
+
+public:
+
+    ConcreteIndexedVariable(const ConcreteSet& arg);
+    ConcreteIndexedVariable(const ConcreteSet& arg, const std::string& name);
+    ~ConcreteIndexedVariable() {}
+
+    /** Set the initial variable value. \returns the variable object. */
+    ConcreteIndexedVariable& value(double value);
+    /** Set the initial variable value. \returns the variable object. */
+    ConcreteIndexedVariable& value(const Expression& value);
+
+    /** Set the lower bound. \returns the variable object. */
+    ConcreteIndexedVariable& lower(double value);
+    /** Set the lower bound. \returns the variable object. */
+    ConcreteIndexedVariable& lower(const Expression& value);
+
+    /** Set the upper bound. \returns the variable object. */
+    ConcreteIndexedVariable& upper(double value);
+    /** Set the upper bound. \returns the variable object. */
+    ConcreteIndexedVariable& upper(const Expression& value);
+
+    /** Set the name of the variable. \returns the variable object */
+    ConcreteIndexedVariable& name(const std::string& name);
+
+    /** Set the variable type. \returns the variable object */
+    ConcreteIndexedVariable& within(VariableTypes vtype);
+
+    std::vector<Variable>::iterator begin();
+    std::vector<Variable>::iterator end();
+
+    size_t size() const;
+
     template <typename... ARGTYPES>
     Expression operator()(const ARGTYPES&... args)
         {
         bool refflag=false;
-        collect_args(0, refflag, args...);
+        collect_args(static_cast<size_t>(0), refflag, args...);
 
         if (refflag)
             return create_varref(reftmp);
@@ -242,12 +263,15 @@ public:
 };
 
 
-AbstractIndexedVariable IndexedVariable(const AbstractSet& arg, const std::string& name);
+AbstractIndexedVariable variable(const std::string& name, const AbstractSet& arg);
 
-ConcreteIndexedVariable IndexedVariable(const ConcreteSet& arg, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=0.0);
-ConcreteIndexedVariable IndexedVariable(const ConcreteSet& arg, const std::string& name);
-ConcreteIndexedVariable IndexedVariable(const ConcreteSet& arg, double lb, double ub, double value, const std::string& name);
-ConcreteIndexedVariable IndexedVariable(const ConcreteSet& arg, double lb, double ub, double value, bool binary, bool integer, const std::string& name);
-ConcreteIndexedVariable IndexedVariable(const ConcreteSet& arg, double lb, double ub, double value, bool binary, bool integer);
+ConcreteIndexedVariable variable(const ConcreteSet& arg);
+ConcreteIndexedVariable variable(const std::string& name, const ConcreteSet& arg);
+
+ConcreteIndexedVariable variable(size_t n);
+ConcreteIndexedVariable variable(const std::string& name, size_t n);
+
+ConcreteIndexedVariable variable(const std::vector<size_t>& dim);
+ConcreteIndexedVariable variable(const std::string& name, const std::vector<size_t>& n);
 
 }

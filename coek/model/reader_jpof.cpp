@@ -300,21 +300,20 @@ for (auto& var : mdoc["var"].GetArray()) {
             // GCOVR_EXCL_STOP
         }
 
-    std::string vtype = "R";
-    bool binary=false;
-    bool integer=false;
+    VariableTypes vtype = Reals;
+    std::string vtypestring = "R";
     if (var.HasMember("type")) {
         if (var["type"].IsString())
-            vtype = var["type"].GetString();
+            vtypestring = var["type"].GetString();
         else
             // GCOVR_EXCL_START
             throw std::runtime_error("Error processing variable "+std::to_string(ctr)+": Non-string value for variable type");
             // GCOVR_EXCL_STOP
         }
-    if (vtype == "B")
-        binary = true;
-    else if (vtype == "Z")
-        integer = true;
+    if (vtypestring == "B")
+        vtype = Binary;
+    else if (vtypestring == "Z")
+        vtype = Integers;
 
     std::string label;
     if (var.HasMember("label")) {
@@ -336,8 +335,7 @@ for (auto& var : mdoc["var"].GetArray()) {
             // GCOVR_EXCL_STOP
         }
 
-    auto v = model.add_variable(label, lb, ub, value, binary, integer);
-    v.set_fixed(fixed);
+    auto v = model.add_variable(label).lower(lb).upper(ub).value(value).within(vtype).fixed(fixed);
 
     if (var.HasMember("id")) {
         if (var["id"].IsUint()) {

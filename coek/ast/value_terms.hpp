@@ -171,8 +171,13 @@ public:
         }
 
     void set_lb(double val);
+    void set_lb(expr_pointer_t val);
+
     void set_ub(double val);
+    void set_ub(expr_pointer_t val);
+
     void set_value(double val);
+    void set_value(expr_pointer_t val);
 };
 
 class IndexedVariableTerm : public VariableTerm

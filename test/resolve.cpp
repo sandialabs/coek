@@ -73,7 +73,7 @@ for (unsigned int n=0; n<N; n++)
 
 std::vector<coek::Variable> x(N);
 for (unsigned int n=0; n<N; n++)
-    x[n] = model.add_variable(0, COEK_INFINITY, 1);
+    x[n] = model.add_variable().lower(0).upper(model.inf).value(1);
 
 // obj
 coek::Expression obj;
@@ -132,7 +132,7 @@ for (unsigned int n=0; n<N; n++)
 
 std::vector<coek::Variable> x(N);
 for (unsigned int n=0; n<N; n++)
-    x[n] = model.add_variable(0, COEK_INFINITY, 0);
+    x[n] = model.add_variable().lower(0).upper(model.inf).value(0);
 
 // obj
 coek::Expression obj;
@@ -219,7 +219,7 @@ for (unsigned int n=0; n<N; n++)
 
 std::vector<coek::Variable> x(N);
 for (unsigned int n=0; n<N; n++)
-    x[n] = model.add_variable(0, COEK_INFINITY, 0);
+    x[n] = model.add_variable().lower(0).upper(model.inf).value(0);
 
 // obj
 coek::Expression obj;
@@ -301,7 +301,7 @@ for (unsigned int n=0; n<N; n++)
 
 std::vector<coek::Variable> x(N);
 for (unsigned int n=0; n<N; n++)
-    x[n] = model.add_variable(0, COEK_INFINITY, 0);
+    x[n] = model.add_variable().lower(0).upper(model.inf).value(0);
 
 // obj
 coek::Expression obj;
@@ -375,7 +375,7 @@ for (unsigned int n=0; n<N; n++)
 
 std::vector<coek::Variable> x(N);
 for (unsigned int n=0; n<N; n++)
-    x[n] = model.add_variable(0, COEK_INFINITY, 0);
+    x[n] = model.add_variable().lower(0).upper(model.inf).value(0);
 
 // obj
 coek::Expression obj;

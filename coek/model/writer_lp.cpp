@@ -349,12 +349,16 @@ void LPWriter::collect_variables(CompactModel& model)
 size_t ctr=0;
 for (auto& val: model.repn->variables) {
     if (auto eval = std::get_if<Variable>(&val)) {
-        if (eval->get_fixed())
+        if (eval->fixed())
             continue;
-        Expression lb = eval->get_lb_expression().expand();
-        Expression ub = eval->get_ub_expression().expand();
-        Expression value = eval->get_value_expression().expand();
-        Variable tmp(eval->get_name(),lb.get_value(),ub.get_value(),value.get_value(),eval->is_binary(),eval->is_integer());
+        Expression lb = eval->lower_expression().expand();
+        Expression ub = eval->upper_expression().expand();
+        Expression value = eval->value_expression().expand();
+        auto tmp = variable(eval->name()).
+                    lower(lb.get_value()).
+                    upper(ub.get_value()).
+                    value(value.get_value()).
+                    within(eval->within());
         variables.push_back(tmp);
         if (tmp.is_binary())
             bvars[vid[tmp.id()]] = tmp.repn;
@@ -368,7 +372,7 @@ for (auto& val: model.repn->variables) {
     else {
         auto& seq = std::get<VariableSequence>(val);
         for (auto& jt: seq) {
-            if (jt.get_fixed())
+            if (jt.fixed())
                 continue;
             variables.push_back(jt);
             if (jt.is_binary())
@@ -505,13 +509,13 @@ if (one_var_constant) {
 
 ostr << "\nbounds\n";
 for (auto& v: variables) {
-    auto lb = v.get_lb();
+    auto lb = v.lower();
     if (lb <= -COEK_INFINITY)
         ostr << "-inf";
     else
         ostr << lb;
     ostr << " <= x(" << vid[v.id()] << ") <= ";
-    auto ub = v.get_ub();
+    auto ub = v.upper();
     if (ub >= COEK_INFINITY)
         ostr << "inf\n";
     else
@@ -611,13 +615,13 @@ if (one_var_constant) {
 
 ostr.print("\nbounds\n");
 for (auto& v: variables) {
-    auto lb = v.get_lb();
+    auto lb = v.lower();
     if (lb <= -COEK_INFINITY)
         ostr.print("-inf");
     else
         ostr.print("{}", lb);
     ostr.print(" <= x({}) <= ", vid[v.id()]);
-    auto ub = v.get_ub();
+    auto ub = v.upper();
     if (ub >= COEK_INFINITY)
         ostr.print("inf\n");
     else

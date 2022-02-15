@@ -22,9 +22,9 @@ template <class ModelType>
 void error1(ModelType& model) 
 {
 auto x = model.add_variable();
-x.set_name("x");
+x.name("x");
 auto y = coek::Variable();
-y.set_name("y");
+y.name("y");
 
 model.add_objective( x );
 model.add_constraint( x+y == 4 );
@@ -35,7 +35,7 @@ template <class ModelType>
 void error2(ModelType& model) 
 {
 auto x = model.add_variable();
-x.set_name("x");
+x.name("x");
 
 model.add_constraint( x == 4 );
 }
@@ -45,7 +45,7 @@ template <class ModelType>
 void error3(ModelType& model) 
 {
 auto x = model.add_variable();
-x.set_name("x");
+x.name("x");
 
 model.add_objective( x );
 model.add_objective( 2*x );
@@ -57,7 +57,7 @@ void error4(ModelType& model)
 {
 auto x = model.add_variable();
 coek::IndexParameter i("i");
-x.set_name("x");
+x.name("x");
 
 model.add_objective( i*x );
 }
@@ -65,9 +65,9 @@ model.add_objective( i*x );
 void small1(coek::Model& model) 
 {
 auto x = model.add_variable();
-x.set_value(1.0);
+x.value(1.0);
 auto y = model.add_variable();
-y.set_value(1.0);
+y.value(1.0);
 
 model.add_objective( pow(x,2) );
 model.add_constraint( pow(y,2) == 4 );
@@ -76,9 +76,9 @@ model.add_constraint( pow(y,2) == 4 );
 void small2(coek::Model& model) 
 {
 auto x = model.add_variable();
-x.set_value(1.0);
+x.value(1.0);
 auto y = model.add_variable();
-y.set_value(1.0);
+y.value(1.0);
 
 model.add_objective( x );
 model.add_constraint( pow(y,2) == 4 );
@@ -87,9 +87,9 @@ model.add_constraint( pow(y,2) == 4 );
 void small3(coek::Model& model) 
 {
 auto x = model.add_variable();
-x.set_value(1.0);
+x.value(1.0);
 auto y = model.add_variable();
-y.set_value(1.0);
+y.value(1.0);
 
 model.add_objective( x*y );
 model.add_constraint( pow(y,2) == 4 );
@@ -98,9 +98,9 @@ model.add_constraint( pow(y,2) == 4 );
 void small4(coek::Model& model) 
 {
 auto x = model.add_variable();
-x.set_value(1.0);
+x.value(1.0);
 auto y = model.add_variable();
-y.set_value(1.0);
+y.value(1.0);
 
 model.add_objective( pow(y,2) );
 model.add_constraint( y*x == 4 );
@@ -108,9 +108,9 @@ model.add_constraint( y*x == 4 );
 
 void small5(coek::Model& model) 
 {
-auto x = model.add_variable(-1,1,1);
-auto y = model.add_variable(-1,1,2);
-auto v = model.add_variable(-1,1,3);
+auto x = model.add_variable().lower(-1).upper(1).value(1);
+auto y = model.add_variable().lower(-1).upper(1).value(2);
+auto v = model.add_variable().lower(-1).upper(1).value(3);
 double p = 2;
 auto q = coek::Parameter(2);
 
@@ -133,12 +133,12 @@ model.add_constraint( v*(x-y) == 2*q );
 
 void small6(coek::Model& model) 
 {
-auto x = model.add_variable(-1,1,1);
-auto y = model.add_variable(-1,1,2);
-auto v = model.add_variable(-1,1,3);
+auto x = model.add_variable().lower(-1).upper(1).value(1);
+auto y = model.add_variable().lower(-1).upper(1).value(2);
+auto v = model.add_variable().lower(-1).upper(1).value(3);
 auto p = model.add_variable();
-p.set_value(2);
-p.set_fixed(true);
+p.value(2);
+p.fixed(true);
 
 model.add_objective( x );
 
@@ -152,12 +152,12 @@ model.add_constraint( v*(x-y) == 2*p );
 
 void small7(coek::Model& model) 
 {
-auto x = model.add_variable(-1,1,1);
-auto y = model.add_variable(-1,1,2);
-auto v = model.add_variable(-1,1,3);
+auto x = model.add_variable().lower(-1).upper(1).value(1);
+auto y = model.add_variable().lower(-1).upper(1).value(2);
+auto v = model.add_variable().lower(-1).upper(1).value(3);
 auto p = model.add_variable();
-p.set_value(2);
-p.set_fixed(true);
+p.value(2);
+p.fixed(true);
 auto q = coek::Parameter(2);
 
 model.add_objective( x );
@@ -194,9 +194,9 @@ model.add_constraint( v*(x-y) == 2*pow(p+q,2) );
 void small8(coek::Model& model) 
 {
 double a = 2.0;
-auto x = model.add_variable(0, COEK_INFINITY);
-auto y = model.add_variable(0, COEK_INFINITY);
-auto z = model.add_variable(7, COEK_INFINITY);
+auto x = model.add_variable().lower(0);
+auto y = model.add_variable().lower(0);
+auto z = model.add_variable().lower(7);
 
 model.add_objective( z + x*x + y );
 model.add_constraint( a <= y*y );
@@ -209,8 +209,8 @@ void small9(coek::Model& model)
 auto x = model.add_variable();
 auto y = model.add_variable();
 auto z = model.add_variable();
-y.set_value(1.0);
-y.set_fixed(true);
+y.value(1.0);
+y.fixed(true);
 
 coek::Parameter p = coek::Parameter(0.0);
 double q = 0.0;
@@ -227,7 +227,7 @@ model.add_constraint( x*q*z == 1 );
 void small13(coek::Model& model)
 {
 auto x = model.add_variable();
-x.set_value(0.5);
+x.value(0.5);
 
 model.add_objective( x, coek::Model::maximize );
 model.add_constraint( pow(x,3) - x == 0 );
@@ -241,9 +241,9 @@ double e = M_E;
 double pi = M_PI;
 
 auto ONE = model.add_variable();
-ONE.set_value(1);
+ONE.value(1);
 auto ZERO = model.add_variable();
-ZERO.set_value(0);
+ZERO.value(0);
 
 model.add_objective( ONE+ZERO );
 model.add_constraint( log(ONE) == 0 );
@@ -274,9 +274,12 @@ model.add_constraint( abs(ONE) == 1 );
 
 void testing1(coek::Model& model)
 {
-coek::Variable a = model.add_variable("a", 0.0, 1.0, 0.0, false, true);
-coek::Variable b("b", 0.0, 1.0, 0.0, true, false);
+auto a = model.add_variable("a").lower(0).upper(1).value(0).within(coek::Integers);
+auto b = coek::variable("b").lower(0).upper(1).value(0).within(coek::Binary);
 model.add_variable(b);
+auto c = model.add_variable().lower(0);
+auto d = model.add_variable().upper(0);
+auto e = model.add_variable("e");
 coek::Parameter q("q",2);
     
 model.add_objective( 3*a + q , model.maximize);
@@ -285,19 +288,16 @@ model.add_constraint( 3*b + b == 0 );
 model.add_constraint( 3*b*a + q + b*b + b*b == 0 );
 model.add_constraint( 3*b*b + q - a*b - a*a <= 0 );
 model.add_constraint( inequality(-7, 3*b*b + q - a*b - a*a, 7) );
-coek::Variable c = model.add_variable(0, COEK_INFINITY);
-coek::Variable d = model.add_variable(-COEK_INFINITY, 0);
-model.add_constraint(c + d == 0);
-coek::Variable e = model.add_variable("e");
 e.fix(1.0);
+model.add_constraint(c + d == 0);
 model.add_constraint(e + 3*d == 1);
 model.add_constraint( inequality(7, 3*b + q - a, 7) );      // This is really an equality
 }
 
 void testing2(coek::Model& model)
 {
-coek::Variable a = model.add_variable("a", 0.0, 1.0, 0.0, false, true);
-coek::Variable b("b", 0.0, 1.0, 0.0, true, false);
+auto a = model.add_variable("a").lower(0).upper(1).value(0).within(coek::Integers);
+auto b = coek::variable("b").lower(0).upper(1).value(0).within(coek::Binary);
 model.add_variable(b);
 coek::Parameter q("q",2);
 
@@ -308,8 +308,8 @@ model.add_objective( e );
 
 void testing3(coek::Model& model)
 {
-coek::Variable a = model.add_variable("a", 0.0, 1.0, 0.0, false, true);
-coek::Variable b("b", 0.0, 1.0, 0.0, true, false);
+auto a = model.add_variable("a").lower(0).upper(1).value(0).within(coek::Integers);
+auto b = coek::variable("b").lower(0).upper(1).value(0).within(coek::Binary);
 model.add_variable(b);
 
 coek::Expression e(0);
@@ -320,11 +320,11 @@ model.add_constraint( a + b == 1 );
 // Confirming logic counting for integer nonlinear variables
 void testing4(coek::Model& model)
 {
-auto x = model.add_variable("x", 0, 1, 0, true, false);
-auto y = model.add_variable("y", 0, 1, 0, true, false);
-auto z = model.add_variable("z", 0, 1, 0, true, false);
-auto a = model.add_variable("a", 0, 1, 0, false, true);
-auto b = model.add_variable("b", 0, 1, 0, true, false);
+auto x = model.add_variable("x").lower(0).upper(1).value(0).within(coek::Binary);
+auto y = model.add_variable("y").lower(0).upper(1).value(0).within(coek::Binary);
+auto z = model.add_variable("z").lower(0).upper(1).value(0).within(coek::Binary);
+auto a = model.add_variable("a").lower(0).upper(1).value(0).within(coek::Integers);
+auto b = model.add_variable("b").lower(0).upper(1).value(0).within(coek::Binary);
 
 model.add_objective(a+cos(x)+cos(y));
 model.add_constraint(b+cos(y)+cos(z) == 1);
@@ -333,7 +333,7 @@ model.add_constraint(b+cos(y)+cos(z) == 1);
 // Confirming logic for variables with same upper-and-lower bounds
 void testing5(coek::Model& model)
 {
-auto x = model.add_variable("x", 2, 2, 0);
+auto x = model.add_variable("x").lower(2).upper(2).value(0);
 model.add_objective(x);
 }
 
@@ -738,8 +738,8 @@ MODEL\n\
 
 SECTION("Model values") {
     coek::Model model;
-    auto a = model.add_variable("a", 0, 1, 0);
-    auto b = model.add_variable("b", 0, 1, 0.5);
+    auto a = model.add_variable("a").lower(0).upper(1).value(0);
+    auto b = model.add_variable("b").lower(0).upper(1).value(0.5);
     coek::Parameter q("q",0);
 
     model.add_objective( 3*a + q );

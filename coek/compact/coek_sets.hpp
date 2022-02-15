@@ -179,6 +179,9 @@ public:
     ConcreteSet operator^(const ConcreteSet& arg);
     ConcreteSet operator*(const ConcreteSet& arg);
 
+    // TODO - other operators here
+    ConcreteSet& operator*=(const ConcreteSet& arg);
+
     friend std::ostream& operator<<(std::ostream& ostr, const ConcreteSet& arg);
 };
 

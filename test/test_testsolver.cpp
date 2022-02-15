@@ -14,8 +14,8 @@ TEST_CASE( "solver_test", "[smoke]" ) {
 
   SECTION( "params" ) {
     coek::Model model;
-    coek::Variable v = model.add_variable("v", 0.0, 1.0, 0.0, false, true);
-    coek::Variable w = model.add_variable("w", 0.0, 1.0, 0.0, false, true);
+    auto v = model.add_variable("v").lower(0).upper(1).within(coek::Integers);
+    auto w = model.add_variable("w").lower(0).upper(1).within(coek::Integers);
     coek::Parameter p("p",2);
     coek::Parameter q("q",2);
 
@@ -66,9 +66,9 @@ TEST_CASE( "solver_test", "[smoke]" ) {
 
   SECTION( "vars" ) {
     coek::Model model;
-    coek::Variable v = model.add_variable("v", 0.0, 1.0, 0.0, false, true);
-    coek::Variable w = model.add_variable("w", 0.0, 1.0, 0.0, false, true);
-    w.set_fixed(true);
+    auto v = model.add_variable("v").lower(0).upper(1).value(0).within(coek::Integers);
+    auto w = model.add_variable("w").lower(0).upper(1).value(0).within(coek::Integers);
+    w.fixed(true);
     coek::Parameter p("p",2);
     coek::Parameter q("q",2);
 
@@ -94,7 +94,7 @@ TEST_CASE( "solver_test", "[smoke]" ) {
     REQUIRE( solver.repn->pupdates.size() == 0);
 
     p.set_value(3);
-    w.set_value(3);
+    w.value(3);
     solver.resolve();
 
     REQUIRE( solver.repn->vcache.size() == 1);
@@ -110,7 +110,7 @@ TEST_CASE( "solver_test", "[smoke]" ) {
     REQUIRE( solver.repn->pupdates.size() == 0);
 
     p.set_value(4);
-    w.set_value(5);
+    w.value(5);
     solver.resolve();
 
     REQUIRE( solver.repn->vcache.size() == 1);
@@ -121,8 +121,8 @@ TEST_CASE( "solver_test", "[smoke]" ) {
 
   SECTION( "solve" ) {
     coek::Model model;
-    coek::Variable v = model.add_variable("v", 0.0, 1.0, 0.0, false, true);
-    coek::Variable w = model.add_variable("w", 0.0, 1.0, 0.0, false, true);
+    auto v = model.add_variable("v").lower(0).upper(1).within(coek::Integers);
+    auto w = model.add_variable("w").lower(0).upper(1).within(coek::Integers);
     coek::Parameter p("p",2);
     coek::Parameter q("q",2);
 

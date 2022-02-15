@@ -32,40 +32,20 @@ CompactModel::CompactModel(const CompactModel& other)
 CompactModel::~CompactModel()
 {}
 
-Variable CompactModel::add_variable(double lb, double ub, double value, bool binary, bool integer)
+Variable CompactModel::add_variable()
 {
-Variable tmp(lb,ub,value,binary,integer);
+Variable tmp;
 repn->variables.push_back(tmp);
 repn->variable_names.push_back("");
 return tmp; //repn->variables.back();
 }
 
-Variable CompactModel::add_variable(const std::string& name, double lb, double ub, double value, bool binary, bool integer)
+Variable CompactModel::add_variable(const std::string& name)
 {
-Variable tmp(name,lb,ub,value,binary,integer);
+Variable tmp(name);
 repn->variables.push_back(tmp);
-repn->variable_names.push_back("");
-return tmp; //repn->variables.back();
-}
-
-VariableMap CompactModel::add_variable(const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, const SequenceContext& context)
-{
-VariableSequence seq(context, lb, ub, value, binary, integer);
-repn->variables.push_back( seq );
-repn->variable_names.push_back("");
-
-VariableMap tmp;
-return tmp;
-}
-
-VariableMap CompactModel::add_variable(const std::string& name, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, const SequenceContext& context)
-{
-VariableSequence seq(context, lb, ub, value, binary, integer);
-repn->variables.push_back( seq );
 repn->variable_names.push_back(name);
-
-VariableMap tmp;
-return tmp;
+return tmp; //repn->variables.back();
 }
 
 Variable CompactModel::add_variable(Variable& var)
@@ -161,12 +141,12 @@ Model model;
 for (auto it=repn->variables.begin(); it != repn->variables.end(); ++it) {
     auto& val = *it;
     if (auto eval = std::get_if<Variable>(&val)) {
-        Expression lb = eval->get_lb_expression().expand();
-        eval->set_lb(lb.get_value());
-        Expression ub = eval->get_ub_expression().expand();
-        eval->set_ub(ub.get_value());
-        Expression value = eval->get_value_expression().expand();
-        eval->set_value(value.get_value());
+        Expression lb = eval->lower_expression().expand();
+        eval->lower(lb.get_value());
+        Expression ub = eval->upper_expression().expand();
+        eval->upper(ub.get_value());
+        Expression value = eval->value_expression().expand();
+        eval->value(value.get_value());
         model.add_variable(*eval);
         }
     else {

@@ -8,7 +8,7 @@
     WHEN( #FN " 1" ) {\
           {\
           coek::Model m;\
-          coek::Variable v = m.add_variable("v", 0, 1, 0);\
+          coek::Variable v = m.add_variable("v").lower(0).upper(1).value(0);\
           coek::Expression e = FN(v+1);\
           coek::MutableNLPExpr repn;\
           static std::list<std::string> constval = {"0.000"};\
@@ -21,8 +21,8 @@
     WHEN( #FN " 2" ) {\
           {\
           coek::Model m;\
-          coek::Variable v = m.add_variable("v", 0, 1, 0);\
-          v.set_fixed(true);\
+          coek::Variable v = m.add_variable("v").lower(0).upper(1).value(0);\
+          v.fixed(true);\
           coek::Expression e = FN(v+1);\
           auto E = e.expand();\
           coek::MutableNLPExpr repn;\
@@ -38,7 +38,7 @@
     WHEN( #FN " 1" ) {\
           {\
           coek::Model m;\
-          coek::Variable v = m.add_variable("v", 0, 1, 0);\
+          coek::Variable v = m.add_variable("v").lower(0).upper(1).value(0);\
           coek::Expression e = FN(v+1, v);\
           coek::MutableNLPExpr repn;\
           static std::list<std::string> constval = {"0.000"};\
@@ -51,8 +51,8 @@
     WHEN( #FN " 2" ) {\
           {\
           coek::Model m;\
-          coek::Variable v = m.add_variable("v", 0, 1, 0);\
-          v.set_fixed(true);\
+          coek::Variable v = m.add_variable("v").lower(0).upper(1).value(0);\
+          v.fixed(true);\
           coek::Expression e = FN(v+1, v);\
           auto E = e.expand();\
           coek::MutableNLPExpr repn;\
@@ -67,8 +67,8 @@
 #define MV_INTRINSIC_TEST1(FN)\
     WHEN( #FN ) {\
           coek::Model m;\
-          coek::Variable v = m.add_variable("v", 0, 1, 0);\
-          v.set_fixed(true);\
+          coek::Variable v = m.add_variable("v").lower(0).upper(1).value(0);\
+          v.fixed(true);\
           coek::Expression e = FN(v+1);\
           mutable_values(e.repn, fixed_vars, params);\
           static std::unordered_set<coek::VariableTerm*> vbaseline { v.repn };\
@@ -80,8 +80,8 @@
 #define MV_INTRINSIC_TEST2(FN)\
     WHEN( #FN ) {\
           coek::Model m;\
-          coek::Variable v = m.add_variable("v", 0, 1, 0);\
-          v.set_fixed(true);\
+          coek::Variable v = m.add_variable("v").lower(0).upper(1).value(0);\
+          v.fixed(true);\
           coek::Expression e = FN(v+1, v);\
           mutable_values(e.repn, fixed_vars, params);\
           static std::unordered_set<coek::VariableTerm*> vbaseline { v.repn };\
@@ -105,13 +105,13 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
 
       WHEN( "size" ) {
         auto s = coek::SetOf( v );
-        auto vars = IndexedVariable( s );
+        auto vars = coek::variable( s );
         REQUIRE( vars.size() == 4 );
       }
 
       WHEN( "typeof" ) {
         auto s = coek::SetOf( v );
-        auto vars = IndexedVariable( s );
+        auto vars = coek::variable( s );
         REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
       }
 
@@ -141,24 +141,23 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
       auto s = coek::RangeSet(1, 7, 2);
 
       WHEN( "size" ) {
-        auto vars = IndexedVariable( s );
+        auto vars = coek::variable( s );
         REQUIRE( vars.size() == 4 );
       }
 
       WHEN( "typeof" ) {
-        auto vars = IndexedVariable( s );
+        auto vars = coek::variable( s );
         REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
       }
 
       WHEN( "index" ) {
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
-
+        auto vars = coek::variable( 4 ).value(1);
         std::vector<int> vals(4);
+
+        coek::IndexParameter i("i");
         size_t ii=0;
-        for (auto it=s.begin({i}); it != s.end(); ++it) {
+        for (auto it=s.begin({i}); it != s.end(); ++it)
             i.get_value(vals[ii++]);
-            }
         REQUIRE( v == vals );
         }
 
@@ -169,19 +168,60 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
         }
   }
 
+  SECTION( "int_vector" ) {
+      std::vector<int> v = {0,1,2,3};
+
+      WHEN( "size" ) {
+        auto vars = coek::variable( 4 );
+        REQUIRE( vars.size() == 4 );
+      }
+
+      WHEN( "typeof" ) {
+        auto vars = coek::variable( 4 );
+        REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
+      }
+
+      WHEN( "index" ) {
+        auto vars = coek::variable( 4 ).value(1);
+        for (size_t i=0; i<4; i++)
+            REQUIRE( vars(i).get_value() == 1 );
+        }
+    
+  }
+
+  SECTION( "int_vector_dim" ) {
+      std::vector<int> v = {0,1,2,3};
+
+      WHEN( "size" ) {
+        auto vars = coek::variable( {4} );
+        REQUIRE( vars.size() == 4 );
+      }
+
+      WHEN( "typeof" ) {
+        auto vars = coek::variable( {4} );
+        REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
+      }
+
+      WHEN( "index" ) {
+        auto vars = coek::variable( {4} ).value(1);
+        for (size_t i=0; i<4; i++)
+            REQUIRE( vars(i).get_value() == 1 );
+        }
+  }
+
 #if 0
   SECTION( "string" ) {
       std::vector<std::string> v = {"a","c","b","d"};
 
       WHEN( "size" ) {
         auto s = coek::SetOf( v );
-        auto vars = IndexedVariable( s );
+        auto vars = coek::variable( s );
         REQUIRE( vars.size() == 4 );
       }
 
       WHEN( "typeof" ) {
         auto s = coek::SetOf( v );
-        auto vars = IndexedVariable( s );
+        auto vars = coek::variable( s );
         REQUIRE( typeid(vars("a")).name() == typeid(coek::Expression).name() );
       }
 
@@ -219,7 +259,7 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
       auto s = coek::SetOf( v );
       auto r = coek::SetOf( {0} );
       auto S = s - r;
-      auto vars = IndexedVariable( S, 0, 1, 0, "vars" );
+      auto vars = coek::variable("vars",S).lower(0).upper(1).value(0);
 
       WHEN( "typeof" ) {
         REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
@@ -279,7 +319,7 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
         auto V = coek::SetOf( v );
         auto W = coek::SetOf( w );
         auto S = V*W;
-        auto vars = IndexedVariable( S );
+        auto vars = coek::variable( S );
         REQUIRE( vars.size() == 16 );
       }
 
@@ -287,7 +327,7 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
         auto V = coek::SetOf( v );
         auto W = coek::SetOf( w );
         auto S = V*W;
-        auto vars = IndexedVariable( S );
+        auto vars = coek::variable( S );
         REQUIRE( typeid(vars(1,2)).name() == typeid(coek::Expression).name() );
       }
 
@@ -324,6 +364,27 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
         }
   }
 
+  SECTION( "int_vector_dim" ) {
+      WHEN( "size" ) {
+        std::vector<size_t> dim {4,3};
+        auto vars = coek::variable( dim );
+        REQUIRE( vars.size() == 12 );
+      }
+
+      WHEN( "typeof" ) {
+        std::vector<size_t> dim {4,3};
+        auto vars = coek::variable( dim );
+        REQUIRE( typeid(vars(1,1)).name() == typeid(coek::Expression).name() );
+      }
+
+      WHEN( "index" ) {
+        std::vector<size_t> dim {4,3};
+        auto vars = coek::variable( dim ).value(1);
+        for (size_t i=0; i<4; i++)
+            REQUIRE( vars(i).get_value() == 1 );
+        }
+  }
+
 #if 0
   SECTION( "string" ) {
       std::vector<std::string> v = {"a","c","b","d"};
@@ -333,7 +394,7 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
         auto V = coek::SetOf( v );
         auto W = coek::SetOf( w );
         auto S = V*W;
-        auto vars = IndexedVariable( S );
+        auto vars = coek::variable( S );
         REQUIRE( vars.size() == 16 );
       }
 
@@ -341,7 +402,7 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
         auto V = coek::SetOf( v );
         auto W = coek::SetOf( w );
         auto S = V*W;
-        auto vars = IndexedVariable( S );
+        auto vars = coek::variable( S );
         REQUIRE( typeid(vars("a","A")).name() == typeid(coek::Expression).name() );
       }
 
@@ -386,7 +447,7 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
       auto W = coek::SetOf( w );
       auto r = coek::SetOf( {0} );
       auto S = V*W;
-      auto vars = IndexedVariable( S, 0, 1, 0, "vars" );
+      auto vars = coek::variable("vars",S).lower(0).upper(1).value(0);
 
       WHEN( "typeof" ) {
         REQUIRE( typeid(vars(1,2)).name() == typeid(coek::Expression).name() );
@@ -446,8 +507,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
     SECTION( "concrete_expr" ) {
         std::vector<int> v = {1,5,3,7};
         auto s = coek::SetOf( v );
-        auto y = IndexedVariable( s, "y" );
-        auto x = IndexedVariable( s*s, "x" );
+        auto y = coek::variable("y",s);
+        auto x = coek::variable("x",s*s);
         coek::IndexParameter i("i");
         coek::IndexParameter j("j");
 
@@ -551,8 +612,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
     SECTION( "concrete_con" ) {
         std::vector<int> v = {1,5,3,7};
         auto s = coek::SetOf( v );
-        auto y = IndexedVariable( s, "y" );
-        auto x = IndexedVariable( s*s, "x" );
+        auto y = coek::variable("y",s);
+        auto x = coek::variable("x",s*s);
         coek::IndexParameter i("i");
 
         WHEN( "y(i) == 0" ) {
@@ -687,7 +748,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "unfixed" ) {
         {
         coek::Model m;
-        coek::Variable v = m.add_variable("v",0,1,3);
+        coek::Variable v = m.add_variable("v").lower(0).upper(1).value(3);
         coek::Expression e = v;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -706,8 +767,8 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "fixed" ) {
         {
         coek::Model m;
-        coek::Variable v = m.add_variable("v",0,1,3);
-        v.set_fixed(true);
+        auto v = m.add_variable("v").lower(0).upper(1).value(3);
+        v.fixed(true);
         coek::Expression e = v;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -723,8 +784,8 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "fixed - nontrivial multiplier" ) {
         {
         coek::Model m;
-        coek::Variable v = m.add_variable("v",0,1,3);
-        v.set_fixed(true);
+        auto v = m.add_variable("v").lower(0).upper(1).value(3);
+        v.fixed(true);
         coek::Expression f(2);
         coek::Expression e = v/f;
         auto E = e.expand();
@@ -744,7 +805,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "unfixed" ) {
         {
         coek::Model m;
-        coek::Variable v = m.add_variable(0,1,0,"v");
+        auto v = m.add_variable("v").lower(0).upper(1).value(0);
         coek::Expression e = 2*v;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -764,8 +825,8 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "fixed" ) {
         {
         coek::Model m;
-        coek::Variable v = m.add_variable("v",0,1,3);
-        v.set_fixed(true);
+        auto v = m.add_variable("v").lower(0).upper(1).value(3);
+        v.fixed(true);
         coek::Expression e = 2*v;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -783,7 +844,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
   SECTION( "negate" ) {
         {
         coek::Model m;
-        coek::Variable v = m.add_variable("v",0,1,3);
+        auto v = m.add_variable("v").lower(0).upper(1).value(3);
         coek::Expression e = -(v+1);
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -804,7 +865,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN("2 terms") {
         {
         coek::Model m;
-        coek::Variable v = m.add_variable("v",0,1,3);
+        auto v = m.add_variable("v").lower(0).upper(1).value(3);
         coek::Expression e = v+1;
         coek::Expression E = e.expand();
         //coek::env.write(std::cout);
@@ -824,7 +885,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN("combine sums") {
         {
         coek::Model m;
-        coek::Variable v = m.add_variable("v",0,1,3);
+        auto v = m.add_variable("v").lower(0).upper(1).value(3);
         coek::Expression e = v+1+(-1-v);
         //std::cout << e << std::endl;
         //coek::env.write(std::cout);
@@ -855,7 +916,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         {
         coek::Model m;
         coek::Parameter p("p",0);
-        coek::Variable w = m.add_variable("w",0,1,3);
+        auto w = m.add_variable("w").lower(0).upper(1).value(3);
         coek::Expression e = p*w;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -874,7 +935,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         {
         coek::Model m;
         coek::Parameter p("p",0);
-        coek::Variable w = m.add_variable("w",0,1,3);
+        auto w = m.add_variable("w").lower(0).upper(1).value(3);
         coek::Expression e = w*p;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -892,7 +953,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "simple quadratic" ) {
         {
         coek::Model m;
-        coek::Variable w = m.add_variable("w", 0, 1, 0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = w*w;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -912,8 +973,8 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         {
         // By default, we do not expand products of linear expressions
         coek::Model m;
-        coek::Variable v = m.add_variable("v", 0, 1, 0);
-        coek::Variable w = m.add_variable("w", 0, 1, 0);
+        auto v = m.add_variable("v").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = (2 + 3*w + v)*(4 + 5*v + w);
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -928,8 +989,8 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "complex quadratic 1b" ) {
         {
         coek::Model m;
-        coek::Variable v = m.add_variable("v", 0, 1, 0);
-        coek::Variable w = m.add_variable("w", 0, 1, 0);
+        auto v = m.add_variable("v").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = 3*w*(4 + 5*v + w);
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -950,7 +1011,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "complex quadratic 2" ) {
         {
         coek::Model m;
-        coek::Variable w = m.add_variable("w", 0, 1, 0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = 3*(w*w + 2);
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -969,7 +1030,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "complex quadratic 3" ) {
         {
         coek::Model m;
-        coek::Variable w = m.add_variable("w", 0, 1, 0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = (w*w + 2)*3;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -992,7 +1053,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         {
         coek::Model m;
         coek::Parameter p("p",0);
-        coek::Variable w = m.add_variable("w", 0, 1, 0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = p/w;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -1010,7 +1071,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         {
         coek::Model m;
         coek::Parameter p("p",0);
-        coek::Variable w = m.add_variable("w", 0, 1, 0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = w/p;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -1029,7 +1090,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         {
         coek::Model m;
         coek::Expression p;
-        coek::Variable w = m.add_variable("w", 0, 1, 0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = p/w;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -1063,7 +1124,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         {
         coek::Model m;
         coek::Expression p;
-        coek::Variable w = m.add_variable("w", 0, 1, 0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = w/p;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -1074,7 +1135,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "rhs polynomial" ) {
         {
         coek::Model m;
-        coek::Variable w = m.add_variable("w", 0, 1, 0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = w/(1+w);
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -1092,7 +1153,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         {
         coek::Model m;
         coek::Parameter p("p",2.0);
-        coek::Variable w = m.add_variable("w", 0, 1, 0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = (w*w+w+1)/p;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -1113,7 +1174,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         {
         coek::Model m;
         coek::Parameter p("p",0);
-        coek::Variable w = m.add_variable("w",0,1,3);
+        auto w = m.add_variable("w").lower(0).upper(1).value(3);
         coek::Constraint e = p*w -3 <= 2;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -1132,7 +1193,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         {
         coek::Model m;
         coek::Parameter p("p",0);
-        coek::Variable w = m.add_variable("w",0,1,3);
+        auto w = m.add_variable("w").lower(0).upper(1).value(3);
         coek::Constraint e = p*w +1 == 2;
         auto E = e.expand();
         coek::MutableNLPExpr repn;

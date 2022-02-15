@@ -64,66 +64,20 @@ public:
 
     /** Create a variable and add it to the model with standard arguments.
       *
-      * This method accepts one or more standard options.  
-      * When default values are used, this specifies an unbounded,
+      * This specifies an unbounded,
       * continuous decision variable.
-      *
-      * \param lb   the lower bound (default is negative infinity)
-      * \param ub   the upper bound (default is infinity)
-      * \param value   the initial value (default is 0.0)
-      * \param binary   a boolean flag that indicates whether the variable is boolean (default is \c false)
-      * \param integer   a boolean flag that indicates whether the variable is a general integer (default is \c false)
       *
       * \returns the variable object
       */
-    Variable add_variable(double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
+    Variable add_variable();
     /** Create a variable and add it to the model with standard arguments.
       *
-      * This method accepts one or more standard options.  The first argument is the 
-      * name of the variable. When default values are used, this specifies an unbounded,
+      * This specifies an unbounded,
       * continuous decision variable.
-      *
-      * \param name   the name of variable
-      * \param lb   the lower bound (default is negative infinity)
-      * \param ub   the upper bound (default is infinity)
-      * \param value   the initial value (default is 0.0)
-      * \param binary   a boolean flag that indicates whether the variable is boolean (default is \c false)
-      * \param integer   a boolean flag that indicates whether the variable is a general integer (default is \c false)
       *
       * \returns the variable object
       */
-    Variable add_variable(const std::string& name, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=COEK_NAN, bool binary=false, bool integer=false);
-    /** Create a variable and add it to the model with standard arguments.
-      *
-      * This method accepts one or more standard options.  
-      * When default values are used, this specifies a
-      * continuous decision variable.
-      *
-      * \param lb   the lower bound
-      * \param ub   the upper bound
-      * \param value   the initial value
-      * \param binary   a boolean flag that indicates whether the variable is boolean (default is \c false)
-      * \param integer   a boolean flag that indicates whether the variable is a general integer (default is \c false)
-      *
-      * \returns the variable object
-      */
-    Variable add_variable(const Expression& lb, const Expression& ub, const Expression& value, bool binary=false, bool integer=false);
-    /** Create a variable and add it to the model with standard arguments.
-      *
-      * This method accepts one or more standard options.  The first argument is the 
-      * name of the variable. When default values are used, this specifies a
-      * continuous decision variable.
-      *
-      * \param name   the name of variable
-      * \param lb   the lower bound
-      * \param ub   the upper bound
-      * \param value   the initial value
-      * \param binary   a boolean flag that indicates whether the variable is boolean (default is \c false)
-      * \param integer   a boolean flag that indicates whether the variable is a general integer (default is \c false)
-      *
-      * \returns the variable object
-      */
-    Variable add_variable(const std::string& name, const Expression& lb, const Expression& ub, const Expression& value, bool binary=false, bool integer=false);
+    Variable add_variable(const std::string& name);
     /** Add a variable to the model.
       *
       * \returns the variable

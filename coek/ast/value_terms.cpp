@@ -156,6 +156,13 @@ if (lb)
 OWN_POINTER( lb = CREATE_POINTER(ConstantTerm, val) );
 }
 
+void VariableTerm::set_lb(const expr_pointer_t val)
+{
+if (lb)
+    DISOWN_POINTER(lb);
+OWN_POINTER( lb = val );
+}
+
 void VariableTerm::set_ub(double val)
 {
 if (ub)
@@ -163,11 +170,25 @@ if (ub)
 OWN_POINTER( ub = CREATE_POINTER(ConstantTerm, val) );
 }
 
+void VariableTerm::set_ub(const expr_pointer_t val)
+{
+if (ub)
+    DISOWN_POINTER(ub);
+OWN_POINTER( ub = val );
+}
+
 void VariableTerm::set_value(double val)
 {
 if (value)
     DISOWN_POINTER(value);
 OWN_POINTER( value = CREATE_POINTER(ConstantTerm, val) );
+}
+
+void VariableTerm::set_value(const expr_pointer_t val)
+{
+if (value)
+    DISOWN_POINTER(value);
+OWN_POINTER( value = val );
 }
 
 

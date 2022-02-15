@@ -20,7 +20,7 @@ std::vector<double> invquad_soln_5 {-10,-10,-10,-10,-10};
 void check(std::vector<coek::Variable>& variables, std::vector<double>& soln)
 {
 for (size_t i=0; i<variables.size(); i++)
-    REQUIRE(variables[i].get_value() == Approx(soln[i]));
+    REQUIRE(variables[i].value() == Approx(soln[i]));
 }
 
 
@@ -69,7 +69,7 @@ if (solver.available()) {
                 it->set_value(-0.5);
 
             for (size_t i=0; i<nlp.num_variables(); i++)
-                nlp.get_variable(i).set_value(0);
+                nlp.get_variable(i).value(0);
             solver.set_option("print_level", 0);
             solver.resolve();
 
@@ -104,7 +104,7 @@ if (solver.available()) {
             // the warm starting option should ignore this and 
             // restart the solve from where it ended last time.
             for (size_t i=0; i<nlp.num_variables(); i++)
-                nlp.get_variable(i).set_value(0);
+                nlp.get_variable(i).value(0);
 
             solver.set_option("warm_start_init_point", "yes");
             //solver.set_option("print_level", 0);

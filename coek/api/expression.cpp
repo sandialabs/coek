@@ -156,36 +156,23 @@ repn = expr.repn;
 OWN_POINTER(repn);
 }
 
-Variable::Variable(double lb, double ub, double value, bool binary, bool integer)
+Variable::Variable()
 {
 repn = CREATE_POINTER(VariableTerm, 
-            CREATE_POINTER(ConstantTerm, lb),
-            CREATE_POINTER(ConstantTerm, ub),
-            CREATE_POINTER(ConstantTerm, value),
-            binary, integer);
+            CREATE_POINTER(ConstantTerm, -COEK_INFINITY),
+            CREATE_POINTER(ConstantTerm, COEK_INFINITY),
+            CREATE_POINTER(ConstantTerm, COEK_NAN),
+            false, false);
 OWN_POINTER(repn);
 }
 
-Variable::Variable(const std::string& name, double lb, double ub, double value, bool binary, bool integer)
+Variable::Variable(const std::string& name)
 {
 repn = CREATE_POINTER(VariableTerm, 
-            CREATE_POINTER(ConstantTerm, lb),
-            CREATE_POINTER(ConstantTerm, ub),
-            CREATE_POINTER(ConstantTerm, value),
-            binary, integer);
-OWN_POINTER(repn);
-repn->name = name;
-}
-
-Variable::Variable(const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer)
-{
-repn = CREATE_POINTER(VariableTerm, lb.repn, ub.repn, value.repn, binary, integer);
-OWN_POINTER(repn);
-}
-
-Variable::Variable(const std::string& name, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer)
-{
-repn = CREATE_POINTER(VariableTerm, lb.repn, ub.repn, value.repn, binary, integer);
+            CREATE_POINTER(ConstantTerm, -COEK_INFINITY),
+            CREATE_POINTER(ConstantTerm, COEK_INFINITY),
+            CREATE_POINTER(ConstantTerm, COEK_NAN),
+            false, false);
 OWN_POINTER(repn);
 repn->name = name;
 }
@@ -196,32 +183,6 @@ if (repn)
     DISOWN_POINTER(repn);
 }
 
-void Variable::initialize(double lb, double ub, double value, bool binary, bool integer, bool fixed)
-{
-repn->set_lb(lb);
-repn->set_ub(ub);
-repn->set_value(value);
-repn->binary = binary;
-repn->integer = integer;
-repn->fixed = fixed;
-}
-
-void Variable::initialize(const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer, bool fixed)
-{
-if (repn->lb)
-    DISOWN_POINTER(repn->lb);
-OWN_POINTER( repn->lb = lb.repn );
-if (repn->ub)
-    DISOWN_POINTER(repn->ub);
-OWN_POINTER( repn->ub = ub.repn );
-if (repn->value)
-    DISOWN_POINTER(repn->value);
-OWN_POINTER( repn->value = value.repn );
-repn->binary = binary;
-repn->integer = integer;
-repn->fixed = fixed;
-}
-
 Variable& Variable::operator=(const Variable& expr)
 {
 DISOWN_POINTER(repn);
@@ -230,41 +191,96 @@ OWN_POINTER(repn);
 return *this;
 }
 
-double Variable::get_value() const
+
+Variable& Variable::value(double value)
+{ repn->set_value(value); return *this; }
+
+Variable& Variable::value(const Expression& value)
+{ repn->set_value(value.repn); return *this; }
+
+double Variable::value() const
 { return repn->value->eval(); }
 
-Expression Variable::get_value_expression() const
+Expression Variable::value_expression() const
 { return repn->value; }
 
-void Variable::set_value(double value)
-{ repn->set_value(value); }
 
-double Variable::get_lb() const
+Variable& Variable::lower(double value)
+{ repn->set_lb(value); return *this; }
+
+Variable& Variable::lower(const Expression& value)
+{ repn->set_lb(value.repn); return *this; }
+
+double Variable::lower() const
 { return repn->lb->eval(); }
 
-Expression Variable::get_lb_expression() const
+Expression Variable::lower_expression() const
 { return repn->lb; }
 
-void Variable::set_lb(double value)
-{ repn->set_lb(value); }
 
-double Variable::get_ub() const
+Variable& Variable::upper(double value)
+{ repn->set_ub(value); return *this; }
+
+Variable& Variable::upper(const Expression& value)
+{ repn->set_ub(value.repn); return *this; }
+
+double Variable::upper() const
 { return repn->ub->eval(); }
 
-Expression Variable::get_ub_expression() const
+Expression Variable::upper_expression() const
 { return repn->ub; }
 
-void Variable::set_ub(double value)
-{ repn->set_ub(value); }
+
+Variable& Variable::fix(double value)
+{
+repn->set_value(value);
+repn->fixed = true;
+return *this;
+}
+
+Variable& Variable::fixed(bool _flag)
+{ repn->fixed = _flag; return *this; }
+
+bool Variable::fixed() const
+{ return repn->fixed; }
+
+
+Variable& Variable::name(const std::string& name)
+{ repn->name = name; return *this; }
+
+std::string Variable::name() const
+{ return repn->get_name(); }
+
 
 unsigned int Variable::id() const
 { return repn->index; }
 
-std::string Variable::get_name() const
-{ return repn->get_name(); }
+Variable& Variable::within(VariableTypes vtype)
+{
+if (vtype == Reals) {
+    repn->binary = false;
+    repn->integer = false;
+    }
+else if (vtype == Integers) {
+    repn->binary = false;
+    repn->integer = true;
+    }
+else {
+    repn->binary = true;
+    repn->integer = false;
+    }
+return *this;
+}
 
-void Variable::set_name(const std::string& name)
-{ repn->name = name; }
+VariableTypes Variable::within()
+{
+if (repn->binary)
+    return Binary;
+else if (repn->integer)
+    return Integers;
+else
+    return Reals;
+}
 
 bool Variable::is_continuous() const
 { return not (repn->binary or repn->integer); }
@@ -275,22 +291,23 @@ bool Variable::is_binary() const
 bool Variable::is_integer() const
 { return repn->integer; }
 
+
 std::ostream& operator<<(std::ostream& ostr, const Variable& arg)
 {
 write_expr(arg.repn, ostr);
 return ostr;
 }
 
-void Variable::set_fixed(bool _flag)
-{ repn->fixed = _flag; }
-
-bool Variable::get_fixed() const
-{ return repn->fixed; }
-
-void Variable::fix(double value)
+Variable variable()
 {
-repn->set_value(value);
-repn->fixed = true;
+Variable tmp;
+return tmp;
+}
+
+Variable variable(const std::string& name)
+{
+Variable tmp(name);
+return tmp;
 }
 
 //

@@ -194,8 +194,8 @@ for (size_t i=0; i<model.num_variables(); i++) {
     if (v.is_integer())
         throw std::runtime_error("Cannot apply ipopt to problems with integer variables");
 
-    x_l[i] = v.get_lb();
-    x_u[i] = v.get_ub();
+    x_l[i] = v.lower();
+    x_u[i] = v.upper();
     //std::cout << "x " << i << " " << x_l[i] << " " << x_u[i] << std::endl << std::flush;
     }
 
@@ -431,7 +431,7 @@ if (start_from_last_x) {
 else {
     for (size_t i=0; i<model.num_variables(); i++) {
         auto v = model.get_variable(i);
-        last_x[i] = v.get_value();
+        last_x[i] = v.value();
         }
     status = (*IpoptSolve_func_ptr)(
         app,
@@ -451,7 +451,7 @@ if (status == Solve_Succeeded) {
 
     for (size_t i=0; i<model.num_variables(); i++) {
         auto v = model.get_variable(i);
-        v.set_value( last_x[i] );
+        v.value( last_x[i] );
         }
     }
 else {

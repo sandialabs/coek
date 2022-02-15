@@ -62,9 +62,9 @@ void Model::print_values(std::ostream& ostr) const
 ostr << "Model Variables: " << repn->variables_by_name.size() << "\n";
 ostr << "Nonzero Variables\n";
 for (auto const& var: repn->variables_by_name) {
-    double val = var.second.get_value();
+    double val = var.second.value();
     if (::fabs(val) > 1e-7) {
-        ostr << "   " << var.first << " " << val << " " << var.second.get_fixed() << "\n";
+        ostr << "   " << var.first << " " << val << " " << var.second.fixed() << "\n";
         }
     }
 }
@@ -84,32 +84,16 @@ repn = other.repn;
 return *this;
 }
 
-Variable Model::add_variable(double lb, double ub, double value, bool binary, bool integer)
+Variable Model::add_variable()
 {
-Variable tmp(lb,ub,value,binary,integer);
+Variable tmp;
 repn->variables.push_back(tmp);
 return repn->variables.back();
 }
 
-Variable Model::add_variable(const std::string& name, double lb, double ub, double value, bool binary, bool integer)
+Variable Model::add_variable(const std::string& name)
 {
-Variable tmp(name,lb,ub,value,binary,integer);
-repn->variables.push_back(tmp);
-if (name != "")
-    repn->variables_by_name.emplace(name, tmp);
-return repn->variables.back();
-}
-
-Variable Model::add_variable(const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer)
-{
-Variable tmp(lb,ub,value,binary,integer);
-repn->variables.push_back(tmp);
-return repn->variables.back();
-}
-
-Variable Model::add_variable(const std::string& name, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer)
-{
-Variable tmp(name,lb,ub,value,binary,integer);
+Variable tmp(name);
 repn->variables.push_back(tmp);
 if (name != "")
     repn->variables_by_name.emplace(name, tmp);
@@ -119,7 +103,7 @@ return repn->variables.back();
 Variable Model::add_variable(Variable& var)
 {
 repn->variables.push_back(var);
-auto name = var.get_name();
+auto name = var.name();
 if (name != "")
     repn->variables_by_name.emplace(name, var);
 return var;
@@ -129,7 +113,7 @@ void Model::add_variable(VariableArray& varray)
 {
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
     repn->variables.push_back(*it);
-    auto name = it->get_name();
+    auto name = it->name();
     if (name != "")
         repn->variables_by_name.emplace(name, *it);
     }
@@ -141,7 +125,7 @@ void Model::add_variable(ConcreteIndexedVariable& vars)
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
     repn->variables.push_back(*it);
-    auto name = it->get_name();
+    auto name = it->name();
     if (name != "")
         repn->variables_by_name.emplace(name, *it);
     }
@@ -360,7 +344,7 @@ for (auto it=model.repn->variables.begin(); it != end; ++it)
 for (auto it=varobj.begin(); it != varobj.end(); it++) {
     auto tmp = model_ids.find(it->first);
     if (tmp == model_ids.end()) {
-        throw std::runtime_error("Model expressions contain variable '" + it->second.get_name() + "' that is not declared in the model.");
+        throw std::runtime_error("Model expressions contain variable '" + it->second.name() + "' that is not declared in the model.");
         }
     }
 }

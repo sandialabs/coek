@@ -93,11 +93,11 @@ REQUIRE( coek::env.check_memory() == true );
 void test_var(coek::Model& model, unsigned int i, const std::string& name, double value, double lb, double ub, bool fixed, const std::string& vtype)
 {
 auto v = model.get_variable(i);
-REQUIRE( v.get_name() == name );
-REQUIRE( v.get_value() == Approx(value) );
-REQUIRE( v.get_lb() == Approx(lb) );
-REQUIRE( v.get_ub() == Approx(ub) );
-REQUIRE( v.get_fixed() == fixed );
+REQUIRE( v.name() == name );
+REQUIRE( v.value() == Approx(value) );
+REQUIRE( v.lower() == Approx(lb) );
+REQUIRE( v.upper() == Approx(ub) );
+REQUIRE( v.fixed() == fixed );
 if (vtype == "R")
     REQUIRE( v.is_continuous() );
 else if (vtype == "Z")

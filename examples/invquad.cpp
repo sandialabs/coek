@@ -5,7 +5,7 @@ void invquad_example(coek::Model& m, std::vector<coek::Parameter>& p)
 {
 std::vector<coek::Variable> x(p.size());
 for (auto it=x.begin(); it != x.end(); ++it) {
-    *it = coek::Variable(-10, 10, 0);
+    *it = coek::variable().lower(-10).upper(10).value(0.0);
     m.add_variable(*it);
     }
 

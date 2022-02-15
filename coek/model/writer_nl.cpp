@@ -949,7 +949,7 @@ try {
     std::map<size_t, double> values;
     ctr=0;
     for (auto it=vars.begin(); it != vars.end(); ++it, ++ctr) {
-        auto tmp = varobj[*it].get_value();
+        auto tmp = varobj[*it].value();
         if (not std::isnan(tmp))
             values[ctr] = tmp;
         }
@@ -1003,8 +1003,8 @@ try {
     ostr << "b\n";
     for (auto it=vars.begin(); it != vars.end(); ++it) {
         auto var = varobj[*it];
-        double lb = var.get_lb();
-        double ub = var.get_ub();
+        double lb = var.lower();
+        double ub = var.upper();
         if (lb == -COEK_INFINITY) {
             if (ub == COEK_INFINITY) {
                 ostr << "3\n";
@@ -1153,7 +1153,7 @@ auto out = std::vector<char>();
 int num=0;
 int ctr=0;
 for (auto it=varobj.begin(); it != varobj.end(); ++it, ++ctr) {
-    auto tmp = it->second.get_value();
+    auto tmp = it->second.value();
     if (not std::isnan(tmp)) {
         num++;
         fmt::format_to(std::back_inserter(out), "{} {}\n", ctr, tmp);
@@ -1206,8 +1206,8 @@ CALI_MARK_BEGIN("b");
 ostr.print("b\n");
 for (auto it=vars.begin(); it != vars.end(); ++it) {
     auto& var = varobj[*it];
-    double lb = var.get_lb();
-    double ub = var.get_ub();
+    double lb = var.lower();
+    double ub = var.upper();
     if (lb == -COEK_INFINITY) {
         if (ub == COEK_INFINITY) {
             ostr.print("3\n");

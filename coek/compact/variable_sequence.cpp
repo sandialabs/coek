@@ -28,9 +28,9 @@ public:
         : expression_template(expr), context(context_)
         {}
     
-    VariableSequenceRepn(const SequenceContext& context_, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer)
-        : expression_template(lb, ub, value, binary, integer), context(context_)
-        {}
+    VariableSequenceRepn(const SequenceContext& context_, const Expression& lb, const Expression& ub, const Expression& value, VariableTypes vtype)
+        : expression_template(), context(context_)
+        { expression_template.lower(lb).upper(ub).value(value).within(vtype); }
     
 };
 
@@ -68,14 +68,12 @@ public:
                 Context& curr = seq->context[i];
                 *it = curr.index_set.begin(curr.indices);
                 }
-            coek::Variable tmp;
-            tmp.initialize( 
-                    convert_expr_template( seq->expression_template.get_lb_expression().repn ),
-                    convert_expr_template( seq->expression_template.get_ub_expression().repn ),
-                    convert_expr_template( seq->expression_template.get_value_expression().repn ),
-                    seq->expression_template.is_binary(),
-                    seq->expression_template.is_integer(),
-                    seq->expression_template.get_fixed());
+            auto tmp = variable().
+                    lower(convert_expr_template( seq->expression_template.lower_expression().repn )).
+                    upper(convert_expr_template( seq->expression_template.upper_expression().repn )).
+                    value(convert_expr_template( seq->expression_template.value_expression().repn )).
+                    within(seq->expression_template.within()).
+                    fixed(seq->expression_template.fixed());
             converted_expr = tmp;
             }
         ncontexts = context_iter.size();
@@ -98,14 +96,12 @@ public:
         if (i_ == ncontexts)
             done = true;
         else {
-            coek::Variable tmp;
-            tmp.initialize( 
-                    convert_expr_template( seq->expression_template.get_lb_expression().repn ),
-                    convert_expr_template( seq->expression_template.get_ub_expression().repn ),
-                    convert_expr_template( seq->expression_template.get_value_expression().repn ),
-                    seq->expression_template.is_binary(),
-                    seq->expression_template.is_integer(),
-                    seq->expression_template.get_fixed());
+            auto tmp = variable().
+                    lower(convert_expr_template( seq->expression_template.lower_expression().repn )).
+                    upper(convert_expr_template( seq->expression_template.upper_expression().repn )).
+                    value(convert_expr_template( seq->expression_template.value_expression().repn )).
+                    within(seq->expression_template.within()).
+                    fixed(seq->expression_template.fixed());
             converted_expr = tmp;
             }
         }
@@ -151,9 +147,7 @@ VariableSeqIterator::VariableSeqIterator()
 {}
 
 VariableSeqIterator::VariableSeqIterator(VariableSequenceRepn* _seq, bool end)
-{
-repn = std::make_shared<VariableSeqIteratorRepn>(_seq, end);
-}
+{ repn = std::make_shared<VariableSeqIteratorRepn>(_seq, end); }
 
 VariableSeqIterator& VariableSeqIterator::operator++()
 {
@@ -162,34 +156,22 @@ return *this;
 }
 
 bool VariableSeqIterator::operator==(const VariableSeqIterator& other) const
-{
-return repn->operator==(other.repn.get());
-}
+{ return repn->operator==(other.repn.get()); }
 
 bool VariableSeqIterator::operator!=(const VariableSeqIterator& other) const
-{
-return repn->operator!=(other.repn.get());
-}
+{ return repn->operator!=(other.repn.get()); }
 
 VariableSeqIterator::reference VariableSeqIterator::operator*()
-{
-return repn->operator*();
-}
+{ return repn->operator*(); }
 
 VariableSeqIterator::const_reference VariableSeqIterator::operator*() const
-{
-return repn->operator*();
-}
+{ return repn->operator*(); }
 
 VariableSeqIterator::pointer VariableSeqIterator::operator->()
-{
-return repn->operator->();
-}
+{ return repn->operator->(); }
 
 VariableSeqIterator::const_pointer VariableSeqIterator::operator->() const
-{
-return repn->operator->();
-}
+{ return repn->operator->(); }
 
 
 //
@@ -202,8 +184,8 @@ VariableSequence::VariableSequence(const std::shared_ptr<VariableSequenceRepn>& 
 VariableSequence::VariableSequence(const SequenceContext& context_, const Variable& var)
 { repn = std::make_shared<VariableSequenceRepn>(context_,var); }
 
-VariableSequence::VariableSequence(const SequenceContext& context_, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer)
-{ repn = std::make_shared<VariableSequenceRepn>(context_,lb,ub,value,binary,integer); }
+VariableSequence::VariableSequence(const SequenceContext& context_, const Expression& lb, const Expression& ub, const Expression& value, VariableTypes vtype)
+{ repn = std::make_shared<VariableSequenceRepn>(context_,lb,ub,value,vtype); }
 
 VariableSeqIterator VariableSequence::begin()
 { return VariableSeqIterator(repn.get(), false); }

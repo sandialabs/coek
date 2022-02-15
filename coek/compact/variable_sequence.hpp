@@ -5,6 +5,7 @@
 namespace coek {
 
 class Variable;
+enum VariableTypes : unsigned int;
 class VariableSequenceRepn;
 class VariableSeqIteratorRepn;
 class SequenceContext;
@@ -48,7 +49,7 @@ public:
 
     VariableSequence(const std::shared_ptr<VariableSequenceRepn>& _repn);
     VariableSequence(const SequenceContext& context, const Variable& var);
-    VariableSequence(const SequenceContext& context, const Expression& lb, const Expression& ub, const Expression& value, bool binary, bool integer);
+    VariableSequence(const SequenceContext& context, const Expression& lb, const Expression& ub, const Expression& value, VariableTypes vtypes);
 
     VariableSeqIterator begin();
     VariableSeqIterator end();
