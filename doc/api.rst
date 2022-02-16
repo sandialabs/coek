@@ -50,7 +50,7 @@ processing of models.  Thus, the following are equivalent:
 
 ... code::
 
-    auto x = coek::Variable("x");
+    auto x = coek::variable("x");
     model.add_variable(x);
 
 and
@@ -59,16 +59,9 @@ and
 
     auto x = model.add_variable("x");
 
-We probably need different class types for singleton and
-indexed variables.  Currently, COEK uses `coek::Variable` and
-`coek::IndexedVariable`.  Thus, it's also convenient to have a function
-that creates variables:
-
-... code::
-
-    auto x = coek::variable("x");
-
-It's reasonable to require that the `coek::variable` function and `model.add_variable` method have the same API.
+The `coek::variable` function and `model.add_variable` method have the same API.  They
+construct a variable object and return it.  This enables functional chaining to configure
+the variable, and it enables the user to directly reference the variable object.
 
 ... question::
 
@@ -96,7 +89,7 @@ A minimal variable specification includes a name and/or indexing information.  T
 
 
     // A tensor of continuous variables:  R^{2 x 3 x 5}
-    std::tuple<size_t> dim = {2,3,5};
+    std::vector<size_t> dim = {2,3,5};
     auto x = model.add_variable(dim);
     auto y = model.add_variable("y", dim);
 
@@ -106,6 +99,13 @@ A minimal variable specification includes a name and/or indexing information.  T
     auto x = model.add_variable(A*B);
     auto y = model.add_variable("y", A*B);
 
+... note::
+
+    It's possible that the following syntax works in C++17:
+
+    auto y = model.add_variable({2,3,5});
+
+    However, in C++11 the list initializer can be used to construct a std::string name. 
 
 Beyond A Minimal Specification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -117,53 +117,33 @@ Variable declarations require the specification of various information:
 * Initial values
 * Variable type (continuous, binary, integer, etc)
 
-Additionally, variable store information about whether they are fixed, and it may make sense to declare variables as fixed.
+Additionally, variable store information about whether they are fixed,
+and it may make sense to declare variables as fixed.
 
-Currently, COEK specifies these arguments in order.  For example, an integer variable can be declared as:
-
-... code::
-
-    // lower=2
-    // upper=10
-    // initial=3
-    // binary=false
-    // integer=true
-    auto x = model.add_variable("x", 2, 10, 3, false, true);
-
-This is a nice, compact syntax.  However, it does not explicitly indicate
-what the arguments mean.  Also, it can only specify continuous, binary
-and integer variables.  The following syntax, using function chaining, is more explicit:
-
-... code::
-
-    auto x = model.add_variable().
-                    set_name("x").
-                    set_lower(2).
-                    set_upper(10).
-                    set_initial(3).
-                    set_integer(true);
-
-However, the use of `set_*` methods seems verbose, so the following seems preferable:
+The following syntax, using function chaining, provides an explicit
+annotation of a variable's information:
 
 ... code::
 
     auto x = model.add_variable("x").
-                    name("x").
-                    lower(2).
-                    upper(10).
-                    initial(3).
-                    integer(true);
-
-Additionally, a more general specification of variable feasible sets can be defined with an enumeration type:
-
-... code::
-
-    auto x = model.add_variable().
-                    name("x").
                     lower(2).
                     upper(10).
                     initial(3).
                     within(coek::Integers);
+
+... WEH::
+
+    This function chaining requires methods where the set- and get-semantics are
+    dependent on the method used.  For example:
+
+        x.value(10);
+
+    sets the value of x, while
+
+        auto val = x.value();
+
+    returns the value of x.  The use of `set_*` methods seems desirable, but that
+    leads to a verbose syntax that clutters the specification of variable properties.
 
 ... question::
 
@@ -291,22 +271,30 @@ Variables declared over sets can be indexed using the `()` operator in a natural
     size_t n=100;
     auto x = model.add_variable(n);
     // Value of the 4th element of the array
-    auto v = x[3].value();
+    auto v = x(3).value();
 
     // A tensor of continuous variables:  R^{2 x 3 x 5}
-    std::tuple<size_t> dim = {2,3,5};
+    std::vector<size_t> dim = {2,3,5};
     auto x = model.add_variable(dim);
     // Value of the variable indexed by (0,2,1)
-    auto v = x[0,2,1].value();
+    auto v = x(0,2,1).value();
 
     // A tensor of continuous variables indexed by COEK set objects
     auto A = coek::RangeSet(1,10);
     auto B = coek::RangeSet(11,20);
     auto x = model.add_variable(A*B);
     // Value of the variable indexed by (1,11)
-    auto v = x[1,11].value();
+    auto v = x(1,11).value();
 
-Note that variables can be indexed by expressions, but the evaluation of those expressions is deferred.  For example:
+.. note::
+
+    For historical reasons, it would be preferable to use the [] operator.
+    However, this operator cannot be overloaded with C++ while allowing multiple
+    subscripts.  This will change with C++23, but for now we restrict COEK
+    to the use of operator() logic.  
+
+Note that variables can be indexed by expressions, but the evaluation
+of those expressions is deferred.  For example:
 
 .. code::
 
@@ -318,26 +306,27 @@ Note that variables can be indexed by expressions, but the evaluation of those e
     auto x = model.add_variable(n);
 
     // Create a reference to the variable
-    auto x0 = x[3+p];
+    auto x0 = x(3+p);
     // Evaluate the reference to the variable, resolving the parameter value
     auto v = x0.value();
 
     // Create a reference to the variable
-    auto x0 = x[3+i];
+    auto x0 = x(3+i);
     // Evaluate the reference to the variable, resolving the parameter value
     auto v = x0.value();
 
 .. note::
 
-    COEK confirms that expressions used to index variables do not contain a variable unless it is fixed.  Thus,
-    the following creates a runtime error:
+    COEK confirms that expressions used to index variables do not
+    contain a variable unless it is fixed.  Thus, the following creates
+    a runtime error:
 
     auto x = variable(100);
     auto y = variable();
-    auto v = x[y+3].value();
+    auto v = x(y+3).value();
 
-    Similarly, if a set index used in an indexing expression is not being processed by a context, then COEK will create
-    an error at runtime.
+    Similarly, if a set index used in an indexing expression is not being
+    processed by a context, then COEK will create an error at runtime.
 
 
 Parameters
@@ -359,7 +348,7 @@ Mutable parameters can be declared in a similar manner to variables:
 
 
     // A tensor of parameters:  R^{2 x 3 x 5}
-    std::tuple<size_t> dim = {2,3,5};
+    std::vector<size_t> dim = {2,3,5};
     auto x = parameter(dim);
     auto q = parameter("q", dim);
 
@@ -385,7 +374,7 @@ function chaining:
 
 
     // A tensor of parameters:  R^{2 x 3 x 5}, initialized to 1.0
-    std::tuple<size_t> dim = {2,3,5};
+    std::vector<size_t> dim = {2,3,5};
     auto q = parameter("q", dim).value(1.0);
 
     // A tensor of parameters indexed by COEK set objects, initialized to 1.0
@@ -509,7 +498,7 @@ Although not often used, we can also support various ways to declare groups of o
     auto b = model.add_objective("y", n);
 
     // A tensor of objectives:  R^{2 x 3 x 5}
-    std::tuple<size_t> dim = {2,3,5};
+    std::vector<size_t> dim = {2,3,5};
     auto a = model.add_objective(dim);
     auto b = model.add_objective("b", dim);
 
@@ -572,7 +561,7 @@ Further, we can declare groups of constraints:
     auto b = model.add_constraint("b", n);
 
     // A tensor of constraints:  R^{2 x 3 x 5}
-    std::tuple<size_t> dim = {2,3,5};
+    std::vector<size_t> dim = {2,3,5};
     auto a = model.add_constraint(dim);
     auto b = model.add_constraint("b", dim);
 
