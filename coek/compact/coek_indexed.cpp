@@ -308,6 +308,34 @@ repn->call_setup = true;
 return *this;
 }
 
+ConcreteIndexedVariable& ConcreteIndexedVariable::bounds(double lb, double ub)
+{
+repn->variable_template.bounds(lb,ub);
+repn->call_setup = true;
+return *this;
+}
+
+ConcreteIndexedVariable& ConcreteIndexedVariable::bounds(const Expression& lb, double ub)
+{
+repn->variable_template.bounds(lb,ub);
+repn->call_setup = true;
+return *this;
+}
+
+ConcreteIndexedVariable& ConcreteIndexedVariable::bounds(double lb, const Expression& ub)
+{
+repn->variable_template.bounds(lb,ub);
+repn->call_setup = true;
+return *this;
+}
+
+ConcreteIndexedVariable& ConcreteIndexedVariable::bounds(const Expression& lb, const Expression& ub)
+{
+repn->variable_template.bounds(lb,ub);
+repn->call_setup = true;
+return *this;
+}
+
 ConcreteIndexedVariable& ConcreteIndexedVariable::name(const std::string& name)
 {
 repn->name = name;

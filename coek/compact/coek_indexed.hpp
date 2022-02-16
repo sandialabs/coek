@@ -185,6 +185,15 @@ public:
     /** Set the upper bound. \returns the variable object. */
     ConcreteIndexedVariable& upper(const Expression& value);
 
+    /** Set the upper and lower bounds. \returns the variable object. */
+    ConcreteIndexedVariable& bounds(double lb, double ub);
+    /** Set the upper and lower bounds. \returns the variable object. */
+    ConcreteIndexedVariable& bounds(const Expression& lb, double ub);
+    /** Set the upper and lower bounds. \returns the variable object. */
+    ConcreteIndexedVariable& bounds(double lb, const Expression& ub);
+    /** Set the upper and lower bounds. \returns the variable object. */
+    ConcreteIndexedVariable& bounds(const Expression& lb, const Expression& ub);
+
     /** Set the name of the variable. \returns the variable object */
     ConcreteIndexedVariable& name(const std::string& name);
 

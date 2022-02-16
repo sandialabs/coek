@@ -52,11 +52,11 @@ int main(int argc, char** argv) {
   vector<vector<coek::Variable> > y(m+1, vector<coek::Variable>(n+1));
   for (size_t i = 0; i <= m; i++)
     for (size_t j = 0; j <= n; j++)
-      y[i][j] = model.add_variable().lower(0).upper(1).value(0);
+      y[i][j] = model.add_variable().bounds(0,1).value(0);
   
   vector<coek::Variable> u(m+1);
   for (size_t i = 1; i <= m; i++) 
-    u[i] = model.add_variable().lower(-1).upper(1).value(0);
+    u[i] = model.add_variable().bounds(-1,1).value(0);
 
 
   // OBJECTIVE  
