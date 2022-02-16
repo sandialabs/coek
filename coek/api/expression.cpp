@@ -238,6 +238,35 @@ Expression Variable::upper_expression() const
 { return repn->ub; }
 
 
+Variable& Variable::bounds(double lb, double ub)
+{
+repn->set_lb(lb);
+repn->set_ub(ub);
+return *this;
+}
+
+Variable& Variable::bounds(const Expression& lb, double ub)
+{
+repn->set_lb(lb.repn);
+repn->set_ub(ub);
+return *this;
+}
+
+Variable& Variable::bounds(double lb, const Expression& ub)
+{
+repn->set_lb(lb);
+repn->set_ub(ub.repn);
+return *this;
+}
+
+Variable& Variable::bounds(const Expression& lb, const Expression& ub)
+{
+repn->set_lb(lb.repn);
+repn->set_ub(ub.repn);
+return *this;
+}
+
+
 Variable& Variable::fix(double value)
 {
 repn->set_value(value);

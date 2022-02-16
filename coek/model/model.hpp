@@ -106,24 +106,22 @@ public:
     std::set<std::string> objective_names() const;
 
     /**
-      * Create an objective and add it to the model.
+      * Create an objective in the model.
       *
       * \param expr   the objective expression
-      * \param _sense   A boolean that is \c true if the sense is minimize
       *
       * \returns the objective
       */
-    Objective add_objective(const Expression& expr, bool _sense=Model::minimize);
+    Objective add_objective(const Expression& expr);
     /**
-      * Create an objective and add it to the model.
+      * Create a named objective in the model.
       *
       * \param name   the objective name
       * \param expr   the objective expression
-      * \param sense   A boolean that is \c true if the sense is minimize
       *
       * \returns the objective
       */
-    Objective add_objective(const std::string& name, const Expression& expr, bool _sense=Model::minimize);
+    Objective add_objective(const std::string& name, const Expression& expr);
 
     /** \returns the objective with the specified id */
     Objective get_objective(size_t i=0);

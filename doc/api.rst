@@ -78,34 +78,20 @@ A minimal variable specification includes a name and/or indexing information.  T
 ... code::
 
     // A single continuous variable
-    auto x = model.add_variable();
     auto y = model.add_variable("y");
-
 
     // An array of continuous variables of length 'n'
     size_t n=100;
-    auto x = model.add_variable(n);
-    auto y = model.add_variable("y", n);
+    auto y = model.add_variable("y").array(n);
 
-
-    // A tensor of continuous variables:  R^{2 x 3 x 5}
-    std::vector<size_t> dim = {2,3,5};
-    auto x = model.add_variable(dim);
-    auto y = model.add_variable("y", dim);
+    // A multi-dimensional array of continuous variables:  R^{2 x 3 x 5}
+    auto y = model.add_variable("y").array({2,3,4});
 
     // A tensor of continuous variables indexed by COEK set objects
     auto A = coek::RangeSet(1,10);
     auto B = coek::RangeSet(11,20);
-    auto x = model.add_variable(A*B);
-    auto y = model.add_variable("y", A*B);
+    auto y = model.add_variable("y").index(A*B);
 
-... note::
-
-    It's possible that the following syntax works in C++17:
-
-    auto y = model.add_variable({2,3,5});
-
-    However, in C++11 the list initializer can be used to construct a std::string name. 
 
 Beyond A Minimal Specification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -198,10 +184,11 @@ For example:
 
     auto M = coek::RangeSet(1,m);
     auto N = coek::RangeSet(1,n);
-    auto x = model.add_variable("x", Forall(i,j).In(M*N)).
+    auto x = model.add_variable("x").
                 lower(0).
                 upper(i*j).
-                initial(i+j);
+                initial(i+j).
+                indicies(Forall(i,j).In(M*N));
 
 .. WEH::
 
@@ -232,10 +219,11 @@ For example:
 
     auto i = x_index.index("i");
     auto j = x_index.index("j");
-    auto x = model.add_variable("x", x_index).
+    auto x = model.add_variable("x").
                 lower(0).
                 upper(i*(j+p)).
-                initial(i+j);
+                initial(i+j).
+                index(x_index);
 
     This seems less intuitively clear, IMHO.
 
@@ -250,14 +238,32 @@ parameters as well:
 
     auto M = coek::RangeSet(1,m);
     auto N = coek::RangeSet(1,n);
-    auto x = model.add_variable("x", Forall(i,j).In(M*N)).
+    auto x = model.add_variable("x").
                 lower(0).
                 upper(i*(j+p)).
-                initial(i+j);
+                initial(i+j).
+                index(Forall(i,j).In(M*N));
 
 Here, the value of the upper-bound depends on `p`, which may be changed
 after the variable is declared.  COEK uses the expression logic to appropriately
 account for that change to the model.
+
+Finally, note that in these examples the order of indices in the index set is implicitly 
+defined by the nesting of the calls to `Forall()`.  However, it may be necessary to 
+explicitly denote the order of indices.  For example:
+
+    auto i = set_index("i");
+    auto j = set_index("j");
+
+    auto M = coek::RangeSet(1,m);
+    std::vector<coek::ConcreteSet> N(m);
+    auto x = model.add_variable("x").
+                lower(0).
+                upper(i*j).
+                initial(i+j).
+                index( (j,i), Forall(i).In(M).Forall(j).In(N[i]) );
+
+
 
 
 Indexing Variables

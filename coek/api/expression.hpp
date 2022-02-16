@@ -6,6 +6,7 @@
 #include <vector>
 #include <set>
 #include <memory>
+#include <initializer_list>
 
 #include <coek/api/constants.hpp>
 
@@ -80,6 +81,10 @@ class Parameter;
 class IndexParameter;
 class Variable;
 class Expression;
+
+class ConcreteIndexedVariable;
+class ConcreteSet;
+class SequenceContext;
 
 //
 // numerical operators
@@ -261,6 +266,13 @@ public:
 
     Variable& operator=(const Variable& arg);
 
+    ConcreteIndexedVariable array(size_t n);
+    ConcreteIndexedVariable array(const std::vector<size_t>& shape);
+    ConcreteIndexedVariable array(const std::initializer_list<size_t>& shape);
+    ConcreteIndexedVariable index(const ConcreteSet& index_set);
+    ConcreteIndexedVariable index(const SequenceContext& index_context);
+    ConcreteIndexedVariable index(const std::vector<IndexParameter>& index_arg, const SequenceContext& index_context);
+
     /** Set the initial variable value. \returns the variable object. */
     Variable& value(double value);
     /** Set the initial variable value. \returns the variable object. */
@@ -287,6 +299,15 @@ public:
     double upper() const;
     /** \returns the expression defining the variable upper bound */
     Expression upper_expression() const;
+
+    /** Set the upper and lower bounds. \returns the variable object. */
+    Variable& bounds(double lb, double ub);
+    /** Set the upper and lower bounds. \returns the variable object. */
+    Variable& bounds(const Expression& lb, double ub);
+    /** Set the upper and lower bounds. \returns the variable object. */
+    Variable& bounds(double lb, const Expression& ub);
+    /** Set the upper and lower bounds. \returns the variable object. */
+    Variable& bounds(const Expression& lb, const Expression& ub);
 
     /** Set a flag indicating if the variable is fixed. \returns the variable object. */
     Variable& fixed(bool flag);

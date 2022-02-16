@@ -75,7 +75,7 @@ TEST_CASE( "cppad_add", "[smoke]" ) {
     REQUIRE( m.num_constraints() == 0 );
 
     auto o = m.get_objective(0);
-    REQUIRE( o.get_name() == "o" );
+    REQUIRE( o.name() == "o" );
 
     REQUIRE_THROWS(m.get_objective(1), "");
     }

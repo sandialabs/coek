@@ -26,9 +26,9 @@ SECTION("id") {
 SECTION("name") {
     auto v = model.add_variable("v");
     auto o = model.add_objective(2*v);
-    o.set_name("foo");
+    o.name("foo");
 
-    REQUIRE(o.get_name() == "foo");
+    REQUIRE(o.name() == "foo");
     }
 
 SECTION("body") {
@@ -36,21 +36,21 @@ SECTION("body") {
     auto o = model.add_objective(2*v);
 
     static std::list<std::string> baseline1 = {"[", "*", "2", "v", "]"};
-    REQUIRE( o.get_body().to_list() == baseline1 );
+    REQUIRE( o.expr().to_list() == baseline1 );
 
-    o.set_body( 3*v );
+    o.expr( 3*v );
     static std::list<std::string> baseline2 = {"[", "*", "3", "v", "]"};
-    REQUIRE( o.get_body().to_list() == baseline2 );
+    REQUIRE( o.expr().to_list() == baseline2 );
     }
 
 SECTION("sense") {
     auto v = model.add_variable("v");
     auto o = model.add_objective(2*v);
 
-    REQUIRE(o.get_sense() == model.minimize);
+    REQUIRE(o.sense() == model.minimize);
 
-    o.set_sense(model.maximize);
-    REQUIRE(o.get_sense() == model.maximize);
+    o.sense(model.maximize);
+    REQUIRE(o.sense() == model.maximize);
     }
 }
 
@@ -113,7 +113,7 @@ auto d = model.add_variable("d").lower(0).upper(1).value(4*q).within(coek::Boole
 
     WHEN( "error2" ) {
         model.add_objective("obj", 3*b + q );
-        REQUIRE( model.get_objective("obj").get_name() == "obj" );
+        REQUIRE( model.get_objective("obj").name() == "obj" );
         REQUIRE_THROWS_WITH(model.get_objective("OBJ"),"Unknown objective name OBJ");
         }
 
@@ -237,8 +237,8 @@ TEST_CASE( "compact_model", "[smoke]" ) {
         auto i = coek::set_index("i");
         coek::CompactModel Model;
         auto x = Model.add_variable("x");
-        Model.add_objective(i*x, Forall(i).In(I), coek::Model::maximize);
 #if 0
+        Model.add_objective(i*x).index( Forall(i).In(I) ).sense(coek::Model::maximize);
         TODO - Fix this.  
 
         auto model = Model.expand();
@@ -246,19 +246,19 @@ TEST_CASE( "compact_model", "[smoke]" ) {
         REQUIRE( model.num_objectives() == 4 );
         {
         static std::list<std::string> baseline = {"[", "*", "0.000", "x", "]"};
-        REQUIRE( model.get_objective(0).get_body().to_list() == baseline );
+        REQUIRE( model.get_objective(0).expr().to_list() == baseline );
         }
         {
         static std::list<std::string> baseline = {"[", "*", "1.000", "x", "]"};
-        REQUIRE( model.get_objective(1).get_body().to_list() == baseline );
+        REQUIRE( model.get_objective(1).expr().to_list() == baseline );
         }
         {
         static std::list<std::string> baseline = {"[", "*", "2.000", "x", "]"};
-        REQUIRE( model.get_objective(2).get_body().to_list() == baseline );
+        REQUIRE( model.get_objective(2).expr().to_list() == baseline );
         }
         {
         static std::list<std::string> baseline = {"[", "*", "3.000", "x", "]"};
-        REQUIRE( model.get_objective(3).get_body().to_list() == baseline );
+        REQUIRE( model.get_objective(3).expr().to_list() == baseline );
         }
 #endif
     }

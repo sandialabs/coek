@@ -1918,7 +1918,7 @@ std::unordered_set<coek::ParameterTerm*> params;
         auto o = m.add_objective(w*v + v*(2*w+1));
         v.fixed(true);
         w.fixed(true);
-        mutable_values(o.get_body().repn, fixed_vars, params);
+        mutable_values(o.expr().repn, fixed_vars, params);
 
         static std::unordered_set<coek::VariableTerm*> vbaseline { v.repn, w.repn };
         static std::unordered_set<coek::ParameterTerm*> pbaseline { };

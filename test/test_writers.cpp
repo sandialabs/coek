@@ -229,7 +229,7 @@ void small13(coek::Model& model)
 auto x = model.add_variable();
 x.value(0.5);
 
-model.add_objective( x, coek::Model::maximize );
+model.add_objective( x ).sense( coek::Model::maximize );
 model.add_constraint( pow(x,3) - x == 0 );
 model.add_constraint( 10*(pow(x,3) - x) == 0 );
 model.add_constraint( (pow(x,3) - x)/10 == 0 );
@@ -282,7 +282,7 @@ auto d = model.add_variable().upper(0);
 auto e = model.add_variable("e");
 auto q = coek::parameter("q").value(2);
     
-model.add_objective( 3*a + q , model.maximize);
+model.add_objective( 3*a + q ).sense( model.maximize);
 model.add_constraint( 3*b + q - a <= 0 );
 model.add_constraint( 3*b + b == 0 );
 model.add_constraint( 3*b*a + q + b*b + b*b == 0 );
@@ -689,7 +689,7 @@ SECTION("Model") {
     auto b = model.add_variable("b");
     auto q = coek::parameter("q");
 
-    model.add_objective( 3*a + q, model.maximize );
+    model.add_objective( 3*a + q ).sense( model.maximize );
     model.add_constraint( 3*b + q <= 0 );
     model.add_constraint( 3*b + q == 0 );
     model.add_constraint( coek::inequality(0, 3*b + q, 1) );

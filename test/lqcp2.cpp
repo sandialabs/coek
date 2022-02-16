@@ -36,8 +36,8 @@ int main(int argc, char** argv) {
 
   auto M = coek::RangeSet(0, m);
   auto N = coek::RangeSet(0, n);
-  auto y = coek::variable("y", M*N).lower(0).upper(1).value(0);
-  auto u = coek::variable("u", coek::RangeSet(1, m)).lower(-1).upper(1).value(0);
+  auto y = coek::variable("y").index(M*N).lower(0).upper(1).value(0);
+  auto u = coek::variable("u").index(coek::RangeSet(1, m)).lower(-1).upper(1).value(0);
 
   model.add_variable(y);
   model.add_variable(u);

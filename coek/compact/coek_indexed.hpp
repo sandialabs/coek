@@ -268,6 +268,7 @@ public:
 //
 // These need to be consolidated.
 //
+/*
 AbstractIndexedVariable variable(const std::string& name, const AbstractSet& arg);
 
 ConcreteIndexedVariable variable(const ConcreteSet& arg);
@@ -278,5 +279,6 @@ ConcreteIndexedVariable variable(const std::string& name, size_t n);
 
 ConcreteIndexedVariable variable(const std::vector<size_t>& dim);
 ConcreteIndexedVariable variable(const std::string& name, const std::vector<size_t>& n);
+*/
 
 }

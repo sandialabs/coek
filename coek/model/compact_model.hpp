@@ -132,42 +132,19 @@ public:
       * Create an objective and add it to the model.
       *
       * \param expr   the objective expression
-      * \param _sense   A boolean that is \c true if the sense is minimize
       *
       * \returns the objective
       */
-    Objective add_objective(const Expression& expr, bool _sense=Model::minimize);
+    Objective add_objective(const Expression& expr);
     /**
-      * Create an objective and add it to the model.
+      * Create a named objective and add it to the model.
       *
       * \param name   the objective name
       * \param expr   the objective expression
-      * \param _sense   A boolean that is \c true if the sense is minimize
       *
       * \returns the objective
       */
-    Objective add_objective(const std::string& name, const Expression& expr, bool _sense=Model::minimize);
-    /**
-      * Create and add a sequence of objectives to the model.
-      *
-      * \param context   a sequence of indices that are used to index the objectives
-      * \param expr   the objective expression
-      * \param _sense   A boolean that is \c true if the sense is minimize
-      *
-      * \returns a map to the objectives
-      */
-    ObjectiveMap add_objective(const Expression& expr, const SequenceContext& context, bool _sense=Model::minimize);
-    /**
-      * Create and add a sequence of objectives to the model.
-      *
-      * \param name   the objective name
-      * \param context   a sequence of indices that are used to index the objectives
-      * \param expr   the objective expression
-      * \param _sense   A boolean that is \c true if the sense is minimize
-      *
-      * \returns a map to the objectives
-      */
-    ObjectiveMap add_objective(const std::string& name, const Expression& expr, const SequenceContext& context, bool _sense=Model::minimize);
+    Objective add_objective(const std::string& name, const Expression& expr);
 
     /**
       * Add a constraint to the model.

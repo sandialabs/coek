@@ -72,36 +72,18 @@ for (auto it=vars.begin(); it != end; ++it) {
     }
 }
 
-Objective CompactModel::add_objective(const Expression& expr, bool _sense)
+Objective CompactModel::add_objective(const Expression& expr)
 {
-Objective obj(expr, _sense);
+auto obj = objective(expr);
 repn->objectives.push_back( obj );
 return obj;
 }
 
-Objective CompactModel::add_objective(const std::string& name, const Expression& expr, bool _sense)
+Objective CompactModel::add_objective(const std::string& name, const Expression& expr)
 {
-Objective obj(name, expr, _sense);
+auto obj = objective(name, expr);
 repn->objectives.push_back( obj );
 return obj;
-}
-
-ObjectiveMap CompactModel::add_objective(const Expression& expr, const SequenceContext& context, bool _sense)
-{
-ObjectiveSequence seq(context, expr, _sense);
-repn->objectives.push_back( seq );
-
-ObjectiveMap tmp;
-return tmp;
-}
-
-ObjectiveMap CompactModel::add_objective(const std::string& /*name*/, const Expression& expr, const SequenceContext& context, bool _sense)
-{
-ObjectiveSequence seq(context, expr, _sense);
-repn->objectives.push_back( seq );
-
-ObjectiveMap tmp;
-return tmp;
 }
 
 Constraint CompactModel::add_constraint(const Constraint& expr)
@@ -160,8 +142,9 @@ for (auto it=repn->variables.begin(); it != repn->variables.end(); ++it) {
 for (auto it=repn->objectives.begin(); it != repn->objectives.end(); ++it) {
     auto& val = *it;
     if (auto eval = std::get_if<Objective>(&val)) {
-        Expression e = eval->get_body().expand();
-        model.add_objective(e, eval->get_sense());
+        Expression e = eval->expr().expand();
+        model.add_objective(e).
+                    sense(eval->sense());
         }
     else {
         auto& seq = std::get<ObjectiveSequence>(val);

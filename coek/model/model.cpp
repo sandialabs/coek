@@ -132,16 +132,16 @@ for (auto it=vars.begin(); it != end; ++it) {
 }
 #endif
 
-Objective Model::add_objective(const Expression& expr, bool _sense)
+Objective Model::add_objective(const Expression& expr)
 {
-Objective tmp(expr.repn, _sense);
+auto tmp = objective(expr);
 repn->objectives.push_back(tmp);
 return repn->objectives.back();
 }
 
-Objective Model::add_objective(const std::string& name, const Expression& expr, bool _sense)
+Objective Model::add_objective(const std::string& name, const Expression& expr)
 {
-Objective tmp(name, expr.repn, _sense);
+auto tmp = objective(name, expr);
 repn->objectives.push_back(tmp);
 if (name != "")
     repn->objectives_by_name.emplace(name, tmp);

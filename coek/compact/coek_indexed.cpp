@@ -384,6 +384,7 @@ Expression AbstractIndexedVariable::index(const std::vector<refarg_types>& args)
 // Other
 //
 
+/*
 AbstractIndexedVariable variable(const std::string& name, const AbstractSet& arg)
 { return AbstractIndexedVariable(arg, name); }
 
@@ -421,6 +422,73 @@ if (dim.size() == 1) {
 for (size_t i=1; i<dim.size(); i++)
     arg *= coek::RangeSet(0, dim[i]-1);
 return ConcreteIndexedVariable(arg);
+}
+*/
+
+ConcreteIndexedVariable Variable::array(size_t n)
+{
+auto arg = coek::RangeSet(0, n-1);
+ConcreteIndexedVariable var(arg);
+var.name( this->name() );
+var.repn->variable_template = *this;
+return var;
+}
+
+ConcreteIndexedVariable Variable::array(const std::vector<size_t>& shape)
+{
+assert(shape.size() > 0);
+auto arg = coek::RangeSet(0, shape[0]-1);
+if (shape.size() > 1) {
+    for (size_t i=1; i<shape.size(); i++)
+        arg *= coek::RangeSet(0, shape[i]-1);
+    }
+ConcreteIndexedVariable var(arg);
+var.name( this->name() );
+var.repn->variable_template = *this;
+return var;
+}
+
+ConcreteIndexedVariable Variable::array(const std::initializer_list<size_t>& shape)
+{
+assert(shape.size() > 0);
+auto it = shape.begin();
+auto arg = coek::RangeSet(0, *it-1);
+if (shape.size() > 1) {
+    for (; it != shape.end(); ++it)
+        arg *= coek::RangeSet(0, *it-1);
+    }
+ConcreteIndexedVariable var(arg);
+var.name( this->name() );
+var.repn->variable_template = *this;
+return var;
+}
+
+ConcreteIndexedVariable Variable::index(const ConcreteSet& index_set)
+{
+ConcreteIndexedVariable var(index_set);
+var.name( this->name() );
+var.repn->variable_template = *this;
+return var;
+}
+
+ConcreteIndexedVariable Variable::index(const SequenceContext& index_context)
+{
+auto dummy = coek::RangeSet(0, 10-1);
+// TODO - Add logic here to use the sequence context
+ConcreteIndexedVariable var(dummy);
+var.name( this->name() );
+var.repn->variable_template = *this;
+return var;
+}
+
+ConcreteIndexedVariable Variable::index(const std::vector<IndexParameter>& index_arg, const SequenceContext& index_context)
+{
+auto dummy = coek::RangeSet(0, 10-1);
+// TODO - Add logic here to use the sequence context
+ConcreteIndexedVariable var(dummy);
+var.name( this->name() );
+var.repn->variable_template = *this;
+return var;
 }
 
 }

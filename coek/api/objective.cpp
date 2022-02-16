@@ -9,25 +9,15 @@ namespace coek {
 
 
 Objective::Objective()
-    : repn(DUMMYOBJECTIVE)
-{ OWN_POINTER(repn); }
+{
+Expression e(0);
+repn = CREATE_POINTER(ObjectiveTerm, e.repn, true);
+OWN_POINTER(repn);
+}
 
 Objective::Objective(const ObjectiveRepn& _repn)
     : repn(_repn)
 { OWN_POINTER(repn); }
-
-Objective::Objective(const Expression& arg, bool sense)
-{
-repn = CREATE_POINTER(ObjectiveTerm, arg.repn, sense);
-OWN_POINTER(repn);
-}
-
-Objective::Objective(const std::string& name, const Expression& arg, bool sense)
-{
-repn = CREATE_POINTER(ObjectiveTerm, arg.repn, sense);
-OWN_POINTER(repn);
-repn->name = name;
-}
 
 Objective::Objective(const Objective& expr)
 {
@@ -49,29 +39,30 @@ return *this;
 unsigned int Objective::id() const
 { return repn->index; }
 
-double Objective::get_value() const
+double Objective::value() const
 { return repn->eval(); }
 
-void Objective::set_body(const Expression& body)
+Objective& Objective::expr(const Expression& body)
 {
 DISOWN_POINTER(repn->body);
 OWN_POINTER(body.repn);
 repn->body = body.repn;
+return *this;
 }
 
-Expression Objective::get_body() const
+Expression Objective::expr() const
 { return repn->body; }
 
-void Objective::set_sense(bool sense)
-{ repn->sense = sense; }
+Objective& Objective::sense(bool sense)
+{ repn->sense = sense; return *this; }
 
-bool Objective::get_sense() const
+bool Objective::sense() const
 { return repn->sense; }
 
-void Objective::set_name(const std::string& name)
-{ repn->name = name; }
+Objective& Objective::name(const std::string& name)
+{ repn->name = name; return *this; }
 
-std::string Objective::get_name() const
+std::string Objective::name() const
 { return repn->name; }
 
 std::list<std::string> Objective::to_list() const
@@ -85,6 +76,27 @@ std::ostream& operator<<(std::ostream& ostr, const Objective& arg)
 {
 write_expr(arg.repn, ostr);
 return ostr;
+}
+
+Objective objective()
+{ return Objective(); }
+
+Objective objective(const std::string& name)
+{
+Objective tmp;
+return tmp.name(name);
+}
+
+Objective objective(const Expression& expr)
+{
+Objective tmp;
+return tmp.expr(expr);
+}
+
+Objective objective(const std::string& name, const Expression& expr)
+{
+Objective tmp;
+return tmp.name(name).expr(expr);
 }
 
 }

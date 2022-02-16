@@ -27,11 +27,11 @@ public:
 
     ObjectiveSequenceRepn(const SequenceContext& context_, const Objective& expr)
         : expression_template(expr), context(context_)
-        {}
+        { }
     
     ObjectiveSequenceRepn(const SequenceContext& context_, const Expression& expr, bool sense)
-        : expression_template(expr, sense), context(context_)
-        {}
+        : expression_template(), context(context_)
+        { expression_template. expr(expr). sense(sense); }
     
 };
 
@@ -70,8 +70,9 @@ public:
                 Context& curr = seq->context[i];
                 *it = curr.index_set.begin(curr.indices);
                 }
-            Objective tmp( convert_expr_template( seq->expression_template.get_body().repn ),
-                           seq->expression_template.get_sense() );
+            auto tmp = objective().
+                        expr( convert_expr_template( seq->expression_template.expr().repn )).
+                        sense( seq->expression_template.sense() );
             converted_expr = tmp;
             }
         ncontexts = context_iter.size();
@@ -94,8 +95,9 @@ public:
         if (i_ == ncontexts)
             done = true;
         else {
-            Objective tmp( convert_expr_template( seq->expression_template.get_body().repn ),
-                           seq->expression_template.get_sense() );
+            auto tmp = objective().
+                        expr( convert_expr_template( seq->expression_template.expr().repn )).
+                        sense( seq->expression_template.sense() );
             converted_expr = tmp;
             }
         }

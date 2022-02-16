@@ -267,7 +267,9 @@ CALI_CXX_MARK_FUNCTION;
 int nobj=0;
 for (auto& val: model.repn->objectives) {
   if (auto eval = std::get_if<Objective>(&val)) {
-      Objective obj(eval->get_body().expand(), eval->get_sense());
+      auto obj = objective().
+                    expr(eval->expr().expand()).
+                    sense(eval->sense());
       print_objective(ostr, obj);
       ++nobj;
       }
@@ -436,7 +438,7 @@ void LPWriter::print_header(std::ostream& ostr)
 
 void LPWriter::print_objective(std::ostream& ostr, const Objective& obj)
 {
-if (obj.get_sense())
+if (obj.sense())
     ostr << "\nminimize\n\n";
 else
     ostr << "\nmaximize\n\n";
@@ -548,7 +550,7 @@ void LPWriter::print_header(fmt::ostream& ostr)
 
 void LPWriter::print_objective(fmt::ostream& ostr, const Objective& obj)
 {
-if (obj.get_sense())
+if (obj.sense())
     ostr.print("\nminimize\n\n");
 else
     ostr.print("\nmaximize\n\n");

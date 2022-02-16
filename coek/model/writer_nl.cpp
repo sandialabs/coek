@@ -929,7 +929,7 @@ try {
     //
     ctr=0;
     for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ++ctr) {
-        bool sense = model.repn->objectives[ctr].get_sense();
+        bool sense = model.repn->objectives[ctr].sense();
         if (sense == Model::minimize)
             ostr << "O" << ctr << " 0\n";
         else
@@ -1127,7 +1127,7 @@ CALI_MARK_BEGIN("O");
 {
 size_t ctr=0;
 for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ++ctr) {
-    bool sense = model.repn->objectives[ctr].get_sense();
+    bool sense = model.repn->objectives[ctr].sense();
     if (sense == Model::minimize)
         ostr.print("O{} 0\n", ctr);
     else

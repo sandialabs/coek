@@ -454,9 +454,10 @@ if (mdoc.HasMember("obj")) {
             }
 
         if (min)
-            model.add_objective( label, create_expression(expr, jpof_vmap, jpof_pmap) );
+            model.add_objective(label, create_expression(expr, jpof_vmap, jpof_pmap) );
         else
-            model.add_objective( label, create_expression(expr, jpof_vmap, jpof_pmap), Model::maximize );
+            model.add_objective(label, create_expression(expr, jpof_vmap, jpof_pmap) ).
+                        sense( Model::maximize );
 
         ctr++;
         }

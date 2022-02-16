@@ -78,7 +78,7 @@ TEST_CASE( "jpof_reader_string", "[smoke]" ) {
 
     auto obj = model.get_objective();
     static std::list<std::string> obj_expr = {"[", "pow", "x", "2.000", "]"};
-    REQUIRE( obj.get_body().to_list() == obj_expr );
+    REQUIRE( obj.expr().to_list() == obj_expr );
 
     auto con = model.get_constraint(0);
     static std::list<std::string> con_expr = {"[", "==", "[", "pow", "y", "2.000", "]", "4.000", "]"};
@@ -110,7 +110,7 @@ void test_obj(coek::Model& model, unsigned int i, const std::list<std::string>& 
 {
 auto obj = model.get_objective(i);
 REQUIRE( obj.to_list() == baseline );
-REQUIRE( obj.get_name() == name );
+REQUIRE( obj.name() == name );
 }
 
 void test_con(coek::Model& model, unsigned int i, const std::list<std::string>& baseline, const std::string& name)
