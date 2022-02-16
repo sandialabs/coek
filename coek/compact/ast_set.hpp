@@ -254,12 +254,12 @@ public:
 
 template <typename ITTYPE>
 inline void set_index_value(IndexParameter& index, const ITTYPE& val)
-{ index.set_value(val); }
+{ index.value(val); }
 
 template <>
 inline void set_index_value(IndexParameter& index, const set_types& val)
 {
-index.set_value(val);
+index.value(val);
 #if 0
 if (auto ival = std::get_if<int>(&val))
     index.set_value(*ival);
@@ -463,7 +463,7 @@ public:
             throw std::runtime_error(std::string("Requested set index that is too large: i=") + std::to_string(i) + std::string(" size=") + std::to_string(data.size()));
         arg = data[i];
         if (index.repn)
-            index.set_value( data[i] );
+            index.value( data[i] );
         }
 };
 
@@ -711,7 +711,7 @@ public:
         : index(_index), start(_start), step(_step), count(_count)
         {
         _value = start;
-        index.set_value(_value);
+        index.value(_value);
         }
 
     RangeSetIteratorRepn(TYPE _start, TYPE _step, size_t _count)
@@ -724,7 +724,7 @@ public:
         {
         _value += step;
         if (index.repn)
-            index.set_value( _value );
+            index.value( _value );
         count++;
         }
 
@@ -766,7 +766,7 @@ public:
         {
         _value = start;
         vec.resize(1);
-        index.set_value( _value );
+        index.value( _value );
         }
 
     RangeNDSetIteratorRepn(TYPE _start, TYPE _step, size_t _count)
@@ -780,7 +780,7 @@ public:
         {
         _value += step;
         if (index.repn)
-            index.set_value( _value );
+            index.value( _value );
         count++;
         }
 
@@ -899,7 +899,7 @@ public:
         TYPE ans = start+step*static_cast<TYPE>(i);
         arg = ans;
         if (index.repn)
-            index.set_value( ans );
+            index.value( ans );
         }
 };
 

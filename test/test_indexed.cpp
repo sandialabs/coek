@@ -8,7 +8,7 @@
     WHEN( #FN " 1" ) {\
           {\
           coek::Model m;\
-          coek::Variable v = m.add_variable("v").lower(0).upper(1).value(0);\
+          auto v = m.add_variable("v").lower(0).upper(1).value(0);\
           coek::Expression e = FN(v+1);\
           coek::MutableNLPExpr repn;\
           static std::list<std::string> constval = {"0.000"};\
@@ -21,7 +21,7 @@
     WHEN( #FN " 2" ) {\
           {\
           coek::Model m;\
-          coek::Variable v = m.add_variable("v").lower(0).upper(1).value(0);\
+          auto v = m.add_variable("v").lower(0).upper(1).value(0);\
           v.fixed(true);\
           coek::Expression e = FN(v+1);\
           auto E = e.expand();\
@@ -38,7 +38,7 @@
     WHEN( #FN " 1" ) {\
           {\
           coek::Model m;\
-          coek::Variable v = m.add_variable("v").lower(0).upper(1).value(0);\
+          auto v = m.add_variable("v").lower(0).upper(1).value(0);\
           coek::Expression e = FN(v+1, v);\
           coek::MutableNLPExpr repn;\
           static std::list<std::string> constval = {"0.000"};\
@@ -51,7 +51,7 @@
     WHEN( #FN " 2" ) {\
           {\
           coek::Model m;\
-          coek::Variable v = m.add_variable("v").lower(0).upper(1).value(0);\
+          auto v = m.add_variable("v").lower(0).upper(1).value(0);\
           v.fixed(true);\
           coek::Expression e = FN(v+1, v);\
           auto E = e.expand();\
@@ -67,7 +67,7 @@
 #define MV_INTRINSIC_TEST1(FN)\
     WHEN( #FN ) {\
           coek::Model m;\
-          coek::Variable v = m.add_variable("v").lower(0).upper(1).value(0);\
+          auto v = m.add_variable("v").lower(0).upper(1).value(0);\
           v.fixed(true);\
           coek::Expression e = FN(v+1);\
           mutable_values(e.repn, fixed_vars, params);\
@@ -80,7 +80,7 @@
 #define MV_INTRINSIC_TEST2(FN)\
     WHEN( #FN ) {\
           coek::Model m;\
-          coek::Variable v = m.add_variable("v").lower(0).upper(1).value(0);\
+          auto v = m.add_variable("v").lower(0).upper(1).value(0);\
           v.fixed(true);\
           coek::Expression e = FN(v+1, v);\
           mutable_values(e.repn, fixed_vars, params);\
@@ -117,8 +117,8 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
 
       WHEN( "index" ) {
         auto s = coek::SetOf( v );
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
 
         std::vector<int> vals(4);
         size_t ii=0;
@@ -130,8 +130,8 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
 
       WHEN( "index_error" ) {
         auto s = coek::SetOf( v );
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
         CHECK_THROWS( s.begin({i,j}) );
         }
   }
@@ -154,7 +154,7 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
         auto vars = coek::variable( 4 ).value(1);
         std::vector<int> vals(4);
 
-        coek::IndexParameter i("i");
+        auto i = coek::set_index("i");
         size_t ii=0;
         for (auto it=s.begin({i}); it != s.end(); ++it)
             i.get_value(vals[ii++]);
@@ -162,8 +162,8 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
         }
 
       WHEN( "index_error" ) {
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
         CHECK_THROWS( s.begin({i,j}) );
         }
   }
@@ -184,7 +184,7 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
       WHEN( "index" ) {
         auto vars = coek::variable( 4 ).value(1);
         for (size_t i=0; i<4; i++)
-            REQUIRE( vars(i).get_value() == 1 );
+            REQUIRE( vars(i).value() == 1 );
         }
     
   }
@@ -193,19 +193,22 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
       std::vector<int> v = {0,1,2,3};
 
       WHEN( "size" ) {
-        auto vars = coek::variable( {4} );
+        std::vector<size_t> dim {4};
+        auto vars = coek::variable( "v", dim );
         REQUIRE( vars.size() == 4 );
       }
 
       WHEN( "typeof" ) {
-        auto vars = coek::variable( {4} );
+        std::vector<size_t> dim {4};
+        auto vars = coek::variable( dim );
         REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
       }
 
       WHEN( "index" ) {
-        auto vars = coek::variable( {4} ).value(1);
+        std::vector<size_t> dim {4};
+        auto vars = coek::variable( dim ).value(1);
         for (size_t i=0; i<4; i++)
-            REQUIRE( vars(i).get_value() == 1 );
+            REQUIRE( vars(i).value() == 1 );
         }
   }
 
@@ -227,28 +230,28 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
 
       WHEN( "index" ) {
         auto s = coek::SetOf( v );
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
         CHECK_THROWS( s.begin({i,j}) );
         }
 
       WHEN( "index" ) {
         auto s = coek::SetOf( v );
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
 
         std::vector<std::string> vals(4);
         size_t ii=0;
         for (auto it=s.begin({i}); it != s.end(); ++it) {
-            i.get_value(vals[ii++]);
+            i.value(vals[ii++]);
             }
         REQUIRE( v == vals );
         }
 
       WHEN( "index_error" ) {
         auto s = coek::SetOf( v );
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
         CHECK_THROWS( s.begin({i,j}) );
         }
   }
@@ -267,19 +270,19 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
 
       WHEN( "index" ) {
         auto s = coek::SetOf( v );
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
         CHECK_THROWS( s.begin({i,j}) );
         }
 
       WHEN( "index1" ) {
-        coek::IndexParameter i("i");
+        auto i = coek::set_index("i");
         REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
         REQUIRE( typeid(vars(i)).name() == typeid(coek::Expression).name() );
       }
 
       WHEN( "index2" ) {
-        coek::Variable v;
+        auto v = coek::variable();
         coek::Expression f = v;
         auto e = vars(1);
         static std::list<std::string> baseline = {"vars(1)"};
@@ -289,14 +292,14 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
       }
 
       WHEN( "index3" ) {
-        coek::IndexParameter i("i");
+        auto i = coek::set_index("i");
         auto e = vars(i);
         static std::list<std::string> baseline = {"vars(i)"};
         REQUIRE( e.to_list() == baseline);
       }
 
       WHEN( "index4" ) {
-        coek::IndexParameter i("i");
+        auto i = coek::set_index("i");
         auto e = vars(i+1);
         static std::list<std::string> baseline = {"vars(i + 1)"};
         REQUIRE( e.to_list() == baseline);
@@ -335,8 +338,8 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
         auto V = coek::SetOf( v );
         auto W = coek::SetOf( w );
         auto S = V*W;
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
 
         std::set<int> ivals;
         std::set<int> jvals;
@@ -358,8 +361,8 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
         auto V = coek::SetOf( v );
         auto W = coek::SetOf( w );
         auto S = V*W;
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
         CHECK_THROWS( S.begin({i}) );
         }
   }
@@ -367,7 +370,7 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
   SECTION( "int_vector_dim" ) {
       WHEN( "size" ) {
         std::vector<size_t> dim {4,3};
-        auto vars = coek::variable( dim );
+        auto vars = coek::variable( "v", dim );
         REQUIRE( vars.size() == 12 );
       }
 
@@ -381,7 +384,7 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
         std::vector<size_t> dim {4,3};
         auto vars = coek::variable( dim ).value(1);
         for (size_t i=0; i<4; i++)
-            REQUIRE( vars(i).get_value() == 1 );
+            REQUIRE( vars(i).value() == 1 );
         }
   }
 
@@ -410,16 +413,16 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
         auto V = coek::SetOf( v );
         auto W = coek::SetOf( w );
         auto S = V*W;
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
 
         std::set<std::string> ivals;
         std::set<std::string> jvals;
         for (auto it=S.begin({i,j}); it != S.end(); ++it) {
             std::string tmp;
-            i.get_value(tmp);
+            i.value(tmp);
             ivals.insert(tmp);
-            j.get_value(tmp);
+            j.value(tmp);
             jvals.insert(tmp);
             }
 
@@ -433,8 +436,8 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
         auto V = coek::SetOf( v );
         auto W = coek::SetOf( w );
         auto S = V*W;
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
         CHECK_THROWS( S.begin({i}) );
         }
   }
@@ -457,15 +460,15 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
         auto V = coek::SetOf( v );
         auto W = coek::SetOf( w );
         auto S = V*W;
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
         CHECK_THROWS( S.begin({i}) );
         S.begin({i,j});
         }
 
       WHEN( "index1" ) {
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
         REQUIRE( typeid(vars(1,2)).name() == typeid(coek::Expression).name() );
         REQUIRE( typeid(vars(10,11)).name() == typeid(coek::Expression).name() );
         REQUIRE( typeid(vars(i,j)).name() == typeid(coek::Expression).name() );
@@ -480,16 +483,16 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
       }
 
       WHEN( "index3" ) {
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
         auto e = vars(i,j);
         static std::list<std::string> baseline = {"vars(i,j)"};
         REQUIRE( e.to_list() == baseline);
       }
 
       WHEN( "index4" ) {
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
         auto e = vars(i+1,j-1);
         static std::list<std::string> baseline = {"vars(i + 1,j + -1)"};
         REQUIRE( e.to_list() == baseline);
@@ -509,8 +512,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         auto s = coek::SetOf( v );
         auto y = coek::variable("y",s);
         auto x = coek::variable("x",s*s);
-        coek::IndexParameter i("i");
-        coek::IndexParameter j("j");
+        auto i = coek::set_index("i");
+        auto j = coek::set_index("j");
 
         WHEN( "y(i)" ) {
             auto tmp = coek::ExpressionSequence(coek::Forall(i).In(s), y(i));
@@ -614,7 +617,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         auto s = coek::SetOf( v );
         auto y = coek::variable("y",s);
         auto x = coek::variable("x",s*s);
-        coek::IndexParameter i("i");
+        auto i = coek::set_index("i");
 
         WHEN( "y(i) == 0" ) {
             auto tmp = coek::ConstraintSequence(coek::Forall(i).In(s), y(i) == 0);
@@ -714,7 +717,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
   SECTION( "param" ) {
     WHEN( "simple" ) {
         {
-        coek::Parameter p("p",3);
+        auto p = coek::parameter("p").value(3);
         coek::Expression e = p;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -729,7 +732,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     }
     WHEN( "nontrivial multiplier" ) {
         {
-        coek::Parameter p("p",3);
+        auto p = coek::parameter("p").value(3);
         coek::Expression e = p/2;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -748,7 +751,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "unfixed" ) {
         {
         coek::Model m;
-        coek::Variable v = m.add_variable("v").lower(0).upper(1).value(3);
+        auto v = m.add_variable("v").lower(0).upper(1).value(3);
         coek::Expression e = v;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -915,7 +918,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "lhs constant" ) {
         {
         coek::Model m;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(3);
         coek::Expression e = p*w;
         auto E = e.expand();
@@ -934,7 +937,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "rhs constant" ) {
         {
         coek::Model m;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(3);
         coek::Expression e = w*p;
         auto E = e.expand();
@@ -1052,7 +1055,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "lhs parameter - zero" ) {
         {
         coek::Model m;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = p/w;
         auto E = e.expand();
@@ -1070,7 +1073,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "rhs parameter - zero" ) {
         {
         coek::Model m;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = w/p;
         auto E = e.expand();
@@ -1107,7 +1110,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         {
         coek::Model m;
         coek::Expression p;
-        coek::Parameter w("w",1);
+        auto w = coek::parameter("w").value(1);
         coek::Expression e = p/(w+1);
         auto E = e.expand();
         coek::MutableNLPExpr repn;
@@ -1152,7 +1155,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "rhs nonzero" ) {
         {
         coek::Model m;
-        coek::Parameter p("p",2.0);
+        auto p = coek::parameter("p").value(2);
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = (w*w+w+1)/p;
         auto E = e.expand();
@@ -1173,7 +1176,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "inequality" ) {
         {
         coek::Model m;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(3);
         coek::Constraint e = p*w -3 <= 2;
         auto E = e.expand();
@@ -1192,7 +1195,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
     WHEN( "equality" ) {
         {
         coek::Model m;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(3);
         coek::Constraint e = p*w +1 == 2;
         auto E = e.expand();

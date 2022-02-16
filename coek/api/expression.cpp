@@ -24,15 +24,9 @@ repn = CREATE_POINTER(ParameterTerm, 0);
 OWN_POINTER(repn);
 }
 
-Parameter::Parameter(double value)
+Parameter::Parameter(const std::string& name)
 {
-repn = CREATE_POINTER(ParameterTerm, value);
-OWN_POINTER(repn);
-}
-
-Parameter::Parameter(const std::string& name, double value)
-{
-repn = CREATE_POINTER(ParameterTerm, value);
+repn = CREATE_POINTER(ParameterTerm, 0);
 OWN_POINTER(repn);
 repn->name = name;
 }
@@ -44,9 +38,7 @@ OWN_POINTER(repn);
 }
 
 Parameter::~Parameter()
-{
-DISOWN_POINTER(repn);
-}
+{ DISOWN_POINTER(repn); }
 
 Parameter& Parameter::operator=(const Parameter& expr)
 {
@@ -56,28 +48,32 @@ OWN_POINTER(repn);
 return *this;
 }
 
-void Parameter::set_value(double value)
+Parameter& Parameter::value(double value)
 {
-// Parameters are non-constant
-//if (repn->is_constant())
-//    throw std::runtime_error("Cannot set the value of a constant Parameter!");
 repn->value = value;
+return *this;
 }
 
-double Parameter::get_value() const
+double Parameter::value() const
 { return repn->value; }
 
-std::string Parameter::get_name() const
+std::string Parameter::name() const
 { return repn->name; }
 
-void Parameter::set_name(const std::string& name) 
-{ repn->name = name; }
+Parameter& Parameter::name(const std::string& name) 
+{ repn->name = name; return *this; }
 
 std::ostream& operator<<(std::ostream& ostr, const Parameter& arg)
 {
 write_expr(arg.repn, ostr);
 return ostr;
 }
+
+Parameter parameter()
+{ return Parameter(); }
+
+Parameter parameter(const std::string& name)
+{ return Parameter(name); }
 
 //
 // IndexParameter
@@ -113,14 +109,15 @@ OWN_POINTER(repn);
 return *this;
 }
 
-void IndexParameter::set_value(double value)
-{ repn->set_value(value); }
+IndexParameter& IndexParameter::value(double value)
+{ repn->set_value(value); return *this; }
 
-void IndexParameter::set_value(int value)
-{ repn->set_value(value); }
+IndexParameter& IndexParameter::value(int value)
+{ repn->set_value(value); return *this; }
 
-void IndexParameter::set_value(const std::string& value)
-{ repn->set_value(value); }
+IndexParameter& IndexParameter::value(const std::string& value)
+{ repn->set_value(value); return *this; }
+
 
 bool IndexParameter::get_value(double& value) const
 { return repn->get_value(value); }
@@ -131,14 +128,24 @@ bool IndexParameter::get_value(int& value) const
 bool IndexParameter::get_value(std::string& value) const
 { return repn->get_value(value); }
 
-std::string IndexParameter::get_name() const
+std::string IndexParameter::name() const
 { return repn->name; }
+
+IndexParameter& IndexParameter::name(const std::string& name)
+{ repn->name = name; return *this; }
 
 std::ostream& operator<<(std::ostream& ostr, const IndexParameter& arg)
 {
 write_expr(arg.repn, ostr);
 return ostr;
 }
+
+IndexParameter set_index()
+{ return IndexParameter(); }
+
+IndexParameter set_index(const std::string& name)
+{ return IndexParameter(name); }
+
 
 //
 // Variable
@@ -380,7 +387,7 @@ return *this;
 bool Expression::is_constant() const
 { return repn->is_constant(); }
 
-double Expression::get_value() const
+double Expression::value() const
 { return repn->eval(); }
 
 std::list<std::string> Expression::to_list() const

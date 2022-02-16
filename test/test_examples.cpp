@@ -47,7 +47,7 @@ if (solver.available()) {
     SECTION( "invquad" ) {
         std::vector<coek::Parameter> p(5);
         for (auto it=p.begin(); it != p.end(); ++it)
-            it->set_value(0.5);
+            it->value(0.5);
 
         WHEN( "solve" ) {
             coek::Model m;
@@ -66,7 +66,7 @@ if (solver.available()) {
             solver.solve(nlp);
 
             for (auto it=p.begin(); it != p.end(); ++it)
-                it->set_value(-0.5);
+                it->value(-0.5);
 
             for (size_t i=0; i<nlp.num_variables(); i++)
                 nlp.get_variable(i).value(0);
@@ -84,7 +84,7 @@ if (solver.available()) {
             solver.solve(nlp);
 
             for (auto it=p.begin(); it != p.end(); ++it)
-                it->set_value(-0.5);
+                it->value(-0.5);
 
             solver.resolve();
 
@@ -98,7 +98,7 @@ if (solver.available()) {
             solver.solve(nlp);
 
             for (auto it=p.begin(); it != p.end(); ++it)
-                it->set_value(-0.5);
+                it->value(-0.5);
 
             // Even though we set the value of the initial point,
             // the warm starting option should ignore this and 

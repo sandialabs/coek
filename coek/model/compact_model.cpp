@@ -142,11 +142,11 @@ for (auto it=repn->variables.begin(); it != repn->variables.end(); ++it) {
     auto& val = *it;
     if (auto eval = std::get_if<Variable>(&val)) {
         Expression lb = eval->lower_expression().expand();
-        eval->lower(lb.get_value());
+        eval->lower(lb.value());
         Expression ub = eval->upper_expression().expand();
-        eval->upper(ub.get_value());
+        eval->upper(ub.value());
         Expression value = eval->value_expression().expand();
-        eval->value(value.get_value());
+        eval->value(value.value());
         model.add_variable(*eval);
         }
     else {

@@ -23,7 +23,7 @@ void error1(ModelType& model)
 {
 auto x = model.add_variable();
 x.name("x");
-auto y = coek::Variable();
+auto y = coek::variable();
 y.name("y");
 
 model.add_objective( x );
@@ -56,7 +56,7 @@ template <class ModelType>
 void error4(ModelType& model) 
 {
 auto x = model.add_variable();
-coek::IndexParameter i("i");
+auto i = coek::set_index("i");
 x.name("x");
 
 model.add_objective( i*x );
@@ -112,7 +112,7 @@ auto x = model.add_variable().lower(-1).upper(1).value(1);
 auto y = model.add_variable().lower(-1).upper(1).value(2);
 auto v = model.add_variable().lower(-1).upper(1).value(3);
 double p = 2;
-auto q = coek::Parameter(2);
+auto q = coek::parameter().value(2);
 
 model.add_objective( pow(x,2)/p + pow(x,2)/q );
 
@@ -158,7 +158,7 @@ auto v = model.add_variable().lower(-1).upper(1).value(3);
 auto p = model.add_variable();
 p.value(2);
 p.fixed(true);
-auto q = coek::Parameter(2);
+auto q = coek::parameter().value(2);
 
 model.add_objective( x );
 
@@ -212,7 +212,7 @@ auto z = model.add_variable();
 y.value(1.0);
 y.fixed(true);
 
-coek::Parameter p = coek::Parameter(0.0);
+auto p = coek::parameter();
 double q = 0.0;
 
 model.add_objective( x );
@@ -280,7 +280,7 @@ model.add_variable(b);
 auto c = model.add_variable().lower(0);
 auto d = model.add_variable().upper(0);
 auto e = model.add_variable("e");
-coek::Parameter q("q",2);
+auto q = coek::parameter("q").value(2);
     
 model.add_objective( 3*a + q , model.maximize);
 model.add_constraint( 3*b + q - a <= 0 );
@@ -299,7 +299,7 @@ void testing2(coek::Model& model)
 auto a = model.add_variable("a").lower(0).upper(1).value(0).within(coek::Integers);
 auto b = coek::variable("b").lower(0).upper(1).value(0).within(coek::Binary);
 model.add_variable(b);
-coek::Parameter q("q",2);
+auto q = coek::parameter("q").value(2);
 
 b.fix(2.0);    
 auto e = 3*a +  q+ a*a*a*(-a + b + 3*a + 3*b) + sin(-cos(a));        // This forces the use of a Negate term
@@ -687,7 +687,7 @@ SECTION("Model") {
     coek::Model model;
     auto a = model.add_variable("a");
     auto b = model.add_variable("b");
-    coek::Parameter q("q",0);
+    auto q = coek::parameter("q");
 
     model.add_objective( 3*a + q, model.maximize );
     model.add_constraint( 3*b + q <= 0 );
@@ -740,7 +740,7 @@ SECTION("Model values") {
     coek::Model model;
     auto a = model.add_variable("a").lower(0).upper(1).value(0);
     auto b = model.add_variable("b").lower(0).upper(1).value(0.5);
-    coek::Parameter q("q",0);
+    auto q = coek::parameter("q");
 
     model.add_objective( 3*a + q );
     model.add_constraint( 3*b + q <= 0 );

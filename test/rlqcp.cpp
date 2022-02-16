@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
   double dt = T/m;
   double h2 = dx*dx;
   double a = 0.001;
-  coek::Parameter W("W", 0.25);
+  auto W = coek::parameter("W").value(0.25);
 
   coek::Model model;
 
@@ -97,8 +97,8 @@ else {
     coek::Solver opt(action);
     opt.load(model);
     for (size_t i=0; i<nsolves; i++) {
-        //cout << "i: " << i << "\tT: " << T.get_value() << endl << flush;
-        cout << "i: " << i << "\tW: " << W.get_value() << endl << flush;
+        //cout << "i: " << i << "\tT: " << T.value() << endl << flush;
+        cout << "i: " << i << "\tW: " << W.value() << endl << flush;
         opt.resolve();
         //T.set_value(1.58 + (i+1.0)/10);
         //W.set_value(0.25 + (i+1.0)/10);

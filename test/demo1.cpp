@@ -22,7 +22,7 @@ int nsolves = atoi(argv[2]);    // Number of solves
 std::map<std::string,coek::Parameter> params;
 
 auto model = coek::read_problem_from_jpof_file(currdir+"/jpof/"+filename, params);
-double p = params["p"].get_value();
+double p = params["p"].value();
 
 auto vnames = model.variable_names();
 
@@ -35,14 +35,14 @@ for (int i=0; i<nsolves; i++) {
     opt.resolve();
     std::cout << "Solve: " << 0 << std::endl;
     std::cout << "Objective: " << nlp.compute_f() << std::endl;
-    std::cout << "p value: " << params["p"].get_value() << std::endl;
+    std::cout << "p value: " << params["p"].value() << std::endl;
     std::cout << "Solution:" << std::endl;
     for (auto const& vname: vnames)
         std::cout << "  " << vname << "= " << model.get_variable(vname).value() << std::endl;
     std::cout << std::endl;
 
     // p = i+1
-    params["p"].set_value(p+i+1);
+    params["p"].value(p+i+1);
     }
 
 return 0;

@@ -124,7 +124,7 @@ for (unsigned int n=0; n<N; n++)
 
 std::vector<coek::Parameter> c(N);
 for (unsigned int n=0; n<N; n++)
-    c[n] = coek::Parameter(uniform());
+    c[n] = coek::parameter().value(uniform());
 
 std::vector<double> b(N);
 for (unsigned int n=0; n<N; n++)
@@ -156,7 +156,7 @@ if (solver == "gurobi") {
         std::cout << "Solve: " << i << "  Objective: " << obj_.get_value() << std::endl;
 
         for (unsigned int n=0; n<N; n++)
-            c[n].set_value( uniform() );
+            c[n].value( uniform() );
         std::cout << std::endl;
         }
     }
@@ -182,7 +182,7 @@ else {
         std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
         for (unsigned int n=0; n<N; n++)
-            c[n].set_value( uniform() );
+            c[n].value( uniform() );
         std::cout << std::endl;
         }
     }
@@ -202,7 +202,7 @@ coek::Model model;
 
 std::vector<coek::Parameter> A_(N);
 for (unsigned int m=0; m<N; m++)
-    A_[m] = coek::Parameter(uniform());
+    A_[m] = coek::parameter().value(uniform());
 
 std::vector<std::vector<double>> A(N, std::vector<double>(N));
 for (unsigned int n=0; n<N; n++)
@@ -250,7 +250,7 @@ if (solver == "gurobi") {
         std::cout << "Solve: " << i << "  Objective: " << obj_.get_value() << std::endl;
 
         for (unsigned int m=0; m<N; m++)
-            A_[m].set_value( uniform() );
+            A_[m].value( uniform() );
         std::cout << std::endl;
         }
     }
@@ -264,7 +264,7 @@ else {
         std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
         for (unsigned int m=0; m<N; m++)
-            A_[m].set_value( uniform() );
+            A_[m].value( uniform() );
         std::cout << std::endl;
         }
     }
@@ -284,7 +284,7 @@ coek::Model model;
 
 std::vector<coek::Parameter> A_(N);
 for (unsigned int n=0; n<N; n++)
-    A_[n] = coek::Parameter(uniform());
+    A_[n] = coek::parameter().value(uniform());
 
 std::vector<std::vector<double>> A(N, std::vector<double>(N));
 for (unsigned int n=0; n<N; n++)
@@ -331,7 +331,7 @@ if (solver == "gurobi") {
         std::cout << "Solve: " << i << "  Objective: " << obj_.get_value() << std::endl;
 
         for (unsigned int n=0; n<N; n++)
-            A_[n].set_value( uniform() );
+            A_[n].value( uniform() );
         std::cout << std::endl;
         }
     }
@@ -345,7 +345,7 @@ else {
         std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
         for (unsigned int n=0; n<N; n++)
-            A_[n].set_value( uniform() );
+            A_[n].value( uniform() );
         std::cout << std::endl;
         }
     }
@@ -371,7 +371,7 @@ for (unsigned int n=0; n<N; n++)
 
 std::vector<coek::Parameter> b(N);
 for (unsigned int n=0; n<N; n++)
-    b[n] = coek::Parameter(uniform());
+    b[n] = coek::parameter().value(uniform());
 
 std::vector<coek::Variable> x(N);
 for (unsigned int n=0; n<N; n++)
@@ -400,7 +400,7 @@ if (solver == "gurobi") {
         std::cout << "Solve: " << i << "  Objective: " << obj_.get_value() << std::endl;
 
         for (unsigned int n=0; n<N; n++)
-            b[n].set_value( uniform() );
+            b[n].value( uniform() );
         std::cout << std::endl;
         }
     }
@@ -414,7 +414,7 @@ else {
         std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
         for (unsigned int n=0; n<N; n++)
-            b[n].set_value( uniform() );
+            b[n].value( uniform() );
         std::cout << std::endl;
         }
     }

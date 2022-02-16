@@ -39,7 +39,7 @@ public:
     coek::Parameter parameter;
 
     void set_value(unsigned int i)
-        {parameter.set_value(i);}
+        {parameter.value(i);}
 
     coek::Expression value()
         {return parameter;}
@@ -62,7 +62,7 @@ public:
         {
         auto val = index->value();
         // TODO - fix?
-        size_t _index = static_cast<size_t>(val.get_value());
+        size_t _index = static_cast<size_t>(val.value());
         assert(_index < variable->variables.size());
         return variable->variables[_index];
         }

@@ -19,42 +19,42 @@ TEST_CASE( "model_param", "[smoke]" ) {
 
   SECTION( "values" ) {
       WHEN( "parameter - 3" ) {
-        coek::Parameter q("q", 2);
-        REQUIRE( q.get_value() == 2 );
-        q.set_value(3);
-        REQUIRE( q.get_value() == 3 );
+        auto q = coek::parameter("q").value(2);
+        REQUIRE( q.value() == 2 );
+        q.value(3);
+        REQUIRE( q.value() == 3 );
       }
   }
 
   SECTION( "constructors" ) {
       WHEN( "copy" ) {
         // Simple constructor
-        coek::Parameter q(3);
+        auto q = coek::parameter().value(3);
 
         // Test copy constructor
         coek::Parameter Q(q);
-        REQUIRE( Q.get_value() == 3 );
+        REQUIRE( Q.value() == 3 );
       }
 
       WHEN( "equal" ) {
         // Simple constructor
-        coek::Parameter q(4);
+        auto q = coek::parameter().value(4);
 
         // Test copy constructor
-        coek::Parameter Q(5);
+        auto Q = coek::parameter().value(5);
         Q = q;
-        REQUIRE( Q.get_value() == 4 );
+        REQUIRE( Q.value() == 4 );
       }
   }
 
   SECTION( "constructors" ) {
-    coek::Parameter q("q", 3);
-    REQUIRE( q.get_name() == "q" );
+    auto q = coek::parameter("q").value(3);
+    REQUIRE( q.name() == "q" );
   }
 
   SECTION( "write" ) {
     std::stringstream sstr;
-    coek::Parameter q("q", 3);
+    auto q = coek::parameter("q").value(3);
     sstr << q;
     REQUIRE( sstr.str() == "q" );
   }
@@ -68,35 +68,35 @@ TEST_CASE( "model_indexparam", "[smoke]" ) {
 
   SECTION( "values" ) {
       WHEN( "IndexParameter - 3" ) {
-        coek::IndexParameter q("q");
-        q.set_value(1);
+        auto q = coek::set_index("q");
+        q.value(1);
         int tmp = -1;
         auto success = q.get_value(tmp);
         REQUIRE( success == true );
         REQUIRE( tmp == 1 );
-        q.set_value(3.5);
+        q.value(3.5);
         success = q.get_value(tmp);
         REQUIRE( success == false );
       }
       WHEN( "IndexParameter - 3.5" ) {
-        coek::IndexParameter q("");
-        q.set_value(3.5);
+        auto q = coek::set_index();
+        q.value(3.5);
         double tmp = -3.5;
         auto success = q.get_value(tmp);
         REQUIRE( success == true );
         REQUIRE( tmp == 3.5 );
-        q.set_value(3);
+        q.value(3);
         success = q.get_value(tmp);
         REQUIRE( success == false );
       }
       WHEN( "IndexParameter - 'here'" ) {
-        coek::IndexParameter q("");
-        q.set_value("here");
+        auto q = coek::set_index();
+        q.value("here");
         std::string tmp = "there";
         auto success = q.get_value(tmp);
         REQUIRE( success == true );
         REQUIRE( tmp == "here" );
-        q.set_value(3.5);
+        q.value(3.5);
         success = q.get_value(tmp);
         REQUIRE( success == false );
       }
@@ -105,8 +105,8 @@ TEST_CASE( "model_indexparam", "[smoke]" ) {
   SECTION( "constructors" ) {
       WHEN( "copy" ) {
         // Simple constructor
-        coek::IndexParameter q;
-        q.set_value(3);
+        auto q = coek::set_index();
+        q.value(3);
 
         // Test copy constructor
         coek::IndexParameter Q(q);
@@ -118,12 +118,12 @@ TEST_CASE( "model_indexparam", "[smoke]" ) {
 
       WHEN( "equal" ) {
         // Simple constructor
-        coek::IndexParameter q;
-        q.set_value(4);
+        auto q = coek::set_index();
+        q.value(4);
 
         // Test copy constructor
-        coek::IndexParameter Q;
-        Q.set_value(5);
+        auto Q = coek::set_index();
+        Q.value(5);
         Q = q;
         int tmp=-1;
         auto success = Q.get_value(tmp);
@@ -133,13 +133,13 @@ TEST_CASE( "model_indexparam", "[smoke]" ) {
   }
 
   SECTION( "constructors" ) {
-    coek::IndexParameter q("q");
-    REQUIRE( q.get_name() == "q" );
+    auto q = coek::set_index("q");
+    REQUIRE( q.name() == "q" );
   }
 
   SECTION( "write" ) {
     std::stringstream sstr;
-    coek::IndexParameter q("q");
+    auto q = coek::set_index("q");
     sstr << q;
     REQUIRE( sstr.str() == "q" );
   }
@@ -170,25 +170,24 @@ TEST_CASE( "model_variable", "[smoke]" ) {
     }
 
     WHEN( "simple_with_expr_values" ) {
-        zzz();
-        coek::Parameter p(0);
+        auto p = coek::parameter();
         auto a = coek::variable().lower(p).upper(p+1).value(p+2);
         REQUIRE( a.value() == 2 );
         REQUIRE( a.lower() == 0 );
         REQUIRE( a.upper() == 1 );
-        p.set_value(1);
+        p.value(1);
         REQUIRE( a.value() == 3 );
         REQUIRE( a.lower() == 1 );
         REQUIRE( a.upper() == 2 );
     }
 
     WHEN( "named_with_expr_values" ) {
-        coek::Parameter p(0);
+        auto p = coek::parameter();
         auto a = coek::variable("test").lower(p).upper(p+1).value(p+2);
         REQUIRE( a.value() == 2 );
         REQUIRE( a.lower() == 0 );
         REQUIRE( a.upper() == 1 );
-        p.set_value(1);
+        p.value(1);
         REQUIRE( a.value() == 3 );
         REQUIRE( a.lower() == 1 );
         REQUIRE( a.upper() == 2 );
@@ -206,7 +205,7 @@ TEST_CASE( "model_variable", "[smoke]" ) {
 
     WHEN( "equal" ) {
         auto a = coek::variable("test").lower(0).upper(1).value(2);
-        coek::Variable b;
+        auto b = coek::variable();
         b = a;
         REQUIRE( b.value() == 2 );
         REQUIRE( b.lower() == 0 );
@@ -236,10 +235,10 @@ TEST_CASE( "model_variable", "[smoke]" ) {
       WHEN( "variable array - 3" ) {
         void* a[2];
         create_variable_array(0, a, 2, false, false, 0.0, 1.0, 0.0, "a");
-        variable_set_value(a[0], 3);
+        variable_value(a[0], 3);
 
-        REQUIRE( variable_get_value(a[0]) == 3 );
-        REQUIRE( variable_get_value(a[1]) == 0 );
+        REQUIRE( variable_value(a[0]) == 3 );
+        REQUIRE( variable_value(a[1]) == 0 );
       }
 
       WHEN( "variable array (2) - 3" ) {
@@ -247,10 +246,10 @@ TEST_CASE( "model_variable", "[smoke]" ) {
 
         void* a[2];
         create_variable_array(model, a, 2, false, false, 0.0, 1.0, 0.0, "a");
-        variable_set_value(a[0], 3);
+        variable_value(a[0], 3);
 
-        REQUIRE( variable_get_value(a[0]) == 3 );
-        REQUIRE( variable_get_value(a[1]) == 0 );
+        REQUIRE( variable_value(a[0]) == 3 );
+        REQUIRE( variable_value(a[1]) == 0 );
       }
 */
   }
@@ -336,7 +335,7 @@ TEST_CASE( "model_monomial", "[smoke]" ) {
   }
 
   SECTION( "trivial - int*parameter" ) {
-    coek::Parameter v("v",1);
+    auto v = coek::parameter("v").value(1);
     coek::Expression e = 1*v;
     //REQUIRE( e.repn == v.repn );
     static std::list<std::string> baseline = {"v"};
@@ -344,7 +343,7 @@ TEST_CASE( "model_monomial", "[smoke]" ) {
   }
 
   SECTION( "simple monomial - int*parameter" ) {
-    coek::Parameter v("v",1);
+    auto v = coek::parameter("v").value(1);
     coek::Expression e = 2*v;
     static std::list<std::string> baseline = {"[", "*", "2.000", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -366,7 +365,7 @@ TEST_CASE( "model_monomial", "[smoke]" ) {
   }
 
   SECTION( "trivial - double*parameter" ) {
-    coek::Parameter v("v",1);
+    auto v = coek::parameter("v").value(1);
     coek::Expression e = 1.0*v;
     //REQUIRE( e.repn == v.repn );
     static std::list<std::string> baseline = {"v"};
@@ -374,7 +373,7 @@ TEST_CASE( "model_monomial", "[smoke]" ) {
   }
 
   SECTION( "simple monomial - int*parameter" ) {
-    coek::Parameter v("v",1);
+    auto v = coek::parameter("v").value(1);
     coek::Expression e = 2.0*v;
     static std::list<std::string> baseline = {"[", "*", "2.000", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -426,14 +425,14 @@ TEST_CASE( "model_expression", "[smoke]" ) {
     }
 
     WHEN( "parameter" ) {
-        coek::Parameter p(1.0);
+        auto p = coek::parameter().value(1);
         coek::Expression a;
         a = p;
         REQUIRE( a.is_constant() == false );
     }
 
     WHEN( "index_parameter" ) {
-        coek::IndexParameter p("p");
+        auto p = coek::set_index("p");
         coek::Expression a;
         a = p;
         REQUIRE( a.is_constant() == false );
@@ -475,7 +474,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
     WHEN("parameter") {
         auto v = coek::variable("v");
         coek::Expression a = v;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         a += p;
         static std::list<std::string> baseline = {"[", "+", "v", "p", "]"};
         REQUIRE( a.to_list() == baseline );
@@ -483,7 +482,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
     WHEN("index parameter") {
         auto v = coek::variable("v");
         coek::Expression a = v;
-        coek::IndexParameter p("p");
+        auto p = coek::set_index("p");
         a += p;
         static std::list<std::string> baseline = {"[", "+", "v", "p", "]"};
         REQUIRE( a.to_list() == baseline );
@@ -518,7 +517,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
     WHEN("parameter") {
         auto v = coek::variable("v");
         coek::Expression a = v;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         a -= p;
         static std::list<std::string> baseline = {"[", "+", "v", "[", "-",  "p", "]", "]"};
         REQUIRE( a.to_list() == baseline );
@@ -526,7 +525,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
     WHEN("index parameter") {
         auto v = coek::variable("v");
         coek::Expression a = v;
-        coek::IndexParameter p("p");
+        auto p = coek::set_index("p");
         a -= p;
         static std::list<std::string> baseline = {"[", "+", "v", "[", "-", "p", "]", "]"};
         REQUIRE( a.to_list() == baseline );
@@ -561,7 +560,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
     WHEN("parameter") {
         auto v = coek::variable("v");
         coek::Expression a = v;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         a *= p;
         static std::list<std::string> baseline = {"[", "*", "v", "p", "]"};
         REQUIRE( a.to_list() == baseline );
@@ -569,7 +568,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
     WHEN("index parameter") {
         auto v = coek::variable("v");
         coek::Expression a = v;
-        coek::IndexParameter p("p");
+        auto p = coek::set_index("p");
         a *= p;
         static std::list<std::string> baseline = {"[", "*", "v", "p", "]"};
         REQUIRE( a.to_list() == baseline );
@@ -604,7 +603,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
     WHEN("parameter") {
         auto v = coek::variable("v");
         coek::Expression a = v;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         a /= p;
         static std::list<std::string> baseline = {"[", "/", "v", "p", "]"};
         REQUIRE( a.to_list() == baseline );
@@ -612,7 +611,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
     WHEN("index parameter") {
         auto v = coek::variable("v");
         coek::Expression a = v;
-        coek::IndexParameter p("p");
+        auto p = coek::set_index("p");
         a /= p;
         static std::list<std::string> baseline = {"[", "/", "v", "p", "]"};
         REQUIRE( a.to_list() == baseline );
@@ -641,7 +640,7 @@ TEST_CASE( "model_unary_expression", "[smoke]" ) {
 
   SECTION( "positive" ) {
     WHEN( "param" ) {
-        coek::Parameter q("q",1.0);
+        auto q = coek::parameter("q").value(1);
         coek::Expression e;
         e = +q;
         static std::list<std::string> baseline = {"q"};
@@ -649,7 +648,7 @@ TEST_CASE( "model_unary_expression", "[smoke]" ) {
     }
 
     WHEN( "iparam" ) {
-        coek::IndexParameter q("q");
+        auto q = coek::set_index("q");
         coek::Expression e;
         e = +q;
         static std::list<std::string> baseline = {"q"};
@@ -675,16 +674,16 @@ TEST_CASE( "model_unary_expression", "[smoke]" ) {
 
   SECTION( "negate" ) {
     WHEN( "param" ) {
-        coek::Parameter q("q",1.0);
+        auto q = coek::parameter("q").value(1);
         coek::Expression e;
         e = -q;
         static std::list<std::string> baseline = {"[", "-", "q", "]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.get_value() == -1 );
+        REQUIRE( e.value() == -1 );
     }
 
     WHEN( "iparam" ) {
-        coek::IndexParameter q("q");
+        auto q = coek::set_index("q");
         coek::Expression e;
         e = -q;
         static std::list<std::string> baseline = {"[", "-", "q", "]"};
@@ -697,7 +696,7 @@ TEST_CASE( "model_unary_expression", "[smoke]" ) {
         e = -v;
         static std::list<std::string> baseline = {"[", "*", "-1", "v", "]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.get_value() == -2 );
+        REQUIRE( e.value() == -2 );
     }
 
     WHEN( "expr" ) {
@@ -722,8 +721,8 @@ auto a = coek::variable("a").lower(0).upper(1).value(3);
 auto b = coek::variable("b").lower(0).upper(1).value(5);
 auto c = coek::variable("c").lower(0).upper(1).value(0);
 auto d = coek::variable("d").lower(0).upper(1).value(0);
-coek::Parameter z("z",0.0);
-coek::IndexParameter Z("Z");
+auto z = coek::parameter("z");
+auto Z = coek::set_index("Z");
 coek::Expression E = b;
 
   SECTION( "Test simple" ) {
@@ -732,7 +731,7 @@ coek::Expression E = b;
 
         static std::list<std::string> baseline = {"[", "+", "a", "b", "]"};
         REQUIRE( e.to_list() == baseline );
-        REQUIRE( e.get_value() == 8 );
+        REQUIRE( e.value() == 8 );
     }
 
     WHEN("e = a+b + 2*a") {
@@ -1050,9 +1049,9 @@ coek::Expression E = b;
   }
 
   SECTION( "Test trivialSum" ) {
-    coek::Parameter q("q",1);
-    coek::Parameter Q("Q",0);
-    coek::IndexParameter Z("Z");
+    auto q = coek::parameter("q").value(1);
+    auto Q = coek::parameter("Q");
+    auto Z = coek::set_index("Z");
     coek::Expression E = a;
 
     WHEN( "e = 0 + a" ) {
@@ -1169,8 +1168,8 @@ coek::Expression E = b;
   }
 
   SECTION( "Test sum with zero-valued parameter" ) {
-    coek::Parameter q("q",1);
-    coek::Parameter Q("Q",0);
+    auto q = coek::parameter("q").value(1);
+    auto Q = coek::parameter("Q");
 
     WHEN( "e = a + q{0}" ) {
         coek::Expression e = a + q;
@@ -1248,8 +1247,8 @@ auto b = coek::variable("b").lower(0).upper(1).value(5);
 auto c = coek::variable("c").lower(0).upper(1).value(0);
 auto d = coek::variable("d").lower(0).upper(1).value(0);
 
-coek::Parameter z("z",1.0);
-coek::IndexParameter Z("Z");
+auto z = coek::parameter("z").value(1.0);
+auto Z = coek::set_index("Z");
 coek::Expression f;
 coek::Expression E = b;
 
@@ -1258,7 +1257,7 @@ coek::Expression E = b;
 
     static std::list<std::string> baseline = { "[", "+", "a", "[", "*", "-1", "b", "]", "]" };
     REQUIRE( e.to_list() == baseline );
-    REQUIRE( e.get_value() == -2 );
+    REQUIRE( e.value() == -2 );
   }
 
   SECTION( "Test termDiff" ) {
@@ -1566,9 +1565,9 @@ coek::Expression E = b;
   }
 
   SECTION( "Test trivialDiff" ) {
-    coek::Parameter q("q",1);
-    coek::Parameter Q("Q",0);
-    coek::IndexParameter Z("Z");
+    auto q = coek::parameter("q").value(1);
+    auto Q = coek::parameter("Q");
+    auto Z = coek::set_index("Z");
     coek::Expression E = a;
 
     WHEN( "e = 0 - a" ) {
@@ -1685,8 +1684,8 @@ coek::Expression E = b;
   }
 
   SECTION( "Test diff with zero-valued parameter" ) {
-    coek::Parameter q("q",0);
-    coek::Parameter Q("Q",0.0);
+    auto q = coek::parameter("q");
+    auto Q = coek::parameter("Q");
 
     WHEN( "e = a - q{0}" ) {
       coek::Expression e = a - q;
@@ -1735,14 +1734,14 @@ REQUIRE( coek::env.check_memory() == true );
 TEST_CASE( "model_neg_expression", "[smoke]" ) {
 
   SECTION( "Test negation_param" ) {
-    coek::Parameter p("p",2);
+    auto p = coek::parameter("p").value(2);
 
     WHEN( "e = -p" ) {
       coek::Expression e = -p;
 
       static std::list<std::string> baseline = {"[", "-", "p", "]"};
       REQUIRE( e.to_list() == baseline );
-      REQUIRE( e.get_value() == -2 );
+      REQUIRE( e.value() == -2 );
     }
 
     WHEN( "e = -(-p)" ) {
@@ -1754,7 +1753,7 @@ TEST_CASE( "model_neg_expression", "[smoke]" ) {
   }
 
   SECTION( "Test negation_terms" ) {
-    coek::Parameter p("p",2);
+    auto p = coek::parameter("p").value(2);
     auto v = coek::variable("v").lower(0).upper(1).value(0);
 
     WHEN( "e = - p*v" ) {
@@ -1793,8 +1792,8 @@ auto b = coek::variable("b").lower(0).upper(1).value(5);
 auto c = coek::variable("c").lower(0).upper(1).value(0);
 auto d = coek::variable("d").lower(0).upper(1).value(0);
 
-coek::Parameter z("z",0.0);
-coek::IndexParameter Z("Z");
+auto z = coek::parameter("z");
+auto Z = coek::set_index("Z");
 coek::Expression f;
 coek::Expression E = b;
 
@@ -1803,7 +1802,7 @@ coek::Expression E = b;
 
     static std::list<std::string> baseline = {"[", "*", "a", "b", "]"};
     REQUIRE( e.to_list() == baseline );
-    REQUIRE( e.get_value() == 15 );
+    REQUIRE( e.value() == 15 );
   }
 
   SECTION( "Test const * value" ) {
@@ -2148,9 +2147,9 @@ coek::Expression E = b;
   }
 
   SECTION( "Test trivialMul - 0" ) {
-    coek::Parameter q("q",1);
-    coek::Parameter Q("Q",0);
-    coek::IndexParameter Z("Z");
+    auto q = coek::parameter("q").value(1);
+    auto Q = coek::parameter("Q");
+    auto Z = coek::set_index("Z");
     coek::Expression E = a;
 
     WHEN( "e = 0 * a" ) {
@@ -2267,9 +2266,9 @@ coek::Expression E = b;
   }
 
   SECTION( "Test trivialMul - 1" ) {
-    coek::Parameter q("q",1);
-    coek::Parameter Q("Q",0);
-    coek::IndexParameter Z("Z");
+    auto q = coek::parameter("q").value(1);
+    auto Q = coek::parameter("Q");
+    auto Z = coek::set_index("Z");
     coek::Expression E = a;
 
     WHEN( "e = 1 * a" ) {
@@ -2386,10 +2385,10 @@ coek::Expression E = b;
   }
 
   SECTION( "Test mul with trivial parameter" ) {
-    coek::Parameter q("q",0);
-    coek::Parameter Q("Q",0.0);
-    coek::Parameter r("r",1);
-    coek::Parameter R("R",1.0);
+    auto q = coek::parameter("q");
+    auto Q = coek::parameter("Q");
+    auto r = coek::parameter("r").value(1);
+    auto R = coek::parameter("R").value(1.0);
 
     WHEN( "e = a * q{0}" ) {
       coek::Expression e = a * q;
@@ -2463,8 +2462,8 @@ auto b = coek::variable("b").lower(0).upper(1).value(5);
 auto c = coek::variable("c").lower(0).upper(1).value(0);
 auto d = coek::variable("d").lower(0).upper(1).value(0);
 
-coek::Parameter z("z",0.0);
-coek::IndexParameter Z("Z");
+auto z = coek::parameter("z");
+auto Z = coek::set_index("Z");
 coek::Expression f;
 coek::Expression E = b;
 
@@ -2473,7 +2472,7 @@ coek::Expression E = b;
 
     static std::list<std::string> baseline = {"[", "/", "a", "b", "]"};
     REQUIRE( e.to_list() == baseline );
-    REQUIRE( e.get_value() == 0.6 );
+    REQUIRE( e.value() == 0.6 );
   }
 
   SECTION( "Test const / value" ) {
@@ -2757,8 +2756,8 @@ coek::Expression E = b;
   }
 
   SECTION( "Test trivialDiv - 0" ) {
-    coek::Parameter q("q",1);
-    coek::IndexParameter Z("Z");
+    auto q = coek::parameter("q").value(1);
+    auto Z = coek::set_index("Z");
     coek::Expression E = a;
 
     WHEN( "e = 0 / a" ) {
@@ -2859,8 +2858,8 @@ coek::Expression E = b;
   }
 
   SECTION( "Test trivialDiv - 1" ) {
-    coek::Parameter q("q",1);
-    coek::IndexParameter Z("Z");
+    auto q = coek::parameter("q").value(1);
+    auto Z = coek::set_index("Z");
 
     WHEN( "e = a/1" ) {
         coek::Expression e = a/1;
@@ -2921,10 +2920,10 @@ coek::Expression E = b;
 
   SECTION( "Test div with trivial parameter" ) {
 
-    coek::Parameter q("q",0);
-    coek::Parameter Q("Q",0.0);
-    coek::Parameter r("r",1);
-    coek::Parameter R("R",1.0);
+    auto q = coek::parameter("q");
+    auto Q = coek::parameter("Q");
+    auto r = coek::parameter("r").value(1);
+    auto R = coek::parameter("R").value(1.0);
 
     WHEN( "e = q{0} / a" ) {
       coek::Expression e = q/a;
@@ -2967,21 +2966,21 @@ TEST_CASE( "intrinsics", "[smoke]" ) {
 
 {
 auto v = coek::variable("v").lower(0).upper(1).value(0);
-coek::Parameter p("p",0.0);
+auto p = coek::parameter("p");
 
   SECTION( "Test abs" ) {
     {
     coek::Expression constant(-1);
     REQUIRE( constant.is_constant() );
     coek::Expression e = abs(constant);
-    REQUIRE( e.get_value() == 1.0 );
+    REQUIRE( e.value() == 1.0 );
     }
 
     coek::Expression e = abs(v);
     v.value(1);
-    REQUIRE( e.get_value() == 1.0 );
+    REQUIRE( e.value() == 1.0 );
     v.value(-1);
-    REQUIRE( e.get_value() == 1.0 );
+    REQUIRE( e.value() == 1.0 );
 
     static std::list<std::string> baseline = {"[", "abs", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -2990,7 +2989,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test abs - constant" ) {
     coek::Expression constant(0);
     coek::Expression e = abs(constant);
-    REQUIRE( e.get_value() == 0.0 );
+    REQUIRE( e.value() == 0.0 );
 
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
@@ -2999,9 +2998,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test ceil" ) {
     coek::Expression e = ceil(v);
     v.value(1.5);
-    REQUIRE( e.get_value() == 2.0 );
+    REQUIRE( e.value() == 2.0 );
     v.value(-1.5);
-    REQUIRE( e.get_value() == -1.0 );
+    REQUIRE( e.value() == -1.0 );
 
     static std::list<std::string> baseline = {"[", "ceil", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3010,7 +3009,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test ceil - constant" ) {
     coek::Expression constant(1.5);
     coek::Expression e = ceil(constant);
-    REQUIRE( e.get_value() == 2.0 );
+    REQUIRE( e.value() == 2.0 );
 
     static std::list<std::string> baseline = {"2.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3019,9 +3018,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test floor" ) {
     coek::Expression e = floor(v);
     v.value(1.5);
-    REQUIRE( e.get_value() == 1.0 );
+    REQUIRE( e.value() == 1.0 );
     v.value(-1.5);
-    REQUIRE( e.get_value() == -2.0 );
+    REQUIRE( e.value() == -2.0 );
 
     static std::list<std::string> baseline = {"[", "floor", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3030,7 +3029,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test floor - constant" ) {
     coek::Expression constant(1.5);
     coek::Expression e = floor(constant);
-    REQUIRE( e.get_value() == 1.0 );
+    REQUIRE( e.value() == 1.0 );
 
     static std::list<std::string> baseline = {"1.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3039,9 +3038,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test exp" ) {
     coek::Expression e = exp(v);
     v.value(1);
-    REQUIRE( e.get_value() == Approx(E) );
+    REQUIRE( e.value() == Approx(E) );
     v.value(0);
-    REQUIRE( e.get_value() == 1.0 );
+    REQUIRE( e.value() == 1.0 );
 
     static std::list<std::string> baseline = {"[", "exp", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3050,7 +3049,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test exp - constant" ) {
     coek::Expression constant(1);
     coek::Expression e = exp(constant);
-    REQUIRE( e.get_value() == Approx(E) );
+    REQUIRE( e.value() == Approx(E) );
 
     static std::list<std::string> baseline = {"2.718"};
     REQUIRE( e.to_list() == baseline );
@@ -3059,9 +3058,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test log" ) {
     coek::Expression e = log(v);
     v.value(1);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
     v.value( exp(1.0) );
-    REQUIRE( e.get_value() == 1.0 );
+    REQUIRE( e.value() == 1.0 );
 
     static std::list<std::string> baseline = {"[", "log", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3070,7 +3069,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test log - constant" ) {
     coek::Expression constant(1);
     coek::Expression e = log(constant);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
 
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3079,9 +3078,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test log10" ) {
     coek::Expression e = log10(v);
     v.value(1);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
     v.value(10);
-    REQUIRE( e.get_value() == 1.0 );
+    REQUIRE( e.value() == 1.0 );
 
     static std::list<std::string> baseline = {"[", "log10", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3090,7 +3089,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test log10 - constant" ) {
     coek::Expression constant(1);
     coek::Expression e = log(constant);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
 
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3100,34 +3099,34 @@ coek::Parameter p("p",0.0);
     {
     coek::Expression constant0(0);
     coek::Expression e = pow(constant0,p);
-    p.set_value(1);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    p.value(1);
+    REQUIRE( e.value() == Approx(0.0) );
     }
     {
     coek::Expression constant1(1);
     coek::Expression e = pow(constant1,p);
-    p.set_value(1);
-    REQUIRE( e.get_value() == Approx(1.0) );
+    p.value(1);
+    REQUIRE( e.value() == Approx(1.0) );
     }
     {
     coek::Expression constant2(2);
     coek::Expression constant1(1);
     coek::Expression e = pow(constant2,constant1);
-    REQUIRE( e.get_value() == Approx(2.0) );
+    REQUIRE( e.value() == Approx(2.0) );
     }
     {
     v.value(2);
     coek::Expression constant1(1);
     coek::Expression e = pow(v,constant1);
-    REQUIRE( e.get_value() == Approx(2.0) );
+    REQUIRE( e.value() == Approx(2.0) );
     }
 
     coek::Expression e = pow(v,p);
     v.value(2);
-    p.set_value(0);
-    REQUIRE( e.get_value() == Approx(1.0) );
-    p.set_value(1);
-    REQUIRE( e.get_value() == Approx(2.0) );
+    p.value(0);
+    REQUIRE( e.value() == Approx(1.0) );
+    p.value(1);
+    REQUIRE( e.value() == Approx(2.0) );
 
     static std::list<std::string> baseline = {"[", "pow", "v", "p", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3136,7 +3135,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test pow - constant" ) {
     coek::Expression constant(0);
     coek::Expression e = pow(v,constant);
-    REQUIRE( e.get_value() == Approx(1.0) );
+    REQUIRE( e.value() == Approx(1.0) );
 
     static std::list<std::string> baseline = {"1.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3145,9 +3144,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test sqrt" ) {
     coek::Expression e = sqrt(v);
     v.value(1);
-    REQUIRE( e.get_value() == Approx(1.0) );
+    REQUIRE( e.value() == Approx(1.0) );
     v.value(4);
-    REQUIRE( e.get_value() == 2.0 );
+    REQUIRE( e.value() == 2.0 );
 
     static std::list<std::string> baseline = {"[", "sqrt", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3156,7 +3155,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test sqrt - constant" ) {
     coek::Expression constant(1);
     coek::Expression e = sqrt(constant);
-    REQUIRE( e.get_value() == Approx(1.0) );
+    REQUIRE( e.value() == Approx(1.0) );
 
     static std::list<std::string> baseline = {"1.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3165,9 +3164,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test sin" ) {
     coek::Expression e = sin(v);
     v.value(0);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
     v.value(PI/2.0);
-    REQUIRE( e.get_value() == Approx(1.0) );
+    REQUIRE( e.value() == Approx(1.0) );
 
     static std::list<std::string> baseline = {"[", "sin", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3176,7 +3175,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test sin - constant" ) {
     coek::Expression constant(0);
     coek::Expression e = sqrt(constant);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
 
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3185,9 +3184,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test cos" ) {
     coek::Expression e = cos(v);
     v.value(0);
-    REQUIRE( e.get_value() == Approx(1.0) );
+    REQUIRE( e.value() == Approx(1.0) );
     v.value(PI/2.0);
-    REQUIRE( e.get_value() == Approx(0.0).margin(1e-7) );
+    REQUIRE( e.value() == Approx(0.0).margin(1e-7) );
 
     static std::list<std::string> baseline = {"[", "cos", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3196,7 +3195,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test cos - constant" ) {
     coek::Expression constant(0);
     coek::Expression e = cos(constant);
-    REQUIRE( e.get_value() == Approx(1.0) );
+    REQUIRE( e.value() == Approx(1.0) );
 
     static std::list<std::string> baseline = {"1.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3205,9 +3204,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test tan" ) {
     coek::Expression e = tan(v);
     v.value(0);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
     v.value(PI/4.0);
-    REQUIRE( e.get_value() == Approx(1.0) );
+    REQUIRE( e.value() == Approx(1.0) );
 
     static std::list<std::string> baseline = {"[", "tan", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3216,7 +3215,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test tan - constant" ) {
     coek::Expression constant(0);
     coek::Expression e = tan(constant);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
 
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3225,9 +3224,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test asin" ) {
     coek::Expression e = asin(v);
     v.value(0);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
     v.value(1);
-    REQUIRE( e.get_value() == Approx(PI/2.0) );
+    REQUIRE( e.value() == Approx(PI/2.0) );
 
     static std::list<std::string> baseline = {"[", "asin", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3236,7 +3235,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test asin - constant" ) {
     coek::Expression constant(0);
     coek::Expression e = asin(constant);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
 
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3245,9 +3244,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test acos" ) {
     coek::Expression e = acos(v);
     v.value(1);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
     v.value(0);
-    REQUIRE( e.get_value() == Approx(PI/2.0) );
+    REQUIRE( e.value() == Approx(PI/2.0) );
 
     static std::list<std::string> baseline = {"[", "acos", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3256,7 +3255,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test acos - constant" ) {
     coek::Expression constant(1);
     coek::Expression e = acos(constant);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
 
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3265,9 +3264,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test atan" ) {
     coek::Expression e = atan(v);
     v.value(0);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
     v.value(1);
-    REQUIRE( e.get_value() == Approx(PI/4.0) );
+    REQUIRE( e.value() == Approx(PI/4.0) );
 
     static std::list<std::string> baseline = {"[", "atan", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3276,7 +3275,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test atan - constant" ) {
     coek::Expression constant(0);
     coek::Expression e = atan(constant);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
 
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3285,9 +3284,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test sinh" ) {
     coek::Expression e = sinh(v);
     v.value(0);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
     v.value(1);
-    REQUIRE( e.get_value() == Approx((E-1/E)/2.0) );
+    REQUIRE( e.value() == Approx((E-1/E)/2.0) );
 
     static std::list<std::string> baseline = {"[", "sinh", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3296,7 +3295,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test sinh - constant" ) {
     coek::Expression constant(0);
     coek::Expression e = sinh(constant);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
 
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3305,9 +3304,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test cosh" ) {
     coek::Expression e = cosh(v);
     v.value(0);
-    REQUIRE( e.get_value() == Approx(1.0) );
+    REQUIRE( e.value() == Approx(1.0) );
     v.value(1);
-    REQUIRE( e.get_value() == Approx((E+1/E)/2.0) );
+    REQUIRE( e.value() == Approx((E+1/E)/2.0) );
 
     static std::list<std::string> baseline = {"[", "cosh", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3316,7 +3315,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test cosh - constant" ) {
     coek::Expression constant(0);
     coek::Expression e = cosh(constant);
-    REQUIRE( e.get_value() == Approx(1.0) );
+    REQUIRE( e.value() == Approx(1.0) );
 
     static std::list<std::string> baseline = {"1.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3325,9 +3324,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test tanh" ) {
     coek::Expression e = tanh(v);
     v.value(0);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
     v.value(1);
-    REQUIRE( e.get_value() == Approx((E-1/E)/(E+1/E)) );
+    REQUIRE( e.value() == Approx((E-1/E)/(E+1/E)) );
 
     static std::list<std::string> baseline = {"[", "tanh", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3336,7 +3335,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test tanh - constant" ) {
     coek::Expression constant(0);
     coek::Expression e = tanh(constant);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
 
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3345,9 +3344,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test asinh" ) {
     coek::Expression e = asinh(v);
     v.value(0);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
     v.value( (E-1/E)/2.0 );
-    REQUIRE( e.get_value() == Approx(1.0) );
+    REQUIRE( e.value() == Approx(1.0) );
 
     static std::list<std::string> baseline = {"[", "asinh", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3356,7 +3355,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test asinh - constant" ) {
     coek::Expression constant(0);
     coek::Expression e = asinh(constant);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
 
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3365,9 +3364,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test acosh" ) {
     coek::Expression e = acosh(v);
     v.value(1);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
     v.value( (E+1/E)/2.0 );
-    REQUIRE( e.get_value() == Approx(1.0) );
+    REQUIRE( e.value() == Approx(1.0) );
 
     static std::list<std::string> baseline = {"[", "acosh", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3376,7 +3375,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test acosh - constant" ) {
     coek::Expression constant(1);
     coek::Expression e = acosh(constant);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
 
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3385,9 +3384,9 @@ coek::Parameter p("p",0.0);
   SECTION( "Test atanh" ) {
     coek::Expression e = atanh(v);
     v.value(0);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
     v.value( (E-1/E)/(E+1/E) );
-    REQUIRE( e.get_value() == Approx(1.0) );
+    REQUIRE( e.value() == Approx(1.0) );
 
     static std::list<std::string> baseline = {"[", "atanh", "v", "]"};
     REQUIRE( e.to_list() == baseline );
@@ -3396,7 +3395,7 @@ coek::Parameter p("p",0.0);
   SECTION( "Test atanh - constant" ) {
     coek::Expression constant(0);
     coek::Expression e = atanh(constant);
-    REQUIRE( e.get_value() == Approx(0.0) );
+    REQUIRE( e.value() == Approx(0.0) );
 
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
@@ -3413,9 +3412,9 @@ TEST_CASE( "model_constraint", "[smoke]" ) {
 
 {
 auto v = coek::variable("v").lower(0).upper(1).value(1);
-coek::Parameter p("p",0.0);
-coek::IndexParameter P("P");
-P.set_value(0);
+auto p = coek::parameter("p");
+auto P = coek::set_index("P");
+P.value(0);
 coek::Expression f;
 
   SECTION( "lt-operator" ) {
@@ -4664,23 +4663,23 @@ TEST_CASE( "expression_value", "[smoke]" ) {
 {
 auto a = coek::variable("a").lower(0.0).upper(1.0).value(0.0);
 auto b = coek::variable("b").lower(0.0).upper(1.0).value(1.0);
-coek::Parameter q("q", 2);
+auto q = coek::parameter("q").value(2);
 
   SECTION( "expression" ) {
 
     WHEN( "e = q" ) {
         coek::Expression e = q;
-        REQUIRE( e.get_value() == 2 );
+        REQUIRE( e.value() == 2 );
     }
 
     WHEN( "e = a" ) {
         coek::Expression e = a;
-        REQUIRE( e.get_value() == 0 );
+        REQUIRE( e.value() == 0 );
     }
 
     WHEN( "e = 3*b + q" ) {
         coek::Expression e = 3*b + q;
-        REQUIRE( e.get_value() == 5.0 );
+        REQUIRE( e.value() == 5.0 );
     }
 
   }
@@ -4689,7 +4688,7 @@ coek::Parameter q("q", 2);
 
     WHEN( "e = 3*b + q == 0" ) {
         coek::Constraint e = 3*b + q == 0;
-        REQUIRE( e.get_body().get_value() == 5.0 );
+        REQUIRE( e.get_body().value() == 5.0 );
         REQUIRE( e.is_feasible() == false );
     }
   }

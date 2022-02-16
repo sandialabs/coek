@@ -378,12 +378,12 @@ if (mdoc.HasMember("param")) {
             // GCOVR_EXCL_STOP
             }
 
-        Parameter p(value);
+        auto p = parameter().value(value);
 
         if (param.HasMember("label")) {
             if (param["label"].IsString()) {
                 std::string name = param["label"].GetString();
-                p.set_name( name );
+                p.name( name );
                 params[name] = p;
                 }
             else

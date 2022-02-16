@@ -410,9 +410,9 @@ void print_expr(std::ostream& ostr, const MutableNLPExpr& repn, const std::unord
 bool nonlinear = not repn.nonlinear.is_constant();
 bool quadratic = repn.quadratic_coefs.size() > 0;
 
-double cval = repn.constval.get_value();
+double cval = repn.constval.value();
 if (not nonlinear)
-    cval += repn.nonlinear.get_value();
+    cval += repn.nonlinear.value();
 
 std::map<std::pair<size_t,size_t>,double> term;
 if (quadratic) {
@@ -424,9 +424,9 @@ if (quadratic) {
         auto key = std::pair<size_t,size_t>(lhs, rhs);
         auto it = term.find(key);
         if (it != term.end())
-            it->second += repn.quadratic_coefs[i].get_value();
+            it->second += repn.quadratic_coefs[i].value();
         else
-            term[key] = repn.quadratic_coefs[i].get_value();
+            term[key] = repn.quadratic_coefs[i].value();
         }
     }
 
@@ -479,9 +479,9 @@ void print_expr(fmt::ostream& ostr, const MutableNLPExpr& repn, const std::unord
 bool nonlinear = not repn.nonlinear.is_constant();
 bool quadratic = repn.quadratic_coefs.size() > 0;
 
-double cval = repn.constval.get_value();
+double cval = repn.constval.value();
 if (not nonlinear)
-    cval += repn.nonlinear.get_value();
+    cval += repn.nonlinear.value();
 
 std::map<std::pair<ITYPE,ITYPE>,double> term;
 if (quadratic) {
@@ -494,14 +494,14 @@ if (quadratic) {
 
         auto it = term.find(key);
         if (it != term.end())
-            it->second += repn.quadratic_coefs[i].get_value();
+            it->second += repn.quadratic_coefs[i].value();
         else
-            term[key] = repn.quadratic_coefs[i].get_value();
+            term[key] = repn.quadratic_coefs[i].value();
 /*
         if (auto it{ term.find(key) };  it != term.end() )
-            it->second += repn.quadratic_coefs[i].get_value();
+            it->second += repn.quadratic_coefs[i].value();
         else
-            term[key] = repn.quadratic_coefs[i].get_value();
+            term[key] = repn.quadratic_coefs[i].value();
 */
         }
     }
@@ -679,7 +679,7 @@ try {
 
         Expr.collect_terms(Con);
 
-        double bodyconst = Expr.constval.get_value();
+        double bodyconst = Expr.constval.value();
         if (Con.is_inequality()) {
             if (Con.repn->lower and Con.repn->upper) {
                 double lower = Con.repn->lower->eval() - bodyconst;
@@ -833,14 +833,14 @@ for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ++ctr) {
         auto index = varmap[it->linear_vars[j]->index];
         auto jt = G[ctr].find(index);
         if (jt != G[ctr].end())
-            jt->second += it->linear_coefs[j].get_value();
+            jt->second += it->linear_coefs[j].value();
         else
-            G[ctr][index] = it->linear_coefs[j].get_value();
+            G[ctr][index] = it->linear_coefs[j].value();
 /*
         if (auto jt{ G[ctr].find(index) };  jt != G[ctr].end() )
-            jt->second += it->linear_coefs[j].get_value();
+            jt->second += it->linear_coefs[j].value();
         else
-            G[ctr][index] = it->linear_coefs[j].get_value();
+            G[ctr][index] = it->linear_coefs[j].value();
 */
         }
     }
@@ -867,17 +867,17 @@ for (auto it=c_expr.begin(); it != c_expr.end(); ++it, ++ctr) {
         size_t index = varmap[it->linear_vars[j]->index];
         auto jt = J[ctr].find(index);
         if (jt != J[ctr].end())
-            jt->second += it->linear_coefs[j].get_value();
+            jt->second += it->linear_coefs[j].value();
         else {
             k_count[ index ].insert(ctr);
-            J[ctr][index] = it->linear_coefs[j].get_value();
+            J[ctr][index] = it->linear_coefs[j].value();
             }
 /*
         if (auto jt{ J[ctr].find(index) };  jt != J[ctr].end() )
-            jt->second += it->linear_coefs[j].get_value();
+            jt->second += it->linear_coefs[j].value();
         else {
             k_count[ index ].insert(ctr);
-            J[ctr][index] = it->linear_coefs[j].get_value();
+            J[ctr][index] = it->linear_coefs[j].value();
             }
 */
         }
@@ -938,7 +938,7 @@ try {
             print_expr(ostr, *it, varmap, true);
             }
         else {
-            ostr << "n" << it->constval.get_value() << '\n';
+            ostr << "n" << it->constval.value() << '\n';
             }
         }
 
@@ -1136,7 +1136,7 @@ for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ++ctr) {
         print_expr(ostr, *it, varmap, true);
         }
     else {
-        ostr.print("n{}\n", it->constval.get_value());
+        ostr.print("n{}\n", it->constval.value());
         }
     }
 }

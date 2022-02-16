@@ -16,8 +16,8 @@ TEST_CASE( "solver_test", "[smoke]" ) {
     coek::Model model;
     auto v = model.add_variable("v").lower(0).upper(1).within(coek::Integers);
     auto w = model.add_variable("w").lower(0).upper(1).within(coek::Integers);
-    coek::Parameter p("p",2);
-    coek::Parameter q("q",2);
+    auto p = coek::parameter("p").value(2);
+    auto q = coek::parameter("q").value(2);
 
     model.add_objective( 2*v + 3*w );
     model.add_constraint( 4*v + 5*w <= q );
@@ -39,7 +39,7 @@ TEST_CASE( "solver_test", "[smoke]" ) {
     REQUIRE( solver.repn->vupdates.size() == 0);
     REQUIRE( solver.repn->pupdates.size() == 0);
 
-    p.set_value(3);
+    p.value(3);
     solver.resolve();
 
     REQUIRE( solver.repn->vcache.size() == 0);
@@ -54,8 +54,8 @@ TEST_CASE( "solver_test", "[smoke]" ) {
     REQUIRE( solver.repn->vupdates.size() == 0);
     REQUIRE( solver.repn->pupdates.size() == 0);
 
-    p.set_value(4);
-    q.set_value(4);
+    p.value(4);
+    q.value(4);
     solver.resolve();
 
     REQUIRE( solver.repn->vcache.size() == 0);
@@ -69,8 +69,8 @@ TEST_CASE( "solver_test", "[smoke]" ) {
     auto v = model.add_variable("v").lower(0).upper(1).value(0).within(coek::Integers);
     auto w = model.add_variable("w").lower(0).upper(1).value(0).within(coek::Integers);
     w.fixed(true);
-    coek::Parameter p("p",2);
-    coek::Parameter q("q",2);
+    auto p = coek::parameter("p").value(2);
+    auto q = coek::parameter("q").value(2);
 
     model.add_objective( 2*v + 3*w );
     model.add_constraint( 4*v + 5*w <= q );
@@ -93,7 +93,7 @@ TEST_CASE( "solver_test", "[smoke]" ) {
     REQUIRE( solver.repn->vupdates.size() == 0);
     REQUIRE( solver.repn->pupdates.size() == 0);
 
-    p.set_value(3);
+    p.value(3);
     w.value(3);
     solver.resolve();
 
@@ -109,7 +109,7 @@ TEST_CASE( "solver_test", "[smoke]" ) {
     REQUIRE( solver.repn->vupdates.size() == 0);
     REQUIRE( solver.repn->pupdates.size() == 0);
 
-    p.set_value(4);
+    p.value(4);
     w.value(5);
     solver.resolve();
 
@@ -123,8 +123,8 @@ TEST_CASE( "solver_test", "[smoke]" ) {
     coek::Model model;
     auto v = model.add_variable("v").lower(0).upper(1).within(coek::Integers);
     auto w = model.add_variable("w").lower(0).upper(1).within(coek::Integers);
-    coek::Parameter p("p",2);
-    coek::Parameter q("q",2);
+    auto p = coek::parameter("p").value(2);
+    auto q = coek::parameter("q").value(2);
 
     model.add_objective( 2*v + 3*w );
     model.add_constraint( 4*v + 5*w <= q );

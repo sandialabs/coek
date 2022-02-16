@@ -263,6 +263,11 @@ public:
 };
 
 
+//
+// NOTE: The other variable() function declarations are in expression.hpp
+//
+// These need to be consolidated.
+//
 AbstractIndexedVariable variable(const std::string& name, const AbstractSet& arg);
 
 ConcreteIndexedVariable variable(const ConcreteSet& arg);

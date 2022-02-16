@@ -153,9 +153,9 @@ public:
         bool binary = (vtype == Boolean) or (vtype == Binary);
         bool integer = vtype == Integers;
         for (size_t i=0; i<concrete_set.size(); i++) {
-            auto lower = variable_template.lower_expression().expand().get_value();
-            auto upper = variable_template.upper_expression().expand().get_value();
-            auto value = variable_template.value_expression().expand().get_value();
+            auto lower = variable_template.lower_expression().expand().value();
+            auto upper = variable_template.upper_expression().expand().value();
+            auto value = variable_template.value_expression().expand().value();
             values.emplace_back(CREATE_POINTER(IndexedVariableTerm, 
                                         CREATE_POINTER(ConstantTerm, lower),
                                         CREATE_POINTER(ConstantTerm, upper),

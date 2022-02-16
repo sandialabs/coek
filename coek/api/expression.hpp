@@ -153,18 +153,12 @@ public:
     /** Constructs a Parameter with the default value zero. */
     Parameter();
     /**
-      * Constructs a Parameter initialized with a given value.
-      *
-      * \param value   the initial value of the parameter
-      */
-    Parameter(double value);
-    /**
       * Constructs a Parameter initialized with a given value and a name.
       *  
       * \param value   the initial value of the parameter
       * \param name   the name of the parameter
       */
-    Parameter(const std::string& name, double value=0.0);
+    Parameter(const std::string& name);
     /**
       * Copy constructor
       *
@@ -172,25 +166,21 @@ public:
       */
     Parameter(const Parameter& arg);
     ~Parameter();
-
     Parameter& operator=(const Parameter& arg);
 
     /** \returns the value of the parameter */
-    double get_value() const;
-    /**
-      * Set the value of the parameter
-      *
-      * \param value   the parameter value
-      */
-    void set_value(double value);
+    double value() const;
+    /** Set the value of the parameter */
+    Parameter& value(double value);
+
+    /** \returns the name of the parameter */
+    std::string name() const;
+    /** Set the name of the parameter */
+    Parameter& name(const std::string& name);
+
     /** \returns \c false because this is not a contant */
     bool is_constant() const
         {return false;}
-
-    /** \returns the name of the parameter */
-    std::string get_name() const;
-    /** Set the name of the parameter */
-    void set_name(const std::string& name);
 
     COEK_API_OPERATORS
 
@@ -204,6 +194,9 @@ public:
       */
     friend std::ostream& operator<<(std::ostream& ostr, const Parameter& arg);
 };
+
+Parameter parameter();
+Parameter parameter(const std::string& name);
 
 
 // Index Parameter 
@@ -226,16 +219,21 @@ public:
     bool get_value(int& value) const;
     bool get_value(std::string& value) const;
 
-    void set_value(double value);
-    void set_value(int value);
-    void set_value(const std::string& value);
+    IndexParameter& value(double value);
+    IndexParameter& value(int value);
+    IndexParameter& value(const std::string& value);
 
-    std::string get_name() const;
+    std::string name() const;
+    IndexParameter& name(const std::string& name);
 
     COEK_API_OPERATORS
 
     friend std::ostream& operator<<(std::ostream& ostr, const IndexParameter& arg);
 };
+
+
+IndexParameter set_index();
+IndexParameter set_index(const std::string& name);
 
 
 enum VariableTypes : unsigned int { Reals=0, Integers=1, Boolean=2, Binary=3 };
@@ -380,7 +378,7 @@ public:
       * expression tree using values for the associated
       * Parameter and Variable objects.
       */
-    double get_value() const;
+    double value() const;
 
     /** \returns a list representation of the expression */
     std::list<std::string> to_list() const;

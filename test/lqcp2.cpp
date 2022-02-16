@@ -31,10 +31,8 @@ int main(int argc, char** argv) {
 
   coek::CompactModel model;
 
-  coek::IndexParameter i("i");
-  coek::IndexParameter j("j");
-  //auto i = coek::Index("i");
-  //auto j = coek::Index("j");
+  auto i = coek::set_index("i");
+  auto j = coek::set_index("j");
 
   auto M = coek::RangeSet(0, m);
   auto N = coek::RangeSet(0, n);

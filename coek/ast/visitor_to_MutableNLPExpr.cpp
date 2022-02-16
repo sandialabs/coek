@@ -158,7 +158,7 @@ visit_expression(expr.lhs, lhs_repn, multiplier);
 // LHS is a simple constant
 if ((lhs_repn.linear_coefs.size() == 0) and (lhs_repn.quadratic_coefs.size() == 0) and (lhs_repn.nonlinear.repn == ZEROCONST) and lhs_repn.constval.is_constant()) {
     if (lhs_repn.constval.repn != ZEROCONST)
-        visit_expression(expr.rhs, repn, lhs_repn.constval.get_value());
+        visit_expression(expr.rhs, repn, lhs_repn.constval.value());
     return;
     }
 
@@ -284,11 +284,11 @@ visit_expression(expr.rhs, rhs_repn, 1.0);
 if (((rhs_repn.linear_coefs.size()+rhs_repn.quadratic_coefs.size()) == 0) and (rhs_repn.nonlinear.repn == ZEROCONST)) {
     // Dividing by a constant expression
     if (rhs_repn.constval.is_constant()) {
-        if (rhs_repn.constval.get_value() == 0) {
+        if (rhs_repn.constval.value() == 0) {
             throw std::runtime_error("Division by zero error.");
             }
         // Dividing by a simple constant
-        visit_expression(expr.lhs, repn, multiplier/rhs_repn.constval.get_value());
+        visit_expression(expr.lhs, repn, multiplier/rhs_repn.constval.value());
         }
     else {
         // Dividing by a constant expression
@@ -316,7 +316,7 @@ if (((rhs_repn.linear_coefs.size()+rhs_repn.quadratic_coefs.size()) == 0) and (r
 MutableNLPExpr lhs_repn;
 visit_expression(expr.lhs, lhs_repn, multiplier);
 if (((lhs_repn.linear_coefs.size()+lhs_repn.quadratic_coefs.size()) == 0) and (lhs_repn.nonlinear.repn == ZEROCONST)) {
-    if (lhs_repn.constval.is_constant() and (lhs_repn.constval.get_value() == 0))
+    if (lhs_repn.constval.is_constant() and (lhs_repn.constval.value() == 0))
         return;
     }
 repn.mutable_values = repn.mutable_values or lhs_repn.mutable_values or rhs_repn.mutable_values;

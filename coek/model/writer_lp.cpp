@@ -355,9 +355,9 @@ for (auto& val: model.repn->variables) {
         Expression ub = eval->upper_expression().expand();
         Expression value = eval->value_expression().expand();
         auto tmp = variable(eval->name()).
-                    lower(lb.get_value()).
-                    upper(ub.get_value()).
-                    value(value.get_value()).
+                    lower(lb.value()).
+                    upper(ub.value()).
+                    value(value.value()).
                     within(eval->within());
         variables.push_back(tmp);
         if (tmp.is_binary())
@@ -473,18 +473,18 @@ ostr << "c" << ctr << ":\n";
 ++ctr;
 CALI_MARK_END("collect_terms");
 
-bool is_equality = not c.is_inequality() or (lower.repn and upper.repn and (::fabs(lower.get_value()-upper.get_value()) < EPSILON));
+bool is_equality = not c.is_inequality() or (lower.repn and upper.repn and (::fabs(lower.value()-upper.value()) < EPSILON));
 
 if (not is_equality) {
     //CALI_MARK_BEGIN("IF");
     if (lower.repn) {
-        ostr << lower.get_value() - tmp;
+        ostr << lower.value() - tmp;
         ostr << " <= ";
         }
     print_repn(ostr, expr, vid);
     if (upper.repn) {
         ostr << " <= ";
-        ostr << upper.get_value() - tmp;
+        ostr << upper.value() - tmp;
         }
     ostr << "\n\n";
     //CALI_MARK_END("IF");
@@ -493,7 +493,7 @@ else {
     print_repn(ostr, expr, vid);
     CALI_MARK_BEGIN("ELSE");
     ostr << "= ";
-    ostr << lower.get_value() - tmp;
+    ostr << lower.value() - tmp;
     ostr << "\n\n";
     CALI_MARK_END("ELSE");
     }
@@ -583,16 +583,16 @@ ostr.print("c{}:\n", ctr);
 ++ctr;
 CALI_MARK_END("collect_terms");
 
-bool is_equality = not c.is_inequality() or (lower.repn and upper.repn and (::fabs(lower.get_value()-upper.get_value()) < EPSILON));
+bool is_equality = not c.is_inequality() or (lower.repn and upper.repn and (::fabs(lower.value()-upper.value()) < EPSILON));
 
 if (not is_equality) {
     //CALI_MARK_BEGIN("IF");
     if (lower.repn) {
-        ostr.print("{} <= ", lower.get_value() - tmp);
+        ostr.print("{} <= ", lower.value() - tmp);
         }
     print_repn(ostr, expr, vid);
     if (upper.repn) {
-        ostr.print(" <= {}", upper.get_value() - tmp);
+        ostr.print(" <= {}", upper.value() - tmp);
         }
     ostr.print("\n\n");
     //CALI_MARK_END("IF");
@@ -600,7 +600,7 @@ if (not is_equality) {
 else {
     print_repn(ostr, expr, vid);
     CALI_MARK_BEGIN("ELSE");
-    ostr.print("= {}\n\n", lower.get_value() - tmp);
+    ostr.print("= {}\n\n", lower.value() - tmp);
     CALI_MARK_END("ELSE");
     }
 }

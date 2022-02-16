@@ -61,9 +61,9 @@ REQUIRE( coek::env.check_memory() == true );
 
 TEST_CASE( "model_setup", "[smoke]" ) {
 {
-coek::Parameter q("q",2);
+auto q = coek::parameter("q").value(2);
 coek::Model model;
-coek::Variable a = model.add_variable("a").lower(0).upper(1).value(0).within(coek::Integers);
+auto a = model.add_variable("a").lower(0).upper(1).value(0).within(coek::Integers);
 auto b = coek::variable("b").lower(0).upper(1).value(0).within(coek::Boolean);
 model.add_variable(b);
 auto c = model.add_variable().lower(0).upper(1).value(3*q).within(coek::Boolean);
@@ -74,7 +74,7 @@ auto d = model.add_variable("d").lower(0).upper(1).value(4*q).within(coek::Boole
     WHEN( "mutable initial values" ) {
         REQUIRE( c.value() == 6 );
         REQUIRE( d.value() == 8 );
-        q.set_value(3);
+        q.value(3);
         REQUIRE( c.value() == 9 );
         REQUIRE( d.value() == 12 );
         }
@@ -206,7 +206,7 @@ TEST_CASE( "compact_model", "[smoke]" ) {
 #if 0
     SECTION("add_variable") {
         auto I = coek::RangeSet(0,3);
-        coek::IndexParameter i("i");
+        auto i = coek::set_index("i");
         coek::CompactModel Model;
         //Model.add_variable( Forall(i).In(I) ).lower(i+1).upper(2*i).value(3*i+2);
         auto x = coek::variable( Forall(i).In(I) ).lower(i+1).upper(2*i).value(3*i+2);
@@ -234,7 +234,7 @@ TEST_CASE( "compact_model", "[smoke]" ) {
 
     SECTION("add_objective") {
         auto I = coek::RangeSet(0,3);
-        coek::IndexParameter i("i");
+        auto i = coek::set_index("i");
         coek::CompactModel Model;
         auto x = Model.add_variable("x");
         Model.add_objective(i*x, Forall(i).In(I), coek::Model::maximize);
@@ -265,7 +265,7 @@ TEST_CASE( "compact_model", "[smoke]" ) {
 
     SECTION("add_constraint") {
         auto I = coek::RangeSet(0,3);
-        coek::IndexParameter i("i");
+        auto i = coek::set_index("i");
         coek::CompactModel Model;
         auto x = Model.add_variable("x");
         Model.add_constraint(i*x == 0, Forall(i).In(I));

@@ -10,7 +10,7 @@ const double E = exp(1.0);
 TEST_CASE( "cppad_add", "[smoke]" ) {
 
   SECTION( "error1" ) {
-    coek::Variable v("v");
+    auto v = coek::variable("v");
     coek::Model model;
     model.add_objective(v);
 
@@ -20,7 +20,7 @@ TEST_CASE( "cppad_add", "[smoke]" ) {
     }
 
   SECTION( "error2" ) {
-    coek::Variable v("v");
+    auto v = coek::variable("v");
     coek::Model model;
     model.add_objective(2*v);
 
@@ -525,7 +525,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
   SECTION( "param" ) {
     WHEN( "simple" ) {
         coek::Model model;
-        coek::Parameter p(3);
+        auto p = coek::parameter().value(3);
         coek::Expression f = p;
         auto v = model.add_variable("v");
         model.add_objective(f*v);
@@ -537,7 +537,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
         nlp.compute_df(x, ans);
         REQUIRE( ans == baseline );
 
-        p.set_value(4);
+        p.value(4);
         nlp.reset();
         std::vector<double> baseline2{4};
         nlp.compute_df(x, ans);
@@ -545,11 +545,11 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "many" ) {
         coek::Model model;
-        coek::Parameter p1(1);
-        coek::Parameter p2(2);
-        coek::Parameter p3(3);
-        coek::Parameter p4(4);
-        coek::Parameter p5(5);
+        auto p1 = coek::parameter().value(1);
+        auto p2 = coek::parameter().value(2);
+        auto p3 = coek::parameter().value(3);
+        auto p4 = coek::parameter().value(4);
+        auto p5 = coek::parameter().value(5);
         coek::Expression f = p1+2*p2+3*p3+4*p4+5*p5;
         auto v = model.add_variable("v");
         model.add_objective(f*v);
@@ -561,7 +561,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
         nlp.compute_df(x, ans);
         REQUIRE( ans == baseline );
 
-        p5.set_value(10);
+        p5.value(10);
         nlp.reset();
         std::vector<double> baseline2{1+4+9+16+50};
         nlp.compute_df(x, ans);
@@ -609,8 +609,8 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
   SECTION( "monomial" ) {
     WHEN( "other" ) {
         coek::Model m;
-        coek::Variable v = m.add_variable("v");
-        coek::Variable w = m.add_variable("w");
+        auto v = m.add_variable("v");
+        auto w = m.add_variable("w");
         coek::Expression f = 2*v;
         m.add_objective( f );
         coek::NLPModel nlp(m, "cppad");
@@ -624,8 +624,8 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
 
     WHEN( "fixed" ) {
         coek::Model m;
-        coek::Variable v = m.add_variable("v").value(0);
-        coek::Variable w = m.add_variable("w").value(0);
+        auto v = m.add_variable("v").value(0);
+        auto w = m.add_variable("w").value(0);
         v.fixed(true);
         coek::Expression f = 2*v;
         m.add_objective(f + 3*w);
@@ -642,8 +642,8 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
   SECTION( "plus" ) {
     WHEN( "linear" ) {
         coek::Model m;
-        coek::Parameter p(0);
-        coek::Variable v = m.add_variable("v");
+        auto p = coek::parameter();
+        auto v = m.add_variable("v");
         coek::Expression f = 2*(v+v)+v;
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -656,8 +656,8 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "simple" ) {
         coek::Model m;
-        coek::Parameter p(0);
-        coek::Variable v = m.add_variable("v");
+        auto p = coek::parameter();
+        auto v = m.add_variable("v");
         coek::Expression f = 3*p+2*v;
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -670,7 +670,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "multiple" ) {
         coek::Model m;
-        coek::Variable v = m.add_variable("v");
+        auto v = m.add_variable("v");
         coek::Expression f = 7*v+v;
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -686,7 +686,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
   SECTION( "negate" ) {
     WHEN( "linear" ) {
         coek::Model m;
-        coek::Variable v = m.add_variable("v");
+        auto v = m.add_variable("v");
         coek::Expression f = -(v+1);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -703,7 +703,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     WHEN( "lhs zero" ) {
         coek::Model m;
         coek::Expression p;
-        coek::Variable v = m.add_variable("v");
+        auto v = m.add_variable("v");
         coek::Expression f = p*v;
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -716,8 +716,8 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "lhs constant" ) {
         coek::Model m;
-        coek::Parameter p("p",2);
-        coek::Variable v = m.add_variable("v");
+        auto p = coek::parameter("p").value(2);
+        auto v = m.add_variable("v");
         coek::Expression f = p*v;
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -731,7 +731,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     WHEN( "rhs zero" ) {
         coek::Model m;
         coek::Expression p;
-        coek::Variable v = m.add_variable("v");
+        auto v = m.add_variable("v");
         coek::Expression f = v*p;
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -744,8 +744,8 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "rhs constant" ) {
         coek::Model m;
-        coek::Parameter p("p",2);
-        coek::Variable v = m.add_variable("v");
+        auto p = coek::parameter("p").value(2);
+        auto v = m.add_variable("v");
         coek::Expression f = v*p;
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -758,8 +758,8 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "simple quadratic" ) {
         coek::Model m;
-        coek::Variable v = m.add_variable("v");
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto v = m.add_variable("v");
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = v*w;
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -775,8 +775,8 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
   SECTION( "divide" ) {
     WHEN( "lhs zero" ) {
         coek::Model m;
-        coek::Parameter p("p",0);
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto p = coek::parameter("p");
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = p/w;
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -789,8 +789,8 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "rhs nonzero" ) {
         coek::Model m;
-        coek::Parameter p("p",2.0);
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto p = coek::parameter("p").value(2);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = w/p;
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -803,7 +803,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "rhs polynomial" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = w/(1+w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -819,8 +819,8 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
   SECTION( "coverage" ) {
     WHEN( "variable partial plus monomial - 1" ) {
         coek::Model m;
-        coek::Variable v = m.add_variable("v");
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto v = m.add_variable("v");
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = w*v + v*(2*w+1);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -833,8 +833,8 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "variable partial plus monomial - 2" ) {
         coek::Model m;
-        coek::Variable v = m.add_variable("v");
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto v = m.add_variable("v");
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = v*(2*w+1);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -847,7 +847,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "constant partial plus monomial" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = 3*w + 2*w;
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -860,7 +860,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "negative monomial" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = -(-w) + (-(-w));
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -873,8 +873,8 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "shared subexpr" ) {
         coek::Model m;
-        coek::Variable v = m.add_variable("v");
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto v = m.add_variable("v");
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = v + 2*w;
         m.add_objective(2*f+3*f);
         coek::NLPModel nlp(m, "cppad");
@@ -890,7 +890,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
   SECTION( "intrinsic funcs" ) {
     WHEN( "exp" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = abs(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -905,7 +905,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     //REPN_INTRINSIC_TEST1(floor)
     WHEN( "exp" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = exp(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -918,7 +918,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "log" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = log(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -931,7 +931,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "log10" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = log10(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -944,7 +944,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "sqrt" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = sqrt(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -957,7 +957,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "sin" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = sin(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -970,7 +970,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "cos" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = cos(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -983,7 +983,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "tan" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = tan(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -996,7 +996,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "sinh" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = sinh(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -1010,7 +1010,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "cosh" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = cosh(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -1024,7 +1024,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "tanh" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = tanh(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -1038,7 +1038,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "asin" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = asin(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -1052,7 +1052,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "acos" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = acos(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -1067,7 +1067,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "atan" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = atan(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -1081,7 +1081,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "asinh" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = asinh(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -1096,7 +1096,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "acosh" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = acosh(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -1111,7 +1111,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "atanh" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = atanh(2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -1126,7 +1126,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "pow - 1" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = pow(w, 3);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");
@@ -1141,7 +1141,7 @@ TEST_CASE( "diff_tests", "[smoke]" ) {
     }
     WHEN( "pow - 2" ) {
         coek::Model m;
-        coek::Variable w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = pow(3, 2*w);
         m.add_objective(f);
         coek::NLPModel nlp(m, "cppad");

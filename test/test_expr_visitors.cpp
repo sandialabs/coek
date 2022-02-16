@@ -162,13 +162,13 @@ TEST_CASE( "expr_writer", "[smoke]" ) {
 
   SECTION( "param" ) {
     WHEN( "unnamed ") {
-        coek::Parameter q(3);
+        auto q = coek::parameter().value(3);
         std::stringstream sstr;
         sstr << q;
         REQUIRE( sstr.str() == "3.000" );
     }
     WHEN( "named ") {
-        coek::Parameter q("q",3);
+        auto q = coek::parameter("q").value(3);
         std::stringstream sstr;
         sstr << q;
         REQUIRE( sstr.str() == "q" );
@@ -347,7 +347,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
   }
 
   SECTION( "param" ) {
-    coek::Parameter p(3);
+    auto p = coek::parameter().value(3);
     coek::Expression e = p;
     coek::QuadraticExpr repn;
     repn.collect_terms(e);
@@ -416,7 +416,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
 
   SECTION( "times" ) {
     WHEN( "lhs zero" ) {
-        coek::Parameter p(0);
+        auto p = coek::parameter();
         auto w = coek::variable("w").lower(0).upper(1).value(0);
         coek::Expression e = p*w;
         coek::QuadraticExpr repn;
@@ -428,7 +428,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     }
     WHEN( "lhs constant" ) {
         coek::Model m;
-        coek::Parameter p(2);
+        auto p = coek::parameter().value(2);
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = p*w;
         coek::QuadraticExpr repn;
@@ -442,7 +442,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     }
     WHEN( "rhs zero" ) {
         coek::Model m;
-        coek::Parameter p(0);
+        auto p = coek::parameter();
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = w*p;
         coek::QuadraticExpr repn;
@@ -454,7 +454,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     }
     WHEN( "rhs constant" ) {
         coek::Model m;
-        coek::Parameter p(2);
+        auto p = coek::parameter().value(2);
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = (w + w*w)*p;
         coek::QuadraticExpr repn;
@@ -526,7 +526,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
   SECTION( "divide" ) {
     WHEN( "lhs zero" ) {
         coek::Model m;
-        coek::Parameter p(0);
+        auto p = coek::parameter();
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = p/w;
         coek::QuadraticExpr repn;
@@ -538,7 +538,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     }
     WHEN( "rhs zero" ) {
         coek::Model m;
-        coek::Parameter p(0);
+        auto p = coek::parameter();
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = w/p;
         coek::QuadraticExpr repn;
@@ -547,7 +547,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     }
     WHEN( "rhs polynomial" ) {
         coek::Model m;
-        coek::Parameter p(0);
+        auto p = coek::parameter();
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = w/(1+w);
         coek::QuadraticExpr repn;
@@ -556,7 +556,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     }
     WHEN( "rhs nonzero" ) {
         coek::Model m;
-        coek::Parameter p(2.0);
+        auto p = coek::parameter().value(2);
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = (w*w+w+1)/p;
         coek::QuadraticExpr repn;
@@ -595,7 +595,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     WHEN( "pow(x,0)" ) {
         coek::Model m;
         auto x = m.add_variable("x");
-        coek::Parameter p("p",0);
+        auto p = coek::parameter();
         coek::Expression e = pow(x,p);
         coek::QuadraticExpr repn;
         repn.collect_terms(e);
@@ -608,7 +608,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     WHEN( "pow(x,1)" ) {
         coek::Model m;
         auto x = m.add_variable("x");
-        coek::Parameter p("p",1);
+        auto p = coek::parameter().value(1);
         coek::Expression e = pow(x,p);
         coek::QuadraticExpr repn;
         repn.collect_terms(e);
@@ -622,7 +622,7 @@ TEST_CASE( "expr_to_QuadraticExpr", "[smoke]" ) {
     WHEN( "pow(x,1)" ) {
         coek::Model m;
         auto x = m.add_variable("x");
-        coek::Parameter p("p",2);
+        auto p = coek::parameter().value(2);
         coek::Expression e = pow(x*x,p);
         coek::QuadraticExpr repn;
         REQUIRE_THROWS(repn.collect_terms(e));
@@ -639,16 +639,16 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
 
   SECTION( "constant" ) {
     coek::Expression f(3);
-    coek::Variable v;
+    auto v = coek::variable();
     auto e = f.diff(v);
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
   }
 
   SECTION( "param" ) {
-    coek::Parameter p(3);
+    auto p = coek::parameter().value(3);
     coek::Expression f = p;
-    coek::Variable v;
+    auto v = coek::variable();
     auto e = f.diff(v);
     static std::list<std::string> baseline = {"0.000"};
     REQUIRE( e.to_list() == baseline );
@@ -656,7 +656,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
 
   SECTION( "var" ) {
     WHEN( "fixed" ) {
-        coek::Variable v;
+        auto v = coek::variable();
         v.fixed(true);
         coek::Expression f = v;
         auto e = f.diff(v);
@@ -665,7 +665,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
 
     WHEN( "same" ) {
-        coek::Variable v;
+        auto v = coek::variable();
         coek::Expression f = v;
         auto e = f.diff(v);
         static std::list<std::string> baseline = {"1.000"};
@@ -673,8 +673,8 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
 
     WHEN( "different" ) {
-        coek::Variable v;
-        coek::Variable w;
+        auto v = coek::variable();
+        auto w = coek::variable();
         coek::Expression f = w;
         auto e = f.diff(v);
         static std::list<std::string> baseline = {"0.000"};
@@ -715,7 +715,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
 
   SECTION( "plus" ) {
     WHEN( "linear" ) {
-        coek::Parameter p(0);
+        auto p = coek::parameter();
         auto v = coek::variable("v").lower(0).upper(1).value(0);
         coek::Expression f = 2*(v+v)+v;
         auto e = f.diff(v);
@@ -723,7 +723,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "simple" ) {
-        coek::Parameter p(0);
+        auto p = coek::parameter();
         auto v = coek::variable("v").lower(0).upper(1).value(0);
         coek::Expression f = 3*p+2*v;
         auto e = f.diff(v);
@@ -731,7 +731,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "multiple" ) {
-        coek::Parameter p(0);
+        auto p = coek::parameter();
         auto v = coek::variable("v").lower(0).upper(1).value(0);
         coek::Expression f = 7*v+v;
         auto e = f.diff(v);
@@ -742,7 +742,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
 
   SECTION( "negate" ) {
     WHEN( "linear" ) {
-        coek::Parameter p(0);
+        auto p = coek::parameter();
         auto v = coek::variable("v").lower(0).upper(1).value(0);
         coek::Expression f = -(v+1);
         auto e = f.diff(v);
@@ -762,7 +762,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "lhs constant" ) {
         coek::Model m;
-        coek::Parameter p("p",2);
+        auto p = coek::parameter("p").value(2);
         auto v = m.add_variable("v").lower(0).upper(1).value(0);
         coek::Expression f = p*v;
         auto e = f.diff(v);
@@ -780,7 +780,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "rhs constant" ) {
         coek::Model m;
-        coek::Parameter p("p",2);
+        auto p = coek::parameter("p").value(2);
         auto v = m.add_variable("v").lower(0).upper(1).value(0);
         coek::Expression f = v*p;
         auto e = f.diff(v);
@@ -810,7 +810,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
   SECTION( "divide" ) {
     WHEN( "lhs zero" ) {
         coek::Model m;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = p/w;
         auto e = f.diff(w);
@@ -819,7 +819,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     }
     WHEN( "rhs nonzero" ) {
         coek::Model m;
-        coek::Parameter p("p",2.0);
+        auto p = coek::parameter("p").value(2);
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = w/p;
         auto e = f.diff(w);
@@ -1051,7 +1051,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
   SECTION( "param" ) {
     WHEN( "simple" ) {
         {
-        coek::Parameter p("p",3);
+        auto p = coek::parameter("p").value(3);
         coek::Expression e = p;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1068,7 +1068,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     }
     WHEN( "nontrivial multiplier" ) {
         {
-        coek::Parameter p("p",3);
+        auto p = coek::parameter("p").value(3);
         coek::Expression e = p/2;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1266,7 +1266,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "lhs constant" ) {
         {
         coek::Model m;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(3);
         coek::Expression e = p*w;
         coek::MutableNLPExpr repn;
@@ -1287,7 +1287,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "rhs constant" ) {
         {
         coek::Model m;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(3);
         coek::Expression e = w*p;
         coek::MutableNLPExpr repn;
@@ -1417,7 +1417,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         // Force expression of multiplication between constant parameter and quadratic term
         coek::Model m;
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
-        coek::Parameter p("p");
+        auto p = coek::parameter("p");
         coek::Expression e = ceil(w)*floor(w) + p*(w*w);
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1437,7 +1437,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "lhs parameter - zero" ) {
         {
         coek::Model m;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = p/w;
         coek::MutableNLPExpr repn;
@@ -1457,7 +1457,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "rhs parameter - zero" ) {
         {
         coek::Model m;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = w/p;
         coek::MutableNLPExpr repn;
@@ -1498,7 +1498,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         {
         coek::Model m;
         coek::Expression p;
-        coek::Parameter w("w",1);
+        auto w = coek::parameter("w").value(1);
         coek::Expression e = p/(w+1);
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
@@ -1549,7 +1549,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "rhs nonzero" ) {
         {
         coek::Model m;
-        coek::Parameter p("p",2.0);
+        auto p = coek::parameter("p").value(2);
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression e = (w*w+w+1)/p;
         coek::MutableNLPExpr repn;
@@ -1572,7 +1572,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "inequality" ) {
         {
         coek::Model m;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(3);
         coek::Constraint e = p*w + 1 <= 2;
         coek::MutableNLPExpr repn;
@@ -1593,7 +1593,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     WHEN( "equality" ) {
         {
         coek::Model m;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(3);
         coek::Constraint e = p*w -1 == 2;
         coek::MutableNLPExpr repn;
@@ -1655,7 +1655,7 @@ std::unordered_set<coek::ParameterTerm*> params;
   }
 
   SECTION( "param" ) {
-    coek::Parameter p(3);
+    auto p = coek::parameter().value(3);
     coek::Expression e = p;
     mutable_values(e.repn, fixed_vars, params);
 
@@ -1666,7 +1666,7 @@ std::unordered_set<coek::ParameterTerm*> params;
   }
 
   SECTION( "indexparam" ) {
-    coek::IndexParameter p("p");
+    auto p = coek::set_index("p");
     coek::Expression e = p;
     mutable_values(e.repn, fixed_vars, params);
 
@@ -1678,7 +1678,7 @@ std::unordered_set<coek::ParameterTerm*> params;
 
   SECTION( "var" ) {
     WHEN( "fixed" ) {
-        coek::Variable v;
+        auto v = coek::variable();
         v.fixed(true);
         coek::Expression e = v;
         mutable_values(e.repn, fixed_vars, params);
@@ -1690,7 +1690,7 @@ std::unordered_set<coek::ParameterTerm*> params;
     }
 
     WHEN( "same" ) {
-        coek::Variable v;
+        auto v = coek::variable();
         coek::Expression e = v;
         mutable_values(e.repn, fixed_vars, params);
 
@@ -1741,7 +1741,7 @@ std::unordered_set<coek::ParameterTerm*> params;
         REQUIRE( params == pbaseline );
     }
     WHEN( "simple" ) {
-        coek::Parameter p(0);
+        auto p = coek::parameter();
         auto v = coek::variable("v").lower(0).upper(1).value(0);
         v.fixed(true);
         coek::Expression e = 3*p+2*v;
@@ -1756,7 +1756,7 @@ std::unordered_set<coek::ParameterTerm*> params;
 
   SECTION( "negate" ) {
     WHEN( "linear" ) {
-        coek::Parameter p(0);
+        auto p = coek::parameter();
         auto v = coek::variable("v").lower(0).upper(1).value(0).fixed(true);
         coek::Expression e = -(v+1);
         mutable_values(e.repn, fixed_vars, params);
@@ -1771,7 +1771,7 @@ std::unordered_set<coek::ParameterTerm*> params;
   SECTION( "times" ) {
     WHEN( "lhs constant" ) {
         coek::Model m;
-        coek::Parameter p("p",2);
+        auto p = coek::parameter().value(2);
         auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);
         coek::Expression e = p*v;
         mutable_values(e.repn, fixed_vars, params);
@@ -1798,7 +1798,7 @@ std::unordered_set<coek::ParameterTerm*> params;
   SECTION( "divide" ) {
     WHEN( "lhs zero" ) {
         coek::Model m;
-        coek::Parameter p("p",0);
+        auto p = coek::parameter();
         auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
         coek::Expression e = p/w;
         mutable_values(e.repn, fixed_vars, params);
@@ -1810,7 +1810,7 @@ std::unordered_set<coek::ParameterTerm*> params;
     }
     WHEN( "rhs nonzero" ) {
         coek::Model m;
-        coek::Parameter p("p",2.0);
+        auto p = coek::parameter().value(2);
         auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
         coek::Expression e = w/p;
         mutable_values(e.repn, fixed_vars, params);
