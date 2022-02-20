@@ -162,60 +162,25 @@ public:
             }
 
         for (auto it=concrete_set.begin(); it != concrete_set.end(); ++it) {
+#if 1
             auto indices = *it;
             if (indices.size() == 1) {
                 auto tmp = indices[0];
-#if 1
                 names.push_back(name + "(" + std::to_string(tmp) + ")");
-#else
-                if (auto ival = std::get_if<int>(&tmp)) {
-                    names.push_back(name + "(" + std::to_string(*ival) + ")");
-                    }
-                else if (auto dval = std::get_if<double>(&tmp)) {
-                    names.push_back(name + "(" + std::to_string(*dval) + ")");
-                    }
-                else {
-                    auto sval = std::get<std::string>(tmp);
-                    names.push_back(name + "(" + sval + ")");
-                    }
-#endif
                 }
             else {
                 std::string _name = name + "(";
                 auto tmp = indices[0];
-#if 1
                 _name += std::to_string(tmp);
-#else
-                if (auto ival = std::get_if<int>(&tmp)) {
-                    _name += std::to_string(*ival);
-                    }
-                else if (auto dval = std::get_if<double>(&tmp)) {
-                    _name += std::to_string(*dval);
-                    }
-                else {
-                    auto sval = std::get<std::string>(tmp);
-                    _name += sval;
-                    }
-#endif
                 for (size_t j=1; j<indices.size(); j++) {
                     auto tmp = indices[j];
-#if 1
                     _name += "," + std::to_string(tmp);
-#else
-                    if (auto ival = std::get_if<int>(&tmp)) {
-                        _name += "," + std::to_string(*ival);
-                        }
-                    else if (auto dval = std::get_if<double>(&tmp)) {
-                        _name += "," + std::to_string(*dval);
-                        }
-                    else {
-                        auto sval = std::get<std::string>(tmp);
-                        _name += "," + sval;
-                        }
-#endif
                     }
                 names.push_back(_name + ")");
                 }
+#else
+                names.push_back("");
+#endif
             }
 #ifdef USING_INDEXVECTOR
         size_t dim = concrete_set.dim();
