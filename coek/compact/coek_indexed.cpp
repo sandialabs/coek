@@ -2,17 +2,22 @@
 #include <cmath>
 #include "../ast/compact_terms.hpp"
 #include "coek/compact/coek_indexed.hpp"
+#include "coek/model/model.hpp"
 
+
+namespace {
+typedef typename coek::IndexVector::vecdata_t vecdata_t;
+}
 
 namespace std
 {
     template<>
     struct hash<coek::IndexVector>
     {
-        size_t operator()(const coek::IndexVector& a) const
+        vecdata_t operator()(const coek::IndexVector& a) const
         {
-            hash<int> hasher;
-            size_t h = 0;
+            hash<vecdata_t> hasher;
+            vecdata_t h = static_cast<vecdata_t>(a.size());
             size_t a_size = a.size();
             for (size_t i = 0; i < a_size; ++i)
             {
@@ -34,8 +39,9 @@ class IndexVectorCache
 {
 public:
 
+    typedef typename IndexVector::vecdata_t vecdata_t;
     size_t len;
-    int* data;
+    vecdata_t* data;
     size_t curr;
 
 public:
@@ -45,7 +51,7 @@ public:
         {}
     IndexVectorCache(size_t _len)
         : len(_len), curr(0)
-        { data = new int[len]; }
+        { data = new vecdata_t[len]; }
 
     IndexVectorCache(const IndexVectorCache& other) = delete;
 
@@ -56,14 +62,14 @@ public:
         {
         assert(len == 0);
         len = _len;
-        data = new int[len];
+        data = new vecdata_t[len];
         }
 
     IndexVector alloc(size_t _len)
         {
         assert((curr+_len+1) <= len);
         auto tmp = data+curr;
-        *tmp = static_cast<int>(_len);
+        *tmp = static_cast<vecdata_t>(_len);
         //IndexVector vec(tmp);
         curr += _len+1;
         return IndexVector(tmp);
@@ -76,7 +82,7 @@ public:
 //
 expr_pointer_t get_concrete_var(VariableRefTerm& varref)
 {
-ConcreteIndexedVariable* var = static_cast<ConcreteIndexedVariable*>(varref.var);
+VariableMap* var = static_cast<VariableMap*>(varref.var);
 
 std::vector<int> index;
 for (auto it=varref.indices.begin(); it != varref.indices.end(); ++it) {
@@ -88,7 +94,7 @@ for (auto it=varref.indices.begin(); it != varref.indices.end(); ++it) {
         double vald = eval->eval();
         long int vali = std::lround(vald);
         assert(fabs(vald-vali) < 1e-7);
-        index.push_back(vali);
+        index.push_back(static_cast<int>(vali));
         }
     }
 
@@ -101,11 +107,10 @@ return e.repn;
 }
 
 //
-// ConcreteIndexedVariableRepn
+// VariableAssocArrayRepn
 //
 
-
-class ConcreteIndexedVariableRepn
+class VariableAssocArrayRepn
 {
 public:
 
@@ -122,15 +127,8 @@ public:
 
 public:
 
-    ConcreteIndexedVariableRepn(const ConcreteSet& _arg)
+    VariableAssocArrayRepn(const ConcreteSet& _arg)
         : concrete_set(_arg), call_setup(true)
-        {
-        size_t dim = concrete_set.dim();
-        cache.resize((dim+2)*concrete_set.size());
-        }
-
-    ConcreteIndexedVariableRepn(const ConcreteSet& _arg, const std::string& _name)
-        : concrete_set(_arg), name(_name), call_setup(true)
         {
         size_t dim = concrete_set.dim();
         cache.resize((dim+2)*concrete_set.size());
@@ -239,127 +237,25 @@ public:
 
 std::string IndexedVariableTerm::get_name()
 {
-ConcreteIndexedVariableRepn* _var = static_cast<ConcreteIndexedVariableRepn*>(var);
+VariableAssocArrayRepn* _var = static_cast<VariableAssocArrayRepn*>(var);
 return _var->get_name(vindex);
 }
 
 
-ConcreteIndexedVariable::ConcreteIndexedVariable(const ConcreteSet& arg)
-{
-repn = std::make_shared<ConcreteIndexedVariableRepn>(arg);
-#ifdef USING_INDEXVECTOR
-tmp = repn->cache.alloc(repn->concrete_set.dim());
-#else
-tmp.resize(repn->concrete_set.dim());
-#endif
-reftmp.resize(repn->concrete_set.dim());
-}
+//
+// VariableAssocArray
+//
 
-ConcreteIndexedVariable::ConcreteIndexedVariable(const ConcreteSet& arg, const std::string& name)
-{
-repn = std::make_shared<ConcreteIndexedVariableRepn>(arg, name);
-#ifdef USING_INDEXVECTOR
-tmp = repn->cache.alloc(repn->concrete_set.dim());
-#else
-tmp.resize(repn->concrete_set.dim());
-#endif
-reftmp.resize(repn->concrete_set.dim());
-}
-
-ConcreteIndexedVariable& ConcreteIndexedVariable::value(double value)
-{
-repn->variable_template.value(value);
-repn->call_setup = true;
-return *this;
-}
-
-ConcreteIndexedVariable& ConcreteIndexedVariable::value(const Expression& value)
-{
-repn->variable_template.value(value);
-repn->call_setup = true;
-return *this;
-}
-
-ConcreteIndexedVariable& ConcreteIndexedVariable::lower(double value)
-{
-repn->variable_template.lower(value);
-repn->call_setup = true;
-return *this;
-}
-
-ConcreteIndexedVariable& ConcreteIndexedVariable::lower(const Expression& value)
-{
-repn->variable_template.lower(value);
-repn->call_setup = true;
-return *this;
-}
-
-ConcreteIndexedVariable& ConcreteIndexedVariable::upper(double value)
-{
-repn->variable_template.upper(value);
-repn->call_setup = true;
-return *this;
-}
-
-ConcreteIndexedVariable& ConcreteIndexedVariable::upper(const Expression& value)
-{
-repn->variable_template.upper(value);
-repn->call_setup = true;
-return *this;
-}
-
-ConcreteIndexedVariable& ConcreteIndexedVariable::bounds(double lb, double ub)
-{
-repn->variable_template.bounds(lb,ub);
-repn->call_setup = true;
-return *this;
-}
-
-ConcreteIndexedVariable& ConcreteIndexedVariable::bounds(const Expression& lb, double ub)
-{
-repn->variable_template.bounds(lb,ub);
-repn->call_setup = true;
-return *this;
-}
-
-ConcreteIndexedVariable& ConcreteIndexedVariable::bounds(double lb, const Expression& ub)
-{
-repn->variable_template.bounds(lb,ub);
-repn->call_setup = true;
-return *this;
-}
-
-ConcreteIndexedVariable& ConcreteIndexedVariable::bounds(const Expression& lb, const Expression& ub)
-{
-repn->variable_template.bounds(lb,ub);
-repn->call_setup = true;
-return *this;
-}
-
-ConcreteIndexedVariable& ConcreteIndexedVariable::name(const std::string& name)
-{
-repn->name = name;
-repn->call_setup = true;
-return *this;
-}
-
-ConcreteIndexedVariable& ConcreteIndexedVariable::within(VariableTypes vtype)
-{
-repn->variable_template.within(vtype);
-repn->call_setup = true;
-return *this;
-}
-
-size_t ConcreteIndexedVariable::size() const
+size_t VariableAssocArray::size() const
 { return repn->concrete_set.size(); }
 
-std::vector<Variable>::iterator ConcreteIndexedVariable::begin()
+std::vector<Variable>::iterator VariableAssocArray::begin()
 { return repn->values.begin(); }
 
-std::vector<Variable>::iterator ConcreteIndexedVariable::end()
+std::vector<Variable>::iterator VariableAssocArray::end()
 { return repn->values.end(); }
 
-Expression ConcreteIndexedVariable::index(const IndexVector& args)
+Expression VariableAssocArray::index(const IndexVector& args)
 {
 auto _repn = repn.get();
 if (_repn->call_setup)
@@ -388,8 +284,278 @@ if (curr == _repn->index.end()) {
 return _repn->values[curr->second];
 }
 
-Expression ConcreteIndexedVariable::create_varref(const std::vector<refarg_types>& args)
+Expression VariableAssocArray::create_varref(const std::vector<refarg_types>& args)
 { return coek::create_varref(args, repn->name, this); }
+
+//
+// VariableMap
+//
+
+VariableMap::VariableMap(const ConcreteSet& arg)
+{
+repn = std::make_shared<VariableAssocArrayRepn>(arg);
+#ifdef USING_INDEXVECTOR
+tmp = repn->cache.alloc(repn->concrete_set.dim());
+#else
+tmp.resize(repn->concrete_set.dim());
+#endif
+reftmp.resize(repn->concrete_set.dim());
+}
+
+VariableMap& VariableMap::value(double value)
+{
+repn->variable_template.value(value);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.value(value);
+    }
+return *this;
+}
+
+VariableMap& VariableMap::value(const Expression& value)
+{
+repn->variable_template.value(value);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.value(value);
+    }
+return *this;
+}
+
+VariableMap& VariableMap::lower(double value)
+{
+repn->variable_template.lower(value);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.lower(value);
+    }
+return *this;
+}
+
+VariableMap& VariableMap::lower(const Expression& value)
+{
+repn->variable_template.lower(value);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.lower(value);
+    }
+return *this;
+}
+
+VariableMap& VariableMap::upper(double value)
+{
+repn->variable_template.upper(value);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.upper(value);
+    }
+return *this;
+}
+
+VariableMap& VariableMap::upper(const Expression& value)
+{
+repn->variable_template.upper(value);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.upper(value);
+    }
+return *this;
+}
+
+VariableMap& VariableMap::bounds(double lb, double ub)
+{
+repn->variable_template.bounds(lb,ub);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.bounds(lb,ub);
+    }
+return *this;
+}
+
+VariableMap& VariableMap::bounds(const Expression& lb, double ub)
+{
+repn->variable_template.bounds(lb,ub);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.bounds(lb,ub);
+    }
+return *this;
+}
+
+VariableMap& VariableMap::bounds(double lb, const Expression& ub)
+{
+repn->variable_template.bounds(lb,ub);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.bounds(lb,ub);
+    }
+return *this;
+}
+
+VariableMap& VariableMap::bounds(const Expression& lb, const Expression& ub)
+{
+repn->variable_template.bounds(lb,ub);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.bounds(lb,ub);
+    }
+return *this;
+}
+
+VariableMap& VariableMap::name(const std::string& name)
+{
+repn->name = name;
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.name(name);
+    }
+return *this;
+}
+
+VariableMap& VariableMap::within(VariableTypes vtype)
+{
+repn->variable_template.within(vtype);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.within(vtype);
+    }
+return *this;
+}
+
+//
+// VariableArray
+//
+
+VariableArray::VariableArray(const ConcreteSet& arg)
+{
+repn = std::make_shared<VariableAssocArrayRepn>(arg);
+#ifdef USING_INDEXVECTOR
+tmp = repn->cache.alloc(repn->concrete_set.dim());
+#else
+tmp.resize(repn->concrete_set.dim());
+#endif
+reftmp.resize(repn->concrete_set.dim());
+}
+
+VariableArray& VariableArray::value(double value)
+{
+repn->variable_template.value(value);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.value(value);
+    }
+return *this;
+}
+
+VariableArray& VariableArray::value(const Expression& value)
+{
+repn->variable_template.value(value);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.value(value);
+    }
+return *this;
+}
+
+VariableArray& VariableArray::lower(double value)
+{
+repn->variable_template.lower(value);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.lower(value);
+    }
+return *this;
+}
+
+VariableArray& VariableArray::lower(const Expression& value)
+{
+repn->variable_template.lower(value);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.lower(value);
+    }
+return *this;
+}
+
+VariableArray& VariableArray::upper(double value)
+{
+repn->variable_template.upper(value);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.upper(value);
+    }
+return *this;
+}
+
+VariableArray& VariableArray::upper(const Expression& value)
+{
+repn->variable_template.upper(value);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.upper(value);
+    }
+return *this;
+}
+
+VariableArray& VariableArray::bounds(double lb, double ub)
+{
+repn->variable_template.bounds(lb,ub);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.bounds(lb,ub);
+    }
+return *this;
+}
+
+VariableArray& VariableArray::bounds(const Expression& lb, double ub)
+{
+repn->variable_template.bounds(lb,ub);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.bounds(lb,ub);
+    }
+return *this;
+}
+
+VariableArray& VariableArray::bounds(double lb, const Expression& ub)
+{
+repn->variable_template.bounds(lb,ub);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.bounds(lb,ub);
+    }
+return *this;
+}
+
+VariableArray& VariableArray::bounds(const Expression& lb, const Expression& ub)
+{
+repn->variable_template.bounds(lb,ub);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.bounds(lb,ub);
+    }
+return *this;
+}
+
+VariableArray& VariableArray::name(const std::string& name)
+{
+repn->name = name;
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.name(name);
+    }
+return *this;
+}
+
+VariableArray& VariableArray::within(VariableTypes vtype)
+{
+repn->variable_template.within(vtype);
+if (repn->values.size() > 0) {
+    for (auto& var: repn->values)
+        var.within(vtype);
+    }
+return *this;
+}
 
 //
 // AbstractIndexedVariable
@@ -399,7 +565,7 @@ AbstractIndexedVariable::AbstractIndexedVariable(const AbstractSet& _arg, const 
     : name(_name), abstract_set(_arg)
 {}
 
-ConcreteIndexedVariable AbstractIndexedVariable::initialize()
+VariableMap AbstractIndexedVariable::initialize()
 {
 auto tmp = abstract_set.initialize();
 return tmp;
@@ -415,54 +581,18 @@ Expression AbstractIndexedVariable::index(const std::vector<refarg_types>& args)
 /*
 AbstractIndexedVariable variable(const std::string& name, const AbstractSet& arg)
 { return AbstractIndexedVariable(arg, name); }
-
-ConcreteIndexedVariable variable(const ConcreteSet& arg)
-{ return ConcreteIndexedVariable(arg); }
-
-ConcreteIndexedVariable variable(const std::string& name, const ConcreteSet& arg)
-{ return ConcreteIndexedVariable(arg, name); }
-
-ConcreteIndexedVariable variable(size_t n)
-{
-auto arg = coek::RangeSet(0, n-1);
-return ConcreteIndexedVariable(arg);
-}
-
-ConcreteIndexedVariable variable(const std::string& name, const std::vector<size_t>& dim)
-{
-assert(dim.size() > 0);
-auto arg = coek::RangeSet(0, dim[0]-1);
-if (dim.size() == 1) {
-    return ConcreteIndexedVariable(arg);
-    }
-for (size_t i=1; i<dim.size(); i++)
-    arg *= coek::RangeSet(0, dim[i]-1);
-return ConcreteIndexedVariable(arg, name);
-}
-
-ConcreteIndexedVariable variable(const std::vector<size_t>& dim)
-{
-assert(dim.size() > 0);
-auto arg = coek::RangeSet(0, dim[0]-1);
-if (dim.size() == 1) {
-    return ConcreteIndexedVariable(arg);
-    }
-for (size_t i=1; i<dim.size(); i++)
-    arg *= coek::RangeSet(0, dim[i]-1);
-return ConcreteIndexedVariable(arg);
-}
 */
 
-ConcreteIndexedVariable Variable::array(size_t n)
+VariableMap variable(const ConcreteSet& arg)
+{ return VariableMap(arg); }
+
+VariableArray variable(size_t n)
 {
 auto arg = coek::RangeSet(0, n-1);
-ConcreteIndexedVariable var(arg);
-var.name( this->name() );
-var.repn->variable_template = *this;
-return var;
+return VariableArray(arg);
 }
 
-ConcreteIndexedVariable Variable::array(const std::vector<size_t>& shape)
+VariableArray variable(const std::vector<size_t>& shape)
 {
 assert(shape.size() > 0);
 auto arg = coek::RangeSet(0, shape[0]-1);
@@ -470,53 +600,38 @@ if (shape.size() > 1) {
     for (size_t i=1; i<shape.size(); i++)
         arg *= coek::RangeSet(0, shape[i]-1);
     }
-ConcreteIndexedVariable var(arg);
-var.name( this->name() );
-var.repn->variable_template = *this;
-return var;
+return VariableArray(arg);
 }
 
-ConcreteIndexedVariable Variable::array(const std::initializer_list<size_t>& shape)
+VariableArray variable(const std::initializer_list<size_t>& shape)
 {
 assert(shape.size() > 0);
 auto it = shape.begin();
 auto arg = coek::RangeSet(0, *it-1);
 if (shape.size() > 1) {
+    it++;
     for (; it != shape.end(); ++it)
         arg *= coek::RangeSet(0, *it-1);
     }
-ConcreteIndexedVariable var(arg);
-var.name( this->name() );
-var.repn->variable_template = *this;
-return var;
+return VariableArray(arg);
 }
 
-ConcreteIndexedVariable Variable::index(const ConcreteSet& index_set)
+VariableMap& Model::add_variable(VariableMap& vars)
 {
-ConcreteIndexedVariable var(index_set);
-var.name( this->name() );
-var.repn->variable_template = *this;
-return var;
+if (vars.repn->call_setup)
+    vars.repn->setup();
+for (auto& var: vars.repn->values)
+    add_variable(var);
+return vars;
 }
 
-ConcreteIndexedVariable Variable::index(const SequenceContext& index_context)
+VariableArray& Model::add_variable(VariableArray& vars)
 {
-auto dummy = coek::RangeSet(0, 10-1);
-// TODO - Add logic here to use the sequence context
-ConcreteIndexedVariable var(dummy);
-var.name( this->name() );
-var.repn->variable_template = *this;
-return var;
-}
-
-ConcreteIndexedVariable Variable::index(const std::vector<IndexParameter>& index_arg, const SequenceContext& index_context)
-{
-auto dummy = coek::RangeSet(0, 10-1);
-// TODO - Add logic here to use the sequence context
-ConcreteIndexedVariable var(dummy);
-var.name( this->name() );
-var.repn->variable_template = *this;
-return var;
+if (vars.repn->call_setup)
+    vars.repn->setup();
+for (auto& var: vars.repn->values)
+    add_variable(var);
+return vars;
 }
 
 }

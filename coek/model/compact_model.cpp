@@ -48,14 +48,14 @@ repn->variable_names.push_back(name);
 return tmp; //repn->variables.back();
 }
 
-Variable CompactModel::add_variable(Variable& var)
+Variable& CompactModel::add_variable(Variable& var)
 {
 repn->variables.push_back(var);
 repn->variable_names.push_back("");
 return var;
 }
 
-void CompactModel::add_variable(VariableArray& varray)
+void CompactModel::add_variable(PythonVariableArray& varray)
 {
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
     repn->variables.push_back(*it);
@@ -63,13 +63,24 @@ for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
     }
 }
 
-void CompactModel::add_variable(ConcreteIndexedVariable& vars)
+VariableMap& CompactModel::add_variable(VariableMap& vars)
 {
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
     repn->variables.push_back(*it);
     repn->variable_names.push_back("");
     }
+return vars;
+}
+
+VariableArray& CompactModel::add_variable(VariableArray& vars)
+{
+auto end = vars.end();
+for (auto it=vars.begin(); it != end; ++it) {
+    repn->variables.push_back(*it);
+    repn->variable_names.push_back("");
+    }
+return vars;
 }
 
 Objective CompactModel::add_objective(const Expression& expr)

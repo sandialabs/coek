@@ -9,13 +9,14 @@
 namespace coek {
 
 class Parameter;
-class VariableArray;
+class PythonVariableArray;
 class Variable;
 class Expression;
 class Objective;
 class Constraint;
 #ifdef COEK_WITH_COMPACT_MODEL
-class ConcreteIndexedVariable;
+class VariableMap;
+class VariableArray;
 #endif
 class ModelRepn;
 
@@ -82,11 +83,15 @@ public:
       *
       * \returns the variable
       */
-    Variable add_variable(Variable& var);
-    void add_variable(VariableArray& var);
+    Variable& add_variable(Variable& var);
+    void add_variable(PythonVariableArray& var);
 #ifdef COEK_WITH_COMPACT_MODEL
-    void add_variable(ConcreteIndexedVariable& var);
+    VariableMap& add_variable(VariableMap& var);
+    VariableMap& add(VariableMap& var);
+    VariableArray& add_variable(VariableArray& var);
+    VariableArray& add(VariableArray& var);
 #endif
+    Variable& add(Variable& var);
 
     /** \returns the variable with the specified id */
     Variable get_variable(size_t i);

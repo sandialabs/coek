@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <variant>
+#include <initializer_list>
 #include "coek_sets.hpp"
 
 #define USING_INDEXVECTOR
@@ -12,17 +13,17 @@ namespace coek {
 typedef BaseExpressionTerm* expr_pointer_t;
 //typedef std::variant<int,double,std::string,expr_pointer_t> refarg_types;
 typedef std::variant<int,expr_pointer_t> refarg_types;
-class ConcreteIndexedVariableRepn;
+class VariableAssocArrayRepn;
 
 
 #ifdef USING_INDEXVECTOR
-
 class IndexVector
 {
 public:
 
+    typedef int vecdata_t;
     size_t len;
-    int* data;
+    vecdata_t* data;
 
 public:
 
@@ -31,11 +32,11 @@ public:
         : len(0), data(0)
         {}
 
-    explicit IndexVector(int* _data)
+    explicit IndexVector(vecdata_t* _data)
         : len(static_cast<size_t>(_data[0])), data(_data+1)
         {}
 
-    explicit IndexVector(int* _data, size_t _len)
+    explicit IndexVector(vecdata_t* _data, size_t _len)
         : len(_len), data(_data)
         {}
 
@@ -47,12 +48,12 @@ public:
         {len = other.len; data=other.data; return *this;}
 
     size_t size() const
-        { return static_cast<size_t>(len); }
+        { return len; }
 
-    int& operator[](size_t i)
+    vecdata_t& operator[](size_t i)
         { return data[i]; }
 
-    const int& operator[](size_t i) const
+    const vecdata_t& operator[](size_t i) const
         { return data[i]; }
 
     bool operator<(const IndexVector& other) const
@@ -73,9 +74,9 @@ public:
         else if (len == 2) {
             return (data[0] == other.data[0]) and (data[1] == other.data[1]);
             }
-        int* curr = data;
-        int* end  = data+len;
-        int* _other = other.data;
+        vecdata_t* curr = data;
+        vecdata_t* end  = data+len;
+        vecdata_t* _other = other.data;
 
         for (; curr != end; ++curr, ++_other) {
             if (*curr != *_other)
@@ -90,135 +91,419 @@ typedef typename std::vector<set_types> IndexVector;
 #endif
 
 
-class ConcreteIndexedVariable
+class VariableAssocArray
 {
-protected:
-
-    void collect_args(size_t i, bool& refflag, const int& arg)
-        {
-        if (refflag)
-            reftmp[i++] = arg;
-        else
-            tmp[i++] = arg;
-        }
-
-    void collect_args(size_t i, bool& refflag, const Expression& arg)
-        {
-        if (!refflag) {
-            for (size_t j=0; j<i; j++)
-                reftmp[j] = tmp[j];
-            refflag=true;
-            }
-        reftmp[i++] = arg.repn;
-        }
-
-    void collect_args(size_t i, bool& refflag, const IndexParameter& arg)
-        {
-        if (!refflag) {
-            for (size_t j=0; j<i; j++)
-                reftmp[j] = tmp[j];
-            refflag=true;
-            }
-        Expression e = arg;
-        reftmp[i++] = e.repn;
-        }
-
-    template <typename... ARGTYPES>
-    void collect_args(size_t i, bool& refflag, const int& arg, const ARGTYPES&... args)
-        {
-        if (refflag)
-            reftmp[i++] = arg;
-        else
-            tmp[i++] = arg;
-        collect_args(i, refflag, args...);
-        }
-
-    template <typename... ARGTYPES>
-    void collect_args(size_t i, bool& refflag, const Expression& arg, const ARGTYPES&... args)
-        {
-        if (!refflag) {
-            for (size_t j=0; j<i; j++)
-                reftmp[j] = tmp[j];
-            refflag=true;
-            }
-        reftmp[i++] = arg.repn;
-        collect_args(i, refflag, args...);
-        }
-
-    template <typename... ARGTYPES>
-    void collect_args(size_t i, bool& refflag, const IndexParameter& arg, const ARGTYPES&... args)
-        {
-        if (!refflag) {
-            for (size_t j=0; j<i; j++)
-                reftmp[j] = tmp[j];
-            refflag=true;
-            }
-        Expression e = arg;
-        reftmp[i++] = e.repn;
-        collect_args(i, refflag, args...);
-        }
-
 public:
 
-    std::shared_ptr<ConcreteIndexedVariableRepn> repn;
+    std::shared_ptr<VariableAssocArrayRepn> repn;
     IndexVector tmp;
     std::vector<refarg_types> reftmp;
 
 public:
-
-    ConcreteIndexedVariable(const ConcreteSet& arg);
-    ConcreteIndexedVariable(const ConcreteSet& arg, const std::string& name);
-    ~ConcreteIndexedVariable() {}
-
-    /** Set the initial variable value. \returns the variable object. */
-    ConcreteIndexedVariable& value(double value);
-    /** Set the initial variable value. \returns the variable object. */
-    ConcreteIndexedVariable& value(const Expression& value);
-
-    /** Set the lower bound. \returns the variable object. */
-    ConcreteIndexedVariable& lower(double value);
-    /** Set the lower bound. \returns the variable object. */
-    ConcreteIndexedVariable& lower(const Expression& value);
-
-    /** Set the upper bound. \returns the variable object. */
-    ConcreteIndexedVariable& upper(double value);
-    /** Set the upper bound. \returns the variable object. */
-    ConcreteIndexedVariable& upper(const Expression& value);
-
-    /** Set the upper and lower bounds. \returns the variable object. */
-    ConcreteIndexedVariable& bounds(double lb, double ub);
-    /** Set the upper and lower bounds. \returns the variable object. */
-    ConcreteIndexedVariable& bounds(const Expression& lb, double ub);
-    /** Set the upper and lower bounds. \returns the variable object. */
-    ConcreteIndexedVariable& bounds(double lb, const Expression& ub);
-    /** Set the upper and lower bounds. \returns the variable object. */
-    ConcreteIndexedVariable& bounds(const Expression& lb, const Expression& ub);
-
-    /** Set the name of the variable. \returns the variable object */
-    ConcreteIndexedVariable& name(const std::string& name);
-
-    /** Set the variable type. \returns the variable object */
-    ConcreteIndexedVariable& within(VariableTypes vtype);
 
     std::vector<Variable>::iterator begin();
     std::vector<Variable>::iterator end();
 
     size_t size() const;
 
+    Expression index(const IndexVector& args);
+    Expression create_varref(const std::vector<refarg_types>& indices);
+};
+
+
+class VariableMap : public VariableAssocArray
+{
+public:
+
+    /// Collect arguments with references
+
+    bool collect_refargs(size_t i, size_t arg)
+        {
+        reftmp[i] = static_cast<int>(arg);
+        return true;
+        }
+
+    bool collect_refargs(size_t i, int arg)
+        {
+        assert (arg >= 0);
+        reftmp[i] = arg;
+        return true;
+        }
+
+    bool collect_refargs(size_t i, const Expression& arg)
+        {
+        reftmp[i] = arg.repn;
+        return true;
+        }
+
+    bool collect_refargs(size_t i, const IndexParameter& arg)
+        {
+        Expression e = arg;
+        reftmp[i] = e.repn;
+        return true;
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_refargs(size_t i, size_t arg, const ARGTYPES&... args)
+        {
+        collect_refargs(i+1, args...);
+        reftmp[i] = static_cast<int>(arg);
+        return true;
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_refargs(size_t i, int arg, const ARGTYPES&... args)
+        {
+        assert (arg >= 0);
+        collect_refargs(i+1, args...);
+        reftmp[i] = arg;
+        return true;
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_refargs(size_t i, const Expression& arg, const ARGTYPES&... args)
+        {
+        collect_refargs(i+1, args...);
+        reftmp[i] = arg.repn;
+        return true;
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_refargs(size_t i, const IndexParameter& arg, const ARGTYPES&... args)
+        {
+        collect_refargs(i+1, args...);
+        Expression e = arg;
+        reftmp[i] = e.repn;
+        return true;
+        }
+
+    /// Collect arguments with size_t indices
+
+    bool collect_args(size_t i, size_t arg)
+        {
+        tmp[i] = static_cast<int>(arg);
+        return false;
+        }
+
+    bool collect_args(size_t i, int arg)
+        {
+        assert (arg >= 0);
+        tmp[i] = arg;
+        return false;
+        }
+
+    bool collect_args(size_t i, const Expression& arg)
+        {
+        reftmp[i] = arg.repn;
+        return true;
+        }
+
+    bool collect_args(size_t i, const IndexParameter& arg)
+        {
+        Expression e = arg;
+        reftmp[i] = e.repn;
+        return true;
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_args(size_t i, size_t arg, const ARGTYPES&... args)
+        {
+        if (collect_args(i+1, args...)) {
+            reftmp[i] = arg;
+            return true;
+            }
+        else {
+            tmp[i] = static_cast<int>(arg);
+            return false;
+            }
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_args(size_t i, int arg, const ARGTYPES&... args)
+        {
+        assert (arg >= 0);
+        if (collect_args(i+1, args...)) {
+            reftmp[i] = arg;
+            return true;
+            }
+        else {
+            tmp[i] = arg;
+            return false;
+            }
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_args(size_t i, const Expression& arg, const ARGTYPES&... args)
+        {
+        collect_refargs(i+1, args...);
+        reftmp[i] = arg.repn;
+        return true;
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_args(size_t i, const IndexParameter& arg, const ARGTYPES&... args)
+        {
+        collect_refargs(i+1, args...);
+        Expression e = arg;
+        reftmp[i] = e.repn;
+        return true;
+        }
+
     template <typename... ARGTYPES>
     Expression operator()(const ARGTYPES&... args)
         {
-        bool refflag=false;
-        collect_args(static_cast<size_t>(0), refflag, args...);
-
-        if (refflag)
+        if (collect_args(static_cast<size_t>(0), args...))
             return create_varref(reftmp);
         else 
             return index(tmp);
         }
 
-    Expression index(const IndexVector& args);
-    Expression create_varref(const std::vector<refarg_types>& indices);
+    Expression operator()(int i)
+        {
+        tmp[0] = i;
+        return index(tmp);
+        }
+
+    Expression operator()(int i, int j)
+        {
+        tmp[0] = i;
+        tmp[1] = j;
+        return index(tmp);
+        }
+
+
+public:
+
+    VariableMap(const ConcreteSet& arg);
+    ~VariableMap() {}
+
+    /** Set the initial variable value. \returns the variable object. */
+    VariableMap& value(double value);
+    /** Set the initial variable value. \returns the variable object. */
+    VariableMap& value(const Expression& value);
+
+    /** Set the lower bound. \returns the variable object. */
+    VariableMap& lower(double value);
+    /** Set the lower bound. \returns the variable object. */
+    VariableMap& lower(const Expression& value);
+
+    /** Set the upper bound. \returns the variable object. */
+    VariableMap& upper(double value);
+    /** Set the upper bound. \returns the variable object. */
+    VariableMap& upper(const Expression& value);
+
+    /** Set the upper and lower bounds. \returns the variable object. */
+    VariableMap& bounds(double lb, double ub);
+    /** Set the upper and lower bounds. \returns the variable object. */
+    VariableMap& bounds(const Expression& lb, double ub);
+    /** Set the upper and lower bounds. \returns the variable object. */
+    VariableMap& bounds(double lb, const Expression& ub);
+    /** Set the upper and lower bounds. \returns the variable object. */
+    VariableMap& bounds(const Expression& lb, const Expression& ub);
+
+    /** Set the name of the variable. \returns the variable object */
+    VariableMap& name(const std::string& name);
+
+    /** Set the variable type. \returns the variable object */
+    VariableMap& within(VariableTypes vtype);
+
+};
+
+
+class VariableArray : public VariableAssocArray
+{
+public:
+
+    /// Collect arguments with references
+
+    bool collect_refargs(size_t i, size_t arg)
+        {
+        reftmp[i] = static_cast<int>(arg);
+        return true;
+        }
+
+    bool collect_refargs(size_t i, int arg)
+        {
+        assert (arg >= 0);
+        reftmp[i] = arg;
+        return true;
+        }
+
+    bool collect_refargs(size_t i, const Expression& arg)
+        {
+        reftmp[i] = arg.repn;
+        return true;
+        }
+
+    bool collect_refargs(size_t i, const IndexParameter& arg)
+        {
+        Expression e = arg;
+        reftmp[i] = e.repn;
+        return true;
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_refargs(size_t i, size_t arg, const ARGTYPES&... args)
+        {
+        collect_refargs(i+1, args...);
+        reftmp[i] = static_cast<int>(arg);
+        return true;
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_refargs(size_t i, int arg, const ARGTYPES&... args)
+        {
+        assert (arg >= 0);
+        collect_refargs(i+1, args...);
+        reftmp[i] = arg;
+        return true;
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_refargs(size_t i, const Expression& arg, const ARGTYPES&... args)
+        {
+        collect_refargs(i+1, args...);
+        reftmp[i] = arg.repn;
+        return true;
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_refargs(size_t i, const IndexParameter& arg, const ARGTYPES&... args)
+        {
+        collect_refargs(i+1, args...);
+        Expression e = arg;
+        reftmp[i] = e.repn;
+        return true;
+        }
+
+    /// Collect arguments with size_t indices
+
+    bool collect_args(size_t i, size_t arg)
+        {
+        tmp[i] = static_cast<int>(arg);
+        return false;
+        }
+
+    bool collect_args(size_t i, int arg)
+        {
+        assert (arg >= 0);
+        tmp[i] = arg;
+        return false;
+        }
+
+    bool collect_args(size_t i, const Expression& arg)
+        {
+        reftmp[i] = arg.repn;
+        return true;
+        }
+
+    bool collect_args(size_t i, const IndexParameter& arg)
+        {
+        Expression e = arg;
+        reftmp[i] = e.repn;
+        return true;
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_args(size_t i, size_t arg, const ARGTYPES&... args)
+        {
+        if (collect_args(i+1, args...)) {
+            reftmp[i] = arg;
+            return true;
+            }
+        else {
+            tmp[i] = static_cast<int>(arg);
+            return false;
+            }
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_args(size_t i, int arg, const ARGTYPES&... args)
+        {
+        assert (arg >= 0);
+        if (collect_args(i+1, args...)) {
+            reftmp[i] = arg;
+            return true;
+            }
+        else {
+            tmp[i] = arg;
+            return false;
+            }
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_args(size_t i, const Expression& arg, const ARGTYPES&... args)
+        {
+        collect_refargs(i+1, args...);
+        reftmp[i] = arg.repn;
+        return true;
+        }
+
+    template <typename... ARGTYPES>
+    bool collect_args(size_t i, const IndexParameter& arg, const ARGTYPES&... args)
+        {
+        collect_refargs(i+1, args...);
+        Expression e = arg;
+        reftmp[i] = e.repn;
+        return true;
+        }
+
+    template <typename... ARGTYPES>
+    Expression operator()(const ARGTYPES&... args)
+        {
+        if (collect_args(static_cast<size_t>(0), args...))
+            return create_varref(reftmp);
+        else 
+            return index(tmp);
+        }
+
+    Expression operator()(size_t i)
+        {
+        tmp[0] = static_cast<int>(i);
+        return index(tmp);
+        }
+
+    Expression operator()(size_t i, size_t j)
+        {
+        tmp[0] = static_cast<int>(i);
+        tmp[1] = static_cast<int>(j);
+        return index(tmp);
+        }
+
+public:
+
+    VariableArray(const ConcreteSet& arg);
+    ~VariableArray() {}
+
+    /** Set the initial variable value. \returns the variable object. */
+    VariableArray& value(double value);
+    /** Set the initial variable value. \returns the variable object. */
+    VariableArray& value(const Expression& value);
+
+    /** Set the lower bound. \returns the variable object. */
+    VariableArray& lower(double value);
+    /** Set the lower bound. \returns the variable object. */
+    VariableArray& lower(const Expression& value);
+
+    /** Set the upper bound. \returns the variable object. */
+    VariableArray& upper(double value);
+    /** Set the upper bound. \returns the variable object. */
+    VariableArray& upper(const Expression& value);
+
+    /** Set the upper and lower bounds. \returns the variable object. */
+    VariableArray& bounds(double lb, double ub);
+    /** Set the upper and lower bounds. \returns the variable object. */
+    VariableArray& bounds(const Expression& lb, double ub);
+    /** Set the upper and lower bounds. \returns the variable object. */
+    VariableArray& bounds(double lb, const Expression& ub);
+    /** Set the upper and lower bounds. \returns the variable object. */
+    VariableArray& bounds(const Expression& lb, const Expression& ub);
+
+    /** Set the name of the variable. \returns the variable object */
+    VariableArray& name(const std::string& name);
+
+    /** Set the variable type. \returns the variable object */
+    VariableArray& within(VariableTypes vtype);
 };
 
 
@@ -233,18 +518,14 @@ public:
 
     AbstractIndexedVariable(const AbstractSet& _arg, const std::string& _name);
 
-    ConcreteIndexedVariable initialize();
+    VariableMap initialize();
 
     template <typename ARGTYPE>
     void collect_args(std::vector<refarg_types>& _arg, const ARGTYPE& arg)
-        {
-        _arg.emplace_back(arg);
-        }
+        { _arg.emplace_back(arg); }
 
     void collect_args(std::vector<refarg_types>& _arg, const Expression& arg)
-        {
-        _arg.emplace_back(arg.repn);
-        }
+        { _arg.emplace_back(arg.repn); }
 
     template <typename ARGTYPE, typename... ARGTYPES>
     void collect_args(std::vector<refarg_types>& _arg, const ARGTYPE& arg, const ARGTYPES&... args)
@@ -279,15 +560,44 @@ public:
 //
 /*
 AbstractIndexedVariable variable(const std::string& name, const AbstractSet& arg);
-
-ConcreteIndexedVariable variable(const ConcreteSet& arg);
-ConcreteIndexedVariable variable(const std::string& name, const ConcreteSet& arg);
-
-ConcreteIndexedVariable variable(size_t n);
-ConcreteIndexedVariable variable(const std::string& name, size_t n);
-
-ConcreteIndexedVariable variable(const std::vector<size_t>& dim);
-ConcreteIndexedVariable variable(const std::string& name, const std::vector<size_t>& n);
 */
+
+// variable map
+
+VariableMap variable(const ConcreteSet& arg);
+inline VariableMap variable_map(const ConcreteSet& arg)
+{ return variable(arg); }
+
+inline VariableMap variable(const std::string& name, const ConcreteSet& arg)
+{ return variable(arg).name(name); }
+inline VariableMap variable_map(const std::string& name, const ConcreteSet& arg)
+{ return variable(arg).name(name); }
+
+// variable array
+
+VariableArray variable(size_t n);
+VariableArray variable(const std::vector<size_t>& shape);
+VariableArray variable(const std::initializer_list<size_t>& shape);
+
+inline VariableArray variable_array(size_t n)
+{ return variable(n); }
+inline VariableArray variable_array(const std::vector<size_t>& shape)
+{ return variable(shape); }
+inline VariableArray variable_array(const std::initializer_list<size_t>& shape)
+{ return variable(shape); }
+
+inline VariableArray variable(const std::string& name, size_t n)
+{ return variable(n).name(name); }
+inline VariableArray variable(const std::string& name, const std::vector<size_t>& shape)
+{return variable(shape).name(name); }
+inline VariableArray variable(const std::string& name, const std::initializer_list<size_t>& shape)
+{ return variable(shape).name(name); }
+
+inline VariableArray variable_array(const std::string& name, size_t n)
+{ return variable(n).name(name); }
+inline VariableArray variable_array(const std::string& name, const std::vector<size_t>& shape)
+{ return variable(shape).name(name); }
+inline VariableArray variable_array(const std::string& name, const std::initializer_list<size_t>& shape)
+{ return variable(shape).name(name); }
 
 }

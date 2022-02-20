@@ -10,13 +10,14 @@
 namespace coek {
 
 class VariableMap;
+class VariableArray;
 class ObjectiveMap;
 class ConstraintMap;
 class SequenceContext;
 class CompactModelRepn;
 
 
-class VariableMap
+class CompactVariableMap
 {
 public:
 
@@ -124,9 +125,17 @@ public:
       */
     Variable add_variable(const std::string& name);
 
-    Variable add_variable(Variable& var);
-    void add_variable(VariableArray& var);
-    void add_variable(ConcreteIndexedVariable& var);
+    Variable& add_variable(Variable& var);
+    void add_variable(PythonVariableArray& var);
+    VariableMap& add_variable(VariableMap& var);
+    VariableArray& add_variable(VariableArray& var);
+
+    Variable& add(Variable& var)
+        {return add_variable(var);}
+    VariableMap& add(VariableMap& var)
+        {return add_variable(var);}
+    VariableArray& add(VariableArray& var)
+        {return add_variable(var);}
 
     /**
       * Create an objective and add it to the model.

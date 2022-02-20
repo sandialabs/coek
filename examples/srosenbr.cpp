@@ -15,7 +15,7 @@ for (size_t i=0; i<N; i++) {
         x[i].value(-1.2);
     else
         x[i].value(1);
-    m.add_variable(x[i]);
+    m.add(x[i]);
     }
 
 coek::Expression obj;

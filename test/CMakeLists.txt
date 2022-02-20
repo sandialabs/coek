@@ -54,6 +54,16 @@ add_executable(lqcp lqcp.cpp)
 TARGET_LINK_LIBRARIES(lqcp PUBLIC coek coekexamples ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(lqcp PUBLIC ${coek_compile_options})
 
+# lqcp_array
+add_executable(lqcp_array lqcp_array.cpp)
+TARGET_LINK_LIBRARIES(lqcp_array PUBLIC coek coekexamples ${coek_link_libraries})
+TARGET_COMPILE_OPTIONS(lqcp_array PUBLIC ${coek_compile_options})
+
+# lqcp_map
+add_executable(lqcp_map lqcp_map.cpp)
+TARGET_LINK_LIBRARIES(lqcp_map PUBLIC coek coekexamples ${coek_link_libraries})
+TARGET_COMPILE_OPTIONS(lqcp_map PUBLIC ${coek_compile_options})
+
 # lqcp2
 add_executable(lqcp2 lqcp2.cpp)
 TARGET_LINK_LIBRARIES(lqcp2 PUBLIC coek coekexamples ${coek_link_libraries})

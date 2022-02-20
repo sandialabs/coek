@@ -12,12 +12,12 @@ class LocalIndexedVariableTerm : public VariableTerm
 public:
 
     size_t varray_index;
-    VariableArray* varray;
+    PythonVariableArray* varray;
 
 public:
 
     //LocalIndexedVariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _fixed, size_t _i, VariableArray* _varray)
-    LocalIndexedVariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub, const expr_pointer_t& _value, bool _binary, bool _integer, bool _fixed, size_t _i, VariableArray* _varray)
+    LocalIndexedVariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub, const expr_pointer_t& _value, bool _binary, bool _integer, bool _fixed, size_t _i, PythonVariableArray* _varray)
         : VariableTerm(_lb, _ub, _value, _binary, _integer)
         { varray_index=_i; varray=_varray; fixed=_fixed; }
 
@@ -67,7 +67,7 @@ else {
 }
 
 
-VariableArray::VariableArray(std::vector<size_t>& _dimen, std::string _name, double init, double lb, double ub, bool binary, bool integer, bool fixed)
+PythonVariableArray::PythonVariableArray(std::vector<size_t>& _dimen, std::string _name, double init, double lb, double ub, bool binary, bool integer, bool fixed)
 {
 dimen = _dimen;
 //
@@ -97,14 +97,14 @@ while (i > 0) {
 order[i] = oval;
 }
 
-VariableArray::VariableArray(size_t n, std::string _name, double lb, double ub, double init,
+PythonVariableArray::PythonVariableArray(size_t n, std::string _name, double lb, double ub, double init,
                 bool binary, bool integer, bool fixed)
 {
 initialize(n, lb, ub, init, binary, integer, fixed);
 name = _name;
 }
 
-void VariableArray::initialize(size_t n, double lb, double ub, double init,
+void PythonVariableArray::initialize(size_t n, double lb, double ub, double init,
             bool binary, bool integer, bool fixed)
 {
 if (std::isnan(lb))
@@ -124,7 +124,7 @@ for (size_t i=0; i<n; i++) {
     }
 }
 
-std::string VariableArray::get_name()
+std::string PythonVariableArray::get_name()
 {
 if (name == "")
     return "x";

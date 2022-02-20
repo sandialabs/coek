@@ -50,12 +50,12 @@ class VariableRef : public Expression
 {
 public:
 
-    std::shared_ptr<VariableArray> variable;
+    std::shared_ptr<PythonVariableArray> variable;
     std::shared_ptr<Expression> index;
 
 public:
 
-    VariableRef(std::shared_ptr<VariableArray> _varray, std::shared_ptr<Expression> _index)
+    VariableRef(std::shared_ptr<PythonVariableArray> _varray, std::shared_ptr<Expression> _index)
         : variable(_varray), index(_index) {}
 
     coek::Expression value()

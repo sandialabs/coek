@@ -14,7 +14,7 @@
 #include "coek/api/constraint.hpp"
 #include "coek/model/model.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL
-#include "coek/compact/coek_indexed.hpp"
+//#include "coek/compact/coek_indexed.hpp"
 #endif
 #include "model_repn.hpp"
 
@@ -100,7 +100,7 @@ if (name != "")
 return repn->variables.back();
 }
 
-Variable Model::add_variable(Variable& var)
+Variable& Model::add_variable(Variable& var)
 {
 repn->variables.push_back(var);
 auto name = var.name();
@@ -109,7 +109,7 @@ if (name != "")
 return var;
 }
 
-void Model::add_variable(VariableArray& varray)
+void Model::add_variable(PythonVariableArray& varray)
 {
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
     repn->variables.push_back(*it);
@@ -120,17 +120,16 @@ for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-void Model::add_variable(ConcreteIndexedVariable& vars)
-{
-auto end = vars.end();
-for (auto it=vars.begin(); it != end; ++it) {
-    repn->variables.push_back(*it);
-    auto name = it->name();
-    if (name != "")
-        repn->variables_by_name.emplace(name, *it);
-    }
-}
+VariableMap& Model::add(VariableMap& vars)
+{ return add_variable(vars); }
+
+VariableArray& Model::add(VariableArray& vars)
+{ return add_variable(vars); }
 #endif
+
+Variable& Model::add(Variable& vars)
+{ return add_variable(vars); }
+
 
 Objective Model::add_objective(const Expression& expr)
 {

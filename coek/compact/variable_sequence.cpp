@@ -184,9 +184,6 @@ VariableSequence::VariableSequence(const std::shared_ptr<VariableSequenceRepn>& 
 VariableSequence::VariableSequence(const SequenceContext& context_, const Variable& var)
 { repn = std::make_shared<VariableSequenceRepn>(context_,var); }
 
-VariableSequence::VariableSequence(const SequenceContext& context_, const Expression& lb, const Expression& ub, const Expression& value, VariableTypes vtype)
-{ repn = std::make_shared<VariableSequenceRepn>(context_,lb,ub,value,vtype); }
-
 VariableSeqIterator VariableSequence::begin()
 { return VariableSeqIterator(repn.get(), false); }
 

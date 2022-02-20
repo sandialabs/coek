@@ -25,8 +25,8 @@ return CREATE_POINTER(IndexParameterTerm, name);
 VariableRefTerm::VariableRefTerm(const std::vector<refarg_types>& _indices, const std::string& _name, void* _var)
     : indices(_indices), name(_name), var(_var)
 {
-for (auto it=indices.begin(); it != indices.end(); ++it) {
-    if (auto ival = std::get_if<expr_pointer_t>(&(*it))) {
+for (auto& value : indices) {
+    if (auto ival = std::get_if<expr_pointer_t>(&value)) {
         OWN_POINTER(*ival);
         }
     }
@@ -34,17 +34,15 @@ for (auto it=indices.begin(); it != indices.end(); ++it) {
 
 VariableRefTerm::~VariableRefTerm()
 {
-for (auto it=indices.begin(); it != indices.end(); ++it) {
-    if (auto ival = std::get_if<expr_pointer_t>(&(*it))) {
+for (auto& value : indices) {
+    if (auto ival = std::get_if<expr_pointer_t>(&value)) {
         DISOWN_POINTER(*ival);
         }
     }
 }
 
 expr_pointer_t create_varref(const std::vector<refarg_types>& indices, const std::string& name, void* var)
-{
-return CREATE_POINTER(VariableRefTerm, indices, name, var);
-}
+{ return CREATE_POINTER(VariableRefTerm, indices, name, var); }
 
 //
 // SetRefTerm
@@ -52,13 +50,9 @@ return CREATE_POINTER(VariableRefTerm, indices, name, var);
 
 SetRefTerm::SetRefTerm(const expr_pointer_t& repn)
     : body(repn)
-{
-OWN_POINTER(body);
-}
+{ OWN_POINTER(body); }
 
 SetRefTerm::~SetRefTerm()
-{
-DISOWN_POINTER(body);
-}
+{ DISOWN_POINTER(body); }
 
 }

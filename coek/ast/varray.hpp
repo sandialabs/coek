@@ -52,7 +52,7 @@ public:
 };
 
 
-class VariableArray
+class PythonVariableArray
 {
 private:
 
@@ -69,9 +69,9 @@ public:
 
 public:
 
-    VariableArray(std::vector<size_t>& _dimen, std::string _name, double lb, double ub, double init,
+    PythonVariableArray(std::vector<size_t>& _dimen, std::string _name, double lb, double ub, double init,
                 bool binary, bool integer, bool fixed);
-    VariableArray(size_t n, std::string _name, double lb, double ub, double init,
+    PythonVariableArray(size_t n, std::string _name, double lb, double ub, double init,
                 bool binary, bool integer, bool fixed);
 
     Variable& operator[](size_t i)

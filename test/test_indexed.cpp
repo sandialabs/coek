@@ -4,6 +4,8 @@
 #include "coek/ast/value_terms.hpp"
 #include "coek/coek.hpp"
 
+void zzz() {}
+
 #define NLP_INTRINSIC_TEST1(FN, MEMCHECK)\
     WHEN( #FN " 1" ) {\
           {\
@@ -98,20 +100,32 @@
 
 
 #ifdef COEK_WITH_COMPACT_MODEL
-TEST_CASE( "1D_indexed_var", "[smoke]" ) {
+TEST_CASE( "1D_var_map", "[smoke]" ) {
 
   SECTION( "int" ) {
       std::vector<int> v = {1,5,3,7};
 
+      WHEN( "constructors" ) {
+        auto s = coek::SetOf( v );
+        auto v1 = coek::variable( s );
+        REQUIRE( v1.size() == 4 );
+        auto v2 = coek::variable("v2", s );
+        REQUIRE( v2.size() == 4 );
+        auto v3 = coek::variable_map( s );
+        REQUIRE( v3.size() == 4 );
+        auto v4 = coek::variable_map("v4", s );
+        REQUIRE( v4.size() == 4 );
+      }
+
       WHEN( "size" ) {
         auto s = coek::SetOf( v );
-        auto vars = coek::variable().index( s );
+        auto vars = coek::variable( s );
         REQUIRE( vars.size() == 4 );
       }
 
       WHEN( "typeof" ) {
         auto s = coek::SetOf( v );
-        auto vars = coek::variable().index( s );
+        auto vars = coek::variable( s );
         REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
       }
 
@@ -141,17 +155,17 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
       auto s = coek::RangeSet(1, 7, 2);
 
       WHEN( "size" ) {
-        auto vars = coek::variable().index( s );
+        auto vars = coek::variable( s );
         REQUIRE( vars.size() == 4 );
       }
 
       WHEN( "typeof" ) {
-        auto vars = coek::variable().index( s );
+        auto vars = coek::variable( s );
         REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
       }
 
       WHEN( "index" ) {
-        auto vars = coek::variable().index( s ).value(1);
+        auto vars = coek::variable( s ).value(1);
         std::vector<int> vals(4);
 
         auto i = coek::set_index("i");
@@ -168,101 +182,12 @@ TEST_CASE( "1D_indexed_var", "[smoke]" ) {
         }
   }
 
-  SECTION( "int_vector" ) {
-      std::vector<int> v = {0,1,2,3};
-
-      WHEN( "size" ) {
-        auto vars = coek::variable().array( 4 );
-        REQUIRE( vars.size() == 4 );
-      }
-
-      WHEN( "typeof" ) {
-        auto vars = coek::variable().array( 4 );
-        REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
-      }
-
-      WHEN( "index" ) {
-        auto vars = coek::variable().array( 4 ).value(1);
-        for (size_t i=0; i<4; i++)
-            REQUIRE( vars(i).value() == 1 );
-        }
-    
-  }
-
-  SECTION( "int_vector_dim" ) {
-      std::vector<int> v = {0,1,2,3};
-
-      WHEN( "size" ) {
-        std::vector<size_t> dim {4};
-        auto vars = coek::variable( "v" ).array( dim );
-        REQUIRE( vars.size() == 4 );
-      }
-
-      WHEN( "typeof" ) {
-        std::vector<size_t> dim {4};
-        auto vars = coek::variable().array( dim );
-        REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
-      }
-
-      WHEN( "index" ) {
-        std::vector<size_t> dim {4};
-        auto vars = coek::variable().array(dim).value(1);
-        for (size_t i=0; i<4; i++)
-            REQUIRE( vars(i).value() == 1 );
-        }
-  }
-
-#if 0
-  SECTION( "string" ) {
-      std::vector<std::string> v = {"a","c","b","d"};
-
-      WHEN( "size" ) {
-        auto s = coek::SetOf( v );
-        auto vars = coek::variable( s );
-        REQUIRE( vars.size() == 4 );
-      }
-
-      WHEN( "typeof" ) {
-        auto s = coek::SetOf( v );
-        auto vars = coek::variable( s );
-        REQUIRE( typeid(vars("a")).name() == typeid(coek::Expression).name() );
-      }
-
-      WHEN( "index" ) {
-        auto s = coek::SetOf( v );
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
-        CHECK_THROWS( s.begin({i,j}) );
-        }
-
-      WHEN( "index" ) {
-        auto s = coek::SetOf( v );
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
-
-        std::vector<std::string> vals(4);
-        size_t ii=0;
-        for (auto it=s.begin({i}); it != s.end(); ++it) {
-            i.value(vals[ii++]);
-            }
-        REQUIRE( v == vals );
-        }
-
-      WHEN( "index_error" ) {
-        auto s = coek::SetOf( v );
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
-        CHECK_THROWS( s.begin({i,j}) );
-        }
-  }
-#endif
-
   SECTION( "abstract" ) {
       std::vector<int> v = {1,5,3,7};
       auto s = coek::SetOf( v );
       auto r = coek::SetOf( {0} );
       auto S = s - r;
-      auto vars = coek::variable("vars").index(S).lower(0).upper(1).value(0);
+      auto vars = coek::variable("vars",S).lower(0).upper(1).value(0);
 
       WHEN( "typeof" ) {
         REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
@@ -312,17 +237,113 @@ REQUIRE( coek::env.check_memory() == true );
 }
 
 
-TEST_CASE( "2D_indexed_var", "[smoke]" ) {
+TEST_CASE( "1D_var_array", "[smoke]" ) {
+
+  SECTION( "int_vector" ) {
+
+      WHEN( "constructors" ) {
+        auto v1 = coek::variable( 4 );
+        REQUIRE( v1.size() == 4 );
+        auto v2 = coek::variable("v2", 4 );
+        REQUIRE( v2.size() == 4 );
+        auto v3 = coek::variable_array( 4 );
+        REQUIRE( v3.size() == 4 );
+        auto v4 = coek::variable_array("v4", 4 );
+        REQUIRE( v4.size() == 4 );
+      }
+
+      WHEN( "size" ) {
+        auto vars = coek::variable( 4 );
+        REQUIRE( vars.size() == 4 );
+      }
+
+      WHEN( "typeof" ) {
+        auto vars = coek::variable( 4 );
+        REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
+      }
+
+      WHEN( "index" ) {
+        auto vars = coek::variable( 4 ).value(1);
+        for (size_t i=0; i<4; i++)
+            REQUIRE( vars(i).value() == 1 );
+        for (int i=0; i<4; i++)
+            REQUIRE( vars(i).value() == 1 );
+        }
+  }
+
+  SECTION( "int_vector_dim" ) {
+      std::vector<int> v = {0,1,2,3};
+
+      WHEN( "size" ) {
+        std::vector<size_t> dim {4};
+        auto vars = coek::variable( "v" , dim );
+        REQUIRE( vars.size() == 4 );
+      }
+
+      WHEN( "typeof" ) {
+        std::vector<size_t> dim {4};
+        auto vars = coek::variable( dim );
+        REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
+      }
+
+      WHEN( "index" ) {
+        std::vector<size_t> dim {4};
+        auto vars = coek::variable(dim).value(1);
+        for (size_t i=0; i<4; i++)
+            REQUIRE( vars(i).value() == 1 );
+        }
+  }
+
+  SECTION( "int_initializer_list" ) {
+      WHEN( "size" ) {
+        std::vector<size_t> dim {4};
+        auto vars = coek::variable( "v" , {4} );
+        REQUIRE( vars.size() == 4 );
+      }
+
+      WHEN( "typeof" ) {
+        auto vars = coek::variable( {4} );
+        REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
+      }
+
+      WHEN( "index" ) {
+        auto vars = coek::variable({4}).value(1);
+        for (size_t i=0; i<4; i++)
+            REQUIRE( vars(i).value() == 1 );
+        }
+  }
+
+#ifdef DEBUG
+REQUIRE( coek::env.check_memory() == true );
+#endif
+}
+
+
+TEST_CASE( "2D_var_map", "[smoke]" ) {
 
   SECTION( "int" ) {
       std::vector<int> v = {1,5,3,7};
       std::vector<int> w = {2,6,4,8};
 
+      WHEN( "constructors" ) {
+        auto V = coek::SetOf( v );
+        auto W = coek::SetOf( w );
+        auto S = V*W;
+        auto v1 = coek::variable( S );
+        REQUIRE( v1.size() == 16 );
+        auto v2 = coek::variable("v2", S );
+        REQUIRE( v2.size() == 16 );
+        auto v3 = coek::variable_map( S );
+        REQUIRE( v3.size() == 16 );
+        auto v4 = coek::variable_map("v4", S );
+        REQUIRE( v4.size() == 16 );
+      }
+
       WHEN( "size" ) {
         auto V = coek::SetOf( v );
         auto W = coek::SetOf( w );
         auto S = V*W;
-        auto vars = coek::variable().index( S );
+        auto vars = coek::variable( S );
         REQUIRE( vars.size() == 16 );
       }
 
@@ -330,7 +351,7 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
         auto V = coek::SetOf( v );
         auto W = coek::SetOf( w );
         auto S = V*W;
-        auto vars = coek::variable().index( S );
+        auto vars = coek::variable( S );
         REQUIRE( typeid(vars(1,2)).name() == typeid(coek::Expression).name() );
       }
 
@@ -367,80 +388,6 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
         }
   }
 
-  SECTION( "int_vector_dim" ) {
-      WHEN( "size" ) {
-        std::vector<size_t> dim {4,3};
-        auto vars = coek::variable( "v" ).array( dim );
-        REQUIRE( vars.size() == 12 );
-      }
-
-      WHEN( "typeof" ) {
-        auto vars = coek::variable().array({4,3});
-        REQUIRE( typeid(vars(1,1)).name() == typeid(coek::Expression).name() );
-      }
-
-      WHEN( "index" ) {
-        auto vars = coek::variable().array({4,3}).value(1);
-        for (size_t i=0; i<4; i++)
-            REQUIRE( vars(i).value() == 1 );
-        }
-  }
-
-#if 0
-  SECTION( "string" ) {
-      std::vector<std::string> v = {"a","c","b","d"};
-      std::vector<std::string> w = {"A","C","B","D"};
-
-      WHEN( "size" ) {
-        auto V = coek::SetOf( v );
-        auto W = coek::SetOf( w );
-        auto S = V*W;
-        auto vars = coek::variable( S );
-        REQUIRE( vars.size() == 16 );
-      }
-
-      WHEN( "typeof" ) {
-        auto V = coek::SetOf( v );
-        auto W = coek::SetOf( w );
-        auto S = V*W;
-        auto vars = coek::variable( S );
-        REQUIRE( typeid(vars("a","A")).name() == typeid(coek::Expression).name() );
-      }
-
-      WHEN( "index" ) {
-        auto V = coek::SetOf( v );
-        auto W = coek::SetOf( w );
-        auto S = V*W;
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
-
-        std::set<std::string> ivals;
-        std::set<std::string> jvals;
-        for (auto it=S.begin({i,j}); it != S.end(); ++it) {
-            std::string tmp;
-            i.value(tmp);
-            ivals.insert(tmp);
-            j.value(tmp);
-            jvals.insert(tmp);
-            }
-
-        std::set<std::string> vset(v.begin(), v.end());
-        std::set<std::string> wset(w.begin(), w.end());
-        REQUIRE( vset == ivals );
-        REQUIRE( wset == jvals );
-        }
-
-      WHEN( "index_error" ) {
-        auto V = coek::SetOf( v );
-        auto W = coek::SetOf( w );
-        auto S = V*W;
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
-        CHECK_THROWS( S.begin({i}) );
-        }
-  }
-#endif
-
   SECTION( "abstract" ) {
       std::vector<int> v = {1,5,3,7};
       std::vector<int> w = {2,6,4,8};
@@ -448,7 +395,7 @@ TEST_CASE( "2D_indexed_var", "[smoke]" ) {
       auto W = coek::SetOf( w );
       auto r = coek::SetOf( {0} );
       auto S = V*W;
-      auto vars = coek::variable("vars").index(S).lower(0).upper(1).value(0);
+      auto vars = coek::variable("vars",S).lower(0).upper(1).value(0);
 
       WHEN( "typeof" ) {
         REQUIRE( typeid(vars(1,2)).name() == typeid(coek::Expression).name() );
@@ -503,13 +450,73 @@ REQUIRE( coek::env.check_memory() == true );
 }
 
 
+TEST_CASE( "2D_var_array", "[smoke]" ) {
+
+  SECTION( "int_vector_dim" ) {
+
+      WHEN( "constructors" ) {
+        auto v1 = coek::variable( {4,4} );
+        REQUIRE( v1.size() == 16 );
+        auto v2 = coek::variable("v2", {4,4} );
+        REQUIRE( v2.size() == 16 );
+        auto v3 = coek::variable_array( {4,4} );
+        REQUIRE( v3.size() == 16 );
+        auto v4 = coek::variable_array("v4", {4,4} );
+        REQUIRE( v4.size() == 16 );
+      }
+
+      WHEN( "size" ) {
+        std::vector<size_t> dim {4,3};
+        auto vars = coek::variable( "v" , dim );
+        REQUIRE( vars.size() == 12 );
+      }
+
+      WHEN( "typeof" ) {
+        std::vector<size_t> dim {4,3};
+        auto vars = coek::variable(dim);
+        REQUIRE( typeid(vars(1,1)).name() == typeid(coek::Expression).name() );
+      }
+
+      WHEN( "index" ) {
+        std::vector<size_t> dim {4,3};
+        auto vars = coek::variable(dim).value(1);
+        for (size_t i=0; i<4; i++)
+            REQUIRE( vars(i).value() == 1 );
+        }
+  }
+
+  SECTION( "int_initializer_list" ) {
+      WHEN( "size" ) {
+        zzz();
+        auto vars = coek::variable( "v" , {4,3} );
+        REQUIRE( vars.size() == 12 );
+      }
+
+      WHEN( "typeof" ) {
+        auto vars = coek::variable({4,3});
+        REQUIRE( typeid(vars(1,1)).name() == typeid(coek::Expression).name() );
+      }
+
+      WHEN( "index" ) {
+        auto vars = coek::variable({4,3}).value(1);
+        for (size_t i=0; i<4; i++)
+            REQUIRE( vars(i).value() == 1 );
+        }
+  }
+
+#ifdef DEBUG
+REQUIRE( coek::env.check_memory() == true );
+#endif
+}
+
+
 TEST_CASE( "expr_sequence", "[smoke]" ) {
 
     SECTION( "concrete_expr" ) {
         std::vector<int> v = {1,5,3,7};
         auto s = coek::SetOf( v );
-        auto y = coek::variable("y").index(s);
-        auto x = coek::variable("x").index(s*s);
+        auto y = coek::variable("y",s);
+        auto x = coek::variable("x",s*s);
         auto i = coek::set_index("i");
         auto j = coek::set_index("j");
 
@@ -613,8 +620,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
     SECTION( "concrete_con" ) {
         std::vector<int> v = {1,5,3,7};
         auto s = coek::SetOf( v );
-        auto y = coek::variable("y").index(s);
-        auto x = coek::variable("x").index(s*s);
+        auto y = coek::variable("y",s);
+        auto x = coek::variable("x",s*s);
         auto i = coek::set_index("i");
 
         WHEN( "y(i) == 0" ) {

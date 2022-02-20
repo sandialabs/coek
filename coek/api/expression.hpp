@@ -82,10 +82,6 @@ class IndexParameter;
 class Variable;
 class Expression;
 
-class ConcreteIndexedVariable;
-class ConcreteSet;
-class SequenceContext;
-
 //
 // numerical operators
 //
@@ -265,13 +261,6 @@ public:
     virtual ~Variable();
 
     Variable& operator=(const Variable& arg);
-
-    ConcreteIndexedVariable array(size_t n);
-    ConcreteIndexedVariable array(const std::vector<size_t>& shape);
-    ConcreteIndexedVariable array(const std::initializer_list<size_t>& shape);
-    ConcreteIndexedVariable index(const ConcreteSet& index_set);
-    ConcreteIndexedVariable index(const SequenceContext& index_context);
-    ConcreteIndexedVariable index(const std::vector<IndexParameter>& index_arg, const SequenceContext& index_context);
 
     /** Set the initial variable value. \returns the variable object. */
     Variable& value(double value);
