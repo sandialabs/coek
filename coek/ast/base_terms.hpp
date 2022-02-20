@@ -22,8 +22,6 @@ class BaseExpressionTerm;
 //#define STATIC_CAST(TYPE, ARG)   std::static_pointer_cast<TYPE>(ARG)
 
 typedef BaseExpressionTerm* expr_pointer_t;
-//typedef std::variant<int,double,std::string,expr_pointer_t> refarg_types;
-//typedef std::variant<int,expr_pointer_t> refarg_types;
 
 #ifdef WITH_AST_ENV
 #define CREATE_POINTER(PTR, ...) env.cache(new PTR(__VA_ARGS__))
