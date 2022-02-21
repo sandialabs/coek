@@ -255,7 +255,7 @@ public:
 
     /** Construct a continuous decision variable.  */
     Variable();
-    Variable(const std::string& name);
+    explicit Variable(const std::string& name);
     Variable(const VariableRepn& _repn);
     Variable(const Variable& arg);
     virtual ~Variable();

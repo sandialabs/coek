@@ -11,7 +11,8 @@
 
 #ifdef COEK_WITH_COMPACT_MODEL
 #include "coek/compact/coek_sets.hpp"
-#include "coek/compact/coek_indexed.hpp"
+#include "coek/compact/variable_array.hpp"
+#include "coek/compact/variable_map.hpp"
 #include "coek/compact/sequence_context.hpp"
 #include "coek/compact/expression_sequence.hpp"
 #include "coek/compact/objective_sequence.hpp"

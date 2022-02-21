@@ -49,6 +49,11 @@ catch_discover_tests(runner)
 
 message("LINK LIBS: ${coek_link_libraries}")
 
+# demo1
+add_executable(demo1 demo1.cpp)
+TARGET_LINK_LIBRARIES(demo1 PUBLIC coek ${coek_link_libraries})
+TARGET_COMPILE_OPTIONS(demo1 PUBLIC ${coek_compile_options})
+
 # lqcp
 add_executable(lqcp lqcp.cpp)
 TARGET_LINK_LIBRARIES(lqcp PUBLIC coek coekexamples ${coek_link_libraries})
@@ -78,10 +83,5 @@ TARGET_COMPILE_OPTIONS(rlqcp PUBLIC ${coek_compile_options})
 add_executable(resolve resolve.cpp)
 TARGET_LINK_LIBRARIES(resolve PUBLIC coek coekexamples ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(resolve PUBLIC ${coek_compile_options})
-
-# demo1
-add_executable(demo1 demo1.cpp)
-TARGET_LINK_LIBRARIES(demo1 PUBLIC coek ${coek_link_libraries})
-TARGET_COMPILE_OPTIONS(demo1 PUBLIC ${coek_compile_options})
 target_compile_definitions(demo1 PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 

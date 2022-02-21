@@ -375,7 +375,7 @@ std::string fname = name + "." + suffix;
 std::string baseline = currdir + "/baselines/" + fname;
 model.write(fname);
 auto same = compare_files(fname, baseline);
-std::cout << "name " << name << " " << same << std::endl;
+//std::cout << "name " << name << " " << same << std::endl;
 if (same) {
     if( std::remove( fname.c_str() ) != 0 )
         return false;

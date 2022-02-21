@@ -126,7 +126,7 @@ TEST_CASE( "1D_var_map", "[smoke]" ) {
       WHEN( "typeof" ) {
         auto s = coek::SetOf( v );
         auto vars = coek::variable( s );
-        REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
+        REQUIRE( typeid(vars(1)).name() == typeid(coek::Variable).name() );
       }
 
       WHEN( "index" ) {
@@ -161,7 +161,7 @@ TEST_CASE( "1D_var_map", "[smoke]" ) {
 
       WHEN( "typeof" ) {
         auto vars = coek::variable( s );
-        REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
+        REQUIRE( typeid(vars(1)).name() == typeid(coek::Variable).name() );
       }
 
       WHEN( "index" ) {
@@ -190,7 +190,7 @@ TEST_CASE( "1D_var_map", "[smoke]" ) {
       auto vars = coek::variable("vars",S).lower(0).upper(1).value(0);
 
       WHEN( "typeof" ) {
-        REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
+        REQUIRE( typeid(vars(1)).name() == typeid(coek::Variable).name() );
       }
 
       WHEN( "index" ) {
@@ -202,7 +202,7 @@ TEST_CASE( "1D_var_map", "[smoke]" ) {
 
       WHEN( "index1" ) {
         auto i = coek::set_index("i");
-        REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
+        REQUIRE( typeid(vars(1)).name() == typeid(coek::Variable).name() );
         REQUIRE( typeid(vars(i)).name() == typeid(coek::Expression).name() );
       }
 
@@ -210,8 +210,8 @@ TEST_CASE( "1D_var_map", "[smoke]" ) {
         auto v = coek::variable();
         coek::Expression f = v;
         auto e = vars(1);
-        static std::list<std::string> baseline = {"vars(1)"};
-        REQUIRE( e.to_list() == baseline);
+        //static std::list<std::string> baseline = {"vars(1)"};
+        REQUIRE( e.name() == "vars(1)");
         //auto it = e.to_list().begin();
         //REQUIRE_THAT( *it, Catch::Matchers::StartsWith("vars") );
       }
@@ -259,7 +259,7 @@ TEST_CASE( "1D_var_array", "[smoke]" ) {
 
       WHEN( "typeof" ) {
         auto vars = coek::variable( 4 );
-        REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
+        REQUIRE( typeid(vars(1)).name() == typeid(coek::Variable).name() );
       }
 
       WHEN( "index" ) {
@@ -283,7 +283,7 @@ TEST_CASE( "1D_var_array", "[smoke]" ) {
       WHEN( "typeof" ) {
         std::vector<size_t> dim {4};
         auto vars = coek::variable( dim );
-        REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
+        REQUIRE( typeid(vars(1)).name() == typeid(coek::Variable).name() );
       }
 
       WHEN( "index" ) {
@@ -303,7 +303,7 @@ TEST_CASE( "1D_var_array", "[smoke]" ) {
 
       WHEN( "typeof" ) {
         auto vars = coek::variable( {4} );
-        REQUIRE( typeid(vars(1)).name() == typeid(coek::Expression).name() );
+        REQUIRE( typeid(vars(1)).name() == typeid(coek::Variable).name() );
       }
 
       WHEN( "index" ) {
@@ -352,7 +352,7 @@ TEST_CASE( "2D_var_map", "[smoke]" ) {
         auto W = coek::SetOf( w );
         auto S = V*W;
         auto vars = coek::variable( S );
-        REQUIRE( typeid(vars(1,2)).name() == typeid(coek::Expression).name() );
+        REQUIRE( typeid(vars(1,2)).name() == typeid(coek::Variable).name() );
       }
 
       WHEN( "index" ) {
@@ -378,7 +378,7 @@ TEST_CASE( "2D_var_map", "[smoke]" ) {
         REQUIRE( wset == jvals );
         }
 
-      WHEN( "index_error" ) {
+      WHEN( "set_index_error" ) {
         auto V = coek::SetOf( v );
         auto W = coek::SetOf( w );
         auto S = V*W;
@@ -386,6 +386,15 @@ TEST_CASE( "2D_var_map", "[smoke]" ) {
         auto j = coek::set_index("j");
         CHECK_THROWS( S.begin({i}) );
         }
+
+      WHEN( "var_index_error" ) {
+        auto V = coek::SetOf( v );
+        auto W = coek::SetOf( w );
+        auto vars = coek::variable( V*W ).name("x");
+        REQUIRE( vars.dim() == 2 );
+        REQUIRE_THROWS_WITH( vars(0), 
+            "Unexpected index value: x is an 2-D variable map but is being indexed with 1 indices.");
+        } 
   }
 
   SECTION( "abstract" ) {
@@ -398,7 +407,7 @@ TEST_CASE( "2D_var_map", "[smoke]" ) {
       auto vars = coek::variable("vars",S).lower(0).upper(1).value(0);
 
       WHEN( "typeof" ) {
-        REQUIRE( typeid(vars(1,2)).name() == typeid(coek::Expression).name() );
+        REQUIRE( typeid(vars(1,2)).name() == typeid(coek::Variable).name() );
       }
 
       WHEN( "index" ) {
@@ -414,15 +423,14 @@ TEST_CASE( "2D_var_map", "[smoke]" ) {
       WHEN( "index1" ) {
         auto i = coek::set_index("i");
         auto j = coek::set_index("j");
-        REQUIRE( typeid(vars(1,2)).name() == typeid(coek::Expression).name() );
-        REQUIRE( typeid(vars(10,11)).name() == typeid(coek::Expression).name() );
+        REQUIRE( typeid(vars(1,2)).name() == typeid(coek::Variable).name() );
+        REQUIRE( typeid(vars(10,11)).name() == typeid(coek::Variable).name() );
         REQUIRE( typeid(vars(i,j)).name() == typeid(coek::Expression).name() );
       }
 
       WHEN( "index2" ) {
         auto e = vars(1,2);
-        static std::list<std::string> baseline = {"vars(1,2)"};
-        REQUIRE( e.to_list() == baseline);
+        REQUIRE( e.name() == "vars(1,2)");
         //auto it = e.to_list().begin();
         //REQUIRE_THAT( *it, Catch::Matchers::StartsWith("vars") );
       }
@@ -474,33 +482,274 @@ TEST_CASE( "2D_var_array", "[smoke]" ) {
       WHEN( "typeof" ) {
         std::vector<size_t> dim {4,3};
         auto vars = coek::variable(dim);
-        REQUIRE( typeid(vars(1,1)).name() == typeid(coek::Expression).name() );
+        REQUIRE( typeid(vars(1,1)).name() == typeid(coek::Variable).name() );
       }
 
       WHEN( "index" ) {
-        std::vector<size_t> dim {4,3};
+        std::vector<size_t> dim {4,5};
         auto vars = coek::variable(dim).value(1);
         for (size_t i=0; i<4; i++)
-            REQUIRE( vars(i).value() == 1 );
+            REQUIRE( vars(i,i).value() == 1 );
+        }
+
+      WHEN( "index error" ) {
+        std::vector<size_t> dim {4,3};
+        auto vars = coek::variable(dim).name("x");
+        REQUIRE( vars.dim() == 2 );
+        REQUIRE_THROWS_WITH( vars(0), 
+            "Unexpected index value: x is an 2-D variable array but is being indexed with 1 indices.");
         }
   }
 
   SECTION( "int_initializer_list" ) {
       WHEN( "size" ) {
-        zzz();
         auto vars = coek::variable( "v" , {4,3} );
         REQUIRE( vars.size() == 12 );
       }
 
       WHEN( "typeof" ) {
         auto vars = coek::variable({4,3});
-        REQUIRE( typeid(vars(1,1)).name() == typeid(coek::Expression).name() );
+        REQUIRE( typeid(vars(1,1)).name() == typeid(coek::Variable).name() );
       }
 
       WHEN( "index" ) {
-        auto vars = coek::variable({4,3}).value(1);
+        auto vars = coek::variable({4,4}).value(1);
         for (size_t i=0; i<4; i++)
-            REQUIRE( vars(i).value() == 1 );
+            REQUIRE( vars(i,i).value() == 1 );
+        }
+
+      WHEN( "index error" ) {
+        auto vars = coek::variable({4,3}).name("x");
+        REQUIRE( vars.dim() == 2 );
+        REQUIRE_THROWS_WITH( vars(0), 
+            "Unexpected index value: x is an 2-D variable array but is being indexed with 1 indices.");
+        }
+  }
+
+#ifdef DEBUG
+REQUIRE( coek::env.check_memory() == true );
+#endif
+}
+
+
+TEST_CASE( "3D_var_api", "[smoke]" ) {
+
+  SECTION( "map" ) {
+      std::vector<int> vec = {1,2,3,4};
+      auto p = coek::parameter("p").value(1);
+
+      WHEN( "add model" ) {
+        auto V = coek::SetOf( vec );
+        auto v = coek::variable_map( V*V*V ).name("x").value(1);
+        coek::Model model;
+        auto vv = model.add( v );
+        REQUIRE( vv.size() == 64 );
+        }
+
+      WHEN( "index api" ) {
+        auto V = coek::SetOf( vec );
+        auto v = coek::variable_map( V*V*V ).name("x").value(1);
+        REQUIRE( v.size() == 64 );
+
+        int ival = 1;
+        size_t uval = 1;
+        auto e = p+1;
+        // Misc tests to improve code coverage for the collect_args() methods
+        REQUIRE( v(e,uval,ival).expand().value() == 1 );
+
+        REQUIRE( v(uval,uval,e).expand().value() == 1 );
+
+        REQUIRE( v(ival,ival,e).expand().value() == 1 );
+
+        REQUIRE( v(uval,uval,uval).value() == 1 );
+
+        REQUIRE( v(ival,ival,ival).value() == 1 );
+
+        REQUIRE_THROWS_WITH( v(uval,uval),
+            "Unexpected index value: x is an 3-D variable map but is being indexed with 2 indices.");
+
+        REQUIRE_THROWS_WITH( v(ival,ival),
+            "Unexpected index value: x is an 3-D variable map but is being indexed with 2 indices.");
+
+        REQUIRE_THROWS_WITH( v(e,ival),
+            "Unexpected index value: x is an 3-D variable map but is being indexed with 2 indices.");
+
+        REQUIRE_THROWS_WITH( v(ival,ival,-1),
+            "Unknown index value: x(1,1,-1)");
+      }
+
+    WHEN( "var value" ) {
+        auto q = coek::parameter("q").value(1);
+        auto V = coek::SetOf( vec );
+        auto v = coek::variable_map( V ).name("x").value(1);
+
+        REQUIRE( v(1).value() == 1 );
+        v.value(q+1);
+        REQUIRE( v(1).value() == 2 );
+        q.value(2);
+        REQUIRE( v(1).value() == 3 );
+        }
+
+    WHEN( "var lower" ) {
+        auto q = coek::parameter("q").value(1);
+        auto V = coek::SetOf( vec );
+        auto v = coek::variable_map( V ).name("x").lower(1);
+
+        REQUIRE( v(1).lower() == 1 );
+        v.lower(q+1);
+        REQUIRE( v(1).lower() == 2 );
+        q.value(2);
+        REQUIRE( v(1).lower() == 3 );
+        }
+
+    WHEN( "var upper" ) {
+        auto q = coek::parameter("q").value(1);
+        auto V = coek::SetOf( vec );
+        auto v = coek::variable_map( V ).name("x").upper(1);
+
+        REQUIRE( v(1).upper() == 1 );
+        v.upper(q+1);
+        REQUIRE( v(1).upper() == 2 );
+        q.value(2);
+        REQUIRE( v(1).upper() == 3 );
+        }
+
+    WHEN( "var bounds" ) {
+        auto q = coek::parameter("q").value(1);
+        auto V = coek::SetOf( vec );
+        auto v = coek::variable_map( V ).name("x").bounds(1,2);
+
+        REQUIRE( v(1).lower() == 1 );
+        REQUIRE( v(1).upper() == 2 );
+        v.bounds(q+1,q+2);
+        REQUIRE( v(1).lower() == 2 );
+        REQUIRE( v(1).upper() == 3 );
+        q.value(2);
+        REQUIRE( v(1).lower() == 3 );
+        REQUIRE( v(1).upper() == 4 );
+        v.bounds(q+1,10);
+        REQUIRE( v(1).lower() == 3 );
+        REQUIRE( v(1).upper() == 10 );
+        v.bounds(10,10*q);
+        REQUIRE( v(1).lower() == 10 );
+        REQUIRE( v(1).upper() == 20 );
+        }
+
+    WHEN( "var within" ) {
+        auto q = coek::parameter("q").value(1);
+        auto V = coek::SetOf( vec );
+        auto v = coek::variable_map( V ).name("x").within(coek::Reals);
+
+        REQUIRE( v(1).within() == coek::Reals );
+        v.within(coek::Integers);
+        REQUIRE( v(1).within() == coek::Integers );
+        }
+  }
+
+  SECTION( "array" ) {
+      auto p = coek::parameter("p").value(1);
+
+      WHEN( "add model" ) {
+        auto v = coek::variable_array( {4,4,4} ).name("x").value(1);
+        coek::Model model;
+        auto vv = model.add( v );
+        REQUIRE( vv.size() == 64 );
+        }
+
+      WHEN( "index api" ) {
+        auto v = coek::variable_array({4,4,4}).name("x").value(1);
+        REQUIRE( v.size() == 64 );
+
+        int ival = 1;
+        size_t uval = 1;
+        auto e = p+1;
+        // Misc tests to improve code coverage for the collect_args() methods
+        REQUIRE( v(e,uval,ival).expand().value() == 1 );
+
+        REQUIRE( v(uval,uval,e).expand().value() == 1 );
+
+        REQUIRE( v(ival,ival,e).expand().value() == 1 );
+
+        REQUIRE( v(uval,uval,uval).value() == 1 );
+
+        REQUIRE( v(ival,ival,ival).value() == 1 );
+
+        REQUIRE_THROWS_WITH( v(uval),
+            "Unexpected index value: x is an 3-D variable array but is being indexed with 1 indices.");
+
+        REQUIRE_THROWS_WITH( v(uval,uval),
+            "Unexpected index value: x is an 3-D variable array but is being indexed with 2 indices.");
+
+        REQUIRE_THROWS_WITH( v(e,ival),
+            "Unexpected index value: x is an 3-D variable array but is being indexed with 2 indices.");
+
+        REQUIRE_THROWS_WITH( v(ival,ival),
+            "Unexpected index value: x is an 3-D variable array but is being indexed with 2 indices.");
+
+        REQUIRE_THROWS_WITH( v(100,100,100),
+            "Unknown index value: x(100,100,100)");
+      }
+
+    WHEN( "var value" ) {
+        auto q = coek::parameter("q").value(1);
+        auto v = coek::variable_array( 4 ).name("x").value(1);
+
+        REQUIRE( v(1).value() == 1 );
+        v.value(q+1);
+        REQUIRE( v(1).value() == 2 );
+        q.value(2);
+        REQUIRE( v(1).value() == 3 );
+        }
+
+    WHEN( "var lower" ) {
+        auto q = coek::parameter("q").value(1);
+        auto v = coek::variable_array( 4 ).name("x").lower(1);
+
+        REQUIRE( v(1).lower() == 1 );
+        v.lower(q+1);
+        REQUIRE( v(1).lower() == 2 );
+        q.value(2);
+        REQUIRE( v(1).lower() == 3 );
+        }
+
+    WHEN( "var upper" ) {
+        auto q = coek::parameter("q").value(1);
+        auto v = coek::variable_array( 4 ).name("x").upper(1);
+
+        REQUIRE( v(1).upper() == 1 );
+        v.upper(q+1);
+        REQUIRE( v(1).upper() == 2 );
+        q.value(2);
+        REQUIRE( v(1).upper() == 3 );
+        }
+
+    WHEN( "var bounds" ) {
+        auto q = coek::parameter("q").value(1);
+        auto v = coek::variable_array( 4 ).name("x").bounds(1,2);
+
+        REQUIRE( v(1).lower() == 1 );
+        REQUIRE( v(1).upper() == 2 );
+        v.bounds(q+1,q+2);
+        REQUIRE( v(1).lower() == 2 );
+        REQUIRE( v(1).upper() == 3 );
+        q.value(2);
+        REQUIRE( v(1).lower() == 3 );
+        REQUIRE( v(1).upper() == 4 );
+        v.bounds(q+1,10);
+        REQUIRE( v(1).lower() == 3 );
+        REQUIRE( v(1).upper() == 10 );
+        v.bounds(10,10*q);
+        REQUIRE( v(1).lower() == 10 );
+        REQUIRE( v(1).upper() == 20 );
+        }
+
+    WHEN( "var within" ) {
+        auto q = coek::parameter("q").value(1);
+        auto v = coek::variable_array( 4 ).name("x");
+
+        REQUIRE( v(1).within() == coek::Reals );
+        v.within(coek::Integers);
+        REQUIRE( v(1).within() == coek::Integers );
         }
   }
 

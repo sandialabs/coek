@@ -13,9 +13,6 @@
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/model/model.hpp"
-#ifdef COEK_WITH_COMPACT_MODEL
-//#include "coek/compact/coek_indexed.hpp"
-#endif
 #include "model_repn.hpp"
 
 

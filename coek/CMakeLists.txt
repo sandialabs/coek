@@ -43,7 +43,10 @@ if(with_compact)
         compact/constraint_sequence.cpp
         compact/ast_set.cpp
         compact/coek_sets.cpp
-        compact/coek_indexed.cpp
+        #compact/coek_indexed.cpp
+        compact/variable_assoc_array.cpp
+        compact/variable_map.cpp
+        compact/variable_array.cpp
         compact/visitor_exprtemplate.cpp
         )
 endif()

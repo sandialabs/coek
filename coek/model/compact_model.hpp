@@ -5,7 +5,8 @@
 #include <coek/model/model.hpp>
 #include <variant>
 #include <coek/compact/coek_sets.hpp>
-#include <coek/compact/coek_indexed.hpp>
+#include <coek/compact/variable_map.hpp>
+#include <coek/compact/variable_array.hpp>
 
 namespace coek {
 
