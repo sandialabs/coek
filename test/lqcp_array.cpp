@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
   CALI_MARK_BEGIN("main");
   
   if (argc == 1) {
-    cout << "lqcp <size> <action=lp,nl,fmtlp,ostrlp,fmtnl,ostrnl,gurobi,ipopt>" << endl;
+    cout << "lqcp <size> <action=none,lp,nl,fmtlp,ostrlp,fmtnl,ostrnl,gurobi,ipopt>" << endl;
     return 0;
     }
 
@@ -95,7 +95,8 @@ int main(int argc, char** argv) {
   CALI_MARK_END("main:create model");
   
   
-if (lp_file) {
+if (action == "none") {}
+else if (lp_file) {
     cout << "WRITING LP" << endl << flush;
     model.write("foo.lp");
     }

@@ -1,5 +1,15 @@
 #!/bin/sh
 
+echo "NONE"
+echo "lqcp"
+time test/lqcp $1 none
+echo "lqcp_array"
+time test/lqcp_array $1 none
+echo "lqcp_map"
+time test/lqcp_map $1 none
+
+exit 1
+
 echo "LP"
 
 echo "lqcp"
