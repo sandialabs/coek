@@ -12,15 +12,15 @@ size_t N = 10000;
 std::vector<coek::Variable> x(N);
 for (size_t i=0; i<N; i++) {
     if (i%2 == 0)
-        x[i].value(-1.2);
+        m.add( x[i].value(-1.2) );
     else
-        x[i].value(1);
-    m.add(x[i]);
+        m.add( x[i].value(1) );
     }
 
-coek::Expression obj;
+auto obj = coek::expression();
 for (size_t i=0; i<N/2; i++)
     obj += 100*pow(x[2*i] - pow(x[2*i-1],2), 2) + pow(x[2*i-1]-1, 2);
+
 m.add_objective( obj );
 }
 

@@ -26,8 +26,8 @@ int main(int argc, char** argv) {
     cout << "lqcp <size> <action=none,lp,nl,fmtlp,ostrlp,fmtnl,ostrnl,gurobi,ipopt>" << endl;
     return 0;
     }
-
   cout << "START" << endl << flush;
+
   string action = argv[2];
   bool ostrlp_file = (action == "ostrlp");
   bool fmtlp_file = (action == "fmtlp");
@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 
   // OBJECTIVE  
   // First term
-  coek::Expression term1;
+  auto term1 = coek::expression();
     term1 +=   ( y[m][0] - yt(0,dx) ) * ( y[m][0] - yt(0,dx) );
   for (size_t j = 1; j <= n-1; j++) {
     term1 += 2*( y[m][j] - yt(j,dx) ) * ( y[m][j] - yt(j,dx) );
@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
     term1 +=   ( y[m][n] - yt(n,dx) ) * ( y[m][n] - yt(n,dx) );
 
   // Second term
-  coek::Expression term2;
+  auto term2 = coek::expression();
   for (size_t i = 1; i <= m-1; i++)
     term2 += 2*u[i]*u[i];
   term2 += u[m]*u[m];

@@ -4686,7 +4686,7 @@ auto q = coek::parameter("q").value(2);
 
     WHEN( "e = 3*b + q == 0" ) {
         coek::Constraint e = 3*b + q == 0;
-        REQUIRE( e.get_body().value() == 5.0 );
+        REQUIRE( e.body().value() == 5.0 );
         REQUIRE( e.is_feasible() == false );
     }
   }

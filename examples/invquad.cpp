@@ -9,7 +9,7 @@ for (auto it=x.begin(); it != x.end(); ++it) {
     m.add(*it);
     }
 
-coek::Expression e;
+auto e = coek::expression();
 for (size_t i=0; i<x.size(); i++)
     e += (x[i]-p[i])*(x[i]-p[i]);
 

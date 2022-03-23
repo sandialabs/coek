@@ -95,7 +95,7 @@ TEST_CASE( "cppad_add", "[smoke]" ) {
     REQUIRE( m.num_constraints() == 1 );
 
     auto c = m.get_constraint(0);
-    REQUIRE( c.get_name() == "c" );
+    REQUIRE( c.name() == "c" );
 
     REQUIRE_THROWS(m.get_constraint(1), "");
     }

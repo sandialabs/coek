@@ -15,5 +15,5 @@ include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 # build library
 ADD_LIBRARY(coekexamples ${sources})
-TARGET_COMPILE_OPTIONS(coekexamples PRIVATE -I${CMAKE_CURRENT_SOURCE_DIR}/../src)
+TARGET_COMPILE_OPTIONS(coekexamples PRIVATE -I${CMAKE_CURRENT_SOURCE_DIR}/../src ${coek_compile_options})
 

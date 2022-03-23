@@ -58,6 +58,7 @@ public:
     friend std::ostream& operator<<(std::ostream& ostr, const Objective& arg);
 };
 
+
 Objective objective();
 Objective objective(const std::string& name);
 Objective objective(const Expression& expr);

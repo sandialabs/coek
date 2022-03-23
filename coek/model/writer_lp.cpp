@@ -468,8 +468,8 @@ QuadraticExpr expr;
 expr.collect_terms(c);
 double tmp = expr.constval;
 
-auto lower = c.get_lower();
-auto upper = c.get_upper();
+auto lower = c.lower();
+auto upper = c.upper();
 
 ostr << "c" << ctr << ":\n";
 ++ctr;
@@ -578,8 +578,8 @@ QuadraticExpr expr;
 expr.collect_terms(c);
 double tmp = expr.constval;
 
-auto lower = c.get_lower();
-auto upper = c.get_upper();
+auto lower = c.lower();
+auto upper = c.upper();
 
 ostr.print("c{}:\n", ctr);
 ++ctr;

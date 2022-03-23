@@ -159,7 +159,7 @@ public:
       * \param value   the initial value of the parameter
       * \param name   the name of the parameter
       */
-    Parameter(const std::string& name);
+    explicit Parameter(const std::string& name);
     /**
       * Copy constructor
       *
@@ -196,6 +196,7 @@ public:
     friend std::ostream& operator<<(std::ostream& ostr, const Parameter& arg);
 };
 
+
 Parameter parameter();
 Parameter parameter(const std::string& name);
 
@@ -210,7 +211,7 @@ public:
 public:
 
     IndexParameter();
-    IndexParameter(const std::string& name);
+    explicit IndexParameter(const std::string& name);
     IndexParameter(const IndexParameter& arg);
     ~IndexParameter();
 
@@ -459,6 +460,13 @@ public:
     /** \returns an expanded Expression */
     Expression expand();
 };
+
+
+Expression expression();
+Expression expression(double arg);
+Expression expression(int arg);
+Expression expression(const Parameter& arg);
+Expression expression(const Variable& arg);
 
 
 //

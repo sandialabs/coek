@@ -112,30 +112,22 @@ else {
 void visit(InequalityTerm& expr,
                     MutableNLPExpr& repn,
                     double multiplier)
-{
-visit_expression(expr.body, repn, multiplier);
-}
+{ visit_expression(expr.body, repn, multiplier); }
 
 void visit(EqualityTerm& expr,
                     MutableNLPExpr& repn,
                     double multiplier)
-{
-visit_expression(expr.body, repn, multiplier);
-}
+{ visit_expression(expr.body, repn, multiplier); }
 
 void visit(ObjectiveTerm& expr,
                     MutableNLPExpr& repn,
                     double multiplier)
-{
-visit_expression(expr.body, repn, multiplier);
-}
+{ visit_expression(expr.body, repn, multiplier); }
 
 void visit(NegateTerm& expr,
                     MutableNLPExpr& repn,
                     double multiplier)
-{
-visit_expression(expr.body, repn, - multiplier);
-}
+{ visit_expression(expr.body, repn, - multiplier); }
 
 void visit(PlusTerm& expr,
                     MutableNLPExpr& repn,

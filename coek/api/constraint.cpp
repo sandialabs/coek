@@ -55,19 +55,19 @@ bool Constraint::is_equality() const
 bool Constraint::is_feasible() const
 { return repn->is_feasible(); }
 
-Expression Constraint::get_lower() const
+Expression Constraint::lower() const
 { return repn->lower; }
 
-Expression Constraint::get_body() const
+Expression Constraint::body() const
 { return repn->body; }
 
-Expression Constraint::get_upper() const
+Expression Constraint::upper() const
 { return repn->upper; }
 
-void Constraint::set_name(const std::string& name)
+void Constraint::name(const std::string& name)
 { repn->name = name; }
 
-std::string Constraint::get_name() const
+std::string Constraint::name() const
 { return repn->name; }
 
 Constraint Constraint::expand()

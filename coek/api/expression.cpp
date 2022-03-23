@@ -551,6 +551,21 @@ OWN_POINTER(repn);
 return *this;
 }
 
+Expression expression()
+{ return coek::Expression(); }
+
+Expression expression(double arg)
+{ return coek::Expression(arg); }
+
+Expression expression(int arg)
+{ return coek::Expression(arg); }
+
+Expression expression(const Parameter& arg)
+{ return coek::Expression(arg); }
+
+Expression expression(const Variable& arg)
+{ return coek::Expression(arg); }
+
 
 //
 // -------------------------------------------------------------------------------------

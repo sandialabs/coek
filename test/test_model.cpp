@@ -149,7 +149,7 @@ auto d = model.add_variable("d").lower(0).upper(1).value(4*q).within(coek::Boole
 
     WHEN( "error2" ) {
         model.add_constraint("c", 3*b + q == 0);
-        REQUIRE( model.get_constraint("c").get_name() == "c" );
+        REQUIRE( model.get_constraint("c").name() == "c" );
         REQUIRE_THROWS_WITH(model.get_constraint("C"),"Unknown constraint name C");
         }
 

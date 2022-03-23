@@ -153,7 +153,7 @@ return expr;
 Constraint Model::add_constraint(const std::string& name, const Constraint& expr)
 {
 repn->constraints.push_back(expr);
-repn->constraints.back().set_name(name);
+repn->constraints.back().name(name);
 repn->constraints_by_name.emplace(name, expr);
 return expr;
 }

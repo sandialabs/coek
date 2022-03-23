@@ -117,7 +117,7 @@ void test_con(coek::Model& model, unsigned int i, const std::list<std::string>& 
 {
 auto con = model.get_constraint(i);
 REQUIRE( con.to_list() == baseline );
-REQUIRE( con.get_name() == name );
+REQUIRE( con.name() == name );
 }
 
 

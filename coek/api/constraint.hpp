@@ -41,9 +41,6 @@ public:
 
     Constraint& operator=(const Constraint& arg);
 
-/** \returns the unique integer constraint ID */
-    unsigned int id() const;
-
     /** \returns \c true if this is an inequality constraint */
     bool is_inequality() const;
     /** \returns \c true if this is an equality constraint */
@@ -52,18 +49,21 @@ public:
     bool is_feasible() const;
 
     /** \returns the expression for the constraint lower bound */
-    Expression get_lower() const;
+    Expression lower() const;
     /** \returns the expression for the constraint body */
-    Expression get_body() const;
+    Expression body() const;
     /** \returns the expression for the constraint upper bound */
-    Expression get_upper() const;
+    Expression upper() const;
 
     /** Set the constraint name */
-    void set_name(const std::string& name);
+    void name(const std::string& name);
     /** \returns the constraint name */
-    std::string get_name() const;
+    std::string name() const;
 
     Constraint expand();
+
+    /** \returns the unique integer constraint ID */
+    unsigned int id() const;
 
     /** \returns a list representation of the constraint */
     std::list<std::string> to_list() const;
