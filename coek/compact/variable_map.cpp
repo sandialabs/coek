@@ -126,13 +126,13 @@ return _repn->values[curr->second];
 }
 
 void VariableMap::index_error(size_t i)
-  {
-  auto _repn = repn.get();
-  std::string err = "Unexpected index value: "+_repn->variable_template.name()+
-          " is an "+std::to_string(tmp.size())+
-          "-D variable map but is being indexed with "+std::to_string(i)+" indices.";
-  throw std::runtime_error(err);
-  }
+{
+auto _repn = repn.get();
+std::string err = "Unexpected index value: "+_repn->variable_template.name()+
+    " is an "+std::to_string(tmp.size())+
+    "-D variable map but is being indexed with "+std::to_string(i)+" indices.";
+throw std::runtime_error(err);
+}
   
 VariableMap& VariableMap::value(double value)
 {

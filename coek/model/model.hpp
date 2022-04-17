@@ -4,6 +4,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <memory>
 #include <coek/api/constants.hpp>
 
 namespace coek {
@@ -15,6 +16,7 @@ class Expression;
 class Objective;
 class Constraint;
 #ifdef COEK_WITH_COMPACT_MODEL
+class ConstraintMap;
 class VariableMap;
 class VariableArray;
 #endif
@@ -158,6 +160,10 @@ public:
       * \returns the constraint
       */
     Constraint add_constraint(const std::string& name, const Constraint& expr);
+#ifdef COEK_WITH_COMPACT_MODEL
+    ConstraintMap& add_constraint(ConstraintMap& expr);
+    ConstraintMap& add(ConstraintMap& expr);
+#endif
 
     /** \returns the constraint with the specified id */
     Constraint get_constraint(size_t i);

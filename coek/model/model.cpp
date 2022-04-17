@@ -158,6 +158,11 @@ repn->constraints_by_name.emplace(name, expr);
 return expr;
 }
 
+#ifdef COEK_WITH_COMPACT_MODEL
+ConstraintMap& Model::add(ConstraintMap& expr)
+{ return add_constraint(expr); }
+#endif
+
 size_t Model::num_variables() const
 { return repn->variables.size(); }
 

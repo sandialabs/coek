@@ -29,16 +29,16 @@ C++ API will necessarily be more constrained.
 Getter/Setter
 ~~~~~~~~~~~~~
 
-Currently, COEK relies on methods get_foo and set_foo to manage data
-in the API.  By contrast, POEK can rely on properties, which are more
-intuitive for this sort of thing.
-
-Alternatively, COEK could rely on methods with the following names:
+Currently, COEK relies on getter/setter methods to manage data
+in the API.  For example, COEK relies on methods with the following names:
 
 * `void foo(arg value)` used for setting foo
 * `value foo()` used for getting foo
 
-These methods are less explicit, but perhaps better for function chaining (see examples below).
+... note::
+
+    These methods are less explicit than more traditional get_foo() and set_foo(), but perhaps better 
+    for function chaining (see examples below).
 
 
 Variables
@@ -51,23 +51,24 @@ processing of models.  Thus, the following are equivalent:
 ... code::
 
     auto x = coek::variable("x");
-    model.add_variable(x);
+    model.add(x);
 
 and
 
 ... code::
 
-    auto x = model.add_variable("x");
+    auto x = model.add( coek::variable("x") );
+    auto x = model.add( coek::variable("x") );
 
-The `coek::variable` function and `model.add_variable` method have the same API.  They
-construct a variable object and return it.  This enables functional chaining to configure
-the variable, and it enables the user to directly reference the variable object.
+The `Model::add()` method creates a variable object to the model, and this
+object is returned to support more concise declaration of variables.
+This enables functional chaining to configure the variable, and it
+enables the user to directly reference the variable object.
 
 ... question::
 
-    Should these have the same name?  Would it be more intuitive for users to call `coek::variable` and `model.variable`?
-
-    Note that just using 'add' is problematic, because a model needs to add variables, objectives and constraints.
+    Should we include an `Model::add_variable()` method that replicates the API of the `coek::variable()` method?  This
+    would be redundant in the API, but it would allow for shorter end-user code.
 
 
 Minimal Specification
@@ -78,19 +79,19 @@ A minimal variable specification includes a name and/or indexing information.  T
 ... code::
 
     // A single continuous variable
-    auto y = model.add_variable("y");
+    auto y = model.add( coek::variable("y") );
 
     // An array of continuous variables of length 'n'
     size_t n=100;
-    auto y = model.add_variable("y").array(n);
+    auto y = model.add( coek::variable("y") ).array(n);
 
     // A multi-dimensional array of continuous variables:  R^{2 x 3 x 5}
-    auto y = model.add_variable("y").array({2,3,4});
+    auto y = model.add( coek::variable("y") ).array({2,3,4});
 
     // A tensor of continuous variables indexed by COEK set objects
     auto A = coek::RangeSet(1,10);
     auto B = coek::RangeSet(11,20);
-    auto y = model.add_variable("y").index(A*B);
+    auto y = model.add( coek::variable("y") ).index(A*B);
 
 
 Beyond A Minimal Specification
@@ -111,7 +112,7 @@ annotation of a variable's information:
 
 ... code::
 
-    auto x = model.add_variable("x").
+    auto x = model.add( coek::variable("x") ).
                     lower(2).
                     upper(10).
                     initial(3).
@@ -148,7 +149,7 @@ annotation of a variable's information:
     something that would be done commonly, so I'm inclined to keep those
     arguments as part of the function:
 
-    auto x = model.add_variable("x", A*B).
+    auto x = model.add( coek::variable("x", A*B) ).
                     lower(2).
                     upper(10).
                     initial(3).
@@ -184,7 +185,7 @@ For example:
 
     auto M = coek::RangeSet(1,m);
     auto N = coek::RangeSet(1,n);
-    auto x = model.add_variable("x").
+    auto x = model.add( coek::variable("x") ).
                 lower(0).
                 upper(i*j).
                 initial(i+j).
@@ -219,7 +220,7 @@ For example:
 
     auto i = x_index.index("i");
     auto j = x_index.index("j");
-    auto x = model.add_variable("x").
+    auto x = model.add( coek::variable("x") ).
                 lower(0).
                 upper(i*(j+p)).
                 initial(i+j).
@@ -238,7 +239,7 @@ parameters as well:
 
     auto M = coek::RangeSet(1,m);
     auto N = coek::RangeSet(1,n);
-    auto x = model.add_variable("x").
+    auto x = model.add( coek::variable("x") ).
                 lower(0).
                 upper(i*(j+p)).
                 initial(i+j).
@@ -257,7 +258,7 @@ explicitly denote the order of indices.  For example:
 
     auto M = coek::RangeSet(1,m);
     std::vector<coek::ConcreteSet> N(m);
-    auto x = model.add_variable("x").
+    auto x = model.add( coek::variable("x") ).
                 lower(0).
                 upper(i*j).
                 initial(i+j).
@@ -275,20 +276,20 @@ Variables declared over sets can be indexed using the `()` operator in a natural
 
     // An array of continuous variables of length 'n'
     size_t n=100;
-    auto x = model.add_variable(n);
+    auto x = model.add( coek::variable(n) );
     // Value of the 4th element of the array
     auto v = x(3).value();
 
     // A tensor of continuous variables:  R^{2 x 3 x 5}
     std::vector<size_t> dim = {2,3,5};
-    auto x = model.add_variable(dim);
+    auto x = model.add( coek::variable(dim) );
     // Value of the variable indexed by (0,2,1)
     auto v = x(0,2,1).value();
 
     // A tensor of continuous variables indexed by COEK set objects
     auto A = coek::RangeSet(1,10);
     auto B = coek::RangeSet(11,20);
-    auto x = model.add_variable(A*B);
+    auto x = model.add( coek::variable(A*B) );
     // Value of the variable indexed by (1,11)
     auto v = x(1,11).value();
 
@@ -309,7 +310,7 @@ of those expressions is deferred.  For example:
 
     // An array of continuous variables of length 'n'
     size_t n=100;
-    auto x = model.add_variable(n);
+    auto x = model.add( coek::variable(n) );
 
     // Create a reference to the variable
     auto x0 = x(3+p);
@@ -431,7 +432,7 @@ constant values.  For example:
     auto v = variable("v");
     auto e = sin(3*x+1);
 
-Note that thse fundamental types are not owned by a COEK model, so such
+Note that these fundamental types are not owned by a COEK model, so such
 an expression can be used and re-used within multiple expressions and
 within multiple COEK models.
 
@@ -457,11 +458,7 @@ within multiple COEK models.
 
         auto E = expression("E", 10);
 
-    would refer to an array of named expressions, and 
-
-        auto E = expression("E").value(10);
-
-    would refer to an array of named expressions with value 10.
+    would refer to an array of named expressions.
 
 .. question::
 
@@ -470,6 +467,11 @@ within multiple COEK models.
     explicitly to the model to track it there?  I think so.  Thus, the following would also make sense:
 
     auto E = model.add_expression("E", e);
+
+MAJOR EDITS NEEDED HERE
+-----------------------
+
+The following notes do not reflect the design ideas above.
 
 
 Objectives
@@ -528,7 +530,7 @@ Finally, objectives can be declared using set indices:
 
 .. code::
 
-    auto x = model.add_variable("x", M*N);
+    auto x = model.add( coek::variable("x", M*N) );
     auto o = model.add_objective("o", Forall(i,j).In(M*N)).
                     expr( i*j*x(i,j) )
     auto O = model.add_objective("O", Forall(i).In(M)).
@@ -588,7 +590,7 @@ Finally, constraints can be declared using set indices:
 
 .. code::
 
-    auto x = model.add_variable("x", M*N);
+    auto x = model.add( coek::variable("x", M*N) );
     auto c = model.add_constraint("c", Forall(i,j).In(M*N)).
                     expr( i*j*x(i,j) == 0 )
     auto C = model.add_constraint("C", Forall(i).In(M)).

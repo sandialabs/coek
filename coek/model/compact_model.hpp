@@ -13,7 +13,7 @@ namespace coek {
 class VariableMap;
 class VariableArray;
 class ObjectiveMap;
-class ConstraintMap;
+class CompactConstraintMap;
 class SequenceContext;
 class CompactModelRepn;
 
@@ -70,7 +70,7 @@ public:
 };
 
 
-class ConstraintMap
+class CompactConstraintMap
 {
 public:
 
@@ -181,7 +181,7 @@ public:
       *
       * \returns a map to the constraints
       */
-    ConstraintMap add_constraint(const Constraint& expr, const SequenceContext& context);
+    CompactConstraintMap add_constraint(const Constraint& expr, const SequenceContext& context);
     /**
       * Add constraints to the model.
       *
@@ -191,7 +191,7 @@ public:
       *
       * \returns a map to the constraints
       */
-    ConstraintMap add_constraint(const std::string& name, const Constraint& expr, const SequenceContext& context);
+    CompactConstraintMap add_constraint(const std::string& name, const Constraint& expr, const SequenceContext& context);
 
     Model expand();
 

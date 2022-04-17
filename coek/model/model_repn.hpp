@@ -17,7 +17,7 @@ class Constraint;
 class Variable;
 class CompactVariableMap;
 class ObjectiveMap;
-class ConstraintMap;
+class CompactConstraintMap;
 
 //
 // ModelRepn
@@ -55,7 +55,7 @@ public:
     std::vector<std::string> constraint_names;
     std::vector<std::variant<Variable, VariableSequence>> variables;
     std::vector<std::string> variable_names;
-    std::map<std::string, std::variant<CompactVariableMap, ObjectiveMap, ConstraintMap>> mapped_data;
+    std::map<std::string, std::variant<CompactVariableMap, ObjectiveMap, CompactConstraintMap>> mapped_data;
 };
 #endif
 

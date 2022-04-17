@@ -75,20 +75,19 @@ int main(int argc, char** argv) {
 
 
   // PDE
-/*
-  auto pde = model.add( coek::constraint_array("pde", {m, n}) );
+  //auto pde = coek::constraint("pde", {m, n});
+  auto pde = model.add( coek::constraint("pde", {m, n}) );
   for (size_t i = 0; i < m; i++)
     for (size_t j = 1; j < n; j++)
       pde(i,j) = y(i+1,j) - y(i,j) == dt*0.5/h2*(y(i,j-1) - 2*y(i,j) + y(i,j+1) + y(i+1,j-1) - 2*y(i+1,j) + y(i+1,j+1));
-*/
 
+#if 0
   for (size_t i = 0; i < m; i++) {
     for (size_t j = 1; j < n; j++) {
       model.add_constraint( y(i+1,j) - y(i,j) == dt*0.5/h2*(y(i,j-1) - 2*y(i,j) + y(i,j+1) + y(i+1,j-1) - 2*y(i+1,j) + y(i+1,j+1)) );
     }
   }
-
-
+#endif
 
   // IC
   for (size_t j = 0; j <= n; j++) {

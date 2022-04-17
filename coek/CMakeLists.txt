@@ -47,6 +47,7 @@ if(with_compact)
         compact/variable_assoc_array.cpp
         compact/variable_map.cpp
         compact/variable_array.cpp
+        compact/component_map.cpp
         compact/visitor_exprtemplate.cpp
         )
 endif()

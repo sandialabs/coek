@@ -13,6 +13,7 @@
 #include "coek/compact/coek_sets.hpp"
 #include "coek/compact/variable_array.hpp"
 #include "coek/compact/variable_map.hpp"
+#include "coek/compact/component_map.hpp"
 #include "coek/compact/sequence_context.hpp"
 #include "coek/compact/expression_sequence.hpp"
 #include "coek/compact/objective_sequence.hpp"
