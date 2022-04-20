@@ -162,7 +162,9 @@ public:
     Constraint add_constraint(const std::string& name, const Constraint& expr);
 #ifdef COEK_WITH_COMPACT_MODEL
     ConstraintMap& add_constraint(ConstraintMap& expr);
+    ConstraintMap& add_constraint(ConstraintMap&& expr);
     ConstraintMap& add(ConstraintMap& expr);
+    ConstraintMap& add(ConstraintMap&& expr);
 #endif
 
     /** \returns the constraint with the specified id */

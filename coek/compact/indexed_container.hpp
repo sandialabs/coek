@@ -29,50 +29,101 @@ public:
     IndexVectorCache cache;
     std::map<size_t, std::string> names;
     std::map<IndexVector, size_t> index;
-    ConcreteSet concrete_set;
-    std::vector<size_t> shape;
-    size_t _size;
     size_t _dim;
     std::vector<TYPE> value;
     std::string _name;
 
 public:
 
-    IndexedComponentRepn(size_t n)
-        : shape({n}), _size(n), _dim(1)
-        { cache.resize(size()); }
-
-    IndexedComponentRepn(const std::vector<size_t>& _shape)
-        : shape(_shape), _size(1), _dim(_shape.size())
-        {
-        for (auto n : shape)
-            _size *= n;
-        cache.resize(size());
-        }
-
-    IndexedComponentRepn(const std::initializer_list<size_t>& _shape)
-        : shape(_shape), _size(1), _dim(_shape.size())
-        {
-        for (auto n : shape)
-            _size *= n;
-        cache.resize(size());
-        }
-
-    IndexedComponentRepn(ConcreteSet& _arg)
-        : concrete_set(_arg), _size(_arg.size()), _dim(_arg.dim())
-        { cache.resize((dim()+2)*size()); }
+    IndexedComponentRepn(size_t dim)
+        : _dim(dim)
+        { }
 
     size_t dim()
         {return _dim;}
 
     size_t size()
-        {return _size;}
+        {return value.size();}
 
     void resize_index_vectors(IndexVector& tmp, std::vector<refarg_types>& reftmp)
-            {
-            tmp = cache.alloc(dim());
-            reftmp.resize(dim());
+        {
+        tmp = cache.alloc(dim());
+        reftmp.resize(dim());
+        }
+
+    virtual bool valid_index(const IndexVector& args) = 0;
+};
+
+
+template <class TYPE>
+class IndexedComponentRepn_multiarray : public IndexedComponentRepn<TYPE>
+{
+public:
+
+    std::vector<size_t> shape;
+
+public:
+
+    IndexedComponentRepn_multiarray(size_t n)
+        : IndexedComponentRepn<TYPE>(1),
+          shape({n})
+        {
+        this->cache.resize(n);
+        }
+
+    IndexedComponentRepn_multiarray(const std::vector<size_t>& _shape)
+        : IndexedComponentRepn<TYPE>(_shape.size()),
+          shape(_shape)
+        {
+        size_t _size = 1;
+        for (auto n : shape)
+            _size *= n;
+        this->cache.resize(_size);
+        }
+
+    IndexedComponentRepn_multiarray(const std::initializer_list<size_t>& _shape)
+        : IndexedComponentRepn<TYPE>(_shape.size()),
+          shape(_shape)
+        {
+        size_t _size = 1;
+        for (auto n : shape)
+            _size *= n;
+        this->cache.resize(_size);
+        }
+
+    bool valid_index(const IndexVector& args)
+        {
+        for (size_t i=0; i<this->_dim; ++i) {
+            size_t tmp = static_cast<size_t>(args[i]);
+            if ((tmp < 0) or (tmp >= shape[i]))
+                return false;
             }
+        return true;
+        }
+};
+
+
+template <class TYPE>
+class IndexedComponentRepn_setindex : public IndexedComponentRepn<TYPE>
+{
+public:
+
+    ConcreteSet concrete_set;
+
+public:
+
+    IndexedComponentRepn_setindex(ConcreteSet& _arg)
+        : IndexedComponentRepn<TYPE>(_arg.dim()),
+          concrete_set(_arg)
+        {
+        this->cache.resize((this->dim()+2) * _arg.size());
+        }
+
+    bool valid_index(const IndexVector& args)
+        {
+        auto it = this->index.find(args);
+        return !(it == this->index.end());
+        }
 };
 
 
@@ -186,25 +237,25 @@ public:
 
     explicit IndexedComponent_Map(size_t n)
         {
-        this->repn = std::make_shared<IndexedComponentRepn<TYPE>>(n);
+        this->repn = std::make_shared<IndexedComponentRepn_multiarray<TYPE>>(n);
         this->repn->resize_index_vectors(this->tmp,this->reftmp);
         }
 
     explicit IndexedComponent_Map(const std::vector<size_t>& _shape)
         {
-        this->repn = std::make_shared<IndexedComponentRepn<TYPE>>(_shape);
+        this->repn = std::make_shared<IndexedComponentRepn_multiarray<TYPE>>(_shape);
         this->repn->resize_index_vectors(this->tmp,this->reftmp);
         }
 
     explicit IndexedComponent_Map(const std::initializer_list<size_t>& _shape)
         {
-        this->repn = std::make_shared<IndexedComponentRepn<TYPE>>(_shape);
+        this->repn = std::make_shared<IndexedComponentRepn_multiarray<TYPE>>(_shape);
         this->repn->resize_index_vectors(this->tmp,this->reftmp);
         }
 
     explicit IndexedComponent_Map(ConcreteSet& arg)
         {
-        this->repn = std::make_shared<IndexedComponentRepn<TYPE>>(arg);
+        this->repn = std::make_shared<IndexedComponentRepn_setindex<TYPE>>(arg);
         this->repn->resize_index_vectors(this->tmp,this->reftmp);
         }
 
@@ -216,11 +267,10 @@ public:
 template <class TYPE>
 TYPE IndexedComponent_Map<TYPE>::index(const IndexVector& args)
 {
-assert(dim() == args.size());
+assert(this->dim() == args.size());
 
-auto curr = this->repn->index.find(this->tmp);
-if (curr == this->repn->index.end()) {
-    std::string err = "Unknown index value: "+this->repn->_name+"(";
+if (!(this->repn->valid_index(this->tmp))) {
+    std::string err = "Bad index value: "+this->repn->_name+"(";
     for (size_t i=0; i<args.size(); i++) {
         if (i > 0)
             err += ",";
@@ -228,6 +278,12 @@ if (curr == this->repn->index.end()) {
         }
     err += ")";
     throw std::runtime_error(err); 
+    }
+
+auto curr = this->repn->index.find(this->tmp);
+if (curr == this->repn->index.end()) {
+    this->repn->index[this->tmp] = this->repn->value.size();
+    // TODO - What append here? this->repn->value.push_back();
     }
 return this->repn->value[curr->second];
 }

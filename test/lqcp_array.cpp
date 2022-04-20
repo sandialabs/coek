@@ -53,8 +53,8 @@ int main(int argc, char** argv) {
                                         bounds(0,1).value(0) );
   auto u = model.add( coek::variable("u", m+1).
                                         bounds(-1,1).value(0) );
-  model.add(y);
-  model.add(u);
+  //model.add(y);
+  //model.add(u);
   
   // OBJECTIVE  
   // First term
@@ -75,11 +75,12 @@ int main(int argc, char** argv) {
 
 
   // PDE
-  //auto pde = coek::constraint("pde", {m, n});
-  auto pde = model.add( coek::constraint("pde", {m, n}) );
+  auto pde = coek::constraint("pde", {m, n});
+  //auto pde = model.add( coek::constraint("pde", {m, n}) );
   for (size_t i = 0; i < m; i++)
     for (size_t j = 1; j < n; j++)
       pde(i,j) = y(i+1,j) - y(i,j) == dt*0.5/h2*(y(i,j-1) - 2*y(i,j) + y(i,j+1) + y(i+1,j-1) - 2*y(i+1,j) + y(i+1,j+1));
+  model.add( pde );
 
 #if 0
   for (size_t i = 0; i < m; i++) {
