@@ -27,10 +27,9 @@ class IndexedComponentRepn
 public:
 
     IndexVectorCache cache;
-    std::map<size_t, std::string> names;
-    std::map<IndexVector, size_t> index;
+    std::map<IndexVector, std::string> names;
+    std::map<IndexVector, TYPE> value;
     size_t _dim;
-    std::vector<TYPE> value;
     std::string _name;
 
 public:
@@ -68,7 +67,7 @@ public:
         : IndexedComponentRepn<TYPE>(1),
           shape({n})
         {
-        this->cache.resize(n);
+        this->cache.resize((n+1)*2);
         }
 
     IndexedComponentRepn_multiarray(const std::vector<size_t>& _shape)
@@ -78,7 +77,7 @@ public:
         size_t _size = 1;
         for (auto n : shape)
             _size *= n;
-        this->cache.resize(_size);
+        this->cache.resize((_size+1)*(_shape.size()+1));
         }
 
     IndexedComponentRepn_multiarray(const std::initializer_list<size_t>& _shape)
@@ -88,7 +87,7 @@ public:
         size_t _size = 1;
         for (auto n : shape)
             _size *= n;
-        this->cache.resize(_size);
+        this->cache.resize((_size+1)*(_shape.size()+1));
         }
 
     bool valid_index(const IndexVector& args)
@@ -116,13 +115,13 @@ public:
         : IndexedComponentRepn<TYPE>(_arg.dim()),
           concrete_set(_arg)
         {
-        this->cache.resize((this->dim()+2) * _arg.size());
+        this->cache.resize((this->dim()+1) * (_arg.size()+1));
         }
 
     bool valid_index(const IndexVector& args)
         {
-        auto it = this->index.find(args);
-        return !(it == this->index.end());
+        auto it = this->value.find(args);
+        return !(it == this->value.end());
         }
 };
 
@@ -138,9 +137,9 @@ public:
 
 public:
 
-    typename std::vector<TYPE>::iterator begin()
+    typename std::map<IndexVector, TYPE>::iterator begin()
         { return repn->value.begin(); }
-    typename std::vector<TYPE>::iterator end()
+    typename std::map<IndexVector, TYPE>::iterator end()
         { return repn->value.end(); }
 
     size_t size()
@@ -148,7 +147,7 @@ public:
     size_t dim()
         { return repn->dim(); }
 
-    virtual TYPE index(const IndexVector& args) = 0;
+    virtual TYPE& index(const IndexVector& args) = 0;
 
     //Expression create_varref(const std::vector<refarg_types>& indices);
 
@@ -162,7 +161,7 @@ class IndexedComponent_Map : public IndexedComponent<TYPE>
 {
 public:
 
-    TYPE index(const IndexVector& args);
+    TYPE& index(const IndexVector& args);
     void index_error(size_t i);
 
     IndexedComponent_Map<TYPE>& name(const std::string& str)
@@ -207,7 +206,7 @@ public:
         }
 
     template <typename... ARGTYPES>
-    TYPE operator()(const ARGTYPES&... args)
+    TYPE& operator()(const ARGTYPES&... args)
         {
         const size_t nargs = count_args(args...);
         if (this->dim() != nargs)
@@ -216,7 +215,7 @@ public:
         return index(this->tmp);
         }
 
-    TYPE operator()(int i)
+    TYPE& operator()(int i)
         {
         if (this->dim() != 1)
             index_error(1);
@@ -224,7 +223,7 @@ public:
         return index(this->tmp);
         }
 
-    TYPE operator()(int i, int j)
+    TYPE& operator()(int i, int j)
         {
         if (this->dim() != 2)
             index_error(2);
@@ -265,7 +264,7 @@ public:
 
 
 template <class TYPE>
-TYPE IndexedComponent_Map<TYPE>::index(const IndexVector& args)
+TYPE& IndexedComponent_Map<TYPE>::index(const IndexVector& args)
 {
 assert(this->dim() == args.size());
 
@@ -280,12 +279,15 @@ if (!(this->repn->valid_index(this->tmp))) {
     throw std::runtime_error(err); 
     }
 
-auto curr = this->repn->index.find(this->tmp);
-if (curr == this->repn->index.end()) {
-    this->repn->index[this->tmp] = this->repn->value.size();
-    // TODO - What append here? this->repn->value.push_back();
+auto curr = this->repn->value.find(this->tmp);
+if (curr == this->repn->value.end()) {
+    auto _args = this->repn->cache.clone(args);
+    TYPE tmp;
+    auto& res = this->repn->value[_args] = tmp;
+    return res;
     }
-return this->repn->value[curr->second];
+else
+    return curr->second;
 }
 
 

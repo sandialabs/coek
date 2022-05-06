@@ -7,7 +7,7 @@
 namespace coek
 {
 
-emplate <typename TYPE>
+template <typename TYPE>
 std::ostream& operator<<(std::ostream& ostr, const std::vector<TYPE>& vec)
 {
 for (size_t i=0; i<vec.size(); i++)

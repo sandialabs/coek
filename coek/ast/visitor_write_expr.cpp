@@ -61,6 +61,8 @@ public:
     void visit(ATanhTerm& arg);
     void visit(PowTerm& arg);
     void visit(SumExpressionTerm& arg);
+    void visit(DummyConstraintTerm& arg);
+    //void visit(DummyObjectiveTerm& arg);
 };
 
 
@@ -251,6 +253,12 @@ ostr << ")";
 
 void WriteExprVisitor::visit(SumExpressionTerm& )
 { ostr << "Sum()"; }
+
+void WriteExprVisitor::visit(DummyConstraintTerm& )
+{ ostr << "DummyConstraint()"; }
+
+//void WriteExprVisitor::visit(DummyObjectiveTerm& )
+//{ ostr << "DummyObjective()"; }
 
 }
 

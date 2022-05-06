@@ -15,14 +15,14 @@ public:
   
     VariableArrayRepn(size_t n)
         : shape({n}), _size(n)
-        { cache.resize(size()); }
+        { cache.resize((size()+1)*2); }
     
     VariableArrayRepn(const std::vector<size_t>& _shape)
         : shape(_shape), _size(1)
         {
         for (auto n : shape)
             _size *= n;
-        cache.resize(size());
+        cache.resize((size()+1)*(dim()+1));
         }
 
     VariableArrayRepn(const std::initializer_list<size_t>& _shape)
@@ -30,7 +30,7 @@ public:
         {
         for (auto n : shape)
             _size *= n;
-        cache.resize(size());
+        cache.resize((size()+1)*(dim()+1));
         }
 
     void setup();

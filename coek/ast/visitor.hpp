@@ -105,6 +105,8 @@ enum term_id : unsigned int {
     MonomialTerm_id =       5,
     InequalityTerm_id =     6,
     EqualityTerm_id =       7,
+    DummyConstraintTerm_id = 104,
+    DummyObjectiveTerm_id = 105,
     NegateTerm_id =         8,
     PlusTerm_id =           9,
     TimesTerm_id =          10,

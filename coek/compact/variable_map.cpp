@@ -41,7 +41,7 @@ public:
 
     VariableMapRepn(const ConcreteSet& _arg)
         : concrete_set(_arg)
-        { cache.resize((dim()+2)*size()); }
+        { cache.resize((size()+1)*(dim()+1)); }
 
     void setup(); 
 
@@ -82,7 +82,7 @@ for (auto it=concrete_set.begin(); it != concrete_set.end(); ++it) {
 size_t _dim = dim();
 size_t i=0;
 for (auto& vec : concrete_set) {
-    IndexVector x = cache.alloc(_dim);
+    auto x = cache.alloc(_dim);
     for (size_t j=0; j<_dim; j++)
         x[j] = vec[j];
     index[x] = i++;

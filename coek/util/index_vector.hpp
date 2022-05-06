@@ -123,6 +123,14 @@ public:
         curr += _len+1;
         return IndexVector(tmp);
         }
+
+    IndexVector clone(const IndexVector& x)
+        {
+        auto tmp = alloc(x.size());
+        for (size_t i=0; i<x.size(); ++i)
+            tmp[i] = x[i];
+        return tmp;
+        }
 };
 
 }

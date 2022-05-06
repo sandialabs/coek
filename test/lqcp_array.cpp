@@ -53,8 +53,6 @@ int main(int argc, char** argv) {
                                         bounds(0,1).value(0) );
   auto u = model.add( coek::variable("u", m+1).
                                         bounds(-1,1).value(0) );
-  //model.add(y);
-  //model.add(u);
   
   // OBJECTIVE  
   // First term
@@ -76,31 +74,28 @@ int main(int argc, char** argv) {
 
   // PDE
   auto pde = coek::constraint("pde", {m, n});
-  //auto pde = model.add( coek::constraint("pde", {m, n}) );
   for (size_t i = 0; i < m; i++)
     for (size_t j = 1; j < n; j++)
       pde(i,j) = y(i+1,j) - y(i,j) == dt*0.5/h2*(y(i,j-1) - 2*y(i,j) + y(i,j+1) + y(i+1,j-1) - 2*y(i+1,j) + y(i+1,j+1));
   model.add( pde );
 
-#if 0
-  for (size_t i = 0; i < m; i++) {
-    for (size_t j = 1; j < n; j++) {
-      model.add_constraint( y(i+1,j) - y(i,j) == dt*0.5/h2*(y(i,j-1) - 2*y(i,j) + y(i,j+1) + y(i+1,j-1) - 2*y(i+1,j) + y(i+1,j+1)) );
-    }
-  }
-#endif
-
   // IC
-  for (size_t j = 0; j <= n; j++) {
-    model.add_constraint( y(0,j) == 0 );
-  }
-
+  auto ic = coek::constraint("ic", n+1);
+  for (size_t j = 0; j <= n; j++) 
+    ic(j) = y(0,j) == 0;
+  model.add( ic );
 
   // BC
+  auto bc1 = coek::constraint("bc1", m+1);
   for (size_t i = 1; i <= m; i++)
-    model.add_constraint( y(i,2) - 4*y(i,1) + 3*y(i,0) == 0 );
+    bc1(i) = y(i,2) - 4*y(i,1) + 3*y(i,0) == 0;
+  model.add( bc1 );
+
+  auto bc2 = coek::constraint("bc2", m+1);
   for (size_t i = 1; i <= m; i++)
-    model.add_constraint( (y(i,n-2) - 4*y(i,n1) + 3*y(i,n))/(2*dx) == u(i)-y(i,n));
+    bc2(i) = (y(i,n-2) - 4*y(i,n1) + 3*y(i,n))/(2*dx) == u(i)-y(i,n);
+  model.add( bc2 );
+
 
   CALI_MARK_END("main:create model");
   

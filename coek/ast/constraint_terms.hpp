@@ -44,6 +44,8 @@ public:
 
     DummyObjectiveTerm()
         : ObjectiveTerm() {}
+    term_id id()
+        {return DummyObjectiveTerm_id;}
 #if 0
     double eval() const
         {return 0.0;}
@@ -154,7 +156,7 @@ public:
     void accept(Visitor& v)
         { v.visit(*this); }
     term_id id()
-        {return EqualityTerm_id;}
+        {return DummyConstraintTerm_id;}
 };
 
 }
