@@ -139,6 +139,8 @@ elseif(NOT "${CMAKE_CXX_STANDARD}")
     CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
     set(CMAKE_CXX_STANDARD 17)
     MESSAGE("-- C++ version: C++17")
+else()
+    MESSAGE("-- C++ version: C++${CMAKE_CXX_STANDARD}")
 endif()
 
 if (with_gcov)
