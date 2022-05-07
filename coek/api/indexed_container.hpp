@@ -7,7 +7,9 @@
 #include <variant>
 #include <unordered_map>
 #include <memory>
+#ifdef COEK_WITH_COMPACT_MODEL
 #include "coek/compact/coek_sets.hpp"
+#endif
 #include "coek/api/expression.hpp"
 #include "coek/util/index_vector.hpp"
 #include "coek/util/template_utils.hpp"
@@ -102,6 +104,7 @@ public:
 };
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 template <class TYPE>
 class IndexedComponentRepn_setindex : public IndexedComponentRepn<TYPE>
 {
@@ -124,7 +127,7 @@ public:
         return !(it == this->value.end());
         }
 };
-
+#endif
 
 template <class TYPE>
 class IndexedComponent
@@ -252,11 +255,13 @@ public:
         this->repn->resize_index_vectors(this->tmp,this->reftmp);
         }
 
+    #ifdef COEK_WITH_COMPACT_MODEL
     explicit IndexedComponent_Map(ConcreteSet& arg)
         {
         this->repn = std::make_shared<IndexedComponentRepn_setindex<TYPE>>(arg);
         this->repn->resize_index_vectors(this->tmp,this->reftmp);
         }
+    #endif
 
     ~IndexedComponent_Map() {}
 

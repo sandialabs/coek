@@ -190,8 +190,7 @@ public:
     IndexedVariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub, const expr_pointer_t& _value, bool _binary, bool _integer, size_t _vindex, void* _var)
         : VariableTerm(_lb, _ub, _value, _binary, _integer), var(_var), vindex(_vindex) {}
 
-    #if COEK_WITH_COMPACT_MODEL
-    // See coek_indexed.cpp
+    #if __cpp_lib_variant
     virtual std::string get_name();
     #else
     virtual std::string get_name()

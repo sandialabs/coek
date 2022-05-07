@@ -1,5 +1,5 @@
 #include "coek/model/model.hpp"
-#include "coek/compact/component_map.hpp"
+#include "coek/api/component_map.hpp"
 
 
 namespace coek {

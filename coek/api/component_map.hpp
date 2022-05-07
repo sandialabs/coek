@@ -1,7 +1,7 @@
 #pragma once
 
 #include "coek/api/constraint.hpp"
-#include "coek/compact/indexed_container.hpp"
+#include "coek/api/indexed_container.hpp"
 
 namespace coek {
 
@@ -22,8 +22,10 @@ public:
     explicit ConstraintMap(const std::initializer_list<size_t>& _shape)
                 : IndexedComponent_Map<Constraint>(_shape) {}
 
+    #ifdef COEK_WITH_COMPACT_MODEL
     explicit ConstraintMap(ConcreteSet& arg)
                 : IndexedComponent_Map<Constraint>(arg) {}
+    #endif
 
     ConstraintMap& name(const std::string& str)
         {

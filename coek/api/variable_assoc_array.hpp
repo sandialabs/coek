@@ -1,7 +1,6 @@
 #pragma once
 
-#include "coek/compact/variable_assoc_array_repn.hpp"
-#include <variant>
+#include "coek/api/variable_assoc_array_repn.hpp"
 
 
 namespace coek {

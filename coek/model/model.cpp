@@ -119,7 +119,9 @@ for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
 #ifdef COEK_WITH_COMPACT_MODEL
 VariableMap& Model::add(VariableMap& vars)
 { return add_variable(vars); }
+#endif
 
+#if __cpp_lib_variant
 VariableArray& Model::add(VariableArray& vars)
 { return add_variable(vars); }
 #endif
@@ -158,7 +160,7 @@ repn->constraints_by_name.emplace(name, expr);
 return expr;
 }
 
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
 ConstraintMap& Model::add(ConstraintMap& expr)
 { return add_constraint(expr); }
 #endif

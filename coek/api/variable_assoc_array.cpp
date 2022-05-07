@@ -1,6 +1,7 @@
-#include "coek/compact/variable_assoc_array.hpp"
+#include <variant>
 #include <cmath>
-#include "../ast/compact_terms.hpp"
+#include "coek/api/variable_assoc_array.hpp"
+#include "coek/ast/compact_terms.hpp"
 
 
 namespace coek {

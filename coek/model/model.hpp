@@ -1,5 +1,13 @@
 #pragma once
 
+#ifdef __has_include
+#   if __has_include(<version>)
+#       include <version>
+#   endif
+#   if __has_include(<variant>)
+#       include <variant>
+#   endif
+#endif
 #include <string>
 #include <map>
 #include <set>
@@ -16,9 +24,11 @@ class Expression;
 class Objective;
 class Constraint;
 #ifdef COEK_WITH_COMPACT_MODEL
-class ConstraintMap;
 class VariableMap;
+#endif
+#if __cpp_lib_variant
 class VariableArray;
+class ConstraintMap;
 #endif
 class ModelRepn;
 
@@ -87,11 +97,13 @@ public:
       */
     Variable& add_variable(Variable& var);
     void add_variable(PythonVariableArray& var);
+#if __cpp_lib_variant
+    VariableArray& add_variable(VariableArray& var);
+    VariableArray& add(VariableArray& var);
+#endif
 #ifdef COEK_WITH_COMPACT_MODEL
     VariableMap& add_variable(VariableMap& var);
     VariableMap& add(VariableMap& var);
-    VariableArray& add_variable(VariableArray& var);
-    VariableArray& add(VariableArray& var);
 #endif
     Variable& add(Variable& var);
 
@@ -160,7 +172,7 @@ public:
       * \returns the constraint
       */
     Constraint add_constraint(const std::string& name, const Constraint& expr);
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
     ConstraintMap& add_constraint(ConstraintMap& expr);
     ConstraintMap& add_constraint(ConstraintMap&& expr);
     ConstraintMap& add(ConstraintMap& expr);

@@ -32,10 +32,17 @@ SET(sources
     autograd/autograd.cpp
     abstract/expr_rule.cpp
    )
+if (CMAKE_CXX_STANDARD GREATER_EQUAL 14)
+    list(APPEND sources
+        ast/compact_terms.cpp
+        api/variable_assoc_array.cpp
+        api/variable_array.cpp
+        api/component_map.cpp
+        )
+endif()
 
 if(with_compact)
     list(APPEND sources
-        ast/compact_terms.cpp
         compact/sequence_context.cpp
         compact/expression_sequence.cpp
         compact/variable_sequence.cpp
@@ -44,10 +51,7 @@ if(with_compact)
         compact/ast_set.cpp
         compact/coek_sets.cpp
         #compact/coek_indexed.cpp
-        compact/variable_assoc_array.cpp
         compact/variable_map.cpp
-        compact/variable_array.cpp
-        compact/component_map.cpp
         compact/visitor_exprtemplate.cpp
         )
 endif()

@@ -1,5 +1,5 @@
-#include "coek/compact/variable_assoc_array_repn.hpp"
-#include "coek/compact/variable_array.hpp"
+#include "coek/api/variable_assoc_array_repn.hpp"
+#include "coek/api/variable_array.hpp"
 #include "coek/model/model.hpp"
 
 namespace coek {
