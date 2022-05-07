@@ -2,7 +2,7 @@
 
 #include "coek_sets.hpp"
 #include "coek/util/template_utils.hpp"
-#include "variable_assoc_array.hpp"
+#include "coek/api/variable_assoc_array.hpp"
 
 
 namespace coek {

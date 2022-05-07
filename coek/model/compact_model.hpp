@@ -4,9 +4,9 @@
 
 #include <coek/model/model.hpp>
 #include <variant>
+#include <coek/api/variable_array.hpp>
 #include <coek/compact/coek_sets.hpp>
 #include <coek/compact/variable_map.hpp>
-#include <coek/compact/variable_array.hpp>
 
 namespace coek {
 

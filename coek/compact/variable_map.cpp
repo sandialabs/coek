@@ -1,5 +1,5 @@
 #include <unordered_map>
-#include "coek/compact/variable_assoc_array_repn.hpp"
+#include "coek/api/variable_assoc_array_repn.hpp"
 #include "coek/compact/variable_map.hpp"
 #include "coek/model/model.hpp"
 

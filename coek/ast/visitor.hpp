@@ -1,5 +1,13 @@
 #pragma once
 
+#ifdef __has_include
+#   if __has_include(<version>)
+#       include <version>
+#   endif
+#   if __has_include(<variant>)
+#       include <variant>
+#   endif
+#endif
 #include <stdexcept>
 
 
