@@ -3,9 +3,6 @@
 #   include <version>
 # endif
 #endif
-#if __cpp_lib_variant
-1
-#endif
 
 #include <iostream>
 #include <cmath>
