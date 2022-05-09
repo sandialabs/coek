@@ -71,7 +71,7 @@ public:
     void visit(ParameterTerm& arg);
     void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
     void visit(VariableRefTerm& arg);
 #endif
     void visit(IndexedVariableTerm& arg);
@@ -133,7 +133,7 @@ else
     ostr << "v" << varmap.at(arg.index) << '\n';
 }
 
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
 void PrintExpr::visit(VariableRefTerm& )
 { throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
 #endif
@@ -254,7 +254,7 @@ public:
     void visit(ParameterTerm& arg);
     void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
     void visit(VariableRefTerm& arg);
 #endif
     void visit(IndexedVariableTerm& arg);
@@ -309,7 +309,7 @@ else
 }
 
 
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
 void PrintExprFmtlib::visit(VariableRefTerm& )
 { throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
 #endif

@@ -4,7 +4,7 @@
 #include "constraint_terms.hpp"
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
 #include "compact_terms.hpp"
 #endif
 
@@ -38,7 +38,7 @@ public:
     void visit(VariableTerm& arg)
         { if (arg.fixed) fixed_vars.insert(&arg); }
 
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
     void visit(VariableRefTerm& )
         {}
 #endif

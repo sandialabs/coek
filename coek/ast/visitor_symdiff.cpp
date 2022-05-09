@@ -7,7 +7,7 @@
 #include "constraint_terms.hpp"
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
 #include "compact_terms.hpp"
 #endif
 
@@ -40,7 +40,7 @@ public:
     void visit(ParameterTerm& arg);
     void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
     void visit(VariableRefTerm& arg);
 #endif
     void visit(IndexedVariableTerm& arg);
@@ -89,7 +89,7 @@ void PartialVisitor::visit(IndexParameterTerm& )
 void PartialVisitor::visit(VariableTerm& )
 { partial = ONECONST; }
 
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
 void PartialVisitor::visit(VariableRefTerm& )
 {
 //

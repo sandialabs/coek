@@ -146,6 +146,12 @@ if (name != "")
 return repn->objectives.back();
 }
 
+Objective Model::add(Objective& obj)
+{
+repn->objectives.push_back(obj);
+return obj;
+}
+
 Constraint Model::add_constraint(const Constraint& expr)
 {
 repn->constraints.push_back(expr);

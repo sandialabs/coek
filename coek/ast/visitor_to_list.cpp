@@ -5,7 +5,7 @@
 #include "constraint_terms.hpp"
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
 #include "compact_terms.hpp"
 #endif
 
@@ -29,7 +29,7 @@ public:
     void visit(ParameterTerm& arg);
     void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
     void visit(VariableRefTerm& arg);
 #endif
     void visit(IndexedVariableTerm& arg);
@@ -94,7 +94,7 @@ write_expr(&arg, sstr);
 repr.push_back( sstr.str() );
 }
 
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
 void ToListVisitor::visit(VariableRefTerm& arg)
 {
 std::stringstream sstr;

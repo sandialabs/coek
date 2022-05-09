@@ -4,7 +4,7 @@
 #include "constraint_terms.hpp"
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
 #include "compact_terms.hpp"
 #endif
 
@@ -43,7 +43,7 @@ public:
         else            vars.insert(&arg);
         }
 
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
     void visit(VariableRefTerm& )
         {
         throw std::runtime_error("Attempting to find variables in an abstract expression!");

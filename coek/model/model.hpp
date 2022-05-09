@@ -141,6 +141,7 @@ public:
       * \returns the objective
       */
     Objective add_objective(const std::string& name, const Expression& expr);
+    Objective add(Objective& var);
 
     /** \returns the objective with the specified id */
     Objective get_objective(size_t i=0);
