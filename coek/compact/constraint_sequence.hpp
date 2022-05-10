@@ -50,10 +50,25 @@ public:
 
     ConstraintSequence(const std::shared_ptr<ConstraintSequenceRepn>& _repn);
     ConstraintSequence(const SequenceContext& context, const Constraint& con);
+    ConstraintSequence(const std::string& name, const SequenceContext& context, const Constraint& con);
 
     ConstraintSeqIterator begin();
     ConstraintSeqIterator end();
     const ConstraintSeqIterator begin() const;
     const ConstraintSeqIterator end() const;
 };
+
+
+inline ConstraintSequence constraint(const Constraint& expr, const SequenceContext& context)
+{
+ConstraintSequence seq(context, expr);
+return seq;
+}
+
+inline ConstraintSequence constraint(const std::string& name, const Constraint& expr, const SequenceContext& context)
+{
+ConstraintSequence seq(name, context, expr);
+return seq;
+}
+
 }

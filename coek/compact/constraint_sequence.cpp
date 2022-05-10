@@ -21,11 +21,16 @@ public:
 
     Constraint constraint_template;
     SequenceContext context;
+    std::string name;
 
 public:
 
     ConstraintSequenceRepn(const SequenceContext& context_, const Constraint& con)
         : constraint_template(con), context(context_)
+        {}
+
+    ConstraintSequenceRepn(const std::string& name_, const SequenceContext& context_, const Constraint& con)
+        : constraint_template(con), context(context_), name(name_)
         {}
 };
 

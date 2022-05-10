@@ -59,6 +59,7 @@ file.  We add some notes here for reference:
 .. toctree::
    :maxdepth: 2
 
+   api.rst
    examples.rst
    reference.rst
    bibliography.rst

@@ -109,23 +109,21 @@ repn->constraints.push_back(expr);
 return expr;
 }
 
-CompactConstraintMap CompactModel::add_constraint(const Constraint& expr, const SequenceContext& context)
+void CompactModel::add_constraint(const Constraint& expr, const SequenceContext& context)
 {
 ConstraintSequence seq(context, expr);
 repn->constraints.push_back(seq);
-
-CompactConstraintMap tmp;
-return tmp;
 }
 
-CompactConstraintMap CompactModel::add_constraint(const std::string& /*name*/, const Constraint& expr, const SequenceContext& context)
+void CompactModel::add_constraint(const std::string& /*name*/, const Constraint& expr, const SequenceContext& context)
 {
 ConstraintSequence seq(context, expr);
 repn->constraints.push_back(seq);
-
-CompactConstraintMap tmp;
-return tmp;
 }
+
+void CompactModel::add(ConstraintSequence& seq)
+{ repn->constraints.push_back(seq); }
+
 
 Model CompactModel::expand()
 {

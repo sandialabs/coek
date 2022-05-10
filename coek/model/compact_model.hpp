@@ -15,6 +15,7 @@ class VariableArray;
 class ObjectiveMap;
 class CompactConstraintMap;
 class SequenceContext;
+class ConstraintSequence;
 class CompactModelRepn;
 
 
@@ -181,7 +182,7 @@ public:
       *
       * \returns a map to the constraints
       */
-    CompactConstraintMap add_constraint(const Constraint& expr, const SequenceContext& context);
+    void add_constraint(const Constraint& expr, const SequenceContext& context);
     /**
       * Add constraints to the model.
       *
@@ -191,7 +192,9 @@ public:
       *
       * \returns a map to the constraints
       */
-    CompactConstraintMap add_constraint(const std::string& name, const Constraint& expr, const SequenceContext& context);
+    void add_constraint(const std::string& name, const Constraint& expr, const SequenceContext& context);
+
+    void add(ConstraintSequence& seq);
 
     Model expand();
 

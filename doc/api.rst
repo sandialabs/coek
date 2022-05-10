@@ -1,8 +1,8 @@
 Coek API Design Notes
 =====================
 
-Overview
---------
+Design Overview
+---------------
 
 There are a variety of alternative API designs that would be reasonable
 for specifying COEK variables, objectives and constraints.  The following
@@ -38,6 +38,45 @@ For example, COEK relies on methods with the following names:
     set_foo(), but perhaps better for function chaining (see examples
     below).
 
+Model Declarations
+~~~~~~~~~~~~~~~~~~
+
+There are three classes of modeling components in COEK:
+
+* Singleton Components - These are individual variables, parameters,
+  constraints and objectives in the model.
+
+* Indexed Components - These are groups of variables, parameters,
+  constraints and objectives that can be referenced with a tuple of
+  integers.  There are several different indexing strategies:
+
+  * Multi-dimensional Array - The indices are members of
+    a multi-dimensional array, where each dimension is 0-indexed.
+    The size of the multi-dimensional array is specified with a tuple
+    of per-dimension sizes.
+
+  * Set or Product Set - The indices are members of a set or product
+    set that is provided when declaring the indexed component.
+
+* Component Sequence - A generator object creates a sequence of
+  components, where an index tuple is associated with each component.
+
+
+Note that there is fundamental distinction between indexing strategies
+used for variable and parameter components, and the indexing used
+for constraints and objectives.  The key difference is that variable
+and parameter components represent mutable values.  When declaring a
+multi-dimensional array or set-indexed variable or parameter, it is
+intuitive to treat these as values defined for all indices.  Properties
+of the variable, like initial values and bounds can be readily applied
+across all indices.
+
+By contrast, declarations of constraints and objectives do not simply
+have a value.  Thus, it is intuitive to declare an indexed component for
+which the indices may be used sparsely.  That is, it is natural to only
+use a subset of the declared indices in the indexed component.
+
+
 
 Variables
 ---------
@@ -57,12 +96,12 @@ and
 
     auto x = model.add( coek::variable("x") );
 
-The `Model::add()` method creates a variable object to the model, and this
+The ``Model::add()`` method creates a variable object to the model, and this
 object is returned.  This supports a concise declaration of variables,
 and it enables the user to directly reference the variable object.
 Further, this enables functional chaining to configure the variable.
 
-.. question::
+.. admonition:: Question
 
     Should we include an `Model::add_variable()` method that replicates
     the API of the `coek::variable()` method?  This would be redundant
@@ -78,18 +117,22 @@ information.  The following are basic examples:
 .. code::
 
     // A single continuous variable
+    auto x = model.add( );
     auto y = model.add( coek::variable("y") );
 
     // An array of continuous variables of length 'n'
     size_t n=100;
+    auto x = model.add( coek::variable(n) );
     auto y = model.add( coek::variable("y", n) );
 
     // A multi-dimensional array of continuous variables:  R^{2 x 3 x 5}
+    auto x = model.add( coek::variable({2,3,4}) );
     auto y = model.add( coek::variable("y", {2,3,4}) );
 
     // A tensor of continuous variables indexed by COEK set objects
     auto A = coek::RangeSet(1,10);
     auto B = coek::RangeSet(11,20);
+    auto x = model.add( coek::variable(A*B) );
     auto y = model.add( coek::variable("y", A*B) );
 
 
@@ -114,10 +157,19 @@ annotation of a variable's information:
     auto x = model.add( coek::variable("x") ).
                     lower(2).
                     upper(10).
-                    initial(3).
+                    value(3).
                     within(coek::Integers);
 
-.. WEH::
+Similarly, the ``Variable::bounds()`` function can be used instead of ``Variable::lower()`` and ``Variable::upper()``:
+
+.. code::
+
+    auto x = model.add( coek::variable("x") ).
+                    bounds(2, 10).
+                    value(3).
+                    within(coek::Integers);
+
+.. admonition:: WEH
 
     This function chaining requires methods where the set- and
     get-semantics are dependent on the method used.  For example:
@@ -132,7 +184,7 @@ annotation of a variable's information:
     but that leads to a verbose syntax that clutters the specification
     of variable properties.
 
-.. question::
+.. admonition:: Question
 
     I think it's reasonable to limit the specification for 'within'
     to enumeration types.  We could follow a Pyomo model of specifying
@@ -142,17 +194,19 @@ annotation of a variable's information:
     Maybe these types (or class instances) should be defined within a
     separate namespace?  Something like 'coek::types::Integers'?
 
-.. WEH::
+.. admonition:: WEH
 
     Specifying name and dimension of variables seems fundamental and
     something that would be done commonly, so I'm inclined to keep those
     arguments as part of the function:
 
-    auto x = model.add( coek::variable("x", A*B) ).
-                    lower(2).
-                    upper(10).
-                    initial(3).
-                    within(coek::Integers);
+    .. code::
+
+        auto x = model.add( coek::variable("x", A*B) ).
+                                lower(2).
+                                upper(10).
+                                value(3).
+                                within(coek::Integers);
 
     For example, the indexing option determines the type of variable
     object returned, so I think we need to include this and not treat it
@@ -169,9 +223,11 @@ For example:
 
 .. math::
 
-    x \in R^{n \cross m}\\
-    0 \leq x_{ij} \leq i*j\\
-    x_{ij} = i+j
+    \begin{array}{c}
+    x \in R^{n \times m}\\
+    0 \leq x_{ij} \leq i \cdot j\\
+    x_{ij} = i + j
+    \end{array}
 
 We can decelare `x` using set indices that are used in expressions
 defining the values of lower- and upper-bounds, and the initial values.
@@ -184,13 +240,12 @@ For example:
 
     auto M = coek::RangeSet(1,m);
     auto N = coek::RangeSet(1,n);
-    auto x = model.add( coek::variable("x") ).
+    auto x = model.add( coek::variable("x", Forall(i,j).In(M*N)) ).
                 lower(0).
                 upper(i*j).
-                initial(i+j).
-                index(Forall(i,j).In(M*N));
+                value(i+j);
 
-.. WEH::
+.. admonition:: WEH
 
     The expressions used for the lower, upper and initial values are the
     same as those used to specify COEK models.  It may be desirable to
@@ -200,12 +255,12 @@ For example:
     And this explicit specification allows for a direct translation of
     similar POEK logic into COEK.
 
-.. WEH::
+.. admonition:: WEH
 
     There's an obvious complaint to be made here about the scoping of the
     values of i and j here.  I'm not sure how to resolve that.  The call
     to Forall() associates i and j with the set M*N, and that association
-    is used when generating the values for lower, upper and initial.
+    is used when generating the values for lower, upper and value.
     But, you could also associate i and j within other calls to Forall().
     I don't see how we can dynamically create those references here and
     scope them relative to the variable declaration.
@@ -213,17 +268,18 @@ For example:
     Here's a possible syntax that would limit the scope of i and j,
     by making their values directly tied to the indexing set:
 
-    auto M = coek::RangeSet(1,m);
-    auto N = coek::RangeSet(1,n);
-    auto x_index = M*N;
+    .. code::
 
-    auto i = x_index.index("i");
-    auto j = x_index.index("j");
-    auto x = model.add( coek::variable("x") ).
-                lower(0).
-                upper(i*(j+p)).
-                initial(i+j).
-                index(x_index);
+        auto M = coek::RangeSet(1,m);
+        auto N = coek::RangeSet(1,n);
+        auto x_index = M*N;
+
+        auto i = x_index.index("i");
+        auto j = x_index.index("j");
+        auto x = model.add( coek::variable("x", x_index) ).
+                            lower(0).
+                            upper(i*(j+p)).
+                            value(i+j);
 
     This seems less intuitively clear, IMHO.
 
@@ -238,39 +294,41 @@ parameters as well:
 
     auto M = coek::RangeSet(1,m);
     auto N = coek::RangeSet(1,n);
-    auto x = model.add( coek::variable("x") ).
+    auto x = model.add( coek::variable("x", Forall(i,j).In(M*N)) ).
                 lower(0).
                 upper(i*(j+p)).
-                initial(i+j).
-                index(Forall(i,j).In(M*N));
+                value(i+j);
 
 Here, the value of the upper-bound depends on `p`, which may be changed
 after the variable is declared.  COEK uses the expression logic to
 appropriately account for that change to the model.
 
-Finally, note that in these examples the order of indices in the index
-set is implicitly defined by the nesting of the calls to `Forall()`.
-However, it may be necessary to explicitly denote the order of indices.
-For example:
+.. admonition:: WEH
 
-.. code::
+    Can we do the following?
 
-    auto i = set_index("i");
-    auto j = set_index("j");
+    Finally, note that in these examples the order of indices in the index
+    set is implicitly defined by the nesting of the calls to `Forall()`.
+    However, it may be necessary to explicitly denote the order of indices.
+    For example:
 
-    auto M = coek::RangeSet(1,m);
-    std::vector<coek::ConcreteSet> N(m);
-    auto x = model.add( coek::variable("x") ).
+    .. code::
+
+        auto i = set_index("i");
+        auto j = set_index("j");
+
+        auto M = coek::RangeSet(1,m);
+        std::vector<coek::ConcreteSet> N(m);
+        auto x = model.add( coek::variable("x", Forall(i).In(M).Forall(j).In(N[i])).index( {j,i} ) ).
                 lower(0).
                 upper(i*j).
-                initial(i+j).
-                index( (j,i), Forall(i).In(M).Forall(j).In(N[i]) );
+                value(i+j);
 
 
 Indexing Variables
 ~~~~~~~~~~~~~~~~~~
 
-Variables declared over sets can be indexed using the `()` operator in a natural manner.  For example:
+Variables declared over sets can be indexed using the ``()`` operator in a natural manner.  For example:
 
 .. code::
 
@@ -327,12 +385,14 @@ of those expressions is deferred.  For example:
     contain a variable unless it is fixed.  Thus, the following creates
     a runtime error:
 
-    auto x = coek::variable(100);
-    auto y = coek::variable();
-    auto v = x(y+3).value();
+    .. code::
+
+        auto x = coek::variable(100);
+        auto y = coek::variable();
+        auto v = x(y+3).value();
 
     Similarly, if a set index used in an indexing expression is not being
-    processed by a context, then COEK will create an error at runtime.
+    processed by a ``Forall`` context, then COEK will create an error at runtime.
 
 
 Parameters
@@ -346,7 +406,7 @@ Mutable parameters can be declared in a similar manner to variables:
     auto p = coek::parameter();
     auto q = coek::parameter("q");
 
-    // An array of parameter of length 'n'
+    // An array of parameters of length 'n'
     size_t n=100;
     auto x = coek::parameter(n);
     auto q = coek::parameter("q", n);
@@ -389,9 +449,11 @@ function chaining:
     auto j = set_index("j");
     auto Q = coek::parameter("Q", Forall(i,j).In(A*B)).value(i+j);
 
-.. WEH::
+.. admonition:: WEH
 
     Note that this syntax is different from what is currently implemented in COEK:
+
+    .. code::
 
         coek::Parameter p("p", 1.0);
 
@@ -400,10 +462,12 @@ function chaining:
     Hence, support for arrays of parameters seems to preclude the simple
     specification of parameter values.
 
-.. question::
+.. admonition:: Question
 
     Do we forsee a need for non-double parameters?  I could imagine
     doing the following?
+
+    .. code::
 
         auto qi = coek::parameter<int>("q");
 
@@ -429,6 +493,7 @@ constant values.  For example:
 
     auto x = coek::variable("x");
     auto e = sin(3*x+1);
+    auto v = e.value();
 
 Note that these fundamental types are not owned by a COEK model, so such
 an expression can be used and re-used within multiple expressions and
@@ -444,9 +509,11 @@ within multiple COEK models.
 
     Maybe something like the following is sufficient:
 
-    auto x = coek::variable("x");
-    auto e = sin(3*x+1);
-    auto E = coek::expression("E").value(e);
+    .. code::
+
+        auto x = coek::variable("x");
+        auto e = sin(3*x+1);
+        auto E = coek::expression("E").value(e);
 
     This would imply an annotation of the expression tree where the string
     "E" is associated with a sub-expression.
@@ -454,18 +521,22 @@ within multiple COEK models.
     Support for named expressions would naturally involve support for
     arrays of named expressions.  Hence, 
 
+    .. code::
+
         auto E = coek::expression("E", 10);
 
     would refer to an array of named expressions.
 
-.. question::
+.. admonition:: Question
 
 
     If we did this, would the user need to add the named expression
     explicitly to the model to track it there?  I think so.  Thus,
     the following would also make sense:
 
-    auto E = model.add( coek::expression("E") );
+    .. code::
+
+        auto E = model.add( coek::expression("E") );
 
 
 Objectives
@@ -486,8 +557,8 @@ and
     auto x = coek::variable("x");
     auto o = model.add( coek::objective("o", 2*x).sense(coek::Model::maximize) );
 
-The `expr` method is used to set and get the objective expression, and
-the `sense` method is used to get and set the objective sense (which
+The ``expr()`` method is used to set and get the objective expression, and
+the ``sense()`` method is used to get and set the objective sense (which
 defaults to minimization).  For example:
 
 .. code::
@@ -497,38 +568,38 @@ defaults to minimization).  For example:
                             expr(2*x).
                             sense(coek::Model::minimize) );
 
-.. WEH::
+.. admonition:: WEH
 
     Although not often used, we could also support various ways to declare
     groups of objectives:
 
-    // A single objective
-    auto a = model.add( coek::objective(2*x) );
-    auto b = model.add( coek::objective("b", 2*x) );
+    .. code::
 
-    // An array of objectives
-    size_t n=100;
-    auto a = model.add( coek::objective(n) );
-    auto b = model.add( coek::objective("y", n) );
+        // A single objective
+        auto a = model.add( coek::objective(2*x) );
+        auto b = model.add( coek::objective("b", 2*x) );
 
-    // A tensor of objectives:  R^{2 x 3 x 5}
-    std::vector<size_t> dim = {2,3,5};
-    auto a = model.add( coek::objective(dim) );
-    auto b = model.add( coek::objective("b", dim) );
+        // An array of objectives
+        size_t n=100;
+        auto a = model.add( coek::objective(n) );
+        auto b = model.add( coek::objective("y", n) );
 
-    // A tensor of objectives indexed by COEK set objects
-    auto A = coek::RangeSet(1,10);
-    auto B = coek::RangeSet(11,20);
-    auto a = model.add( coek::objective(A*B) );
-    auto b = model.add( coek::objective("b", A*B) );
+        // A tensor of objectives:  R^{2 x 3 x 5}
+        std::vector<size_t> dim = {2,3,5};
+        auto a = model.add( coek::objective(dim) );
+        auto b = model.add( coek::objective("b", dim) );
 
-    Finally, objectives can be declared using set indices:
+        // A tensor of objectives indexed by COEK set objects
+        auto A = coek::RangeSet(1,10);
+        auto B = coek::RangeSet(11,20);
+        auto a = model.add( coek::objective(A*B) );
+        auto b = model.add( coek::objective("b", A*B) );
 
-    auto x = model.add( coek::variable("x", M*N) );
-    auto o = model.add( coek::objective("o", Forall(i,j).In(M*N)).
-                            expr( i*j*x(i,j)) );
-    auto O = model.add( coek::objective("O", Forall(i).In(M)).
-                            expr( i*Sum(x(i,j), Forall(j).In(M))) );
+        Finally, objectives can be declared using set indices:
+
+        auto x = model.add( coek::variable("x", M*N) );
+        auto o = model.add( coek::objective("o", Forall(i,j).In(M*N)).expr( i*j*x(i,j)) );
+        auto O = model.add( coek::objective("O", Forall(i).In(M)).expr( i*Sum(x(i,j), Forall(j).In(M))) );
 
 
 Constraints
@@ -587,9 +658,9 @@ Finally, constraints can be declared using set indices:
 
     auto x = model.add( coek::variable("x", M*N) );
     auto c = model.add( coek::constraint("c", Forall(i,j).In(M*N)).
-                    expr( i*j*x(i,j) == 0 ) );
-    auto C = model.add_constraint("C", Forall(i).In(M)).
-                    expr( i*Sum(x(i,j), Forall(j).In(M)) == 0 )
+                            expr( i*j*x(i,j) == 0 ) );
+    auto C = model.add( coek::constraint("C", Forall(i).In(M)).
+                            expr( i*Sum(x(i,j), Forall(j).In(M)) == 0 ) );
 
 Constraint Expressions
 ~~~~~~~~~~~~~~~~~~~~~~
