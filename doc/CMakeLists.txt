@@ -59,6 +59,10 @@ add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
                     ${CMAKE_CURRENT_SOURCE_DIR}/objective.rst
                     ${CMAKE_CURRENT_SOURCE_DIR}/constraint.rst
                     ${CMAKE_CURRENT_SOURCE_DIR}/api.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/api_sets.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/components_elementary.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/components_indexed.rst
+                    ${CMAKE_CURRENT_SOURCE_DIR}/components_sequence.rst
                     ${CMAKE_CURRENT_SOURCE_DIR}/expression_fn.rst
                     ${CMAKE_CURRENT_SOURCE_DIR}/models.rst
                     ${CMAKE_CURRENT_SOURCE_DIR}/examples.rst
