@@ -1,5 +1,6 @@
 find_package(Doxygen REQUIRED)
 find_package(Sphinx REQUIRED)
+find_package(LATEX COMPONENTS PDFLATEX)
 
 #
 # DOXYGEN
@@ -20,7 +21,23 @@ set(DOXYFILE_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 set(SPHINX_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
 set(SPHINX_BUILD ${CMAKE_CURRENT_BINARY_DIR}/sphinx)
 set(SPHINX_INDEX_FILE ${SPHINX_BUILD}/index.html)
-
+set(SPHINX_DEPENDS
+            ${CMAKE_CURRENT_SOURCE_DIR}/index.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/reference.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/parameter.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/variable.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/expression.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/objective.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/constraint.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/api.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/api_sets.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/components_elementary.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/components_indexed.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/components_sequence.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/expression_fn.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/models.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/examples.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/bibliography.rst)
 
 # Replace variables inside @@ with the current values
 configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
@@ -49,32 +66,39 @@ add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
                     -Dbreathe_projects.Coek=${DOXYGEN_OUTPUT_DIR}/xml
                     ${SPHINX_SOURCE} ${SPHINX_BUILD}
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                  DEPENDS
-                    # Other doc files you want to track should go here
-                    ${CMAKE_CURRENT_SOURCE_DIR}/index.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/reference.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/parameter.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/variable.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/expression.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/objective.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/constraint.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/api.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/api_sets.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/components_elementary.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/components_indexed.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/components_sequence.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/expression_fn.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/models.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/examples.rst
-                    ${CMAKE_CURRENT_SOURCE_DIR}/bibliography.rst
-                    ${DOXYGEN_INDEX_FILE}
+                  DEPENDS ${SPHINX_DEPENDS} ${DOXYGEN_INDEX_FILE}
                   MAIN_DEPENDENCY ${SPHINX_SOURCE}/conf.py
                   COMMENT "Generating documentation with Sphinx")
 
+
+if(LATEX_PDFLATEX_FOUND)
+    set(LATEX_BUILD ${CMAKE_CURRENT_BINARY_DIR}/latex)
+    file(MAKE_DIRECTORY ${LATEX_BUILD}) 
+
+    add_custom_command(
+        OUTPUT ${LATEX_BUILD}/coek.tex
+        COMMAND ${SPHINX_EXECUTABLE} -b latex ${CMAKE_CURRENT_SOURCE_DIR} ${LATEX_BUILD}
+        DEPENDS ${SPHINX_DEPENDS} ${DOXYGEN_INDEX_FILE})
+
+    add_custom_command(
+        OUTPUT "${LATEX_BUILD}/coek.pdf"
+        # Three times' the charm for PdfLaTeX to get all xrefs right
+        COMMAND "${PDFLATEX_COMPILER}" "coek.tex"
+        COMMAND "${PDFLATEX_COMPILER}" "coek.tex"
+        COMMAND "${PDFLATEX_COMPILER}" "coek.tex"
+        WORKING_DIRECTORY "${LATEX_BUILD}"
+        DEPENDS "${LATEX_BUILD}/coek.tex")
+
+    list(APPEND TARGET_DEPENDS "${LATEX_BUILD}/coek.pdf")
+else()
+    message(WARNING "No PdfLaTeX found. PDF output not available.")
+endif()
+
 # Nice named target so we can run the job easily
 add_custom_target(sphinx ALL DEPENDS ${SPHINX_INDEX_FILE})
+add_custom_target(pdf ALL DEPENDS ${LATEX_BUILD}/coek.pdf)
 
-add_custom_target(docs ALL DEPENDS doxygen sphinx)
+add_custom_target(docs ALL DEPENDS doxygen sphinx pdf)
 
 # Add an install target to install the docs
 include(GNUInstallDirs)
