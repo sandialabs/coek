@@ -19,6 +19,7 @@ SET(sources
     test_readers.cpp
     test_sets.cpp
     test_indexed.cpp
+    test_var.cpp
     test_autograd_unknown.cpp
    )
 
