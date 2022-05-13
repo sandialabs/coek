@@ -156,6 +156,16 @@ TEST_CASE( "model_variable", "[smoke]" ) {
         REQUIRE( a.is_binary() == false );
         REQUIRE( a.is_integer() == true );
     }
+
+    WHEN( "within" ) {
+        auto a = coek::variable("a").lower(0).upper(10).value(5);
+        REQUIRE( a.within() == coek::Reals );
+        a.within(coek::Binary);
+        REQUIRE( a.within() == coek::Binary );
+        a.within(coek::Boolean);
+        REQUIRE( a.within() == coek::Binary );
+        a.within(coek::Integers);
+        REQUIRE( a.within() == coek::Integers );
   
     WHEN( "fixed" ) {
         auto a = coek::variable("a").lower(0).upper(10).value(5).within(coek::Integers);;
