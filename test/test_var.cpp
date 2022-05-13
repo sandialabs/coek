@@ -14,7 +14,7 @@ const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
 
-TEST_CASE( "model_variable", "[smoke]" ) {
+TEST_CASE( "elementary_variable", "[smoke]" ) {
 
   SECTION( "constructors" ) {
     WHEN( "simple" ) {
@@ -36,26 +36,43 @@ TEST_CASE( "model_variable", "[smoke]" ) {
 
     WHEN( "simple_with_expr_values" ) {
         auto p = coek::parameter();
-        auto a = coek::variable().lower(p).upper(p+1).value(p+2);
+        auto a = coek::variable().lower(p).upper(p+1).value(sin(p)+2);
         REQUIRE( a.value() == 2 );
         REQUIRE( a.lower() == 0 );
         REQUIRE( a.upper() == 1 );
         p.value(1);
-        REQUIRE( a.value() == 3 );
+        REQUIRE( a.value() == Approx(2.84147098) );
         REQUIRE( a.lower() == 1 );
         REQUIRE( a.upper() == 2 );
     }
 
     WHEN( "named_with_expr_values" ) {
         auto p = coek::parameter();
-        auto a = coek::variable("test").lower(p).upper(p+1).value(p+2);
+        auto a = coek::variable("test").lower(p).upper(p+1).value(sin(p)+2);
         REQUIRE( a.value() == 2 );
         REQUIRE( a.lower() == 0 );
         REQUIRE( a.upper() == 1 );
         p.value(1);
-        REQUIRE( a.value() == 3 );
+        REQUIRE( a.value() == Approx(2.84147098) );
         REQUIRE( a.lower() == 1 );
         REQUIRE( a.upper() == 2 );
+    }
+
+    WHEN( "get_expr_values" ) {
+        auto p = coek::parameter();
+        auto a = coek::variable("test").lower(p).upper(p+1).value(sin(p)+2);
+        auto lower = a.lower_expression();
+        auto upper = a.upper_expression();
+        auto value = a.value_expression();
+
+        REQUIRE( value.value() == 2 );
+        REQUIRE( lower.value() == 0 );
+        REQUIRE( upper.value() == 1 );
+
+        p.value(1);
+        REQUIRE( value.value() == Approx(2.84147098) );
+        REQUIRE( lower.value() == 1 );
+        REQUIRE( upper.value() == 2 );
     }
 
     WHEN( "copy" ) {
@@ -95,40 +112,18 @@ TEST_CASE( "model_variable", "[smoke]" ) {
         a.value(3);
         REQUIRE( a.value() == 3 );
       }
-
-/*
-      WHEN( "variable array - 3" ) {
-        void* a[2];
-        create_variable_array(0, a, 2, false, false, 0.0, 1.0, 0.0, "a");
-        variable_value(a[0], 3);
-
-        REQUIRE( variable_value(a[0]) == 3 );
-        REQUIRE( variable_value(a[1]) == 0 );
-      }
-
-      WHEN( "variable array (2) - 3" ) {
-        apival_t model = create_model();
-
-        void* a[2];
-        create_variable_array(model, a, 2, false, false, 0.0, 1.0, 0.0, "a");
-        variable_value(a[0], 3);
-
-        REQUIRE( variable_value(a[0]) == 3 );
-        REQUIRE( variable_value(a[1]) == 0 );
-      }
-*/
   }
 
   SECTION( "bounds" ) {
       WHEN( "lb" ) {
-        auto a = coek::variable("a").lower(0).upper(1).value(0);
+        auto a = coek::variable("a").bounds(0,1).value(0);
         REQUIRE( a.lower() == 0.0 );
         a.lower(3.0);
         REQUIRE( a.lower() == 3.0 );
       }
 
       WHEN( "ub" ) {
-        auto a = coek::variable("a").lower(0).upper(1).value(0);
+        auto a = coek::variable("a").bounds(0,1).value(0);
         REQUIRE( a.upper() == 1.0 );
         a.upper(3.0);
         REQUIRE( a.upper() == 3.0 );
