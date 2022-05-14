@@ -13,52 +13,6 @@ const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
 
-TEST_CASE( "model_objective", "[smoke]" ) {
-{
-coek::Model model;
-
-SECTION("id") {
-    auto v = model.add_variable("v");
-    auto o = model.add_objective(2*v);
-    REQUIRE(o.id() > 0);
-    }
-
-SECTION("name") {
-    auto v = model.add_variable("v");
-    auto o = model.add_objective(2*v);
-    o.name("foo");
-
-    REQUIRE(o.name() == "foo");
-    }
-
-SECTION("body") {
-    auto v = model.add_variable("v");
-    auto o = model.add_objective(2*v);
-
-    static std::list<std::string> baseline1 = {"[", "*", "2", "v", "]"};
-    REQUIRE( o.expr().to_list() == baseline1 );
-
-    o.expr( 3*v );
-    static std::list<std::string> baseline2 = {"[", "*", "3", "v", "]"};
-    REQUIRE( o.expr().to_list() == baseline2 );
-    }
-
-SECTION("sense") {
-    auto v = model.add_variable("v");
-    auto o = model.add_objective(2*v);
-
-    REQUIRE(o.sense() == model.minimize);
-
-    o.sense(model.maximize);
-    REQUIRE(o.sense() == model.maximize);
-    }
-}
-
-#ifdef DEBUG
-REQUIRE( coek::env.check_memory() == true );
-#endif
-}
-
 TEST_CASE( "model_setup", "[smoke]" ) {
 {
 auto q = coek::parameter("q").value(2);
@@ -129,14 +83,14 @@ auto d = model.add_variable("d").lower(0).upper(1).value(4*q).within(coek::Boole
   SECTION( "constraints" ) {
 
     WHEN( "inequality" ) {
-        coek::Constraint c = 3*b + q <= 0;
+        auto c = 3*b + q <= 0;
         REQUIRE( model.num_constraints() == 0 );
         model.add_constraint(c);
         REQUIRE( model.num_constraints() == 1 );
         }
 
     WHEN( "equality" ) {
-        coek::Constraint c = 3*b + q == 0;
+        auto c = 3*b + q == 0;
         REQUIRE( model.num_constraints() == 0 );
         model.add_constraint(c);
         REQUIRE( model.num_constraints() == 1 );

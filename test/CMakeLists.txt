@@ -10,7 +10,6 @@ endif()
 
 SET(sources
     runner.cpp
-    test_expr.cpp
     test_model.cpp
     test_expr_visitors.cpp
     test_testsolver.cpp
@@ -20,6 +19,10 @@ SET(sources
     test_sets.cpp
     test_indexed.cpp
     test_var.cpp
+    test_param.cpp
+    test_expr.cpp
+    test_obj.cpp
+    test_con.cpp
     test_autograd_unknown.cpp
    )
 

@@ -210,21 +210,21 @@ TEST_CASE( "expr_writer", "[smoke]" ) {
   SECTION( "constraint" ) {
     WHEN( "lt ") {
         auto v = coek::variable("v");
-        coek::Constraint e = v < 1;
+        auto e = v < 1;
         std::stringstream sstr;
         sstr << e;
         REQUIRE( sstr.str() == "v < 1" );
     }
     WHEN( "leq ") {
         auto v = coek::variable("v");
-        coek::Constraint e = v <= 1;
+        auto e = v <= 1;
         std::stringstream sstr;
         sstr << e;
         REQUIRE( sstr.str() == "v <= 1" );
     }
     WHEN( "eq ") {
         auto v = coek::variable("v");
-        coek::Constraint e = v == 1;
+        auto e = v == 1;
         std::stringstream sstr;
         sstr << e;
         REQUIRE( sstr.str() == "v == 1" );
@@ -1574,7 +1574,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::Model m;
         auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(3);
-        coek::Constraint e = p*w + 1 <= 2;
+        auto e = p*w + 1 <= 2;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
@@ -1595,7 +1595,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::Model m;
         auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(3);
-        coek::Constraint e = p*w -1 == 2;
+        auto e = p*w -1 == 2;
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
@@ -1931,7 +1931,7 @@ std::unordered_set<coek::ParameterTerm*> params;
         coek::Model m;
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         auto v = m.add_variable("v").lower(0).upper(1).value(0);
-        coek::Constraint e = w*v + v*(2*w+1) <= 0;
+        auto e = w*v + v*(2*w+1) <= 0;
         v.fixed(true);
         w.fixed(true);
         mutable_values(e.repn, fixed_vars, params);
@@ -1945,7 +1945,7 @@ std::unordered_set<coek::ParameterTerm*> params;
         coek::Model m;
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         auto v = m.add_variable("v").lower(0).upper(1).value(0);
-        coek::Constraint e = w*v + v*(2*w+1) == 0;
+        auto e = w*v + v*(2*w+1) == 0;
         v.fixed(true);
         w.fixed(true);
         mutable_values(e.repn, fixed_vars, params);

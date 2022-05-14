@@ -96,6 +96,8 @@ public:
       * \returns the variable
       */
     Variable& add_variable(Variable& var);
+    Variable& add(Variable& var);
+    Variable& add(Variable&& var);
     void add_variable(PythonVariableArray& var);
 #if __cpp_lib_variant
     VariableArray& add_variable(VariableArray& var);
@@ -105,7 +107,6 @@ public:
     VariableMap& add_variable(VariableMap& var);
     VariableMap& add(VariableMap& var);
 #endif
-    Variable& add(Variable& var);
 
     /** \returns the variable with the specified id */
     Variable get_variable(size_t i);
@@ -141,7 +142,8 @@ public:
       * \returns the objective
       */
     Objective add_objective(const std::string& name, const Expression& expr);
-    Objective add(Objective& var);
+    Objective& add(Objective& var);
+    Objective& add(Objective&& var);
 
     /** \returns the objective with the specified id */
     Objective get_objective(size_t i=0);
@@ -173,6 +175,8 @@ public:
       * \returns the constraint
       */
     Constraint add_constraint(const std::string& name, const Constraint& expr);
+    Constraint& add(Constraint& expr);
+    Constraint& add(Constraint&& expr);
 #if __cpp_lib_variant
     ConstraintMap& add_constraint(ConstraintMap& expr);
     ConstraintMap& add_constraint(ConstraintMap&& expr);

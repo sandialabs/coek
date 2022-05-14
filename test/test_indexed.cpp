@@ -773,7 +773,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         coek::Model m;
         auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(3);
-        coek::Constraint e = p*w -3 <= 2;
+        auto e = p*w -3 <= 2;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
         repn.collect_terms(E);
@@ -792,7 +792,7 @@ TEST_CASE( "expr_expand", "[smoke]" ) {
         coek::Model m;
         auto p = coek::parameter("p");
         auto w = m.add_variable("w").lower(0).upper(1).value(3);
-        coek::Constraint e = p*w +1 == 2;
+        auto e = p*w +1 == 2;
         auto E = e.expand();
         coek::MutableNLPExpr repn;
         repn.collect_terms(E);

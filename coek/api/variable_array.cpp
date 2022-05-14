@@ -49,8 +49,8 @@ VariableAssocArrayRepn::setup();
 
 auto name = variable_template.name();
 for (size_t i=0; i<size(); i++) {
-    std::string _name = name+std::to_string(i);
-    names.push_back(_name + ")");
+    std::string _name = name+"("+std::to_string(i)+")";
+    names.push_back(_name);
     }
 }
 

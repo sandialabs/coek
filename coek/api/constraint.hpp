@@ -56,7 +56,7 @@ public:
     Expression upper() const;
 
     /** Set the constraint name */
-    void name(const std::string& name);
+    Constraint& name(const std::string& name);
     /** \returns the constraint name */
     std::string name() const;
 
@@ -240,6 +240,25 @@ Constraint operator==(const Expression&, const Parameter&);
 Constraint operator==(const Expression&, const IndexParameter&);
 Constraint operator==(const Expression&, const Variable&);
 Constraint operator==(const Expression&, const Expression&);
+
+inline Constraint constraint()
+{ Constraint tmp; return tmp; }
+
+inline Constraint constraint(const std::string& name)
+{
+Constraint tmp;
+tmp.name(name);
+return tmp;
+}
+
+inline Constraint constraint(const Constraint& con)
+{ return con; }
+
+inline Constraint constraint(const std::string& name, Constraint& con)
+{ return con.name(name); }
+
+inline Constraint constraint(const std::string& name, Constraint&& con)
+{ return con.name(name); }
 
 Constraint inequality(int lower, const Expression& body, int upper, bool strict=false);
 Constraint inequality(double lower, const Expression& body, double upper, bool strict=false);

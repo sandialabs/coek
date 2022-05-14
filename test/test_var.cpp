@@ -22,8 +22,7 @@ TEST_CASE( "elementary_variable", "[smoke]" ) {
         REQUIRE( a.value() == 2 );
         REQUIRE( a.lower() == 0 );
         REQUIRE( a.upper() == 1 );
-        // Keep this test?  The integer index depends on whether this test is run first.
-        REQUIRE( a.name() == "x(0)" );
+        REQUIRE( a.name()[0] == 'x' );
     }
 
     WHEN( "named" ) {
@@ -161,7 +160,7 @@ TEST_CASE( "elementary_variable", "[smoke]" ) {
         REQUIRE( a.within() == coek::Binary );
         a.within(coek::Integers);
         REQUIRE( a.within() == coek::Integers );
-  
+    }
     WHEN( "fixed" ) {
         auto a = coek::variable("a").lower(0).upper(10).value(5).within(coek::Integers);;
         REQUIRE( a.fixed() == false );
