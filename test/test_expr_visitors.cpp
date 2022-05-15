@@ -1666,7 +1666,7 @@ std::unordered_set<coek::ParameterTerm*> params;
   }
 
   SECTION( "indexparam" ) {
-    auto p = coek::set_index("p");
+    auto p = coek::set_element("p");
     coek::Expression e = p;
     mutable_values(e.repn, fixed_vars, params);
 

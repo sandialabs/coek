@@ -18,7 +18,7 @@ TEST_CASE( "elementary_constraint", "[smoke]" ) {
 {
 auto v = coek::variable("v").lower(0).upper(1).value(1);
 auto p = coek::parameter("p");
-auto P = coek::set_index("P");
+auto P = coek::set_element("P");
 P.value(0);
 coek::Expression f;
 

@@ -183,7 +183,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
     }
 
     WHEN( "index_parameter" ) {
-        auto p = coek::set_index("p");
+        auto p = coek::set_element("p");
         coek::Expression a;
         a = p;
         REQUIRE( a.is_constant() == false );
@@ -233,7 +233,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
     WHEN("index parameter") {
         auto v = coek::variable("v");
         coek::Expression a = v;
-        auto p = coek::set_index("p");
+        auto p = coek::set_element("p");
         a += p;
         static std::list<std::string> baseline = {"[", "+", "v", "p", "]"};
         REQUIRE( a.to_list() == baseline );
@@ -276,7 +276,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
     WHEN("index parameter") {
         auto v = coek::variable("v");
         coek::Expression a = v;
-        auto p = coek::set_index("p");
+        auto p = coek::set_element("p");
         a -= p;
         static std::list<std::string> baseline = {"[", "+", "v", "[", "-", "p", "]", "]"};
         REQUIRE( a.to_list() == baseline );
@@ -319,7 +319,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
     WHEN("index parameter") {
         auto v = coek::variable("v");
         coek::Expression a = v;
-        auto p = coek::set_index("p");
+        auto p = coek::set_element("p");
         a *= p;
         static std::list<std::string> baseline = {"[", "*", "v", "p", "]"};
         REQUIRE( a.to_list() == baseline );
@@ -362,7 +362,7 @@ TEST_CASE( "model_expression", "[smoke]" ) {
     WHEN("index parameter") {
         auto v = coek::variable("v");
         coek::Expression a = v;
-        auto p = coek::set_index("p");
+        auto p = coek::set_element("p");
         a /= p;
         static std::list<std::string> baseline = {"[", "/", "v", "p", "]"};
         REQUIRE( a.to_list() == baseline );
@@ -399,7 +399,7 @@ TEST_CASE( "model_unary_expression", "[smoke]" ) {
     }
 
     WHEN( "iparam" ) {
-        auto q = coek::set_index("q");
+        auto q = coek::set_element("q");
         coek::Expression e;
         e = +q;
         static std::list<std::string> baseline = {"q"};
@@ -434,7 +434,7 @@ TEST_CASE( "model_unary_expression", "[smoke]" ) {
     }
 
     WHEN( "iparam" ) {
-        auto q = coek::set_index("q");
+        auto q = coek::set_element("q");
         coek::Expression e;
         e = -q;
         static std::list<std::string> baseline = {"[", "-", "q", "]"};
@@ -473,7 +473,7 @@ auto b = coek::variable("b").lower(0).upper(1).value(5);
 auto c = coek::variable("c").lower(0).upper(1).value(0);
 auto d = coek::variable("d").lower(0).upper(1).value(0);
 auto z = coek::parameter("z");
-auto Z = coek::set_index("Z");
+auto Z = coek::set_element("Z");
 coek::Expression E = b;
 
   SECTION( "Test simple" ) {
@@ -802,7 +802,7 @@ coek::Expression E = b;
   SECTION( "Test trivialSum" ) {
     auto q = coek::parameter("q").value(1);
     auto Q = coek::parameter("Q");
-    auto Z = coek::set_index("Z");
+    auto Z = coek::set_element("Z");
     coek::Expression E = a;
 
     WHEN( "e = 0 + a" ) {
@@ -999,7 +999,7 @@ auto c = coek::variable("c").lower(0).upper(1).value(0);
 auto d = coek::variable("d").lower(0).upper(1).value(0);
 
 auto z = coek::parameter("z").value(1.0);
-auto Z = coek::set_index("Z");
+auto Z = coek::set_element("Z");
 coek::Expression f;
 coek::Expression E = b;
 
@@ -1318,7 +1318,7 @@ coek::Expression E = b;
   SECTION( "Test trivialDiff" ) {
     auto q = coek::parameter("q").value(1);
     auto Q = coek::parameter("Q");
-    auto Z = coek::set_index("Z");
+    auto Z = coek::set_element("Z");
     coek::Expression E = a;
 
     WHEN( "e = 0 - a" ) {
@@ -1544,7 +1544,7 @@ auto c = coek::variable("c").lower(0).upper(1).value(0);
 auto d = coek::variable("d").lower(0).upper(1).value(0);
 
 auto z = coek::parameter("z");
-auto Z = coek::set_index("Z");
+auto Z = coek::set_element("Z");
 coek::Expression f;
 coek::Expression E = b;
 
@@ -1900,7 +1900,7 @@ coek::Expression E = b;
   SECTION( "Test trivialMul - 0" ) {
     auto q = coek::parameter("q").value(1);
     auto Q = coek::parameter("Q");
-    auto Z = coek::set_index("Z");
+    auto Z = coek::set_element("Z");
     coek::Expression E = a;
 
     WHEN( "e = 0 * a" ) {
@@ -2019,7 +2019,7 @@ coek::Expression E = b;
   SECTION( "Test trivialMul - 1" ) {
     auto q = coek::parameter("q").value(1);
     auto Q = coek::parameter("Q");
-    auto Z = coek::set_index("Z");
+    auto Z = coek::set_element("Z");
     coek::Expression E = a;
 
     WHEN( "e = 1 * a" ) {
@@ -2214,7 +2214,7 @@ auto c = coek::variable("c").lower(0).upper(1).value(0);
 auto d = coek::variable("d").lower(0).upper(1).value(0);
 
 auto z = coek::parameter("z");
-auto Z = coek::set_index("Z");
+auto Z = coek::set_element("Z");
 coek::Expression f;
 coek::Expression E = b;
 
@@ -2508,7 +2508,7 @@ coek::Expression E = b;
 
   SECTION( "Test trivialDiv - 0" ) {
     auto q = coek::parameter("q").value(1);
-    auto Z = coek::set_index("Z");
+    auto Z = coek::set_element("Z");
     coek::Expression E = a;
 
     WHEN( "e = 0 / a" ) {
@@ -2610,7 +2610,7 @@ coek::Expression E = b;
 
   SECTION( "Test trivialDiv - 1" ) {
     auto q = coek::parameter("q").value(1);
-    auto Z = coek::set_index("Z");
+    auto Z = coek::set_element("Z");
 
     WHEN( "e = a/1" ) {
         coek::Expression e = a/1;

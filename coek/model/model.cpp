@@ -119,10 +119,14 @@ for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
 #ifdef COEK_WITH_COMPACT_MODEL
 VariableMap& Model::add(VariableMap& vars)
 { return add_variable(vars); }
+VariableMap& Model::add(VariableMap&& vars)
+{ return add_variable(vars); }
 #endif
 
 #if __cpp_lib_variant
 VariableArray& Model::add(VariableArray& vars)
+{ return add_variable(vars); }
+VariableArray& Model::add(VariableArray&& vars)
 { return add_variable(vars); }
 #endif
 

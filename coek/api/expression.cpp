@@ -140,10 +140,10 @@ write_expr(arg.repn, ostr);
 return ostr;
 }
 
-IndexParameter set_index()
+IndexParameter set_element()
 { return IndexParameter(); }
 
-IndexParameter set_index(const std::string& name)
+IndexParameter set_element(const std::string& name)
 { return IndexParameter(name); }
 
 

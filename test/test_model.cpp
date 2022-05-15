@@ -160,7 +160,7 @@ TEST_CASE( "compact_model", "[smoke]" ) {
 #if 0
     SECTION("add_variable") {
         auto I = coek::RangeSet(0,3);
-        auto i = coek::set_index("i");
+        auto i = coek::set_element("i");
         coek::CompactModel Model;
         //Model.add_variable( Forall(i).In(I) ).lower(i+1).upper(2*i).value(3*i+2);
         auto x = coek::variable( Forall(i).In(I) ).lower(i+1).upper(2*i).value(3*i+2);
@@ -188,7 +188,7 @@ TEST_CASE( "compact_model", "[smoke]" ) {
 
     SECTION("add_objective") {
         auto I = coek::RangeSet(0,3);
-        auto i = coek::set_index("i");
+        auto i = coek::set_element("i");
         coek::CompactModel Model;
         auto x = Model.add_variable("x");
 #if 0
@@ -219,7 +219,7 @@ TEST_CASE( "compact_model", "[smoke]" ) {
 
     SECTION("add_constraint") {
         auto I = coek::RangeSet(0,3);
-        auto i = coek::set_index("i");
+        auto i = coek::set_element("i");
         coek::CompactModel Model;
         auto x = Model.add_variable("x");
         Model.add_constraint(i*x == 0, Forall(i).In(I));

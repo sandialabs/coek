@@ -212,4 +212,13 @@ for (auto& var: vars.repn->values)
 return vars;
 }
 
+VariableArray& Model::add_variable(VariableArray&& vars)
+{
+if (vars.repn->call_setup)
+    vars.repn->setup();
+for (auto& var: vars.repn->values)
+    add_variable(var);
+return vars;
+}
+
 }

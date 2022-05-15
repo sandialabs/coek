@@ -128,15 +128,26 @@ public:
     Variable add_variable(const std::string& name);
 
     Variable& add_variable(Variable& var);
+    Variable& add_variable(Variable&& var);
     void add_variable(PythonVariableArray& var);
     VariableMap& add_variable(VariableMap& var);
+    VariableMap& add_variable(VariableMap&& var);
     VariableArray& add_variable(VariableArray& var);
+    VariableArray& add_variable(VariableArray&& var);
 
     Variable& add(Variable& var)
         {return add_variable(var);}
+    Variable& add(Variable&& var)
+        {return add_variable(var);}
+
     VariableMap& add(VariableMap& var)
         {return add_variable(var);}
+    VariableMap& add(VariableMap&& var)
+        {return add_variable(var);}
+
     VariableArray& add(VariableArray& var)
+        {return add_variable(var);}
+    VariableArray& add(VariableArray&& var)
         {return add_variable(var);}
 
     /**
@@ -156,6 +167,9 @@ public:
       * \returns the objective
       */
     Objective add_objective(const std::string& name, const Expression& expr);
+
+    Objective& add(Objective& obj);
+    Objective& add(Objective&& obj);
 
     /**
       * Add a constraint to the model.
@@ -195,6 +209,7 @@ public:
     void add_constraint(const std::string& name, const Constraint& expr, const SequenceContext& context);
 
     void add(ConstraintSequence& seq);
+    void add(ConstraintSequence&& seq);
 
     Model expand();
 

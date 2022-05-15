@@ -67,7 +67,7 @@ TEST_CASE( "model_indexparam", "[smoke]" ) {
 
   SECTION( "values" ) {
       WHEN( "IndexParameter - 3" ) {
-        auto q = coek::set_index("q");
+        auto q = coek::set_element("q");
         q.value(1);
         int tmp = -1;
         auto success = q.get_value(tmp);
@@ -78,7 +78,7 @@ TEST_CASE( "model_indexparam", "[smoke]" ) {
         REQUIRE( success == false );
       }
       WHEN( "IndexParameter - 3.5" ) {
-        auto q = coek::set_index();
+        auto q = coek::set_element();
         q.value(3.5);
         double tmp = -3.5;
         auto success = q.get_value(tmp);
@@ -89,7 +89,7 @@ TEST_CASE( "model_indexparam", "[smoke]" ) {
         REQUIRE( success == false );
       }
       WHEN( "IndexParameter - 'here'" ) {
-        auto q = coek::set_index();
+        auto q = coek::set_element();
         q.value("here");
         std::string tmp = "there";
         auto success = q.get_value(tmp);
@@ -104,7 +104,7 @@ TEST_CASE( "model_indexparam", "[smoke]" ) {
   SECTION( "constructors" ) {
       WHEN( "copy" ) {
         // Simple constructor
-        auto q = coek::set_index();
+        auto q = coek::set_element();
         q.value(3);
 
         // Test copy constructor
@@ -117,11 +117,11 @@ TEST_CASE( "model_indexparam", "[smoke]" ) {
 
       WHEN( "equal" ) {
         // Simple constructor
-        auto q = coek::set_index();
+        auto q = coek::set_element();
         q.value(4);
 
         // Test copy constructor
-        auto Q = coek::set_index();
+        auto Q = coek::set_element();
         Q.value(5);
         Q = q;
         int tmp=-1;
@@ -132,15 +132,24 @@ TEST_CASE( "model_indexparam", "[smoke]" ) {
   }
 
   SECTION( "constructors" ) {
-    auto q = coek::set_index("q");
+    auto q = coek::set_element("q");
     REQUIRE( q.name() == "q" );
   }
 
   SECTION( "write" ) {
     std::stringstream sstr;
-    auto q = coek::set_index("q");
+    auto q = coek::set_element("q");
     sstr << q;
     REQUIRE( sstr.str() == "q" );
+  }
+
+  SECTION( "name" ) {
+    auto p = coek::set_element();
+    auto q = coek::set_element("q");
+    REQUIRE( p.name() == "unknown" );
+    p.name("P");
+    REQUIRE( p.name() == "P" );
+    REQUIRE( q.name() == "q" );
   }
 
 #ifdef DEBUG

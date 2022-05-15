@@ -182,9 +182,11 @@ ConstraintSequence::ConstraintSequence(const std::shared_ptr<ConstraintSequenceR
     : repn(_repn)
 {}
 
-
 ConstraintSequence::ConstraintSequence(const SequenceContext& context_, const Constraint& expr)
 { repn = std::make_shared<ConstraintSequenceRepn>(context_,expr); }
+
+ConstraintSequence::ConstraintSequence(const std::string& name, const SequenceContext& context_, const Constraint& expr)
+{ repn = std::make_shared<ConstraintSequenceRepn>(name,context_,expr); }
 
 ConstraintSeqIterator ConstraintSequence::begin()
 { return ConstraintSeqIterator(repn.get(), false); }

@@ -52,11 +52,11 @@ int main(int argc, char** argv) {
   vector<vector<coek::Variable> > y(m+1, vector<coek::Variable>(n+1));
   for (size_t i = 0; i <= m; i++)
     for (size_t j = 0; j <= n; j++)
-      y[i][j] = model.add_variable().bounds(0,1).value(0);
+      y[i][j] = model.add( coek::variable().bounds(0,1).value(0) );
   
   vector<coek::Variable> u(m+1);
   for (size_t i = 0; i <= m; i++) 
-    u[i] = model.add_variable().bounds(-1,1).value(0);
+    u[i] = model.add( coek::variable().bounds(-1,1).value(0) );
 
   // OBJECTIVE  
   // First term
@@ -73,28 +73,25 @@ int main(int argc, char** argv) {
     term2 += 2*u[i]*u[i];
   term2 += u[m]*u[m];
 
-  model.add_objective(0.25*dx*term1 + 0.25*a*dt*term2);
-
+  model.add( coek::objective(0.25*dx*term1 + 0.25*a*dt*term2) );
 
   // PDE
   for (size_t i = 0; i < m; i++) {
     for (size_t j = 1; j < n; j++) {
-      model.add_constraint( y[i+1][j] - y[i][j] == dt*0.5/h2*(y[i][j-1] - 2*y[i][j] + y[i][j+1] + y[i+1][j-1] - 2*y[i+1][j] + y[i+1][j+1]) );
+      model.add( y[i+1][j] - y[i][j] == dt*0.5/h2*(y[i][j-1] - 2*y[i][j] + y[i][j+1] + y[i+1][j-1] - 2*y[i+1][j] + y[i+1][j+1]) );
     }
   }
 
-
   // IC
   for (size_t j = 0; j <= n; j++) {
-    model.add_constraint( y[0][j] == 0 );
+    model.add( y[0][j] == 0 );
   }
-
 
   // BC
   for (size_t i = 1; i <= m; i++)
-    model.add_constraint( y[i][2] - 4*y[i][1] + 3*y[i][0] == 0 );
+    model.add( y[i][2] - 4*y[i][1] + 3*y[i][0] == 0 );
   for (size_t i = 1; i <= m; i++)
-    model.add_constraint( (y[i][n-2] - 4*y[i][n1] + 3*y[i][n])/(2*dx) == u[i]-y[i][n]);
+    model.add( (y[i][n-2] - 4*y[i][n1] + 3*y[i][n])/(2*dx) == u[i]-y[i][n] );
 
   CALI_MARK_END("main:create model");
   

@@ -107,8 +107,8 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         auto s = coek::SetOf( v );
         auto y = coek::variable("y",s);
         auto x = coek::variable("x",s*s);
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
+        auto i = coek::set_element("i");
+        auto j = coek::set_element("j");
 
         WHEN( "y(i)" ) {
             auto tmp = coek::ExpressionSequence(coek::Forall(i).In(s), y(i));
@@ -212,7 +212,7 @@ TEST_CASE( "expr_sequence", "[smoke]" ) {
         auto s = coek::SetOf( v );
         auto y = coek::variable("y",s);
         auto x = coek::variable("x",s*s);
-        auto i = coek::set_index("i");
+        auto i = coek::set_element("i");
 
         WHEN( "y(i) == 0" ) {
             auto tmp = coek::ConstraintSequence(coek::Forall(i).In(s), y(i) == 0);

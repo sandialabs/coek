@@ -52,7 +52,7 @@ template <class ModelType>
 void error4(ModelType& model) 
 {
 auto x = model.add( coek::variable("x") );
-auto i = coek::set_index("i");
+auto i = coek::set_element("i");
 
 model.add( coek::objective(i*x) );
 }
