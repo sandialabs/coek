@@ -12,6 +12,69 @@
 const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
+void xyz() {}
+
+TEST_CASE( "model_add", "[smoke]" ) {
+{
+coek::Model model;
+
+SECTION("variables") {
+    WHEN("elementary") {
+        auto w = model.add( coek::variable() );
+        auto x = model.add( coek::variable().value(1) );
+        auto y = model.add( coek::variable() ).value(1);
+        }
+
+    WHEN("array") {
+        auto w = model.add( coek::variable(3) );
+        auto x = model.add( coek::variable(3).value(1) );
+        auto y = model.add( coek::variable(3) ).value(1);
+        }
+
+    WHEN("multi-dimensional array") {
+        auto w = model.add( coek::variable({3,3}) );
+        auto x = model.add( coek::variable({3,3}).value(1) );
+        auto y = model.add( coek::variable({3,3}) ).value(1);
+        }
+    }
+
+SECTION("constraints") {
+    WHEN("elementary") {
+        auto v = coek::variable();
+        auto c1 = coek::constraint( v == 0 );
+        model.add( c1 );
+        }
+
+    WHEN("array") {
+        auto v = coek::variable();
+        auto c1 = coek::constraint(10);
+        c1(0) = v == 0;
+        model.add( c1 );
+        }
+
+    WHEN("multi-dimensional array") {
+        auto v = coek::variable();
+        auto c1 = coek::constraint({10,10});
+        c1(0,0) = v == 0;
+        model.add( c1 );
+        }
+
+    #ifdef COEK_WITH_COMPACT_MODEL
+    WHEN("map") {
+        auto v = coek::variable();
+        auto A = coek::RangeSet(0,2) * coek::RangeSet(0,2);
+        auto c1 = coek::constraint(A);
+        c1(0,0) = v == 0;
+        model.add( c1 );
+        }
+    #endif
+    }
+}
+#ifdef DEBUG
+REQUIRE( coek::env.check_memory() == true );
+#endif
+}
+
 
 TEST_CASE( "model_setup", "[smoke]" ) {
 {

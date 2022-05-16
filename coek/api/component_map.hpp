@@ -27,6 +27,9 @@ public:
                 : IndexedComponent_Map<Constraint>(arg) {}
     #endif
 
+    const std::string& name() const
+        { return repn->_name; }
+
     ConstraintMap& name(const std::string& str)
         {
         repn->_name = str;
@@ -42,6 +45,10 @@ inline ConstraintMap constraint(const std::vector<size_t>& shape)
 {return ConstraintMap(shape); }
 inline ConstraintMap constraint(const std::initializer_list<size_t>& shape)
 {return ConstraintMap(shape); }
+#ifdef COEK_WITH_COMPACT_MODEL
+inline ConstraintMap constraint(ConcreteSet& shape)
+{return ConstraintMap(shape); }
+#endif
 
 inline ConstraintMap constraint(const std::string& name, size_t n)
 { return constraint(n).name(name); }
@@ -49,5 +56,9 @@ inline ConstraintMap constraint(const std::string& name, const std::vector<size_
 {return constraint(shape).name(name); }
 inline ConstraintMap constraint(const std::string& name, const std::initializer_list<size_t>& shape)
 { return constraint(shape).name(name); }
+#ifdef COEK_WITH_COMPACT_MODEL
+inline ConstraintMap constraint(const std::string& name, ConcreteSet& shape)
+{return ConstraintMap(shape).name(name); }
+#endif
 
 }

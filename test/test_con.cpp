@@ -14,7 +14,6 @@ const double E = exp(1.0);
 
 
 TEST_CASE( "elementary_constraint", "[smoke]" ) {
-
 {
 auto v = coek::variable("v").lower(0).upper(1).value(1);
 auto p = coek::parameter("p");
@@ -1342,3 +1341,153 @@ REQUIRE( coek::env.check_memory() == true );
 #endif
 }
 
+
+TEST_CASE( "constraint array", "[smoke]" ) {
+{
+coek::Model m;
+
+SECTION("simple array") {
+    WHEN("constructor") {
+        auto c = coek::constraint(10);
+        REQUIRE( c.dim() == 1 );
+        auto C = coek::constraint({10});
+        REQUIRE( C.dim() == 1 );
+        }
+
+    WHEN("name") {
+        auto c = coek::constraint("c", 10);
+        REQUIRE( c.name() == "c"); 
+        }
+
+    WHEN("size") {
+        auto v = coek::variable();
+        auto c = coek::constraint(10);
+        REQUIRE( c.size() == 0 );
+        c(0) = v == 0;
+        REQUIRE( c.size() == 1 );
+        }
+
+    WHEN("operator () - size_t") {
+        auto v = coek::variable("v", 10);
+        auto c = coek::constraint(10);
+        for (size_t i=0; i<10; ++i) {
+            c(i) = v(i) == 1.0*i;
+            }
+        m.add(c);        
+
+        static std::list<std::string> baseline = {"[", "==", "v(1)", "1.000", "]"};
+        REQUIRE(c.size() == 10);
+        auto& con = c(1);
+        REQUIRE( con.to_list() == baseline);
+        }
+
+    WHEN("operator () - int") {
+        auto v = coek::variable(10);
+        auto c = coek::constraint(10);
+        for (int i=0; i<10; ++i) {
+            c(i) = v(i) == 1.0*i;
+            }
+        m.add(c);        
+        }
+
+    WHEN("operator () - param") {
+        auto p = coek::parameter();
+        auto v = coek::variable(10);
+        auto c = coek::constraint(10);
+        for (int i=0; i<10; ++i) {
+            p.value(i);
+            c(p) = v(p) == 1.0*i;
+            }
+        m.add(c);        
+        }
+
+    /*
+    WEH - Should we allow this?
+
+    WHEN("operator () - expression") {
+        auto p = coek::parameter();
+        auto v = coek::variable(10);
+        auto c = coek::constraint(10);
+        for (int i=0; i<10; ++i) {
+            p.value(i+1);
+            c(p-1) = v(p+1) == 1.0*i;
+            }
+        m.add(c);        
+        }
+    */
+
+    WHEN("operator() - error1") {
+        auto c = coek::constraint(10);
+        REQUIRE_THROWS_WITH(c(0,0,0), "Unexpected index value:  is an 1-D variable map but is being indexed with 3 indices.");
+        }
+
+    WHEN("operator() - error2") {
+        auto c = coek::constraint(10);
+        REQUIRE_THROWS_WITH(c(0,0), "Unexpected index value:  is an 1-D variable map but is being indexed with 2 indices.");
+        }
+
+    WHEN("operator() - error3") {
+        auto c = coek::constraint(10);
+        REQUIRE_THROWS_WITH(c(-1), "Unexpected index value: (-1)");
+        }
+    }
+
+SECTION("multi-dimensional array") {
+    WHEN("constructor") {
+        auto c = coek::constraint({10,10});
+        REQUIRE( c.dim() == 2 );
+        std::vector<size_t> dim = {10,10};
+        auto C = coek::constraint(dim);
+        REQUIRE( C.dim() == 2 );
+        }
+
+    WHEN("name") {
+        auto c = coek::constraint("c", {10,10});
+        REQUIRE( c.name() == "c"); 
+        }
+
+    WHEN("size") {
+        auto v = coek::variable();
+        auto c = coek::constraint({10,10});
+        REQUIRE( c.size() == 0 );
+        c(0,0) = v == 0;
+        REQUIRE( c.size() == 1 );
+        }
+
+    WHEN("operator () - size_t") {
+        auto v = coek::variable({10,10});
+        auto c = coek::constraint({10,10});
+        for (size_t i=0; i<10; ++i) {
+            auto tmp = v(i,i) == 1.0*i;
+            c(i,i) = tmp;
+            }
+        REQUIRE( c.size() == 10 );
+        m.add(c);        
+        }
+
+    WHEN("operator () - int") {
+        auto v = coek::variable({10,10,10});
+        auto c = coek::constraint({10,10,10});
+        for (int i=0; i<10; ++i) {
+            auto tmp = v(i,i,i) == 1.0*i;
+            c(i,i,i) = tmp;
+            }
+        REQUIRE( c.size() == 10 );
+        m.add(c);        
+        }
+
+    WHEN("operator() - error1") {
+        auto c = coek::constraint({10,10});
+        REQUIRE_THROWS_WITH(c(0), "Unexpected index value:  is an 2-D variable map but is being indexed with 1 indices.");
+        }
+
+    WHEN("operator() - error2") {
+        auto c = coek::constraint({10,10});
+        REQUIRE_THROWS_WITH(c(-1,-1), "Unexpected index value: (-1,-1)");
+        }
+    }
+}
+#ifdef DEBUG
+REQUIRE( coek::env.check_memory() == true );
+#endif
+}

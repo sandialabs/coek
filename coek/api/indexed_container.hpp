@@ -80,9 +80,6 @@ public:
     virtual TYPE& index(const IndexVector& args) = 0;
 
     //Expression create_varref(const std::vector<refarg_types>& indices);
-
-    std::string name()
-        { return repn->_name; }
 };
 
 
@@ -93,12 +90,6 @@ public:
 
     TYPE& index(const IndexVector& args);
     void index_error(size_t i);
-
-    IndexedComponent_Map<TYPE>& name(const std::string& str)
-        {
-        this->repn->_name = str;
-        return *this;
-        }
 
 public:
 

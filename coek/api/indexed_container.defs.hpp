@@ -132,7 +132,7 @@ TYPE& IndexedComponent_Map<TYPE>::index(const IndexVector& args)
 assert(this->dim() == args.size());
 
 if (!(this->repn->valid_index(this->tmp))) {
-    std::string err = "Bad index value: "+this->repn->_name+"(";
+    std::string err = "Unexpected index value: "+this->repn->_name+"(";
     for (size_t i=0; i<args.size(); i++) {
         if (i > 0)
             err += ",";
@@ -142,7 +142,7 @@ if (!(this->repn->valid_index(this->tmp))) {
     throw std::runtime_error(err); 
     }
 
-auto curr = this->repn->value.find(this->tmp);
+auto curr = this->repn->value.find(args);
 if (curr == this->repn->value.end()) {
     auto _args = this->repn->cache.clone(args);
     TYPE tmp;

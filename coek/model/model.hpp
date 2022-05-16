@@ -101,7 +101,7 @@ public:
     void add_variable(PythonVariableArray& var);
 #if __cpp_lib_variant
     VariableArray& add_variable(VariableArray& var);
-    VariableArray& add_variable(VariableArray&& var);
+    //VariableArray& add_variable(VariableArray&& var);
     VariableArray& add(VariableArray& var);
     VariableArray& add(VariableArray&& var);
 #endif
@@ -182,10 +182,8 @@ public:
     Constraint& add(Constraint& expr);
     Constraint& add(Constraint&& expr);
 #if __cpp_lib_variant
-    ConstraintMap& add_constraint(ConstraintMap& expr);
-    ConstraintMap& add_constraint(ConstraintMap&& expr);
-    ConstraintMap& add(ConstraintMap& expr);
-    ConstraintMap& add(ConstraintMap&& expr);
+    void add_constraint(ConstraintMap& expr);
+    void add(ConstraintMap& expr);
 #endif
 
     /** \returns the constraint with the specified id */

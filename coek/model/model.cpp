@@ -204,8 +204,8 @@ return expr;
 }
 
 #if __cpp_lib_variant
-ConstraintMap& Model::add(ConstraintMap& expr)
-{ return add_constraint(expr); }
+void Model::add(ConstraintMap& expr)
+{ add_constraint(expr); }
 #endif
 
 size_t Model::num_variables() const
