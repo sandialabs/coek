@@ -58,6 +58,7 @@ class IndexedComponentRepn_setindex : public IndexedComponentRepn<TYPE>
 public:
 
     ConcreteSet concrete_set;
+    std::vector<int> tmp;
 
 public:
 
@@ -66,12 +67,18 @@ public:
           concrete_set(_arg)
         {
         this->cache.resize((this->dim()+1) * (_arg.size()+1));
+        this->tmp.resize(this->dim());
         }
 
     bool valid_index(const IndexVector& args)
         {
+        /*
         auto it = this->value.find(args);
         return !(it == this->value.end());
+        */
+        for (size_t i=0; i<tmp.size(); i++)
+            tmp[i] = args[i];
+        return this->concrete_set.contains(tmp);
         }
 };
 #endif

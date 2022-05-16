@@ -64,7 +64,8 @@ SECTION("constraints") {
         auto v = coek::variable();
         auto A = coek::RangeSet(0,2) * coek::RangeSet(0,2);
         auto c1 = coek::constraint(A);
-        c1(0,0) = v == 0;
+        c1(0,0);
+        // = v == 0;
         model.add( c1 );
         }
     #endif
