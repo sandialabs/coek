@@ -7,16 +7,18 @@ Overview
 Dense vs Sparse Indexing
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Indexed components generalize the specification of elementary components
+Indexed components generalize the declaration of elementary components
 to declare multi-dimensional arrays and indexed associative arrays
-of components.  There is fundamental distinction between indexing
-strategies used for variable and parameter components, and indexing used
-for constraints and objectives.  The key difference is that variable
-and parameter components represent mutable values.  When declaring a
-multi-dimensional array or associative array for variables or parameters,
-it is intuitive to treat these as values defined for all indices.
-Properties of the variable, like initial values and bounds can be readily
-applied across all indices.
+of components.  The syntax for declaring indexed components is the
+same across modeling components, but there is a fundamental distinction
+between indexing strategies used for variable and parameter components,
+and indexing used for constraints and objectives.  Variable and parameter
+components represent mutable values, and properties, like variable
+initial values and bounds can be readily applied across all indices.
+When declaring a multi-dimensional array or associative array for
+variables or parameters, it is intuitive to treat these as values defined
+for all indices.  Thus, these are dense declarations, where components
+are defined for all elements in the index set.
 
 By contrast, declarations of constraints and objectives do not simply
 have a value.  Thus, it is intuitive to declare an indexed component for
@@ -31,7 +33,7 @@ includes several ways of declaring index sets.  The ``SetOf()`` function
 converts integer data in an STL vector or initializer list into a COEK
 set object:
 
-.. code::
+.. code:: C++
 
     std::vector<int> v = {1,5,3,7};
     auto s = coek::SetOf( v );
@@ -41,7 +43,7 @@ set object:
 Similarly, the ``RangeSet()`` function declares a sequence of integer
 values with a specified start, stop and step value:
 
-.. code::
+.. code:: C++
 
     auto s = coek::RangeSet(1, 10);     // 1, 2, 3, ..., 10
     auto t = coek::RangeSet(1, 10, 2);  // 1, 3, ..., 9
@@ -49,7 +51,7 @@ values with a specified start, stop and step value:
 A variety of standard set operations are supported in COEK, include set
 products and set difference:
 
-.. code::
+.. code:: C++
 
     auto s = coek::RangeSet(1, 10);     // 1, 2, 3, ..., 10
     auto t = coek::RangeSet(1, 10, 2);  // 1, 3, ..., 9
@@ -58,17 +60,23 @@ products and set difference:
 
 See :ref:`api-sets` for further details.
 
+.. warning::
+
+    Associative arrays are currently only defined with configuring COEK
+    using the ``with_compact`` build option.  This is likely to be the
+    default build mode in the future, so these capabilities are not
+    documented separately.
 
 Variables
 ---------
 
-A minimal variable specification includes a name and/or indexing
+A minimal variable declaration includes a name and/or indexing
 information.  The following are basic examples:
 
-.. code::
+.. code:: C++
 
     // A single continuous variable
-    auto x = model.add( );
+    auto x = model.add( coek::variable() );
     auto y = model.add( coek::variable("y") );
 
     // An array of continuous variables of length 'n'
@@ -93,13 +101,10 @@ Variable declarations require the specification of various information:
 * Initial values
 * Variable type (continuous, binary, integer, etc)
 
-Additionally, variable store information about whether they are fixed,
-and it may make sense to declare variables as fixed.
+Indexed variable declarations support function chaining for these specifications, which are applied to all
+variables in the indexed component:
 
-The following syntax, using function chaining, provides an explicit
-annotation of a variable's information:
-
-.. code::
+.. code:: C++
 
     auto x = model.add( coek::variable("x", A*B) ).
                     lower(2).
@@ -120,9 +125,18 @@ Similarly, the ``Variable::bounds()`` function can be used instead of ``Variable
     as something that is returned later.  (Yes, we could have a unified
     variable object ... but it's API would be much less clean IMHO.)
 
+.. note::
+
+    The use of function chaining for indexed variables simplifies the
+    specification of common values across an indexed variable.  However,
+    these values are set for each of the indexed variables, and the
+    values of each indexed variable can be separately specified.  Thus,
+    this notation does not imply that indexed variables are required to
+    have consistent values for all indices.
+
 Variables declared over sets can be indexed using the ``()`` operator in a natural manner.  For example:
 
-.. code::
+.. code:: C++
 
     // An array of continuous variables of length 'n'
     size_t n=100;
@@ -149,13 +163,35 @@ Variables declared over sets can be indexed using the ``()`` operator in a natur
     multiple subscripts.  This will change with C++23, but for now we
     restrict COEK to the use of operator() logic.
 
+Note that arguments of the ``()`` operator may be constant expressions with mutable values.  For example, the
+following are valid expressions:
+
+.. code:: C++
+
+    auto x = model.add( coek::variable(10) );
+
+    auto p = coek::parameter().value(1);
+    x(p+1).value();         // The value of the x(2) 
+
+    auto i = coek::set_element();
+    x(i+1);                 // A reference to x(i+1), which is resolved in a quantified expression
+
+The ``variable()`` function provides a uniform interface for declaring
+both multi-dimensional arrays and associative arrays of variables.
+The ``variable_array()`` and ``variable_map()`` functions can be used to
+more explicitly declare these two types of indexed variables, but there
+is no practical advantage for using these functions.  When iterating
+over indices, there may be slight computational advantages for using
+multi-dimensional arrays, which are stored compactly and thus are more
+cache-efficient data structures for iteration.
+
 
 Parameters
 ----------
 
 Indexed parameters are declared in a similar manner to indexed variables:
 
-.. code::
+.. code:: C++
 
     // A single parameter
     auto p = coek::parameter();
@@ -181,7 +217,7 @@ Note that parameter are always continuous, and their value defaults
 to zero.  Initializing parameters can be similarly executed using
 function chaining:
 
-.. code::
+.. code:: C++
 
     // A single parameter initialized to 1.0
     auto q = coek::parameter("q").value(1.0);
@@ -199,6 +235,8 @@ function chaining:
     auto B = coek::RangeSet(11,20);
     auto q = coek::parameter("q", A*B).value(1.0);
 
+The ``()`` operator also has the same behavior as for variable components.
+
 
 Objectives
 ----------
@@ -210,7 +248,7 @@ Indexed objectives are not currently supported in COEK.
     Although not often used, we could also support various ways to declare
     groups of objectives:
 
-    .. code::
+    .. code:: C++
 
         // A single objective
         auto a = model.add( coek::objective(2*x) );
@@ -238,7 +276,7 @@ Constraints
 
 Indexed constraints are declared in a similar manner to indexed variables:
 
-.. code::
+.. code:: C++
 
     // A single constraint
     auto a = model.add( coek::constraint(2*x == 0) );
@@ -265,24 +303,24 @@ indices associated with the constraint, but only elementary constraints
 have a specific value.  The ``()`` operator can be used to index
 constraint objects and specify the constraint value:
 
-.. code::
+.. code:: C++
 
     auto x = model.add( coek::variable(10) );
 
     auto c = coek::constraint("c", 10);
-    for (int i=0; i<10; i++) {
+    for (int i=0; i<10; i++)
         c(i) = (i+1)*x(i) <= i;
-        }
     model.add(c);
 
 As noted earlier, not all indices need to be added to an indexed constraint:
 
-.. code::
+.. code:: C++
 
     auto x = model.add( coek::variable(10) );
 
     auto c = coek::constraint("c", {10,10});
-    for (int i=0; i<10; i++) {
+    for (int i=0; i<10; i++)
         c(i,i) = (i+1)*x(i) <= i;
-        }
     model.add(c);
+
+

@@ -8,14 +8,14 @@ In COEK and POEK, variables are not owned by a model.  However, it is
 necessary to associate a variable with a model to facilitate efficient
 processing of models.  Thus, the following are equivalent:
 
-.. code::
+.. code:: C++
 
     auto x = coek::variable("x");
     model.add(x);
 
 and
 
-.. code::
+.. code:: C++
 
     auto x = model.add( coek::variable("x") );
 
@@ -33,7 +33,7 @@ Further, this enables functional chaining to configure the variable.
 
 A minimal variable specification may include the name:
 
-.. code::
+.. code:: C++
 
     // A single continuous variable
     auto y = model.add( coek::variable() );
@@ -52,7 +52,7 @@ and it may make sense to declare variables as fixed.
 The following syntax, using function chaining, provides an explicit
 annotation of a variable's information:
 
-.. code::
+.. code:: C++
 
     auto x = model.add( coek::variable("x") ).
                     lower(2).
@@ -62,12 +62,24 @@ annotation of a variable's information:
 
 Similarly, the ``Variable::bounds()`` function can be used instead of ``Variable::lower()`` and ``Variable::upper()``:
 
-.. code::
+.. code:: C++
 
     auto x = model.add( coek::variable("x") ).
                     bounds(2, 10).
                     value(3).
                     within(coek::Integers);
+
+These methods can be passed scalar values as well as COEK expressions that are mutable constant values.  For example:
+
+.. code:: C++
+
+    auto p = coek::parameter().value(1);
+    auto x = model.add( coek::variable("x") ).
+                    bounds(2*p, 10+p).
+                    value(sin(p)).
+                    within(coek::Integers);
+
+The variable object is initialized with the expression object, which is evaluated when a scalar value is needed (e.g. during optimization).
 
 .. admonition:: WEH
 
@@ -100,7 +112,7 @@ Similarly, the ``Variable::bounds()`` function can be used instead of ``Variable
     contain a variable unless it is fixed.  Thus, the following creates
     a runtime error:
 
-    .. code::
+    .. code:: C++
 
         auto x = coek::variable(100);
         auto y = coek::variable();
@@ -112,7 +124,7 @@ Parameters
 
 Mutable parameters can be declared in a similar manner to variables:
 
-.. code::
+.. code:: C++
 
     // A single parameter
     auto p = coek::parameter();
@@ -122,7 +134,7 @@ Note that parameter are always continuous, and their value defaults
 to zero.  Initializing parameters can be similarly executed using
 function chaining:
 
-.. code::
+.. code:: C++
 
     // A single parameter initialized to 1.0
     auto q = coek::parameter("q").value(1.0);
@@ -131,7 +143,7 @@ function chaining:
 
     Note that this syntax is different from what is currently implemented in COEK:
 
-    .. code::
+    .. code:: C++
 
         coek::Parameter p("p", 1.0);
 
@@ -143,7 +155,7 @@ function chaining:
     Do we forsee a need for non-double parameters?  I could imagine
     doing the following?
 
-    .. code::
+    .. code:: C++
 
         auto qi = coek::parameter<int>("q");
 
@@ -165,7 +177,7 @@ A COEK expression is formed by performing arithmetic operations on
 COEK variables, parameters and set indices, including operations with
 constant values.  For example:
 
-.. code::
+.. code:: C++
 
     auto x = coek::variable("x");
     auto e = sin(3*x+1);
@@ -174,6 +186,52 @@ constant values.  For example:
 Note that these fundamental types are not owned by a COEK model, so such
 an expression can be used and re-used within multiple expressions and
 within multiple COEK models.
+
+The ``expression()`` function is used to create expressions, particularly
+an empty expression or a constant expression.  This is a convenient
+utility when creating loops to form an expression.  For example, the
+following syntax will not work because the accumulator variable ``e``
+is a double value:
+
+.. code:: C++
+
+    double e = 0;
+    std::vector<coek::Variable> x(10);
+    for (auto& val: x)
+        e += val;                       // Error here
+
+The ``expression()`` function is used to create an expression accumulator,
+with initial value of zero:
+
+.. code:: C++
+
+    auto e = coek::expression();
+    std::vector<coek::Variable> x(10);
+    for (auto& val: x)
+        e += val;
+
+When numeric values are passed-in, the expression is
+initialized with that constant value (e.g. ``coek::expression(1.3)``).
+
+The ``expression()`` function is similarly useful to define accumulator 
+expressions for parameters and variables.  For example, the following syntax would also not work:
+
+.. code:: C++
+
+    auto e = coek::parameter();
+    std::vector<coek::Variable> x(10);
+    for (auto& val: x)
+        e += val;                       // Error here
+
+The ``expression()`` function can be used to create an expression accumulator, initialized with a 
+parameter or variable:
+
+.. code:: C++
+
+    auto e = coek::expression(coek::parameter());
+    std::vector<coek::Variable> x(10);
+    for (auto& val: x)
+        e += val;
 
 .. note::
 
@@ -185,7 +243,7 @@ within multiple COEK models.
 
     Maybe something like the following is sufficient:
 
-    .. code::
+    .. code:: C++
 
         auto x = coek::variable("x");
         auto e = sin(3*x+1);
@@ -200,7 +258,7 @@ within multiple COEK models.
     explicitly to the model to track it there?  I think so.  Thus,
     the following would also make sense:
 
-    .. code::
+    .. code:: C++
 
         auto E = model.add( coek::expression("E") );
 
@@ -209,31 +267,39 @@ Objectives
 ----------
 
 In COEK and POEK, objectives are not owned by a model, but they are
-typically associated with a model.  Thus, the following are equivalent:
+typically associated with a model.  The ``objective()`` function is used
+to declare an objective:
 
-.. code::
-
-    auto x = coek::variable("x");
-    auto o = model.add_objective("o", 2*x).sense(coek::Model::maximize);
-    model.add( o );
-
-and
-
-.. code::
+.. code:: C++
 
     auto x = coek::variable("x");
-    auto o = model.add( coek::objective("o", 2*x).sense(coek::Model::maximize) );
+    auto o = model.add( coek::objective("o", 2*x) );
 
 The ``expr()`` method is used to set and get the objective expression, and
 the ``sense()`` method is used to get and set the objective sense (which
 defaults to minimization).  For example:
 
-.. code::
+.. code:: C++
 
     auto x = coek::variable("x");
     auto o = model.add( coek::objective("o").
                             expr(2*x).
                             sense(coek::Model::minimize) );
+
+.. note::
+
+    We can think of an objective as an expression that we minimize.  However, we cannot
+    simple treat an expression as an objective.  Thus, COEK does the allow 
+    expressions to be added to models:
+
+    .. code:: C++
+
+        auto x = coek::variable("x");
+        auto o = model.add( x+1 );          // ERROR
+
+    The problem with this syntax is that an objective expression may be a single variable.
+    In this case, it is ambiguous whether we are adding the variable or an objective to the
+    model.
 
 .. admonition:: Question
 
@@ -249,7 +315,7 @@ defaults to minimization).  For example:
     This API supports the declaration of multiple objectives, though COEK solvers
     do not currently support multi-objective optimization:
 
-    .. code::
+    .. code:: C++
 
         // A single objective
         auto a = model.add( coek::objective(2*x) );
@@ -260,44 +326,11 @@ Constraints
 -----------
 
 In COEK and POEK, constraints are not owned by a model, but they are
-typically associated with a model.  Thus, the following are equivalent:
-
-.. code::
-
-    auto x = coek::variable("x");
-    auto c = model.add_constraint("c", 2*x == 0);
-
-and
-
-.. code::
-
-    auto x = coek::variable("x");
-    auto c = model.add( coek::constraint("c", 2*x == 0) );
-
-Further, we can declare multiple constraints be sequentially adding constraint objects:
-
-.. code::
-
-    // A single constraint
-    auto a = model.add( coek::constraint(2*x == 0) );
-    auto b = model.add( coek::constraint("b", 2*x == 0) );
-
-The `expr` method is used to set and get the constraint expression.
-For example:
-
-.. code::
-
-    auto c = model.add( coek::constraint("c").
-                            expr(2*x) );
-
-.. admonition:: Question
-
-   Do we want to support the ``add_constraint()`` method, or simply use the ``add()`` method?
-
+typically associated with a model.
 There are several forms of constraint expressions supported by COEK:
 inequalities, equalities and ranges.  For example:
 
-.. code::
+.. code:: C++
 
     auto x = coek::variable();
     auto y = coek::variable();
@@ -311,4 +344,53 @@ inequalities, equalities and ranges.  For example:
     auto c5 = x == y;
     // Ranged
     auto c6 = coek::inequality( 0, x + y, 1);
+
+Constraint expressions can be directly added to COEK models:
+
+.. code:: C++
+
+    auto x = coek::variable("x");
+    auto c = model.add(2*x == 0);
+
+The ``coek::constraint()`` function is included, which simplifies the naming of elementary constraints:
+
+.. code:: C++
+
+    auto x = coek::variable("x");
+
+    // Adding a named constraint with the constraint() function
+    auto c1 = model.add( coek::constraint("c1", 2*x == 0) );
+
+    // Adding a named constraint using the name() method
+    auto c2 = 2*x == 0;
+    model.add( c2.name("c2") );
+
+COEK constraints are defined by lower and upper bounds with a constraint body.  The values for these can be accessed using the ``lower()``, ``upper()`` and ``body()`` 
+methods:
+
+.. code:: C++
+
+    auto x = coek::variable("x").value(0.5);
+    auto c = coek::inequality(0, 2*x, 2);
+
+    auto lower = c.lower().value();     // 0
+    auto body  = c.body().value();      // 1
+    auto upper = c.upper().value();     // 2
+
+.. admonition:: TODO
+
+    We need to clarifify the semantics of lower() and upper() when the represent unbounded constraints.  For example:
+
+    .. code:: C++
+
+        auto x = coek::variable("x").value(0.5);
+        auto c = 0 < 2*x;
+
+        auto upper = c.upper().value();     // Generates an error because this value is undefined
+
+    COEK needs to explicitly represent infinite bound values and return them as appropriate.
+
+.. admonition:: Question
+
+   Do we want to support the ``add_constraint()`` method, or simply use the ``add()`` method?
 
