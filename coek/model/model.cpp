@@ -119,15 +119,34 @@ for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
 #ifdef COEK_WITH_COMPACT_MODEL
 VariableMap& Model::add(VariableMap& vars)
 { return add_variable(vars); }
+VariableMap& Model::add(VariableMap&& vars)
+{ return add_variable(vars); }
 #endif
 
 #if __cpp_lib_variant
 VariableArray& Model::add(VariableArray& vars)
 { return add_variable(vars); }
+VariableArray& Model::add(VariableArray&& vars)
+{ return add_variable(vars); }
 #endif
 
-Variable& Model::add(Variable& vars)
-{ return add_variable(vars); }
+Variable& Model::add(Variable& var)
+{
+repn->variables.push_back(var);
+auto name = var.name();
+if (name != "")
+    repn->variables_by_name.emplace(name, var);
+return var;
+}
+
+Variable& Model::add(Variable&& var)
+{
+repn->variables.push_back(var);
+auto name = var.name();
+if (name != "")
+    repn->variables_by_name.emplace(name, var);
+return var;
+}
 
 
 Objective Model::add_objective(const Expression& expr)
@@ -146,13 +165,31 @@ if (name != "")
 return repn->objectives.back();
 }
 
-Objective Model::add(Objective& obj)
+Objective& Model::add(Objective& obj)
+{
+repn->objectives.push_back(obj);
+return obj;
+}
+
+Objective& Model::add(Objective&& obj)
 {
 repn->objectives.push_back(obj);
 return obj;
 }
 
 Constraint Model::add_constraint(const Constraint& expr)
+{
+repn->constraints.push_back(expr);
+return expr;
+}
+
+Constraint& Model::add(Constraint& expr)
+{
+repn->constraints.push_back(expr);
+return expr;
+}
+
+Constraint& Model::add(Constraint&& expr)
 {
 repn->constraints.push_back(expr);
 return expr;
@@ -167,8 +204,8 @@ return expr;
 }
 
 #if __cpp_lib_variant
-ConstraintMap& Model::add(ConstraintMap& expr)
-{ return add_constraint(expr); }
+void Model::add(ConstraintMap& expr)
+{ add_constraint(expr); }
 #endif
 
 size_t Model::num_variables() const

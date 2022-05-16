@@ -55,14 +55,14 @@ int main(int argc, char** argv) {
   CALI_MARK_BEGIN("main:create model");
   coek::Model model;
 
-  auto y = model.add( coek::variable("y", {m+1,n+1}).
-                                        bounds(0,1).value(0) );
-  auto u = model.add( coek::variable("u", m+1).
-                                        bounds(-1,1).value(0) );
+  auto y = model.add( coek::variable("y", {m+1,n+1}) ).
+                                        bounds(0,1).value(0);
+  auto u = model.add( coek::variable("u", m+1) ).
+                                        bounds(-1,1).value(0);
   
   // OBJECTIVE  
   // First term
-  coek::Expression term1;
+  auto term1 = coek::expression();
     term1 +=   ( y(m,0) - yt(0,dx) ) * ( y(m,0) - yt(0,dx) );
   for (size_t j = 1; j <= n-1; j++) {
     term1 += 2*( y(m,j) - yt(j,dx) ) * ( y(m,j) - yt(j,dx) );
@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
     term1 +=   ( y(m,n) - yt(n,dx) ) * ( y(m,n) - yt(n,dx) );
 
   // Second term
-  coek::Expression term2;
+  auto term2 = coek::expression();
   for (size_t i = 1; i <= m-1; i++)
     term2 += 2*u(i)*u(i);
   term2 += u(m)*u(m);

@@ -56,13 +56,16 @@ public:
 
     bool operator<(const IndexVector& other) const
         {
+        if (len == 1)
+            return data[0] < other.data[0];
+
         for (size_t i=0; i<len; i++) {
             if (data[i] < other.data[i])
                 return true;
             else if (data[i] > other.data[i])
                 return false;
             }
-        return true;
+        return false;
         }
 
     bool operator==(const IndexVector& other) const

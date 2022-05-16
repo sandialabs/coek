@@ -58,6 +58,7 @@ class IndexedComponentRepn_setindex : public IndexedComponentRepn<TYPE>
 public:
 
     ConcreteSet concrete_set;
+    std::vector<int> tmp;
 
 public:
 
@@ -66,12 +67,18 @@ public:
           concrete_set(_arg)
         {
         this->cache.resize((this->dim()+1) * (_arg.size()+1));
+        this->tmp.resize(this->dim());
         }
 
     bool valid_index(const IndexVector& args)
         {
+        /*
         auto it = this->value.find(args);
         return !(it == this->value.end());
+        */
+        for (size_t i=0; i<tmp.size(); i++)
+            tmp[i] = args[i];
+        return this->concrete_set.contains(tmp);
         }
 };
 #endif
@@ -132,7 +139,7 @@ TYPE& IndexedComponent_Map<TYPE>::index(const IndexVector& args)
 assert(this->dim() == args.size());
 
 if (!(this->repn->valid_index(this->tmp))) {
-    std::string err = "Bad index value: "+this->repn->_name+"(";
+    std::string err = "Unexpected index value: "+this->repn->_name+"(";
     for (size_t i=0; i<args.size(); i++) {
         if (i > 0)
             err += ",";
@@ -142,7 +149,7 @@ if (!(this->repn->valid_index(this->tmp))) {
     throw std::runtime_error(err); 
     }
 
-auto curr = this->repn->value.find(this->tmp);
+auto curr = this->repn->value.find(args);
 if (curr == this->repn->value.end()) {
     auto _args = this->repn->cache.clone(args);
     TYPE tmp;

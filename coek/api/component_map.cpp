@@ -8,11 +8,10 @@ namespace coek {
 template class IndexedComponent_Map<Constraint>;
 
 
-ConstraintMap& Model::add_constraint(ConstraintMap& cons)
+void Model::add_constraint(ConstraintMap& cons)
 {
 for (auto& con: cons.repn->value)
     add_constraint(con.second);
-return cons;
 }
 
 }

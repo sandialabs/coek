@@ -253,11 +253,11 @@ public:
 /// -------------------------------------------------------------
 
 template <typename ITTYPE>
-inline void set_index_value(IndexParameter& index, const ITTYPE& val)
+inline void set_element_value(IndexParameter& index, const ITTYPE& val)
 { index.value(val); }
 
 template <>
-inline void set_index_value(IndexParameter& index, const set_types& val)
+inline void set_element_value(IndexParameter& index, const set_types& val)
 {
 index.value(val);
 #if 0
@@ -285,7 +285,7 @@ public:
     FiniteSetIteratorRepn(const typename std::vector<TYPE>::iterator& _iterator, const typename std::vector<TYPE>::iterator& _end_iterator, const IndexParameter& _index)
         : index(_index), iterator(_iterator), end_iterator(_end_iterator)
         {
-        set_index_value(index, *iterator);
+        set_element_value(index, *iterator);
         }
 
     FiniteSetIteratorRepn(const typename std::vector<TYPE>::iterator& _iterator, const typename std::vector<TYPE>::iterator& _end_iterator)
@@ -296,7 +296,7 @@ public:
         {
         iterator++;
         if (iterator != end_iterator)
-            set_index_value(index, *iterator);
+            set_element_value(index, *iterator);
         }
 
     bool equals(const SetIteratorRepnBase<TYPE>* repn) const
@@ -335,14 +335,14 @@ public:
         : index(_index), iterator(_iterator), end(_end)
         {
         vec.resize(1);
-        set_index_value(index, *iterator);
+        set_element_value(index, *iterator);
         }
 
     FiniteNDSetIteratorRepn(const typename std::vector<TYPE>::iterator& _iterator, const typename std::vector<TYPE>::iterator& _end)
         : iterator(_iterator), end(_end)
         {
         vec.resize(1);
-        set_index_value(index, *iterator);
+        set_element_value(index, *iterator);
         }
 
     FiniteNDSetIteratorRepn(const typename std::vector<TYPE>::iterator& _iterator)
@@ -355,7 +355,7 @@ public:
         {
         iterator++;
         if (iterator != end)
-            set_index_value(index, *iterator);
+            set_element_value(index, *iterator);
         }
 
     bool equals(const SetIteratorRepnBase<std::vector<set_types>>* repn) const

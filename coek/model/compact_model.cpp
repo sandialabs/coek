@@ -55,6 +55,13 @@ repn->variable_names.push_back("");
 return var;
 }
 
+Variable& CompactModel::add_variable(Variable&& var)
+{
+repn->variables.push_back(var);
+repn->variable_names.push_back("");
+return var;
+}
+
 void CompactModel::add_variable(PythonVariableArray& varray)
 {
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
@@ -73,7 +80,27 @@ for (auto it=vars.begin(); it != end; ++it) {
 return vars;
 }
 
+VariableMap& CompactModel::add_variable(VariableMap&& vars)
+{
+auto end = vars.end();
+for (auto it=vars.begin(); it != end; ++it) {
+    repn->variables.push_back(*it);
+    repn->variable_names.push_back("");
+    }
+return vars;
+}
+
 VariableArray& CompactModel::add_variable(VariableArray& vars)
+{
+auto end = vars.end();
+for (auto it=vars.begin(); it != end; ++it) {
+    repn->variables.push_back(*it);
+    repn->variable_names.push_back("");
+    }
+return vars;
+}
+
+VariableArray& CompactModel::add_variable(VariableArray&& vars)
 {
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
@@ -97,6 +124,18 @@ repn->objectives.push_back( obj );
 return obj;
 }
 
+Objective& CompactModel::add(Objective& obj)
+{
+repn->objectives.push_back( obj );
+return obj;
+}
+
+Objective& CompactModel::add(Objective&& obj)
+{
+repn->objectives.push_back( obj );
+return obj;
+}
+
 Constraint CompactModel::add_constraint(const Constraint& expr)
 {
 repn->constraints.push_back(expr);
@@ -115,13 +154,16 @@ ConstraintSequence seq(context, expr);
 repn->constraints.push_back(seq);
 }
 
-void CompactModel::add_constraint(const std::string& /*name*/, const Constraint& expr, const SequenceContext& context)
+void CompactModel::add_constraint(const std::string& name, const Constraint& expr, const SequenceContext& context)
 {
-ConstraintSequence seq(context, expr);
+ConstraintSequence seq(name, context, expr);
 repn->constraints.push_back(seq);
 }
 
 void CompactModel::add(ConstraintSequence& seq)
+{ repn->constraints.push_back(seq); }
+
+void CompactModel::add(ConstraintSequence&& seq)
 { repn->constraints.push_back(seq); }
 
 

@@ -49,8 +49,8 @@ VariableAssocArrayRepn::setup();
 
 auto name = variable_template.name();
 for (size_t i=0; i<size(); i++) {
-    std::string _name = name+std::to_string(i);
-    names.push_back(_name + ")");
+    std::string _name = name+"("+std::to_string(i)+")";
+    names.push_back(_name);
     }
 }
 
@@ -211,5 +211,16 @@ for (auto& var: vars.repn->values)
     add_variable(var);
 return vars;
 }
+
+/* WEH - needed?
+VariableArray& Model::add_variable(VariableArray&& vars)
+{
+if (vars.repn->call_setup)
+    vars.repn->setup();
+for (auto& var: vars.repn->values)
+    add_variable(var);
+return vars;
+}
+*/
 
 }

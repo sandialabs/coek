@@ -12,52 +12,70 @@
 const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
+void xyz() {}
 
-TEST_CASE( "model_objective", "[smoke]" ) {
+TEST_CASE( "model_add", "[smoke]" ) {
 {
 coek::Model model;
 
-SECTION("id") {
-    auto v = model.add_variable("v");
-    auto o = model.add_objective(2*v);
-    REQUIRE(o.id() > 0);
+SECTION("variables") {
+    WHEN("elementary") {
+        auto w = model.add( coek::variable() );
+        auto x = model.add( coek::variable().value(1) );
+        auto y = model.add( coek::variable() ).value(1);
+        }
+
+    WHEN("array") {
+        auto w = model.add( coek::variable(3) );
+        auto x = model.add( coek::variable(3).value(1) );
+        auto y = model.add( coek::variable(3) ).value(1);
+        }
+
+    WHEN("multi-dimensional array") {
+        auto w = model.add( coek::variable({3,3}) );
+        auto x = model.add( coek::variable({3,3}).value(1) );
+        auto y = model.add( coek::variable({3,3}) ).value(1);
+        }
     }
 
-SECTION("name") {
-    auto v = model.add_variable("v");
-    auto o = model.add_objective(2*v);
-    o.name("foo");
+SECTION("constraints") {
+    WHEN("elementary") {
+        auto v = coek::variable();
+        auto c1 = coek::constraint( v == 0 );
+        model.add( c1 );
+        }
 
-    REQUIRE(o.name() == "foo");
-    }
+    WHEN("array") {
+        auto v = coek::variable();
+        auto c1 = coek::constraint(10);
+        c1(0) = v == 0;
+        model.add( c1 );
+        }
 
-SECTION("body") {
-    auto v = model.add_variable("v");
-    auto o = model.add_objective(2*v);
+    WHEN("multi-dimensional array") {
+        auto v = coek::variable();
+        auto c1 = coek::constraint({10,10});
+        c1(0,0) = v == 0;
+        model.add( c1 );
+        }
 
-    static std::list<std::string> baseline1 = {"[", "*", "2", "v", "]"};
-    REQUIRE( o.expr().to_list() == baseline1 );
-
-    o.expr( 3*v );
-    static std::list<std::string> baseline2 = {"[", "*", "3", "v", "]"};
-    REQUIRE( o.expr().to_list() == baseline2 );
-    }
-
-SECTION("sense") {
-    auto v = model.add_variable("v");
-    auto o = model.add_objective(2*v);
-
-    REQUIRE(o.sense() == model.minimize);
-
-    o.sense(model.maximize);
-    REQUIRE(o.sense() == model.maximize);
+    #ifdef COEK_WITH_COMPACT_MODEL
+    WHEN("map") {
+        auto v = coek::variable();
+        auto A = coek::RangeSet(0,2) * coek::RangeSet(0,2);
+        auto c1 = coek::constraint(A);
+        c1(0,0);
+        // = v == 0;
+        model.add( c1 );
+        }
+    #endif
     }
 }
-
 #ifdef DEBUG
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
+
 
 TEST_CASE( "model_setup", "[smoke]" ) {
 {
@@ -129,14 +147,14 @@ auto d = model.add_variable("d").lower(0).upper(1).value(4*q).within(coek::Boole
   SECTION( "constraints" ) {
 
     WHEN( "inequality" ) {
-        coek::Constraint c = 3*b + q <= 0;
+        auto c = 3*b + q <= 0;
         REQUIRE( model.num_constraints() == 0 );
         model.add_constraint(c);
         REQUIRE( model.num_constraints() == 1 );
         }
 
     WHEN( "equality" ) {
-        coek::Constraint c = 3*b + q == 0;
+        auto c = 3*b + q == 0;
         REQUIRE( model.num_constraints() == 0 );
         model.add_constraint(c);
         REQUIRE( model.num_constraints() == 1 );
@@ -206,7 +224,7 @@ TEST_CASE( "compact_model", "[smoke]" ) {
 #if 0
     SECTION("add_variable") {
         auto I = coek::RangeSet(0,3);
-        auto i = coek::set_index("i");
+        auto i = coek::set_element("i");
         coek::CompactModel Model;
         //Model.add_variable( Forall(i).In(I) ).lower(i+1).upper(2*i).value(3*i+2);
         auto x = coek::variable( Forall(i).In(I) ).lower(i+1).upper(2*i).value(3*i+2);
@@ -234,7 +252,7 @@ TEST_CASE( "compact_model", "[smoke]" ) {
 
     SECTION("add_objective") {
         auto I = coek::RangeSet(0,3);
-        auto i = coek::set_index("i");
+        auto i = coek::set_element("i");
         coek::CompactModel Model;
         auto x = Model.add_variable("x");
 #if 0
@@ -265,7 +283,7 @@ TEST_CASE( "compact_model", "[smoke]" ) {
 
     SECTION("add_constraint") {
         auto I = coek::RangeSet(0,3);
-        auto i = coek::set_index("i");
+        auto i = coek::set_element("i");
         coek::CompactModel Model;
         auto x = Model.add_variable("x");
         Model.add_constraint(i*x == 0, Forall(i).In(I));

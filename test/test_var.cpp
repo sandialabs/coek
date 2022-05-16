@@ -14,7 +14,7 @@ const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
 
-TEST_CASE( "model_variable", "[smoke]" ) {
+TEST_CASE( "elementary_variable", "[smoke]" ) {
 
   SECTION( "constructors" ) {
     WHEN( "simple" ) {
@@ -22,8 +22,7 @@ TEST_CASE( "model_variable", "[smoke]" ) {
         REQUIRE( a.value() == 2 );
         REQUIRE( a.lower() == 0 );
         REQUIRE( a.upper() == 1 );
-        // Keep this test?  The integer index depends on whether this test is run first.
-        REQUIRE( a.name() == "x(0)" );
+        REQUIRE( a.name()[0] == 'x' );
     }
 
     WHEN( "named" ) {
@@ -36,26 +35,43 @@ TEST_CASE( "model_variable", "[smoke]" ) {
 
     WHEN( "simple_with_expr_values" ) {
         auto p = coek::parameter();
-        auto a = coek::variable().lower(p).upper(p+1).value(p+2);
+        auto a = coek::variable().lower(p).upper(p+1).value(sin(p)+2);
         REQUIRE( a.value() == 2 );
         REQUIRE( a.lower() == 0 );
         REQUIRE( a.upper() == 1 );
         p.value(1);
-        REQUIRE( a.value() == 3 );
+        REQUIRE( a.value() == Approx(2.84147098) );
         REQUIRE( a.lower() == 1 );
         REQUIRE( a.upper() == 2 );
     }
 
     WHEN( "named_with_expr_values" ) {
         auto p = coek::parameter();
-        auto a = coek::variable("test").lower(p).upper(p+1).value(p+2);
+        auto a = coek::variable("test").lower(p).upper(p+1).value(sin(p)+2);
         REQUIRE( a.value() == 2 );
         REQUIRE( a.lower() == 0 );
         REQUIRE( a.upper() == 1 );
         p.value(1);
-        REQUIRE( a.value() == 3 );
+        REQUIRE( a.value() == Approx(2.84147098) );
         REQUIRE( a.lower() == 1 );
         REQUIRE( a.upper() == 2 );
+    }
+
+    WHEN( "get_expr_values" ) {
+        auto p = coek::parameter();
+        auto a = coek::variable("test").lower(p).upper(p+1).value(sin(p)+2);
+        auto lower = a.lower_expression();
+        auto upper = a.upper_expression();
+        auto value = a.value_expression();
+
+        REQUIRE( value.value() == 2 );
+        REQUIRE( lower.value() == 0 );
+        REQUIRE( upper.value() == 1 );
+
+        p.value(1);
+        REQUIRE( value.value() == Approx(2.84147098) );
+        REQUIRE( lower.value() == 1 );
+        REQUIRE( upper.value() == 2 );
     }
 
     WHEN( "copy" ) {
@@ -95,40 +111,18 @@ TEST_CASE( "model_variable", "[smoke]" ) {
         a.value(3);
         REQUIRE( a.value() == 3 );
       }
-
-/*
-      WHEN( "variable array - 3" ) {
-        void* a[2];
-        create_variable_array(0, a, 2, false, false, 0.0, 1.0, 0.0, "a");
-        variable_value(a[0], 3);
-
-        REQUIRE( variable_value(a[0]) == 3 );
-        REQUIRE( variable_value(a[1]) == 0 );
-      }
-
-      WHEN( "variable array (2) - 3" ) {
-        apival_t model = create_model();
-
-        void* a[2];
-        create_variable_array(model, a, 2, false, false, 0.0, 1.0, 0.0, "a");
-        variable_value(a[0], 3);
-
-        REQUIRE( variable_value(a[0]) == 3 );
-        REQUIRE( variable_value(a[1]) == 0 );
-      }
-*/
   }
 
   SECTION( "bounds" ) {
       WHEN( "lb" ) {
-        auto a = coek::variable("a").lower(0).upper(1).value(0);
+        auto a = coek::variable("a").bounds(0,1).value(0);
         REQUIRE( a.lower() == 0.0 );
         a.lower(3.0);
         REQUIRE( a.lower() == 3.0 );
       }
 
       WHEN( "ub" ) {
-        auto a = coek::variable("a").lower(0).upper(1).value(0);
+        auto a = coek::variable("a").bounds(0,1).value(0);
         REQUIRE( a.upper() == 1.0 );
         a.upper(3.0);
         REQUIRE( a.upper() == 3.0 );
@@ -166,7 +160,7 @@ TEST_CASE( "model_variable", "[smoke]" ) {
         REQUIRE( a.within() == coek::Binary );
         a.within(coek::Integers);
         REQUIRE( a.within() == coek::Integers );
-  
+    }
     WHEN( "fixed" ) {
         auto a = coek::variable("a").lower(0).upper(10).value(5).within(coek::Integers);;
         REQUIRE( a.fixed() == false );
@@ -229,25 +223,12 @@ TEST_CASE( "1D_var_map", "[smoke]" ) {
         REQUIRE( typeid(vars(1)).name() == typeid(coek::Variable).name() );
       }
 
-      WHEN( "index" ) {
+    WHEN( "value" ) {
         auto s = coek::SetOf( v );
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
-
-        std::vector<int> vals(4);
-        size_t ii=0;
-        for (auto it=s.begin({i}); it != s.end(); ++it) {
-            i.get_value(vals[ii++]);
-            }
-        REQUIRE( v == vals );
+        auto vars = coek::variable( s ).value(1);
+        REQUIRE( vars(5).value() == 1 );
         }
 
-      WHEN( "index_error" ) {
-        auto s = coek::SetOf( v );
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
-        CHECK_THROWS( s.begin({i,j}) );
-        }
   }
 
   SECTION( "int_ranged" ) {
@@ -263,23 +244,6 @@ TEST_CASE( "1D_var_map", "[smoke]" ) {
         auto vars = coek::variable( s );
         REQUIRE( typeid(vars(1)).name() == typeid(coek::Variable).name() );
       }
-
-      WHEN( "index" ) {
-        auto vars = coek::variable( s ).value(1);
-        std::vector<int> vals(4);
-
-        auto i = coek::set_index("i");
-        size_t ii=0;
-        for (auto it=s.begin({i}); it != s.end(); ++it)
-            i.get_value(vals[ii++]);
-        REQUIRE( v == vals );
-        }
-
-      WHEN( "index_error" ) {
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
-        CHECK_THROWS( s.begin({i,j}) );
-        }
   }
 
   SECTION( "abstract" ) {
@@ -293,15 +257,8 @@ TEST_CASE( "1D_var_map", "[smoke]" ) {
         REQUIRE( typeid(vars(1)).name() == typeid(coek::Variable).name() );
       }
 
-      WHEN( "index" ) {
-        auto s = coek::SetOf( v );
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
-        CHECK_THROWS( s.begin({i,j}) );
-        }
-
       WHEN( "index1" ) {
-        auto i = coek::set_index("i");
+        auto i = coek::set_element("i");
         REQUIRE( typeid(vars(1)).name() == typeid(coek::Variable).name() );
         REQUIRE( typeid(vars(i)).name() == typeid(coek::Expression).name() );
       }
@@ -310,21 +267,20 @@ TEST_CASE( "1D_var_map", "[smoke]" ) {
         auto v = coek::variable();
         coek::Expression f = v;
         auto e = vars(1);
-        //static std::list<std::string> baseline = {"vars(1)"};
         REQUIRE( e.name() == "vars(1)");
         //auto it = e.to_list().begin();
         //REQUIRE_THAT( *it, Catch::Matchers::StartsWith("vars") );
       }
 
       WHEN( "index3" ) {
-        auto i = coek::set_index("i");
+        auto i = coek::set_element("i");
         auto e = vars(i);
         static std::list<std::string> baseline = {"vars(i)"};
         REQUIRE( e.to_list() == baseline);
       }
 
       WHEN( "index4" ) {
-        auto i = coek::set_index("i");
+        auto i = coek::set_element("i");
         auto e = vars(i+1);
         static std::list<std::string> baseline = {"vars(i + 1)"};
         REQUIRE( e.to_list() == baseline);
@@ -455,38 +411,6 @@ TEST_CASE( "2D_var_map", "[smoke]" ) {
         REQUIRE( typeid(vars(1,2)).name() == typeid(coek::Variable).name() );
       }
 
-      WHEN( "index" ) {
-        auto V = coek::SetOf( v );
-        auto W = coek::SetOf( w );
-        auto S = V*W;
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
-
-        std::set<int> ivals;
-        std::set<int> jvals;
-        for (auto it=S.begin({i,j}); it != S.end(); ++it) {
-            int tmp;
-            i.get_value(tmp);
-            ivals.insert(tmp);
-            j.get_value(tmp);
-            jvals.insert(tmp);
-            }
-
-        std::set<int> vset(v.begin(), v.end());
-        std::set<int> wset(w.begin(), w.end());
-        REQUIRE( vset == ivals );
-        REQUIRE( wset == jvals );
-        }
-
-      WHEN( "set_index_error" ) {
-        auto V = coek::SetOf( v );
-        auto W = coek::SetOf( w );
-        auto S = V*W;
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
-        CHECK_THROWS( S.begin({i}) );
-        }
-
       WHEN( "var_index_error" ) {
         auto V = coek::SetOf( v );
         auto W = coek::SetOf( w );
@@ -510,19 +434,9 @@ TEST_CASE( "2D_var_map", "[smoke]" ) {
         REQUIRE( typeid(vars(1,2)).name() == typeid(coek::Variable).name() );
       }
 
-      WHEN( "index" ) {
-        auto V = coek::SetOf( v );
-        auto W = coek::SetOf( w );
-        auto S = V*W;
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
-        CHECK_THROWS( S.begin({i}) );
-        S.begin({i,j});
-        }
-
       WHEN( "index1" ) {
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
+        auto i = coek::set_element("i");
+        auto j = coek::set_element("j");
         REQUIRE( typeid(vars(1,2)).name() == typeid(coek::Variable).name() );
         REQUIRE( typeid(vars(10,11)).name() == typeid(coek::Variable).name() );
         REQUIRE( typeid(vars(i,j)).name() == typeid(coek::Expression).name() );
@@ -536,16 +450,16 @@ TEST_CASE( "2D_var_map", "[smoke]" ) {
       }
 
       WHEN( "index3" ) {
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
+        auto i = coek::set_element("i");
+        auto j = coek::set_element("j");
         auto e = vars(i,j);
         static std::list<std::string> baseline = {"vars(i,j)"};
         REQUIRE( e.to_list() == baseline);
       }
 
       WHEN( "index4" ) {
-        auto i = coek::set_index("i");
-        auto j = coek::set_index("j");
+        auto i = coek::set_element("i");
+        auto j = coek::set_element("j");
         auto e = vars(i+1,j-1);
         static std::list<std::string> baseline = {"vars(i + 1,j + -1)"};
         REQUIRE( e.to_list() == baseline);

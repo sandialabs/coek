@@ -66,6 +66,25 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
             i++;
             }
         }
+
+      WHEN( "index" ) {
+        auto s = coek::SetOf( v );
+        auto i = coek::set_element("i");
+
+        std::vector<int> vals(4);
+        size_t ii=0;
+        for (auto it=s.begin({i}); it != s.end(); ++it) {
+            i.get_value(vals[ii++]);
+            }
+        REQUIRE( v == vals );
+        }
+
+      WHEN( "index_error" ) {
+        auto s = coek::SetOf( v );
+        auto i = coek::set_element("i");
+        auto j = coek::set_element("j");
+        CHECK_THROWS( s.begin({i,j}) );
+        }
   }
 
 #if 0
@@ -223,6 +242,26 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
         for (auto it=v.begin(); it != v.end(); ++it)
             REQUIRE( s.contains(*it) == true );
         }
+
+      WHEN( "index" ) {
+        auto s = coek::SetOf( v );
+        auto i = coek::set_element("i");
+
+        std::set<int> vals;
+        for (auto it=s.begin({i}); it != s.end(); ++it) {
+            int val;
+            i.get_value(val);
+            vals.insert(val);
+            }
+        REQUIRE( v == vals );
+        }
+
+      WHEN( "index_error" ) {
+        auto s = coek::SetOf( v );
+        auto i = coek::set_element("i");
+        auto j = coek::set_element("j");
+        CHECK_THROWS( s.begin({i,j}) );
+        }
   }
 
 #if 0
@@ -354,6 +393,23 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
             REQUIRE( static_cast<int>(2*i) == (*it)[0] );
             i++;
             }
+        }
+
+      WHEN( "index" ) {
+        std::vector<int> vals(6);
+
+        auto i = coek::set_element("i");
+        size_t ii=0;
+        for (auto it=s.begin({i}); it != s.end(); ++it)
+            i.get_value(vals[ii++]);
+        std::vector<int> v = {0,2,4,6,8,10};
+        REQUIRE( v == vals );
+        }
+
+      WHEN( "index_error" ) {
+        auto i = coek::set_element("i");
+        auto j = coek::set_element("j");
+        CHECK_THROWS( s.begin({i,j}) );
         }
   }
 
@@ -1252,6 +1308,34 @@ TEST_CASE( "product_finite", "[smoke]" ) {
                 }
             }
         }
+
+      WHEN( "index" ) {
+          auto s = s1*s2;
+          auto i = coek::set_element("i");
+          auto j = coek::set_element("j");
+  
+          std::set<int> ivals;
+          std::set<int> jvals;
+          for (auto it=s.begin({i,j}); it != s.end(); ++it) {
+              int tmp;
+              i.get_value(tmp);
+              ivals.insert(tmp);
+              j.get_value(tmp);
+              jvals.insert(tmp);
+              }
+  
+          std::set<int> vset({1,2,3});
+          std::set<int> wset({4,5,6,7});
+          REQUIRE( vset == ivals );
+          REQUIRE( wset == jvals );
+          }
+  
+        WHEN( "set_element_error" ) {
+          auto s = s1*s2;
+          auto i = coek::set_element("i");
+          auto j = coek::set_element("j");
+          CHECK_THROWS( s.begin({i}) );
+          }
     }
 
 #if 0

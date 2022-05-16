@@ -234,8 +234,8 @@ public:
 };
 
 
-IndexParameter set_index();
-IndexParameter set_index(const std::string& name);
+IndexParameter set_element();
+IndexParameter set_element(const std::string& name);
 
 
 enum VariableTypes : unsigned int { Reals=0, Integers=1, Boolean=2, Binary=3 };
