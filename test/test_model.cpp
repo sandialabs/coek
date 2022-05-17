@@ -14,9 +14,13 @@ const double E = exp(1.0);
 
 void xyz() {}
 
-TEST_CASE( "model_add", "[smoke]" ) {
+#ifdef COEK_WITH_COMPACT_MODEL
+TEMPLATE_TEST_CASE( "model_add", "[smoke]", coek::Model, coek::CompactModel ) {
+#else
+TEMPLATE_TEST_CASE( "model_add", "[smoke]", coek::Model) {
+#endif
 {
-coek::Model model;
+TestType model;
 
 SECTION("variables") {
     WHEN("elementary") {
@@ -29,13 +33,31 @@ SECTION("variables") {
         auto w = model.add( coek::variable(3) );
         auto x = model.add( coek::variable(3).value(1) );
         auto y = model.add( coek::variable(3) ).value(1);
+        REQUIRE( w.size() == 3 );
+        REQUIRE( x.size() == 3 );
+        REQUIRE( y.size() == 3 );
         }
 
     WHEN("multi-dimensional array") {
         auto w = model.add( coek::variable({3,3}) );
         auto x = model.add( coek::variable({3,3}).value(1) );
         auto y = model.add( coek::variable({3,3}) ).value(1);
+        REQUIRE( w.size() == 9 );
+        REQUIRE( x.size() == 9 );
+        REQUIRE( y.size() == 9 );
         }
+
+    #ifdef COEK_WITH_COMPACT_MODEL
+    WHEN("map") {
+        auto A = coek::RangeSet(0,2) * coek::RangeSet(0,2);
+        auto w = model.add( coek::variable(A) );
+        auto x = model.add( coek::variable(A).value(1) );
+        auto y = model.add( coek::variable(A) ).value(1);
+        REQUIRE( w.size() == 9 );
+        REQUIRE( x.size() == 9 );
+        REQUIRE( y.size() == 9 );
+        }
+    #endif
     }
 
 SECTION("constraints") {
@@ -50,6 +72,7 @@ SECTION("constraints") {
         auto c1 = coek::constraint(10);
         c1(0) = v == 0;
         model.add( c1 );
+        REQUIRE( c1.size() == 1 );
         }
 
     WHEN("multi-dimensional array") {
@@ -57,6 +80,7 @@ SECTION("constraints") {
         auto c1 = coek::constraint({10,10});
         c1(0,0) = v == 0;
         model.add( c1 );
+        REQUIRE( c1.size() == 1 );
         }
 
     #ifdef COEK_WITH_COMPACT_MODEL
@@ -64,11 +88,30 @@ SECTION("constraints") {
         auto v = coek::variable();
         auto A = coek::RangeSet(0,2) * coek::RangeSet(0,2);
         auto c1 = coek::constraint(A);
-        c1(0,0);
-        // = v == 0;
+        c1(0,0) = v == 0;
         model.add( c1 );
+        REQUIRE( c1.size() == 1 );
         }
     #endif
+    }
+}
+#ifdef DEBUG
+REQUIRE( coek::env.check_memory() == true );
+#endif
+}
+
+
+TEST_CASE( "compact_model_add", "[smoke]") {
+{
+coek::CompactModel model;
+
+SECTION("simple") {
+    auto I = coek::RangeSet(0,3);
+    auto i = coek::set_element("i");
+    auto x = model.add( coek::variable() );
+    model.add( coek::constraint(i*x == 0, Forall(i).In(I)) );
+    auto M = model.expand();
+    REQUIRE( M.num_constraints() == 4 );
     }
 }
 #ifdef DEBUG
@@ -284,10 +327,10 @@ TEST_CASE( "compact_model", "[smoke]" ) {
     SECTION("add_constraint") {
         auto I = coek::RangeSet(0,3);
         auto i = coek::set_element("i");
-        coek::CompactModel Model;
-        auto x = Model.add_variable("x");
-        Model.add_constraint(i*x == 0, Forall(i).In(I));
-        auto model = Model.expand();
+        coek::CompactModel M;
+        auto x = M.add_variable("x");
+        M.add_constraint(i*x == 0, Forall(i).In(I));
+        auto model = M.expand();
 
         REQUIRE( model.num_constraints() == 4 );
         {

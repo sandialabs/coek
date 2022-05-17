@@ -1342,9 +1342,10 @@ REQUIRE( coek::env.check_memory() == true );
 }
 
 
-TEST_CASE( "constraint array", "[smoke]" ) {
+
+TEMPLATE_TEST_CASE( "indexed_constraint", "[smoke]", coek::Model, coek::CompactModel ) {
 {
-coek::Model m;
+TestType m;
 
 SECTION("simple array") {
     WHEN("constructor") {
@@ -1402,7 +1403,7 @@ SECTION("simple array") {
         }
 
     /*
-    WEH - Should we allow this?
+    TODO - Should we allow this?
 
     WHEN("operator () - expression") {
         auto p = coek::parameter();
@@ -1483,6 +1484,65 @@ SECTION("multi-dimensional array") {
 
     WHEN("operator() - error2") {
         auto c = coek::constraint({10,10});
+        REQUIRE_THROWS_WITH(c(-1,-1), "Unexpected index value: (-1,-1)");
+        }
+    }
+
+SECTION("map") {
+    WHEN("constructor") {
+        auto A = coek::RangeSet(0,9) * coek::RangeSet(0,9);
+        auto c = coek::constraint(A);
+        REQUIRE( c.dim() == 2 );
+        }
+
+    WHEN("name") {
+        auto A = coek::RangeSet(0,9) * coek::RangeSet(0,9);
+        auto c = coek::constraint("c", A);
+        REQUIRE( c.name() == "c"); 
+        }
+
+    WHEN("size") {
+        auto A = coek::RangeSet(0,9) * coek::RangeSet(0,9);
+        auto v = coek::variable();
+        auto c = coek::constraint(A);
+        REQUIRE( c.size() == 0 );
+        c(0,0) = v == 0;
+        REQUIRE( c.size() == 1 );
+        }
+
+    WHEN("operator () - size_t") {
+        auto A = coek::RangeSet(0,9) * coek::RangeSet(0,9);
+        auto v = coek::variable(A);
+        auto c = coek::constraint(A);
+        for (size_t i=0; i<10; ++i) {
+            auto tmp = v(i,i) == 1.0*i;
+            c(i,i) = tmp;
+            }
+        REQUIRE( c.size() == 10 );
+        m.add(c);        
+        }
+
+    WHEN("operator () - int") {
+        auto A = coek::RangeSet(0,9) * coek::RangeSet(0,9) * coek::RangeSet(0,9);
+        auto v = coek::variable(A);
+        auto c = coek::constraint(A);
+        for (int i=0; i<10; ++i) {
+            auto tmp = v(i,i,i) == 1.0*i;
+            c(i,i,i) = tmp;
+            }
+        REQUIRE( c.size() == 10 );
+        m.add(c);        
+        }
+
+    WHEN("operator() - error1") {
+        auto A = coek::RangeSet(0,9) * coek::RangeSet(0,9);
+        auto c = coek::constraint(A);
+        REQUIRE_THROWS_WITH(c(0), "Unexpected index value:  is an 2-D variable map but is being indexed with 1 indices.");
+        }
+
+    WHEN("operator() - error2") {
+        auto A = coek::RangeSet(0,9) * coek::RangeSet(0,9);
+        auto c = coek::constraint(A);
         REQUIRE_THROWS_WITH(c(-1,-1), "Unexpected index value: (-1,-1)");
         }
     }

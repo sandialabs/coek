@@ -171,6 +171,9 @@ public:
     Objective& add(Objective& obj);
     Objective& add(Objective&& obj);
 
+    //
+    // Constraint
+    //
     /**
       * Add a constraint to the model.
       *
@@ -188,6 +191,14 @@ public:
       * \returns the constraint
       */
     Constraint add_constraint(const std::string& name, const Constraint& expr);
+
+    Constraint& add(Constraint& expr);
+    Constraint& add(Constraint&& expr);
+#if __cpp_lib_variant
+    void add_constraint(ConstraintMap& expr);
+    void add(ConstraintMap& expr);
+#endif
+
     /**
       * Add constraints to the model.
       *

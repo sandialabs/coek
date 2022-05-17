@@ -223,6 +223,7 @@ for (auto& var: vars.repn->values)
 return vars;
 }
 
+/*
 VariableMap& Model::add_variable(VariableMap&& vars)
 {
 if (vars.repn->call_setup)
@@ -231,5 +232,6 @@ for (auto& var: vars.repn->values)
     add_variable(var);
 return vars;
 }
+*/
 
 }

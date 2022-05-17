@@ -107,7 +107,7 @@ public:
 #endif
 #ifdef COEK_WITH_COMPACT_MODEL
     VariableMap& add_variable(VariableMap& var);
-    VariableMap& add_variable(VariableMap&& var);
+    //VariableMap& add_variable(VariableMap&& var);
     VariableMap& add(VariableMap& var);
     VariableMap& add(VariableMap&& var);
 #endif
