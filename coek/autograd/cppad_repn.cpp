@@ -573,9 +573,9 @@ void CppAD_Repn::reset(void)
 // Initialize the CppAD dynamic parameters
 //
 for (auto it=fixed_variables.begin(); it != fixed_variables.end(); ++it)
-    dynamic_param_vals[it->second] = it->first->value->eval();
+    dynamic_param_vals[it->second] = it->first->eval();
 for (auto it=parameters.begin(); it != parameters.end(); ++it)
-    dynamic_param_vals[it->second] = it->first->value;
+    dynamic_param_vals[it->second] = it->first->eval();
 ADfc.new_dynamic( dynamic_param_vals );
 
 //

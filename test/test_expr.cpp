@@ -2849,8 +2849,10 @@ auto p = coek::parameter("p");
   SECTION( "Test pow" ) {
     {
     coek::Expression constant0(0);
+    auto p = coek::parameter("p");
     coek::Expression e = pow(constant0,p);
     p.value(1);
+    REQUIRE( p.value() == Approx(1.0) );
     REQUIRE( e.value() == Approx(0.0) );
     }
     {

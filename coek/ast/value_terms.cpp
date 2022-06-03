@@ -4,28 +4,51 @@
 
 namespace coek {
 
-#if 0
-//
-// ConstantTerm
-//
-
-expr_pointer_t ConstantTerm::negate(const expr_pointer_t& repn)
-{
-// SHARED_PTR
-//return std::static_pointer_cast<BaseExpressionTerm>( std::make_shared<ConstantTerm>(-1*value) );
-return CREATE_POINTER(ConstantTerm, -1*value);
-}
-#endif
-
 //
 // ParameterTerm
 //
+
+ParameterTerm::ParameterTerm()
+    : indexed(false)
+{
+non_variable=true;
+OWN_POINTER( value = CREATE_POINTER(ConstantTerm, 0.0) );
+}
+
+ParameterTerm::ParameterTerm(const expr_pointer_t& _value, bool _indexed)
+    : value(_value),
+      indexed(_indexed)
+{
+non_variable=true;
+if (_value)
+    OWN_POINTER(_value);
+}
+
+ParameterTerm::~ParameterTerm()
+{
+if (value)
+    DISOWN_POINTER(value);
+}
 
 expr_pointer_t ParameterTerm::negate(const expr_pointer_t& repn)
 {
 // SHARED_PTR
 //return std::static_pointer_cast<BaseExpressionTerm>( std::make_shared<NegateTerm>(repn) );
 return CREATE_POINTER(NegateTerm, repn);
+}
+
+void ParameterTerm::set_value(double val)
+{
+if (value)
+    DISOWN_POINTER(value);
+OWN_POINTER( value = CREATE_POINTER(ConstantTerm, val) );
+}
+
+void ParameterTerm::set_value(const expr_pointer_t val)
+{
+if (value)
+    DISOWN_POINTER(value);
+OWN_POINTER( value = val );
 }
 
 //
@@ -92,19 +115,6 @@ return true;
 
 unsigned int VariableTerm::count = 0;
 
-/*
-VariableTerm::VariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _indexed)
-    : value(_value),
-      lb(_lb),
-      ub(_ub),
-      binary(_binary),
-      integer(_integer),
-      fixed(false),
-      indexed(_indexed)
-{
-index = count++;
-}
-*/
 VariableTerm::VariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub, const expr_pointer_t& _value, bool _binary, bool _integer, bool _indexed)
     : value(_value),
       lb(_lb),

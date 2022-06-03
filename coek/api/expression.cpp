@@ -20,13 +20,13 @@ expr_pointer_t convert_expr_template(expr_pointer_t expr);
 
 Parameter::Parameter()
 {
-repn = CREATE_POINTER(ParameterTerm, 0);
+repn = CREATE_POINTER(ParameterTerm);
 OWN_POINTER(repn);
 }
 
 Parameter::Parameter(const std::string& name)
 {
-repn = CREATE_POINTER(ParameterTerm, 0);
+repn = CREATE_POINTER(ParameterTerm);
 OWN_POINTER(repn);
 repn->name = name;
 }
@@ -34,6 +34,12 @@ repn->name = name;
 Parameter::Parameter(const Parameter& expr)
 {
 repn = expr.repn;
+OWN_POINTER(repn);
+}
+
+Parameter::Parameter(const ParameterRepn& _repn)
+{
+repn = _repn;
 OWN_POINTER(repn);
 }
 
@@ -50,18 +56,30 @@ return *this;
 
 Parameter& Parameter::value(double value)
 {
-repn->value = value;
+repn->set_value(value);
+return *this;
+}
+
+Parameter& Parameter::value(const Expression& value)
+{
+repn->set_value(value.repn);
 return *this;
 }
 
 double Parameter::value() const
+{ return repn->eval(); }
+
+Expression Parameter::value_expression() const
 { return repn->value; }
 
 std::string Parameter::name() const
-{ return repn->name; }
+{ return repn->get_name(); }
 
 Parameter& Parameter::name(const std::string& name) 
-{ repn->name = name; return *this; }
+{
+repn->name = name;
+return *this;
+}
 
 std::ostream& operator<<(std::ostream& ostr, const Parameter& arg)
 {

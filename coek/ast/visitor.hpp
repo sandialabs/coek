@@ -16,6 +16,7 @@ namespace coek {
 class BaseExpressionTerm;
 class VariableTerm;
 #if __cpp_lib_variant
+class ParameterRefTerm;
 class VariableRefTerm;
 #endif
 class IndexedVariableTerm;
@@ -66,6 +67,7 @@ public:
     virtual void visit(IndexParameterTerm& arg) = 0;
     virtual void visit(VariableTerm& arg) = 0;
 #if __cpp_lib_variant
+    virtual void visit(ParameterRefTerm& arg) = 0;
     virtual void visit(VariableRefTerm& arg) = 0;
 #endif
     virtual void visit(IndexedVariableTerm& arg) = 0;
@@ -106,6 +108,7 @@ public:
 enum term_id : unsigned int {
     ConstantTerm_id =       1,
     ParameterTerm_id =      2,
+    ParameterRefTerm_id =   106,
     IndexParameterTerm_id = 100,
     VariableTerm_id =       3,
     VariableRefTerm_id =    4,

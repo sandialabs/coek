@@ -12,8 +12,6 @@
 const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
-void xyz() {}
-
 #ifdef COEK_WITH_COMPACT_MODEL
 TEMPLATE_TEST_CASE( "model_add", "[smoke]", coek::Model, coek::CompactModel ) {
 #else

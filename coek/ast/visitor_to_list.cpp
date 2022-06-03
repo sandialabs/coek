@@ -30,6 +30,7 @@ public:
     void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
 #if __cpp_lib_variant
+    void visit(ParameterRefTerm& arg);
     void visit(VariableRefTerm& arg);
 #endif
     void visit(IndexedVariableTerm& arg);
@@ -95,6 +96,13 @@ repr.push_back( sstr.str() );
 }
 
 #if __cpp_lib_variant
+void ToListVisitor::visit(ParameterRefTerm& arg)
+{
+std::stringstream sstr;
+write_expr(&arg, sstr);
+repr.push_back( sstr.str() );
+}
+
 void ToListVisitor::visit(VariableRefTerm& arg)
 {
 std::stringstream sstr;

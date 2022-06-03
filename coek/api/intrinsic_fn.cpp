@@ -53,9 +53,7 @@ INTRINSIC_DEF1(atanh)
 Expression FN(const Expression& lhs, const Expression& rhs)\
 {\
 if (lhs.is_constant() and rhs.is_constant()) {\
-    ConstantTerm* _lhs = dynamic_cast<ConstantTerm*>(lhs.repn);\
-    ConstantTerm* _rhs = dynamic_cast<ConstantTerm*>(rhs.repn);\
-    return Expression(::FN(_lhs->value, _rhs->value));\
+    return Expression(::FN(lhs.repn->eval(), rhs.repn->eval()));\
     }\
 return intrinsic_ ## FN(lhs.repn, rhs.repn);\
 }\
@@ -63,8 +61,7 @@ return intrinsic_ ## FN(lhs.repn, rhs.repn);\
 Expression FN(const Expression& lhs, double rhs)\
 {\
 if (lhs.is_constant()) {\
-    ConstantTerm* _lhs = dynamic_cast<ConstantTerm*>(lhs.repn);\
-    return Expression(::FN(_lhs->value, rhs));\
+    return Expression(::FN(lhs.repn->eval(), rhs));\
     }\
 Expression _rhs(rhs);\
 return intrinsic_ ## FN(lhs.repn, _rhs.repn);\
@@ -73,8 +70,7 @@ return intrinsic_ ## FN(lhs.repn, _rhs.repn);\
 Expression FN(double lhs, const Expression& rhs)\
 {\
 if (rhs.is_constant()) {\
-    ConstantTerm* _rhs = dynamic_cast<ConstantTerm*>(rhs.repn);\
-    return Expression(::FN(lhs, _rhs->value));\
+    return Expression(::FN(lhs, rhs.repn->eval()));\
     }\
 Expression _lhs(lhs);\
 return intrinsic_ ## FN(_lhs.repn, rhs.repn);\

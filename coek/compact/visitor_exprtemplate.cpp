@@ -11,6 +11,7 @@
 namespace coek {
 
 expr_pointer_t get_concrete_var(VariableRefTerm& varref);
+expr_pointer_t get_concrete_param(ParameterRefTerm& paramref);
 
 
 namespace visitors {
@@ -33,6 +34,9 @@ else
 
 expr_pointer_t visit(VariableRefTerm& arg)
 { return get_concrete_var(arg); }
+
+expr_pointer_t visit(ParameterRefTerm& arg)
+{ return get_concrete_param(arg); }
 
 expr_pointer_t visit(InequalityTerm& arg)
 {
@@ -145,6 +149,7 @@ switch (expr->id()) {
 
     VISIT_CASE(IndexParameterTerm);
     VISIT_CASE(VariableRefTerm);
+    VISIT_CASE(ParameterRefTerm);
     VISIT_CASE(InequalityTerm);
     VISIT_CASE(EqualityTerm);
     VISIT_CASE(ObjectiveTerm);

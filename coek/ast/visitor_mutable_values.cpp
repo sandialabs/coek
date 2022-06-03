@@ -39,6 +39,9 @@ public:
         { if (arg.fixed) fixed_vars.insert(&arg); }
 
 #if __cpp_lib_variant
+    void visit(ParameterRefTerm& )
+        {}
+
     void visit(VariableRefTerm& )
         {}
 #endif

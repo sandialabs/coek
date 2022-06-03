@@ -12,6 +12,29 @@ namespace coek {
 typedef std::variant<int,expr_pointer_t> refarg_types;
 
 
+class ParameterRefTerm : public BaseParameterTerm
+{
+public:
+
+    std::vector<refarg_types> indices;
+    std::string name;
+    void* param;
+
+public:
+
+    ParameterRefTerm(const std::vector<refarg_types>& _indices, const std::string& _name, void* _param);
+    ~ParameterRefTerm();
+
+    double eval() const
+        { throw std::runtime_error("Cannot evaluate a ParameterRefTerm"); }
+    void accept(Visitor& v)
+        { v.visit(*this); }
+    term_id id()
+        {return ParameterRefTerm_id;}
+
+};
+
+
 class VariableRefTerm : public BaseVariableTerm
 {
 public:
@@ -33,6 +56,7 @@ public:
         {return VariableRefTerm_id;}
 
 };
+
 
 class SetRefTerm : public BaseExpressionTerm
 {

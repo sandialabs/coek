@@ -29,6 +29,7 @@ public:
     void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
 #if __cpp_lib_variant
+    void visit(ParameterRefTerm& arg);
     void visit(VariableRefTerm& arg);
 #endif
     void visit(IndexedVariableTerm& arg);
@@ -73,7 +74,7 @@ void WriteExprVisitor::visit(ParameterTerm& arg)
 {
 if (arg.name.size() == 0) {
     char c[256];
-    std::snprintf(c, 256, "%.3f", arg.value);
+    std::snprintf(c, 256, "%.3f", arg.eval());
     ostr << c;
     }
 else
@@ -94,6 +95,26 @@ else {
 }
 
 #if __cpp_lib_variant
+void WriteExprVisitor::visit(ParameterRefTerm& arg)
+{
+bool first=true;
+ostr << arg.name << "(";
+for (auto it=arg.indices.begin(); it != arg.indices.end(); ++it) {
+    if (first)
+        first=false;
+    else
+        ostr << ",";
+    auto val = *it;
+    if (auto ival = std::get_if<int>(&val)) {
+        ostr << *ival;
+        }
+    else if (auto eval = std::get_if<expr_pointer_t>(&val)) {
+        (*eval)->accept(*this);
+        }
+    }
+ostr << ")";
+}
+
 void WriteExprVisitor::visit(VariableRefTerm& arg)
 {
 bool first=true;
@@ -107,14 +128,6 @@ for (auto it=arg.indices.begin(); it != arg.indices.end(); ++it) {
     if (auto ival = std::get_if<int>(&val)) {
         ostr << *ival;
         }
-#if 0
-    else if (auto dval = std::get_if<double>(&val)) {
-        ostr << *dval;
-        }
-    else if (auto sval = std::get_if<std::string>(&val)) {
-        ostr << "\"" << *sval << "\"";
-        }
-#endif
     else if (auto eval = std::get_if<expr_pointer_t>(&val)) {
         (*eval)->accept(*this);
         }

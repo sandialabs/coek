@@ -30,9 +30,10 @@ for (auto it=vcache.begin(); it != vcache.end(); ++it) {
         }
     }
 for (auto it=pcache.begin(); it != pcache.end(); ++it) {
-    if (fabs(it->second - it->first->value) > tolerance) {
+    auto value = it->first->eval();
+    if (fabs(it->second - value) > tolerance) {
         pupdates.insert(it->first);
-        it->second = it->first->value;
+        it->second = value;
         }
     }
 
@@ -193,24 +194,24 @@ bool SolverRepn::initial_solve()
 {
 if (initial) {
     for (auto it=vconstvals.begin(); it != vconstvals.end(); ++it)
-        vcache[it->first] = it->first->value->eval();
+        vcache[it->first] = it->first->eval();
     for (auto it=pconstvals.begin(); it != pconstvals.end(); ++it)
-        pcache[it->first] = it->first->value;
+        pcache[it->first] = it->first->eval();
 
     for (auto it=vlinvals.begin(); it != vlinvals.end(); ++it)
-        vcache[it->first] = it->first->value->eval();
+        vcache[it->first] = it->first->eval();
     for (auto it=plinvals.begin(); it != plinvals.end(); ++it)
-        pcache[it->first] = it->first->value;
+        pcache[it->first] = it->first->eval();
 
     for (auto it=vquadvals.begin(); it != vquadvals.end(); ++it)
-        vcache[it->first] = it->first->value->eval();
+        vcache[it->first] = it->first->eval();
     for (auto it=pquadvals.begin(); it != pquadvals.end(); ++it)
-        pcache[it->first] = it->first->value;
+        pcache[it->first] = it->first->eval();
 
     for (auto it=vnonlvals.begin(); it != vnonlvals.end(); ++it)
-        vcache[it->first] = it->first->value->eval();
+        vcache[it->first] = it->first->eval();
     for (auto it=pnonlvals.begin(); it != pnonlvals.end(); ++it)
-        pcache[it->first] = it->first->value;
+        pcache[it->first] = it->first->eval();
 
     vupdates.clear();
     pupdates.clear();

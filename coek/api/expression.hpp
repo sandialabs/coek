@@ -166,13 +166,18 @@ public:
       * \param arg   a parameter whose value is shared
       */
     Parameter(const Parameter& arg);
+    Parameter(const ParameterRepn& _repn);
     ~Parameter();
     Parameter& operator=(const Parameter& arg);
 
     /** \returns the value of the parameter */
     double value() const;
+    /** Set the parameter value. \returns the parameter object. */
+    Parameter& value(const Expression& value);
     /** Set the value of the parameter */
     Parameter& value(double value);
+    /** \returns the expression defining the parameter value */
+    Expression value_expression() const;
 
     /** \returns the name of the parameter */
     std::string name() const;

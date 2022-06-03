@@ -186,11 +186,11 @@ REQUIRE( coek::env.check_memory() == true );
 }
 
 
-#ifdef DEBUG
-#define ENV_MEMCHECK REQUIRE( coek::env.check_memory() == true )
-#else
-#define ENV_MEMCHECK 
-#endif
+//#ifdef DEBUG
+//#define ENV_MEMCHECK REQUIRE( coek::env.check_memory() == true )
+//#else
+//#define ENV_MEMCHECK 
+//#endif
 
 
 #ifdef COEK_WITH_COMPACT_MODEL

@@ -15,6 +15,7 @@
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
 #if __cpp_lib_variant >= 201606
+#   include "coek/api/parameter_array.hpp"
 #   include "coek/api/variable_array.hpp"
 #   include "coek/api/component_map.hpp"
 #endif
@@ -24,6 +25,7 @@
 
 #ifdef COEK_WITH_COMPACT_MODEL
 #   include "coek/compact/coek_sets.hpp"
+#   include "coek/compact/parameter_map.hpp"
 #   include "coek/compact/variable_map.hpp"
 #   include "coek/compact/sequence_context.hpp"
 #   include "coek/compact/expression_sequence.hpp"

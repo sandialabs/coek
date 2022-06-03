@@ -44,14 +44,10 @@ void visit_expression(expr_pointer_t expr, QuadraticExpr& repn, double multiplie
 
 
 void visit(ConstantTerm& expr, QuadraticExpr& repn, double multiplier)
-{
-repn.constval += multiplier * expr.value;
-}
+{ repn.constval += multiplier * expr.value; }
 
 void visit(ParameterTerm& expr, QuadraticExpr& repn, double multiplier)
-{
-repn.constval += multiplier * expr.value;
-}
+{ repn.constval += multiplier * expr.value->eval(); }
 
 void visit(IndexParameterTerm& /*expr*/, 
            QuadraticExpr& /*repn*/, 
@@ -78,9 +74,7 @@ else {
 void visit(VariableRefTerm& /*expr*/,
            QuadraticExpr& /*repn*/,
            double /*multiplier*/)
-{
-throw std::runtime_error("Unexpected variable reference.");
-}
+{ throw std::runtime_error("Unexpected variable reference."); }
 #endif
 
 void visit(IndexedVariableTerm& expr, QuadraticExpr& repn, double multiplier)

@@ -35,6 +35,8 @@ SET(sources
 if (CMAKE_CXX_STANDARD GREATER_EQUAL 14)
     list(APPEND sources
         ast/compact_terms.cpp
+        api/parameter_assoc_array.cpp
+        api/parameter_array.cpp
         api/variable_assoc_array.cpp
         api/variable_array.cpp
         api/component_map.cpp
@@ -51,6 +53,7 @@ if(with_compact)
         compact/ast_set.cpp
         compact/coek_sets.cpp
         #compact/coek_indexed.cpp
+        compact/parameter_map.cpp
         compact/variable_map.cpp
         compact/visitor_exprtemplate.cpp
         )

@@ -44,6 +44,11 @@ public:
         }
 
 #if __cpp_lib_variant
+    void visit(ParameterRefTerm& )
+        {
+        throw std::runtime_error("Attempting to find variables in an abstract expression!");
+        }
+
     void visit(VariableRefTerm& )
         {
         throw std::runtime_error("Attempting to find variables in an abstract expression!");

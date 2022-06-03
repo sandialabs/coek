@@ -72,6 +72,7 @@ public:
     void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
 #if __cpp_lib_variant
+    void visit(ParameterRefTerm& arg);
     void visit(VariableRefTerm& arg);
 #endif
     void visit(IndexedVariableTerm& arg);
@@ -116,7 +117,7 @@ ostr << '\n';
 void PrintExpr::visit(ParameterTerm& arg)
 {
 ostr << "n";
-format(ostr, arg.value);
+format(ostr, arg.eval());
 ostr << '\n';
 }
 
@@ -128,12 +129,15 @@ void PrintExpr::visit(IndexParameterTerm& )
 void PrintExpr::visit(VariableTerm& arg)
 { 
 if (arg.fixed)
-    ostr << "n" << arg.value->eval() << '\n';
+    ostr << "n" << arg.eval() << '\n';
 else
     ostr << "v" << varmap.at(arg.index) << '\n';
 }
 
 #if __cpp_lib_variant
+void PrintExpr::visit(ParameterRefTerm& )
+{ throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
+
 void PrintExpr::visit(VariableRefTerm& )
 { throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
 #endif
@@ -255,6 +259,7 @@ public:
     void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
 #if __cpp_lib_variant
+    void visit(ParameterRefTerm& arg);
     void visit(VariableRefTerm& arg);
 #endif
     void visit(IndexedVariableTerm& arg);
@@ -293,7 +298,7 @@ void PrintExprFmtlib::visit(ConstantTerm& arg)
 { ostr.print("n{}\n", arg.value); }
 
 void PrintExprFmtlib::visit(ParameterTerm& arg)
-{ ostr.print("n{}\n", arg.value); }
+{ ostr.print("n{}\n", arg.eval()); }
 
 // GCOVR_EXCL_START
 void PrintExprFmtlib::visit(IndexParameterTerm& )
@@ -303,13 +308,16 @@ void PrintExprFmtlib::visit(IndexParameterTerm& )
 void PrintExprFmtlib::visit(VariableTerm& arg)
 { 
 if (arg.fixed)
-    ostr.print("n{}\n", arg.value->eval());
+    ostr.print("n{}\n", arg.eval());
 else
     ostr.print("v{}\n", varmap.at(arg.index));
 }
 
 
 #if __cpp_lib_variant
+void PrintExprFmtlib::visit(ParameterRefTerm& )
+{ throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
+
 void PrintExprFmtlib::visit(VariableRefTerm& )
 { throw std::runtime_error("Cannot write an NL file using an abstract expression!"); }
 #endif

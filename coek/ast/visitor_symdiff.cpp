@@ -41,6 +41,7 @@ public:
     void visit(IndexParameterTerm& arg);
     void visit(VariableTerm& arg);
 #if __cpp_lib_variant
+    void visit(ParameterRefTerm& arg);
     void visit(VariableRefTerm& arg);
 #endif
     void visit(IndexedVariableTerm& arg);
@@ -90,6 +91,9 @@ void PartialVisitor::visit(VariableTerm& )
 { partial = ONECONST; }
 
 #if __cpp_lib_variant
+void PartialVisitor::visit(ParameterRefTerm& )
+{ partial = ZEROCONST; }
+
 void PartialVisitor::visit(VariableRefTerm& )
 {
 //
@@ -278,7 +282,7 @@ void symbolic_diff_all(expr_pointer_t root, std::map<VariableTerm*, expr_pointer
 //
 // Default is zero, if the variable does not exist in this expression
 //
-if (root->is_parameter())
+if (root->is_constant() or root->is_parameter())
     return;
 
 else if (root->is_variable()) {

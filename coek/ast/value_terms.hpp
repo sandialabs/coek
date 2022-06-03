@@ -40,21 +40,34 @@ public:
 #endif
 
 //
+// BaseParameterTerm
+//
+
+class BaseParameterTerm : public BaseExpressionTerm
+{ };
+
+//
 // ParameterTerm
 //
 
-class ParameterTerm : public ConstantTerm
+class ParameterTerm : public BaseParameterTerm
 {
 public:
 
+    expr_pointer_t value;
+    unsigned int index;
+    bool indexed;
     std::string name;
 
-    ParameterTerm(double _value)
-        : ConstantTerm(_value)
-        {}
+    ParameterTerm();
+    ParameterTerm(const expr_pointer_t& _value, bool _indexed=false);
+    ~ParameterTerm();
 
-    bool is_constant() const
-        {return false;}
+    double eval() const
+        { return value->eval(); }
+
+    bool is_parameter() const
+        {return true;}
 
     expr_pointer_t negate(const expr_pointer_t& repn);
 
@@ -62,6 +75,46 @@ public:
         { v.visit(*this); }
     term_id id()
         {return ParameterTerm_id;}
+
+    void set_value(double val);
+    void set_value(expr_pointer_t val);
+
+    virtual std::string get_simple_name()
+        {
+            return "x(" + std::to_string(index) + ")";
+        }
+    virtual std::string get_name()
+        {
+        if (name == "")
+            return get_simple_name();
+        else if (indexed)
+            return name + "(" + std::to_string(index) + ")";
+        else
+            return name;
+        }
+};
+
+class IndexedParameterTerm : public ParameterTerm
+{
+public:
+
+    void* param;      // ConcreteIndexedParameterRepn
+    size_t vindex;
+
+    IndexedParameterTerm(const expr_pointer_t& _value, size_t _vindex, void* _param)
+        : ParameterTerm(_value), param(_param), vindex(_vindex) {}
+
+    #if __cpp_lib_variant
+    virtual std::string get_name();
+    #else
+    virtual std::string get_name()
+        {return "Unknown";}
+    #endif
+
+    void accept(Visitor& v)
+        { v.visit(*this); }
+    term_id id()
+        {return IndexedVariableTerm_id;}
 };
 
 //
@@ -110,8 +163,7 @@ public:
 //
 
 class BaseVariableTerm : public BaseExpressionTerm
-{
-};
+{ };
 
 //
 // VariableTerm

@@ -95,7 +95,7 @@ public:
     bool is_constant() const
         {return true;}
     bool is_parameter() const
-        {return true;}
+        {return false;}
     
     expr_pointer_t negate(const expr_pointer_t& repn);
     
