@@ -30,17 +30,25 @@ namespace std
 
 namespace coek {
 
+//
+// VariableMapRepn
+//
+
 class VariableMapRepn : public VariableAssocArrayRepn
 {
 public:
 
-    ConcreteSet concrete_set;
     std::unordered_map<IndexVector, size_t> index;
+    ConcreteSet concrete_set;
 
 public:
 
     VariableMapRepn(const ConcreteSet& _arg)
         : concrete_set(_arg)
+        { cache.resize((size()+1)*(dim()+1)); }
+
+    VariableMapRepn(const SequenceContext& _arg)
+        : concrete_set(_arg.index_set())
         { cache.resize((size()+1)*(dim()+1)); }
 
     void setup(); 
@@ -89,12 +97,17 @@ for (auto& vec : concrete_set) {
     }
 }
 
-
 //
 // VariableMap
 //
 
 VariableMap::VariableMap(const ConcreteSet& arg)
+{
+repn = std::make_shared<VariableMapRepn>(arg);
+repn->resize_index_vectors(tmp,reftmp);
+}
+
+VariableMap::VariableMap(const SequenceContext& arg)
 {
 repn = std::make_shared<VariableMapRepn>(arg);
 repn->resize_index_vectors(tmp,reftmp);
@@ -211,6 +224,9 @@ return *this;
 // 
 
 VariableMap variable(const ConcreteSet& arg)
+{ return VariableMap(arg); }
+
+VariableMap variable(const SequenceContext& arg)
 { return VariableMap(arg); }
 
 

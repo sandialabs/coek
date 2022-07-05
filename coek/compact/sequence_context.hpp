@@ -74,6 +74,8 @@ public:
 
     /** \returns a modifier to specify the indices used in this expression */
     SequenceContext Forall(const std::vector<IndexParameter>& indices);
+
+    ConcreteSet index_set() const;
 };
 
 

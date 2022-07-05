@@ -60,6 +60,24 @@ return repn;
 size_t SequenceContext::size() const
 { return repn->context.size(); }
 
+ConcreteSet SequenceContext::index_set() const
+{
+if (repn->context.size() == 0) {
+    ConcreteSet tmp;
+    return tmp;
+    }
+else if (repn->context.size() == 1) 
+    return repn->context[0].index_set;
+else if (repn->context.size() == 2) 
+    return repn->context[0].index_set * repn->context[1].index_set;
+else {
+    auto tmp = repn->context[0].index_set * repn->context[1].index_set;
+    for (size_t i=2; i<repn->context.size(); i++)
+        tmp *= repn->context[i].index_set;
+    return tmp;
+    }
+}
+
 Context& SequenceContext::operator[](size_t i)
 { return repn->context[i]; }
 

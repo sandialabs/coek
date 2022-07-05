@@ -419,6 +419,25 @@ TEST_CASE( "2D_var_map", "[smoke]" ) {
         REQUIRE_THROWS_WITH( vars(0), 
             "Unexpected index value: x is an 2-D variable map but is being indexed with 1 indices.");
         } 
+
+      #if 0
+
+      // TODO - This test needs to be added
+
+      WHEN( "quantified" ) {
+        auto i = coek::set_element("i");
+        auto j = coek::set_element("j");
+        auto V = coek::SetOf( v );
+        auto W = coek::SetOf( w );
+        auto vars = coek::variable("x", Forall(i,j).In(V*W) ).value(2*i+j);
+
+        for (auto& ii: v)
+            for (auto& jj: w) {
+                std::cout << ii << " " << jj << std::endl;
+                REQUIRE( vars(ii,jj).value() == 2*ii+jj );
+                }
+        }
+     #endif
   }
 
   SECTION( "abstract" ) {

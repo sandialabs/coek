@@ -3,6 +3,7 @@
 #include "coek_sets.hpp"
 #include "coek/util/template_utils.hpp"
 #include "coek/api/variable_assoc_array.hpp"
+#include "coek/compact/sequence_context.hpp"
 
 
 namespace coek {
@@ -132,6 +133,7 @@ public:
 public:
 
     explicit VariableMap(const ConcreteSet& arg);
+    explicit VariableMap(const SequenceContext& arg);
     ~VariableMap() {}
 
     /** Set the initial variable value. \returns the variable object. */
@@ -174,6 +176,16 @@ inline VariableMap variable_map(const ConcreteSet& arg)
 inline VariableMap variable(const std::string& name, const ConcreteSet& arg)
 { return variable(arg).name(name); }
 inline VariableMap variable_map(const std::string& name, const ConcreteSet& arg)
+{ return variable(arg).name(name); }
+
+
+VariableMap variable(const SequenceContext& arg);
+inline VariableMap variable_map(const SequenceContext& arg)
+{ return variable(arg); }
+
+inline VariableMap variable(const std::string& name, const SequenceContext& arg)
+{ return variable(arg).name(name); }
+inline VariableMap variable_map(const std::string& name, const SequenceContext& arg)
 { return variable(arg).name(name); }
 
 }
