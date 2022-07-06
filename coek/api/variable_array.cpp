@@ -25,6 +25,17 @@ public:
         cache.resize((size()+1)*(dim()+1));
         }
 
+    VariableArrayRepn(const std::vector<int>& _shape)
+        : _size(1)
+        {
+        shape.resize(_shape.size());
+        for (size_t i=0; i<shape.size(); ++i)
+            shape[i] = _shape[i];
+        for (auto n : shape)
+            _size *= n;
+        cache.resize((size()+1)*(dim()+1));
+        }
+
     VariableArrayRepn(const std::initializer_list<size_t>& _shape)
         : shape(_shape), _size(1)
         {
@@ -35,10 +46,10 @@ public:
 
     void setup();
 
-    size_t dim()
+    size_t dim() const
         {return shape.size();}
 
-    size_t size()
+    size_t size() const
         {return _size;}
 
 };
@@ -70,6 +81,12 @@ repn = std::make_shared<VariableArrayRepn>(shape);
 repn->resize_index_vectors(tmp,reftmp);
 }
 
+VariableArray::VariableArray(const std::vector<int>& shape)
+{
+repn = std::make_shared<VariableArrayRepn>(shape);
+repn->resize_index_vectors(tmp,reftmp);
+}
+
 VariableArray::VariableArray(const std::initializer_list<size_t>& shape)
 {
 repn = std::make_shared<VariableArrayRepn>(shape);
@@ -77,6 +94,9 @@ repn->resize_index_vectors(tmp,reftmp);
 }
 
 VariableAssocArrayRepn* VariableArray::get_repn()
+{ return repn.get(); }
+
+const VariableAssocArrayRepn* VariableArray::get_repn() const
 { return repn.get(); }
 
 Variable VariableArray::index(const IndexVector& args)
@@ -175,6 +195,12 @@ return *this;
 VariableArray& VariableArray::bounds(const Expression& lb, const Expression& ub)
 {
 repn->bounds(lb,ub);
+return *this;
+}
+
+VariableArray& VariableArray::fixed(bool value)
+{
+repn->fixed(value);
 return *this;
 }
 

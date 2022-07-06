@@ -141,6 +141,15 @@ if (values.size() > 0) {
     }
 }
 
+void VariableAssocArrayRepn::fixed(bool value)
+{
+variable_template.fixed(value);
+if (values.size() > 0) {
+    for (auto& var: values)
+        var.fixed(value);
+    }
+}
+
 void VariableAssocArrayRepn::name(const std::string& name)
 {
 variable_template.name(name);
@@ -163,10 +172,10 @@ if (values.size() > 0) {
 // VariableAssocArray
 //
 
-size_t VariableAssocArray::size()
+size_t VariableAssocArray::size() const
 { return get_repn()->size(); }
 
-size_t VariableAssocArray::dim()
+size_t VariableAssocArray::dim() const
 { return get_repn()->dim(); }
 
 std::vector<Variable>::iterator VariableAssocArray::begin()

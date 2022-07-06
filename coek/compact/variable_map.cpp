@@ -53,11 +53,12 @@ public:
 
     void setup(); 
 
-    size_t dim()
-        {return concrete_set.dim();}
+    // TODO - evaluate whether it is reasonable to use const_cast here
+    size_t dim() const
+        {return const_cast<ConcreteSet&>(concrete_set).dim();}
 
-    size_t size()
-        {return concrete_set.size();}
+    size_t size() const
+        {return const_cast<ConcreteSet&>(concrete_set).size();}
 };
 
 void VariableMapRepn::setup()
@@ -114,6 +115,9 @@ repn->resize_index_vectors(tmp,reftmp);
 }
 
 VariableAssocArrayRepn* VariableMap::get_repn()
+{ return repn.get(); }
+
+const VariableAssocArrayRepn* VariableMap::get_repn() const
 { return repn.get(); }
 
 Variable VariableMap::index(const IndexVector& args)

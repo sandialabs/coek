@@ -18,6 +18,7 @@ public:
 
     std::shared_ptr<VariableArrayRepn> repn;
     VariableAssocArrayRepn* get_repn();
+    const VariableAssocArrayRepn* get_repn() const;
 
     Variable index(const IndexVector& args);
     void index_error(size_t i);
@@ -143,6 +144,7 @@ public:
 
     VariableArray(size_t n);
     VariableArray(const std::vector<size_t>& shape);
+    VariableArray(const std::vector<int>& shape);
     VariableArray(const std::initializer_list<size_t>& shape);
     ~VariableArray() {}
 
@@ -169,6 +171,9 @@ public:
     VariableArray& bounds(double lb, const Expression& ub);
     /** Set the upper and lower bounds. \returns the variable object. */
     VariableArray& bounds(const Expression& lb, const Expression& ub);
+
+    /** Set a flag indicating if the variables are fixed. \returns the variable array object. */
+    VariableArray& fixed(bool flag);
 
     /** Set the name of the variable. \returns the variable object */
     VariableArray& name(const std::string& name);

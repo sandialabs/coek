@@ -32,8 +32,8 @@ public:
 
     virtual void setup();
 
-    virtual size_t dim() = 0;
-    virtual size_t size() = 0;
+    virtual size_t dim() const = 0;
+    virtual size_t size() const = 0;
 
     void resize_index_vectors(IndexVector& tmp, std::vector<refarg_types>& reftmp);
 
@@ -62,6 +62,9 @@ public:
     void bounds(double lb, const Expression& ub);
     /** Set the upper and lower bounds. \returns the variable object. */
     void bounds(const Expression& lb, const Expression& ub);
+
+    /** Set a flag indicating if the variable is fixed. */
+    void fixed(bool flag);
 
     /** Set the name of the variable. \returns the variable object */
     void name(const std::string& name);

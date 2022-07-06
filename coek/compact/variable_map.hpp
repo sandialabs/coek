@@ -17,6 +17,7 @@ public:
 
     std::shared_ptr<VariableMapRepn> repn;
     VariableAssocArrayRepn* get_repn();
+    const VariableAssocArrayRepn* get_repn() const;
 
     Variable index(const IndexVector& args);
     void index_error(size_t i);
