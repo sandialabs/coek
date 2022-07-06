@@ -8,6 +8,8 @@ if(${CMAKE_VERSION} VERSION_LESS "3.5.0")
     cmake_policy(SET CMP0022 NEW)
 endif()
 
+set(COEK_VERSION 1.0.0)
+
 #
 # GLOBAL INCLUDES
 #

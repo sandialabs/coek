@@ -2,6 +2,9 @@
     <class pattern="coek::*"/>
     <function pattern="coek::*"/>
     <exclusion>
+        <function name="coek::count_args"/>
+        <function name="coek::has_nonintegral_args"/>
+
         <class name="coek::Parameter">
           <field name="repn"/>
         </class>
@@ -20,6 +23,9 @@
         <class name="coek::ParameterRepn"/>
         <class name="coek::ExpressionRepn"/>
         <class name="coek::ConstraintRepn"/>
+
+        <class name="coek::VariableArrayRepn"/>
+        <class name="coek::VariableAssocArrayRepn"/>
 
         <class name="coek::SetRepn"/>
 

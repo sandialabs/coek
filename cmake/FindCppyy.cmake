@@ -29,6 +29,7 @@ if(BACKEND_PREFIX STREQUAL "/")
   set(BACKEND_PREFIX "")
 endif()
 
+set(Cppyy_VERSION "UNINITIALIZED" CACHE STRING "Cppyy version" FORCE)
 find_program(Cppyy_EXECUTABLE NAMES rootcling)
 
 if(CPPYY_MODULE_PATH)
@@ -62,6 +63,7 @@ mark_as_advanced(Cppyy_VERSION)
 function(cppyy_generate_setup pkg version lib_so_file rootmap_file pcm_file map_file)
     set(SETUP_PY_FILE ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
     set(CPPYY_PKG ${pkg})
+    set(PROJECT_VERSION ${version})
     get_filename_component(CPPYY_LIB_SO ${lib_so_file} NAME)
     get_filename_component(CPPYY_ROOTMAP ${rootmap_file} NAME)
     get_filename_component(CPPYY_PCM ${pcm_file} NAME)
@@ -263,8 +265,7 @@ endfunction(cppyy_generate_init)
 # )
 
 function(cppyy_add_bindings pkg pkg_version author author_email)
-    set(simple_args URL LICENSE LICENSE_FILE LANGUAGE_STANDARD
-        README_FILE)
+    set(simple_args URL LICENSE LICENSE_FILE LANGUAGE_STANDARD README_FILE)
     set(list_args IMPORTS GENERATE_OPTIONS COMPILE_OPTIONS INCLUDE_DIRS LINK_LIBRARIES H_DIRS H_FILES LINKDEFS EXTRA_CODES EXTRA_HEADERS NAMESPACES)
     cmake_parse_arguments(
         ARG
@@ -411,7 +412,11 @@ function(cppyy_add_bindings pkg pkg_version author author_email)
     #
     # Set up common args.
     #
-    list(APPEND ARG_GENERATE_OPTIONS "-std=c++${ARG_LANGUAGE_STANDARD}")
+    foreach(dir ${ARG_H_DIRS} ${ARG_INCLUDE_DIRS})
+        list(APPEND ARG_GENERATE_OPTIONS "-I${dir}")
+    endforeach(dir)
+
+    #
     foreach(dir ${ARG_H_DIRS} ${ARG_INCLUDE_DIRS})
         list(APPEND ARG_GENERATE_OPTIONS "-I${dir}")
     endforeach(dir)
@@ -430,10 +435,14 @@ function(cppyy_add_bindings pkg pkg_version author author_email)
         list(APPEND cling_args "-m" "${in_pcm}")
     endforeach(in_pcm)
     list(APPEND cling_args "${ARG_GENERATE_OPTIONS}")
+    #list(APPEND cling_args "--v4")
+    list(APPEND cling_args "-generate-pch")
 
     # run rootcling
     add_custom_command(OUTPUT ${cpp_file} ${pcm_file} ${rootmap_file}
     COMMAND ${Cppyy_EXECUTABLE} ${cling_args} ${ARG_H_FILES} ${out_linkdef} WORKING_DIRECTORY ${pkg_dir})
+
+    list(APPEND ARG_GENERATE_OPTIONS "-std=c++${ARG_LANGUAGE_STANDARD}")
 
 
     ############### cppyy-generator #######################
@@ -498,7 +507,7 @@ function(cppyy_add_bindings pkg pkg_version author author_email)
     # Generate setup.py
     #
     cppyy_generate_setup(${pkg}
-                         ${pkg_version}
+                         "${pkg_version}"
                          ${lib_file}
                          ${rootmap_file}
                          ${pcm_file}
@@ -562,11 +571,12 @@ function(cppyy_add_bindings pkg pkg_version author author_email)
          CONFIGURE_DEPENDS
          "${CMAKE_SOURCE_DIR}/py/*.py")
     string(TOLOWER ${CMAKE_SYSTEM_NAME} SYSTEM_STR)
-    set(pkg_whl "${CMAKE_BINARY_DIR}/dist/${pkg}-${pkg_version}-py3-none-${SYSTEM_STR}_${CMAKE_SYSTEM_PROCESSOR}.whl")
+    set(pkg_whl "${CMAKE_CURRENT_BINARY_DIR}/dist/${pkg}-${pkg_version}-py3-none-${SYSTEM_STR}_${CMAKE_SYSTEM_PROCESSOR}.whl")
+    message("HERE ${pkg_whl}")
     add_custom_command(OUTPUT  ${pkg_whl}
-                       COMMAND ${LibClang_PYTHON_EXECUTABLE} setup.py bdist_wheel
+                       COMMAND ${LibClang_PYTHON_EXECUTABLE} ${SETUP_PY_FILE} bdist_wheel
                        DEPENDS ${SETUP_PY_FILE} ${lib_name} ${setup_cfg}
-                       WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
     add_custom_target(wheel ALL
                       DEPENDS ${pkg_whl}

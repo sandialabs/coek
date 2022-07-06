@@ -46,11 +46,11 @@ def pythonize_coek_all(klass, name):
             integer = kwds.get('integer', 0)
             return self._add_variable_newvar(name, lb, ub, init, binval, integer)
 
-    def VariableArray_iter(self):
+    def XVariableArray_iter(self):
         for i in range(self.variables.size()):
             yield i
 
-    def VariableArray_iter_BAD(self):
+    def XVariableArray_iter_BAD(self):
         if self.dimen.size() == 0:
             b = self.unindexed_begin()
             e = self.unindexed_end()
@@ -88,12 +88,12 @@ def pythonize_coek_all(klass, name):
     def constraint_bool_error(self, other):
         raise TypeError("Constraint argument cannot be used in a boolean expression.")
 
-    def varray_bool_error(self, other):
+    def Xvarray_bool_error(self, other):
         raise TypeError("VariableArray argument cannot be used in a boolean expression.")
 
     def expression__init(self, *args, **kwargs):
-        if type(args[0]) is pycoek.coek.VariableArray:
-            raise TypeError("Variable array argument cannot be used in a boolean expression.")
+        #if type(args[0]) is pycoek.coek.VariableArray:
+        #    raise TypeError("Variable array argument cannot be used in a boolean expression.")
         if type(args[0]) is pycoek.coek.Constraint:
             raise TypeError("Constraint argument cannot be used in a boolean expression.")
         return self.__init__bak(*args, **kwargs)
@@ -179,11 +179,11 @@ def pythonize_coek_all(klass, name):
         klass.__gt__ = constraint_bool_error
         klass.__ge__ = constraint_bool_error
 
-    elif name == 'VariableArray':
+    elif name == 'XVariableArray':
         klass.__init__ = klass.__init__.__overload__("int,string,double,double,double,bool,bool,bool")
         klass.name = property(get_name_str_or_None, doc="Name of this variable")
         klass.__getitem__ = klass.get
-        klass.__iter__ = VariableArray_iter
+        klass.__iter__ = XVariableArray_iter
         klass.__eq__ = varray_bool_error
         klass.__lt__ = varray_bool_error
         klass.__le__ = varray_bool_error
@@ -193,7 +193,7 @@ def pythonize_coek_all(klass, name):
     elif name == 'Model':
         klass._add_variable_newvar = klass.add_variable.__overload__('const string&,double,double,double,bool,bool')
         klass._add_variable_singlevar = klass.add_variable.__overload__('coek::Variable&')
-        klass._add_variable_vararray = klass.add_variable.__overload__('coek::VariableArray&')
+        #klass._add_variable_vararray = klass.add_variable.__overload__('coek::VariableArray&')
         klass.add_variable = Model_add_variable
 
     elif name == 'Solver':
