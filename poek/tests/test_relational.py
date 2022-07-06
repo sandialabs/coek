@@ -27,7 +27,7 @@ class Test_ConditionalValue(unittest.TestCase):
 
     def create(self, val):
         # Create the type of expression term that we are testing
-        return parameter(val)
+        return parameter(value=val)
 
     @unittest.nottest
     def value_test(self, exp, val, expectExpression=None):

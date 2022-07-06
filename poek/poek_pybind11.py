@@ -1,7 +1,7 @@
 #
 # Pull-in Pybind11 wrappers
 #
-from pycoek_pybind11 import variable_
+from pycoek_pybind11 import variable_, parameter_single, variable_array
 from pycoek_pybind11 import *
 from .func import quicksum, prod
 
@@ -10,6 +10,15 @@ try:
 except:
     class _DummyConcreteSet(object): pass
     ConcreteSet = _DummyConcreteSet
+
+
+class parameter(object):
+
+    def __new__(cls, *args, value=None):
+        p = parameter_single(*args)
+        if value is not None:
+            p.value = value
+        return p
 
 class variable(object):
 
@@ -39,6 +48,8 @@ def model_variable(self, *args, **kwds):
             v = IndexedVariable(*args)
             self.add_variable_(v)
             return v
+        elif args[0].__class__ == variable_array:
+            self.add_variable_(args[0])
         else:
             v = variable_(args[0], **kwds)
             self.add_variable_(v)

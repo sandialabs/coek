@@ -9,7 +9,7 @@ class TestExpression_Intrinsic(unittest.TestCase):
     def setUp(self):
         self.model = model()
         self.v = variable()
-        self.p = parameter(0)
+        self.p = parameter(value=0)
 
     def tearDown(self):
         self.model = None

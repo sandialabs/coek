@@ -30,18 +30,18 @@ class TestValue(unittest.TestCase):
             e.value = 0
 
     def test_param1(self):
-        p = parameter(-1)
+        p = parameter(value=-1)
         self.assertEqual(p.value, -1)
         p.value = 3
         self.assertEqual(p.value, 3)
 
     def test_float(self):
-        p = parameter(-1)
+        p = parameter(value=-1)
         with self.assertRaisesRegex(TypeError, "float\(\) argument must.*"):
             float(p)
             
     def test_int(self):
-        p = parameter(-1)
+        p = parameter(value=-1)
         with self.assertRaisesRegex(TypeError, "int\(\) argument must.*"):
             int(p)
 
@@ -53,7 +53,7 @@ class Test_SumExpression(unittest.TestCase):
         self.b = variable(name="b")
         self.c = variable(name="c")
         self.d = variable(name="d")
-        self.p = parameter(0, "p")
+        self.p = parameter("p", value=0)
 
     def test_error1(self):
         if poek.__using_pybind11__:
@@ -312,7 +312,7 @@ class TestDiffExpression(unittest.TestCase):
         self.c = variable(name='c')
         self.d = variable(name='d')
         self.v = variable(name='v')
-        self.p = parameter(0, 'p')
+        self.p = parameter('p', value=0)
 
     def test_error1(self):
         if poek.__using_pybind11__:
@@ -596,9 +596,9 @@ class Test_MulExpression(unittest.TestCase):
         self.c = variable(name='c')
         self.d = variable(name='d')
         self.v = variable(name='v')
-        self.p = parameter(0, 'p')
-        self.q = parameter(0, 'q')
-        self.r = parameter(1, 'r')
+        self.p = parameter('p', value=0)
+        self.q = parameter('q', value=0)
+        self.r = parameter('r', value=1)
 
     def test_error1(self):
         if poek.__using_pybind11__:
@@ -909,9 +909,9 @@ class Test_DivExpression(unittest.TestCase):
         self.c = variable(name='c')
         self.d = variable(name='d')
         self.v = variable(name='v')
-        self.p = parameter(0, 'p')
-        self.q = parameter(0, 'q')
-        self.r = parameter(1, 'r')
+        self.p = parameter('p', value=0)
+        self.q = parameter('q', value=0)
+        self.r = parameter('r', value=1)
 
     def test_error1(self):
         if poek.__using_pybind11__:
@@ -1122,9 +1122,9 @@ class Test_PowExpression(unittest.TestCase):
         self.c = variable(name='c')
         self.d = variable(name='d')
         self.v = variable(name='v')
-        self.p = parameter(0, 'p')
-        self.q = parameter(0, 'q')
-        self.r = parameter(1, 'r')
+        self.p = parameter('p', value=0)
+        self.q = parameter('q', value=0)
+        self.r = parameter('r', value=1)
 
     def test_error1(self):
         if poek.__using_pybind11__:
@@ -1300,9 +1300,9 @@ class EntangledExpressionErrors(unittest.TestCase):
         self.c = variable(name='c')
         self.d = variable(name='d')
         self.v = variable(name='v')
-        self.p = parameter(0, 'p')
-        self.q = parameter(0, 'q')
-        self.r = parameter(1, 'r')
+        self.p = parameter('p', value=0)
+        self.q = parameter('q', value=0)
+        self.r = parameter('r', value=1)
 
     def test_sumexpr_add_entangled(self):
         a = self.a
@@ -1360,7 +1360,7 @@ class TestVariables(unittest.TestCase):
     def test_name1(self):
         v = variable(3, name='v', value=3)
         self.assertEqual(v.name, 'v')
-        self.assertEqual(v[0].name, 'v[0]')
+        self.assertEqual(v[0].name, 'v(0)')
 
     def test_name2(self):
         v = variable(3, value=3)
