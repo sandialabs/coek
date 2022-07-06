@@ -59,6 +59,25 @@ catch (std::exception& err) {
 }
 
 
+template<typename T>
+class VecKeyIterator : public T
+{
+public:
+
+    int curr;
+
+    VecKeyIterator() : T() {curr=-1;}
+    VecKeyIterator(T iter) : T(iter) {curr=-1;}
+    int* operator->()
+    {
+        curr++; return &curr;
+    }
+    int& operator*()
+    {
+        curr++; return curr;
+    }
+};
+
 #if 0
 class VariableArray;
 
@@ -113,25 +132,6 @@ public:
     const K& operator*()
     {
         return T::operator*().first;
-    }
-};
-
-template<typename T>
-class VecKeyIterator : public T
-{
-public:
-
-    int curr;
-
-    VecKeyIterator() : T() {curr=-1;}
-    VecKeyIterator(T iter) : T(iter) {curr=-1;}
-    int* operator->()
-    {
-        curr++; return &curr;
-    }
-    int& operator*()
-    {
-        curr++; return curr;
     }
 };
 
@@ -396,64 +396,6 @@ coek::Expression ConcreteIndexedVariable_getitem(coek::ConcreteIndexedVariable& 
 #endif
 }
 
-#if 0
-namespace {
-
-const std::string Parameter_get_name(const coek::Parameter& param)
-{ return param.name(); }
-
-double Parameter_get_value(const coek::Parameter& param)
-{ return param.value(); }
-
-void Parameter_set_value(coek::Parameter& param, double value)
-{ param.value(value); }
-
-
-const std::string IndexParameter_get_name(const coek::IndexParameter& param)
-{ return param.name(); }
-
-double IndexParameter_get_value(const coek::IndexParameter& param)
-{
-double value;
-auto flag = param.get_value(value);
-if (flag)
-    return value;
-return NAN;
-}
-
-void IndexParameter_set_value(coek::IndexParameter& param, double value)
-{ param.value(value); }
-
-
-const std::string Variable_get_name(const coek::Variable& var)
-{ return var.name(); }
-
-double Variable_get_value(const coek::Variable& var)
-{ return var.value(); }
-
-void Variable_set_value(coek::Variable& var, double value)
-{ var.value(value); }
-
-double Variable_get_lb(const coek::Variable& var)
-{ return var.lower(); }
-
-void Variable_set_lb(coek::Variable& var, double value)
-{ var.lower(value); }
-
-double Variable_get_ub(const coek::Variable& var)
-{ return var.upper(); }
-
-void Variable_set_ub(coek::Variable& var, double value)
-{ var.upper(value); }
-
-bool Variable_get_fixed(const coek::Variable& var)
-{ return var.fixed(); }
-
-void Variable_set_fixed(coek::Variable& var, bool value)
-{ var.fixed(value); }
-
-}
-#endif
 
 PYBIND11_MODULE(pycoek_pybind11, m) {
 
@@ -509,12 +451,13 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     //
     // Parameter
     //
-    py::class_<coek::Parameter>(m, "parameter")
+    py::class_<coek::Parameter>(m, "parameter_single")
         .def(py::init<>())
         .def(py::init<const std::string&>())
         .def("get_name",[](const coek::Parameter& x){return x.name();})
         .def_property_readonly("name",[](const coek::Parameter& x){return x.name();})
-        .def_property("value", [](const coek::Parameter& x){return x.value();}, [](coek::Parameter& x, double value){x.value(value);})
+        .def("set_value", [](coek::Parameter& x, double val){x.value(val);})
+        .def_property("value", [](const coek::Parameter& x){return x.value();}, [](coek::Parameter& x, double val){x.value(val);})
         .def("is_constraint",[](const coek::Parameter& ){return false;})
 
         .def("__neg__", [](const coek::Parameter& x){return -x;})
@@ -816,6 +759,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     py::class_<coek::VariableArray>(m, "variable_array")
         .def(py::init<>())
         //.def(py::init<std::vector<int>&, py::kwargs>())
+        .def("__len__", [](const coek::VariableArray& va){return va.size();})
         .def("__getitem__", [](coek::VariableArray& va, int i){return va(i);})
         .def("__getitem__", [](coek::VariableArray& va, std::vector<int>& index)
                 {
@@ -825,25 +769,23 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
                     tmp[i] = static_cast<size_t>(index[i]);
                 return va.index(tmp);
                 })
-        .def_property_readonly("name", [](coek::VariableArray& ) -> py::object {
-                return py::cast<std::string>("x");
-                #if 0
+        .def_property_readonly("name", [](coek::VariableArray& x) -> py::object {
                 if (x.name().size() == 0)
                     return py::cast<std::string>("x");
                 else
                     return py::cast<std::string>(x.name());
-                #endif
                 })
         .def("is_constraint",[](const coek::VariableArray& ){return false;})
-        .def("__iter__", [](const coek::VariableArray& /*va*/) 
+        .def("__iter__", [](const coek::VariableArray& va) 
                 {
-                #if 0
-                // TODO - revisit this
+                typedef coek::VecKeyIterator<std::vector<coek::Variable>::const_iterator> vec_key_t;
+                return py::make_iterator(vec_key_t(va.begin()), vec_key_t(va.end()));
+                /*
                 if (va.dim() == 0)
-                     return py::make_iterator(va.unindexed_begin(), va.unindexed_end());
+                     return py::make_iterator(vec_key_t(va.begin()), vec_key_t(va.end()));
                 else
                      return py::make_iterator(va.indexed_begin(), va.indexed_end());
-                #endif
+                */
                 },
                 py::keep_alive<0, 1>())
         ;
@@ -997,7 +939,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     // Objective
     //
     py::class_<coek::Objective>(m, "objective")
-        .def("__init__", [](){throw std::runtime_error("Cannot create an empty objective.");})
+        .def(py::init<>())
         .def_property_readonly("value", [](coek::Objective& c){return c.value();})
         .def_property_readonly("id", &coek::Objective::id)
         .def_property_readonly("name", [](coek::Objective& c){return std::string("o")+std::to_string(c.id());})
@@ -1021,7 +963,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     // Constraint
     //
     py::class_<coek::Constraint>(m, "constraint")
-        .def("__init__", [](){throw std::runtime_error("Cannot create an empty constraint.");})
+        .def(py::init<>())
         .def_property_readonly("value", [](coek::Constraint& c){return c.body().value();})
         .def_property_readonly("lb", [](coek::Constraint& c){return c.lower().value();})
         .def_property_readonly("ub", [](coek::Constraint& c){return c.upper().value();})

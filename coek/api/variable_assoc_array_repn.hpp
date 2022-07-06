@@ -25,6 +25,7 @@ public:
     std::vector<Variable> values;
     Variable variable_template;
     bool call_setup;
+    std::string variable_name;
 
 public:
 

@@ -138,6 +138,19 @@ std::string err = "Unexpected index value: "+_repn->variable_template.name()+
 throw std::runtime_error(err);
 }
 
+std::vector<Variable>::const_iterator VariableArray::begin() const
+{ return repn->values.begin(); }
+
+std::vector<Variable>::const_iterator VariableArray::end() const
+{ return repn->values.end(); }
+
+std::vector<Variable>::iterator VariableArray::begin()
+{ return repn->values.begin(); }
+
+std::vector<Variable>::iterator VariableArray::end()
+{ return repn->values.end(); }
+
+
 VariableArray& VariableArray::value(double value)
 {
 repn->value(value);
@@ -206,9 +219,13 @@ return *this;
 
 VariableArray& VariableArray::name(const std::string& name)
 {
+repn->variable_name = name;
 repn->name(name);
 return *this;
 }
+
+std::string VariableArray::name() const
+{ return repn->variable_name; }
 
 VariableArray& VariableArray::within(VariableTypes vtype)
 {

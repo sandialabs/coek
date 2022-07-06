@@ -23,6 +23,11 @@ public:
     Variable index(const IndexVector& args);
     void index_error(size_t i);
 
+    std::vector<Variable>::const_iterator begin() const;
+    std::vector<Variable>::const_iterator end() const;
+    std::vector<Variable>::iterator begin();
+    std::vector<Variable>::iterator end();
+
 public:
 
     /// Collect arguments with references
@@ -177,6 +182,8 @@ public:
 
     /** Set the name of the variable. \returns the variable object */
     VariableArray& name(const std::string& name);
+    /** Get the name of the variable. \returns the variable string name */
+    std::string name() const;
 
     /** Set the variable type. \returns the variable object */
     VariableArray& within(VariableTypes vtype);
