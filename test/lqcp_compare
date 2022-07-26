@@ -8,8 +8,6 @@ time test/lqcp_array $1 none
 echo "lqcp_map"
 time test/lqcp_map $1 none
 
-exit 1
-
 echo "LP"
 
 echo "lqcp"
@@ -24,6 +22,8 @@ mv foo.lp lqcp_map.lp
 
 diff lqcp.lp lqcp_array.lp
 diff lqcp.lp lqcp_map.lp
+
+exit 1
 
 echo "NL"
 

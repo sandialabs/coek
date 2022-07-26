@@ -99,6 +99,7 @@ REQUIRE( coek::env.check_memory() == true );
 }
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE( "compact_model_add", "[smoke]") {
 {
 coek::CompactModel model;
@@ -116,6 +117,7 @@ SECTION("simple") {
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
+#endif
 
 
 TEST_CASE( "model_setup", "[smoke]" ) {

@@ -79,9 +79,11 @@ if (with_compact)
 endif()
 
 # lqcp2
-add_executable(lqcp2 lqcp2.cpp)
-TARGET_LINK_LIBRARIES(lqcp2 PUBLIC coek coekexamples ${coek_link_libraries})
-TARGET_COMPILE_OPTIONS(lqcp2 PUBLIC ${coek_compile_options})
+if(with_compact)
+    add_executable(lqcp2 lqcp2.cpp)
+    TARGET_LINK_LIBRARIES(lqcp2 PUBLIC coek coekexamples ${coek_link_libraries})
+    TARGET_COMPILE_OPTIONS(lqcp2 PUBLIC ${coek_compile_options})
+endif()
 
 # rlqcp
 add_executable(rlqcp rlqcp.cpp)

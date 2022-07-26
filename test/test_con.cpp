@@ -1343,6 +1343,7 @@ REQUIRE( coek::env.check_memory() == true );
 
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 TEMPLATE_TEST_CASE( "indexed_constraint", "[smoke]", coek::Model, coek::CompactModel ) {
 {
 TestType m;
@@ -1551,3 +1552,4 @@ SECTION("map") {
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
+#endif

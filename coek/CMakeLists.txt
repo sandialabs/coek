@@ -2,6 +2,7 @@
 ##################### Build Shared Library  #####################
 
 SET(sources
+    util/index_vector.cpp
     ast/base_terms.cpp
     ast/constraint_terms.cpp
     ast/value_terms.cpp
@@ -126,15 +127,18 @@ endif()
 if(with_gurobi)
     list(APPEND sources
                 solvers/gurobi/gurobi.cpp)
-    if(NOT "$ENV{GUROBI_HOME}" STREQUAL "")
-        MESSAGE("-- GUROBI_HOME $ENV{GUROBI_HOME}")
-        list(APPEND coek_include_directories $ENV{GUROBI_HOME}/include)
-        list(APPEND coek_link_directories $ENV{GUROBI_HOME}/lib)
-    else()
-        MESSAGE("-- GUROBI_HOME Not provided")
-    endif()
+    #if(NOT "$ENV{GUROBI_HOME}" STREQUAL "")
+    #    MESSAGE("-- GUROBI_HOME $ENV{GUROBI_HOME}")
+    #    list(APPEND coek_link_directories $ENV{GUROBI_HOME}/lib)
+    #else()
+    #    MESSAGE("-- GUROBI_HOME Not provided")
+    #endif()
     list(APPEND coek_compile_options -DWITH_GUROBI)
-    list(APPEND coek_link_libraries gurobi_g++5.2 gurobi90)
+    list(APPEND coek_link_libraries ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARY})
+    list(APPEND coek_include_directories ${GUROBI_INCLUDE_DIRS})
+    message("HERE ${GUROBI_CXX_LIBRARY}")
+    message("HERE ${GUROBI_LIBRARY}")
+#gurobi_g++5.2 gurobi90)
 endif()
 
 #

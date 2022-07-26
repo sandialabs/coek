@@ -209,6 +209,7 @@ endif()
 ##################### Solvers #####################
 
 if(with_gurobi)
+  find_package(GUROBI)
   list(APPEND solver_flags "-DWITH_GUROBI")
   MESSAGE("-- With Gurobi Solver: on")
 else()
