@@ -218,7 +218,7 @@ install(FILES
         )
 install(FILES
         compact/coek_sets.hpp
-        compact/coek_indexed.hpp
+        #compact/coek_indexed.hpp
         compact/sequence_context.hpp
         compact/expression_sequence.hpp
         compact/objective_sequence.hpp

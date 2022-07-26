@@ -23,6 +23,33 @@ PYBIND11_MAKE_OPAQUE(std::map<int,int>)
 
 namespace coek {
 
+    QuadraticExpr generate_standard_repn(Expression& expr) {
+	QuadraticExpr orepn;
+	orepn.collect_terms(expr);
+	return orepn;
+    }
+
+    Expression sum(std::vector<Expression*> args) {
+	Expression res(0);
+	for (Expression* arg : args) {
+	    res += *arg;
+	}
+	return res;
+    }
+
+    Expression construct_linear_expression(std::vector<double> coefs, std::vector<Variable*> vars) {
+	Expression res(0);
+	for (unsigned int ndx=0; ndx < coefs.size(); ++ndx) {
+	    res += coefs[ndx] * *(vars[ndx]);
+	}
+	return res;
+    }
+
+  double expression_eval(Expression& e, bool exception) {
+    return e.value();
+  }
+  
+
 py::list to_nested_list(std::list<std::string>::iterator& it, std::list<std::string>::iterator& end)
 {
 py::list tmp;
@@ -403,6 +430,8 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
 
     m.doc() = "A Python module that wraps Coek";
 
+    m.attr("inf") = COEK_INFINITY;
+
     m.def("variable_",[](int n, py::kwargs kw) {return coek::variable_fn(n, kw);});
     m.def("variable_",[](std::vector<int>& dimen, py::kwargs kw) {return coek::variable_fn(dimen, kw);});
     m.def("variable_",[](py::kwargs kw) {return coek::variable_fn(kw);});
@@ -410,6 +439,10 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     m.def("affine_expression",[](std::vector<double>& coef, std::vector<coek::Variable>& var) {return affine_expression(coef, var, 0);});
     m.def("affine_expression",[](std::vector<coek::Variable>& var, double offset) {return affine_expression(var, offset);});
     m.def("affine_expression",[](std::vector<coek::Variable>& var) {return affine_expression(var, 0);});
+
+    m.def("sum", &coek::sum);
+    m.def("construct_linear_expression", &coek::construct_linear_expression);
+    m.def("generate_standard_repn", &coek::generate_standard_repn);
 
 #ifdef COEK_WITH_COMPACT_MODEL
     m.def("SetOf",[](std::vector<int>& arg) {return coek::SetOf(arg);});
@@ -649,27 +682,39 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         .def("__abs__", [](coek::IndexParameter& x){return abs(x);})
         ;
 
+    py::enum_<coek::VariableTypes>(m, "VariableTypes")
+      .value("Reals", coek::VariableTypes::Reals)
+      .value("Integers", coek::VariableTypes::Integers)
+      .value("Boolean", coek::VariableTypes::Boolean)
+      .value("Binary", coek::VariableTypes::Binary)
+      .export_values();
+
     //
     // Variable
     //
     py::class_<coek::Variable>(m, "variable_single")
         .def(py::init<>())
+	.def(py::init<const coek::VariableRepn&>())
         .def("get_name",[](const coek::Variable& x){return x.name();})
         .def_property_readonly("name",[](const coek::Variable& x){return x.name();})
         .def_property("value", [](const coek::Variable& x){return x.value();}, [](coek::Variable& x, double value){x.value(value);})
         .def_property("lb", [](const coek::Variable& x){return x.lower();}, [](coek::Variable& x, double value){x.lower(value);})
         .def_property("ub", [](const coek::Variable& x){return x.upper();}, [](coek::Variable& x, double value){x.upper(value);})
         .def_property("fixed", [](const coek::Variable& x){return x.fixed();}, [](coek::Variable& x, bool value){x.fixed(value);})
+        .def_property("domain", [](coek::Variable& x){return x.within();}, [](coek::Variable& x, coek::VariableTypes value){x.within(value);})
         .def_property_readonly("id", &coek::Variable::id)
         .def("is_constraint",[](const coek::Variable& ){return false;})
+        .def("is_continuous", [](const coek::Variable& x){return x.is_continuous();})
+        .def("is_integer", [](const coek::Variable& x){return x.is_integer();})
+        .def("is_binary", [](const coek::Variable& x){return x.is_binary();})
 
         .def("__neg__", [](const coek::Variable& x){return -x;})
         .def("__pos__", [](const coek::Variable& x){return +x;})
 
-        .def("__add__", [](const coek::Variable& x, const coek::Expression& y){return x+y;})
-        .def("__add__", [](const coek::Variable& x, const coek::Variable& y){return x+y;})
-        .def("__add__", [](const coek::Variable& x, const coek::Parameter& y){return x+y;})
-        .def("__add__", [](const coek::Variable& x, const coek::IndexParameter& y){return x+y;})
+        .def("__add__", [](const coek::Variable& x, const coek::Expression& y){return x+y;}, py::is_operator())
+        .def("__add__", [](const coek::Variable& x, const coek::Variable& y){return x+y;}, py::is_operator())
+        .def("__add__", [](const coek::Variable& x, const coek::Parameter& y){return x+y;}, py::is_operator())
+        .def("__add__", [](const coek::Variable& x, const coek::IndexParameter& y){return x+y;}, py::is_operator())
         .def(py::self + int())
         .def(py::self + double())
         .def("__radd__", [](const coek::Variable& x, int y){return y+x;})
@@ -801,119 +846,121 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         .def(py::init<coek::Variable&>())
         .def_property_readonly("value", &coek::Expression::value)
         .def("is_constraint",[](const coek::Expression& ){return false;})
+        .def("is_numeric_type",[](const coek::Expression& ){return true;})
+        .def("__call__", &coek::expression_eval, py::arg("exception"))
 
         .def("__neg__", [](const coek::Expression& x){return -x;})
         .def("__pos__", [](const coek::Expression& x){return +x;})
 
-        .def("__add__", [](const coek::Expression& x, const coek::Expression& y){return x+y;})
-        .def("__add__", [](const coek::Expression& x, const coek::Variable& y){return x+y;})
-        .def("__add__", [](const coek::Expression& x, const coek::Parameter& y){return x+y;})
-        .def("__add__", [](const coek::Expression& x, const coek::IndexParameter& y){return x+y;})
+        .def("__add__", [](const coek::Expression& x, const coek::Expression& y){return x+y;}, py::is_operator())
+        .def("__add__", [](const coek::Expression& x, const coek::Variable& y){return x+y;}, py::is_operator())
+        .def("__add__", [](const coek::Expression& x, const coek::Parameter& y){return x+y;}, py::is_operator())
+        .def("__add__", [](const coek::Expression& x, const coek::IndexParameter& y){return x+y;}, py::is_operator())
         .def(py::self + int())
         .def(py::self + double())
-        .def("__radd__", [](const coek::Expression& x, int y){return y+x;})
-        .def("__radd__", [](const coek::Expression& x, double y){return y+x;})
+        .def("__radd__", [](const coek::Expression& x, int y){return y+x;}, py::is_operator())
+        .def("__radd__", [](const coek::Expression& x, double y){return y+x;}, py::is_operator())
 
-        .def("__sub__", [](const coek::Expression& x, const coek::Expression& y){return x-y;})
-        .def("__sub__", [](const coek::Expression& x, const coek::Variable& y){return x-y;})
-        .def("__sub__", [](const coek::Expression& x, const coek::Parameter& y){return x-y;})
-        .def("__sub__", [](const coek::Expression& x, const coek::IndexParameter& y){return x-y;})
+        .def("__sub__", [](const coek::Expression& x, const coek::Expression& y){return x-y;}, py::is_operator())
+        .def("__sub__", [](const coek::Expression& x, const coek::Variable& y){return x-y;}, py::is_operator())
+        .def("__sub__", [](const coek::Expression& x, const coek::Parameter& y){return x-y;}, py::is_operator())
+        .def("__sub__", [](const coek::Expression& x, const coek::IndexParameter& y){return x-y;}, py::is_operator())
         .def(py::self - int())
         .def(py::self - double())
-        .def("__rsub__", [](const coek::Expression& x, int y){return y-x;})
-        .def("__rsub__", [](const coek::Expression& x, double y){return y-x;})
+        .def("__rsub__", [](const coek::Expression& x, int y){return y-x;}, py::is_operator())
+        .def("__rsub__", [](const coek::Expression& x, double y){return y-x;}, py::is_operator())
 
-        .def("__mul__", [](const coek::Expression& x, const coek::Expression& y){return x*y;})
-        .def("__mul__", [](const coek::Expression& x, const coek::Variable& y){return x*y;})
-        .def("__mul__", [](const coek::Expression& x, const coek::Parameter& y){return x*y;})
-        .def("__mul__", [](const coek::Expression& x, const coek::IndexParameter& y){return x*y;})
+        .def("__mul__", [](const coek::Expression& x, const coek::Expression& y){return x*y;}, py::is_operator())
+        .def("__mul__", [](const coek::Expression& x, const coek::Variable& y){return x*y;}, py::is_operator())
+        .def("__mul__", [](const coek::Expression& x, const coek::Parameter& y){return x*y;}, py::is_operator())
+        .def("__mul__", [](const coek::Expression& x, const coek::IndexParameter& y){return x*y;}, py::is_operator())
         .def(py::self * int())
         .def(py::self * double())
-        .def("__rmul__", [](const coek::Expression& x, int y){return y*x;})
-        .def("__rmul__", [](const coek::Expression& x, double y){return y*x;})
+        .def("__rmul__", [](const coek::Expression& x, int y){return y*x;}, py::is_operator())
+        .def("__rmul__", [](const coek::Expression& x, double y){return y*x;}, py::is_operator())
 
-        .def("__truediv__", [](const coek::Expression& x, const coek::Expression& y){return x/y;})
-        .def("__truediv__", [](const coek::Expression& x, const coek::Variable& y){return x/y;})
-        .def("__truediv__", [](const coek::Expression& x, const coek::Parameter& y){return x/y;})
-        .def("__truediv__", [](const coek::Expression& x, const coek::IndexParameter& y){return x/y;})
+        .def("__truediv__", [](const coek::Expression& x, const coek::Expression& y){return x/y;}, py::is_operator())
+        .def("__truediv__", [](const coek::Expression& x, const coek::Variable& y){return x/y;}, py::is_operator())
+        .def("__truediv__", [](const coek::Expression& x, const coek::Parameter& y){return x/y;}, py::is_operator())
+        .def("__truediv__", [](const coek::Expression& x, const coek::IndexParameter& y){return x/y;}, py::is_operator())
         .def(py::self / int())
         .def(py::self / double())
-        .def("__rtruediv__", [](const coek::Expression& x, int y){return y/x;})
-        .def("__rtruediv__", [](const coek::Expression& x, double y){return y/x;})
+        .def("__rtruediv__", [](const coek::Expression& x, int y){return y/x;}, py::is_operator())
+        .def("__rtruediv__", [](const coek::Expression& x, double y){return y/x;}, py::is_operator())
 
-        .def("__pow__", [](const coek::Expression& x, const coek::Expression& y){return pow(x,y);})
-        .def("__pow__", [](const coek::Expression& x, const coek::Variable& y){return pow(x,y);})
-        .def("__pow__", [](const coek::Expression& x, const coek::Parameter& y){return pow(x,y);})
-        .def("__pow__", [](const coek::Expression& x, const coek::IndexParameter& y){return pow(x,y);})
-        .def("__pow__", [](const coek::Expression& x, int y){return pow(x,y);})
-        .def("__pow__", [](const coek::Expression& x, double y){return pow(x,y);})
-        .def("__rpow__", [](const coek::Expression& x, int y){return pow(y,x);})
-        .def("__rpow__", [](const coek::Expression& x, double y){return pow(y,x);})
+        .def("__pow__", [](const coek::Expression& x, const coek::Expression& y){return pow(x,y);}, py::is_operator())
+        .def("__pow__", [](const coek::Expression& x, const coek::Variable& y){return pow(x,y);}, py::is_operator())
+        .def("__pow__", [](const coek::Expression& x, const coek::Parameter& y){return pow(x,y);}, py::is_operator())
+        .def("__pow__", [](const coek::Expression& x, const coek::IndexParameter& y){return pow(x,y);}, py::is_operator())
+        .def("__pow__", [](const coek::Expression& x, int y){return pow(x,y);}, py::is_operator())
+        .def("__pow__", [](const coek::Expression& x, double y){return pow(x,y);}, py::is_operator())
+        .def("__rpow__", [](const coek::Expression& x, int y){return pow(y,x);}, py::is_operator())
+        .def("__rpow__", [](const coek::Expression& x, double y){return pow(y,x);}, py::is_operator())
 
-        .def("__lt__", [](const coek::Expression& x, const coek::Expression& y){return x<y;})
-        .def("__lt__", [](const coek::Expression& x, const coek::Variable& y){return x<y;})
-        .def("__lt__", [](const coek::Expression& x, const coek::Parameter& y){return x<y;})
-        .def("__lt__", [](const coek::Expression& x, const coek::IndexParameter& y){return x<y;})
+        .def("__lt__", [](const coek::Expression& x, const coek::Expression& y){return x<y;}, py::is_operator())
+        .def("__lt__", [](const coek::Expression& x, const coek::Variable& y){return x<y;}, py::is_operator())
+        .def("__lt__", [](const coek::Expression& x, const coek::Parameter& y){return x<y;}, py::is_operator())
+        .def("__lt__", [](const coek::Expression& x, const coek::IndexParameter& y){return x<y;}, py::is_operator())
         .def(py::self < int())
         .def(py::self < double())
 
-        .def("__le__", [](const coek::Expression& x, const coek::Expression& y){return x<=y;})
-        .def("__le__", [](const coek::Expression& x, const coek::Variable& y){return x<=y;})
-        .def("__le__", [](const coek::Expression& x, const coek::Parameter& y){return x<=y;})
-        .def("__le__", [](const coek::Expression& x, const coek::IndexParameter& y){return x<=y;})
+        .def("__le__", [](const coek::Expression& x, const coek::Expression& y){return x<=y;}, py::is_operator())
+        .def("__le__", [](const coek::Expression& x, const coek::Variable& y){return x<=y;}, py::is_operator())
+        .def("__le__", [](const coek::Expression& x, const coek::Parameter& y){return x<=y;}, py::is_operator())
+        .def("__le__", [](const coek::Expression& x, const coek::IndexParameter& y){return x<=y;}, py::is_operator())
         .def(py::self <= int())
         .def(py::self <= double())
 
-        .def("__gt__", [](const coek::Expression& x, const coek::Expression& y){return x>y;})
-        .def("__gt__", [](const coek::Expression& x, const coek::Variable& y){return x>y;})
-        .def("__gt__", [](const coek::Expression& x, const coek::Parameter& y){return x>y;})
-        .def("__gt__", [](const coek::Expression& x, const coek::IndexParameter& y){return x>y;})
+        .def("__gt__", [](const coek::Expression& x, const coek::Expression& y){return x>y;}, py::is_operator())
+        .def("__gt__", [](const coek::Expression& x, const coek::Variable& y){return x>y;}, py::is_operator())
+        .def("__gt__", [](const coek::Expression& x, const coek::Parameter& y){return x>y;}, py::is_operator())
+        .def("__gt__", [](const coek::Expression& x, const coek::IndexParameter& y){return x>y;}, py::is_operator())
         .def(py::self > int())
         .def(py::self > double())
 
-        .def("__ge__", [](const coek::Expression& x, const coek::Expression& y){return x>=y;})
-        .def("__ge__", [](const coek::Expression& x, const coek::Variable& y){return x>=y;})
-        .def("__ge__", [](const coek::Expression& x, const coek::Parameter& y){return x>=y;})
-        .def("__ge__", [](const coek::Expression& x, const coek::IndexParameter& y){return x>=y;})
+        .def("__ge__", [](const coek::Expression& x, const coek::Expression& y){return x>=y;}, py::is_operator())
+        .def("__ge__", [](const coek::Expression& x, const coek::Variable& y){return x>=y;}, py::is_operator())
+        .def("__ge__", [](const coek::Expression& x, const coek::Parameter& y){return x>=y;}, py::is_operator())
+        .def("__ge__", [](const coek::Expression& x, const coek::IndexParameter& y){return x>=y;}, py::is_operator())
         .def(py::self >= int())
         .def(py::self >= double())
 
-        .def("__eq__", [](const coek::Expression& x, const coek::Expression& y){return x==y;})
-        .def("__eq__", [](const coek::Expression& x, const coek::Variable& y){return x==y;})
-        .def("__eq__", [](const coek::Expression& x, const coek::Parameter& y){return x==y;})
-        .def("__eq__", [](const coek::Expression& x, const coek::IndexParameter& y){return x==y;})
+        .def("__eq__", [](const coek::Expression& x, const coek::Expression& y){return x==y;}, py::is_operator())
+        .def("__eq__", [](const coek::Expression& x, const coek::Variable& y){return x==y;}, py::is_operator())
+        .def("__eq__", [](const coek::Expression& x, const coek::Parameter& y){return x==y;}, py::is_operator())
+        .def("__eq__", [](const coek::Expression& x, const coek::IndexParameter& y){return x==y;}, py::is_operator())
         .def(py::self == int())
         .def(py::self == double())
 
-        .def("__iadd__", [](coek::Expression& x, const coek::Expression& y){return x += y;})
-        .def("__iadd__", [](coek::Expression& x, const coek::Variable& y){return x += y;})
-        .def("__iadd__", [](coek::Expression& x, const coek::Parameter& y){return x += y;})
-        .def("__iadd__", [](coek::Expression& x, const coek::IndexParameter& y){return x += y;})
-        .def("__iadd__", [](coek::Expression& x, int y){return x += y;})
-        .def("__iadd__", [](coek::Expression& x, double y){return x += y;})
+        .def("__iadd__", [](coek::Expression& x, const coek::Expression& y){return x += y;}, py::is_operator())
+        .def("__iadd__", [](coek::Expression& x, const coek::Variable& y){return x += y;}, py::is_operator())
+        .def("__iadd__", [](coek::Expression& x, const coek::Parameter& y){return x += y;}, py::is_operator())
+        .def("__iadd__", [](coek::Expression& x, const coek::IndexParameter& y){return x += y;}, py::is_operator())
+        .def("__iadd__", [](coek::Expression& x, int y){return x += y;}, py::is_operator())
+        .def("__iadd__", [](coek::Expression& x, double y){return x += y;}, py::is_operator())
 
-        .def("__isub__", [](coek::Expression& x, const coek::Expression& y){return x -= y;})
-        .def("__isub__", [](coek::Expression& x, const coek::Variable& y){return x -= y;})
-        .def("__isub__", [](coek::Expression& x, const coek::Parameter& y){return x -= y;})
-        .def("__isub__", [](coek::Expression& x, const coek::IndexParameter& y){return x -= y;})
-        .def("__isub__", [](coek::Expression& x, int y){return x -= y;})
-        .def("__isub__", [](coek::Expression& x, double y){return x -= y;})
+        .def("__isub__", [](coek::Expression& x, const coek::Expression& y){return x -= y;}, py::is_operator())
+        .def("__isub__", [](coek::Expression& x, const coek::Variable& y){return x -= y;}, py::is_operator())
+        .def("__isub__", [](coek::Expression& x, const coek::Parameter& y){return x -= y;}, py::is_operator())
+        .def("__isub__", [](coek::Expression& x, const coek::IndexParameter& y){return x -= y;}, py::is_operator())
+        .def("__isub__", [](coek::Expression& x, int y){return x -= y;}, py::is_operator())
+        .def("__isub__", [](coek::Expression& x, double y){return x -= y;}, py::is_operator())
 
-        .def("__imul__", [](coek::Expression& x, const coek::Expression& y){return x *= y;})
-        .def("__imul__", [](coek::Expression& x, const coek::Variable& y){return x *= y;})
-        .def("__imul__", [](coek::Expression& x, const coek::Parameter& y){return x *= y;})
-        .def("__imul__", [](coek::Expression& x, const coek::IndexParameter& y){return x *= y;})
-        .def("__imul__", [](coek::Expression& x, int y){return x *= y;})
-        .def("__imul__", [](coek::Expression& x, double y){return x *= y;})
+        .def("__imul__", [](coek::Expression& x, const coek::Expression& y){return x *= y;}, py::is_operator())
+        .def("__imul__", [](coek::Expression& x, const coek::Variable& y){return x *= y;}, py::is_operator())
+        .def("__imul__", [](coek::Expression& x, const coek::Parameter& y){return x *= y;}, py::is_operator())
+        .def("__imul__", [](coek::Expression& x, const coek::IndexParameter& y){return x *= y;}, py::is_operator())
+        .def("__imul__", [](coek::Expression& x, int y){return x *= y;}, py::is_operator())
+        .def("__imul__", [](coek::Expression& x, double y){return x *= y;}, py::is_operator())
 
-        .def("__itruediv__", [](coek::Expression& x, const coek::Expression& y){return x /= y;})
-        .def("__itruediv__", [](coek::Expression& x, const coek::Variable& y){return x /= y;})
-        .def("__itruediv__", [](coek::Expression& x, const coek::Parameter& y){return x /= y;})
-        .def("__itruediv__", [](coek::Expression& x, const coek::IndexParameter& y){return x /= y;})
-        .def("__itruediv__", [](coek::Expression& x, int y){return x /= y;})
-        .def("__itruediv__", [](coek::Expression& x, double y){return x /= y;})
+        .def("__itruediv__", [](coek::Expression& x, const coek::Expression& y){return x /= y;}, py::is_operator())
+        .def("__itruediv__", [](coek::Expression& x, const coek::Variable& y){return x /= y;}, py::is_operator())
+        .def("__itruediv__", [](coek::Expression& x, const coek::Parameter& y){return x /= y;}, py::is_operator())
+        .def("__itruediv__", [](coek::Expression& x, const coek::IndexParameter& y){return x /= y;}, py::is_operator())
+        .def("__itruediv__", [](coek::Expression& x, int y){return x /= y;}, py::is_operator())
+        .def("__itruediv__", [](coek::Expression& x, double y){return x /= y;}, py::is_operator())
 
-        .def("__abs__", [](coek::Expression& x){return coek::abs(x);})
+        .def("__abs__", [](coek::Expression& x){return coek::abs(x);}, py::is_operator())
 
         //.def("__bool__", [](coek::Expression& x){return x.get_value() != 0;})
         //.def("__int__", [](coek::Expression& x){return int(x.get_value());})
@@ -992,6 +1039,20 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
                                 return coek::to_nested_list(begin, end);})
         .def("expand", [](coek::Constraint& x) {return x.expand();})
         ;
+
+    py::class_<coek::QuadraticExpr>(m, "QuadraticExpr")
+	.def_readwrite("linear_vars", &coek::QuadraticExpr::linear_vars)
+	.def_readwrite("linear_coefs", &coek::QuadraticExpr::linear_coefs)
+	.def_readwrite("quadratic_lvars", &coek::QuadraticExpr::quadratic_lvars)
+	.def_readwrite("quadratic_rvars", &coek::QuadraticExpr::quadratic_rvars)
+	.def_readwrite("quadratic_coefs", &coek::QuadraticExpr::quadratic_coefs)
+	.def_readwrite("constval", &coek::QuadraticExpr::constval)
+	.def("is_constant", &coek::QuadraticExpr::is_constant)
+	.def("is_linear", &coek::QuadraticExpr::is_linear)
+	.def("is_quadratic", &coek::QuadraticExpr::is_quadratic);
+
+    py::class_<coek::VariableTerm>(m, "VariableTerm")
+	.def_readonly("index", &coek::VariableTerm::index);
 
     //
     // Intrinsics

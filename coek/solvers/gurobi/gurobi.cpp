@@ -182,7 +182,7 @@ std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
 for (auto it=string_options.begin(); it != string_options.end(); ++it)
     gmodel->set(it->first, it->second);
 try {
-    gmodel->write("foo.lp");
+    //gmodel->write("foo.lp");
     gmodel->optimize();
 
     int status = gmodel->get(GRB_IntAttr_Status);
