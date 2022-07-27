@@ -4,19 +4,6 @@
 #include "coek/model/model.hpp"
 
 
-namespace {
-typedef typename coek::IndexVector::vecdata_t vecdata_t;
-}
-
-namespace std
-{
-    template<>
-    struct hash<coek::IndexVector>
-    {
-        vecdata_t operator()(const coek::IndexVector& a) const;
-    };
-}
-
 namespace coek {
 
 class ParameterMapRepn : public ParameterAssocArrayRepn
