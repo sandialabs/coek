@@ -28,6 +28,7 @@ auto start = std::chrono::high_resolution_clock::now();
 if (not initial_solve())
     model->reset();
 
+repn->set_options(string_options, integer_options, double_options);
 auto it = string_options.find("warm_start_init_point");
 if ((it != string_options.end()) and (it->second == "yes"))
     repn->set_start_from_last_x(true);
