@@ -51,7 +51,7 @@ include(CTest)
 include(Catch)
 catch_discover_tests(runner)
 
-message("LINK LIBS: ${coek_link_libraries}")
+#message("LINK LIBS: ${coek_link_libraries}")
 
 # demo1
 add_executable(demo1 demo1.cpp)
@@ -65,7 +65,7 @@ TARGET_COMPILE_OPTIONS(lqcp PUBLIC ${coek_compile_options})
 
 # lqcp_array
 if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
-    message("OPTIONS ${coek_compile_options}")
+    #message("OPTIONS ${coek_compile_options}")
     add_executable(lqcp_array lqcp_array.cpp)
     TARGET_LINK_LIBRARIES(lqcp_array PUBLIC coek coekexamples ${coek_link_libraries})
     TARGET_COMPILE_OPTIONS(lqcp_array PUBLIC ${coek_compile_options})

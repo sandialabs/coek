@@ -136,8 +136,6 @@ if(with_gurobi)
     list(APPEND coek_compile_options -DWITH_GUROBI)
     list(APPEND coek_link_libraries ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARY})
     list(APPEND coek_include_directories ${GUROBI_INCLUDE_DIRS})
-    message("HERE ${GUROBI_CXX_LIBRARY}")
-    message("HERE ${GUROBI_LIBRARY}")
 #gurobi_g++5.2 gurobi90)
 endif()
 
@@ -169,11 +167,11 @@ list(APPEND sources
 # this is the "object library" target: compiles the sources only once
 if (build_shared_libs)
     add_library(coek SHARED ${sources})
-    message("Building shared libcoek library")
+    message("-- Building shared libcoek library")
     set_target_properties(coek PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
 else()
     add_library(coek STATIC ${sources})
-    message("Building static libcoek library")
+    message("-- Building static libcoek library")
 endif()
 
 target_compile_options(coek PUBLIC ${coek_compile_options})
