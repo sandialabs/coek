@@ -411,43 +411,6 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     m.def("affine_expression",[](std::vector<coek::Variable>& var, double offset) {return affine_expression(var, offset);});
     m.def("affine_expression",[](std::vector<coek::Variable>& var) {return affine_expression(var, 0);});
 
-#ifdef COEK_WITH_COMPACT_MODEL
-    m.def("SetOf",[](std::vector<int>& arg) {return coek::SetOf(arg);});
-    m.def("RangeSet",[](int start, int stop, int step=1) {return coek::RangeSet(start, stop, step);});
-    m.def("RangeSet",[](int start, int stop) {return coek::RangeSet(start, stop);});
-
-    #if 0
-    m.def("IndexedVariable",[](const coek::ConcreteSet& arg, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=0.0) {return coek::IndexedVariable(arg, lb, ub, value);});
-    m.def("IndexedVariable",[](const coek::ConcreteSet& arg, double lb=-COEK_INFINITY, double ub=COEK_INFINITY) {return coek::IndexedVariable(arg, lb, ub);});
-    m.def("IndexedVariable",[](const coek::ConcreteSet& arg) {return coek::IndexedVariable(arg);});
-    m.def("IndexedVariable",[](const coek::ConcreteSet& arg, const std::string& name) {return coek::IndexedVariable(arg, name);});
-    m.def("IndexedVariable",[](const coek::ConcreteSet& arg, double lb, double ub, double value, const std::string& name) {return coek::IndexedVariable(arg, lb, ub, value, name);});
-    m.def("IndexedVariable",[](const coek::ConcreteSet& arg, double lb, double ub, double value, bool binary, bool integer, const std::string& name) {return coek::IndexedVariable(arg, lb, ub, value, binary, integer, name);});
-    m.def("IndexedVariable",[](const coek::ConcreteSet& arg, double lb, double ub, double value, bool binary, bool integer) {return coek::IndexedVariable(arg, lb, ub, value, binary, integer);});
-    #endif
-
-    //
-    // ConcreteSet
-    //
-    py::class_<coek::ConcreteSet>(m, "ConcreteSet")
-        .def("dim",&coek::ConcreteSet::dim)
-        .def("__add__", [](coek::ConcreteSet& x, coek::ConcreteSet& y){return x+y;})
-        .def("__sub__", [](coek::ConcreteSet& x, coek::ConcreteSet& y){return x-y;})
-        .def("__mul__", [](coek::ConcreteSet& x, coek::ConcreteSet& y){return x*y;})
-        .def("__and__", [](coek::ConcreteSet& x, coek::ConcreteSet& y){return x & y;})
-        .def("__or__", [](coek::ConcreteSet& x, coek::ConcreteSet& y){return x | y;})
-        .def("__xor__", [](coek::ConcreteSet& x, coek::ConcreteSet& y){return x ^ y;})
-        ;
-
-    #if 0
-    py::class_<coek::ConcreteIndexedVariable>(m, "ConcreteIndexedVariable")
-        .def("__call__", [](coek::ConcreteIndexedVariable& x, py::args args) {return coek::ConcreteIndexedVariable_getitem(x,args);})
-        .def("__getitem__", [](coek::ConcreteIndexedVariable& x, py::tuple args) {return coek::ConcreteIndexedVariable_getitem(x,args);})
-        .def("__getitem__", [](coek::ConcreteIndexedVariable& x, py::args args) {return coek::ConcreteIndexedVariable_getitem(x,args);})
-        ;
-    #endif
-#endif
-
     //
     // Parameter
     //
@@ -789,6 +752,36 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
                 },
                 py::keep_alive<0, 1>())
         ;
+
+#ifdef COEK_WITH_COMPACT_MODEL
+    m.def("SetOf",[](std::vector<int>& arg) {return coek::SetOf(arg);});
+    m.def("RangeSet",[](int start, int stop, int step=1) {return coek::RangeSet(start, stop, step);});
+    m.def("RangeSet",[](int start, int stop) {return coek::RangeSet(start, stop);});
+
+    #if 0
+    m.def("IndexedVariable",[](const coek::ConcreteSet& arg, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=0.0) {return coek::IndexedVariable(arg, lb, ub, value);});
+    m.def("IndexedVariable",[](const coek::ConcreteSet& arg, double lb=-COEK_INFINITY, double ub=COEK_INFINITY) {return coek::IndexedVariable(arg, lb, ub);});
+    m.def("IndexedVariable",[](const coek::ConcreteSet& arg) {return coek::IndexedVariable(arg);});
+    m.def("IndexedVariable",[](const coek::ConcreteSet& arg, const std::string& name) {return coek::IndexedVariable(arg, name);});
+    m.def("IndexedVariable",[](const coek::ConcreteSet& arg, double lb, double ub, double value, const std::string& name) {return coek::IndexedVariable(arg, lb, ub, value, name);});
+    m.def("IndexedVariable",[](const coek::ConcreteSet& arg, double lb, double ub, double value, bool binary, bool integer, const std::string& name) {return coek::IndexedVariable(arg, lb, ub, value, binary, integer, name);});
+    m.def("IndexedVariable",[](const coek::ConcreteSet& arg, double lb, double ub, double value, bool binary, bool integer) {return coek::IndexedVariable(arg, lb, ub, value, binary, integer);});
+    #endif
+
+    //
+    // ConcreteSet
+    //
+    py::class_<coek::ConcreteSet>(m, "ConcreteSet")
+        .def("dim",&coek::ConcreteSet::dim)
+        .def("__add__", [](coek::ConcreteSet& x, coek::ConcreteSet& y){return x+y;})
+        .def("__sub__", [](coek::ConcreteSet& x, coek::ConcreteSet& y){return x-y;})
+        .def("__mul__", [](coek::ConcreteSet& x, coek::ConcreteSet& y){return x*y;})
+        .def("__and__", [](coek::ConcreteSet& x, coek::ConcreteSet& y){return x & y;})
+        .def("__or__", [](coek::ConcreteSet& x, coek::ConcreteSet& y){return x | y;})
+        .def("__xor__", [](coek::ConcreteSet& x, coek::ConcreteSet& y){return x ^ y;})
+        ;
+
+#endif
 
     //
     // Expression
