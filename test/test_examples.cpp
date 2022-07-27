@@ -117,6 +117,7 @@ if (solver.available()) {
 else {
     REQUIRE(solver.error_status());
     REQUIRE(solver.error_code() != 0);
+    std::cerr << solver.error_message() << std::endl;
     }
 }
 
