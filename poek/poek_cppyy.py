@@ -2,6 +2,7 @@
 import itertools
 import pycoek_cppyy
 
+_Parameter = pycoek_cppyy.coek.Parameter
 constraint = pycoek_cppyy.coek.Constraint
 expression = pycoek_cppyy.coek.Expression
 model = pycoek_cppyy.coek.Model
@@ -12,13 +13,19 @@ nlp_solver = pycoek_cppyy.coek.NLPSolver
 NAN = float('nan')
 inf = model.inf
 
+
 class parameter(object):
     """Class used to define a POEK parameter."""
     def __new__(cls, *args, **kwds):
-        if len(args) == 1:
-            return pycoek_cppyy.coek.Parameter(args[0], "")
+        if len(args) == 0:
+            param = pycoek_cppyy.coek.Parameter("")
+        elif len(args) == 1:
+            param = pycoek_cppyy.coek.Parameter(args[0])
         else:
-            return pycoek_cppyy.coek.Parameter(*args)
+            raise RuntimeError("parameter() only accepts one unnamed arguments")
+        if 'value' in kwds:
+            param.value = kwds['value']
+        return param
 
 
 class variable(object):
@@ -33,7 +40,14 @@ class variable(object):
         integer = kwds.get('integer', 0)
         fixed = kwds.get('fixed', 0)
         if len(args) == 0 or args[0] == 1:
-            return pycoek_cppyy.coek.Variable(name, lb, ub, init, binval, integer)
+            var = pycoek_cppyy.coek.Variable(name)
+            var.bounds(lb, ub)
+            var.value = init
+            if binval:
+                var.within = 2
+            elif integer:
+                var.within = 1
+            return var
         elif len(args) == 1:
             dimen = args[0]
             if type(dimen) is tuple or type(dimen) is list:
