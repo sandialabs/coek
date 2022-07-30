@@ -11,8 +11,7 @@ from . import config
 #
 # NOTE: CFFI is currently not supported
 #
-imports = ['pycoek_pybind11']
-#imports = ['pycoek_cppyy', 'pycoek_pybind11']
+imports = ['pycoek_pybind11', 'pycoek_cppyy']
 
 __using_cppyy__     = False
 __using_pybind11__  = False
