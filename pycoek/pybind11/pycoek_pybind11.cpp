@@ -359,7 +359,9 @@ return tmp;
 
 #ifdef COEK_WITH_COMPACT_MODEL
 template <class T>
-coek::Expression Array_getitem(T& x, py::tuple args)
+//coek::Expression 
+py::object
+Array_getitem(T& x, py::tuple args)
 {
 std::vector<coek::refarg_types>& refarg = x.reftmp;
 coek::IndexVector& setarg = x.tmp;
@@ -463,10 +465,12 @@ else {
     }
 
 //std::cout << "HERE " << refarg.size() << " " << setarg.size() << std::endl;
+py::object result;
 if (j > i)
-    return x.create_varref(refarg);
+    result = py::cast<Expression>(x.create_varref(refarg));
 else
-    return x.index(setarg);
+    result = py::cast<Variable>(x.index(setarg));
+return result;
 }
 #endif
 }
