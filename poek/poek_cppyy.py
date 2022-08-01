@@ -134,4 +134,4 @@ def affine_expression(arg1, arg2=None, arg3=None):
     else:
         return pycoek_cppyy.coek.affine_expression(arg1,arg2,arg3)
 
-from .func import quicksum, prod
+from .func import quicksum, prod, seq

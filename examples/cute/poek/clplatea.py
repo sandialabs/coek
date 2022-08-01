@@ -32,14 +32,15 @@ p = 71
 wght = -0.1
 hp2 = 0.5*p**2
 
-x = model.add_variable((p,p), value=0.0)
+x = model.add_variable(pk.RangeSet(1,p)*pk.RangeSet(1,p), value=0.0)
 
-model.add_objective( sum(0.5*(x[i,j]-x[i,j-1])**2+\
+model.add_objective( sum(\
+    0.5*(x[i,j]-x[i,j-1])**2+\
     0.5*(x[i,j]-x[i-1,j])**2+\
     hp2*(x[i,j]-x[i,j-1])**4+\
     hp2*(x[i,j]-x[i-1,j])**4\
-    for i in range(1,p) for j in range(1,p)) + (wght*x[p,p]) )
+    for i in pk.seq(2,p) for j in pk.seq(2,p)) + (wght*x[p,p]) )
 
-for j in range(0,p):
+for j in pk.seq(1,p):
     x[1,j].value = 0.0
     x[1,j].fixed = True

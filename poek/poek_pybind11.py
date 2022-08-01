@@ -3,7 +3,7 @@
 #
 from pycoek_pybind11 import variable_, parameter_single, variable_array
 from pycoek_pybind11 import *
-from .func import quicksum, prod
+from .func import quicksum, prod, seq
 
 try:
     compact_model

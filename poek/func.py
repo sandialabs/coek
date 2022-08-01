@@ -1,4 +1,11 @@
 
+def seq(*args):
+    if len(args) > 1:
+        tmp = list(args)
+        tmp[1] += 1
+        args = tuple(tmp)
+    return range(*args)
+
 def prod(args):
     """
     A utility function to compute the product of Poek expressions.
