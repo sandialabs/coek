@@ -111,25 +111,25 @@ class Test_SumExpression(unittest.TestCase):
 
         z = np.int32(5)
         e = a + z
-        self.assertEqual(e.to_list(), ['+','a','5.000'])
+        self.assertEqual(e.to_list(), ['+','a','5.000000'])
 
         e = z + a
-        self.assertEqual(e.to_list(), ['+','5.000','a'])
+        self.assertEqual(e.to_list(), ['+','5.000000','a'])
 
         e = a
         e += z
-        self.assertEqual(e.to_list(), ['+','a','5.000'])
+        self.assertEqual(e.to_list(), ['+','a','5.000000'])
 
         z = np.float32(5.0)
         e = a + z
-        self.assertEqual(e.to_list(), ['+','a','5.000'])
+        self.assertEqual(e.to_list(), ['+','a','5.000000'])
 
         e = z + a
-        self.assertEqual(e.to_list(), ['+','5.000','a'])
+        self.assertEqual(e.to_list(), ['+','5.000000','a'])
 
         e = a
         e += z
-        self.assertEqual(e.to_list(), ['+','a', '5.000'])
+        self.assertEqual(e.to_list(), ['+','a', '5.000000'])
 
     def test_nestedSum(self):
         #
@@ -149,7 +149,7 @@ class Test_SumExpression(unittest.TestCase):
         z = np.int32(5)
         e = e1 + z
         #
-        self.assertEqual(e.to_list(), ['+', 'a', 'b', '5.000'])
+        self.assertEqual(e.to_list(), ['+', 'a', 'b', '5.000000'])
 
         #       + 
         #      / \ 
@@ -159,7 +159,7 @@ class Test_SumExpression(unittest.TestCase):
         e1 = a + b
         e = z + e1
         #
-        self.assertEqual(e.to_list(), ['+', '5.000', ['+', 'a', 'b']])
+        self.assertEqual(e.to_list(), ['+', '5.000000', ['+', 'a', 'b']])
 
         #           +
         #          / \
@@ -212,7 +212,7 @@ class Test_SumExpression(unittest.TestCase):
         z = np.int32(2)
         e = z*e1 + c
         #
-        self.assertEqual(e.to_list(), ['+',['*','2.000',['+','a','b']],'c'])
+        self.assertEqual(e.to_list(), ['+',['*','2.000000',['+','a','b']],'c'])
 
         #         *
         #        / \
@@ -226,7 +226,7 @@ class Test_SumExpression(unittest.TestCase):
         e1 = a + b
         e = 3*(z*e1 + c)
         #
-        self.assertEqual(e.to_list(), ['*','3.000',['+',['*','2.000',['+','a','b']],'c']])
+        self.assertEqual(e.to_list(), ['*','3.000000',['+',['*','2.000000',['+','a','b']],'c']])
 
     def test_trivialSum(self):
         #
@@ -363,25 +363,25 @@ class TestDiffExpression(unittest.TestCase):
 
         z = np.int32(5)
         e = a - z
-        self.assertEqual(e.to_list(), ['+', 'a', '-5.000'])
+        self.assertEqual(e.to_list(), ['+', 'a', '-5.000000'])
 
         e = z - a
-        self.assertEqual(e.to_list(), ['+', '5.000', ['*', '-1', 'a']])
+        self.assertEqual(e.to_list(), ['+', '5.000000', ['*', '-1', 'a']])
 
         e = a
         e -= z
-        self.assertEqual(e.to_list(), ['+', 'a', '-5.000'])
+        self.assertEqual(e.to_list(), ['+', 'a', '-5.000000'])
 
         z = np.float32(5)
         e = a - z
-        self.assertEqual(e.to_list(), ['+', 'a', '-5.000'])
+        self.assertEqual(e.to_list(), ['+', 'a', '-5.000000'])
 
         e = z - a
-        self.assertEqual(e.to_list(), ['+', '5.000', ['*', '-1', 'a']])
+        self.assertEqual(e.to_list(), ['+', '5.000000', ['*', '-1', 'a']])
 
         e = a
         e -= z
-        self.assertEqual(e.to_list(), ['+', 'a', '-5.000'])
+        self.assertEqual(e.to_list(), ['+', 'a', '-5.000000'])
 
     def test_paramDiff(self):
         # a - p
@@ -413,7 +413,7 @@ class TestDiffExpression(unittest.TestCase):
         z = np.int32(5)
         e = z - 2*a
         #
-        self.assertEqual(e.to_list(), ['+','5.000',['*', '-2','a']])
+        self.assertEqual(e.to_list(), ['+','5.000000',['*', '-2','a']])
 
     def test_nestedDiff(self):
         #
@@ -434,7 +434,7 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a - b
         e = e1 - z
         #
-        self.assertEqual(e.to_list(), ['+', 'a', ['*', '-1', 'b'], '-5.000'])
+        self.assertEqual(e.to_list(), ['+', 'a', ['*', '-1', 'b'], '-5.000000'])
 
         #       -
         #      / \
@@ -445,7 +445,7 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a - b
         e = z - e1
         #
-        self.assertEqual(e.to_list(), ['+', '5.000', ['-', ['+', 'a', ['*', '-1', 'b']]]])
+        self.assertEqual(e.to_list(), ['+', '5.000000', ['-', ['+', 'a', ['*', '-1', 'b']]]])
 
         #       -
         #      / \
@@ -705,7 +705,7 @@ class Test_MulExpression(unittest.TestCase):
         z = np.int32(5)
         e1 = a * b
         e = e1 * z
-        self.assertEqual(e.to_list(), ['*', ['*', 'a', 'b'], '5.000'])
+        self.assertEqual(e.to_list(), ['*', ['*', 'a', 'b'], '5.000000'])
 
         #       *
         #      / \
@@ -714,7 +714,7 @@ class Test_MulExpression(unittest.TestCase):
         #       a   b
         e1 = a * b
         e = z * e1
-        self.assertEqual(e.to_list(), ['*', '5.000', ['*', 'a', 'b']])
+        self.assertEqual(e.to_list(), ['*', '5.000000', ['*', 'a', 'b']])
 
         #       *
         #      / \
@@ -803,7 +803,7 @@ class Test_MulExpression(unittest.TestCase):
         y = np.int32(5)
         e1 = z * b
         e = e1 * y
-        self.assertEqual(e.to_list(), ['*', ['*', '3', 'b'], '5.000'])
+        self.assertEqual(e.to_list(), ['*', ['*', '3', 'b'], '5.000000'])
 
         #       *
         #      / \
@@ -812,7 +812,7 @@ class Test_MulExpression(unittest.TestCase):
         #   a   b
         e1 = a * b
         e = e1 * y
-        self.assertEqual(e.to_list(), ['*', ['*', 'a', 'b'], '5.000'])
+        self.assertEqual(e.to_list(), ['*', ['*', 'a', 'b'], '5.000000'])
 
         #       *
         #      / \
@@ -821,7 +821,7 @@ class Test_MulExpression(unittest.TestCase):
         #       3   b
         e1 = z * b
         e = y * e1
-        self.assertEqual(e.to_list(), ['*', '5.000', ['*', '3', 'b']])
+        self.assertEqual(e.to_list(), ['*', '5.000000', ['*', '3', 'b']])
 
         #       *
         #      / \
@@ -830,7 +830,7 @@ class Test_MulExpression(unittest.TestCase):
         #       a   b
         e1 = a * b
         e = y * e1
-        self.assertEqual(e.to_list(), ['*', '5.000', ['*', 'a', 'b']])
+        self.assertEqual(e.to_list(), ['*', '5.000000', ['*', 'a', 'b']])
 
         #       *
         #      / \
@@ -983,7 +983,7 @@ class Test_DivExpression(unittest.TestCase):
         self.assertEqual(e.to_list(), ['*', '0.2', 'a'])
 
         e = z / a
-        self.assertEqual(e.to_list(), ['/', '5.000', 'a'])
+        self.assertEqual(e.to_list(), ['/', '5.000000', 'a'])
 
         e = a
         e /= z
@@ -994,7 +994,7 @@ class Test_DivExpression(unittest.TestCase):
         self.assertEqual(e.to_list(), ['*', '0.2', 'a'])
 
         e = z / a
-        self.assertEqual(e.to_list(), ['/', '5.000', 'a'])
+        self.assertEqual(e.to_list(), ['/', '5.000000', 'a'])
 
         e = a
         e /= z
@@ -1018,7 +1018,7 @@ class Test_DivExpression(unittest.TestCase):
         y = np.int32(5)
         e1 = z * b
         e = e1 / y
-        self.assertEqual(e.to_list(), ['/', ['*', '3', 'b'], '5.000'])
+        self.assertEqual(e.to_list(), ['/', ['*', '3', 'b'], '5.000000'])
 
         #       /
         #      / \
@@ -1027,7 +1027,7 @@ class Test_DivExpression(unittest.TestCase):
         #   a   b
         e1 = a / b
         e = e1 / y
-        self.assertEqual(e.to_list(), ['/', ['/', 'a', 'b'], '5.000'])
+        self.assertEqual(e.to_list(), ['/', ['/', 'a', 'b'], '5.000000'])
 
         #       /
         #      / \
@@ -1036,7 +1036,7 @@ class Test_DivExpression(unittest.TestCase):
         #       a   b
         e1 = a / b
         e = y / e1
-        self.assertEqual(e.to_list(), ['/', '5.000', ['/', 'a', 'b']])
+        self.assertEqual(e.to_list(), ['/', '5.000000', ['/', 'a', 'b']])
 
         #       /
         #      / \
@@ -1089,11 +1089,11 @@ class Test_DivExpression(unittest.TestCase):
         # Check that dividing zero by anything non-zero gives zero
         #
         e = z / a
-        self.assertEqual(e.to_list(), ["0.000"])
+        self.assertEqual(e.to_list(), ["0.000000"])
         self.assertAlmostEqual(e.value, 0.0)
 
         e = y / a
-        self.assertEqual(e.to_list(), ["0.000"])
+        self.assertEqual(e.to_list(), ["0.000000"])
         self.assertAlmostEqual(e.value, 0.0)
 
         z = np.int32(1)
@@ -1122,19 +1122,19 @@ class Test_DivExpression(unittest.TestCase):
         # Check the structure dividing 1 by an expression
         #
         e = z / a
-        self.assertEqual(e.to_list(), ['/','1.000','a'])
+        self.assertEqual(e.to_list(), ['/','1.000000','a'])
 
         e = y / a
-        self.assertEqual(e.to_list(), ['/','1.000','a'])
+        self.assertEqual(e.to_list(), ['/','1.000000','a'])
 
         #
         # Check the structure dividing 1 by a mutable zero
         #
         e = z / p
-        self.assertEqual(e.to_list(), ['/','1.000','p'])
+        self.assertEqual(e.to_list(), ['/','1.000000','p'])
 
         e = y / p
-        self.assertEqual(e.to_list(), ['/','1.000','p'])
+        self.assertEqual(e.to_list(), ['/','1.000000','p'])
 
 class Test_PowExpression(unittest.TestCase):
 
@@ -1186,25 +1186,25 @@ class Test_PowExpression(unittest.TestCase):
 
         z = np.int32(5)
         e = a ** z
-        self.assertEqual(e.to_list(), ['pow','a','5.000'])
+        self.assertEqual(e.to_list(), ['pow','a','5.000000'])
 
         e = z ** a
-        self.assertEqual(e.to_list(), ['pow','5.000','a'])
+        self.assertEqual(e.to_list(), ['pow','5.000000','a'])
 
         e = a
         e **= z
-        self.assertEqual(e.to_list(), ['pow','a','5.000'])
+        self.assertEqual(e.to_list(), ['pow','a','5.000000'])
 
         z = np.float32(5)
         e = a ** z
-        self.assertEqual(e.to_list(), ['pow','a','5.000'])
+        self.assertEqual(e.to_list(), ['pow','a','5.000000'])
 
         e = z ** a
-        self.assertEqual(e.to_list(), ['pow','5.000','a'])
+        self.assertEqual(e.to_list(), ['pow','5.000000','a'])
 
         e = a
         e **= z
-        self.assertEqual(e.to_list(), ['pow','a','5.000'])
+        self.assertEqual(e.to_list(), ['pow','a','5.000000'])
 
     def test_trivialPow(self):
         #
@@ -1241,18 +1241,18 @@ class Test_PowExpression(unittest.TestCase):
         # Check that taking the zeroth power returns one
         #
         e = a**z
-        self.assertEqual(e.to_list(), ['1.000'])
+        self.assertEqual(e.to_list(), ['1.000000'])
 
         e = a**y
-        self.assertEqual(e.to_list(), ['1.000'])
+        self.assertEqual(e.to_list(), ['1.000000'])
 
         e = a
         e **= z
-        self.assertEqual(e.to_list(), ['1.000'])
+        self.assertEqual(e.to_list(), ['1.000000'])
 
         e = a
         e **= y
-        self.assertEqual(e.to_list(), ['1.000'])
+        self.assertEqual(e.to_list(), ['1.000000'])
 
         e = a**q
         self.assertEqual(e.to_list(), ['pow', 'a', 'q'])
@@ -1261,18 +1261,18 @@ class Test_PowExpression(unittest.TestCase):
         # Check that taking powers of 0 and 1 are easy
         #
         e = z**a
-        self.assertEqual(e.to_list(), ['0.000'])
+        self.assertEqual(e.to_list(), ['0.000000'])
 
         e = y**a
-        self.assertEqual(e.to_list(), ['0.000'])
+        self.assertEqual(e.to_list(), ['0.000000'])
 
         z = np.int32(1)
         y = np.float32(1)
         e = z**a
-        self.assertEqual(e.to_list(), ['1.000'])
+        self.assertEqual(e.to_list(), ['1.000000'])
 
         e = y**a
-        self.assertEqual(e.to_list(), ['1.000'])
+        self.assertEqual(e.to_list(), ['1.000000'])
 
     def test_trivialRPow(self):
         #
@@ -1287,10 +1287,10 @@ class Test_PowExpression(unittest.TestCase):
         # Check that taking any power of 1 is 1
         #
         e = z**a
-        self.assertEqual(e.to_list(), ['1.000'])
+        self.assertEqual(e.to_list(), ['1.000000'])
 
         e = y**a
-        self.assertEqual(e.to_list(), ['1.000'])
+        self.assertEqual(e.to_list(), ['1.000000'])
 
         e = r**a
         self.assertEqual(e.to_list(), ['pow', 'r', 'a'])
@@ -1301,10 +1301,10 @@ class Test_PowExpression(unittest.TestCase):
         # Check that taking the zeroth power returns one
         #
         e = z**a
-        self.assertEqual(e.to_list(), ['0.000'])
+        self.assertEqual(e.to_list(), ['0.000000'])
 
         e = y**a
-        self.assertEqual(e.to_list(), ['0.000'])
+        self.assertEqual(e.to_list(), ['0.000000'])
 
     def test_pow_expresions(self):
         a = self.a
@@ -1317,16 +1317,16 @@ class Test_PowExpression(unittest.TestCase):
         y = np.float32(2)
 
         e = a**z
-        self.assertEqual(e.to_list(), ['pow','a','2.000'])
+        self.assertEqual(e.to_list(), ['pow','a','2.000000'])
 
         e = a**y
-        self.assertEqual(e.to_list(), ['pow','a','2.000'])
+        self.assertEqual(e.to_list(), ['pow','a','2.000000'])
 
         e = z**a
-        self.assertEqual(e.to_list(), ['pow','2.000','a'])
+        self.assertEqual(e.to_list(), ['pow','2.000000','a'])
 
         e = y**a
-        self.assertEqual(e.to_list(), ['pow','2.000','a'])
+        self.assertEqual(e.to_list(), ['pow','2.000000','a'])
 
 
 class EntangledExpressionErrors(unittest.TestCase):
@@ -1344,9 +1344,9 @@ class EntangledExpressionErrors(unittest.TestCase):
     def test_sumexpr_add_entangled(self):
         a = self.a
         e = a*2 + 1
-        self.assertEqual( e.to_list(), ['+', ['*', '2', 'a'], '1.000'])
+        self.assertEqual( e.to_list(), ['+', ['*', '2', 'a'], '1.000000'])
         e += 1
-        self.assertEqual(e.to_list(), ['+' ,['*' ,'2' ,'a'] ,'1.000', '1.000'])
+        self.assertEqual(e.to_list(), ['+' ,['*' ,'2' ,'a'] ,'1.000000', '1.000000'])
 
     def test_entangled_test1(self):
         a = self.a
@@ -1397,7 +1397,7 @@ class TestVariables(unittest.TestCase):
     def test_name1(self):
         v = variable(3, name='v', value=3)
         self.assertEqual(v.name, 'v')
-        self.assertEqual(v[0].name, 'v(0)')
+        self.assertEqual(v[0].name, 'v[0]')
 
     def test_name2(self):
         v = variable(3, value=3)
@@ -1445,8 +1445,8 @@ class TestNDVariables(unittest.TestCase):
     def test_name1(self):
         v = variable((3,2,4), name='v', value=3)
         self.assertEqual(v.name, 'v')
-        self.assertEqual(v[2,1,3].name, 'v[2, 1, 3]')
-        self.assertEqual(v[0,0,0].name, 'v[0, 0, 0]')
+        self.assertEqual(v[2,1,3].name, 'v[2,1,3]')
+        self.assertEqual(v[0,0,0].name, 'v[0,0,0]')
 
     def test_name2(self):
         v = variable((3,2,4), value=3)

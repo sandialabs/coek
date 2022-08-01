@@ -25,10 +25,10 @@ class TestModel(unittest.TestCase):
         self.assertEqual(nlp.num_constraints(), 5)
 
         e = m.get_objective()
-        self.assertEqual( e.to_list(), ['min', ['+', '1.000', ['-', ['+', 'v1', 'v2']], ['*', '3.000', ['+', 'v1', 'v2']], ['*', ['+', 'v1', 'v2'], ['+', 'v1', 'v2']], 'v3']] )
+        self.assertEqual( e.to_list(), ['min', ['+', '1.000000', ['-', ['+', 'v1', 'v2']], ['*', '3.000000', ['+', 'v1', 'v2']], ['*', ['+', 'v1', 'v2'], ['+', 'v1', 'v2']], 'v3']] )
 
         e = m.get_constraint(0)
-        self.assertEqual( e.to_list(), ['<=', '-Inf', ['+', ['*', 'v1', 'v1'], '1.000', ['*', '-3', 'v2']], '0.000'])
+        self.assertEqual( e.to_list(), ['<=', '-Inf', ['+', ['*', 'v1', 'v1'], '1.000000', ['*', '-3', 'v2']], '0.000000'])
         self.assertEqual( e.value, -4 )
         e = m.get_constraint(1)
         self.assertEqual( e.value, 5 )
@@ -50,7 +50,7 @@ class TestModel(unittest.TestCase):
 
     def test_constant_obj1(self):
         m = model()
-        p = parameter(2)
+        p = parameter(value=2)
         m.add_objective(p)
 
     def test_constant_obj2(self):
