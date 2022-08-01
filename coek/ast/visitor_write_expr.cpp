@@ -72,13 +72,12 @@ void WriteExprVisitor::visit(ConstantTerm& arg)
 
 void WriteExprVisitor::visit(ParameterTerm& arg)
 {
-if (arg.name.size() == 0) {
-    char c[256];
-    std::snprintf(c, 256, "%.3f", arg.eval());
-    ostr << c;
+auto name = arg.get_name();
+if (name.size() == 0) {
+    ostr << std::to_string(arg.eval());
     }
 else
-    ostr << arg.name;
+    ostr << name;
 }
 
 void WriteExprVisitor::visit(IndexParameterTerm& arg)
@@ -86,11 +85,12 @@ void WriteExprVisitor::visit(IndexParameterTerm& arg)
 
 void WriteExprVisitor::visit(VariableTerm& arg)
 {
-if (arg.name.size() == 0) {
+auto name = arg.get_name();
+if (name.size() == 0) {
     ostr << "x" << arg.index;
     }
 else {
-    ostr << arg.name;
+    ostr << name;
     }
 }
 
@@ -98,7 +98,7 @@ else {
 void WriteExprVisitor::visit(ParameterRefTerm& arg)
 {
 bool first=true;
-ostr << arg.name << "(";
+ostr << arg.name << "[";
 for (auto it=arg.indices.begin(); it != arg.indices.end(); ++it) {
     if (first)
         first=false;
@@ -112,13 +112,13 @@ for (auto it=arg.indices.begin(); it != arg.indices.end(); ++it) {
         (*eval)->accept(*this);
         }
     }
-ostr << ")";
+ostr << "]";
 }
 
 void WriteExprVisitor::visit(VariableRefTerm& arg)
 {
 bool first=true;
-ostr << arg.name << "(";
+ostr << arg.name << "[";
 for (auto it=arg.indices.begin(); it != arg.indices.end(); ++it) {
     if (first)
         first=false;
@@ -132,7 +132,7 @@ for (auto it=arg.indices.begin(); it != arg.indices.end(); ++it) {
         (*eval)->accept(*this);
         }
     }
-ostr << ")";
+ostr << "]";
 }
 #endif
 

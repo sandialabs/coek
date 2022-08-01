@@ -68,10 +68,10 @@ public:
 
 void ToListVisitor::visit(ConstantTerm& arg)
 {
-std::stringstream sstr;
-char c[256];
-std::snprintf(c, 256, "%.3f", arg.value);
-repr.push_back( c );
+//std::stringstream sstr;
+//char c[256];
+//std::snprintf(c, 256, "%.3f", arg.value);
+repr.push_back( std::to_string(arg.value) );
 }
 
 void ToListVisitor::visit(ParameterTerm& arg)

@@ -44,26 +44,41 @@ public:
         cache.resize((size()+1)*(dim()+1));
         }
 
-    void setup();
-
     size_t dim() const
         {return shape.size();}
 
     size_t size() const
         {return _size;}
 
+    std::string get_name(size_t index);
 };
 
-void VariableArrayRepn::setup()
+std::string VariableArrayRepn::get_name(size_t index)
 {
-VariableAssocArrayRepn::setup();
+std::string name(variable_template.name());
+//name += std::to_string(index) + "(";
+name += "[";
 
-auto name = variable_template.name();
-for (size_t i=0; i<size(); i++) {
-    std::string _name = name+"("+std::to_string(i)+")";
-    names.push_back(_name);
+if (shape.size() == 1) {
+    name += std::to_string(index);
     }
+
+else if (shape.size() > 1) {
+    std::vector<size_t> tmp(shape.size());
+    for (size_t i=1; i<=shape.size(); ++i) {
+        size_t j = shape.size()-i;
+        tmp[j] = index % shape[j];
+        index = index / shape[j];
+        }
+    name += std::to_string(tmp[0]);
+    for (size_t i=1; i<shape.size(); ++i)
+        name += ","+std::to_string(tmp[i]);
+    }
+    
+name += "]";
+return name;
 }
+
 
 //
 // VariableArray
@@ -111,18 +126,17 @@ if (_repn->call_setup)
 // We know that the args[i] values are nonnegative b.c. we have asserted that while
 // processing these arguments
 size_t ndx = static_cast<size_t>(args[0]);
-for (size_t i=1; i<args.size(); i++) {
-    ndx = ndx*shape[i-1] + args[i];
-    }
+for (size_t i=1; i<args.size(); i++)
+    ndx = ndx*shape[i] + args[i];
 
 if (ndx > size()) {
-    std::string err = "Unknown index value: "+_repn->variable_template.name()+"(";
+    std::string err = "Unknown index value: "+_repn->variable_template.name()+"[";
     for (size_t i=0; i<args.size(); i++) {
         if (i > 0)
             err += ",";
         err += std::to_string(args[i]);
         }
-    err += ")";
+    err += "]";
     throw std::runtime_error(err);
     }
 
@@ -219,13 +233,13 @@ return *this;
 
 VariableArray& VariableArray::name(const std::string& name)
 {
-repn->variable_name = name;
+repn->variable_template.name(name);
 repn->name(name);
 return *this;
 }
 
 std::string VariableArray::name() const
-{ return repn->variable_name; }
+{ return repn->variable_template.name(); }
 
 VariableArray& VariableArray::within(VariableTypes vtype)
 {
