@@ -25,9 +25,10 @@ class variable(object):
     def __new__(cls, *args, **kwds):
         if len(args) == 0 or args[0] == 1 or type(args[0]) == str:
             return variable_(**kwds)
-        elif args[0].__class__ == ConcreteSet:
-            return IndexedVariable(*args)
-        return variable_(args[0], **kwds)
+        if len(args) == 1:
+            return variable_(args[0], **kwds)
+        else:
+            raise RuntimeError("Variables only have one argument")
 
 
 def model_variable(self, *args, **kwds):
@@ -44,10 +45,6 @@ def model_variable(self, *args, **kwds):
                 v = variable_(**kwds)
                 self.add_variable_(v)
                 return v
-        elif args[0].__class__ == ConcreteSet:
-            v = IndexedVariable(*args)
-            self.add_variable_(v)
-            return v
         elif args[0].__class__ == variable_array:
             self.add_variable_(args[0])
         else:
