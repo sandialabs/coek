@@ -275,7 +275,7 @@ TEST_CASE( "compact_model", "[smoke]" ) {
 
         REQUIRE( model.num_variables() == 4 );
         {
-        static std::list<std::string> baseline = {"[", "+", "0.000", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "+", std::to_string(0.0), "1.000", "]"};
         REQUIRE( model.get_variable(0).lower_expression().to_list() == baseline );
         }
         {
@@ -306,7 +306,7 @@ TEST_CASE( "compact_model", "[smoke]" ) {
 
         REQUIRE( model.num_objectives() == 4 );
         {
-        static std::list<std::string> baseline = {"[", "*", "0.000", "x", "]"};
+        static std::list<std::string> baseline = {"[", "*", std::to_string(0.0), "x", "]"};
         REQUIRE( model.get_objective(0).expr().to_list() == baseline );
         }
         {
@@ -334,19 +334,19 @@ TEST_CASE( "compact_model", "[smoke]" ) {
 
         REQUIRE( model.num_constraints() == 4 );
         {
-        static std::list<std::string> baseline = {"[", "==", "[", "*", "0.000", "x", "]", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "[", "*", std::to_string(0.0), "x", "]", std::to_string(0.0), "]"};
         REQUIRE( model.get_constraint(0).to_list() == baseline );
         }
         {
-        static std::list<std::string> baseline = {"[", "==", "[", "*", "1.000", "x", "]", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "[", "*", std::to_string(1.0), "x", "]", std::to_string(0.0), "]"};
         REQUIRE( model.get_constraint(1).to_list() == baseline );
         }
         {
-        static std::list<std::string> baseline = {"[", "==", "[", "*", "2.000", "x", "]", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "[", "*", std::to_string(2.0), "x", "]", std::to_string(0.0), "]"};
         REQUIRE( model.get_constraint(2).to_list() == baseline );
         }
         {
-        static std::list<std::string> baseline = {"[", "==", "[", "*", "3.000", "x", "]", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "[", "*", std::to_string(3.0), "x", "]", std::to_string(0.0), "]"};
         REQUIRE( model.get_constraint(3).to_list() == baseline );
         }
     }

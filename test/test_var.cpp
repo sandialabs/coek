@@ -267,7 +267,7 @@ TEST_CASE( "1D_var_map", "[smoke]" ) {
         auto v = coek::variable();
         coek::Expression f = v;
         auto e = vars(1);
-        REQUIRE( e.name() == "vars(1)");
+        REQUIRE( e.name() == "vars[1]");
         //auto it = e.to_list().begin();
         //REQUIRE_THAT( *it, Catch::Matchers::StartsWith("vars") );
       }
@@ -275,14 +275,14 @@ TEST_CASE( "1D_var_map", "[smoke]" ) {
       WHEN( "index3" ) {
         auto i = coek::set_element("i");
         auto e = vars(i);
-        static std::list<std::string> baseline = {"vars(i)"};
+        static std::list<std::string> baseline = {"vars[i]"};
         REQUIRE( e.to_list() == baseline);
       }
 
       WHEN( "index4" ) {
         auto i = coek::set_element("i");
         auto e = vars(i+1);
-        static std::list<std::string> baseline = {"vars(i + 1)"};
+        static std::list<std::string> baseline = {"vars[i + 1]"};
         REQUIRE( e.to_list() == baseline);
       }
   }
@@ -291,6 +291,7 @@ TEST_CASE( "1D_var_map", "[smoke]" ) {
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
+#endif
 
 
 TEST_CASE( "1D_var_array", "[smoke]" ) {
@@ -325,34 +326,42 @@ TEST_CASE( "1D_var_array", "[smoke]" ) {
         for (int i=0; i<4; i++)
             REQUIRE( vars(i).value() == 1 );
         }
+
+      WHEN( "name" ) {
+        auto vars = coek::variable( 4 ).name("v");
+        for (int i=0; i<4; i++)
+            REQUIRE( vars(i).name() == "v[" + std::to_string(i) + "]" );
+        }
   }
 
   SECTION( "int_vector_dim" ) {
-      std::vector<int> v = {0,1,2,3};
+      std::vector<size_t> dim {4};
 
       WHEN( "size" ) {
-        std::vector<size_t> dim {4};
         auto vars = coek::variable( "v" , dim );
         REQUIRE( vars.size() == 4 );
       }
 
       WHEN( "typeof" ) {
-        std::vector<size_t> dim {4};
         auto vars = coek::variable( dim );
         REQUIRE( typeid(vars(1)).name() == typeid(coek::Variable).name() );
       }
 
       WHEN( "index" ) {
-        std::vector<size_t> dim {4};
         auto vars = coek::variable(dim).value(1);
         for (size_t i=0; i<4; i++)
             REQUIRE( vars(i).value() == 1 );
+        }
+
+      WHEN( "name" ) {
+        auto vars = coek::variable( dim ).name("v");
+        for (int i=0; i<4; i++)
+            REQUIRE( vars(i).name() == "v[" + std::to_string(i) + "]" );
         }
   }
 
   SECTION( "int_initializer_list" ) {
       WHEN( "size" ) {
-        std::vector<size_t> dim {4};
         auto vars = coek::variable( "v" , {4} );
         REQUIRE( vars.size() == 4 );
       }
@@ -367,6 +376,12 @@ TEST_CASE( "1D_var_array", "[smoke]" ) {
         for (size_t i=0; i<4; i++)
             REQUIRE( vars(i).value() == 1 );
         }
+
+      WHEN( "name" ) {
+        auto vars = coek::variable( {4} ).name("v");
+        for (int i=0; i<4; i++)
+            REQUIRE( vars(i).name() == "v[" + std::to_string(i) + "]" );
+        }
   }
 
 #ifdef DEBUG
@@ -375,6 +390,7 @@ REQUIRE( coek::env.check_memory() == true );
 }
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE( "2D_var_map", "[smoke]" ) {
 
   SECTION( "int" ) {
@@ -463,7 +479,7 @@ TEST_CASE( "2D_var_map", "[smoke]" ) {
 
       WHEN( "index2" ) {
         auto e = vars(1,2);
-        REQUIRE( e.name() == "vars(1,2)");
+        REQUIRE( e.name() == "vars[1,2]");
         //auto it = e.to_list().begin();
         //REQUIRE_THAT( *it, Catch::Matchers::StartsWith("vars") );
       }
@@ -472,7 +488,7 @@ TEST_CASE( "2D_var_map", "[smoke]" ) {
         auto i = coek::set_element("i");
         auto j = coek::set_element("j");
         auto e = vars(i,j);
-        static std::list<std::string> baseline = {"vars(i,j)"};
+        static std::list<std::string> baseline = {"vars[i,j]"};
         REQUIRE( e.to_list() == baseline);
       }
 
@@ -480,7 +496,7 @@ TEST_CASE( "2D_var_map", "[smoke]" ) {
         auto i = coek::set_element("i");
         auto j = coek::set_element("j");
         auto e = vars(i+1,j-1);
-        static std::list<std::string> baseline = {"vars(i + 1,j + -1)"};
+        static std::list<std::string> baseline = {"vars[i + 1,j + -1]"};
         REQUIRE( e.to_list() == baseline);
       }
   }
@@ -489,6 +505,7 @@ TEST_CASE( "2D_var_map", "[smoke]" ) {
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
+#endif
 
 
 TEST_CASE( "2D_var_array", "[smoke]" ) {
@@ -532,6 +549,14 @@ TEST_CASE( "2D_var_array", "[smoke]" ) {
         REQUIRE_THROWS_WITH( vars(0), 
             "Unexpected index value: x is an 2-D variable array but is being indexed with 1 indices.");
         }
+
+      WHEN( "name" ) {
+        std::vector<size_t> dim {4,3};
+        auto vars = coek::variable( dim ).name("v");
+        for (int i=0; i<4; i++)
+            for (int j=0; j<3; j++)
+                REQUIRE( vars(i,j).name() == "v[" + std::to_string(i) + "," + std::to_string(j) + "]" );
+        }
   }
 
   SECTION( "int_initializer_list" ) {
@@ -557,6 +582,13 @@ TEST_CASE( "2D_var_array", "[smoke]" ) {
         REQUIRE_THROWS_WITH( vars(0), 
             "Unexpected index value: x is an 2-D variable array but is being indexed with 1 indices.");
         }
+
+      WHEN( "name" ) {
+        auto vars = coek::variable( {4,3} ).name("v");
+        for (int i=0; i<4; i++)
+            for (int j=0; j<3; j++)
+                REQUIRE( vars(i,j).name() == "v[" + std::to_string(i) + "," + std::to_string(j) + "]" );
+        }
   }
 
 #ifdef DEBUG
@@ -565,6 +597,98 @@ REQUIRE( coek::env.check_memory() == true );
 }
 
 
+TEST_CASE( "3D_var_array", "[smoke]" ) {
+
+  SECTION( "int_vector_dim" ) {
+
+      WHEN( "constructors" ) {
+        auto v1 = coek::variable( {5,4,3} );
+        REQUIRE( v1.size() == 60 );
+        auto v2 = coek::variable("v2", {5,4,3} );
+        REQUIRE( v2.size() == 60 );
+        auto v3 = coek::variable_array( {5,4,3} );
+        REQUIRE( v3.size() == 60 );
+        auto v4 = coek::variable_array("v4", {5,4,3} );
+        REQUIRE( v4.size() == 60 );
+      }
+
+      WHEN( "size" ) {
+        std::vector<size_t> dim {5,4,3};
+        auto vars = coek::variable( "v" , dim );
+        REQUIRE( vars.size() == 60 );
+      }
+
+      WHEN( "typeof" ) {
+        std::vector<size_t> dim {5,4,3};
+        auto vars = coek::variable(dim);
+        REQUIRE( typeid(vars(1,1)).name() == typeid(coek::Variable).name() );
+      }
+
+      WHEN( "index" ) {
+        std::vector<size_t> dim {5,4,3};
+        auto vars = coek::variable(dim).value(1);
+        for (size_t i=0; i<3; i++)
+            REQUIRE( vars(i,i,i).value() == 1 );
+        }
+
+      WHEN( "index error" ) {
+        std::vector<size_t> dim {5,4,3};
+        auto vars = coek::variable(dim).name("x");
+        REQUIRE( vars.dim() == 3 );
+        REQUIRE_THROWS_WITH( vars(0), 
+            "Unexpected index value: x is an 3-D variable array but is being indexed with 1 indices.");
+        }
+
+      WHEN( "name" ) {
+        std::vector<size_t> dim {5,4,3};
+        auto vars = coek::variable( dim ).name("v");
+        for (int i=0; i<5; i++)
+            for (int j=0; j<4; j++)
+                for (int k=0; k<3; k++)
+                    REQUIRE( vars(i,j,k).name() == "v[" + std::to_string(i) + "," + std::to_string(j) + "," + std::to_string(k) + "]" );
+        }
+  }
+
+  SECTION( "int_initializer_list" ) {
+      WHEN( "size" ) {
+        auto vars = coek::variable( "v" , {5,4,3} );
+        REQUIRE( vars.size() == 60 );
+      }
+
+      WHEN( "typeof" ) {
+        auto vars = coek::variable({5,4,3});
+        REQUIRE( typeid(vars(1,1,1)).name() == typeid(coek::Variable).name() );
+      }
+
+      WHEN( "index" ) {
+        auto vars = coek::variable({5,4,3}).value(1);
+        for (size_t i=0; i<3; i++)
+            REQUIRE( vars(i,i,i).value() == 1 );
+        }
+
+      WHEN( "index error" ) {
+        auto vars = coek::variable({5,4,3}).name("x");
+        REQUIRE( vars.dim() == 3 );
+        REQUIRE_THROWS_WITH( vars(0), 
+            "Unexpected index value: x is an 3-D variable array but is being indexed with 1 indices.");
+        }
+
+      WHEN( "name" ) {
+        auto vars = coek::variable( {5,4,3} ).name("v");
+        for (int i=0; i<5; i++)
+            for (int j=0; j<4; j++)
+                for (int k=0; k<3; k++)
+                    REQUIRE( vars(i,j,k).name() == "v[" + std::to_string(i) + "," + std::to_string(j) + "," + std::to_string(k) + "]" );
+        }
+  }
+
+#ifdef DEBUG
+REQUIRE( coek::env.check_memory() == true );
+#endif
+}
+
+
+#ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE( "3D_var_api", "[smoke]" ) {
 
   SECTION( "map" ) {
@@ -608,7 +732,7 @@ TEST_CASE( "3D_var_api", "[smoke]" ) {
             "Unexpected index value: x is an 3-D variable map but is being indexed with 2 indices.");
 
         REQUIRE_THROWS_WITH( v(ival,ival,-1),
-            "Unknown index value: x(1,1,-1)");
+            "Unknown index value: x[1,1,-1]");
       }
 
     WHEN( "var value" ) {
@@ -720,7 +844,7 @@ TEST_CASE( "3D_var_api", "[smoke]" ) {
             "Unexpected index value: x is an 3-D variable array but is being indexed with 2 indices.");
 
         REQUIRE_THROWS_WITH( v(100,100,100),
-            "Unknown index value: x(100,100,100)");
+            "Unknown index value: x[100,100,100]");
       }
 
     WHEN( "var value" ) {

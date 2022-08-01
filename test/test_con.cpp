@@ -38,14 +38,14 @@ coek::Expression f;
     WHEN("simple") {
         auto v = coek::variable("v");
         auto e = coek::constraint(1 < v);
-        static std::list<std::string> baseline = {"[", "<", "1.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         }
 
     WHEN("simple named") {
         auto v = coek::variable("v");
         auto e = coek::constraint("c", 1 < v);
-        static std::list<std::string> baseline = {"[", "<", "1.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.name() == "c" );
         }
@@ -56,7 +56,7 @@ coek::Expression f;
         auto v = coek::variable("v");
         auto e = 1 < v;
         e.name("c");
-        static std::list<std::string> baseline = {"[", "<", "1.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.name() == "c" );
         }
@@ -92,109 +92,109 @@ coek::Expression f;
 
     WHEN( "1 < p" ) {
         auto e = 1 < p;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "p", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "p", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "p < 1" ) {
         auto e = p < 1;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "p", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "p", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1.0 < p" ) {
         auto e = 1.0 < p;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "p", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "p", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "p < 1.0" ) {
         auto e = p < 1.0;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "p", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "p", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1 < P" ) {
         auto e = 1 < P;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "P", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "P", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "P < 1" ) {
         auto e = P < 1;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "P", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "P", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1.0 < P" ) {
         auto e = 1.0 < P;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "P", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "P", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "P < 1.0" ) {
         auto e = P < 1.0;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "P", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "P", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1 < v" ) {
         auto e = 1 < v;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "v < 1" ) {
         auto e = v < 1;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "v", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "v", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "1.0 < v" ) {
         auto e = 1.0 < v;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "v < 1.0" ) {
         auto e = v < 1.0;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "v", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "v", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "1 < f" ) {
         auto e = 1 < f;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f < 1" ) {
         auto e = f < 1;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "0.000", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", std::to_string(0.0), std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1.0 < f" ) {
         auto e = 1.0 < f;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f < 1.0" ) {
         auto e = f < 1.0;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "0.000", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", std::to_string(0.0), std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
@@ -231,13 +231,13 @@ coek::Expression f;
 
     WHEN( "p < f" ) {
         auto e = p < f;
-        static std::list<std::string> baseline = {"[", "<", "p", "0.000", "Inf","]"};
+        static std::list<std::string> baseline = {"[", "<", "p", std::to_string(0.0), "Inf","]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f < p" ) {
         auto e = f < p;
-        static std::list<std::string> baseline = {"[", "<", "0.000", "p", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(0.0), "p", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
@@ -262,37 +262,37 @@ coek::Expression f;
 
     WHEN( "P < f" ) {
         auto e = P < f;
-        static std::list<std::string> baseline = {"[", "<", "P", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", "P", std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f < P" ) {
         auto e = f < P;
-        static std::list<std::string> baseline = {"[", "<", "0.000", "P", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(0.0), "P", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f < v" ) {
         auto e = f < v;
-        static std::list<std::string> baseline = {"[", "<", "0.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(0.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v < f" ) {
         auto e = v < f;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "v", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "v", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v < v" ) {
         auto e = v < v;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "[", "+", "v", "[", "*", "-1", "v", "]", "]", "0.000","]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "[", "+", "v", "[", "*", "-1", "v", "]", "]", std::to_string(0.0),"]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f < f" ) {
         auto e = f < f;
-        static std::list<std::string> baseline = {"[", "<", "0.000", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(0.0), std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
   }
@@ -301,137 +301,137 @@ coek::Expression f;
 
     WHEN( "0 <= p" ) {
         auto e = 0 <= p;
-        static std::list<std::string> baseline = {"[", "<=", "0.000", "p", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(0.0), "p", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "p <= 0" ) {
         auto e = p <= 0;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "p", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "p", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "0.0 <= p" ) {
         auto e = 0.0 <= p;
-        static std::list<std::string> baseline = {"[", "<=", "0.000", "p", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(0.0), "p", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "p <= 0.0" ) {
         auto e = p <= 0.0;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "p", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "p", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1 <= p" ) {
         auto e = 1 <= p;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "p", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), "p", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "p <= 1" ) {
         auto e = p <= 1;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "p", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "p", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1.0 <= p" ) {
         auto e = 1.0 <= p;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "p", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), "p", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "p <= 1.0" ) {
         auto e = p <= 1.0;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "p", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "p", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1 <= P" ) {
         auto e = 1 <= P;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "P", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), "P", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "P <= 1" ) {
         auto e = P <= 1;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "P", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "P", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1.0 <= P" ) {
         auto e = 1.0 <= P;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "P", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), "P", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == false );
     }
 
     WHEN( "P <= 1.0" ) {
         auto e = P <= 1.0;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "P", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "P", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1 <= v" ) {
         auto e = 1 <= v;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "v <= 1" ) {
         auto e = v <= 1;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1.0 <= v" ) {
         auto e = 1.0 <= v;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "v <= 1.0" ) {
         auto e = v <= 1.0;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
         REQUIRE( e.is_feasible() == true );
     }
 
     WHEN( "1 <= f" ) {
         auto e = 1 <= f;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f <= 1" ) {
         auto e = f <= 1;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "0.000", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", std::to_string(0.0), std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1.0 <= f" ) {
         auto e = 1.0 <= f;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f <= 1.0" ) {
         auto e = f <= 1.0;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "0.000", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", std::to_string(0.0), std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
@@ -467,13 +467,13 @@ coek::Expression f;
 
     WHEN( "p <= f" ) {
         auto e = p <= f;
-        static std::list<std::string> baseline = {"[", "<=", "p", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "p", std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f <= p" ) {
         auto e = f <= p;
-        static std::list<std::string> baseline = {"[", "<=", "0.000", "p", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(0.0), "p", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
@@ -497,37 +497,37 @@ coek::Expression f;
 
     WHEN( "P <= f" ) {
         auto e = P <= f;
-        static std::list<std::string> baseline = {"[", "<=", "P", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "P", std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f <= P" ) {
         auto e = f <= P;
-        static std::list<std::string> baseline = {"[", "<=", "0.000", "P", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(0.0), "P", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f <= v" ) {
         auto e = f <= v;
-        static std::list<std::string> baseline = {"[", "<=", "0.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(0.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v <= f" ) {
         auto e = v <= f;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v <= v" ) {
         auto e = v <= v;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "[", "+", "v", "[", "*", "-1", "v", "]", "]", "0.000","]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "[", "+", "v", "[", "*", "-1", "v", "]", "]", std::to_string(0.0),"]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f <= f" ) {
         auto e = f <= f;
-        static std::list<std::string> baseline = {"[", "<=", "0.000", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(0.0), std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
   }
@@ -536,121 +536,121 @@ coek::Expression f;
 
     WHEN( "0 == p" ) {
         auto e = 0 == p;
-        static std::list<std::string> baseline = {"[", "==", "p", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "p", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "p == 0" ) {
         auto e = p == 0;
-        static std::list<std::string> baseline = {"[", "==", "p", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "p", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "0.0 == p" ) {
         auto e = 0.0 == p;
-        static std::list<std::string> baseline = {"[", "==", "p", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "p", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "p == 0.0" ) {
         auto e = p == 0.0;
-        static std::list<std::string> baseline = {"[", "==", "p", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "p", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1 == p" ) {
         auto e = 1 == p;
-        static std::list<std::string> baseline = {"[", "==", "p", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "p", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "p == 1" ) {
         auto e = p == 1;
-        static std::list<std::string> baseline = {"[", "==", "p", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "p", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1.0 == p" ) {
         auto e = 1.0 == p;
-        static std::list<std::string> baseline = {"[", "==", "p", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "p", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "p == 1.0" ) {
         auto e = p == 1.0;
-        static std::list<std::string> baseline = {"[", "==", "p", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "p", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1 == P" ) {
         auto e = 1 == P;
-        static std::list<std::string> baseline = {"[", "==", "P", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "P", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "P == 1" ) {
         auto e = P == 1;
-        static std::list<std::string> baseline = {"[", "==", "P", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "P", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1.0 == P" ) {
         auto e = 1.0 == P;
-        static std::list<std::string> baseline = {"[", "==", "P", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "P", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "P == 1.0" ) {
         auto e = P == 1.0;
-        static std::list<std::string> baseline = {"[", "==", "P", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "P", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1 == v" ) {
         auto e = 1 == v;
-        static std::list<std::string> baseline = {"[", "==", "v", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "v", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v == 1" ) {
         auto e = v == 1;
-        static std::list<std::string> baseline = {"[", "==", "v", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "v", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1.0 == v" ) {
         auto e = 1.0 == v;
-        static std::list<std::string> baseline = {"[", "==", "v", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "v", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v == 1.0" ) {
         auto e = v == 1.0;
-        static std::list<std::string> baseline = {"[", "==", "v", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "v", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1 == f" ) {
         auto e = 1 == f;
-        static std::list<std::string> baseline = {"[", "==", "0.000", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", std::to_string(0.0), std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f == 1" ) {
         auto e = f == 1;
-        static std::list<std::string> baseline = {"[", "==", "0.000", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", std::to_string(0.0), std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1.0 == f" ) {
         auto e = 1.0 == f;
-        static std::list<std::string> baseline = {"[", "==", "0.000", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", std::to_string(0.0), std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f == 1.0" ) {
         auto e = f == 1.0;
-        static std::list<std::string> baseline = {"[", "==", "0.000", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", std::to_string(0.0), std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
@@ -686,13 +686,13 @@ coek::Expression f;
 
     WHEN( "p == f" ) {
         auto e = p == f;
-        static std::list<std::string> baseline = {"[", "==", "0.000", "p", "]"};
+        static std::list<std::string> baseline = {"[", "==", std::to_string(0.0), "p", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f == p" ) {
         auto e = f == p;
-        static std::list<std::string> baseline = {"[", "==", "p", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "p", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
@@ -716,37 +716,37 @@ coek::Expression f;
 
     WHEN( "P == f" ) {
         auto e = P == f;
-        static std::list<std::string> baseline = {"[", "==", "0.000", "P", "]"};
+        static std::list<std::string> baseline = {"[", "==", std::to_string(0.0), "P", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f == P" ) {
         auto e = f == P;
-        static std::list<std::string> baseline = {"[", "==", "P", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "P", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f == v" ) {
         auto e = f == v;
-        static std::list<std::string> baseline = {"[", "==", "v", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "v", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v == f" ) {
         auto e = v == f;
-        static std::list<std::string> baseline = {"[", "==", "v", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "v", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v == v" ) {
         auto e = v == v;
-        static std::list<std::string> baseline = {"[", "==", "[", "+", "v", "[", "*", "-1", "v", "]", "]", "0.000","]"};
+        static std::list<std::string> baseline = {"[", "==", "[", "+", "v", "[", "*", "-1", "v", "]", "]", std::to_string(0.0),"]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f == f" ) {
         auto e = f == f;
-        static std::list<std::string> baseline = {"[", "==", "0.000", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", std::to_string(0.0), std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
   }
@@ -755,97 +755,97 @@ coek::Expression f;
 
     WHEN( "1 > p" ) {
         auto e = 1 > p;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "p", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "p", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "p > 1" ) {
         auto e = p > 1;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "p", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "p", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1.0 > p" ) {
         auto e = 1.0 > p;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "p", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "p", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "p > 1.0" ) {
         auto e = p > 1.0;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "p", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "p", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1 > P" ) {
         auto e = 1 > P;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "P", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "P", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "P > 1" ) {
         auto e = P > 1;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "P", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "P", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1.0 > P" ) {
         auto e = 1.0 > P;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "P", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "P", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "P > 1.0" ) {
         auto e = P > 1.0;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "P", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "P", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1 > v" ) {
         auto e = 1 > v;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "v", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "v", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v > 1" ) {
         auto e = v > 1;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1.0 > v" ) {
         auto e = 1.0 > v;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "v", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "v", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v > 1.0" ) {
         auto e = v > 1.0;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1 > f" ) {
         auto e = 1 > f;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "0.000", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", std::to_string(0.0), std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f > 1" ) {
         auto e = f > 1;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1.0 > f" ) {
         auto e = 1.0 > f;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "0.000", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", std::to_string(0.0), std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f > 1.0" ) {
         auto e = f > 1.0;
-        static std::list<std::string> baseline = {"[", "<", "1.000", "0.000", "Inf","]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(1.0), std::to_string(0.0), "Inf","]"};
         REQUIRE( e.to_list() == baseline );
     }
 
@@ -881,13 +881,13 @@ coek::Expression f;
 
     WHEN( "p > f" ) {
         auto e = p > f;
-        static std::list<std::string> baseline = {"[", "<", "0.000", "p", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(0.0), "p", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f > p" ) {
         auto e = f > p;
-        static std::list<std::string> baseline = {"[", "<", "p", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", "p", std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
@@ -911,37 +911,37 @@ coek::Expression f;
 
     WHEN( "P > f" ) {
         auto e = P > f;
-        static std::list<std::string> baseline = {"[", "<", "0.000", "P", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(0.0), "P", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f > P" ) {
         auto e = f > P;
-        static std::list<std::string> baseline = {"[", "<", "P", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", "P", std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f > v" ) {
         auto e = f > v;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "v", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "v", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v > f" ) {
         auto e = v > f;
-        static std::list<std::string> baseline = {"[", "<", "0.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(0.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v > v" ) {
         auto e = v > v;
-        static std::list<std::string> baseline = {"[", "<", "-Inf", "[", "+", "v", "[", "*", "-1", "v", "]", "]", "0.000","]"};
+        static std::list<std::string> baseline = {"[", "<", "-Inf", "[", "+", "v", "[", "*", "-1", "v", "]", "]", std::to_string(0.0),"]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f > f" ) {
         auto e = f > f;
-        static std::list<std::string> baseline = {"[", "<", "0.000", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<", std::to_string(0.0), std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
   }
@@ -950,97 +950,97 @@ coek::Expression f;
 
     WHEN( "1 >= p" ) {
         auto e = 1 >= p;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "p", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "p", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "p >= 1" ) {
         auto e = p >= 1;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "p", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), "p", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1.0 >= p" ) {
         auto e = 1.0 >= p;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "p", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "p", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "p >= 1.0" ) {
         auto e = p >= 1.0;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "p", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), "p", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1 >= P" ) {
         auto e = 1 >= P;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "P", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "P", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "P >= 1" ) {
         auto e = P >= 1;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "P", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), "P", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1.0 >= P" ) {
         auto e = 1.0 >= P;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "P", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "P", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "P >= 1.0" ) {
         auto e = P >= 1.0;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "P", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), "P", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1 >= v" ) {
         auto e = 1 >= v;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v >= 1" ) {
         auto e = v >= 1;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1.0 >= v" ) {
         auto e = 1.0 >= v;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v >= 1.0" ) {
         auto e = v >= 1.0;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1 >= f" ) {
         auto e = 1 >= f;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "0.000", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", std::to_string(0.0), std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f >= 1" ) {
         auto e = f >= 1;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "1.0 >= f" ) {
         auto e = 1.0 >= f;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "0.000", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", std::to_string(0.0), std::to_string(1.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f >= 1.0" ) {
         auto e = f >= 1.0;
-        static std::list<std::string> baseline = {"[", "<=", "1.000", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(1.0), std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
@@ -1076,13 +1076,13 @@ coek::Expression f;
 
     WHEN( "p >= f" ) {
         auto e = p >= f;
-        static std::list<std::string> baseline = {"[", "<=", "0.000", "p", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(0.0), "p", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f >= p" ) {
         auto e = f >= p;
-        static std::list<std::string> baseline = {"[", "<=", "p", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "p", std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
@@ -1106,37 +1106,37 @@ coek::Expression f;
 
     WHEN( "P >= f" ) {
         auto e = P >= f;
-        static std::list<std::string> baseline = {"[", "<=", "0.000", "P", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(0.0), "P", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f >= P" ) {
         auto e = f >= P;
-        static std::list<std::string> baseline = {"[", "<=", "P", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "P", std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f >= v" ) {
         auto e = f >= v;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v >= f" ) {
         auto e = v >= f;
-        static std::list<std::string> baseline = {"[", "<=", "0.000", "v", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(0.0), "v", "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "v >= v" ) {
         auto e = v >= v;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "[", "+", "v", "[", "*", "-1", "v", "]", "]", "0.000","]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "[", "+", "v", "[", "*", "-1", "v", "]", "]", std::to_string(0.0),"]"};
         REQUIRE( e.to_list() == baseline );
     }
 
     WHEN( "f >= f" ) {
         auto e = f >= f;
-        static std::list<std::string> baseline = {"[", "<=", "0.000", "0.000", "Inf", "]"};
+        static std::list<std::string> baseline = {"[", "<=", std::to_string(0.0), std::to_string(0.0), "Inf", "]"};
         REQUIRE( e.to_list() == baseline );
     }
   }
@@ -1146,7 +1146,7 @@ coek::Expression f;
         auto e = v <= 0;
         auto f = v >= 0;
         f = e;
-        static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", "0.000", "]"};
+        static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", std::to_string(0.0), "]"};
         REQUIRE( e.to_list() == baseline );
     }
   }
@@ -1162,7 +1162,7 @@ coek::Expression f;
     WHEN( "v <= 0" ) {
       auto e = v <= 0;
 
-      static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "<=", "-Inf", "v", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == true );
       REQUIRE( e.is_equality() == false );
@@ -1171,7 +1171,7 @@ coek::Expression f;
     WHEN( "v < 0" ) {
       auto e = v < 0;
 
-      static std::list<std::string> baseline = {"[", "<", "-Inf", "v", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "<", "-Inf", "v", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == true );
       REQUIRE( e.is_equality() == false );
@@ -1180,7 +1180,7 @@ coek::Expression f;
     WHEN( "v < 0.0" ) {
       auto e = v < 0.0;
 
-      static std::list<std::string> baseline = {"[", "<", "-Inf", "v", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "<", "-Inf", "v", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == true );
       REQUIRE( e.is_equality() == false );
@@ -1189,7 +1189,7 @@ coek::Expression f;
     WHEN( "-1 < v < 0" ) {
       auto e = inequality(-1, v, 0, true);
 
-      static std::list<std::string> baseline = {"[", "<", "-1.000", "v", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "<", std::to_string(-1.000), "v", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == true );
       REQUIRE( e.is_equality() == false );
@@ -1198,7 +1198,7 @@ coek::Expression f;
     WHEN( "-1 <= v <= 0" ) {
       auto e = inequality(-1, v, 0);
 
-      static std::list<std::string> baseline = {"[", "<=", "-1.000", "v", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "<=", std::to_string(-1.000), "v", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == true );
       REQUIRE( e.is_equality() == false );
@@ -1207,7 +1207,7 @@ coek::Expression f;
     WHEN( "-1.0 < v < 0.0" ) {
       auto e = inequality(-1.0, v, 0.0, true);
 
-      static std::list<std::string> baseline = {"[", "<", "-1.000", "v", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "<", std::to_string(-1.0), "v", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == true );
       REQUIRE( e.is_equality() == false );
@@ -1216,7 +1216,7 @@ coek::Expression f;
     WHEN( "-1.0 <= v <= 0.0" ) {
       auto e = inequality(-1.0, v, 0.0);
 
-      static std::list<std::string> baseline = {"[", "<=", "-1.000", "v", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "<=", std::to_string(-1.0), "v", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == true );
       REQUIRE( e.is_equality() == false );
@@ -1225,7 +1225,7 @@ coek::Expression f;
     WHEN( "v + p <= 0" ) {
       auto e = v + p <= 0;
 
-      static std::list<std::string> baseline = {"[", "<=", "-Inf", "[", "+", "v", "p", "]", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "<=", "-Inf", "[", "+", "v", "p", "]", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == true );
       REQUIRE( e.is_equality() == false );
@@ -1234,7 +1234,7 @@ coek::Expression f;
     WHEN( "v + p < 0" ) {
       auto e = v + p < 0;
 
-      static std::list<std::string> baseline = {"[", "<", "-Inf", "[", "+", "v", "p", "]", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "<", "-Inf", "[", "+", "v", "p", "]", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == true );
       REQUIRE( e.is_equality() == false );
@@ -1243,7 +1243,7 @@ coek::Expression f;
     WHEN( "v + P <= 0" ) {
       auto e = v + P <= 0;
 
-      static std::list<std::string> baseline = {"[", "<=", "-Inf", "[", "+", "v", "P", "]", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "<=", "-Inf", "[", "+", "v", "P", "]", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == true );
       REQUIRE( e.is_equality() == false );
@@ -1252,7 +1252,7 @@ coek::Expression f;
     WHEN( "v + P < 0" ) {
       auto e = v + P < 0;
 
-      static std::list<std::string> baseline = {"[", "<", "-Inf", "[", "+", "v", "P", "]", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "<", "-Inf", "[", "+", "v", "P", "]", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == true );
       REQUIRE( e.is_equality() == false );
@@ -1265,7 +1265,7 @@ coek::Expression f;
     WHEN( "v == 0" ) {
       auto e = v == 0;
 
-      static std::list<std::string> baseline = {"[", "==", "v", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "==", "v", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == false );
       REQUIRE( e.is_equality() == true );
@@ -1274,7 +1274,7 @@ coek::Expression f;
     WHEN( "v == 0.0" ) {
       auto e = v == 0.0;
 
-      static std::list<std::string> baseline = {"[", "==", "v", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "==", "v", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == false );
       REQUIRE( e.is_equality() == true );
@@ -1283,7 +1283,7 @@ coek::Expression f;
     WHEN( "v + p == 0" ) {
       auto e = v + p == 0;
 
-      static std::list<std::string> baseline = {"[", "==", "[", "+", "v", "p", "]", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "==", "[", "+", "v", "p", "]", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == false );
       REQUIRE( e.is_equality() == true );
@@ -1292,7 +1292,7 @@ coek::Expression f;
     WHEN( "v + P == 0" ) {
       auto e = v + P == 0;
 
-      static std::list<std::string> baseline = {"[", "==", "[", "+", "v", "P", "]", "0.000", "]"};
+      static std::list<std::string> baseline = {"[", "==", "[", "+", "v", "P", "]", std::to_string(0.0), "]"};
       REQUIRE( e.to_list() == baseline );
       REQUIRE( e.is_inequality() == false );
       REQUIRE( e.is_equality() == true );
@@ -1377,7 +1377,7 @@ SECTION("simple array") {
             }
         m.add(c);        
 
-        static std::list<std::string> baseline = {"[", "==", "v(1)", "1.000", "]"};
+        static std::list<std::string> baseline = {"[", "==", "v[1]", std::to_string(1.0), "]"};
         REQUIRE(c.size() == 10);
         auto& con = c(1);
         REQUIRE( con.to_list() == baseline);
