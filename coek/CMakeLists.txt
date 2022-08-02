@@ -210,21 +210,33 @@ install(FILES
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek
         )
 install(FILES
+        util/index_vector.hpp
+        util/template_utils.hpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/util
+        )
+install(FILES
+        api/component_map.hpp
+        api/constants.hpp
+        api/constraint.hpp
         api/expression.hpp
         api/expression_visitor.hpp
         api/intrinsic_fn.hpp
+        api/indexed_container.hpp
         api/objective.hpp
-        api/constraint.hpp
-        api/constants.hpp
+        api/parameter_array.hpp
+        api/parameter_assoc_array.hpp
+        api/parameter_assoc_array_repn.hpp
+        api/variable_array.hpp
+        api/variable_assoc_array.hpp
+        api/variable_assoc_array_repn.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/api
         )
 install(FILES
         compact/coek_sets.hpp
-        compact/coek_indexed.hpp
-        compact/sequence_context.hpp
+        compact/constraint_sequence.hpp
         compact/expression_sequence.hpp
         compact/objective_sequence.hpp
-        compact/constraint_sequence.hpp
+        compact/sequence_context.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/compact
         )
 install(FILES
