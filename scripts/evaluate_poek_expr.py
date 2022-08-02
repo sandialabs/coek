@@ -1,3 +1,6 @@
+
+raise RuntimeError("This does not currently work")
+
 import pyomo.environ as pe
 from pyomo.contrib import poek
 from pyomo.common.timing import TicTocTimer

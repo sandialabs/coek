@@ -1,5 +1,5 @@
 import pyomo.environ as pe
-from pyomo.contrib import poek
+import pyomo_coek as pc
 from pyomo.common.timing import TicTocTimer
 import poek as pk
 from pyomo.core.expr.numeric_expr import LinearExpression
@@ -9,7 +9,7 @@ from pyomo.core.expr.visitor import identify_variables
 
 def create_indexed_var():
     m = pe.ConcreteModel()
-    m.x = poek.Var([1,2,3])
+    m.x = pc.Var([1,2,3])
     e = 2*m.x[1] + m.x[2] - m.x[3]
     print(e.to_list())
 
@@ -21,7 +21,7 @@ def main():
     n_vars = 10
 
     m.x = pe.Var(list(range(n_vars)), initialize=2)
-    m.cx = poek.Var(list(range(n_vars)), initialize=2)
+    m.cx = pc.Var(list(range(n_vars)), initialize=2)
     # x = pm.add_variable(n_vars)
 
     N = 50000
