@@ -526,13 +526,6 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     m.doc() = "A Python module that wraps Coek";
 
     m.attr("inf") = COEK_INFINITY;
-
-    py::enum_<coek::VariableTypes>(m, "VariableTypes")
-        .value("Reals",     coek::VariableTypes::Reals)
-        .value("Integers",  coek::VariableTypes::Integers)
-        .value("Boolean",   coek::VariableTypes::Boolean)
-        .value("Binary",    coek::VariableTypes::Binary)
-        .export_values();
     
     //m.def("stop_here",coek::stop_here);
     m.def("to_string",[](int v) {return std::to_string(v);});
