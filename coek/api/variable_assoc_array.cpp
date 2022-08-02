@@ -15,21 +15,12 @@ expr_pointer_t create_varref(const std::vector<refarg_types>& indices, const std
 
 VariableAssocArrayRepn::VariableAssocArrayRepn()
     : call_setup(true)
-    {}
+    {variable_template.name("x");}
 
 void VariableAssocArrayRepn::resize_index_vectors(IndexVector& tmp, std::vector<refarg_types>& reftmp)
 {
 tmp = cache.alloc(dim());
 reftmp.resize(dim());
-}
-
-std::string VariableAssocArrayRepn::get_name(size_t index)
-{
-if (call_setup)
-    setup();
-if (index >= names.size())
-    throw std::runtime_error("Asking for name with an index that is greater than the number of elements in the index set.");
-return names[index];
 }
 
 void VariableAssocArrayRepn::setup()
@@ -39,10 +30,10 @@ call_setup=false;
 auto vtype = variable_template.within();
 bool binary = (vtype == Boolean) or (vtype == Binary);
 bool integer = vtype == Integers;
+auto lower = variable_template.lower_expression().expand().value();
+auto upper = variable_template.upper_expression().expand().value();
+auto value = variable_template.value_expression().expand().value();
 for (size_t i=0; i<size(); i++) {
-    auto lower = variable_template.lower_expression().expand().value();
-    auto upper = variable_template.upper_expression().expand().value();
-    auto value = variable_template.value_expression().expand().value();
     values.emplace_back(CREATE_POINTER(IndexedVariableTerm, 
                                 CREATE_POINTER(ConstantTerm, lower),
                                 CREATE_POINTER(ConstantTerm, upper),
@@ -193,8 +184,12 @@ Expression VariableAssocArray::create_varref(const std::vector<refarg_types>& ar
 
 std::string IndexedVariableTerm::get_name()
 {
-VariableAssocArrayRepn* _var = static_cast<VariableAssocArrayRepn*>(var);
-return _var->get_name(vindex);
+if (first) {
+    first = false;
+    VariableAssocArrayRepn* _var = static_cast<VariableAssocArrayRepn*>(var);
+    this->name = _var->get_name(vindex);
+    }
+return this->name;
 }
 
 expr_pointer_t get_concrete_var(VariableRefTerm& varref)

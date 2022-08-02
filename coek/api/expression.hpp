@@ -319,7 +319,7 @@ public:
     /** Set the variable type. \returns the variable object */
     Variable& within(VariableTypes vtype);
     /** \returns the variable type. */
-    VariableTypes within();
+    VariableTypes within() const;
     /** \returns \c true if the variable is continuous */
     bool is_continuous() const;
     /** \returns \c true if the variable is binary */

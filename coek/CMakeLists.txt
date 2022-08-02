@@ -2,6 +2,7 @@
 ##################### Build Shared Library  #####################
 
 SET(sources
+    util/index_vector.cpp
     ast/base_terms.cpp
     ast/constraint_terms.cpp
     ast/value_terms.cpp
@@ -126,15 +127,16 @@ endif()
 if(with_gurobi)
     list(APPEND sources
                 solvers/gurobi/gurobi.cpp)
-    if(NOT "$ENV{GUROBI_HOME}" STREQUAL "")
-        MESSAGE("-- GUROBI_HOME $ENV{GUROBI_HOME}")
-        list(APPEND coek_include_directories $ENV{GUROBI_HOME}/include)
-        list(APPEND coek_link_directories $ENV{GUROBI_HOME}/lib)
-    else()
-        MESSAGE("-- GUROBI_HOME Not provided")
-    endif()
+    #if(NOT "$ENV{GUROBI_HOME}" STREQUAL "")
+    #    MESSAGE("-- GUROBI_HOME $ENV{GUROBI_HOME}")
+    #    list(APPEND coek_link_directories $ENV{GUROBI_HOME}/lib)
+    #else()
+    #    MESSAGE("-- GUROBI_HOME Not provided")
+    #endif()
     list(APPEND coek_compile_options -DWITH_GUROBI)
-    list(APPEND coek_link_libraries gurobi_g++5.2 gurobi90)
+    list(APPEND coek_link_libraries ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARY})
+    list(APPEND coek_include_directories ${GUROBI_INCLUDE_DIRS})
+#gurobi_g++5.2 gurobi90)
 endif()
 
 #
@@ -165,11 +167,11 @@ list(APPEND sources
 # this is the "object library" target: compiles the sources only once
 if (build_shared_libs)
     add_library(coek SHARED ${sources})
-    message("Building shared libcoek library")
+    message("-- Building shared libcoek library")
     set_target_properties(coek PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
 else()
     add_library(coek STATIC ${sources})
-    message("Building static libcoek library")
+    message("-- Building static libcoek library")
 endif()
 
 target_compile_options(coek PUBLIC ${coek_compile_options})
@@ -208,21 +210,33 @@ install(FILES
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek
         )
 install(FILES
+        util/index_vector.hpp
+        util/template_utils.hpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/util
+        )
+install(FILES
+        api/component_map.hpp
+        api/constants.hpp
+        api/constraint.hpp
         api/expression.hpp
         api/expression_visitor.hpp
         api/intrinsic_fn.hpp
+        api/indexed_container.hpp
         api/objective.hpp
-        api/constraint.hpp
-        api/constants.hpp
+        api/parameter_array.hpp
+        api/parameter_assoc_array.hpp
+        api/parameter_assoc_array_repn.hpp
+        api/variable_array.hpp
+        api/variable_assoc_array.hpp
+        api/variable_assoc_array_repn.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/api
         )
 install(FILES
         compact/coek_sets.hpp
-        #compact/coek_indexed.hpp
-        compact/sequence_context.hpp
+        compact/constraint_sequence.hpp
         compact/expression_sequence.hpp
         compact/objective_sequence.hpp
-        compact/constraint_sequence.hpp
+        compact/sequence_context.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/compact
         )
 install(FILES

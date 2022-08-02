@@ -1,9 +1,6 @@
 #pragma once
 
 #include <coek/coek.hpp>
-//#include <coek/coek_small.hpp>
-
-//#include <coek/ast/varray.hpp>
 
 //
 // Inlined functions used to define reverse operators

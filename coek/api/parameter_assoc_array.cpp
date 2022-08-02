@@ -15,7 +15,7 @@ expr_pointer_t create_paramref(const std::vector<refarg_types>& indices, const s
 
 ParameterAssocArrayRepn::ParameterAssocArrayRepn()
     : call_setup(true)
-    {}
+    {parameter_template.name("p");}
 
 void ParameterAssocArrayRepn::resize_index_vectors(IndexVector& tmp, std::vector<refarg_types>& reftmp)
 {
@@ -23,21 +23,12 @@ tmp = cache.alloc(dim());
 reftmp.resize(dim());
 }
 
-std::string ParameterAssocArrayRepn::get_name(size_t index)
-{
-if (call_setup)
-    setup();
-if (index >= names.size())
-    throw std::runtime_error("Asking for name with an index that is greater than the number of elements in the index set.");
-return names[index];
-}
-
 void ParameterAssocArrayRepn::setup()
 {
 call_setup=false;
 
+auto value = parameter_template.value_expression().expand().value();
 for (size_t i=0; i<size(); i++) {
-    auto value = parameter_template.value_expression().expand().value();
     values.emplace_back(CREATE_POINTER(IndexedParameterTerm, 
                                 CREATE_POINTER(ConstantTerm, value),
                                 i, this));
@@ -96,8 +87,13 @@ Expression ParameterAssocArray::create_paramref(const std::vector<refarg_types>&
 
 std::string IndexedParameterTerm::get_name()
 {
-ParameterAssocArrayRepn* _param = static_cast<ParameterAssocArrayRepn*>(param);
-return _param->get_name(vindex);
+if (first) {
+    first = false;
+    ParameterAssocArrayRepn* _param = static_cast<ParameterAssocArrayRepn*>(param);
+    name = _param->get_name(pindex);
+    }
+return name;
+
 }
 
 expr_pointer_t get_concrete_param(ParameterRefTerm& paramref)

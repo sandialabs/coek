@@ -144,6 +144,13 @@ public:
         tmp[1] = static_cast<int>(j);
         return index(tmp);
         }
+#ifdef __cpp_multidimensional_subscript
+    Variable operator[](size_t i)
+        { return operator()(i); }
+
+    Variable operator[](size_t i, size_t j)
+        { return operator()(i,j); }
+#endif
 
 public:
 

@@ -21,11 +21,9 @@ class VariableAssocArrayRepn
 public:
 
     IndexVectorCache cache;
-    std::vector<std::string> names;
     std::vector<Variable> values;
     Variable variable_template;
     bool call_setup;
-    std::string variable_name;
 
 public:
 
@@ -38,7 +36,7 @@ public:
 
     void resize_index_vectors(IndexVector& tmp, std::vector<refarg_types>& reftmp);
 
-    std::string get_name(size_t index);
+    virtual std::string get_name(size_t index) = 0;
 
     /** Set the initial variable value. \returns the variable object. */
     void value(double value);

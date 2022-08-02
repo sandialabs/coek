@@ -33,26 +33,40 @@ public:
         cache.resize((size()+1)*(dim()+1));
         }
 
-    void setup();
-
     size_t dim()
         {return shape.size();}
 
     size_t size()
         {return _size;}
 
+    std::string get_name(size_t index);
 };
 
-void ParameterArrayRepn::setup()
+std::string ParameterArrayRepn::get_name(size_t index)
 {
-ParameterAssocArrayRepn::setup();
+std::string name(parameter_template.name());
+name += "[";
 
-auto name = parameter_template.name();
-for (size_t i=0; i<size(); i++) {
-    std::string _name = name+"("+std::to_string(i)+")";
-    names.push_back(_name);
+if (shape.size() == 1) {
+    name += std::to_string(index);
     }
+
+else if (shape.size() > 1) {
+    std::vector<size_t> tmp(shape.size());
+    for (size_t i=1; i<=shape.size(); ++i) {
+        size_t j = shape.size()-i;
+        tmp[j] = index % shape[j];
+        index = index / shape[j];
+        }
+    name += std::to_string(tmp[0]);
+    for (size_t i=1; i<shape.size(); ++i)
+        name += ","+std::to_string(tmp[i]);
+    }
+
+name += "]";
+return name;
 }
+
 
 //
 // ParameterArray
@@ -91,18 +105,17 @@ if (_repn->call_setup)
 // We know that the args[i] values are nonnegative b.c. we have asserted that while
 // processing these arguments
 size_t ndx = static_cast<size_t>(args[0]);
-for (size_t i=1; i<args.size(); i++) {
-    ndx = ndx*shape[i-1] + args[i];
-    }
+for (size_t i=1; i<args.size(); i++)
+    ndx = ndx*shape[i] + args[i];
 
 if (ndx > size()) {
-    std::string err = "Unknown index value: "+_repn->parameter_template.name()+"(";
+    std::string err = "Unknown index value: "+_repn->parameter_template.name()+"[";
     for (size_t i=0; i<args.size(); i++) {
         if (i > 0)
             err += ",";
         err += std::to_string(args[i]);
         }
-    err += ")";
+    err += "]";
     throw std::runtime_error(err);
     }
 

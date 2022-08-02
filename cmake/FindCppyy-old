@@ -24,13 +24,12 @@
 #
 #
 
-#get_filename_component(BACKEND_PREFIX "${CMAKE_CURRENT_LIST_FILE}" PATH)
-#get_filename_component(BACKEND_PREFIX "${BACKEND_PREFIX}" PATH)
 get_filename_component(BACKEND_PREFIX "${CMAKE_PARENT_LIST_FILE}" PATH)
 if(BACKEND_PREFIX STREQUAL "/")
   set(BACKEND_PREFIX "")
 endif()
 
+set(Cppyy_VERSION "UNINITIALIZED" CACHE STRING "Cppyy version" FORCE)
 find_program(Cppyy_EXECUTABLE NAMES rootcling)
 
 if(CPPYY_MODULE_PATH)
@@ -64,7 +63,7 @@ mark_as_advanced(Cppyy_VERSION)
 function(cppyy_generate_setup pkg version lib_so_file rootmap_file pcm_file map_file)
     set(SETUP_PY_FILE ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
     set(CPPYY_PKG ${pkg})
-    set(VERSION ${version})
+    set(PROJECT_VERSION ${version})
     get_filename_component(CPPYY_LIB_SO ${lib_so_file} NAME)
     get_filename_component(CPPYY_ROOTMAP ${rootmap_file} NAME)
     get_filename_component(CPPYY_PCM ${pcm_file} NAME)
@@ -92,14 +91,11 @@ function(cppyy_generate_init)
     get_filename_component(CPPYY_LIB_SO ${ARG_LIB_FILE} NAME)
     get_filename_component(CPPYY_MAP ${ARG_MAP_FILE} NAME)
 
+    string(REPLACE "${ARG_NAMESPACES}" ";" ", " _namespaces)
+
     if(NOT "${ARG_NAMESPACES}" STREQUAL "")
-        string(FIND "${ARG_NAMESPACES}" ";" _found_semicolon)
-        if(${_found_semicolon} EQUAL -1)
-            set(NAMESPACE_INJECTIONS "from cppyy.gbl import ${ARG_NAMESPACES}")
-        else()
-            string(REPLACE "${ARG_NAMESPACES}" ";" ", " _namespaces)
-            set(NAMESPACE_INJECTIONS "from cppyy.gbl import ${_namespaces}")
-        endif()
+        string(REPLACE "${ARG_NAMESPACES}" ";" ", " _namespaces)
+        set(NAMESPACE_INJECTIONS "from cppyy.gbl import ${_namespaces}")
     else()
         set(NAMESPACE_INJECTIONS "")
     endif()
@@ -258,7 +254,7 @@ endfunction(cppyy_generate_init)
 #
 # cppyy_add_bindings(
 #    "${PROJECT_NAME}" "${PROJECT_VERSION}" "user" "user@gmail.com"
-#    LANGUAGE_STANDARD "17"
+#    LANGUAGE_STANDARD "14"
 #    GENERATE_OPTIONS "-D__PIC__;-Wno-macro-redefined"
 #    INCLUDE_DIRS     ${PCL_INCLUDE_DIRS}
 #    LINKDEFS         LinkDef.h
@@ -269,8 +265,7 @@ endfunction(cppyy_generate_init)
 # )
 
 function(cppyy_add_bindings pkg pkg_version author author_email)
-    set(simple_args URL LICENSE LICENSE_FILE LANGUAGE_STANDARD
-        README_FILE)
+    set(simple_args URL LICENSE LICENSE_FILE LANGUAGE_STANDARD README_FILE)
     set(list_args IMPORTS GENERATE_OPTIONS COMPILE_OPTIONS INCLUDE_DIRS LINK_LIBRARIES H_DIRS H_FILES LINKDEFS EXTRA_CODES EXTRA_HEADERS NAMESPACES)
     cmake_parse_arguments(
         ARG
@@ -323,7 +318,7 @@ function(cppyy_add_bindings pkg pkg_version author author_email)
     # Language standard.
     #
     if("${ARG_LANGUAGE_STANDARD}" STREQUAL "")
-        set(ARG_LANGUAGE_STANDARD "17")
+        set(ARG_LANGUAGE_STANDARD "14")
     endif()
 
     ################################################################
@@ -417,7 +412,11 @@ function(cppyy_add_bindings pkg pkg_version author author_email)
     #
     # Set up common args.
     #
-    list(APPEND ARG_GENERATE_OPTIONS "-std=c++${ARG_LANGUAGE_STANDARD}")
+    foreach(dir ${ARG_H_DIRS} ${ARG_INCLUDE_DIRS})
+        list(APPEND ARG_GENERATE_OPTIONS "-I${dir}")
+    endforeach(dir)
+
+    #
     foreach(dir ${ARG_H_DIRS} ${ARG_INCLUDE_DIRS})
         list(APPEND ARG_GENERATE_OPTIONS "-I${dir}")
     endforeach(dir)
@@ -435,16 +434,21 @@ function(cppyy_add_bindings pkg pkg_version author author_email)
         #
         list(APPEND cling_args "-m" "${in_pcm}")
     endforeach(in_pcm)
-    list(APPEND cling_args "-cxxflags='${ARG_GENERATE_OPTIONS}'")
+    list(APPEND cling_args "${ARG_GENERATE_OPTIONS}")
+    #list(APPEND cling_args "--v4")
+    list(APPEND cling_args "-generate-pch")
 
     # run rootcling
     add_custom_command(OUTPUT ${cpp_file} ${pcm_file} ${rootmap_file}
     COMMAND ${Cppyy_EXECUTABLE} ${cling_args} ${ARG_H_FILES} ${out_linkdef} WORKING_DIRECTORY ${pkg_dir})
 
+    list(APPEND ARG_GENERATE_OPTIONS "-std=c++${ARG_LANGUAGE_STANDARD}")
+
 
     ############### cppyy-generator #######################
     find_package(LibClang REQUIRED)
-    find_program(Cppyygen_EXECUTABLE NAMES cppyy-generator)
+    get_filename_component(Cppyygen_EXECUTABLE ${Cppyy_EXECUTABLE} DIRECTORY)
+    set(Cppyygen_EXECUTABLE ${Cppyygen_EXECUTABLE}/cppyy-generator)
 
     #
     # Set up arguments for cppyy-generator.
@@ -480,7 +484,7 @@ function(cppyy_add_bindings pkg pkg_version author author_email)
     #
     add_library(${lib_name} SHARED ${cpp_file} ${pcm_file} ${rootmap_file} ${extra_map_file} ${ARG_EXTRA_CODES})
     set_target_properties(${lib_name} PROPERTIES LINKER_LANGUAGE CXX)
-    set_property(TARGET ${lib_name} PROPERTY VERSION ${pkg_version})
+    set_property(TARGET ${lib_name} PROPERTY VERSION ${version})
     set_property(TARGET ${lib_name} PROPERTY CXX_STANDARD ${ARG_LANGUAGE_STANDARD})
     set_property(TARGET ${lib_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${pkg_dir})
     set_property(TARGET ${lib_name} PROPERTY LINK_WHAT_YOU_USE TRUE)
@@ -503,7 +507,7 @@ function(cppyy_add_bindings pkg pkg_version author author_email)
     # Generate setup.py
     #
     cppyy_generate_setup(${pkg}
-                         ${pkg_version}
+                         "${pkg_version}"
                          ${lib_file}
                          ${rootmap_file}
                          ${pcm_file}
@@ -520,10 +524,7 @@ function(cppyy_add_bindings pkg pkg_version author author_email)
     # Copy initializor
     #
     set(initializor ${CMAKE_CURRENT_BINARY_DIR}/initializor.py)
-    message(STATUS ${BACKEND_PREFIX}/pkg_templates/initializor.py)
-    if (EXISTS ${BACKEND_PREFIX}/pkg_templates/initializor.py)
-       file(COPY ${BACKEND_PREFIX}/pkg_templates/initializor.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${pkg} USE_SOURCE_PERMISSIONS)
-    endif()
+    file(COPY ${BACKEND_PREFIX}/pkg_templates/initializor.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${pkg} USE_SOURCE_PERMISSIONS)
 
     #
     # Copy README and LICENSE
@@ -549,7 +550,6 @@ function(cppyy_add_bindings pkg pkg_version author author_email)
     #
     # Copy pure python code
     #
-    #file(COPY ${CMAKE_SOURCE_DIR}/py/ DESTINATION ${pkg_dir}
     file(COPY ${BACKEND_PREFIX}/py/ DESTINATION ${pkg_dir}
          USE_SOURCE_PERMISSIONS
          FILES_MATCHING PATTERN "*.py")
@@ -572,8 +572,9 @@ function(cppyy_add_bindings pkg pkg_version author author_email)
          "${CMAKE_SOURCE_DIR}/py/*.py")
     string(TOLOWER ${CMAKE_SYSTEM_NAME} SYSTEM_STR)
     set(pkg_whl "${CMAKE_CURRENT_BINARY_DIR}/dist/${pkg}-${pkg_version}-py3-none-${SYSTEM_STR}_${CMAKE_SYSTEM_PROCESSOR}.whl")
+    message("HERE ${pkg_whl}")
     add_custom_command(OUTPUT  ${pkg_whl}
-                       COMMAND ${LibClang_PYTHON_EXECUTABLE} setup.py bdist_wheel
+                       COMMAND ${LibClang_PYTHON_EXECUTABLE} ${SETUP_PY_FILE} bdist_wheel
                        DEPENDS ${SETUP_PY_FILE} ${lib_name} ${setup_cfg}
                        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )

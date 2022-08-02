@@ -80,15 +80,11 @@ public:
     void set_value(expr_pointer_t val);
 
     virtual std::string get_simple_name()
-        {
-            return "x(" + std::to_string(index) + ")";
-        }
+        { return "x[" + std::to_string(index) + "]"; }
     virtual std::string get_name()
         {
         if (name == "")
-            return get_simple_name();
-        else if (indexed)
-            return name + "(" + std::to_string(index) + ")";
+            return std::to_string(eval());
         else
             return name;
         }
@@ -99,22 +95,16 @@ class IndexedParameterTerm : public ParameterTerm
 public:
 
     void* param;      // ConcreteIndexedParameterRepn
-    size_t vindex;
+    size_t pindex;
+    bool first=true;
 
-    IndexedParameterTerm(const expr_pointer_t& _value, size_t _vindex, void* _param)
-        : ParameterTerm(_value), param(_param), vindex(_vindex) {}
+    IndexedParameterTerm(const expr_pointer_t& _value, size_t _pindex, void* _param)
+        : ParameterTerm(_value), param(_param), pindex(_pindex) {}
 
-    #if __cpp_lib_variant
-    virtual std::string get_name();
-    #else
-    virtual std::string get_name()
-        {return "Unknown";}
-    #endif
+    std::string get_name();
 
-    void accept(Visitor& v)
-        { v.visit(*this); }
-    term_id id()
-        {return IndexedVariableTerm_id;}
+    //void accept(Visitor& v)
+    //    { v.visit(*this); }
 };
 
 //
@@ -210,14 +200,12 @@ public:
 
     virtual std::string get_simple_name()
         {
-            return "x(" + std::to_string(index) + ")";
+            return "x[" + std::to_string(index) + "]";
         }
     virtual std::string get_name()
         {
         if (name == "")
             return get_simple_name();
-        else if (indexed)
-            return name + "(" + std::to_string(index) + ")";
         else
             return name;
         }
@@ -238,21 +226,15 @@ public:
 
     void* var;      // ConcreteIndexedVariableRepn
     size_t vindex;
+    bool first=true;
 
     IndexedVariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub, const expr_pointer_t& _value, bool _binary, bool _integer, size_t _vindex, void* _var)
         : VariableTerm(_lb, _ub, _value, _binary, _integer), var(_var), vindex(_vindex) {}
 
-    #if __cpp_lib_variant
-    virtual std::string get_name();
-    #else
-    virtual std::string get_name()
-        {return "Unknown";}
-    #endif
+    std::string get_name();
 
-    void accept(Visitor& v)
-        { v.visit(*this); }
-    term_id id()
-        {return IndexedVariableTerm_id;}
+    //void accept(Visitor& v)
+    //    { v.visit(*this); }
 };
 
 //

@@ -1,21 +1,9 @@
 #include <unordered_map>
+#include "coek/ast/compact_terms.hpp"
 #include "coek/api/parameter_assoc_array_repn.hpp"
 #include "coek/compact/parameter_map.hpp"
 #include "coek/model/model.hpp"
 
-
-namespace {
-typedef typename coek::IndexVector::vecdata_t vecdata_t;
-}
-
-namespace std
-{
-    template<>
-    struct hash<coek::IndexVector>
-    {
-        vecdata_t operator()(const coek::IndexVector& a) const;
-    };
-}
 
 namespace coek {
 
@@ -25,6 +13,7 @@ public:
 
     ConcreteSet concrete_set;
     std::unordered_map<IndexVector, size_t> index;
+    bool names_generated=false;
 
 public:
 
@@ -39,34 +28,50 @@ public:
 
     size_t size()
         {return concrete_set.size();}
+
+    std::string get_name(size_t index);
 };
+
+
+std::string ParameterMapRepn::get_name(size_t idx)
+{
+if (call_setup)
+  setup();
+
+if (not names_generated) {
+  names_generated = true;
+
+  auto name = parameter_template.name();
+  size_t _dim = dim();
+  int x_data [_dim];
+  IndexVector x(x_data, _dim);
+  for (auto& indices : concrete_set) {
+      for (size_t j=0; j<_dim; j++)
+          x[j] = indices[j];
+      if (indices.size() == 1) {
+          auto tmp = indices[0];
+          values[index[x]].name(name + "[" + std::to_string(tmp) + "]");
+          }
+      else {
+            std::string _name = name + "[";
+            auto tmp = indices[0];
+            _name += std::to_string(tmp);
+            for (size_t j=1; j<indices.size(); j++) {
+                auto tmp = indices[j];
+                _name += "," + std::to_string(tmp);
+                }
+            values[index[x]].name(_name + "]");
+            }
+        }
+  }
+
+return values[idx].name();
+}
+
 
 void ParameterMapRepn::setup()
 {
 ParameterAssocArrayRepn::setup();
-
-auto name = parameter_template.name();
-for (auto it=concrete_set.begin(); it != concrete_set.end(); ++it) {
-#if 1
-    auto indices = *it;
-    if (indices.size() == 1) {
-        auto tmp = indices[0];
-        names.push_back(name + "(" + std::to_string(tmp) + ")");
-        }
-    else {
-          std::string _name = name + "(";
-          auto tmp = indices[0];
-          _name += std::to_string(tmp);
-          for (size_t j=1; j<indices.size(); j++) {
-              auto tmp = indices[j];
-              _name += "," + std::to_string(tmp);
-              }
-          names.push_back(_name + ")");
-          }
-#else
-          names.push_back("");
-#endif
-      }
 
 size_t _dim = dim();
 size_t i=0;
@@ -102,13 +107,13 @@ if (_repn->call_setup)
 
 auto curr = _repn->index.find(tmp);
 if (curr == _repn->index.end()) {
-    std::string err = "Unknown index value: "+_repn->parameter_template.name()+"(";
+    std::string err = "Unknown index value: "+_repn->parameter_template.name()+"[";
     for (size_t i=0; i<args.size(); i++) {
         if (i > 0)
             err += ",";
         err += std::to_string(args[i]);
         }
-    err += ")";
+    err += "]";
     throw std::runtime_error(err);
     }
 return _repn->values[curr->second];

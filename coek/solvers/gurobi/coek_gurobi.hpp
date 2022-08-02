@@ -1,7 +1,8 @@
 #pragma once
 
 #include "gurobi_c++.h"
-#include "coek/solvers/solver.hpp"
+//#include "coek/solvers/solver.hpp"
+#include "coek/solvers/solver_repn.hpp"
 
 
 namespace coek {

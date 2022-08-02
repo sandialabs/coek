@@ -71,8 +71,8 @@
           auto v = m.add_variable("v").lower(0).upper(1).value(0);\
           coek::Expression e = FN(v+1);\
           coek::MutableNLPExpr repn;\
-          static std::list<std::string> constval = {"0.000"};\
-          static std::list<std::string> nonlinear = {"[", #FN, "[", "+", "v", "1.000", "]", "]" };\
+          static std::list<std::string> constval = {std::to_string(0.0)};\
+          static std::list<std::string> nonlinear = {"[", #FN, "[", "+", "v", std::to_string(1.0), "]", "]" };\
           REQUIRE( repn.constval.to_list() == constval );\
           REQUIRE( repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0 );\
           }\
@@ -85,7 +85,7 @@
           coek::Expression e = FN(v+1);\
           coek::MutableNLPExpr repn;\
           repn.collect_terms(e);\
-          static std::list<std::string> nonlinear = {"0.000"};\
+          static std::list<std::string> nonlinear = {std::to_string(0.0)};\
           REQUIRE( repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0 );\
           REQUIRE( repn.nonlinear.to_list() == nonlinear );\
           }\
@@ -99,8 +99,8 @@
           auto v = m.add_variable("v").lower(0).upper(1).value(0);\
           coek::Expression e = FN(v+1, v);\
           coek::MutableNLPExpr repn;\
-          static std::list<std::string> constval = {"0.000"};\
-          static std::list<std::string> nonlinear = {"[", #FN, "[", "+", "v", "1.000", "]", "v", "]" };\
+          static std::list<std::string> constval = {std::to_string(0.0)};\
+          static std::list<std::string> nonlinear = {"[", #FN, "[", "+", "v", std::to_string(1.0), "]", "v", "]" };\
           REQUIRE( repn.constval.to_list() == constval );\
           REQUIRE( repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0 );\
           }\
@@ -113,7 +113,7 @@
           coek::Expression e = FN(v+1, v);\
           coek::MutableNLPExpr repn;\
           repn.collect_terms(e);\
-          static std::list<std::string> nonlinear = {"0.000"};\
+          static std::list<std::string> nonlinear = {std::to_string(0.0)};\
           REQUIRE( repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0 );\
           REQUIRE( repn.nonlinear.to_list() == nonlinear );\
           }\
@@ -165,7 +165,7 @@ TEST_CASE( "expr_writer", "[smoke]" ) {
         auto q = coek::parameter().value(3);
         std::stringstream sstr;
         sstr << q;
-        REQUIRE( sstr.str() == "3.000" );
+        REQUIRE( sstr.str() == std::to_string(3.0) );
     }
     WHEN( "named ") {
         auto q = coek::parameter("q").value(3);
@@ -641,7 +641,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     coek::Expression f(3);
     auto v = coek::variable();
     auto e = f.diff(v);
-    static std::list<std::string> baseline = {"0.000"};
+    static std::list<std::string> baseline = {std::to_string(0.0)};
     REQUIRE( e.to_list() == baseline );
   }
 
@@ -650,7 +650,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
     coek::Expression f = p;
     auto v = coek::variable();
     auto e = f.diff(v);
-    static std::list<std::string> baseline = {"0.000"};
+    static std::list<std::string> baseline = {std::to_string(0.0)};
     REQUIRE( e.to_list() == baseline );
   }
 
@@ -660,7 +660,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         v.fixed(true);
         coek::Expression f = v;
         auto e = f.diff(v);
-        static std::list<std::string> baseline = {"0.000"};
+        static std::list<std::string> baseline = {std::to_string(0.0)};
         REQUIRE( e.to_list() == baseline );
     }
 
@@ -668,7 +668,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto v = coek::variable();
         coek::Expression f = v;
         auto e = f.diff(v);
-        static std::list<std::string> baseline = {"1.000"};
+        static std::list<std::string> baseline = {std::to_string(1.0)};
         REQUIRE( e.to_list() == baseline );
     }
 
@@ -677,7 +677,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = coek::variable();
         coek::Expression f = w;
         auto e = f.diff(v);
-        static std::list<std::string> baseline = {"0.000"};
+        static std::list<std::string> baseline = {std::to_string(0.0)};
         REQUIRE( e.to_list() == baseline );
     }
   }
@@ -689,7 +689,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = 2*v;
         auto e = f.diff(w);
-        static std::list<std::string> baseline = {"0.000"};
+        static std::list<std::string> baseline = {std::to_string(0.0)};
         REQUIRE( e.to_list() == baseline );
     }
 
@@ -698,7 +698,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto v = m.add_variable("v").lower(0).upper(1).value(0);
         coek::Expression f = 2*v;
         auto e = f.diff(v);
-        static std::list<std::string> baseline = {"2.000"};
+        static std::list<std::string> baseline = {std::to_string(2.0)};
         REQUIRE( e.to_list() == baseline );
     }
 
@@ -708,7 +708,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         v.fixed(true);
         coek::Expression f = 2*v;
         auto e = f.diff(v);
-        static std::list<std::string> baseline = {"0.000"};
+        static std::list<std::string> baseline = {std::to_string(0.0)};
         REQUIRE( e.to_list() == baseline );
     }
   }
@@ -719,7 +719,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto v = coek::variable("v").lower(0).upper(1).value(0);
         coek::Expression f = 2*(v+v)+v;
         auto e = f.diff(v);
-        static std::list<std::string> baseline = {"5.000"};
+        static std::list<std::string> baseline = {std::to_string(5.0)};
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "simple" ) {
@@ -727,7 +727,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto v = coek::variable("v").lower(0).upper(1).value(0);
         coek::Expression f = 3*p+2*v;
         auto e = f.diff(v);
-        static std::list<std::string> baseline = {"2.000"};
+        static std::list<std::string> baseline = {std::to_string(2.0)};
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "multiple" ) {
@@ -735,7 +735,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto v = coek::variable("v").lower(0).upper(1).value(0);
         coek::Expression f = 7*v+v;
         auto e = f.diff(v);
-        static std::list<std::string> baseline = {"8.000"};
+        static std::list<std::string> baseline = {std::to_string(8.000)};
         REQUIRE( e.to_list() == baseline );
     }
   }
@@ -746,7 +746,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto v = coek::variable("v").lower(0).upper(1).value(0);
         coek::Expression f = -(v+1);
         auto e = f.diff(v);
-        static std::list<std::string> baseline = {"-1.000"};
+        static std::list<std::string> baseline = {std::to_string(-1.0)};
         REQUIRE( e.to_list() == baseline );
     }
   }
@@ -757,7 +757,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto v = coek::variable("v").lower(0).upper(1).value(0);
         coek::Expression f = p*v;
         auto e = f.diff(v);
-        static std::list<std::string> baseline = {"0.000"};
+        static std::list<std::string> baseline = {std::to_string(0.0)};
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "lhs constant" ) {
@@ -775,7 +775,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto v = m.add_variable("v").lower(0).upper(1).value(0);
         coek::Expression f = v*p;
         auto e = f.diff(v);
-        static std::list<std::string> baseline = {"0.000"};
+        static std::list<std::string> baseline = {std::to_string(0.0)};
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "rhs constant" ) {
@@ -814,7 +814,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = p/w;
         auto e = f.diff(w);
-        static std::list<std::string> baseline = {"[", "/", "[", "*", "-1.000", "p", "]", "[", "*", "w", "w", "]", "]"};
+        static std::list<std::string> baseline = {"[", "/", "[", "*", std::to_string(-1.0), "p", "]", "[", "*", "w", "w", "]", "]"};
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "rhs nonzero" ) {
@@ -823,7 +823,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = w/p;
         auto e = f.diff(w);
-        static std::list<std::string> baseline = {"[", "/", "1.000", "p", "]"};
+        static std::list<std::string> baseline = {"[", "/", std::to_string(1.0), "p", "]"};
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "rhs polynomial" ) {
@@ -831,7 +831,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = w/(1+w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "+", "[", "/", "1.000", "[", "+", "1.000", "w", "]", "]", "[", "/", "[", "*", "-1.000", "w", "]", "[", "*", "[", "+", "1.000", "w", "]", "[", "+", "1.000", "w", "]", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "+", "[", "/", std::to_string(1.0), "[", "+", std::to_string(1.0), "w", "]", "]", "[", "/", "[", "*", std::to_string(-1.0), "w", "]", "[", "*", "[", "+", std::to_string(1.0), "w", "]", "[", "+", std::to_string(1.0), "w", "]", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
   }
@@ -843,7 +843,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto v = m.add_variable("v").lower(0).upper(1).value(0);
         coek::Expression f = w*v + v*(2*w+1);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "+", "v", "[", "*", "2.000", "v", "]", "]"};
+        static std::list<std::string> baseline = { "[", "+", "v", "[", "*", std::to_string(2.0), "v", "]", "]"};
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "variable partial plus monomial - 2" ) {
@@ -852,7 +852,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto v = m.add_variable("v").lower(0).upper(1).value(0);
         coek::Expression f = v*(2*w+1);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "v", "]"};
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "v", "]"};
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "constant partial plus monomial" ) {
@@ -860,7 +860,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = 3*w + 2*w;
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "5.000"};
+        static std::list<std::string> baseline = { std::to_string(5.0)};
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "negative monomial" ) {
@@ -868,7 +868,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = -(-w) + (-(-w));
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "2.000"};
+        static std::list<std::string> baseline = { std::to_string(2.0)};
         REQUIRE( e.to_list() == baseline );
     }
   }
@@ -882,7 +882,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = exp(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline =  { "[", "*", "2.000", "[", "exp", "[", "*", "2", "w", "]", "]", "]" };
+        static std::list<std::string> baseline =  { "[", "*", std::to_string(2.0), "[", "exp", "[", "*", "2", "w", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "log" ) {
@@ -890,7 +890,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = log(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "*", "2", "w", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "/", std::to_string(1.0), "[", "*", "2", "w", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "log10" ) {
@@ -898,7 +898,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = log10(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "*", "2.303", "[", "*", "2", "w", "]", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "/", std::to_string(1.0), "[", "*", std::to_string(2.302585), "[", "*", "2", "w", "]", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "sqrt" ) {
@@ -906,7 +906,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = sqrt(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "pow", "[", "*", "2", "w", "]", "-0.500", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "pow", "[", "*", "2", "w", "]", std::to_string(-0.500), "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "sin" ) {
@@ -914,7 +914,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = sin(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "cos", "[", "*", "2", "w", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "cos", "[", "*", "2", "w", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "cos" ) {
@@ -922,7 +922,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = cos(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "-", "[", "sin", "[", "*", "2", "w", "]", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "-", "[", "sin", "[", "*", "2", "w", "]", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "tan" ) {
@@ -930,7 +930,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = tan(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "pow", "[", "cos", "[", "*", "2", "w", "]", "]", "2.000", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "/", std::to_string(1.0), "[", "pow", "[", "cos", "[", "*", "2", "w", "]", "]", std::to_string(2.0), "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "sinh" ) {
@@ -938,7 +938,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = sinh(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "cosh", "[", "*", "2", "w", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "cosh", "[", "*", "2", "w", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "cosh" ) {
@@ -946,7 +946,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = cosh(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "sinh", "[", "*", "2", "w", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "sinh", "[", "*", "2", "w", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "tanh" ) {
@@ -954,7 +954,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = tanh(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "+", "1.000", "[", "*", "-1.000", "[", "pow", "[", "tan", "[", "*", "2", "w", "]", "]", "2.000", "]", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "+", std::to_string(1.0), "[", "*", std::to_string(-1.0), "[", "pow", "[", "tan", "[", "*", "2", "w", "]", "]", std::to_string(2.0), "]", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "asin" ) {
@@ -962,7 +962,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = asin(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "sqrt", "[", "+", "1.000", "[", "-", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "]", "]", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "/", std::to_string(1.0), "[", "sqrt", "[", "+", std::to_string(1.0), "[", "-", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "]", "]", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "acos" ) {
@@ -970,7 +970,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = acos(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "-", "[", "/", "1.000", "[", "sqrt", "[", "+", "1.000", "[", "-", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "]", "]", "]", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "-", "[", "/", std::to_string(1.0), "[", "sqrt", "[", "+", std::to_string(1.0), "[", "-", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "]", "]", "]", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "atan" ) {
@@ -978,7 +978,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = atan(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "+", "1.000", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "/", std::to_string(1.0), "[", "+", std::to_string(1.0), "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "asinh" ) {
@@ -986,7 +986,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = asinh(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "sqrt", "[", "+", "1.000", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "]", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "/", std::to_string(1.0), "[", "sqrt", "[", "+", std::to_string(1.0), "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "]", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "acosh" ) {
@@ -994,7 +994,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = acosh(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "sqrt", "[", "+", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "-1.000", "]", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "/", std::to_string(1.0), "[", "sqrt", "[", "+", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", std::to_string(-1.0), "]", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "atanh" ) {
@@ -1002,7 +1002,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = atanh(2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[", "+", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "-1.000", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "/", std::to_string(1.0), "[", "+", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", std::to_string(-1.0), "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "pow - 1" ) {
@@ -1010,7 +1010,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = pow(2*w, 3);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "*", "3.000", "[", "pow", "[", "*", "2", "w", "]", "[", "+", "3.000", "-1.000", "]", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "*", std::to_string(3.0), "[", "pow", "[", "*", "2", "w", "]", "[", "+", std::to_string(3.0), std::to_string(-1.0), "]", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
     WHEN( "pow - 2" ) {
@@ -1018,7 +1018,7 @@ TEST_CASE( "symbolic_diff", "[smoke]" ) {
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         coek::Expression f = pow(3, 2*w);
         auto e = f.diff(w);
-        static std::list<std::string> baseline = { "[", "*", "2.000", "[", "*", "1.099", "[", "pow", "3.000", "[", "*", "2", "w", "]", "]", "]", "]" };
+        static std::list<std::string> baseline = { "[", "*", std::to_string(2.0), "[", "*", std::to_string(1.098612), "[", "pow", std::to_string(3.0), "[", "*", "2", "w", "]", "]", "]", "]" };
         REQUIRE( e.to_list() == baseline );
     }
   }
@@ -1037,7 +1037,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
     coek::MutableNLPExpr repn;
     repn.collect_terms(e);
 
-    static std::list<std::string> constval = { "3.000" };
+    static std::list<std::string> constval = { std::to_string(3.0) };
     REQUIRE( repn.mutable_values == false );
     REQUIRE( repn.constval.to_list() == constval );
     REQUIRE( repn.linear_coefs.size() == 0 );
@@ -1073,7 +1073,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "[", "*", "0.500", "p", "]" };
+        static std::list<std::string> constval = { "[", "*", std::to_string(0.500), "p", "]" };
         REQUIRE( repn.mutable_values == true );
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 0 );
@@ -1094,8 +1094,8 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "0.000" };
-        static std::list<std::string> coefval = { "1.000" };
+        static std::list<std::string> constval = { std::to_string(0.0) };
+        static std::list<std::string> coefval = { std::to_string(1.0) };
         REQUIRE( repn.mutable_values == false );
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );
@@ -1136,7 +1136,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "[", "*", "0.500", "v", "]" };
+        static std::list<std::string> constval = { "[", "*", std::to_string(0.500), "v", "]" };
         REQUIRE( repn.mutable_values == true );
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 0 );
@@ -1157,8 +1157,8 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "0.000" };
-        static std::list<std::string> coefval = { "2.000" };
+        static std::list<std::string> constval = { std::to_string(0.0) };
+        static std::list<std::string> coefval = { std::to_string(2.0) };
         REQUIRE( repn.mutable_values == false );
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );
@@ -1180,7 +1180,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "[", "*", "2.000", "v", "]" };
+        static std::list<std::string> constval = { "[", "*", std::to_string(2.0), "v", "]" };
         REQUIRE( repn.mutable_values == true );
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 0 );
@@ -1200,8 +1200,8 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "-1.000" };
-        static std::list<std::string> coefval = { "-1.000" };
+        static std::list<std::string> constval = { std::to_string(-1.0) };
+        static std::list<std::string> coefval = { std::to_string(-1.0) };
         REQUIRE( repn.mutable_values == false );
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );
@@ -1223,8 +1223,8 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "1.000" };
-        static std::list<std::string> coefval = { "1.000" };
+        static std::list<std::string> constval = { std::to_string(1.0) };
+        static std::list<std::string> coefval = { std::to_string(1.0) };
         REQUIRE( repn.mutable_values == false );
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );
@@ -1244,9 +1244,9 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "0.000" };
-        static std::list<std::string> coefval0 = { "1.000" };
-        static std::list<std::string> coefval1 = { "-1.000" };
+        static std::list<std::string> constval = { std::to_string(0.0) };
+        static std::list<std::string> coefval0 = { std::to_string(1.0) };
+        static std::list<std::string> coefval1 = { std::to_string(-1.0) };
         REQUIRE( repn.mutable_values == false );
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 2 );
@@ -1272,7 +1272,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "0.000" };
+        static std::list<std::string> constval = { std::to_string(0.0) };
         static std::list<std::string> coefval = { "p" };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );
@@ -1293,7 +1293,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "0.000" };
+        static std::list<std::string> constval = { std::to_string(0.0) };
         static std::list<std::string> coefval = { "p" };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );
@@ -1313,8 +1313,8 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "0.000" };
-        static std::list<std::string> qcoefval = { "1.000" };
+        static std::list<std::string> constval = { std::to_string(0.0) };
+        static std::list<std::string> qcoefval = { std::to_string(1.0) };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 0 );
         REQUIRE( repn.quadratic_coefs.size() == 1 );
@@ -1336,7 +1336,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "0.000" };
+        static std::list<std::string> constval = { std::to_string(0.0) };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 0 );
         REQUIRE( repn.quadratic_coefs.size() == 0 );
@@ -1354,10 +1354,10 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "0.000" };
-        static std::list<std::string> lcoef0 = { "12.000" };
-        static std::list<std::string> qcoef0 = { "15.000" };
-        static std::list<std::string> qcoef1 = { "3.000" };
+        static std::list<std::string> constval = { std::to_string(0.0) };
+        static std::list<std::string> lcoef0 = { std::to_string(12.000) };
+        static std::list<std::string> qcoef0 = { std::to_string(15.000) };
+        static std::list<std::string> qcoef1 = { std::to_string(3.000) };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );
         REQUIRE( repn.linear_coefs[0].to_list() == lcoef0 );
@@ -1377,8 +1377,8 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "6.000" };
-        static std::list<std::string> qcoefval = { "3.000" };
+        static std::list<std::string> constval = { std::to_string(6.000) };
+        static std::list<std::string> qcoefval = { std::to_string(3.000) };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 0 );
         REQUIRE( repn.quadratic_coefs.size() == 1 );
@@ -1398,8 +1398,8 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "6.000" };
-        static std::list<std::string> qcoefval = { "3.000" };
+        static std::list<std::string> constval = { std::to_string(6.0) };
+        static std::list<std::string> qcoefval = { std::to_string(3.0) };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 0 );
         REQUIRE( repn.quadratic_coefs.size() == 1 );
@@ -1443,7 +1443,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "0.000" };
+        static std::list<std::string> constval = { std::to_string(0.0) };
         static std::list<std::string> nonlinear = { "[", "/", "p", "w", "]" };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 0 );
@@ -1463,8 +1463,8 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "0.000" };
-        static std::list<std::string> lcoef0 = { "[", "/", "1.000", "p", "]" };
+        static std::list<std::string> constval = { std::to_string(0.0) };
+        static std::list<std::string> lcoef0 = { "[", "/", std::to_string(1.0), "p", "]" };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );
         REQUIRE( repn.linear_coefs[0].to_list() == lcoef0 );
@@ -1484,7 +1484,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "0.000" };
+        static std::list<std::string> constval = { std::to_string(0.0) };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 0 );
         REQUIRE( repn.quadratic_coefs.size() == 0 );
@@ -1503,7 +1503,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "0.000" };
+        static std::list<std::string> constval = { std::to_string(0.0) };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 0 );
         REQUIRE( repn.quadratic_coefs.size() == 0 );
@@ -1535,8 +1535,8 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "0.000" };
-        static std::list<std::string> nonlinear = { "[", "/", "w", "[", "+", "1.000", "w", "]", "]" };
+        static std::list<std::string> constval = { std::to_string(0.0) };
+        static std::list<std::string> nonlinear = { "[", "/", "w", "[", "+", std::to_string(1.0), "w", "]", "]" };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 0 );
         REQUIRE( repn.quadratic_coefs.size() == 0 );
@@ -1555,7 +1555,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "[", "/", "1.000", "p", "]" };
+        static std::list<std::string> constval = { "[", "/", std::to_string(1.0), "p", "]" };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );
         REQUIRE( repn.linear_coefs[0].to_list() == constval );
@@ -1578,7 +1578,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "1.000" };
+        static std::list<std::string> constval = { std::to_string(1.0) };
         static std::list<std::string> coefval = { "p" };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );
@@ -1599,7 +1599,7 @@ TEST_CASE( "expr_to_MutableNLPExpr", "[smoke]" ) {
         coek::MutableNLPExpr repn;
         repn.collect_terms(e);
 
-        static std::list<std::string> constval = { "-1.000" };
+        static std::list<std::string> constval = { std::to_string(-1.0) };
         static std::list<std::string> coefval = { "p" };
         REQUIRE( repn.constval.to_list() == constval );
         REQUIRE( repn.linear_coefs.size() == 1 );

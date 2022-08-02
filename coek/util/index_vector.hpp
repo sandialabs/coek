@@ -1,7 +1,8 @@
 #pragma once
 
-//#include <cassert>
-//#include <string>
+#include <cstddef>
+#include <cassert>
+#include <map>
 //#include <vector>
 //#include <variant>
 //#include "coek/api/expression.hpp"
@@ -137,3 +138,14 @@ public:
 };
 
 }
+
+
+namespace std
+{
+    template<>
+    struct hash<coek::IndexVector>
+    {
+        coek::IndexVector::vecdata_t operator()(const coek::IndexVector& a) const;
+    };
+}
+

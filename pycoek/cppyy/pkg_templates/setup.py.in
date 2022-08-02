@@ -13,7 +13,7 @@ from wheel.bdist_wheel import bdist_wheel
 
 
 PKG              = '@CPPYY_PKG@'
-VERSION          = '@PROJECT_VERSION@'
+VERSION          = '@VERSION@'
 AUTHOR           = '@AUTHOR@'
 EMAIL            = '@EMAIL@'
 LICENSE          = '@BINDINGS_LICENSE@'

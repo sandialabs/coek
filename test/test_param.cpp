@@ -233,7 +233,7 @@ SECTION( "abstract" ) {
       auto v = coek::parameter();
       coek::Expression f = v;
       auto e = params(1);
-      REQUIRE( e.name() == "params(1)");
+      REQUIRE( e.name() == "params[1]");
       //auto it = e.to_list().begin();
       //REQUIRE_THAT( *it, Catch::Matchers::StartsWith("params") );
     }
@@ -241,14 +241,14 @@ SECTION( "abstract" ) {
     WHEN( "index3" ) {
       auto i = coek::set_element("i");
       auto e = params(i);
-      static std::list<std::string> baseline = {"params(i)"};
+      static std::list<std::string> baseline = {"params[i]"};
       REQUIRE( e.to_list() == baseline);
     }
 
     WHEN( "index4" ) {
       auto i = coek::set_element("i");
       auto e = params(i+1);
-      static std::list<std::string> baseline = {"params(i + 1)"};
+      static std::list<std::string> baseline = {"params[i + 1]"};
       REQUIRE( e.to_list() == baseline);
     }
 }
@@ -257,6 +257,7 @@ SECTION( "abstract" ) {
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
+#endif
 
 
 TEST_CASE( "1D_param_array", "[smoke]" ) {
@@ -291,34 +292,42 @@ TEST_CASE( "1D_param_array", "[smoke]" ) {
         for (int i=0; i<4; i++)
             REQUIRE( params(i).value() == 1 );
         }
+
+    WHEN( "name" ) {
+      auto params = coek::parameter( 4 ).name("v");
+      for (int i=0; i<4; i++)
+          REQUIRE( params(i).name() == "v[" + std::to_string(i) + "]" );
+      }
   }
 
   SECTION( "int_vector_dim" ) {
-      std::vector<int> v = {0,1,2,3};
+      std::vector<size_t> dim {4};
 
       WHEN( "size" ) {
-        std::vector<size_t> dim {4};
         auto params = coek::parameter( "v" , dim );
         REQUIRE( params.size() == 4 );
       }
 
       WHEN( "typeof" ) {
-        std::vector<size_t> dim {4};
         auto params = coek::parameter( dim );
         REQUIRE( typeid(params(1)).name() == typeid(coek::Parameter).name() );
       }
 
       WHEN( "index" ) {
-        std::vector<size_t> dim {4};
         auto params = coek::parameter(dim).value(1);
         for (size_t i=0; i<4; i++)
             REQUIRE( params(i).value() == 1 );
         }
+
+      WHEN( "name" ) {
+          auto params = coek::parameter( dim ).name("v");
+          for (int i=0; i<4; i++)
+              REQUIRE( params(i).name() == "v[" + std::to_string(i) + "]" );
+          }
   }
 
   SECTION( "int_initializer_list" ) {
       WHEN( "size" ) {
-        std::vector<size_t> dim {4};
         auto params = coek::parameter( "v" , {4} );
         REQUIRE( params.size() == 4 );
       }
@@ -333,6 +342,12 @@ TEST_CASE( "1D_param_array", "[smoke]" ) {
         for (size_t i=0; i<4; i++)
             REQUIRE( params(i).value() == 1 );
         }
+
+      WHEN( "name" ) {
+        auto params = coek::parameter( {4} ).name("v");
+        for (int i=0; i<4; i++)
+              REQUIRE( params(i).name() == "v[" + std::to_string(i) + "]" );
+        }
   }
 
 #ifdef DEBUG
@@ -341,6 +356,7 @@ REQUIRE( coek::env.check_memory() == true );
 }
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE( "2D_param_map", "[smoke]" ) {
 
   SECTION( "int" ) {
@@ -410,7 +426,7 @@ TEST_CASE( "2D_param_map", "[smoke]" ) {
 
       WHEN( "index2" ) {
         auto e = params(1,2);
-        REQUIRE( e.name() == "params(1,2)");
+        REQUIRE( e.name() == "params[1,2]");
         //auto it = e.to_list().begin();
         //REQUIRE_THAT( *it, Catch::Matchers::StartsWith("params") );
       }
@@ -419,7 +435,7 @@ TEST_CASE( "2D_param_map", "[smoke]" ) {
         auto i = coek::set_element("i");
         auto j = coek::set_element("j");
         auto e = params(i,j);
-        static std::list<std::string> baseline = {"params(i,j)"};
+        static std::list<std::string> baseline = {"params[i,j]"};
         REQUIRE( e.to_list() == baseline);
       }
 
@@ -427,7 +443,7 @@ TEST_CASE( "2D_param_map", "[smoke]" ) {
         auto i = coek::set_element("i");
         auto j = coek::set_element("j");
         auto e = params(i+1,j-1);
-        static std::list<std::string> baseline = {"params(i + 1,j + -1)"};
+        static std::list<std::string> baseline = {"params[i + 1,j + -1]"};
         REQUIRE( e.to_list() == baseline);
       }
   }
@@ -436,6 +452,7 @@ TEST_CASE( "2D_param_map", "[smoke]" ) {
 REQUIRE( coek::env.check_memory() == true );
 #endif
 }
+#endif
 
 
 TEST_CASE( "2D_param_array", "[smoke]" ) {
@@ -479,6 +496,14 @@ TEST_CASE( "2D_param_array", "[smoke]" ) {
         REQUIRE_THROWS_WITH( params(0), 
             "Unexpected index value: x is an 2-D parameter array but is being indexed with 1 indices.");
         }
+
+      WHEN( "name" ) {
+          std::vector<size_t> dim {4,3};
+          auto params = coek::parameter( dim ).name("v");
+          for (int i=0; i<4; i++)
+              for (int j=0; j<3; j++)
+                  REQUIRE( params(i,j).name() == "v[" + std::to_string(i) + "," + std::to_string(j) + "]" );
+          }
   }
 
   SECTION( "int_initializer_list" ) {
@@ -493,8 +518,8 @@ TEST_CASE( "2D_param_array", "[smoke]" ) {
       }
 
       WHEN( "index" ) {
-        auto params = coek::parameter({4,4}).value(1);
-        for (size_t i=0; i<4; i++)
+        auto params = coek::parameter({4,3}).value(1);
+        for (size_t i=0; i<3; i++)
             REQUIRE( params(i,i).value() == 1 );
         }
 
@@ -504,6 +529,13 @@ TEST_CASE( "2D_param_array", "[smoke]" ) {
         REQUIRE_THROWS_WITH( params(0), 
             "Unexpected index value: x is an 2-D parameter array but is being indexed with 1 indices.");
         }
+
+      WHEN( "name" ) {
+          auto params = coek::parameter({4,3}).name("v");
+          for (int i=0; i<4; i++)
+              for (int j=0; j<3; j++)
+                  REQUIRE( params(i,j).name() == "v[" + std::to_string(i) + "," + std::to_string(j) + "]" );
+          }
   }
 
 #ifdef DEBUG
@@ -512,6 +544,98 @@ REQUIRE( coek::env.check_memory() == true );
 }
 
 
+TEST_CASE( "3D_param_array", "[smoke]" ) {
+  
+    SECTION( "int_vector_dim" ) {
+  
+        WHEN( "constructors" ) {
+          auto v1 = coek::parameter( {5,4,3} );
+          REQUIRE( v1.size() == 60 );
+          auto v2 = coek::parameter("v2", {5,4,3} );
+          REQUIRE( v2.size() == 60 );
+          auto v3 = coek::parameter( {5,4,3} );
+          REQUIRE( v3.size() == 60 );
+          auto v4 = coek::parameter("v4", {5,4,3} );
+          REQUIRE( v4.size() == 60 );
+        }
+  
+        WHEN( "size" ) {
+          std::vector<size_t> dim {5,4,3};
+          auto params = coek::parameter( "v" , dim );
+          REQUIRE( params.size() == 60 );
+        }
+  
+        WHEN( "typeof" ) {
+          std::vector<size_t> dim {5,4,3};
+          auto params = coek::parameter(dim);
+          REQUIRE( typeid(params(1,1)).name() == typeid(coek::Parameter).name() );
+        }
+  
+        WHEN( "index" ) {
+          std::vector<size_t> dim {5,4,3};
+          auto params = coek::parameter(dim).value(1);
+          for (size_t i=0; i<3; i++)
+              REQUIRE( params(i,i,i).value() == 1 );
+          }
+  
+        WHEN( "index error" ) {
+          std::vector<size_t> dim {5,4,3};
+          auto params = coek::parameter(dim).name("x");
+          REQUIRE( params.dim() == 3 );
+          REQUIRE_THROWS_WITH( params(0),
+              "Unexpected index value: x is an 3-D parameter array but is being indexed with 1 indices.");
+          }
+  
+        WHEN( "name" ) {
+          std::vector<size_t> dim {5,4,3};
+          auto params = coek::parameter( dim ).name("v");
+          for (int i=0; i<5; i++)
+              for (int j=0; j<4; j++)
+                  for (int k=0; k<3; k++)
+                      REQUIRE( params(i,j,k).name() == "v[" + std::to_string(i) + "," + std::to_string(j) + "," + std::to_string(k) + "]" );
+          }
+    }
+  
+    SECTION( "int_initializer_list" ) {
+        WHEN( "size" ) {
+          auto params = coek::parameter( "v" , {5,4,3} );
+          REQUIRE( params.size() == 60 );
+        }
+  
+        WHEN( "typeof" ) {
+          auto params = coek::parameter({5,4,3});
+          REQUIRE( typeid(params(1,1,1)).name() == typeid(coek::Parameter).name() );
+        }
+  
+        WHEN( "index" ) {
+          auto params = coek::parameter({5,4,3}).value(1);
+          for (size_t i=0; i<3; i++)
+              REQUIRE( params(i,i,i).value() == 1 );
+          }
+  
+        WHEN( "index error" ) {
+          auto params = coek::parameter({5,4,3}).name("x");
+          REQUIRE( params.dim() == 3 );
+          REQUIRE_THROWS_WITH( params(0),
+              "Unexpected index value: x is an 3-D parameter array but is being indexed with 1 indices.");
+          }
+  
+        WHEN( "name" ) {
+          auto params = coek::parameter( {5,4,3} ).name("v");
+          for (int i=0; i<5; i++)
+              for (int j=0; j<4; j++)
+                  for (int k=0; k<3; k++)
+                      REQUIRE( params(i,j,k).name() == "v[" + std::to_string(i) + "," + std::to_string(j) + "," + std::to_string(k) + "]" );
+          }
+    }
+  
+#ifdef DEBUG
+REQUIRE( coek::env.check_memory() == true );
+#endif
+}
+
+
+#ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE( "3D_param_api", "[smoke]" ) {
 
   SECTION( "map" ) {
@@ -547,7 +671,7 @@ TEST_CASE( "3D_param_api", "[smoke]" ) {
             "Unexpected index value: x is an 3-D parameter map but is being indexed with 2 indices.");
 
         REQUIRE_THROWS_WITH( v(ival,ival,-1),
-            "Unknown index value: x(1,1,-1)");
+            "Unknown index value: x[1,1,-1]");
       }
 
     WHEN( "param value" ) {
@@ -597,7 +721,7 @@ TEST_CASE( "3D_param_api", "[smoke]" ) {
             "Unexpected index value: x is an 3-D parameter array but is being indexed with 2 indices.");
 
         REQUIRE_THROWS_WITH( v(100,100,100),
-            "Unknown index value: x(100,100,100)");
+            "Unknown index value: x[100,100,100]");
       }
 
     WHEN( "param value" ) {
