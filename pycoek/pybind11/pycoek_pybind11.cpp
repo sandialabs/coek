@@ -37,6 +37,20 @@ namespace coek {
 	return res;
     }
 
+    py::object constraint_lb(Constraint& c) {
+	if (c.has_lower())
+	    return py::cast(c.lower().value());
+	else
+	    return py::none();
+    }
+
+    py::object constraint_ub(Constraint& c) {
+	if (c.has_upper())
+	    return py::cast(c.upper().value());
+	else
+	    return py::none();
+    }
+
     Expression construct_linear_expression(std::vector<double> coefs, std::vector<Variable*> vars) {
 	Expression res(0);
 	for (unsigned int ndx=0; ndx < coefs.size(); ++ndx) {
@@ -1012,8 +1026,15 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     py::class_<coek::Constraint>(m, "constraint")
         .def(py::init<>())
         .def_property_readonly("value", [](coek::Constraint& c){return c.body().value();})
-        .def_property_readonly("lb", [](coek::Constraint& c){return c.lower().value();})
-        .def_property_readonly("ub", [](coek::Constraint& c){return c.upper().value();})
+        .def_property_readonly("lb", [](coek::Constraint& c){return coek::constraint_lb(c);})
+        .def_property_readonly("ub", [](coek::Constraint& c){return coek::constraint_ub(c);})
+        .def("lower", &coek::Constraint::lower)
+	.def("body", &coek::Constraint::body)
+	.def("upper", &coek::Constraint::upper)
+	.def("has_lower", &coek::Constraint::has_lower)
+	.def("has_upper", &coek::Constraint::has_upper)
+	.def("is_inequality", &coek::Constraint::is_inequality)
+	.def("is_equality", &coek::Constraint::is_equality)
         .def_property_readonly("id", &coek::Constraint::id)
         .def_property_readonly("name", [](coek::Constraint& c){return std::string("c")+std::to_string(c.id());})
         .def("is_feasible", &coek::Constraint::is_feasible)
