@@ -29,8 +29,6 @@ manager is probably a better long-term solution for users.
 
 ### Build TPLs and Tests
 
-Make sure pybind11 is installed with `pip install pybind11` first
-
 * mkdir build
 * cd build
 * cmake -Dbuild\_all=ON -Dwith\_tests=ON ..
@@ -57,8 +55,6 @@ Make sure pybind11 is installed with `pip install pybind11` first
 * make test
 
 ### Build with Pybind11 Python extensions (build a WHEEL and install with PIP)
-
-Make sure pybind11 is installed with `pip install pybind11` first
 
 * mkdir build
 * cd build
