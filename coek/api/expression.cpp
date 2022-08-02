@@ -326,7 +326,7 @@ else {
 return *this;
 }
 
-VariableTypes Variable::within()
+VariableTypes Variable::within() const
 {
 if (repn->binary)
     return Binary;
