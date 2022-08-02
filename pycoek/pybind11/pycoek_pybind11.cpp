@@ -292,6 +292,7 @@ catch (std::exception& err) {
 }
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 template <class TYPE>
 void set_kwargs_varmap(TYPE& var, py::kwargs kwargs)
 {
@@ -332,6 +333,7 @@ VariableMap tmp(index_set);
 set_kwargs_varmap(tmp, kwargs);
 return tmp;
 }
+#endif
 
 VariableArray variable_fn(std::vector<int>& dimen, py::kwargs kwargs)
 {
@@ -482,13 +484,22 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
 
     m.doc() = "A Python module that wraps Coek";
 
+    py::enum_<coek::VariableTypes>(m, "VariableTypes")
+        .value("Reals",     coek::VariableTypes::Reals)
+        .value("Integers",  coek::VariableTypes::Integers)
+        .value("Boolean",   coek::VariableTypes::Boolean)
+        .value("Binary",    coek::VariableTypes::Binary)
+        .export_values();
+    
     //m.def("stop_here",coek::stop_here);
     m.def("to_string",[](int v) {return std::to_string(v);});
     m.def("to_string",[](double v) {return std::to_string(v);});
     m.def("variable_",[](int n, py::kwargs kw) {return coek::variable_fn(n, kw);});
     m.def("variable_",[](std::vector<int>& dimen, py::kwargs kw) {return coek::variable_fn(dimen, kw);});
     m.def("variable_",[](py::kwargs kw) {return coek::variable_fn(kw);});
+#ifdef COEK_WITH_COMPACT_MODEL
     m.def("variable_",[](coek::ConcreteSet& index_set, py::kwargs kw) {return coek::variable_fn(index_set, kw);});
+#endif
     m.def("affine_expression",[](std::vector<double>& coef, std::vector<coek::Variable>& var, double offset) {return affine_expression(coef, var, offset);});
     m.def("affine_expression",[](std::vector<double>& coef, std::vector<coek::Variable>& var) {return affine_expression(coef, var, 0);});
     m.def("affine_expression",[](std::vector<coek::Variable>& var, double offset) {return affine_expression(var, offset);});
@@ -706,6 +717,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         .def_property("lb", [](const coek::Variable& x){return x.lower();}, [](coek::Variable& x, double value){x.lower(value);})
         .def_property("ub", [](const coek::Variable& x){return x.upper();}, [](coek::Variable& x, double value){x.upper(value);})
         .def_property("fixed", [](const coek::Variable& x){return x.fixed();}, [](coek::Variable& x, bool value){x.fixed(value);})
+        .def_property("within", [](const coek::Variable& x){return x.within();}, [](coek::Variable& x, coek::VariableTypes value){x.within(value);})
         .def_property_readonly("id", &coek::Variable::id)
         .def("is_constraint",[](const coek::Variable& ){return false;})
 
@@ -839,6 +851,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     //
     // VariableMap
     //
+#ifdef COEK_WITH_COMPACT_MODEL
     py::class_<coek::VariableMap>(m, "variable_map")
         .def("__len__", [](const coek::VariableMap& x){return x.size();})
         .def("__getitem__", [](coek::VariableMap& x, py::args args) {return coek::Array_getitem<coek::VariableMap>(x, args);})
@@ -847,7 +860,6 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         //        })
         ;
 
-#ifdef COEK_WITH_COMPACT_MODEL
     m.def("SetOf",[](std::vector<int>& arg) {return coek::SetOf(arg);});
     m.def("RangeSet",[](int start, int stop, int step=1) {return coek::RangeSet(start, stop, step);});
     m.def("RangeSet",[](int start, int stop) {return coek::RangeSet(start, stop);});
@@ -1180,8 +1192,10 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
             {return m.add_variable(v);})
         .def("add_variable_", [](coek::Model& m, coek::VariableArray& v)
             { m.add(v); })
+#ifdef COEK_WITH_COMPACT_MODEL
         .def("add_variable_", [](coek::Model& m, coek::VariableMap& v)
             { m.add(v); })
+#endif
         .def("add_objective", [](coek::Model& m, double f)
             {coek::Expression e(f);
             return m.add_objective(e);})
