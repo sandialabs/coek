@@ -369,6 +369,29 @@ endif()
 # Provide config and version files to be used by other applications
 # =============================================================================
 
+set(INCLUDE_INSTALL_DIR "include/" CACHE STRING "Where to install headers relative to prefix")
+set(LIBRARY_INSTALL_DIR "lib/" CACHE STRING "Where to install libraries relative to prefix")
+
+#set(INCLUDE_INSTALL_DIR include/ ... CACHE )
+#set(LIB_INSTALL_DIR lib/ ... CACHE )
+#set(SYSCONFIG_INSTALL_DIR etc/foo/ ... CACHE )
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/coekConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/coekConfig.cmake
+    INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake/coek
+    PATH_VARS INCLUDE_INSTALL_DIR LIBRARY_INSTALL_DIR)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/coekConfigVersion.cmake
+    VERSION ${COEK_VERSION}
+    COMPATIBILITY SameMajorVersion )
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/coekConfig.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/coekConfigVersion.cmake
+        DESTINATION ${LIBRARY_INSTALL_DIR}/cmake/coek )
+
 install(EXPORT coekTargets
         FILE coekTargets.cmake
         NAMESPACE coek::
