@@ -33,7 +33,12 @@ class _GeneralObjectiveData(ActiveComponentData):
 
     def __init__(self, expr=None, sense=minimize, component=None):
         super().__init__(component)
-        self._pe = expr
+        if expr is None:
+            self._pe = expr
+        elif expr.is_variable_type():
+            self._pe = expr._pe
+        else:
+            self._pe = expr
         self._sense = sense
 
         if (self._sense != minimize) and \
@@ -53,7 +58,10 @@ class _GeneralObjectiveData(ActiveComponentData):
     def set_value(self, expr):
         if expr is None:
             raise ValueError(_rule_returned_none_error % (self.name,))
-        self._pe = expr
+        if expr.is_variable_type():
+            self._pe = expr._pe
+        else:
+            self._pe = expr
 
     @property
     def sense(self):

@@ -26,27 +26,27 @@ logger = logging.getLogger(__name__)
 
 class _GeneralConstraintData(_ConstraintData):
 
-    __slots__ = ('_pc', )
+    __slots__ = ('_pe',)
 
     def __init__(self, expr=None, component=None):
         super().__init__(component)
-        self._pc = None
+        self._pe = None
         if expr is not None:
             self.set_value(expr)
 
     @property
     def body(self):
-        return self._pc.body()
+        return self._pe.body()
 
     def _lb(self):
-        if self._pc.has_lower():
-            return self._pc.lower()
+        if self._pe.has_lower():
+            return self._pe.lower()
         else:
             return None
 
     def _ub(self):
-        if self._pc.has_upper():
-            return self._pc.upper()
+        if self._pe.has_upper():
+            return self._pe.upper()
         else:
             return None
 
@@ -66,30 +66,30 @@ class _GeneralConstraintData(_ConstraintData):
 
     @property
     def lb(self):
-        return self._pc.lb
+        return self._pe.lb
 
     @property
     def ub(self):
-        return self._pc.ub
+        return self._pe.ub
 
     @property
     def expr(self):
-        return self._pc
+        return self._pe
 
     def get_value(self):
-        return self._pc
+        return self._pe
 
     def set_value(self, expr):
         expr_type = type(expr)
 
         if expr_type is tuple:
             if len(expr) == 2:
-                self._pc = expr[0] == expr[1]
+                self._pe = expr[0] == expr[1]
             elif len(expr) == 3:
                 if expr[0] is None:
-                    self._pc = expr[1] <= expr[2]
+                    self._pe = expr[1] <= expr[2]
                 elif expr[2] is None:
-                    self._pc = expr[0] <= expr[1]
+                    self._pe = expr[0] <= expr[1]
                 else:
                     raise NotImplementedError(
                         'Ranged inequalities are not supported yet'
@@ -99,7 +99,7 @@ class _GeneralConstraintData(_ConstraintData):
                     f"expected 2 or 3 arguments for tuple expressions; got {len(expr)}"
                 )
         else:
-            self._pc = expr
+            self._pe = expr
 
 
 @ModelComponentFactory.register("General constraint expressions.")

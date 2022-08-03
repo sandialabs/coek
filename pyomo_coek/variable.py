@@ -33,66 +33,66 @@ _rev_domain_map[pk.VariableTypes.Integers] = Integers
 
 class _GeneralVarData(ComponentData):
 
-    __slots__ = ('_stale', '_pv')
+    __slots__ = ('_stale', '_pe')
 
     def __init__(self, component=None):
         super().__init__(component=component)
         self._stale = 0  # True
-        self._pv = pk.variable_single()
+        self._pe = pk.variable_single()
 
     @classmethod
     def copy(cls, src):
         self = cls.__new__(cls)
         self._component = src._component
-        self._pv = pk.variable_single()
-        self._pv.value = src._pv.value
-        self._pv.lb = src._pv.lb
-        self._pv.ub = src._pv.ub
-        self._pv.within = src._pv.within
-        self._pv.fixed = src._pv.fixed
+        self._pe = pk.variable_single()
+        self._pe.value = src._pe.value
+        self._pe.lb = src._pe.lb
+        self._pe.ub = src._pe.ub
+        self._pe.within = src._pe.within
+        self._pe.fixed = src._pe.fixed
         self._stale = src._stale
         self._index = src._index
         return self
 
     def has_lb(self):
-        return self._pv.lb > -pk.inf
+        return self._pe.lb > -pk.inf
 
     def has_ub(self):
-        return self._pv.ub < pk.inf
+        return self._pe.ub < pk.inf
 
     def setlb(self, val):
-        self._pv.lb = val
+        self._pe.lb = val
 
     def setub(self, val):
-        self._pv.ub = val
+        self._pe.ub = val
 
     @property
     def lb(self):
         if self.has_lb():
-            return self._pv.lb
+            return self._pe.lb
         else:
             return None
 
     @lb.setter
     def lb(self, val):
         if val is None:
-            self._pv.lb = -pk.inf
+            self._pe.lb = -pk.inf
         else:
-            self._pv.lb = val
+            self._pe.lb = val
 
     @property
     def ub(self):
         if self.has_ub():
-            return self._pv.ub
+            return self._pe.ub
         else:
             return None
 
     @ub.setter
     def ub(self, val):
         if val is None:
-            self._pv.ub = pk.inf
+            self._pe.ub = pk.inf
         else:
-            self._pv.ub = val
+            self._pe.ub = val
 
     @property
     def bounds(self):
@@ -103,16 +103,16 @@ class _GeneralVarData(ComponentData):
         self.lb, self.ub = val
 
     def is_integer(self):
-        return self._pv.is_integer()
+        return self._pe.is_integer()
 
     def is_binary(self):
-        return self._pv.is_binary()
+        return self._pe.is_binary()
 
     def is_continuous(self):
-        return self._pv.is_continuous()
+        return self._pe.is_continuous()
 
     def is_fixed(self):
-        return self._pv.fixed
+        return self._pe.fixed
 
     def is_constant(self):
         return False
@@ -129,18 +129,18 @@ class _GeneralVarData(ComponentData):
         return 1
 
     def clear(self):
-        self._pv.value = 0
+        self._pe.value = 0
 
     def __call__(self, exception=True):
         return self.value
 
     def set_value(self, val, skip_validation=False):
-        self._pv.value = val
+        self._pe.value = val
         self._stale = StaleFlagManager.get_flag(self._stale)
 
     @property
     def value(self):
-        return self._pv.value
+        return self._pe.value
 
     @value.setter
     def value(self, val):
@@ -148,11 +148,11 @@ class _GeneralVarData(ComponentData):
 
     @property
     def domain(self):
-        return _rev_domain_map[self._pv.within]
+        return _rev_domain_map[self._pe.within]
 
     @domain.setter
     def domain(self, val):
-        self._pv.within = _domain_map[val]
+        self._pe.within = _domain_map[val]
 
     @property
     def lower(self):
@@ -172,11 +172,11 @@ class _GeneralVarData(ComponentData):
 
     @property
     def fixed(self):
-        return self._pv.fixed
+        return self._pe.fixed
 
     @fixed.setter
     def fixed(self, val):
-        self._pv.fixed = val
+        self._pe.fixed = val
 
     @property
     def stale(self):
@@ -201,52 +201,52 @@ class _GeneralVarData(ComponentData):
         self.unfix()
 
     def __add__(self, other):
-        return self._pv + _other_operand_map[type(other)](other)
+        return self._pe + _other_operand_map[type(other)](other)
 
     def __radd__(self, other):
-        return _other_operand_map[type(other)](other) + self._pv
+        return _other_operand_map[type(other)](other) + self._pe
 
     def __sub__(self, other):
-        return self._pv - _other_operand_map[type(other)](other)
+        return self._pe - _other_operand_map[type(other)](other)
 
     def __rsub__(self, other):
-        return _other_operand_map[type(other)](other) - self._pv
+        return _other_operand_map[type(other)](other) - self._pe
 
     def __mul__(self, other):
-        return self._pv * _other_operand_map[type(other)](other)
+        return self._pe * _other_operand_map[type(other)](other)
 
     def __rmul__(self, other):
-        return _other_operand_map[type(other)](other) * self._pv
+        return _other_operand_map[type(other)](other) * self._pe
 
     def __neg__(self):
-        return -self._pv
+        return -self._pe
 
     def __truediv__(self, other):
-        return self._pv / _other_operand_map[type(other)](other)
+        return self._pe / _other_operand_map[type(other)](other)
 
     def __rtruediv__(self, other):
-        return _other_operand_map[type(other)](other) / self._pv
+        return _other_operand_map[type(other)](other) / self._pe
 
     def __div__(self, other):
-        return self._pv / _other_operand_map[type(other)](other)
+        return self._pe / _other_operand_map[type(other)](other)
 
     def __rdiv__(self, other):
-        return _other_operand_map[type(other)](other) / self._pv
+        return _other_operand_map[type(other)](other) / self._pe
 
     def __pow__(self, other):
-        return self._pv ** _other_operand_map[type(other)](other)
+        return self._pe ** _other_operand_map[type(other)](other)
 
     def __rpow__(self, other):
-        return _other_operand_map[type(other)](other) ** self._pv
+        return _other_operand_map[type(other)](other) ** self._pe
 
     def __pos__(self):
         return self
 
     def __ge__(self, other):
-        return self._pv >= _other_operand_map[type(other)](other)
+        return self._pe >= _other_operand_map[type(other)](other)
 
     def __le__(self, other):
-        return self._pv <= _other_operand_map[type(other)](other)
+        return self._pe <= _other_operand_map[type(other)](other)
 
     def is_numeric_type(self):
         return True
@@ -582,7 +582,7 @@ def _get_other_operand_poek_expr(operand):
 
 
 def _get_other_operand_var(operand):
-    return operand._pv
+    return operand._pe
 
 
 _other_operand_map = dict()
