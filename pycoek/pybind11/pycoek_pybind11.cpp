@@ -961,6 +961,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         .def("is_constraint",[](const coek::Expression& ){return false;})
         .def("is_numeric_type",[](const coek::Expression& ){return true;})
         .def("__call__", &coek::expression_eval, py::arg("exception"))
+	.def("is_variable_type", [](const coek::Expression& ){return false;})
 
         .def("__neg__", [](const coek::Expression& x){return -x;})
         .def("__pos__", [](const coek::Expression& x){return +x;})
