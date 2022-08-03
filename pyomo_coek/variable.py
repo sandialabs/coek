@@ -248,6 +248,9 @@ class _GeneralVarData(ComponentData):
     def __le__(self, other):
         return self._pe <= _other_operand_map[type(other)](other)
 
+    def __eq__(self, other):
+        return self._pe == _other_operand_map[type(other)](other)
+
     def is_numeric_type(self):
         return True
 
