@@ -237,6 +237,8 @@ install(FILES
         compact/expression_sequence.hpp
         compact/objective_sequence.hpp
         compact/sequence_context.hpp
+        compact/parameter_map.hpp
+        compact/variable_map.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/compact
         )
 install(FILES

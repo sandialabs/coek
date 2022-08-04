@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.21.3)
 PROJECT(coek
         #LANGUAGES CXX
-        #VERSION 0.1
+        #VERSION 1.0.0
         #DESCRIPTION "C++ Optimization Expression Kernels"
         )
 if(${CMAKE_VERSION} VERSION_LESS "3.5.0")
@@ -166,8 +166,6 @@ message("-- With Staticlib: ${with_staticlib}")
 
 if(${with_gcov})
   set(CMAKE_BUILD_TYPE debug)
-else()
-  set(CMAKE_BUILD_TYPE release)
 endif()
 
 if(${with_verbose})
@@ -386,7 +384,7 @@ configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/coekConfig.cmake
 write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/coekConfigVersion.cmake
     VERSION ${COEK_VERSION}
-    COMPATIBILITY SameMajorVersion )
+    COMPATIBILITY AnyNewerVersion )
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/coekConfig.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/coekConfigVersion.cmake

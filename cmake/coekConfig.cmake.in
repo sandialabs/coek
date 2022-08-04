@@ -1,5 +1,7 @@
-get_filename_component(COEK_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-set(COEK_INCLUDE_DIRS "@CMAKE_INSTALL_PREFIX@/include")
-set(COEK_COMPILE_FLAGS "@coek_compile_options@")
-set(COEK_LINK_LIBRARIES "@coek_link_libraries@")
-message(STATUS "Coek found. Headers: ${COEK_INCLUDE_DIRS}")
+#if (NOT TARGET coek::coek)
+#  include ("${CMAKE_CURRENT_LIST_DIR}/coekTargets.cmake")
+#endif (NOT TARGET coek::coek)
+
+include(CMakeFindDependencyMacro)
+find_dependency(fmt)
+include ("${CMAKE_CURRENT_LIST_DIR}/coekTargets.cmake")
