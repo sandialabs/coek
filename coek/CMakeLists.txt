@@ -5,10 +5,11 @@ find_package(coek)
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 set(sources
+    models/jump/lqcp_scalar.cpp
+    models/jump/fac_scalar.cpp
     models/misc/pmedian.cpp
     models/misc/nqueens.cpp
     models/misc/knapsack.cpp
-    models/jump/lqcp_scalar.cpp
     )
 if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
     list(APPEND sources

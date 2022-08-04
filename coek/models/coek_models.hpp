@@ -6,8 +6,7 @@
 //
 // jump
 //
-
-// lqcp
+void fac_scalar(coek::Model& model, const std::vector<int>& data);
 void lqcp_array(coek::Model& model, const std::vector<int>& data);
 #ifdef COEK_WITH_COMPACT_MODEL
 void lqcp_compact(coek::CompactModel& model, const std::vector<int>& data);
@@ -51,6 +50,8 @@ if (false) {}
 //
 // jump
 //
+else if (name == "fac_scalar")
+    fac_scalar(model, data);
 else if (name == "lqcp_array")
     lqcp_array(model, data);
 #ifdef COEK_WITH_COMPACT_MODEL

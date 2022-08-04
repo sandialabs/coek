@@ -33,6 +33,7 @@ all_coek_models = [
     "knapsack_scalar",
     "nqueens_scalar",
     "pmedian_scalar",
+    "fac_scalar",
     "lqcp_scalar",
     "lqcp_array",
     "lqcp_map",
@@ -43,17 +44,20 @@ all_gurobi_models = [
     "knapsack_scalar",
     "nqueens_scalar",
     "pmedian_scalar",
-    #"lqcp_scalar",         Need to add this model
+    "lqcp",
+    "fac",
     ]
 
 all_suffixes = ['lp', 'nl']
 
 
 
-def test_writer(*, test_type, models, suffixes, executable):
+def test_writer(*, test_type, models, suffixes, executable, subdir):
     errors=[]
     if not os.path.exists("results"):
         os.mkdir("results")
+    if not os.path.exists("results/"+subdir):
+        os.mkdir("results/"+subdir)
 
     print("")
     print("TESTING ARGUMENTS")
@@ -88,8 +92,8 @@ def test_writer(*, test_type, models, suffixes, executable):
             else:
                 cmd = [model] + [test_args]
             for suffix in suffixes:
-                outfile = "results/writer_"+ "_".join(cmd+[suffix]) + "." + suffix
-                timefile = "results/writer_"+ "_".join(cmd+[suffix]) + ".out"
+                outfile = "results/"+subdir+"/writer_"+ "_".join(cmd+[suffix]) + "." + suffix
+                timefile = "results/"+subdir+"/writer_"+ "_".join(cmd+[suffix]) + ".out"
 
                 if os.path.exists(timefile):
                     print(". Skipping test {}: results exist".format(timefile))
@@ -109,10 +113,12 @@ def test_writer(*, test_type, models, suffixes, executable):
             print("  ",f)
 
 
-def test_solve0(*, test_type, models, solvers, executable):
+def test_solve0(*, test_type, models, solvers, executable, subdir):
     errors=[]
     if not os.path.exists("results"):
         os.mkdir("results")
+    if not os.path.exists("results/"+subdir):
+        os.mkdir("results/"+subdir)
 
     print("")
     print("TESTING ARGUMENTS")
@@ -147,8 +153,8 @@ def test_solve0(*, test_type, models, solvers, executable):
             else:
                 cmd = [model] + [test_args]
             for solver in solvers:
-                logfile = "results/solve0_"+ "_".join(cmd+[solver]) + ".log"
-                timefile = "results/solve0_"+ "_".join(cmd+[solver]) + ".out"
+                logfile = "results/"+subdir+"/solve0_"+ "_".join(cmd+[solver]) + ".log"
+                timefile = "results/"+subdir+"/solve0_"+ "_".join(cmd+[solver]) + ".out"
 
                 if os.path.exists(timefile):
                     print(". Skipping test {}: timefile exists".format(timefile))
@@ -171,16 +177,17 @@ def test_solve0(*, test_type, models, solvers, executable):
 
 
 if __name__ == "__main__":
-    #test_type = "all"
-    test_type = "short"
-    #models = ["knapsack_scalar"]
-    models = all_coek_models
-    suffixes = all_suffixes
-    solvers = ['ipopt']
-    #test_writer(test_type=test_type, models=models, suffixes=suffixes, executable="coek/coek_writer")
-    #test_solve0(test_type=test_type, models=models, solvers=solvers, executable="coek/coek_solve0")
+    import sys
 
-    #test_writer(test_type="short", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer")
-    test_solve0(test_type="short", models=all_gurobi_models, solvers=['gurobi'], executable="gurobi/gurobi_solve0")
+    if sys.argv[1] == "compare_lp":
+        test_writer(test_type="short", models=all_coek_models, suffixes=['lp'], executable="coek/coek_writer", subdir="coek")
+        test_writer(test_type="short", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer", subdir="gurobi")
+
+    else:
+        print("UNKNOWN TEST: "+sys.argv[1])
+        #test_solve0(test_type=test_type, models=models, solvers=solvers, executable="coek/coek_solve0")
+
+        #test_writer(test_type="short", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer")
+        #test_solve0(test_type="short", models=all_gurobi_models, solvers=['gurobi'], executable="gurobi/gurobi_solve0")
     
 
