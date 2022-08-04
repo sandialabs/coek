@@ -53,6 +53,10 @@ catch (std::exception& e) {
 
 coek::Solver solver;
 solver.initialize(solver_name);
+if (not solver.available()) {
+    std::cout << "ERROR - solver '" << solver_name << "' is not available" << std::endl;
+    return 2;
+    }
 solver.set_option("OutputFlag", debug);
 solver.set_option("TimeLimit", 0.0);
 
