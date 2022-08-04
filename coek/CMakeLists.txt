@@ -1,19 +1,10 @@
 
-#find_package(Catch2 REQUIRED)
-#add_library(Catch INTERFACE)
-#target_include_directories(Catch INTERFACE ${CMAKE_INSTALL_PREFIX}/include)
-
 find_package(fmt REQUIRED)
-#add_library(fmt::fmt SHARED IMPORTED)
 
 find_package(coek)
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
-#include_directories(BEFORE ${COEK_INCLUDE_DIRS})
-#LINK_DIRECTORIES(${COEK_LIBRARY_DIRS})
-message("XHERE ${COEK_COMPILE_FLAGS}")
 
 set(sources
-    writer.cpp
     models/misc/pmedian.cpp
     models/misc/nqueens.cpp
     models/misc/knapsack.cpp
@@ -28,11 +19,12 @@ if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
 endif()
 
 # coek_writer
-add_executable(coek_writer ${sources})
+add_executable(coek_writer writer.cpp ${sources})
 TARGET_LINK_LIBRARIES(coek_writer PRIVATE coek::coek fmt::fmt)
-#TARGET_COMPILE_OPTIONS(coek_writer PUBLIC coek)
-#TARGET_LINK_LIBRARIES(coek_writer PUBLIC ${COEK_LIBRARY} ${coek_link_libraries})
-#TARGET_COMPILE_OPTIONS(coek_writer PUBLIC ${coek_compile_flags})
+
+# coek_solver0
+add_executable(coek_solve0 solve0.cpp ${sources})
+TARGET_LINK_LIBRARIES(coek_solve0 PRIVATE coek::coek fmt::fmt)
 
 # rlqcp
 ##add_executable(rlqcp rlqcp.cpp)
