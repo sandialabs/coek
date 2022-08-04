@@ -1,55 +1,55 @@
+//#define _GLIBCXX_USE_CXX11_ABI 0
+#include "gurobi_c++.h"
 #include <map>
 #include <vector>
-#include <coek/coek.hpp>
 
 
-void pmedian_scalar(coek::Model& model, const std::vector<int>& data)
+void pmedian_scalar(GRBModel& model, const std::vector<int>& data)
 {
 if (data.size() != 2)
     throw std::runtime_error("pmedian_scalar - expecting two arguments (N,P)");
 size_t N = static_cast<size_t>(data[0]);   // Locations
 size_t P = static_cast<size_t>(data[1]);   // Facilities
 
-size_t M = N;          // Customers
+size_t M = N;
 
 std::vector<std::vector<double>> d(N, std::vector<double>(M));
 for (size_t n=0; n<N; n++)
     for (size_t m=0; m<M; m++)
         d[n][m] = 1.0+1.0/(n+m+1);
 
-std::vector<std::vector<coek::Variable>> x(N, std::vector<coek::Variable>(M));
+std::vector<std::vector<GRBVar>> x(N, std::vector<GRBVar>(M));
 for (size_t n=0; n<N; n++)
     for (size_t m=0; m<M; m++)
-        model.add( x[n][m].bounds(0,1).value(0) );
+        x[n][m] = model.addVar(0,1,0, GRB_CONTINUOUS);
 
-std::vector<coek::Variable> y(N);
+std::vector<GRBVar> y(N);
 for (size_t n=0; n<N; n++)
-    model.add( y[n].bounds(0,1).value(0) );
+    y[n] = model.addVar(0,1,0, GRB_CONTINUOUS);
 
 // obj
-coek::Expression obj;
+GRBLinExpr obj;
 for (size_t n=0; n<N; n++)
     for (size_t m=0; m<M; m++)
         obj += d[n][m]*x[n][m];
-model.add_objective( obj );
+model.setObjective( obj );
 
 // single_x
 for (size_t m=0; m<M; m++) {
-    coek::Expression c;
+    GRBLinExpr c;
     for (size_t n=0; n<N; n++)
         c += x[n][m];
-    model.add( c == 1 );
+    model.addConstr( c == 1 );
     }
 
 // bound_y
 for (size_t n=0; n<N; n++)
     for (size_t m=0; m<M; m++)
-        model.add( x[n][m] - y[n] <= 0 );
+        model.addConstr( x[n][m] - y[n] <= 0 );
 
 // num_facilities
-coek::Expression num_facilities;
+GRBLinExpr num_facilities;
 for (size_t n=0; n<N; n++)
     num_facilities += y[n];
-model.add( num_facilities == (int)P );
+model.addConstr( num_facilities == (int)P );
 }
-

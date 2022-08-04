@@ -2,16 +2,20 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <coek/coek.hpp>
 #include "models/coek_models.hpp"
+
+void print_help()
+{
+std::cout << "coek_solve0 [-d] <solver> <model> [<data> ...]" << std::endl;
+std::cout << std::endl << "TEST MODELS" << std::endl;
+print_models(std::cout);
+std::cout << std::endl;
+}
 
 int main(int argc, char* argv[])
 {
 if (argc <= 3) {
-    std::cout << "coek_solve0 [-d] <solver> <model> [<data> ...]" << std::endl;
-    std::cout << std::endl << "TEST MODELS" << std::endl;
-    print_models(std::cout);
-    std::cout << std::endl;
+    print_help();
     return 1;
     }
 
@@ -26,10 +30,7 @@ std::vector<std::string> args(argv + 1, argv + argc);
 size_t i=0;
 while (i<args.size()) {
     if (args[i] == "-h" || args[i] == "--help") {
-        std::cout << "coek_solve0 [-d] <solver> <model> [<data> ...]" << std::endl;
-        std::cout << std::endl << "TEST MODELS" << std::endl;
-        print_models(std::cout);
-        std::cout << std::endl;
+        print_help();
         return 0;
     } else if (args[i] == "-d") {
         debug = true;

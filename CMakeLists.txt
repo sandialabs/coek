@@ -1,8 +1,5 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.12)
 PROJECT(coek_testmodels)
-#if(${CMAKE_VERSION} VERSION_LESS "3.5.0")
-#    cmake_policy(SET CMP0022 NEW)
-#endif()
 
 #
 # For now, let's just assume we have C++17
@@ -58,13 +55,13 @@ message("-- with_gurobi: ${with_gurobi}")
 
 ##################### COEK configuration #####################
 
-list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../coek/build/install/lib/cmake/coek")
-list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../coek/build/install/lib/cmake/fmt")
-#set(coek_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../coek/build/install/lib/cmake/coek")
-message(${coek_DIR})
-find_package(coek REQUIRED NO_MODULE)
-#set(coek_dir "" CACHE FILEPATH "Set the COEK installation directory")
 if("${coek_dir}" STREQUAL "")
+    if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/../../coek/build/install)
+        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../coek/build/install/lib/cmake/coek")
+        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../coek/build/install/lib/cmake/fmt")
+        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../coek/build/install/lib64/cmake/coek")
+        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../coek/build/install/lib64/cmake/fmt")
+    endif()
 else()
     if(NOT IS_ABSOLUTE ${coek_dir})
         set(coek_dir "${CMAKE_CURRENT_BINARY_DIR}/${coek_dir}")
@@ -75,12 +72,9 @@ message("")
 message("COEK Installation Configuration")
 message("-- COEK_DIR:  ${coek_dir}")
 message("-- COEK_HOME: $ENV{COEK_HOME}")
-#add_library(coek::coek STATIC INTERFACE IMPORTED)
-#get_property(TARGET coek PROPERTY "INTERFACE_LINK_LIBRARIES" FOOBAR)
-#message("Z ${FOOBAR}")
-#message("YHERE ${COEK_COMPILE_FLAGS}")
 message("")
 message("-- CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+find_package(coek REQUIRED NO_MODULE)
 
 
 ##################### Checks for compiler #####################

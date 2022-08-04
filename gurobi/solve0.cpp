@@ -2,23 +2,14 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "models/coek_models.hpp"
+#include "models/gurobi_models.hpp"
 
 void print_help()
 {
-std::cout << "coek_writer [-d] <filename> <model> [<data> ...]" << std::endl;
+std::cout << "gurobi_solve0 [-d] <solver> <model> [<data> ...]" << std::endl;
 std::cout << std::endl << "TEST MODELS" << std::endl;
 print_models(std::cout);
 std::cout << std::endl;
-std::cout <<
-"VALID FILENAME SUFFIXES\n"
-"  lp     - Canonical LP file, written with FMT library\n"
-"  fmtlp  - Canonical LP file, written with FMT library\n"
-"  ostrlp - Canonical LP file, written with C++ ostream\n"
-"  nl     - Canonical NL file, written with FMT library\n"
-"  fmtnl  - Canonical NL file, written with FMT library\n"
-"  ostrnl - Canonical NL file, written with C++ ostream\n"
-"\n";
 }
 
 int main(int argc, char* argv[])
@@ -29,7 +20,7 @@ if (argc <= 3) {
     }
 
 bool debug = false;
-std::string filename;
+std::string solver_name;
 std::string model_name;
 std::vector<int> data;
 
@@ -45,14 +36,15 @@ while (i<args.size()) {
         debug = true;
         i++;
     } else {
-        filename = args[i++];
+        solver_name = args[i++];
         model_name = args[i++];
         while (i<args.size()) 
             data.push_back(std::stoi(args[i++]));
     }
 }
 
-coek::Model model;
+GRBEnv env;
+GRBModel model(env);
 try {
     create_instance(model, model_name, data);
     }
@@ -60,7 +52,10 @@ catch (std::exception& e) {
     std::cout << "ERROR - " << e.what() << std::endl;
     return 1;
     }
-model.write(filename);
+
+model.set(GRB_IntParam_OutputFlag, debug);
+model.set(GRB_DoubleParam_TimeLimit, 0.0);
+model.optimize();
 
 return 0;
 }

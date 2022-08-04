@@ -8,12 +8,12 @@
 //
 
 // lqcp
-void lqcp_scalar(coek::Model& model, const std::vector<int>& data);
-void lqcp_map(coek::Model& model, const std::vector<int>& data);
 void lqcp_array(coek::Model& model, const std::vector<int>& data);
 #ifdef COEK_WITH_COMPACT_MODEL
 void lqcp_compact(coek::CompactModel& model, const std::vector<int>& data);
+void lqcp_map(coek::Model& model, const std::vector<int>& data);
 #endif
+void lqcp_scalar(coek::Model& model, const std::vector<int>& data);
 
 //
 // misc
@@ -36,8 +36,8 @@ os <<
 "  lqcp_array N\n"
 #ifdef COEK_WITH_COMPACT_MODEL
 "  lqcp_compact N\n"
-#endif
 "  lqcp_map N\n"
+#endif
 "  lqcp_scalar N\n"
 "  nqueens_scalar N\n"
 "  pmedian_scalar N P\n"
@@ -51,10 +51,6 @@ if (false) {}
 //
 // jump
 //
-else if (name == "lqcp_scalar")
-    lqcp_scalar(model, data);
-else if (name == "lqcp_map")
-    lqcp_map(model, data);
 else if (name == "lqcp_array")
     lqcp_array(model, data);
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -63,7 +59,11 @@ else if (name == "lqcp_compact") {
     lqcp_compact(cmodel, data);
     model = cmodel.expand();
     }
+else if (name == "lqcp_map")
+    lqcp_map(model, data);
 #endif
+else if (name == "lqcp_scalar")
+    lqcp_scalar(model, data);
 
 //
 // misc

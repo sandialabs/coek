@@ -2,24 +2,21 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "models/coek_models.hpp"
+#include "models/gurobi_models.hpp"
+
 
 void print_help()
 {
-std::cout << "coek_writer [-d] <filename> <model> [<data> ...]" << std::endl;
+std::cout << "gurobi_writer [-d] <filename> <model> [<data> ...]" << std::endl;
 std::cout << std::endl << "TEST MODELS" << std::endl;
 print_models(std::cout);
 std::cout << std::endl;
 std::cout <<
 "VALID FILENAME SUFFIXES\n"
-"  lp     - Canonical LP file, written with FMT library\n"
-"  fmtlp  - Canonical LP file, written with FMT library\n"
-"  ostrlp - Canonical LP file, written with C++ ostream\n"
-"  nl     - Canonical NL file, written with FMT library\n"
-"  fmtnl  - Canonical NL file, written with FMT library\n"
-"  ostrnl - Canonical NL file, written with C++ ostream\n"
+"  lp     - Canonical LP file, written with GUROBI library\n"
 "\n";
 }
+
 
 int main(int argc, char* argv[])
 {
@@ -52,7 +49,8 @@ while (i<args.size()) {
     }
 }
 
-coek::Model model;
+GRBEnv env;
+GRBModel model(env);
 try {
     create_instance(model, model_name, data);
     }

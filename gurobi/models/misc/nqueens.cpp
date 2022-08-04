@@ -1,74 +1,74 @@
+//#define _GLIBCXX_USE_CXX11_ABI 0
 #include <map>
 #include <vector>
-#include <coek/coek.hpp>
+#include "gurobi_c++.h"
 
 
-void nqueens_scalar(coek::Model& model, const std::vector<int>& data)
+void nqueens_scalar(GRBModel& model, const std::vector<int>& data)
 {
 if (data.size() != 1)
-    throw std::runtime_error("pmedian_scalar - expecting one argument (N)");
+    throw std::runtime_error("nqueens_scalar - expecting one argument (N)");
 size_t N = static_cast<size_t>(data[0]);   // Number of queens
 
-std::vector<std::vector<coek::Variable>> x(N, std::vector<coek::Variable>(N));
+std::vector<std::vector<GRBVar>> x(N, std::vector<GRBVar>(N));
 for (size_t i=0; i<N; i++)
     for (size_t j=0; j<N; j++)
-        model.add( x[i][j].bounds(0,1).value(0).within(coek::VariableTypes::Binary) );
+        x[i][j] = model.addVar(0,1,0,GRB_BINARY);
 
 // obj
-coek::Expression obj;
+GRBLinExpr obj;
 for (size_t i=0; i<N; i++)
     for (size_t j=0; j<N; j++)
         obj += x[i][j];
-model.add_objective( obj );
+model.setObjective( obj );
 
 // one per row
 for (size_t i=0; i<N; i++) {
-    coek::Expression c;
+    GRBLinExpr c;
     for (size_t j=0; j<N; j++)
         c += x[i][j];
-    model.add( c == 1 );
+    model.addConstr( c == 1 );
     }
 
 // one per column
 for (size_t j=0; j<N; j++) {
-    coek::Expression c;
+    GRBLinExpr c;
     for (size_t i=0; i<N; i++)
         c += x[i][j];
-    model.add( c == 1 );
+    model.addConstr( c == 1 );
     }
 
 // \diagonals_col
 for (size_t i=0; i<N-1; i++) {
-    coek::Expression c;
+    GRBLinExpr c;
     c += x[0][i];
     for (size_t j=1; j<N-i; j++)
         c += x[j][i+j];
-    model.add( c <= 1 );
+    model.addConstr( c <= 1 );
     }
 // \diagonals_row
 for (size_t i=1; i<N-1; i++) {
-    coek::Expression c;
+    GRBLinExpr c;
     c += x[i][0];
     for (size_t j=1; j<N-i; j++)
         c += x[i+j][j];
-    model.add( c <= 1 );
+    model.addConstr( c <= 1 );
     }
 
 // /diagonals_col
 for (size_t i=1; i<N; i++) {
-    coek::Expression c;
+    GRBLinExpr c;
     c += x[0][i];
     for (size_t j=1; j<=i; j++)
         c += x[j][i-j];
-    model.add( c <= 1 );
+    model.addConstr( c <= 1 );
     }
 // /diagonals_row
 for (size_t i=1; i<N-1; i++) {
-    coek::Expression c;
+    GRBLinExpr c;
     c += x[i][N-1];
     for (size_t j=1; j<N-i; j++)
         c += x[i+j][N-1-j];
-    model.add( c <= 1 );
+    model.addConstr( c <= 1 );
     }
 }
-

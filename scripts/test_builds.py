@@ -39,6 +39,13 @@ all_coek_models = [
     #"lqcp_compact"         Problem constructing this model
     ]
 
+all_gurobi_models = [
+    "knapsack_scalar",
+    "nqueens_scalar",
+    "pmedian_scalar",
+    #"lqcp_scalar",         Need to add this model
+    ]
+
 all_suffixes = ['lp', 'nl']
 
 
@@ -81,8 +88,8 @@ def test_writer(*, test_type, models, suffixes, executable):
             else:
                 cmd = [model] + [test_args]
             for suffix in suffixes:
-                outfile = "results/"+ "_".join(cmd+[suffix]) + "." + suffix
-                timefile = "results/"+ "_".join(cmd+[suffix]) + ".out"
+                outfile = "results/writer_"+ "_".join(cmd+[suffix]) + "." + suffix
+                timefile = "results/writer_"+ "_".join(cmd+[suffix]) + ".out"
 
                 if os.path.exists(timefile):
                     print(". Skipping test {}: results exist".format(timefile))
@@ -140,8 +147,8 @@ def test_solve0(*, test_type, models, solvers, executable):
             else:
                 cmd = [model] + [test_args]
             for solver in solvers:
-                logfile = "results/"+ "_".join(cmd+[solver]) + ".log"
-                timefile = "results/"+ "_".join(cmd+[solver]) + ".out"
+                logfile = "results/solve0_"+ "_".join(cmd+[solver]) + ".log"
+                timefile = "results/solve0_"+ "_".join(cmd+[solver]) + ".out"
 
                 if os.path.exists(timefile):
                     print(". Skipping test {}: timefile exists".format(timefile))
@@ -171,5 +178,9 @@ if __name__ == "__main__":
     suffixes = all_suffixes
     solvers = ['ipopt']
     #test_writer(test_type=test_type, models=models, suffixes=suffixes, executable="coek/coek_writer")
-    test_solve0(test_type=test_type, models=models, solvers=solvers, executable="coek/coek_solve0")
+    #test_solve0(test_type=test_type, models=models, solvers=solvers, executable="coek/coek_solve0")
+
+    #test_writer(test_type="short", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer")
+    test_solve0(test_type="short", models=all_gurobi_models, solvers=['gurobi'], executable="gurobi/gurobi_solve0")
+    
 

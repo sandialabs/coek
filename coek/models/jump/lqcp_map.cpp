@@ -15,6 +15,7 @@ inline double yt(size_t j, double dx) {
 }
 
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void lqcp_map(coek::Model& model, const std::vector<int>& data)
 {
 if (data.size() != 1)
@@ -68,3 +69,4 @@ for (size_t i = 1; i <= m; i++)
 for (size_t i = 1; i <= m; i++)
     model.add( (y(i,n-2) - 4*y(i,n1) + 3*y(i,n))/(2*dx) == u(i)-y(i,n) );
 }
+#endif

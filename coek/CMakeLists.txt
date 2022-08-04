@@ -18,6 +18,10 @@ if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
         )
 endif()
 
+##
+## NOTE: These *.o files get generated twice.  How to not do that?
+##
+
 # coek_writer
 add_executable(coek_writer writer.cpp ${sources})
 TARGET_LINK_LIBRARIES(coek_writer PRIVATE coek::coek fmt::fmt)
