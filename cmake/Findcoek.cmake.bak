@@ -14,5 +14,10 @@ include(FindPackageHandleStandardArgs)
 
 find_package_handle_standard_args(coek DEFAULT_MSG
                                   COEK_LIBRARY
-                                  COEK_INCLUDE_DIRS)
+                                  COEK_INCLUDE_DIRS
+                                 )
 
+if (coek_FOUND)
+  mark_as_advanced(COEK_INCLUDE_DIRS)
+  mark_as_advanced(COEK_LIBRARY)
+endif()

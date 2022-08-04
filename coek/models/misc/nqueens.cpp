@@ -3,12 +3,16 @@
 #include <coek/coek.hpp>
 
 
-void nqueens(coek::Model& model, int N)
+void nqueens_scalar(coek::Model& model, const std::vector<int>& data)
 {
+if (data.size() != 1)
+    throw std::runtime_error("pmedian_scalar - expecting one argument (N)");
+int N = data[0];   // Number of queens
+
 std::vector<std::vector<coek::Variable>> x(N, std::vector<coek::Variable>(N));
 for (int i=0; i<N; i++)
     for (int j=0; j<N; j++)
-        x[i][j] = model.add_variable(0,1,0,true,false);
+        model.add( x[i][j].bounds(0,1).value(0).within(coek::VariableTypes::Binary) );
 
 // obj
 coek::Expression obj;
@@ -22,7 +26,7 @@ for (int i=0; i<N; i++) {
     coek::Expression c;
     for (int j=0; j<N; j++)
         c += x[i][j];
-    model.add_constraint( c == 1 );
+    model.add( c == 1 );
     }
 
 // one per column
@@ -30,7 +34,7 @@ for (int j=0; j<N; j++) {
     coek::Expression c;
     for (int i=0; i<N; i++)
         c += x[i][j];
-    model.add_constraint( c == 1 );
+    model.add( c == 1 );
     }
 
 // \diagonals_col
@@ -39,7 +43,7 @@ for (int i=0; i<N-1; i++) {
     c += x[0][i];
     for (int j=1; j<N-i; j++)
         c += x[j][i+j];
-    model.add_constraint( c <= 1 );
+    model.add( c <= 1 );
     }
 // \diagonals_row
 for (int i=1; i<N-1; i++) {
@@ -47,7 +51,7 @@ for (int i=1; i<N-1; i++) {
     c += x[i][0];
     for (int j=1; j<N-i; j++)
         c += x[i+j][j];
-    model.add_constraint( c <= 1 );
+    model.add( c <= 1 );
     }
 
 // /diagonals_col
@@ -56,7 +60,7 @@ for (int i=1; i<N; i++) {
     c += x[0][i];
     for (int j=1; j<=i; j++)
         c += x[j][i-j];
-    model.add_constraint( c <= 1 );
+    model.add( c <= 1 );
     }
 // /diagonals_row
 for (int i=1; i<N-1; i++) {
@@ -64,30 +68,7 @@ for (int i=1; i<N-1; i++) {
     c += x[i][N-1];
     for (int j=1; j<N-i; j++)
         c += x[i+j][N-1-j];
-    model.add_constraint( c <= 1 );
+    model.add( c <= 1 );
     }
 }
-
-
-void nqueens_400(coek::Model& model)
-{ nqueens(model, 400); }
-
-void nqueens_600(coek::Model& model)
-{ nqueens(model, 600); }
-
-void nqueens_800(coek::Model& model)
-{ nqueens(model, 800); }
-
-void nqueens_1000(coek::Model& model)
-{ nqueens(model, 1000); }
-
-
-std::map <std::string, void (*)(coek::Model&)> nqueens_tests {
-        {"nqueens_400", nqueens_400},
-        {"nqueens_600", nqueens_600},
-        {"nqueens_800", nqueens_800},
-        {"nqueens_1000", nqueens_1000} };
-
-void nqueens_instance(coek::Model& model, const std::string& name)
-{ return nqueens_tests[name](model); }
 
