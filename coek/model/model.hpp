@@ -99,12 +99,12 @@ public:
     Variable& add(Variable& var);
     Variable& add(Variable&& var);
     void add_variable(PythonVariableArray& var);
-#if __cpp_lib_variant
+//#if __cpp_lib_variant
     VariableArray& add_variable(VariableArray& var);
     //VariableArray& add_variable(VariableArray&& var);
     VariableArray& add(VariableArray& var);
     VariableArray& add(VariableArray&& var);
-#endif
+//#endif
 #ifdef COEK_WITH_COMPACT_MODEL
     VariableMap& add_variable(VariableMap& var);
     //VariableMap& add_variable(VariableMap&& var);
