@@ -17,12 +17,8 @@ inline coek::Expression yt(TYPE j, double dx) {
 
 
 #ifdef COEK_WITH_COMPACT_MODEL
-void lqcp_compact(coek::CompactModel& model, const std::vector<int>& data)
+void lqcp_compact(coek::CompactModel& model, size_t n)
 {
-if (data.size() != 1)
-    throw std::runtime_error("lqcp_array - expecting one arguments (n)");
-size_t n = static_cast<size_t>(data[0]);
-
 int m = n;
 double dx = 1.0/n;
 double T = 1.58;
@@ -36,7 +32,7 @@ auto j = coek::set_element("j");
 auto M = coek::RangeSet(0, m);
 auto N = coek::RangeSet(0, n);
 auto y = model.add( coek::variable("y", M*N) ).bounds(0,1).value(0);
-auto u = model.add( coek::variable("u", M) ).bounds(-1,1).value(0);
+auto u = model.add( coek::variable("u", coek::RangeSet(1,m)) ).bounds(-1,1).value(0);
 
 // OBJECTIVE  
 // First term

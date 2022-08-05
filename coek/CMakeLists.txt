@@ -8,8 +8,11 @@ set(sources
     models/jump/lqcp_scalar.cpp
     models/jump/fac_scalar.cpp
     models/misc/pmedian.cpp
+    models/misc/pmedian_array.cpp
     models/misc/nqueens.cpp
+    models/misc/nqueens_array.cpp
     models/misc/knapsack.cpp
+    models/misc/knapsack_array.cpp
     )
 if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
     list(APPEND sources

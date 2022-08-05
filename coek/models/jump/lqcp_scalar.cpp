@@ -5,7 +5,6 @@
 #include <string>
 #include <coek/coek.hpp>
 
-
 namespace {
 
 inline double yt(size_t j, double dx) {
@@ -16,12 +15,8 @@ inline double yt(size_t j, double dx) {
 
 
 
-void lqcp_scalar(coek::Model& model, const std::vector<int>& data)
+void lqcp_scalar(coek::Model& model, size_t n)
 {
-if (data.size() != 1)
-    throw std::runtime_error("lqcp_array - expecting one arguments (n)");
-size_t n = static_cast<size_t>(data[0]);
-
 size_t m = n;
 size_t n1 = n-1;
 double dx = 1.0/n;
@@ -31,13 +26,15 @@ double h2 = dx*dx;
 double a = 0.001;
 
 
-std::vector<std::vector<coek::Variable> > y(m+1, std::vector<coek::Variable>(n+1));
-for (size_t i = 0; i <= m; i++)
+std::vector<std::vector<coek::Variable> > y;
+for (size_t i = 0; i <= m; i++) {
+    y.push_back(std::vector<coek::Variable>(n+1));
     for (size_t j = 0; j <= n; j++)
         model.add( y[i][j].bounds(0,1).value(0) );
+    }
   
 std::vector<coek::Variable> u(m+1);
-for (size_t i = 0; i <= m; i++) 
+for (size_t i = 1; i <= m; i++) 
     model.add( u[i].bounds(-1,1).value(0) );
 
 // OBJECTIVE  

@@ -5,12 +5,8 @@
 #include <coek/coek.hpp>
 
 
-void knapsack_scalar(coek::Model& model, const std::vector<int>& data)
+void knapsack_scalar(coek::Model& model, size_t N)
 {
-if (data.size() != 1)
-    throw std::runtime_error("knapsack_scalar - expecting one arguments (N)");
-size_t N = static_cast<size_t>(data[0]);   // Number of items (divided by 1000)
-
 N *= 1000;
 double W = N/10.0;
 

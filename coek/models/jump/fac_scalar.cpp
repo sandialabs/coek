@@ -4,11 +4,8 @@
 #include <coek/coek.hpp>
 
 
-void fac_scalar(coek::Model& model, const std::vector<int>& data)
+void fac_scalar(coek::Model& model, size_t F)
 {
-if (data.size() != 1)
-    throw std::runtime_error("fac_scalar - expecting one arguments (F)");
-size_t F = static_cast<size_t>(data[0]);
 size_t G = F;
 
     // Create variables
@@ -16,7 +13,7 @@ size_t G = F;
     
     std::vector<std::vector<coek::Variable> > y;
     for (size_t f = 0; f < F; f++) {
-        y.push_back(std::vector<coek::Variable>());
+        y.push_back(std::vector<coek::Variable>(2));
         for (size_t k = 0; k < 2; k++) {
             model.add( y[f][k].bounds(0,1).value(0) );
         }
@@ -26,7 +23,7 @@ size_t G = F;
     for (size_t i = 0; i <= G; i++) {
         z.push_back(std::vector<std::vector<coek::Variable>>());
         for (size_t j = 0; j <= G; j++) {
-            z[i].push_back(std::vector<coek::Variable>());
+            z[i].push_back(std::vector<coek::Variable>(F));
             for (size_t f = 0; f < F; f++) {
                 model.add( z[i][j][f].bounds(0,1).value(0).within(coek::VariableTypes::Boolean) );
             }
@@ -37,7 +34,7 @@ size_t G = F;
     for (size_t i = 0; i <= G; i++) {
         s.push_back(std::vector<std::vector<coek::Variable>>());
         for (size_t j = 0; j <= G; j++) {
-            s[i].push_back(std::vector<coek::Variable>());
+            s[i].push_back(std::vector<coek::Variable>(F));
             for (size_t f = 0; f < F; f++) {
                 model.add( s[i][j][f].bounds(0,COEK_INFINITY).value(0) );
             }
@@ -50,7 +47,7 @@ size_t G = F;
         for (size_t j = 0; j <= G; j++) {
             r[i].push_back(std::vector<std::vector<coek::Variable>>());
             for (size_t f = 0; f < F; f++) {
-                r[i][j].push_back(std::vector<coek::Variable>());
+                r[i][j].push_back(std::vector<coek::Variable>(2));
                 for (size_t k = 0; k < 2; k++) {
                     model.add( r[i][j][f][k].bounds(-COEK_INFINITY,COEK_INFINITY).value(0) );
                 }

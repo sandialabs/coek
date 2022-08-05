@@ -31,7 +31,7 @@ if (argc <= 3) {
 bool debug = false;
 std::string filename;
 std::string model_name;
-std::vector<int> data;
+std::vector<size_t> data;
 
 std::vector<std::string> args(argv + 1, argv + argc);
 
@@ -48,7 +48,7 @@ while (i<args.size()) {
         filename = args[i++];
         model_name = args[i++];
         while (i<args.size()) 
-            data.push_back(std::stoi(args[i++]));
+            data.push_back(std::stoul(args[i++]));
     }
 }
 

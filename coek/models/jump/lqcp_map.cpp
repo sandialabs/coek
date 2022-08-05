@@ -16,12 +16,8 @@ inline double yt(size_t j, double dx) {
 
 
 #ifdef COEK_WITH_COMPACT_MODEL
-void lqcp_map(coek::Model& model, const std::vector<int>& data)
+void lqcp_map(coek::Model& model, size_t n)
 {
-if (data.size() != 1)
-    throw std::runtime_error("lqcp_array - expecting one arguments (n)");
-size_t n = static_cast<size_t>(data[0]);
-
 size_t m = n;
 size_t n1 = n-1;
 double dx = 1.0/n;
@@ -35,7 +31,7 @@ auto M = coek::RangeSet(0, m);
 auto N = coek::RangeSet(0, n);
 auto y = model.add( coek::variable("y", M*N) ).
                         bounds(0,1).value(0);
-auto u = model.add( coek::variable("u", M) ).
+auto u = model.add( coek::variable("u", coek::RangeSet(1,m)) ).
                         bounds(-1,1).value(0);
 
 // OBJECTIVE  

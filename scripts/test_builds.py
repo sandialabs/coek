@@ -30,8 +30,11 @@ config = {
     }
 
 all_coek_models = [
+    "knapsack_array",
     "knapsack_scalar",
+    "nqueens_array",
     "nqueens_scalar",
+    "pmedian_array",
     "pmedian_scalar",
     "fac_scalar",
     "lqcp_scalar",
@@ -61,9 +64,11 @@ def test_writer(*, test_type, models, suffixes, executable, subdir):
 
     print("")
     print("TESTING ARGUMENTS")
-    print("  test_type: "+ test_type)
-    print("  models:    "+ " ".join(models))
-    print("  suffixes:  "+ " ".join(suffixes))
+    print("  test_type:  "+ test_type)
+    print("  models:     "+ " ".join(models))
+    print("  suffixes:   "+ " ".join(suffixes))
+    print("  executable: "+ executable)
+    print("  subdir:     "+ subdir)
     print("")
 
     for model in models:
@@ -96,13 +101,15 @@ def test_writer(*, test_type, models, suffixes, executable, subdir):
                 timefile = "results/"+subdir+"/writer_"+ "_".join(cmd+[suffix]) + ".out"
 
                 if os.path.exists(timefile):
-                    print(". Skipping test {}: results exist".format(timefile))
+                    print(". SKIP {}: results exist".format(timefile))
                     continue
 
                 run = ["/usr/bin/time", "-p", "-o", timefile, executable, outfile]+cmd
                 results = subprocess.run(run, capture_output=True)
-                print(". Test complete {}: rc={} output='{}'".format(timefile, results.returncode, results.stdout))
-                if results.returncode:
+                if results.returncode == 0:
+                    print(". OK {}: rc={} output='{}'".format(timefile, results.returncode, results.stdout))
+                else:
+                    print(". ERROR {}: rc={} output='{}'".format(timefile, results.returncode, results.stdout))
                     if os.path.exists(timefile):
                         os.remove(timefile)
                     errors.append(timefile)
@@ -122,9 +129,11 @@ def test_solve0(*, test_type, models, solvers, executable, subdir):
 
     print("")
     print("TESTING ARGUMENTS")
-    print("  test_type: "+ test_type)
-    print("  models:    "+ " ".join(models))
-    print("  suffixes:  "+ " ".join(suffixes))
+    print("  test_type:  "+ test_type)
+    print("  models:     "+ " ".join(models))
+    print("  solvers:    "+ " ".join(solvers))
+    print("  executable: "+ executable)
+    print("  subdir:     "+ subdir)
     print("")
 
     for model in models:
@@ -157,15 +166,17 @@ def test_solve0(*, test_type, models, solvers, executable, subdir):
                 timefile = "results/"+subdir+"/solve0_"+ "_".join(cmd+[solver]) + ".out"
 
                 if os.path.exists(timefile):
-                    print(". Skipping test {}: timefile exists".format(timefile))
+                    print(". SKIP {}: timefile exists".format(timefile))
                     continue
 
                 run = ["/usr/bin/time", "-p", "-o", timefile, executable, solver]+cmd
                 results = subprocess.run(run, capture_output=True)
                 with open(logfile,'wb') as OUTPUT:
                     OUTPUT.write(results.stdout)
-                print(". Test complete {}: rc={}".format(timefile, results.returncode))
-                if results.returncode:
+                if results.returncode == 0:
+                    print(". OK {}: rc={}".format(timefile, results.returncode))
+                else:
+                    print(". ERROR {}: rc={}".format(timefile, results.returncode))
                     if os.path.exists(timefile):
                         os.remove(timefile)
                     errors.append(timefile)

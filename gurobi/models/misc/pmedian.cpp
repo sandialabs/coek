@@ -4,13 +4,8 @@
 #include <vector>
 
 
-void pmedian_scalar(GRBModel& model, const std::vector<int>& data)
+void pmedian_scalar(GRBModel& model, size_t N, size_t P)
 {
-if (data.size() != 2)
-    throw std::runtime_error("pmedian_scalar - expecting two arguments (N,P)");
-size_t N = static_cast<size_t>(data[0]);   // Locations
-size_t P = static_cast<size_t>(data[1]);   // Facilities
-
 size_t M = N;
 
 std::vector<std::vector<double>> d(N, std::vector<double>(M));

@@ -1,13 +1,11 @@
-//#define _GLIBCXX_USE_CXX11_ABI 0
 #include <map>
-#include <string>
 #include <vector>
 #include <random>
 #include <functional>
-#include "gurobi_c++.h"
+#include <coek/coek.hpp>
 
 
-void knapsack_scalar(GRBModel& model, size_t N)
+void knapsack_array(coek::Model& model, size_t N)
 {
 N *= 1000;
 double W = N/10.0;
@@ -23,19 +21,20 @@ for (size_t n=0; n<N; n++) {
     w[n] = uniform();
     }
 
-std::vector<GRBVar> x(N);
-for (size_t n=0; n<N; n++)
-    x[n] = model.addVar(0,1,0, GRB_CONTINUOUS);
+auto x = coek::variable(N)
+                .bounds(0,1).value(0);
+model.add(x);
 
 // obj
-GRBLinExpr obj;
+auto obj = coek::expression();
 for (size_t n=0; n<N; n++)
-    obj += v[n]*x[n];
-model.setObjective( obj );
+    obj += v[n]*x(n);
+model.add_objective( obj );
 
 // con
-GRBLinExpr con;
+auto con = coek::expression();
 for (size_t n=0; n<N; n++)
-    con += w[n]*x[n];
-model.addConstr( con <= W );
+    con += w[n]*x(n);
+model.add( con <= W );
 }
+

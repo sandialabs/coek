@@ -9,12 +9,8 @@ inline double yt(int j, double dx) {
 }
 
 
-void lqcp(GRBModel& model, const std::vector<int>& data)
+void lqcp(GRBModel& model, size_t n)
 {
-  if (data.size() != 1)
-     throw std::runtime_error("lqcp - expecting one arguments (N)");
-  
-  int n = data[0]; // n
   int m = n;
   int n1 = n-1;
   int m1 = m-1;

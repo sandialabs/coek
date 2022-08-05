@@ -6,12 +6,8 @@
 using namespace std;
 
 
-void fac(GRBModel& model, const std::vector<int>& data)
+void fac(GRBModel& model, size_t F)
 {
-    if (data.size() != 1)
-       throw std::runtime_error("fac - expecting one argument (F)");
-
-    const int F = data[0];
     const int G = F;
     //cout << "G: " << G << ", F: " << F << endl;
 

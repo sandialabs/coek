@@ -14,12 +14,8 @@ inline double yt(size_t j, double dx) {
 }
 
 
-void lqcp_array(coek::Model& model, const std::vector<int>& data)
+void lqcp_array(coek::Model& model, size_t n)
 {
-if (data.size() != 1)
-    throw std::runtime_error("lqcp_array - expecting one arguments (n)");
-size_t n = static_cast<size_t>(data[0]);
-
 size_t m = n;
 size_t n1 = n-1;
 double dx = 1.0/n;

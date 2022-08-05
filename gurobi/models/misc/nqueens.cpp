@@ -4,12 +4,8 @@
 #include "gurobi_c++.h"
 
 
-void nqueens_scalar(GRBModel& model, const std::vector<int>& data)
+void nqueens_scalar(GRBModel& model, size_t N)
 {
-if (data.size() != 1)
-    throw std::runtime_error("nqueens_scalar - expecting one argument (N)");
-size_t N = static_cast<size_t>(data[0]);   // Number of queens
-
 std::vector<std::vector<GRBVar>> x(N, std::vector<GRBVar>(N));
 for (size_t i=0; i<N; i++)
     for (size_t j=0; j<N; j++)
