@@ -36,6 +36,7 @@ all_coek_models = [
     "nqueens_scalar",
     "pmedian_array",
     "pmedian_scalar",
+    "fac_array",
     "fac_scalar",
     "lqcp_scalar",
     "lqcp_array",
@@ -193,6 +194,10 @@ if __name__ == "__main__":
     if sys.argv[1] == "compare_lp":
         test_writer(test_type="short", models=all_coek_models, suffixes=['lp'], executable="coek/coek_writer", subdir="coek")
         test_writer(test_type="short", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer", subdir="gurobi")
+
+    elif sys.argv[1] == "bench_lp":
+        test_writer(test_type="long", models=all_coek_models, suffixes=['lp'], executable="coek/coek_writer", subdir="coek")
+        test_writer(test_type="long", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer", subdir="gurobi")
 
     else:
         print("UNKNOWN TEST: "+sys.argv[1])

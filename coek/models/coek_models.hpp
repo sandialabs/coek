@@ -6,6 +6,7 @@
 //
 // jump
 //
+void fac_array(coek::Model& model, size_t F);
 void fac_scalar(coek::Model& model, size_t F);
 void lqcp_array(coek::Model& model, size_t N);
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -28,6 +29,7 @@ void pmedian_scalar(coek::Model& model, size_t N, size_t P);
 inline void print_models(std::ostream& os)
 {
 os <<
+"  fac_array N\n"
 "  fac_scalar N\n"
 "  knapsack_array N\n"
 "  knapsack_scalar N\n"
@@ -59,6 +61,10 @@ if (false) {}
 //
 // jump
 //
+else if (name == "fac_array") {
+    check_data(name, data, 1);
+    fac_array(model, data[0]);
+    }
 else if (name == "fac_scalar") {
     check_data(name, data, 1);
     fac_scalar(model, data[0]);
