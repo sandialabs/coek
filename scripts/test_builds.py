@@ -191,19 +191,23 @@ def test_solve0(*, test_type, models, solvers, executable, subdir):
 if __name__ == "__main__":
     import sys
 
-    if sys.argv[1] == "compare_lp":
+    if sys.argv[1] == "smoke_writer":
         test_writer(test_type="short", models=all_coek_models, suffixes=['lp'], executable="coek/coek_writer", subdir="coek")
         test_writer(test_type="short", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer", subdir="gurobi")
 
-    elif sys.argv[1] == "bench_lp":
+    elif sys.argv[1] == "bench_writer":
         test_writer(test_type="long", models=all_coek_models, suffixes=['lp'], executable="coek/coek_writer", subdir="coek")
         test_writer(test_type="long", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer", subdir="gurobi")
 
+    elif sys.argv[1] == "smoke_solve0":
+        test_solve0(test_type="short", models=all_coek_models, solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")
+        test_solve0(test_type="short", models=all_gurobi_models, solvers=['gurobilp'], executable="gurobi/gurobi_solve0", subdir="gurobi")
+
+    elif sys.argv[1] == "bench_solve0":
+        test_solve0(test_type="long", models=all_coek_models, solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")
+        test_solve0(test_type="long", models=all_gurobi_models, solvers=['gurobilp'], executable="gurobi/gurobi_solve0", subdir="gurobi")
+
     else:
         print("UNKNOWN TEST: "+sys.argv[1])
-        #test_solve0(test_type=test_type, models=models, solvers=solvers, executable="coek/coek_solve0")
-
-        #test_writer(test_type="short", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer")
-        #test_solve0(test_type="short", models=all_gurobi_models, solvers=['gurobi'], executable="gurobi/gurobi_solve0")
     
 
