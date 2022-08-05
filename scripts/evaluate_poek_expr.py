@@ -1,20 +1,10 @@
-
-raise RuntimeError("This does not currently work")
-
 import pyomo.environ as pe
-from pyomo.contrib import poek
+import pyomo_coek.full_integration as pc
 from pyomo.common.timing import TicTocTimer
 import poek as pk
 from pyomo.core.expr.numeric_expr import LinearExpression
 from pyomo.repn.standard_repn import generate_standard_repn
 from pyomo.core.expr.visitor import identify_variables
-
-
-def create_indexed_var():
-    m = pe.ConcreteModel()
-    m.x = poek.Var([1,2,3])
-    e = 2*m.x[1] + m.x[2] - m.x[3]
-    print(e.to_list())
 
 
 def main():
@@ -24,7 +14,7 @@ def main():
     n_vars = 10
 
     m.x = pe.Var(list(range(n_vars)), initialize=2)
-    m.cx = poek.Var(list(range(n_vars)), initialize=2)
+    m.cx = pc.Var(list(range(n_vars)), initialize=2)
     # x = pm.add_variable(n_vars)
 
     N = 50000
@@ -40,8 +30,8 @@ def main():
 
     #pr = enable_c_profiler()
     for ndx in range(N):
-        ce = poek.sum(i*m.cx[i] for i in range(n_vars))
-    timer.toc('constructed pyomo-poek expressions')
+        ce = pc.quicksum(i*m.cx[i] for i in range(n_vars))
+    timer.toc('constructed pyomo-coek expressions')
     #disable_c_profiler(pr)
 
     # for ndx in range(N):
@@ -58,14 +48,14 @@ def main():
 
     for ndx in range(N):
         e_val = ce(False)
-    timer.toc('done pyomo-poek eval')
+    timer.toc('done pyomo-coek eval')
 
     for ndx in range(N):
         repn = generate_standard_repn(e)
     timer.toc('pyomo generate_standard_repn')
 
     for ndx in range(N):
-        repn = poek.generate_standard_repn(ce)
+        repn = pc.generate_standard_repn(ce)
     timer.toc('pyomo-poek generate_standard_repn')
 
     for ndx in range(N):
