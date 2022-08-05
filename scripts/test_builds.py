@@ -52,7 +52,14 @@ all_gurobi_models = [
     "fac",
     ]
 
-all_suffixes = ['lp', 'nl']
+all_poek_models = [
+    "knapsack",
+    "knapsack_affine",
+    "nqueens",
+    "nqueens_affine",
+    "pmedian",
+    "pmedian_affine",
+    ]
 
 
 
@@ -191,21 +198,28 @@ def test_solve0(*, test_type, models, solvers, executable, subdir):
 if __name__ == "__main__":
     import sys
 
-    if sys.argv[1] == "smoke_writer":
+    if sys.argv[1] == "dev":
+        test_solve0(test_type="short", models=all_poek_models, solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
+
+    elif sys.argv[1] == "smoke_writer":
         test_writer(test_type="short", models=all_coek_models, suffixes=['lp'], executable="coek/coek_writer", subdir="coek")
         test_writer(test_type="short", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer", subdir="gurobi")
+        test_writer(test_type="short", models=all_poek_models, suffixes=['lp'], executable="../poek/poek_writer", subdir="poek")
 
     elif sys.argv[1] == "bench_writer":
         test_writer(test_type="long", models=all_coek_models, suffixes=['lp'], executable="coek/coek_writer", subdir="coek")
         test_writer(test_type="long", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer", subdir="gurobi")
+        test_writer(test_type="long", models=all_poek_models, suffixes=['lp'], executable="../poek/poek_writer", subdir="poek")
 
     elif sys.argv[1] == "smoke_solve0":
         test_solve0(test_type="short", models=all_coek_models, solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")
-        test_solve0(test_type="short", models=all_gurobi_models, solvers=['gurobilp'], executable="gurobi/gurobi_solve0", subdir="gurobi")
+        test_solve0(test_type="short", models=all_gurobi_models, solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi")
+        test_solve0(test_type="short", models=all_poek_models, solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
 
     elif sys.argv[1] == "bench_solve0":
         test_solve0(test_type="long", models=all_coek_models, solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")
-        test_solve0(test_type="long", models=all_gurobi_models, solvers=['gurobilp'], executable="gurobi/gurobi_solve0", subdir="gurobi")
+        test_solve0(test_type="long", models=all_gurobi_models, solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi")
+        test_solve0(test_type="long", models=all_poek_models, solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
 
     else:
         print("UNKNOWN TEST: "+sys.argv[1])
