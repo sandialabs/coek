@@ -18,6 +18,7 @@ import sys
 from pyomo.core.base.set import Binary, Reals, Integers
 from pyomo.common.collections import ComponentMap
 from pyomo.core.expr.numvalue import nonpyomo_leaf_types
+from pyomo.core.expr import logical_expr
 
 
 logger = logging.getLogger(__name__)
@@ -262,6 +263,15 @@ class _GeneralVarData(ComponentData):
 
     def __pos__(self):
         return self
+
+    def __le__(self, other):
+        return InequalityExpression((self, other))
+
+    def __ge__(self, other):
+        return InequalityExpression((other, self))
+
+    def __eq__(self, other):
+        return EqualityExpression((self, other))
 
     def is_numeric_type(self):
         return True
@@ -642,6 +652,15 @@ class ExpressionBase(object):
     def __pos__(self):
         return self
 
+    def __le__(self, other):
+        return InequalityExpression((self, other))
+
+    def __ge__(self, other):
+        return InequalityExpression((other, self))
+
+    def __eq__(self, other):
+        return EqualityExpression((self, other))
+
 
 class BinaryExpression(ExpressionBase):
     __slots__ = tuple()
@@ -697,16 +716,6 @@ class SumExpression(ExpressionBase, numeric_expr.SumExpression):
         self._args_ = args
         self._nargs = len(self._args_)
         self._shared_args = False
-        #poek_args = list()
-        #float_args = list()
-        #for arg in args:
-        #    arg_type = type(arg)
-        #    if arg_type in nonpyomo_leaf_types:
-        #        float_args.append(arg)
-        #    else:
-        #        poek_args.append(_operand_map[arg_type](arg))
-        #self._poek_expr = pk.sum(poek_args)
-        #self._poek_expr += sum(float_args)
         self._poek_expr = pk.sum([_operand_map[type(arg)](arg) for arg in args])
 
     def __add__(self, other):
@@ -720,6 +729,20 @@ class SumExpression(ExpressionBase, numeric_expr.SumExpression):
         res._args_ = new_args
         res._nargs = len(new_args)
         return res
+
+
+class InequalityExpression(BinaryExpression, logical_expr.InequalityExpression):
+    __slots__ = ('_poek_expr',)
+    func = operator.le
+
+    def __init__(self, args):
+        super().__init__(args)
+        self._strict = True
+
+
+class EqualityExpression(BinaryExpression, logical_expr.InequalityExpression):
+    __slots__ = ('_poek_expr',)
+    func = operator.eq
 
 
 def quicksum(args):
