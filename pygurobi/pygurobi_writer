@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# pyomo_writer [-d] <filename> <model> [<data> ...]
+# pygurobi_writer [-d] <filename> <model> [<data> ...]
 #
 
 import sys
@@ -10,7 +10,7 @@ sys.path.insert(1, os.path.dirname(os.path.abspath(__file__)) )
 from models import create_instance, print_help
 
 if len(sys.argv) == 1:
-    print("pyomo_writer [-d] <filename> <model> [<data> ...]")
+    print("pygurobi_writer [-d] <filename> <model> [<data> ...]")
     print_help()
     sys.exit(1)
 
@@ -28,7 +28,7 @@ data = [int(val) for val in sys.argv[i:]]
 
 instance = create_instance(model, data)
 if not instance:
-    print("Unknown pyomo model '%s'" % model)
+    print("Unknown pygurobi model '%s'" % model)
     sys.exit(1)
 
 if debug:

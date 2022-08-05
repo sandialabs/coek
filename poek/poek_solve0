@@ -11,7 +11,7 @@ sys.path.insert(1, os.path.dirname(os.path.abspath(__file__)) )
 from models import create_instance, print_help
 
 if len(sys.argv) == 1:
-    print("poek_writer [-d] <solver> <model> [<data> ...]")
+    print("poek_solve0 [-d] <solver> <model> [<data> ...]")
     print_help()
     sys.exit(1)
 

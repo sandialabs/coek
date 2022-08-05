@@ -27,8 +27,8 @@ i += 1
 data = [int(val) for val in sys.argv[i:]]
 
 instance = create_instance(model, data)
-if not opt.available:
-    print("Unknown solver '%s'" % solver)
+if not instance
+    print("Unknown poek model '%s'" % solver)
     sys.exit(1)
 
 if debug:
