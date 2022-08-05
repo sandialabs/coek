@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+#
+# pyomo_solve0 [-d] <solver> <model> [<data> ...]
+#
+
+import sys
+import os.path
+import pyomo.environ as pe
+
+sys.path.insert(1, os.path.dirname(os.path.abspath(__file__)) )
+from models import create_instance, print_help
+
+if len(sys.argv) == 1:
+    print("pyomo_writer [-d] <solver> <model> [<data> ...]")
+    print_help()
+    sys.exit(1)
+
+i=1
+if sys.argv[i] == '-d':
+    debug=True
+    i += 1
+else:
+    debug=False
+solver = sys.argv[i]
+i += 1
+model = sys.argv[i]
+i += 1
+data = [int(val) for val in sys.argv[i:]]
+
+instance = create_instance(model, data)
+if instance is None:
+    print("Unknown pyomo model '%s'" % model)
+    sys.exit(1)
+
+opt = pe.SolverFactory(solver)
+if not opt.available:
+    print("Unknown solver '%s'" % solver)
+    sys.exit(1)
+
+if solver == 'gurobi':
+    options = {'TimeLimit':0}
+elif solver == 'ipopt':
+    options = {'max_iter':0, 'print_level':debug*5}
+else:
+    options = {}
+opt.solve(instance, options=options, load_solutions=False, tee=debug)
