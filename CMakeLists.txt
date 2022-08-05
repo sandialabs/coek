@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21.3)
+cmake_minimum_required(VERSION 3.12)
 PROJECT(coek
         #LANGUAGES CXX
         #VERSION 1.0.0
@@ -388,7 +388,7 @@ write_basic_package_version_file(
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/coekConfig.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/coekConfigVersion.cmake
-        DESTINATION ${LIBRARY_INSTALL_DIR}/cmake/coek )
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/coek )
 
 install(EXPORT coekTargets
         FILE coekTargets.cmake
