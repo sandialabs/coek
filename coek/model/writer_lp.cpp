@@ -511,6 +511,9 @@ if (one_var_constant) {
 
 ostr << "\nbounds\n";
 for (auto& v: variables) {
+    if (v.is_binary())          // TODO - Confirm that this optimization is helpful
+        continue;
+
     auto lb = v.lower();
     if (lb <= -COEK_INFINITY)
         ostr << "-inf";
@@ -617,6 +620,9 @@ if (one_var_constant) {
 
 ostr.print("\nbounds\n");
 for (auto& v: variables) {
+    if (v.is_binary())          // TODO - Confirm that this optimization is helpful
+        continue;
+
     auto lb = v.lower();
     if (lb <= -COEK_INFINITY)
         ostr.print("-inf");
