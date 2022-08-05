@@ -11,9 +11,9 @@ from typing import Tuple, Dict
 from pyomo.core.base.block import _BlockData
 from pyomo.common.timing import HierarchicalTimer
 import pyomo.environ as pe
-from pyomo_coek.objective import Objective
-from pyomo_coek.constraint import Constraint
-from pyomo_coek.variable import Var
+from pyomo_coek.components_only.objective import Objective
+from pyomo_coek.components_only.constraint import Constraint
+from pyomo_coek.components_only.variable import Var
 
 
 class Gurobi(Solver):

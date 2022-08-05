@@ -1,5 +1,5 @@
 import pyomo.environ as pe
-import pyomo_coek as pc
+import pyomo_coek.components_only as pc
 from pyomo.common.timing import TicTocTimer
 import poek as pk
 from pyomo.core.expr.numeric_expr import LinearExpression
