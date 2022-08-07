@@ -37,7 +37,7 @@ return ostr;
 void Model::print_equations() const
 { print_equations(std::cout); }
 
-void Model::print_values() const
+void Model::print_values()
 { print_values(std::cout); }
 // GCOVR_EXCL_STOP
 
@@ -54,8 +54,10 @@ for (auto it=repn->constraints.begin(); it != repn->constraints.end(); ++it) {
     }
 }
 
-void Model::print_values(std::ostream& ostr) const
-{
+void Model::print_values(std::ostream& ostr)
+{ 
+if (repn->variables_by_name.size() < repn->variables.size())
+    initialize_names();
 ostr << "Model Variables: " << repn->variables_by_name.size() << "\n";
 ostr << "Nonzero Variables\n";
 for (auto const& var: repn->variables_by_name) {
@@ -92,17 +94,12 @@ Variable Model::add_variable(const std::string& name)
 {
 Variable tmp(name);
 repn->variables.push_back(tmp);
-if (name != "")
-    repn->variables_by_name.emplace(name, tmp);
 return repn->variables.back();
 }
 
 Variable& Model::add_variable(Variable& var)
 {
 repn->variables.push_back(var);
-auto name = var.name();
-if (name != "")
-    repn->variables_by_name.emplace(name, var);
 return var;
 }
 
@@ -110,9 +107,6 @@ void Model::add_variable(PythonVariableArray& varray)
 {
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
     repn->variables.push_back(*it);
-    auto name = it->name();
-    if (name != "")
-        repn->variables_by_name.emplace(name, *it);
     }
 }
 
@@ -133,18 +127,12 @@ VariableArray& Model::add(VariableArray&& vars)
 Variable& Model::add(Variable& var)
 {
 repn->variables.push_back(var);
-auto name = var.name();
-if (name != "")
-    repn->variables_by_name.emplace(name, var);
 return var;
 }
 
 Variable& Model::add(Variable&& var)
 {
 repn->variables.push_back(var);
-auto name = var.name();
-if (name != "")
-    repn->variables_by_name.emplace(name, var);
 return var;
 }
 
@@ -160,8 +148,6 @@ Objective Model::add_objective(const std::string& name, const Expression& expr)
 {
 auto tmp = objective(name, expr);
 repn->objectives.push_back(tmp);
-if (name != "")
-    repn->objectives_by_name.emplace(name, tmp);
 return repn->objectives.back();
 }
 
@@ -199,7 +185,6 @@ Constraint Model::add_constraint(const std::string& name, const Constraint& expr
 {
 repn->constraints.push_back(expr);
 repn->constraints.back().name(name);
-repn->constraints_by_name.emplace(name, expr);
 return expr;
 }
 
@@ -243,6 +228,8 @@ return repn->constraints[i];
 
 Variable Model::get_variable(const std::string& name)
 {
+if (repn->variables_by_name.size() < repn->variables.size())
+    initialize_names();
 auto it = repn->variables_by_name.find(name);
 if (it == repn->variables_by_name.end()) 
     throw std::runtime_error("Unknown variable name " + name);
@@ -251,6 +238,8 @@ return it->second;
 
 Objective Model::get_objective(const std::string& name)
 {
+if (repn->objectives_by_name.size() < repn->objectives.size())
+    initialize_names();
 auto it = repn->objectives_by_name.find(name);
 if (it == repn->objectives_by_name.end()) 
     throw std::runtime_error("Unknown objective name " + name);
@@ -259,30 +248,69 @@ return it->second;
 
 Constraint Model::get_constraint(const std::string& name)
 {
+if (repn->constraints_by_name.size() < repn->constraints.size())
+    initialize_names();
 auto it = repn->constraints_by_name.find(name);
 if (it == repn->constraints_by_name.end()) 
     throw std::runtime_error("Unknown constraint name " + name);
 return it->second;
 }
 
-std::set<std::string> Model::variable_names() const
-{ return map_keys(repn->variables_by_name); }
+std::set<std::string> Model::variable_names()
+{
+if (repn->variables_by_name.size() < repn->variables.size())
+    initialize_names();
+return map_keys(repn->variables_by_name);
+}
 
-std::set<std::string> Model::objective_names() const
-{ return map_keys(repn->objectives_by_name); }
+std::set<std::string> Model::objective_names()
+{
+if (repn->objectives_by_name.size() < repn->objectives.size())
+    initialize_names();
+return map_keys(repn->objectives_by_name);
+}
 
-std::set<std::string> Model::constraint_names() const
-{ return map_keys(repn->constraints_by_name); }
+std::set<std::string> Model::constraint_names()
+{
+if (repn->constraints_by_name.size() < repn->constraints.size())
+    initialize_names();
+return map_keys(repn->constraints_by_name);
+}
 
 std::map<std::string,Variable>& Model::get_variables_by_name()
-{ return repn->variables_by_name; }
+{
+if (repn->variables_by_name.size() < repn->variables.size())
+    initialize_names();
+return repn->variables_by_name;
+}
 
 std::map<std::string,Objective>& Model::get_objectives_by_name()
-{ return repn->objectives_by_name; }
+{
+if (repn->objectives_by_name.size() < repn->objectives.size())
+    initialize_names();
+return repn->objectives_by_name;
+}
 
 std::map<std::string,Constraint>& Model::get_constraints_by_name()
-{ return repn->constraints_by_name; }
+{
+if (repn->constraints_by_name.size() < repn->constraints.size())
+    initialize_names();
+return repn->constraints_by_name;
+}
 
+
+void Model::initialize_names()
+{
+repn->variables_by_name.clear();
+for (auto& v: repn->variables)
+    repn->variables_by_name.emplace(v.name(), v);
+repn->objectives_by_name.clear();
+for (auto& o: repn->objectives)
+    repn->objectives_by_name.emplace(o.name(), o);
+repn->constraints_by_name.clear();
+for (auto& c: repn->constraints)
+    repn->constraints_by_name.emplace(c.name(), c);
+}
 
 void Model::set_suffix(const std::string& name, Variable& var, double value)
 { repn->vsuffix[name].emplace(var.id(), value); }
