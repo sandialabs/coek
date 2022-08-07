@@ -1,4 +1,4 @@
-#define _GLIBCXX_USE_CxX11_ABI 0
+//#define _GLIBCXX_USE_CxX11_ABI 0
 #include <cassert>
 #include <iostream>
 #include <sstream>
@@ -29,14 +29,16 @@ void add_gurobi_objective(GRBModel* gmodel, Expression& expr, bool sense, std::u
         for (auto it=orepn.linear_coefs.begin(); it != orepn.linear_coefs.end(); ++it, ++iv)
             term1 += *it * x[(*iv)->index];
         term1 += orepn.constval;
-        if (orepn.quadratic_coefs.size() > 0) {
-            GRBQuadExpr term2;
-            for (size_t i=0; i< orepn.quadratic_coefs.size(); i++)
-                term2.addTerm(orepn.quadratic_coefs[i], x[orepn.quadratic_lvars[i]->index], x[orepn.quadratic_rvars[i]->index]);
-            gmodel->setObjective(term1 + term2);
-            }
-        else
+
+        if (orepn.quadratic_coefs.size() == 0)
             gmodel->setObjective(term1);
+        else {
+            GRBQuadExpr quadexpr;
+            for (size_t i=0; i< orepn.quadratic_coefs.size(); i++)
+                quadexpr.addTerm(orepn.quadratic_coefs[i], x[orepn.quadratic_lvars[i]->index], x[orepn.quadratic_rvars[i]->index]);
+            quadexpr.add( term1 );
+            gmodel->setObjective(quadexpr); 
+            }
         }
 
     if (sense)
@@ -183,8 +185,8 @@ std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
 // All options are converted to strings for Gurobi
 for (auto it=string_options.begin(); it != string_options.end(); ++it)
     gmodel->set(it->first, it->second);
+
 try {
-    gmodel->write("foo.lp");
     gmodel->optimize();
 
     int status = gmodel->get(GRB_IntAttr_Status);
@@ -454,8 +456,10 @@ if (initial_solve()) {
                             }
                         if (con.upper().repn) {
                             double upper = con.upper().value();
-                            if (upper < COEK_INFINITY)
-                                gmodel->addQConstr(term1, GRB_LESS_EQUAL, - _repn.constval.value() + upper);
+                            if (upper < COEK_INFINITY) {
+                                auto e = - _repn.constval.value() + upper;
+                                gmodel->addQConstr(term1, GRB_LESS_EQUAL, e);
+                                }
                             }
                         }
                     else
@@ -480,9 +484,9 @@ else {
     std::cout << "UPDATING GUROBI MODEL" << std::endl << std::flush;
 
     for (auto it=updated_coefs.begin(); it != updated_coefs.end(); ++it) {
-        int i=std::get<0>(*it);
-        int where=std::get<1>(*it);
-        int j=std::get<2>(*it);
+        size_t i=std::get<0>(*it);
+        size_t where=std::get<1>(*it);
+        size_t j=std::get<2>(*it);
 
         switch (where) {
             case 0:     // Constant Value
