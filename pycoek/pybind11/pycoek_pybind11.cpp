@@ -29,11 +29,22 @@ namespace coek {
 	return orepn;
     }
 
-    Expression sum(std::vector<Expression*> args) {
+    Expression sum(py::list args) {
+	py::type arg_type = py::type::of(args);
+	py::type pyint = py::module_::import("builtins").attr("int");
+	py::type pyfloat = py::module_::import("builtins").attr("float");
+	double float_args = 0;
 	Expression res(0);
-	for (Expression* arg : args) {
-	    res += *arg;
+	for (py::handle arg : args) {
+	    arg_type = py::type::of(arg);
+	    if (arg_type.is(pyint) or arg_type.is(pyfloat)) {
+		float_args += arg.cast<double>();
+	    }
+	    else {
+		res += *(arg.cast<Expression*>());
+	    }
 	}
+	res += float_args;
 	return res;
     }
 
@@ -544,6 +555,9 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     m.def("sum", &coek::sum);
     m.def("construct_linear_expression", &coek::construct_linear_expression);
     m.def("generate_standard_repn", &coek::generate_standard_repn);
+
+    py::class_<coek::ConstantTerm>(m, "ConstantTerm")
+	.def(py::init<double>());
 
     //
     // Parameter
