@@ -88,6 +88,16 @@ if(with_gcov)
     list(APPEND coek_link_libraries gcov)
 endif()
 
+# gprof
+if (MSVC)
+else()
+    if(${with_gprof})
+        list(APPEND coek_compile_options "-pg")
+    else()
+        list(APPEND coek_compile_options "-Wall;-O3")
+    endif()
+endif()
+
 #
 # ADMODEL OPTIONS
 #
