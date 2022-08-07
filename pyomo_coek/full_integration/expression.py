@@ -602,7 +602,7 @@ class ExpressionBase(object):
     __slots__ = tuple()
 
     def __call__(self, exception=False):
-        return self._poek_expr.value
+        return self._pe.value
 
     def __mul__(self, other):
         return ProductExpression((self, other))
@@ -671,7 +671,7 @@ class BinaryExpression(ExpressionBase):
         arg0, arg1 = args
         arg0 = _operand_map[type(arg0)](arg0)
         arg1 = _operand_map[type(arg1)](arg1)
-        self._poek_expr = self.func(arg0, arg1)
+        self._pe = self.func(arg0, arg1)
 
 
 class UnaryExpression(ExpressionBase):
@@ -681,16 +681,16 @@ class UnaryExpression(ExpressionBase):
     def __init__(self, args):
         self._args_ = args
         arg = _operand_map[type(args[0])](args[0])
-        self._poek_expr = self.func(arg)
+        self._pe = self.func(arg)
 
 
 class NegationExpression(UnaryExpression, numeric_expr.NegationExpression):
-    __slots__ = ('_poek_expr')
+    __slots__ = ('_pe')
     func = operator.neg
 
 
 class ProductExpression(BinaryExpression, numeric_expr.ProductExpression):
-    __slots__ = ('_poek_expr',)
+    __slots__ = ('_pe',)
     func = operator.mul
 
 
@@ -700,23 +700,23 @@ class MonomialTermExpression(ProductExpression, numeric_expr.MonomialTermExpress
 
 
 class DivisionExpression(BinaryExpression, numeric_expr.DivisionExpression):
-    __slots__ = ('_poek_expr',)
+    __slots__ = ('_pe',)
     func = operator.truediv
 
 
 class PowExpression(BinaryExpression, numeric_expr.PowExpression):
-    __slots__ = ('_poek_expr',)
+    __slots__ = ('_pe',)
     func = operator.pow
 
 
 class SumExpression(ExpressionBase, numeric_expr.SumExpression):
-    __slots__ = ('_poek_expr',)
+    __slots__ = ('_pe',)
 
     def __init__(self, args):
         self._args_ = args
         self._nargs = len(self._args_)
         self._shared_args = False
-        self._poek_expr = pk.sum([_operand_map[type(arg)](arg) for arg in args])
+        self._pe = pk.sum([_operand_map[type(arg)](arg) for arg in args])
 
     def __add__(self, other):
         res = SumExpression([self, other])
@@ -732,16 +732,16 @@ class SumExpression(ExpressionBase, numeric_expr.SumExpression):
 
 
 class InequalityExpression(BinaryExpression, logical_expr.InequalityExpression):
-    __slots__ = ('_poek_expr',)
+    __slots__ = ('_pe',)
     func = operator.le
 
-    def __init__(self, args):
+    def __init__(self, args, strict=False):
         super().__init__(args)
-        self._strict = True
+        self._strict = strict
 
 
 class EqualityExpression(BinaryExpression, logical_expr.InequalityExpression):
-    __slots__ = ('_poek_expr',)
+    __slots__ = ('_pe',)
     func = operator.eq
 
 
@@ -762,7 +762,7 @@ def _get_operand_var(operand):
 
 
 def _get_operand_expr(operand):
-    return operand._poek_expr
+    return operand._pe
 
 
 _operand_map = dict()
