@@ -30,6 +30,10 @@ endif()
 # coek_writer
 add_executable(coek_writer writer.cpp ${sources})
 TARGET_LINK_LIBRARIES(coek_writer PRIVATE coek::coek fmt::fmt)
+if (${with_gprof})
+    target_compile_options(coek_writer PUBLIC "-pg")
+    SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -pg")
+endif()
 
 # coek_solver0
 add_executable(coek_solve0 solve0.cpp ${sources})
