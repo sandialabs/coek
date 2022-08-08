@@ -179,6 +179,7 @@ public:
     bool fixed;
     bool indexed;
     std::string name;
+    long long pyvar_id;
 
     //VariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool _indexed=false);
     VariableTerm(const expr_pointer_t& lb, const expr_pointer_t& ub, const expr_pointer_t& value, bool _binary, bool _integer, bool _indexed=false);
