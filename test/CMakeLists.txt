@@ -24,6 +24,7 @@ SET(sources
     test_obj.cpp
     test_con.cpp
     test_autograd_unknown.cpp
+    test_sequence.cpp
    )
 
 # CppAD LIBRARY

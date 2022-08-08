@@ -222,6 +222,7 @@ install(FILES
 install(FILES
         util/index_vector.hpp
         util/template_utils.hpp
+        util/sequence.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/util
         )
 install(FILES
