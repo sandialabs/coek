@@ -27,7 +27,7 @@ i += 1
 data = [int(val) for val in sys.argv[i:]]
 
 instance = create_instance(model, data)
-if not instance
+if not instance:
     print("Unknown poek model '%s'" % solver)
     sys.exit(1)
 
