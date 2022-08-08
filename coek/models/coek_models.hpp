@@ -9,6 +9,7 @@
 void fac_array(coek::Model& model, size_t F);
 void fac_scalar(coek::Model& model, size_t F);
 void lqcp_array(coek::Model& model, size_t N);
+void lqcp_array2(coek::Model& model, size_t N);
 #ifdef COEK_WITH_COMPACT_MODEL
 void lqcp_compact(coek::CompactModel& model, size_t N);
 void lqcp_map(coek::Model& model, size_t N);
@@ -34,6 +35,7 @@ os <<
 "  knapsack_array N\n"
 "  knapsack_scalar N\n"
 "  lqcp_array N\n"
+"  lqcp_array2 N\n"
 #ifdef COEK_WITH_COMPACT_MODEL
 "  lqcp_compact N\n"
 "  lqcp_map N\n"
@@ -72,6 +74,10 @@ else if (name == "fac_scalar") {
 else if (name == "lqcp_array") {
     check_data(name, data, 1);
     lqcp_array(model, data[0]);
+    }
+else if (name == "lqcp_array2") {
+    check_data(name, data, 1);
+    lqcp_array2(model, data[0]);
     }
 #ifdef COEK_WITH_COMPACT_MODEL
 else if (name == "lqcp_compact") {

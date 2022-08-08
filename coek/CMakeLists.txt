@@ -6,6 +6,7 @@ include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 set(sources
     models/jump/lqcp_array.cpp
+    models/jump/lqcp_array2.cpp
     models/jump/lqcp_scalar.cpp
     models/jump/fac_array.cpp
     models/jump/fac_scalar.cpp
