@@ -2,6 +2,14 @@
 
 namespace coek {
 
+//
+// The Subrange and ValueGenerator classes are adapted from 
+// examples in:
+// 
+// Embracing Modern C++ Safely
+// J. Lakos, V. Romeo, R. Khlebnikov, A. Meredith
+// Addison-Wesley, 2022.
+//
 template <typename Iter>
 class Subrange
 {
