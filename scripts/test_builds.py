@@ -61,9 +61,16 @@ all_poek_models = [
     "pmedian_affine",
     ]
 
+all_pyomo_models = [
+    "knapsack",
+    "nqueens",
+    "pmedian",
+    "pmedian_linear",
+    ]
 
 
-def test_writer(*, test_type, models, suffixes, executable, subdir):
+
+def test_writer(*, test_type, models, suffixes, executable, subdir, timeout=300):
     errors=[]
     if not os.path.exists("results"):
         os.mkdir("results")
@@ -77,6 +84,7 @@ def test_writer(*, test_type, models, suffixes, executable, subdir):
     print("  suffixes:   "+ " ".join(suffixes))
     print("  executable: "+ executable)
     print("  subdir:     "+ subdir)
+    print("  timeout:    "+ str(timeout))
     print("")
 
     for model in models:
@@ -113,7 +121,7 @@ def test_writer(*, test_type, models, suffixes, executable, subdir):
                     continue
 
                 run = ["/usr/bin/time", "-p", "-o", timefile, executable, outfile]+cmd
-                results = subprocess.run(run, capture_output=True)
+                results = subprocess.run(run, capture_output=True, timeout=timeout)
                 if results.returncode == 0:
                     print(". OK {}: rc={} output='{}'".format(timefile, results.returncode, results.stdout))
                 else:
@@ -128,7 +136,7 @@ def test_writer(*, test_type, models, suffixes, executable, subdir):
             print("  ",f)
 
 
-def test_solve0(*, test_type, models, solvers, executable, subdir):
+def test_solve0(*, test_type, models, solvers, executable, subdir, timeout=300):
     errors=[]
     if not os.path.exists("results"):
         os.mkdir("results")
@@ -142,6 +150,7 @@ def test_solve0(*, test_type, models, solvers, executable, subdir):
     print("  solvers:    "+ " ".join(solvers))
     print("  executable: "+ executable)
     print("  subdir:     "+ subdir)
+    print("  timeout:    "+ str(timeout))
     print("")
 
     for model in models:
@@ -178,7 +187,7 @@ def test_solve0(*, test_type, models, solvers, executable, subdir):
                     continue
 
                 run = ["/usr/bin/time", "-p", "-o", timefile, executable, solver]+cmd
-                results = subprocess.run(run, capture_output=True)
+                results = subprocess.run(run, capture_output=True, timeout=timeout)
                 with open(logfile,'wb') as OUTPUT:
                     OUTPUT.write(results.stdout)
                 if results.returncode == 0:
@@ -199,27 +208,31 @@ if __name__ == "__main__":
     import sys
 
     if sys.argv[1] == "dev":
-        test_solve0(test_type="short", models=all_poek_models, solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
+        test_solve0(test_type="short", models=all_pyomo_models, solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo")
 
     elif sys.argv[1] == "smoke_writer":
         test_writer(test_type="short", models=all_coek_models, suffixes=['lp'], executable="coek/coek_writer", subdir="coek")
         test_writer(test_type="short", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer", subdir="gurobi")
         test_writer(test_type="short", models=all_poek_models, suffixes=['lp'], executable="../poek/poek_writer", subdir="poek")
+        test_writer(test_type="short", models=all_pyomo_models, suffixes=['lp'], executable="../pyomo/pyomo_writer", subdir="pyomo")
 
     elif sys.argv[1] == "bench_writer":
         test_writer(test_type="long", models=all_coek_models, suffixes=['lp'], executable="coek/coek_writer", subdir="coek")
         test_writer(test_type="long", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer", subdir="gurobi")
         test_writer(test_type="long", models=all_poek_models, suffixes=['lp'], executable="../poek/poek_writer", subdir="poek")
+        test_writer(test_type="long", models=all_pyomo_models, suffixes=['lp'], executable="../pyomo/pyomo_writer", subdir="pyomo")
 
     elif sys.argv[1] == "smoke_solve0":
         test_solve0(test_type="short", models=all_coek_models, solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")
         test_solve0(test_type="short", models=all_gurobi_models, solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi")
         test_solve0(test_type="short", models=all_poek_models, solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
+        test_solve0(test_type="short", models=all_pyomo_models, solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo")
 
     elif sys.argv[1] == "bench_solve0":
         test_solve0(test_type="long", models=all_coek_models, solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")
         test_solve0(test_type="long", models=all_gurobi_models, solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi")
         test_solve0(test_type="long", models=all_poek_models, solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
+        test_solve0(test_type="long", models=all_pyomo_models, solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo")
 
     else:
         print("UNKNOWN TEST: "+sys.argv[1])
