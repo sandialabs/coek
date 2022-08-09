@@ -19,16 +19,18 @@ def get_runtimes(fname):
             ans[tmp[0]] = float(tmp[1])
     return ans
 
-def collect_exp(fname):
+def collect_exp(fname, exp):
     name = fname.split('.')[0]
-    exp = name.split('_')
-    if exp[0] == 'writer':
-        return 'writer', "_".join(exp[1:]), dict(suffix=exp[1], model=exp[2], args=exp[3:])
-    elif exp[0] == 'solve0':
-        return 'solve0', "_".join(exp[1:]), dict(solver=exp[1], model=exp[2], args=exp[3:])
-    raise runtime_error("Unknown experiment: "+fname)
+    tmp = name.split('_')
+    if exp == 'writer':
+        return name, dict(suffix=tmp[0], model=tmp[1], args=tmp[2:])
+    elif exp == 'solve0':
+        return name, dict(solver=tmp[0], model=tmp[1], args=tmp[2:])
+    raise RuntimeError("Unknown experiment: "+fname)
 
 def get_filedata(fname):
+    if not os.path.exists(fname):
+        return {'lines':None, 'bytes':None}
     ans = {}
     with open(fname, 'r') as INPUT:
         ans['lines'] = len(INPUT.readlines())
@@ -36,6 +38,7 @@ def get_filedata(fname):
     return ans
 
 def collect_results(directory):
+    exp = os.path.basename(directory)
     results = {}
     for root, dirs, files in os.walk(directory):
         if len(dirs) > 0:
@@ -44,17 +47,15 @@ def collect_results(directory):
         print("Collecting test results for "+test)
         results[test] = {}
         for fname in files:
-            exp, name, values = collect_exp(fname)
-            if exp not in results[test]:
-                results[test][exp] = {}
-            if name not in results[test][exp]:
-                results[test][exp][name] = values
+            name, values = collect_exp(fname, exp)
+            if name not in results[test]:
+                results[test][name] = values
             else:
-                results[test][exp][name].update(values)
+                results[test][name].update(values)
             if fname.endswith(".out"):
-                results[test][exp][name]['time'] = get_runtimes(join(root,fname))
+                results[test][name]['time'] = get_runtimes(join(root,fname))
             else:
-                results[test][exp][name]['size'] = get_filedata(join(root,fname))
+                results[test][name]['size'] = get_filedata(join(root,fname))
     return results
 
 
@@ -62,12 +63,15 @@ def writer_lp_times(data, largest=False):
     for problem in ['knapsack', 'pmedian', 'lqcp', 'fac', 'nqueens']:
         results = []
         for test in data:
-            for k,v in data[test]['writer'].items():
+            for k,v in data[test].items():
                 if v['suffix'] != 'lp':
                     continue
                 if not v['model'].startswith(problem):
                     continue
-                results.append([v['model'], int(v['args'][0]), test, v['time']['real'], v['time']['user'], v['size']['lines'], v['size']['bytes']])
+                if 'timeout' in v['time']:
+                    results.append([v['model'], int(v['args'][0]), test, None, None, None, None])
+                else:
+                    results.append([v['model'], int(v['args'][0]), test, v['time']['real'], v['time']['user'], v['size']['lines'], v['size']['bytes']])
 
         if largest:
             l = max(r[1] for r in results)
@@ -84,7 +88,12 @@ def writer_lp_times(data, largest=False):
                 g_lines[r[1]] = r[5]
                 g_bytes[r[1]] = r[6]
         for r in results:
-            if r[1] in g_real:
+            if r[3] is None:
+                r.append(r[3])
+                r.append(r[4])
+                r.append(r[5])
+                r.append(r[6])
+            elif r[1] in g_real:
                 r.append(r[3]/g_real[r[1]])
                 r.append(r[4]/g_user[r[1]])
                 r.append(r[5]/g_lines[r[1]])
@@ -99,17 +108,24 @@ def writer_lp_times(data, largest=False):
 
 
 if __name__ == "__main__":
+    directory = 'results' if len(sys.argv) < 3 else sys.argv[2]
+
     if False:
         pass
 
     elif sys.argv[1] == "writer_lp_times":
-        data = collect_results(sys.argv[2])
+        data = collect_results(directory+"/writer")
         writer_lp_times(data)
 
     elif sys.argv[1] == "writer_lp_times_largest":
-        data = collect_results(sys.argv[2])
+        data = collect_results(directory+"/writer")
         writer_lp_times(data, largest=True)
 
     elif sys.argv[1] == "print_results":
-        pprint.pprint(collect_results(sys.argv[2]))
+        pprint.pprint(collect_results(directory+"/writer"))
         
+    else:
+        print("dog options")
+        print("  writer_lp_times")
+        print("  writer_lp_times_largest")
+        print("  print_results")

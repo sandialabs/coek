@@ -3,21 +3,27 @@
 __all__ = ['create_instance']
 
 
+from .fac import fac
 from .knapsack import knapsack
 from .knapsack_affine import knapsack_affine
+from .lqcp import lqcp
 from .nqueens import nqueens
 from .nqueens_affine import nqueens_affine
 from .pmedian import pmedian
 from .pmedian_affine import pmedian_affine
 from .srosenbr import srosenbr
 
-modules = {'knapsack':knapsack,
-           'knapsack-affine':knapsack_affine,
-           'nqueens':nqueens,
-           'nqueens-affine':nqueens_affine,
-           'pmedian':pmedian,
-           'pmedian-affine':pmedian_affine,
-           'srosenbr':srosenbr}
+modules = {
+            'fac':fac,
+            'knapsack':knapsack,
+            'knapsack-affine':knapsack_affine,
+            'lqcp':lqcp,
+            'nqueens':nqueens,
+            'nqueens-affine':nqueens_affine,
+            'pmedian':pmedian,
+            'pmedian-affine':pmedian_affine,
+            'srosenbr':srosenbr
+            }
 
 
 def print_help():

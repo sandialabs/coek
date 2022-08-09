@@ -9,6 +9,7 @@ set(sources
     models/jump/lqcp_array2.cpp
     models/jump/lqcp_scalar.cpp
     models/jump/fac_array.cpp
+    models/jump/fac_array2.cpp
     models/jump/fac_scalar.cpp
     models/misc/pmedian.cpp
     models/misc/pmedian_array.cpp

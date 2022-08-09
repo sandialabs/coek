@@ -7,6 +7,7 @@
 // jump
 //
 void fac_array(coek::Model& model, size_t F);
+void fac_array2(coek::Model& model, size_t F);
 void fac_scalar(coek::Model& model, size_t F);
 void lqcp_array(coek::Model& model, size_t N);
 void lqcp_array2(coek::Model& model, size_t N);
@@ -31,6 +32,7 @@ inline void print_models(std::ostream& os)
 {
 os <<
 "  fac-array N\n"
+"  fac-array2 N\n"
 "  fac-scalar N\n"
 "  knapsack-array N\n"
 "  knapsack-scalar N\n"
@@ -66,6 +68,10 @@ if (false) {}
 else if (name == "fac-array") {
     check_data(name, data, 1);
     fac_array(model, data[0]);
+    }
+else if (name == "fac-array2") {
+    check_data(name, data, 1);
+    fac_array2(model, data[0]);
     }
 else if (name == "fac-scalar") {
     check_data(name, data, 1);

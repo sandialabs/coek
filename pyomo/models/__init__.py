@@ -6,17 +6,23 @@ __all__ = ['create_instance']
 #
 # Create model instance
 #
+from .fac import fac
 from .knapsack import knapsack
+from .lqcp import lqcp
 from .nqueens import nqueens
 from .pmedian import pmedian
 from .pmedian_linear import pmedian_linear
 from .srosenbr import srosenbr
 
-modules = {'knapsack':knapsack,
-           'nqueens':nqueens,
-           'pmedian':pmedian,
-           'pmedian-linear':pmedian_linear,
-           'srosenbr':srosenbr}
+modules = {
+            'fac':fac,
+            'knapsack':knapsack,
+            'lqcp':lqcp,
+            'nqueens':nqueens,
+            'pmedian':pmedian,
+            'pmedian-linear':pmedian_linear,
+            'srosenbr':srosenbr
+            }
 
 
 def print_help():
