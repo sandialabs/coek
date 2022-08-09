@@ -198,17 +198,22 @@ def test_solve0(*, test_type, models, solvers, executable, subdir, timeout=300):
                     print(". SKIP {}: timefile exists".format(timefile))
                     continue
 
-                run = ["/usr/bin/time", "-p", "-o", timefile, executable, solver]+cmd
-                results = subprocess.run(run, capture_output=True, timeout=timeout)
-                with open(logfile,'wb') as OUTPUT:
-                    OUTPUT.write(results.stdout)
-                if results.returncode == 0:
-                    print(". OK {}: rc={}".format(timefile, results.returncode))
-                else:
-                    print(". ERROR {}: rc={}".format(timefile, results.returncode))
-                    if os.path.exists(timefile):
-                        os.remove(timefile)
-                    errors.append(timefile)
+                try:
+                    run = ["/usr/bin/time", "-p", "-o", timefile, executable, solver]+cmd
+                    results = subprocess.run(run, capture_output=True, timeout=timeout)
+                    with open(logfile,'wb') as OUTPUT:
+                        OUTPUT.write(results.stdout)
+                    if results.returncode == 0:
+                        print(". OK {}: rc={}".format(timefile, results.returncode))
+                    else:
+                        print(". ERROR {}: rc={}".format(timefile, results.returncode))
+                        if os.path.exists(timefile):
+                            os.remove(timefile)
+                        errors.append(timefile)
+                except subprocess.TimeoutExpired:
+                    print(". TIMEOUT {}".format(timefile))
+                    with open(timefile,'w') as OUTPUT:
+                        OUTPUT.write("timeout {}".format(timeout))
 
     if len(errors) > 0:
         print("\n\nERRORS")

@@ -20,12 +20,15 @@ def get_runtimes(fname):
     return ans
 
 def collect_exp(fname, exp):
-    name = fname.split('.')[0]
-    tmp = name.split('_')
-    if exp == 'writer':
-        return name, dict(suffix=tmp[0], model=tmp[1], args=tmp[2:])
-    elif exp == 'solve0':
-        return name, dict(solver=tmp[0], model=tmp[1], args=tmp[2:])
+    try:
+        name = fname.split('.')[0]
+        tmp = name.split('_')
+        if exp == 'writer':
+            return name, dict(suffix=tmp[0], model=tmp[1], args=tmp[2:])
+        elif exp == 'solve0':
+            return name, dict(solver=tmp[0], model=tmp[1], args=tmp[2:])
+    except:
+        raise RuntimeError("Bad experiment: "+fname)
     raise RuntimeError("Unknown experiment: "+fname)
 
 def get_filedata(fname):
@@ -37,7 +40,7 @@ def get_filedata(fname):
     ans['bytes'] = os.path.getsize(fname)
     return ans
 
-def collect_results(directory):
+def collect_results(directory, save=False):
     exp = os.path.basename(directory)
     results = {}
     for root, dirs, files in os.walk(directory):
@@ -47,6 +50,8 @@ def collect_results(directory):
         print("Collecting test results for "+test)
         results[test] = {}
         for fname in files:
+            if fname.endswith('.log') or fname.endswith('.csv'):
+                continue
             name, values = collect_exp(fname, exp)
             if name not in results[test]:
                 results[test][name] = values
@@ -54,8 +59,30 @@ def collect_results(directory):
                 results[test][name].update(values)
             if fname.endswith(".out"):
                 results[test][name]['time'] = get_runtimes(join(root,fname))
+                if len(results[test][name]['time']) == 0:
+                    raise RuntimeError("Bad time info: "+fname)
             else:
                 results[test][name]['size'] = get_filedata(join(root,fname))
+        if save:
+            if exp == 'writer':
+                with open(os.path.join(root,"results.csv"),'w') as OUTPUT:
+                    OUTPUT.write("Suffix,Model,Size,Test,Real,User,Lines,Bytes\n")
+                    for name in results[test]:
+                        tmp = results[test][name]
+                        if 'timeout' in tmp['time']:
+                            OUTPUT.write("{},{},{},{},,,,\n".format(tmp['suffix'], tmp['model'], tmp['args'][0], test))
+                        else:
+                            OUTPUT.write("{},{},{},{},{},{},{},{}\n".format(tmp['suffix'], tmp['model'], tmp['args'][0], test, tmp['time']['real'], tmp['time']['user'], tmp['size']['lines'], tmp['size']['bytes']))
+            elif exp == 'solve0':
+                with open(os.path.join(root,"results.csv"),'w') as OUTPUT:
+                    OUTPUT.write("Sollver,Model,Size,Test,Real,User,Lines,Bytes\n")
+                    for name in results[test]:
+                        tmp = results[test][name]
+                        if 'timeout' in tmp['time']:
+                            OUTPUT.write("{},{},{},{},,,,\n".format(tmp['solver'], tmp['model'], tmp['args'][0], test))
+                        else:
+                            OUTPUT.write("{},{},{},{},{},{},{},{}\n".format(tmp['solver'], tmp['model'], tmp['args'][0], test, tmp['time']['real'], tmp['time']['user'], tmp['size']['lines'], tmp['size']['bytes']))
+                
     return results
 
 
@@ -112,6 +139,9 @@ if __name__ == "__main__":
 
     if False:
         pass
+
+    elif sys.argv[1] == "dev":
+        collect_results(directory+"/writer", save=True)
 
     elif sys.argv[1] == "writer_lp_times":
         data = collect_results(directory+"/writer")
