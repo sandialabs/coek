@@ -30,42 +30,43 @@ config = {
     }
 
 all_coek_models = [
-    "knapsack_array",
-    "knapsack_scalar",
-    "nqueens_array",
-    "nqueens_scalar",
-    "pmedian_array",
-    "pmedian_scalar",
-    "fac_array",
-    "fac_scalar",
-    "lqcp_scalar",
-    "lqcp_array",
-    "lqcp_map",
-    #"lqcp_compact"         Problem constructing this model
+    "knapsack-array",
+    "knapsack-scalar",
+    "nqueens-array",
+    "nqueens-scalar",
+    "pmedian-array",
+    "pmedian-scalar",
+    "fac-array",
+    "fac-scalar",
+    "lqcp-scalar",
+    "lqcp-array",
+    "lqcp-array2",
+    "lqcp-map",
+    #"lqcp-compact"         Problem constructing this model
     ]
 
 all_gurobi_models = [
-    "knapsack_scalar",
-    "nqueens_scalar",
-    "pmedian_scalar",
+    "knapsack-scalar",
+    "nqueens-scalar",
+    "pmedian-scalar",
     "lqcp",
     "fac",
     ]
 
 all_poek_models = [
     "knapsack",
-    "knapsack_affine",
+    "knapsack-affine",
     "nqueens",
-    "nqueens_affine",
+    "nqueens-affine",
     "pmedian",
-    "pmedian_affine",
+    "pmedian-affine",
     ]
 
 all_pyomo_models = [
     "knapsack",
     "nqueens",
     "pmedian",
-    "pmedian_linear",
+    "pmedian-linear",
     ]
 
 
@@ -113,8 +114,8 @@ def test_writer(*, test_type, models, suffixes, executable, subdir, timeout=300)
             else:
                 cmd = [model] + [test_args]
             for suffix in suffixes:
-                outfile = "results/"+subdir+"/writer_"+ "_".join(cmd+[suffix]) + "." + suffix
-                timefile = "results/"+subdir+"/writer_"+ "_".join(cmd+[suffix]) + ".out"
+                outfile = "results/"+subdir+"/writer_"+ "_".join([suffix]+cmd) + "." + suffix
+                timefile = "results/"+subdir+"/writer_"+ "_".join([suffix]+cmd) + ".out"
 
                 if os.path.exists(timefile):
                     print(". SKIP {}: results exist".format(timefile))
@@ -179,8 +180,8 @@ def test_solve0(*, test_type, models, solvers, executable, subdir, timeout=300):
             else:
                 cmd = [model] + [test_args]
             for solver in solvers:
-                logfile = "results/"+subdir+"/solve0_"+ "_".join(cmd+[solver]) + ".log"
-                timefile = "results/"+subdir+"/solve0_"+ "_".join(cmd+[solver]) + ".out"
+                logfile = "results/"+subdir+"/solve0_"+ "_".join([solver]+cmd) + ".log"
+                timefile = "results/"+subdir+"/solve0_"+ "_".join([solver]+cmd) + ".out"
 
                 if os.path.exists(timefile):
                     print(". SKIP {}: timefile exists".format(timefile))

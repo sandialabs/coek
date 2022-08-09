@@ -1,0 +1,115 @@
+#!/usr/bin/env python
+#
+# Generate graphs and other summaries of the results
+#
+
+import sys
+import json
+import os
+from os.path import join, getsize
+import pprint
+from tabulate import tabulate
+
+def get_runtimes(fname):
+    ans = {}
+    with open(fname,'r') as INPUT:
+        for line in INPUT.readlines():
+            line.strip()
+            tmp = line.split(' ')
+            ans[tmp[0]] = float(tmp[1])
+    return ans
+
+def collect_exp(fname):
+    name = fname.split('.')[0]
+    exp = name.split('_')
+    if exp[0] == 'writer':
+        return 'writer', "_".join(exp[1:]), dict(suffix=exp[1], model=exp[2], args=exp[3:])
+    elif exp[0] == 'solve0':
+        return 'solve0', "_".join(exp[1:]), dict(solver=exp[1], model=exp[2], args=exp[3:])
+    raise runtime_error("Unknown experiment: "+fname)
+
+def get_filedata(fname):
+    ans = {}
+    with open(fname, 'r') as INPUT:
+        ans['lines'] = len(INPUT.readlines())
+    ans['bytes'] = os.path.getsize(fname)
+    return ans
+
+def collect_results(directory):
+    results = {}
+    for root, dirs, files in os.walk(directory):
+        if len(dirs) > 0:
+            continue
+        test = os.path.basename(root)
+        print("Collecting test results for "+test)
+        results[test] = {}
+        for fname in files:
+            exp, name, values = collect_exp(fname)
+            if exp not in results[test]:
+                results[test][exp] = {}
+            if name not in results[test][exp]:
+                results[test][exp][name] = values
+            else:
+                results[test][exp][name].update(values)
+            if fname.endswith(".out"):
+                results[test][exp][name]['time'] = get_runtimes(join(root,fname))
+            else:
+                results[test][exp][name]['size'] = get_filedata(join(root,fname))
+    return results
+
+
+def writer_lp_times(data, largest=False):
+    for problem in ['knapsack', 'pmedian', 'lqcp', 'fac', 'nqueens']:
+        results = []
+        for test in data:
+            for k,v in data[test]['writer'].items():
+                if v['suffix'] != 'lp':
+                    continue
+                if not v['model'].startswith(problem):
+                    continue
+                results.append([v['model'], int(v['args'][0]), test, v['time']['real'], v['time']['user'], v['size']['lines'], v['size']['bytes']])
+
+        if largest:
+            l = max(r[1] for r in results)
+            results = [r for r in results if r[1] == l]
+
+        g_real = {}
+        g_user = {}
+        g_lines = {}
+        g_bytes = {}
+        for r in results:
+            if r[2] == 'gurobi':
+                g_real[r[1]] = r[3]
+                g_user[r[1]] = r[4]
+                g_lines[r[1]] = r[5]
+                g_bytes[r[1]] = r[6]
+        for r in results:
+            if r[1] in g_real:
+                r.append(r[3]/g_real[r[1]])
+                r.append(r[4]/g_user[r[1]])
+                r.append(r[5]/g_lines[r[1]])
+                r.append(r[6]/g_bytes[r[1]])
+            else:
+                r.append(None)
+                r.append(None)
+                r.append(None)
+                r.append(None)
+        print("")
+        print(tabulate(sorted(results,key=lambda x:(x[0].split('-')[0],x[2],x[0],x[1])), headers=["Model", "Size", "Test", "Real", "User", "Lines", "Bytes", "RealRatio", "UserRatio", "LinesRatio", "BytesRatio"]))
+
+
+if __name__ == "__main__":
+    if False:
+        pass
+
+    elif sys.argv[1] == "writer_lp_times":
+        data = collect_results(sys.argv[2])
+        writer_lp_times(data)
+
+    elif sys.argv[1] == "writer_lp_times_largest":
+        data = collect_results(sys.argv[2])
+        writer_lp_times(data, largest=True)
+
+    elif sys.argv[1] == "print_results":
+        pprint.pprint(collect_results(sys.argv[2]))
+        

@@ -15,7 +15,7 @@ from .srosenbr import srosenbr
 modules = {'knapsack':knapsack,
            'nqueens':nqueens,
            'pmedian':pmedian,
-           'pmedian_linear':pmedian_linear,
+           'pmedian-linear':pmedian_linear,
            'srosenbr':srosenbr}
 
 

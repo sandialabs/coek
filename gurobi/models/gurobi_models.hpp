@@ -20,11 +20,11 @@ void pmedian_scalar(GRBModel& model, size_t N, size_t P);
 inline void print_models(std::ostream& os)
 {
 os <<
-"  knapsack_scalar N\n"
+"  knapsack-scalar N\n"
 "  lqcp N\n"
 "  fac F\n"
-"  nqueens_scalar N\n"
-"  pmedian_scalar N P\n"
+"  nqueens-scalar N\n"
+"  pmedian-scalar N P\n"
 ;
 }
 
@@ -54,15 +54,15 @@ else if (name == "lqcp") {
 //
 // misc
 //
-else if (name == "knapsack_scalar") {
+else if (name == "knapsack-scalar") {
     check_data(name, data, 1);
     knapsack_scalar(model, data[0]);
     }
-else if (name == "nqueens_scalar") {
+else if (name == "nqueens-scalar") {
     check_data(name, data, 1);
     nqueens_scalar(model, data[0]);
     }
-else if (name == "pmedian_scalar") {
+else if (name == "pmedian-scalar") {
     check_data(name, data, 2);
     pmedian_scalar(model, data[0], data[1]);
     }

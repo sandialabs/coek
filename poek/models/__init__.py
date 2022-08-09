@@ -12,11 +12,11 @@ from .pmedian_affine import pmedian_affine
 from .srosenbr import srosenbr
 
 modules = {'knapsack':knapsack,
-           'knapsack_affine':knapsack_affine,
+           'knapsack-affine':knapsack_affine,
            'nqueens':nqueens,
-           'nqueens_affine':nqueens_affine,
+           'nqueens-affine':nqueens_affine,
            'pmedian':pmedian,
-           'pmedian_affine':pmedian_affine,
+           'pmedian-affine':pmedian_affine,
            'srosenbr':srosenbr}
 
 
