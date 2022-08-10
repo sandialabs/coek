@@ -14,25 +14,26 @@ import pprint
 sys.path.insert(1, os.path.dirname(os.path.abspath(__file__)) )
 from models import create_instance, print_help
 
+all_testnames = [
+    'constant-sum',
+    'constant-quicksum',
+    'linear-sum',
+    'linear-quicksum',
+    'bilinear-sum',
+    'bilinear-quicksum',
+    'bilinear-sumprod',
+    'nonlinear-sum',
+    'nonlinear-quicksum',
+    'product-2',
+    'product-3',
+    'polynomial',
+    'fixed-linear-sum',
+    'fixed-linear-quicksum',
+    ]
 if len(sys.argv) == 1:
     print("pyomo_micro [-d] <filename.json> <ntrials> <testname> <size>")
     print("")
-    print("TEST NAMES\n"
-          "  constant-sum\n"
-          "  constant-quicksum\n"
-          "  linear-sum\n"
-          "  linear-quicksum\n"
-          "  bilinear-sum\n"
-          "  bilinear-quicksum\n"
-          "  bilinear-sumprod\n"
-          "  nonlinear-sum\n"
-          "  nonlinear-quicksum\n"
-          "  product-2\n"
-          "  product-3\n"
-          "  polynomial\n"
-          "  fixed-linear-sum\n"
-          "  fixed-linear-quicksum\n"
-        )
+    print("TEST NAMES\n  " + "\n  ".join(all_testnames))
     sys.exit(1)
 
 i=1
@@ -303,8 +304,15 @@ def measure(f, n=25):
 # MAIN
 #
 
-f = lambda : tests(testname,N)
-results = measure(f, ntrials)
+if testname == 'all':
+    results = {}
+    for name in all_testnames:
+        print(name)
+        f = lambda : tests(name,N)
+        results[name] = measure(f, ntrials)
+else:
+    f = lambda : tests(testname,N)
+    results = {testname:measure(f, ntrials)}
 
 pprint.pprint(results)
 with open(filename,'w') as OUTPUT:

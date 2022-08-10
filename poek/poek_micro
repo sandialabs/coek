@@ -28,7 +28,7 @@ all_testnames = [
     'polynomial',
     'fixed-linear-sum',
     'fixed-linear-quicksum',
-    ]    
+    ]
 if len(sys.argv) == 1:
     print("poek_micro [-d] <filename.json> <ntrials> <testname> <size>")
     print("")
