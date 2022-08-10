@@ -72,8 +72,8 @@ def prod(args):
 import poek as pk
 
 def tests(testname, N):
-    #try:
-    if True:
+    try:
+    #if True:
         with timeout():
             if False:
                 pass
@@ -246,8 +246,8 @@ def tests(testname, N):
                 print("Unknown test name: "+testname)
                 raise RuntimeError()
         construction_time = stop-start
-    try:
-        pass
+    #try:
+    #    pass
     except:
         construction_time = -999
 

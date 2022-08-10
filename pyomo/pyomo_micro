@@ -58,8 +58,8 @@ import pyomo.environ as pe
 from pyomo.repn import generate_standard_repn
 
 def tests(testname, N):
-    #try:
-    if True:
+    try:
+    #if True:
         with timeout():
             if False:
                 pass
@@ -235,8 +235,8 @@ def tests(testname, N):
                 print("Unknown test name: "+testname)
                 raise RuntimeError()
         construction_time = stop-start
-    try:
-        pass
+    #try:
+    #    pass
     except:
         construction_time = -999
 
