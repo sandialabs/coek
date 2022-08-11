@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.12)
 PROJECT(coek
         #LANGUAGES CXX
-        #VERSION 0.1
+        #VERSION 1.0.0
         #DESCRIPTION "C++ Optimization Expression Kernels"
         )
 if(${CMAKE_VERSION} VERSION_LESS "3.5.0")
@@ -162,12 +162,11 @@ if (with_tests)
 endif()
 
 message("-- With Debug: ${with_debug}")
+message("-- With gprof: ${with_gprof}")
 message("-- With Staticlib: ${with_staticlib}")
 
 if(${with_gcov})
   set(CMAKE_BUILD_TYPE debug)
-else()
-  set(CMAKE_BUILD_TYPE release)
 endif()
 
 if(${with_verbose})
@@ -183,15 +182,6 @@ if(${with_debug})
 else()
     if (MSVC)
         set(CMAKE_CXX_FLAGS_RELEASE "/permissive-")
-    endif()
-endif()
-if (!MSVC)
-    if(${with_gprof})
-        set(CMAKE_CXX_FLAGS_RELEASE "-pg")
-        MESSAGE("-- With gprof: on")
-    else()
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
-        MESSAGE("-- With gprof: off")
     endif()
 endif()
 
@@ -368,6 +358,29 @@ endif()
 # =============================================================================
 # Provide config and version files to be used by other applications
 # =============================================================================
+
+set(INCLUDE_INSTALL_DIR "include/" CACHE STRING "Where to install headers relative to prefix")
+set(LIBRARY_INSTALL_DIR "lib/" CACHE STRING "Where to install libraries relative to prefix")
+
+#set(INCLUDE_INSTALL_DIR include/ ... CACHE )
+#set(LIB_INSTALL_DIR lib/ ... CACHE )
+#set(SYSCONFIG_INSTALL_DIR etc/foo/ ... CACHE )
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/coekConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/coekConfig.cmake
+    INSTALL_DESTINATION ${LIBRARY_INSTALL_DIR}/cmake/coek
+    PATH_VARS INCLUDE_INSTALL_DIR LIBRARY_INSTALL_DIR)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/coekConfigVersion.cmake
+    VERSION ${COEK_VERSION}
+    COMPATIBILITY AnyNewerVersion )
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/coekConfig.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/coekConfigVersion.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/coek )
 
 install(EXPORT coekTargets
         FILE coekTargets.cmake

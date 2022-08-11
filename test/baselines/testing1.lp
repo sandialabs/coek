@@ -61,7 +61,6 @@ ONE_VAR_CONSTANT = 1.0
 
 bounds
 0 <= x(0) <= 1
-0 <= x(1) <= 1
 0 <= x(2) <= inf
 -inf <= x(3) <= 0
 

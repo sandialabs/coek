@@ -88,6 +88,16 @@ if(with_gcov)
     list(APPEND coek_link_libraries gcov)
 endif()
 
+# gprof
+if (MSVC)
+else()
+    if(${with_gprof})
+        list(APPEND coek_compile_options "-pg")
+    else()
+        list(APPEND coek_compile_options "-Wall;-O3")
+    endif()
+endif()
+
 #
 # ADMODEL OPTIONS
 #
@@ -212,6 +222,7 @@ install(FILES
 install(FILES
         util/index_vector.hpp
         util/template_utils.hpp
+        util/sequence.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/util
         )
 install(FILES
@@ -237,6 +248,8 @@ install(FILES
         compact/expression_sequence.hpp
         compact/objective_sequence.hpp
         compact/sequence_context.hpp
+        compact/parameter_map.hpp
+        compact/variable_map.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/compact
         )
 install(FILES
