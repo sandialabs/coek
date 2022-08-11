@@ -25,7 +25,7 @@ config = {
             },
     "fac": {
             "small": ["25"],
-            "big":   ["100"],
+            "big":   ["50"],
             "all":   ["25", "50", "75", "100"]
             },
     "srosenbr": {
@@ -77,6 +77,10 @@ all_pyomo_models = [
     "nqueens",
     "pmedian",
     "pmedian-linear",
+    ]
+
+all_hybrid_components_only_models = [
+    "fac",
     ]
 
 
@@ -250,6 +254,14 @@ if __name__ == "__main__":
         test_solve0(test_type="small", models=all_gurobi_models, solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi")
         test_solve0(test_type="small", models=all_poek_models, solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
         test_solve0(test_type="small", models=all_pyomo_models, solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo")
+        test_solve0(test_type="small", models=all_hybrid_components_only_models, solvers=['gurobi'], executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only")
+
+    elif sys.argv[1] == "big_solve0_fac":
+        test_solve0(test_type="big", models=['fac-scalar'], solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")
+        test_solve0(test_type="big", models=['fac'], solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi")
+        test_solve0(test_type="big", models=['fac'], solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
+        test_solve0(test_type="big", models=['fac'], solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo")
+        test_solve0(test_type="big", models=['fac'], solvers=['gurobi'], executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only")
 
     elif sys.argv[1] == "bench_solve0":
         test_solve0(test_type="all", models=all_coek_models, solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")
