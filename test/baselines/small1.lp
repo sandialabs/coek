@@ -5,20 +5,20 @@ minimize
 
 obj:
 + [
-+1 x(0) ^ 2
++1 x0 ^ 2
 ]
 
 subject to
 
 c0:
 + [
-+1 x(1) ^ 2
++1 x1 ^ 2
 ]
 = 4
 
 
 bounds
--inf <= x(0) <= inf
--inf <= x(1) <= inf
+-inf <= x0 <= inf
+-inf <= x1 <= inf
 
 end
