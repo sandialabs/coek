@@ -27,6 +27,8 @@ public:
 
     QuadraticExpr() : constval(0.0) {}
 
+    void reset();
+
     void collect_terms(const Expression& expr);
     void collect_terms(const Objective& expr);
     void collect_terms(const Constraint& expr);

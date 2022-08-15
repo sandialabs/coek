@@ -73,9 +73,9 @@ if (repn.linear_coefs.size() > 0) {
     for (auto& it: vval) {
         double tmp = it.second;
         if (tmp > 0)
-            ostr << "+" << tmp << " x(" << it.first << ")\n";
+            ostr << "+" << tmp << " x" << it.first << "\n";
         else if (tmp < 0)
-            ostr << tmp << " x(" << it.first << ")\n";
+            ostr << tmp << " x" << it.first << "\n";
         }
     }
 
@@ -104,15 +104,15 @@ if (repn.quadratic_coefs.size() > 0) {
         double val = it.second;
         if (tmp.first == tmp.second) {
             if (val > 0)
-                ostr << "+" << val << " x(" << tmp.first << ") ^ 2\n";
+                ostr << "+" << val << " x" << tmp.first << " ^ 2\n";
             else if (val < 0)
-                ostr << val << " x(" << tmp.first << ") ^ 2\n";
+                ostr << val << " x" << tmp.first << " ^ 2\n";
             }
         else {
             if (val > 0)
-                ostr << "+" << val << " x(" << tmp.first << ") * x(" << tmp.second << ")\n";
+                ostr << "+" << val << " x" << tmp.first << " * x" << tmp.second << "\n";
             else if (val < 0)
-                ostr << val << " x(" << tmp.first << ") * x(" << tmp.second << ")\n";
+                ostr << val << " x" << tmp.first << " * x" << tmp.second << "\n";
             }
         }
     ostr << "]\n";
@@ -147,7 +147,7 @@ if (repn.linear_coefs.size() > 0) {
     for (auto& it: vval) {
         double tmp = it.second;
         if (tmp != 0)
-            ostr.print("{:+} x({})\n", tmp, it.first);
+            ostr.print("{:+} x{}\n", tmp, it.first);
         }
     }
 
@@ -182,11 +182,11 @@ if (repn.quadratic_coefs.size() > 0) {
         double val = it.second;
         if (tmp.first == tmp.second) {
             if (val != 0)
-                ostr.print("{:+} x({}) ^ 2\n", val, tmp.first);
+                ostr.print("{:+} x{} ^ 2\n", val, tmp.first);
             }
         else {
             if (val != 0)
-                ostr.print("{:+} x({}) * x({})\n", val, tmp.first, tmp.second);
+                ostr.print("{:+} x{} * x{}\n", val, tmp.first, tmp.second);
             }
         }
     ostr.print("]\n");
@@ -205,6 +205,8 @@ public:
     std::map<size_t,VariableTerm*> ivars;
     std::map<size_t,size_t>& invvarmap;
     std::map<size_t,size_t>& invconmap;
+
+    QuadraticExpr expr;
 
     LPWriter(std::map<size_t,size_t>& _invvarmap, std::map<size_t,size_t>& _invconmap)
         : one_var_constant(false),
@@ -444,7 +446,7 @@ else
     ostr << "\nmaximize\n\n";
 ostr << "obj:\n";
 
-QuadraticExpr expr;
+expr.reset();
 expr.collect_terms(obj);
 print_repn(ostr, expr, vid);
 double tmp = expr.constval;
@@ -464,7 +466,7 @@ void LPWriter::print_constraint(std::ostream& ostr, const Constraint& c, size_t 
 CALI_CXX_MARK_FUNCTION;
 
 CALI_MARK_BEGIN("collect_terms");
-QuadraticExpr expr;
+expr.reset();
 expr.collect_terms(c);
 double tmp = expr.constval;
 
@@ -519,7 +521,7 @@ for (auto& v: variables) {
         ostr << "-inf";
     else
         ostr << lb;
-    ostr << " <= x(" << vid[v.id()] << ") <= ";
+    ostr << " <= x" << vid[v.id()] << " <= ";
     auto ub = v.upper();
     if (ub >= COEK_INFINITY)
         ostr << "inf\n";
@@ -530,13 +532,13 @@ for (auto& v: variables) {
 if (bvars.size() > 0) {
     ostr << "\nbinary\n";
     for (auto& it: bvars)
-        ostr << "x(" << it.first << ")\n";
+        ostr << "x" << it.first << "\n";
     }
 
 if (ivars.size() > 0) {
     ostr << "\ninteger\n";
     for (auto& it: ivars)
-        ostr << "x(" << it.first << ")\n";
+        ostr << "x" << it.first << "\n";
     }
 
 ostr << "\nend\n";
@@ -559,7 +561,7 @@ else
     ostr.print("\nmaximize\n\n");
 ostr.print("obj:\n");
 
-QuadraticExpr expr;
+expr.reset();
 expr.collect_terms(obj);
 print_repn(ostr, expr, vid);
 double tmp = expr.constval;
@@ -577,7 +579,7 @@ void LPWriter::print_constraint(fmt::ostream& ostr, const Constraint& c, size_t 
 CALI_CXX_MARK_FUNCTION;
 
 CALI_MARK_BEGIN("collect_terms");
-QuadraticExpr expr;
+expr.reset();
 expr.collect_terms(c);
 double tmp = expr.constval;
 
@@ -628,7 +630,7 @@ for (auto& v: variables) {
         ostr.print("-inf");
     else
         ostr.print("{}", lb);
-    ostr.print(" <= x({}) <= ", vid[v.id()]);
+    ostr.print(" <= x{} <= ", vid[v.id()]);
     auto ub = v.upper();
     if (ub >= COEK_INFINITY)
         ostr.print("inf\n");
@@ -639,13 +641,13 @@ for (auto& v: variables) {
 if (bvars.size() > 0) {
     ostr.print("\nbinary\n");
     for (auto& it: bvars)
-        ostr.print("x({})\n", it.first);
+        ostr.print("x{}\n", it.first);
     }
 
 if (ivars.size() > 0) {
     ostr.print("\ninteger\n");
     for (auto& it: ivars)
-        ostr.print("x({})\n", it.first);
+        ostr.print("x{}\n", it.first);
     }
 
 ostr.print("\nend\n");      // << std::endl;
