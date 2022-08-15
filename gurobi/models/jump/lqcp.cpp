@@ -51,10 +51,10 @@ void lqcp(GRBModel& model, size_t n)
 
 
   // PDE
+  const auto pde_coef = T*0.5*n;  // == dt*0.5/h2
   for (int i = 0; i <= m1; i++) {
     for (int j = 1; j <= n1; j++) {
-      model.addConstr( y[i+1][j] - y[i][j] == dt*0.5/h2*(y[i][j-1] - 
-2*y[i][j] + y[i][j+1] + y[i+1][j-1] - 2*y[i+1][j] + y[i+1][j+1]) );
+      model.addConstr( y[i+1][j] - y[i][j] == pde_coef*(y[i][j-1] - 2*y[i][j] + y[i][j+1] + y[i+1][j-1] - 2*y[i+1][j] + y[i+1][j+1]) );
     }
   }
 

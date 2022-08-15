@@ -48,9 +48,10 @@ model.add_objective(0.25*dx*term1 + 0.25*a*dt*term2);
 
 // PDE
 auto pde = coek::constraint("pde", {m, n});
+const auto pde_coef = T*0.5*n;  // == dt*0.5/h2
 for (size_t i : coek::sequence<size_t>(m-1))
     for (size_t j : coek::sequence<size_t>(1,n-1))
-        pde(i,j) = y(i+1,j) - y(i,j) == dt*0.5/h2*(y(i,j-1) - 2*y(i,j) + y(i,j+1) + y(i+1,j-1) - 2*y(i+1,j) + y(i+1,j+1));
+        pde(i,j) = y(i+1,j) - y(i,j) == pde_coef*(y(i,j-1) - 2*y(i,j) + y(i,j+1) + y(i+1,j-1) - 2*y(i+1,j) + y(i+1,j+1));
 model.add( pde );
 
 // IC
