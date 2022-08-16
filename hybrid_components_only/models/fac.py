@@ -22,7 +22,7 @@ def fac(G):
     model.obj = Objective(rule=obj_rule)
 
     def assmt_rule(mod, i, j):
-        return sum(mod.z[i,j,f] for f in mod.Facs) == 1
+        return quicksum(mod.z[i,j,f] for f in mod.Facs) == 1
     model.assmt = Constraint(model.Grid, model.Grid, rule=assmt_rule)
 
     M = 2*1.414

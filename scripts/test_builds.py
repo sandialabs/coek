@@ -263,6 +263,27 @@ if __name__ == "__main__":
         test_solve0(test_type="big", models=['fac'], solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo")
         test_solve0(test_type="big", models=['fac'], solvers=['gurobi'], executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only")
 
+    elif sys.argv[1] == "small_solve0_lqcp":
+        test_solve0(test_type="small", models=['lqcp-scalar'], solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")
+        test_solve0(test_type="small", models=['lqcp'], solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi")
+        test_solve0(test_type="small", models=['lqcp'], solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
+        test_solve0(test_type="small", models=['lqcp'], solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo")
+        test_solve0(test_type="small", models=['lqcp'], solvers=['gurobi'], executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only")
+
+    elif sys.argv[1] == "all_solve0_lqcp":
+        test_solve0(test_type="all", models=['lqcp-scalar'], solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")
+        test_solve0(test_type="all", models=['lqcp'], solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi")
+        test_solve0(test_type="all", models=['lqcp'], solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
+        test_solve0(test_type="all", models=['lqcp'], solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo")
+        test_solve0(test_type="all", models=['lqcp'], solvers=['gurobi'], executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only")
+
+    elif sys.argv[1] == "all_solve0_fac":
+        test_solve0(test_type="all", models=['fac-scalar'], solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")
+        test_solve0(test_type="all", models=['fac'], solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi")
+        test_solve0(test_type="all", models=['fac'], solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
+        test_solve0(test_type="all", models=['fac'], solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo")
+        test_solve0(test_type="all", models=['fac'], solvers=['gurobi'], executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only")
+
     elif sys.argv[1] == "bench_solve0":
         test_solve0(test_type="all", models=all_coek_models, solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")
         test_solve0(test_type="all", models=all_gurobi_models, solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi")
