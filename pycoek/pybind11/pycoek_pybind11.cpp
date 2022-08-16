@@ -29,14 +29,6 @@ namespace coek {
 	return orepn;
     }
 
-    void set_pyvar_id(Variable& v, long long pv_id) {
-	v.repn->pyvar_id = pv_id;
-    }
-
-    long long get_pyvar_id(Variable& v) {
-	return v.repn->pyvar_id;
-    }
-
     Expression sum(py::list args) {
 	py::type arg_type = py::type::of(args);
 	py::type pyint = py::module_::import("builtins").attr("int");
@@ -789,8 +781,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         .def_property("fixed", [](const coek::Variable& x){return x.fixed();}, [](coek::Variable& x, bool value){x.fixed(value);})
         .def_property("within", [](const coek::Variable& x){return x.within();}, [](coek::Variable& x, coek::VariableTypes value){x.within(value);})
         .def_property_readonly("id", &coek::Variable::id)
-	.def("set_pyvar_id", &coek::set_pyvar_id)
-	.def("get_pyvar_id", &coek::get_pyvar_id)
+	.def_readonly("repn", &coek::Variable::repn)
         .def("is_constraint",[](const coek::Variable& ){return false;})
         .def("is_continuous", [](const coek::Variable& x){return x.is_continuous();})
         .def("is_integer", [](const coek::Variable& x){return x.is_integer();})
