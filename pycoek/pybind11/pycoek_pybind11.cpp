@@ -48,6 +48,42 @@ namespace coek {
 	return res;
     }
 
+  Expression var_pow_float(Variable& v, double other) {
+    return pow(v, other);
+  }
+
+  Expression var_pow_var(Variable& v, Variable& other) {
+    return pow(v, other);
+  }
+
+  Expression var_pow_expression(Variable& v, Expression& other) {
+    return pow(v, other);
+  }
+
+  Constraint var_eq_float(Variable& v, double other) {
+    return v == other;
+  }
+
+  Constraint var_eq_var(Variable& v, Variable& other) {
+    return v == other;
+  }
+
+  Constraint var_eq_expression(Variable& v, Expression& other) {
+    return v == other;
+  }
+
+  std::vector<Variable> copy_var(Variable& v, int num_copies) {
+    std::vector<Variable> res(num_copies);
+    for (Variable& v2 : res) {
+      v2.value(v.value());
+      v2.lower(v.lower());
+      v2.upper(v.upper());
+      v2.within(v.within());
+      v2.fixed(v.fixed());
+    }
+    return res;
+  }
+
     py::object constraint_lb(Constraint& c) {
 	if (c.has_lower())
 	    return py::cast(c.lower().value());
@@ -555,6 +591,13 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     m.def("sum", &coek::sum);
     m.def("construct_linear_expression", &coek::construct_linear_expression);
     m.def("generate_standard_repn", &coek::generate_standard_repn);
+    m.def("copy_var", &coek::copy_var);
+    m.def("var_pow_float", &coek::var_pow_float);
+    m.def("var_pow_var", &coek::var_pow_var);
+    m.def("var_pow_expression", &coek::var_pow_expression);
+    m.def("var_eq_float", &coek::var_eq_float);
+    m.def("var_eq_var", &coek::var_eq_var);
+    m.def("var_eq_expression", &coek::var_eq_expression);
 
     py::class_<coek::ConstantTerm>(m, "ConstantTerm")
 	.def(py::init<double>());
