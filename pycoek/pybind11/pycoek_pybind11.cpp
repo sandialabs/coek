@@ -48,29 +48,197 @@ namespace coek {
 	return res;
     }
 
-  Expression var_pow_float(Variable& v, double other) {
-    return pow(v, other);
-  }
+    Expression var_mul_float(Variable& v, double other) {
+	return v*other;
+    }
 
-  Expression var_pow_var(Variable& v, Variable& other) {
-    return pow(v, other);
-  }
+    Expression var_mul_var(Variable& v, Variable& other) {
+	return v*other;
+    }
 
-  Expression var_pow_expression(Variable& v, Expression& other) {
-    return pow(v, other);
-  }
+    Expression var_mul_expression(Variable& v, Expression& other) {
+	return v*other;
+    }
 
-  Constraint var_eq_float(Variable& v, double other) {
-    return v == other;
-  }
+    Expression var_add_float(Variable& v, double other) {
+	return v + other;
+    }
 
-  Constraint var_eq_var(Variable& v, Variable& other) {
-    return v == other;
-  }
+    Expression var_add_var(Variable& v, Variable& other) {
+	return v + other;
+    }
 
-  Constraint var_eq_expression(Variable& v, Expression& other) {
-    return v == other;
-  }
+    Expression var_add_expression(Variable& v, Expression& other) {
+	return v + other;
+    }
+
+    Expression var_sub_float(Variable& v, double other) {
+	return v - other;
+    }
+
+    Expression var_sub_var(Variable& v, Variable& other) {
+	return v - other;
+    }
+
+    Expression var_sub_expression(Variable& v, Expression& other) {
+	return v - other;
+    }
+
+    Expression var_div_float(Variable& v, double other) {
+	return v / other;
+    }
+
+    Expression var_div_var(Variable& v, Variable& other) {
+	return v / other;
+    }
+
+    Expression var_div_expression(Variable& v, Expression& other) {
+	return v / other;
+    }
+
+    Expression var_pow_float(Variable& v, double other) {
+      return pow(v, other);
+    }
+  
+    Expression var_pow_var(Variable& v, Variable& other) {
+      return pow(v, other);
+    }
+  
+    Expression var_pow_expression(Variable& v, Expression& other) {
+      return pow(v, other);
+    }
+  
+    Constraint var_eq_float(Variable& v, double other) {
+      return v == other;
+    }
+  
+    Constraint var_eq_var(Variable& v, Variable& other) {
+      return v == other;
+    }
+  
+    Constraint var_eq_expression(Variable& v, Expression& other) {
+      return v == other;
+    }
+  
+    Constraint var_leq_float(Variable& v, double other) {
+      return v <= other;
+    }
+  
+    Constraint var_leq_var(Variable& v, Variable& other) {
+      return v <= other;
+    }
+  
+    Constraint var_leq_expression(Variable& v, Expression& other) {
+      return v <= other;
+    }
+  
+    Constraint var_geq_float(Variable& v, double other) {
+      return v >= other;
+    }
+  
+    Constraint var_geq_var(Variable& v, Variable& other) {
+      return v >= other;
+    }
+  
+    Constraint var_geq_expression(Variable& v, Expression& other) {
+      return v >= other;
+    }
+
+    Expression expression_mul_float(Expression& v, double other) {
+	return v*other;
+    }
+
+    Expression expression_mul_var(Expression& v, Variable& other) {
+	return v*other;
+    }
+
+    Expression expression_mul_expression(Expression& v, Expression& other) {
+	return v*other;
+    }
+
+    Expression expression_add_float(Expression& v, double other) {
+	return v + other;
+    }
+
+    Expression expression_add_var(Expression& v, Variable& other) {
+	return v + other;
+    }
+
+    Expression expression_add_expression(Expression& v, Expression& other) {
+	return v + other;
+    }
+
+    Expression expression_sub_float(Expression& v, double other) {
+	return v - other;
+    }
+
+    Expression expression_sub_var(Expression& v, Variable& other) {
+	return v - other;
+    }
+
+    Expression expression_sub_expression(Expression& v, Expression& other) {
+	return v - other;
+    }
+
+    Expression expression_div_float(Expression& v, double other) {
+	return v / other;
+    }
+
+    Expression expression_div_var(Expression& v, Variable& other) {
+	return v / other;
+    }
+
+    Expression expression_div_expression(Expression& v, Expression& other) {
+	return v / other;
+    }
+
+    Expression expression_pow_float(Expression& v, double other) {
+      return pow(v, other);
+    }
+  
+    Expression expression_pow_var(Expression& v, Variable& other) {
+      return pow(v, other);
+    }
+  
+    Expression expression_pow_expression(Expression& v, Expression& other) {
+      return pow(v, other);
+    }
+  
+    Constraint expression_eq_float(Expression& v, double other) {
+      return v == other;
+    }
+  
+    Constraint expression_eq_var(Expression& v, Variable& other) {
+      return v == other;
+    }
+  
+    Constraint expression_eq_expression(Expression& v, Expression& other) {
+      return v == other;
+    }
+  
+    Constraint expression_leq_float(Expression& v, double other) {
+      return v <= other;
+    }
+  
+    Constraint expression_leq_var(Expression& v, Variable& other) {
+      return v <= other;
+    }
+  
+    Constraint expression_leq_expression(Expression& v, Expression& other) {
+      return v <= other;
+    }
+  
+    Constraint expression_geq_float(Expression& v, double other) {
+      return v >= other;
+    }
+  
+    Constraint expression_geq_var(Expression& v, Variable& other) {
+      return v >= other;
+    }
+  
+    Constraint expression_geq_expression(Expression& v, Expression& other) {
+      return v >= other;
+    }
 
   std::vector<Variable> copy_var(Variable& v, int num_copies) {
     std::vector<Variable> res(num_copies);
