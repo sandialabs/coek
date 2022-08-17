@@ -29,23 +29,91 @@ namespace coek {
 	return orepn;
     }
 
-    Expression sum(py::list args) {
-	py::type arg_type = py::type::of(args);
-	py::type pyint = py::module_::import("builtins").attr("int");
-	py::type pyfloat = py::module_::import("builtins").attr("float");
-	double float_args = 0;
+  Expression sum(std::vector<Expression*> args) {
 	Expression res(0);
-	for (py::handle arg : args) {
-	    arg_type = py::type::of(arg);
-	    if (arg_type.is(pyint) or arg_type.is(pyfloat)) {
-		float_args += arg.cast<double>();
-	    }
-	    else {
-		res += *(arg.cast<Expression*>());
-	    }
+	for (Expression* arg : args) {
+	  res += *arg;
 	}
-	res += float_args;
 	return res;
+    }
+
+  std::vector<Expression> vector_of_expressions(unsigned int num_exprs) {
+    std::vector<Expression> res(num_exprs);
+    return res;
+  }
+
+  Expression expression_from_float(double val) {
+    Expression res(val);
+    return res;
+  }
+
+  Expression expression_from_var(Variable& val) {
+    Expression res(val);
+    return res;
+  }
+
+    Expression float_mul_var(double v, Variable& other) {
+	return v*other;
+    }
+
+    Expression float_mul_expression(double v, Expression& other) {
+	return v*other;
+    }
+
+    Expression float_add_var(double v, Variable& other) {
+	return v + other;
+    }
+
+    Expression float_add_expression(double v, Expression& other) {
+	return v + other;
+    }
+
+    Expression float_sub_var(double v, Variable& other) {
+	return v - other;
+    }
+
+    Expression float_sub_expression(double v, Expression& other) {
+	return v - other;
+    }
+
+    Expression float_div_var(double v, Variable& other) {
+	return v / other;
+    }
+
+    Expression float_div_expression(double v, Expression& other) {
+	return v / other;
+    }
+  
+    Expression float_pow_var(double v, Variable& other) {
+      return pow(v, other);
+    }
+  
+    Expression float_pow_expression(double v, Expression& other) {
+      return pow(v, other);
+    }
+  
+    Constraint float_eq_var(double v, Variable& other) {
+      return v == other;
+    }
+  
+    Constraint float_eq_expression(double v, Expression& other) {
+      return v == other;
+    }
+  
+    Constraint float_le_var(double v, Variable& other) {
+      return v <= other;
+    }
+  
+    Constraint float_le_expression(double v, Expression& other) {
+      return v <= other;
+    }
+  
+    Constraint float_ge_var(double v, Variable& other) {
+      return v >= other;
+    }
+  
+    Constraint float_ge_expression(double v, Expression& other) {
+      return v >= other;
     }
 
     Expression var_mul_float(Variable& v, double other) {
@@ -120,27 +188,27 @@ namespace coek {
       return v == other;
     }
   
-    Constraint var_leq_float(Variable& v, double other) {
+    Constraint var_le_float(Variable& v, double other) {
       return v <= other;
     }
   
-    Constraint var_leq_var(Variable& v, Variable& other) {
+    Constraint var_le_var(Variable& v, Variable& other) {
       return v <= other;
     }
   
-    Constraint var_leq_expression(Variable& v, Expression& other) {
+    Constraint var_le_expression(Variable& v, Expression& other) {
       return v <= other;
     }
   
-    Constraint var_geq_float(Variable& v, double other) {
+    Constraint var_ge_float(Variable& v, double other) {
       return v >= other;
     }
   
-    Constraint var_geq_var(Variable& v, Variable& other) {
+    Constraint var_ge_var(Variable& v, Variable& other) {
       return v >= other;
     }
   
-    Constraint var_geq_expression(Variable& v, Expression& other) {
+    Constraint var_ge_expression(Variable& v, Expression& other) {
       return v >= other;
     }
 
@@ -216,31 +284,31 @@ namespace coek {
       return v == other;
     }
   
-    Constraint expression_leq_float(Expression& v, double other) {
+    Constraint expression_le_float(Expression& v, double other) {
       return v <= other;
     }
   
-    Constraint expression_leq_var(Expression& v, Variable& other) {
+    Constraint expression_le_var(Expression& v, Variable& other) {
       return v <= other;
     }
   
-    Constraint expression_leq_expression(Expression& v, Expression& other) {
+    Constraint expression_le_expression(Expression& v, Expression& other) {
       return v <= other;
     }
   
-    Constraint expression_geq_float(Expression& v, double other) {
+    Constraint expression_ge_float(Expression& v, double other) {
       return v >= other;
     }
   
-    Constraint expression_geq_var(Expression& v, Variable& other) {
+    Constraint expression_ge_var(Expression& v, Variable& other) {
       return v >= other;
     }
   
-    Constraint expression_geq_expression(Expression& v, Expression& other) {
+    Constraint expression_ge_expression(Expression& v, Expression& other) {
       return v >= other;
     }
 
-  std::vector<Variable> copy_var(Variable& v, int num_copies) {
+  std::vector<Variable> copy_var(Variable& v, unsigned int num_copies) {
     std::vector<Variable> res(num_copies);
     for (Variable& v2 : res) {
       v2.value(v.value());
@@ -267,12 +335,21 @@ namespace coek {
     }
 
     Expression construct_linear_expression(std::vector<double> coefs, std::vector<Variable*> vars) {
-	Expression res(0);
-	for (unsigned int ndx=0; ndx < coefs.size(); ++ndx) {
-	    res += coefs[ndx] * *(vars[ndx]);
-	}
-	return res;
+    	Expression res(0);
+    	for (unsigned int ndx=0; ndx < coefs.size(); ++ndx) {
+    	  res += ((coefs[ndx])) * (*(vars[ndx]));
+    	}
+    	return res;
     }
+
+  //Expression construct_linear_expression(py::list coefs, py::list vars) {
+  //  Expression res(0);
+  //  unsigned long size = coefs.size();
+  //  for (unsigned long ndx=0; ndx<size; ++ndx) {
+  //    res += coefs[ndx].cast<double>() * *(vars[ndx].attr("_pe").cast<Variable*>());
+  //  }
+  //  return res;
+  //}
 
   double expression_eval(Expression& e, bool exception) {
     return e.value();
@@ -760,12 +837,73 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     m.def("construct_linear_expression", &coek::construct_linear_expression);
     m.def("generate_standard_repn", &coek::generate_standard_repn);
     m.def("copy_var", &coek::copy_var);
+    m.def("expression_from_float", &coek::expression_from_float);
+    m.def("expression_from_var", &coek::expression_from_var);
+    m.def("vector_of_expressions", &coek::vector_of_expressions);
+    m.def("float_mul_var", &coek::float_mul_var);
+    m.def("float_mul_expression", &coek::float_mul_expression);
+    m.def("float_add_var", &coek::float_add_var);
+    m.def("float_add_expression", &coek::float_add_expression);
+    m.def("float_sub_var", &coek::float_sub_var);
+    m.def("float_sub_expression", &coek::float_sub_expression);
+    m.def("float_div_var", &coek::float_div_var);
+    m.def("float_div_expression", &coek::float_div_expression);
+    m.def("float_pow_var", &coek::float_pow_var);
+    m.def("float_pow_expression", &coek::float_pow_expression);
+    m.def("float_eq_var", &coek::float_eq_var);
+    m.def("float_eq_expression", &coek::float_eq_expression);
+    m.def("float_le_var", &coek::float_le_var);
+    m.def("float_le_expression", &coek::float_le_expression);
+    m.def("float_ge_var", &coek::float_ge_var);
+    m.def("float_ge_expression", &coek::float_ge_expression);
+    m.def("var_mul_float", &coek::var_mul_float);
+    m.def("var_mul_var", &coek::var_mul_var);
+    m.def("var_mul_expression", &coek::var_mul_expression);
+    m.def("var_add_float", &coek::var_add_float);
+    m.def("var_add_var", &coek::var_add_var);
+    m.def("var_add_expression", &coek::var_add_expression);
+    m.def("var_sub_float", &coek::var_sub_float);
+    m.def("var_sub_var", &coek::var_sub_var);
+    m.def("var_sub_expression", &coek::var_sub_expression);
+    m.def("var_div_float", &coek::var_div_float);
+    m.def("var_div_var", &coek::var_div_var);
+    m.def("var_div_expression", &coek::var_div_expression);
     m.def("var_pow_float", &coek::var_pow_float);
     m.def("var_pow_var", &coek::var_pow_var);
     m.def("var_pow_expression", &coek::var_pow_expression);
     m.def("var_eq_float", &coek::var_eq_float);
     m.def("var_eq_var", &coek::var_eq_var);
     m.def("var_eq_expression", &coek::var_eq_expression);
+    m.def("var_le_float", &coek::var_le_float);
+    m.def("var_le_var", &coek::var_le_var);
+    m.def("var_le_expression", &coek::var_le_expression);
+    m.def("var_ge_float", &coek::var_ge_float);
+    m.def("var_ge_var", &coek::var_ge_var);
+    m.def("var_ge_expression", &coek::var_ge_expression);
+    m.def("expression_mul_float", &coek::expression_mul_float);
+    m.def("expression_mul_var", &coek::expression_mul_var);
+    m.def("expression_mul_expression", &coek::expression_mul_expression);
+    m.def("expression_add_float", &coek::expression_add_float);
+    m.def("expression_add_var", &coek::expression_add_var);
+    m.def("expression_add_expression", &coek::expression_add_expression);
+    m.def("expression_sub_float", &coek::expression_sub_float);
+    m.def("expression_sub_var", &coek::expression_sub_var);
+    m.def("expression_sub_expression", &coek::expression_sub_expression);
+    m.def("expression_div_float", &coek::expression_div_float);
+    m.def("expression_div_var", &coek::expression_div_var);
+    m.def("expression_div_expression", &coek::expression_div_expression);
+    m.def("expression_pow_float", &coek::expression_pow_float);
+    m.def("expression_pow_var", &coek::expression_pow_var);
+    m.def("expression_pow_expression", &coek::expression_pow_expression);
+    m.def("expression_eq_float", &coek::expression_eq_float);
+    m.def("expression_eq_var", &coek::expression_eq_var);
+    m.def("expression_eq_expression", &coek::expression_eq_expression);
+    m.def("expression_le_float", &coek::expression_le_float);
+    m.def("expression_le_var", &coek::expression_le_var);
+    m.def("expression_le_expression", &coek::expression_le_expression);
+    m.def("expression_ge_float", &coek::expression_ge_float);
+    m.def("expression_ge_var", &coek::expression_ge_var);
+    m.def("expression_ge_expression", &coek::expression_ge_expression);
 
     py::class_<coek::ConstantTerm>(m, "ConstantTerm")
 	.def(py::init<double>());
