@@ -7,87 +7,93 @@ import sys
 import json
 import os
 from os.path import join, getsize
+import statistics
+import pprint
 
 def get_runtimes(fname):
-    ans = {}
     with open(fname,'r') as INPUT:
         for line in INPUT.readlines():
             line.strip()
             tmp = line.split(' ')
-            ans[tmp[0]] = float(tmp[1])
-    return ans
+            yield tmp[0], float(tmp[1])
 
 def collect_exp(fname, exp):
     try:
         name = fname.split('.')[0]
+        trial = int(fname.split('.')[1])
         tmp = name.split('_')
         if exp == 'writer':
-            return name, dict(suffix=tmp[0], model=tmp[1], args=tmp[2:])
+            return name, dict(suffix=tmp[0], model=tmp[1], size=tmp[2:], data={}), trial
         elif exp == 'solve0':
-            return name, dict(solver=tmp[0], model=tmp[1], args=tmp[2:])
+            return name, dict(solver=tmp[0], model=tmp[1], size=tmp[2:], data={}), trial
     except:
         raise RuntimeError("Bad experiment: "+fname)
     raise RuntimeError("Unknown experiment: "+fname)
 
 def get_filedata(fname):
     if not os.path.exists(fname):
-        return {'lines':None, 'bytes':None}
-    ans = {}
-    with open(fname, 'r') as INPUT:
-        ans['lines'] = len(INPUT.readlines())
-    ans['bytes'] = os.path.getsize(fname)
-    return ans
+        yield 'lines', None
+        yield 'bytes', None
+    else:
+        with open(fname, 'r') as INPUT:
+            yield 'lines', len(INPUT.readlines())
+        yield 'bytes', os.path.getsize(fname)
 
 def collect_results(directory, save=False):
     print("Collecting data in {}".format(directory))
     exp = os.path.basename(directory)
-    results = {}
     for root, dirs, files in os.walk(directory):
         if len(dirs) > 0:
             continue
+
+        #
+        # Collect results
+        #
         test = os.path.basename(root)
+        results = {"_experiment":exp, "_tool":test}
         print("  Collecting test results for "+test)
-        results[test] = {}
         for fname in files:
-            if fname.endswith('.log') or fname.endswith('.csv'):
+            if fname.endswith('.log') or fname.endswith('.csv') or fname.endswith('.json'):
                 continue
-            name, values = collect_exp(fname, exp)
-            if name not in results[test]:
-                results[test][name] = values
-            else:
-                results[test][name].update(values)
+            name, values, trial = collect_exp(fname, exp)
+            if name not in results:
+                results[name] = values
             if fname.endswith(".out"):
-                results[test][name]['time'] = get_runtimes(join(root,fname))
-                if len(results[test][name]['time']) == 0:
-                    raise RuntimeError("Bad time info: "+fname)
-            else:
-                results[test][name]['size'] = get_filedata(join(root,fname))
+                tmp = results[name]['data']
+                for k,v in get_runtimes(join(root,fname)):
+                    if k not in tmp:
+                        tmp[k] = {"trials":{}}
+                    tmp[k]['trials'][str(trial)] = v
+            elif fname.endswith(".lp") or fname.endswith(".nl"):
+                tmp = results[name]['data']
+                for k,v in get_filedata(join(root,fname)):
+                    if k not in tmp:
+                        tmp[k] = {"trials":{}}
+                    tmp[k]['trials'][str(trial)] = v
+
+        #
+        # Summarize results
+        #
+        for name in results:
+            if name[0] == "_":
+                continue
+            for measure in results[name]['data']:
+                values = list(results[name]['data'][measure]['trials'].values())
+                results[name]['data'][measure]['mean'] = statistics.mean(values)
+                results[name]['data'][measure]['median'] = statistics.median(values)
+                results[name]['data'][measure]['variance'] = statistics.variance(values)
+                results[name]['data'][measure]['stdev'] = statistics.stdev(values)
+                results[name]['data'][measure]['min'] = min(values)
+                results[name]['data'][measure]['max'] = max(values)
+
+        #
+        # Save results
+        #
         if save:
-            if exp == 'writer':
-                outfile = os.path.join(root,"results.csv")
-                print("  Creating file {}".format(outfile))
-                with open(os.path.join(root,"results.csv"),'w') as OUTPUT:
-                    OUTPUT.write("Suffix,Model,Size,Test,Real,User,Lines,Bytes\n")
-                    for name in results[test]:
-                        tmp = results[test][name]
-                        if 'timeout' in tmp['time']:
-                            OUTPUT.write("{},{},{},{},,,,\n".format(tmp['suffix'], tmp['model'], tmp['args'][0], test))
-                        else:
-                            OUTPUT.write("{},{},{},{},{},{},{},{}\n".format(tmp['suffix'], tmp['model'], tmp['args'][0], test, tmp['time']['real'], tmp['time']['user'], tmp['size']['lines'], tmp['size']['bytes']))
-            elif exp == 'solve0':
-                outfile = os.path.join(root,"results.csv")
-                print("  Creating file {}".format(outfile))
-                with open(os.path.join(root,"results.csv"),'w') as OUTPUT:
-                    OUTPUT.write("Sollver,Model,Size,Test,Real,User\n")
-                    for name in results[test]:
-                        tmp = results[test][name]
-                        if 'timeout' in tmp['time']:
-                            OUTPUT.write("{},{},{},{},,\n".format(tmp['solver'], tmp['model'], tmp['args'][0], test))
-                        else:
-                            OUTPUT.write("{},{},{},{},{},{}\n".format(tmp['solver'], tmp['model'], tmp['args'][0], test, tmp['time']['real'], tmp['time']['user']))
-                
-    #return results
-    print("")
+            outfile = os.path.join(root,"results.json")
+            print("    Writing",outfile)
+            with open(outfile,'w') as OUTPUT:
+                json.dump(results, OUTPUT, indent=4, sort_keys=True)
 
 
 if __name__ == "__main__":
