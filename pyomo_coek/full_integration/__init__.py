@@ -1,4 +1,7 @@
-from . import expression, constraint
+from . import expression, constraint, objective
 from .expression import Var, ScalarVar, IndexedVar, quicksum
-from .standard_repn import generate_standard_repn
+from .standard_repn import _generate_standard_repn
 from .constraint import Constraint, ScalarConstraint, IndexedConstraint
+from .objective import Objective, ScalarObjective, IndexedObjective
+from .solvers.gurobi import Gurobi
+from pyomo.core.base.PyomoModel import ConcreteModel

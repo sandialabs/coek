@@ -41,17 +41,12 @@ class _GeneralVarData(ComponentData):
         self._pe = pk.variable_single()
 
     @classmethod
-    def copy(cls, src):
+    def copy(cls, src, poek_var, index):
         self = cls.__new__(cls)
         self._component = src._component
-        self._pe = pk.variable_single()
-        self._pe.value = src._pe.value
-        self._pe.lb = src._pe.lb
-        self._pe.ub = src._pe.ub
-        self._pe.within = src._pe.within
-        self._pe.fixed = src._pe.fixed
+        self._pe = poek_var
         self._stale = src._stale
-        self._index = src._index
+        self._index = index
         return self
 
     def has_lb(self):
@@ -234,7 +229,9 @@ class _GeneralVarData(ComponentData):
         return _other_operand_map[type(other)](other) / self._pe
 
     def __pow__(self, other):
-        return self._pe ** _other_operand_map[type(other)](other)
+        func, other = _var_pow_map[type(other)](other)
+        return func(self._pe, other)
+        #return self._pe ** _other_operand_map[type(other)](other)
 
     def __rpow__(self, other):
         return _other_operand_map[type(other)](other) ** self._pe
@@ -249,7 +246,9 @@ class _GeneralVarData(ComponentData):
         return self._pe <= _other_operand_map[type(other)](other)
 
     def __eq__(self, other):
-        return self._pe == _other_operand_map[type(other)](other)
+        func, other = _var_eq_map[type(other)](other)
+        return func(self._pe, other)
+        #return self._pe == _other_operand_map[type(other)](other)
 
     def is_numeric_type(self):
         return True
@@ -406,13 +405,14 @@ class Var(IndexedComponent):
                     or call_domain_rule or call_bounds_rule
                 )
                 # Initialize all the component datas with the common data
-                for index in self.index_set():
-                    self._data[index] = self._ComponentDataClass.copy(ref)
+                poek_var_list = pk.copy_var(ref._pe, len(self.index_set()))
+                for pk_var, index in zip(poek_var_list, self.index_set()):
+                    self._data[index] = self._ComponentDataClass.copy(ref, pk_var, index)
                     # NOTE: This is a special case where a key, value pair is
                     # added to the _data dictionary without calling
                     # _getitem_when_not_present, which is why we need to set the
                     # index here.
-                    self._data[index]._index = index
+                    # self._data[index]._index = index
                 # Now go back and initialize any index-specific data
                 block = self.parent_block()
                 if call_domain_rule:
@@ -594,3 +594,43 @@ _other_operand_map[int] = _get_other_operand_float
 _other_operand_map[_GeneralVarData] = _get_other_operand_var
 _other_operand_map[ScalarVar] = _get_other_operand_var
 _other_operand_map[pk.expression] = _get_other_operand_poek_expr
+
+
+def _get_var_pow_func_float(operand):
+    return pk.var_pow_float, operand
+
+
+def _get_var_pow_func_var(operand):
+    return pk.var_pow_var, operand._pe
+
+
+def _get_var_pow_func_expr(operand):
+    return pk.var_pow_expression, operand
+
+
+_var_pow_map = dict()
+_var_pow_map[float] = _get_var_pow_func_float
+_var_pow_map[int] = _get_var_pow_func_float
+_var_pow_map[_GeneralVarData] = _get_var_pow_func_var
+_var_pow_map[ScalarVar] = _get_var_pow_func_var
+_var_pow_map[pk.expression] = _get_var_pow_func_expr
+
+
+def _get_var_eq_func_float(operand):
+    return pk.var_eq_float, operand
+
+
+def _get_var_eq_func_var(operand):
+    return pk.var_eq_var, operand._pe
+
+
+def _get_var_eq_func_expr(operand):
+    return pk.var_eq_expression, operand
+
+
+_var_eq_map = dict()
+_var_eq_map[float] = _get_var_eq_func_float
+_var_eq_map[int] = _get_var_eq_func_float
+_var_eq_map[_GeneralVarData] = _get_var_eq_func_var
+_var_eq_map[ScalarVar] = _get_var_eq_func_var
+_var_eq_map[pk.expression] = _get_var_eq_func_expr

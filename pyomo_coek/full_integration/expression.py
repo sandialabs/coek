@@ -35,6 +35,9 @@ _rev_domain_map[pk.VariableTypes.Reals] = Reals
 _rev_domain_map[pk.VariableTypes.Integers] = Integers
 
 
+_var_term_to_var_map = dict()
+
+
 class _GeneralVarData(ComponentData):
 
     __slots__ = ('_stale', '_pe')
@@ -43,19 +46,19 @@ class _GeneralVarData(ComponentData):
         super().__init__(component=component)
         self._stale = 0  # True
         self._pe = pk.variable_single()
+        _var_term_to_var_map[self._pe.repn] = self
+
+    def __del__(self):
+        del _var_term_to_var_map[self._pe.repn]
 
     @classmethod
-    def copy(cls, src):
+    def copy(cls, src, poek_var, index):
         self = cls.__new__(cls)
         self._component = src._component
-        self._pe = pk.variable_single()
-        self._pe.value = src._pe.value
-        self._pe.lb = src._pe.lb
-        self._pe.ub = src._pe.ub
-        self._pe.within = src._pe.within
-        self._pe.fixed = src._pe.fixed
+        self._pe = poek_var
+        _var_term_to_var_map[self._pe.repn] = self
         self._stale = src._stale
-        self._index = src._index
+        self._index = index
         return self
 
     def has_lb(self):
@@ -217,10 +220,10 @@ class _GeneralVarData(ComponentData):
             return SumExpression([other, self])
 
     def __sub__(self, other):
-        return SumExpression([self, NegationExpression((other,))])
+        return SumExpression([self, -other])
 
     def __rsub__(self, other):
-        return SummExpression([other, NegationExpression((self,))])
+        return SumExpression([other, NegationExpression((self,))])
 
     def __mul__(self, other):
         if type(other) in nonpyomo_leaf_types:
@@ -428,13 +431,14 @@ class Var(IndexedComponent):
                     or call_domain_rule or call_bounds_rule
                 )
                 # Initialize all the component datas with the common data
-                for index in self.index_set():
-                    self._data[index] = self._ComponentDataClass.copy(ref)
+                poek_var_list = pk.copy_var(ref._pe, len(self.index_set()))
+                for pk_var, index in zip(poek_var_list, self.index_set()):
+                    self._data[index] = self._ComponentDataClass.copy(ref, pk_var, index)
                     # NOTE: This is a special case where a key, value pair is
                     # added to the _data dictionary without calling
                     # _getitem_when_not_present, which is why we need to set the
                     # index here.
-                    self._data[index]._index = index
+                    # self._data[index]._index = index
                 # Now go back and initialize any index-specific data
                 block = self.parent_block()
                 if call_domain_rule:
@@ -623,7 +627,7 @@ class ExpressionBase(object):
             return SumExpression([other, self])
 
     def __sub__(self, other):
-        return SumExpression([self, NegationExpression((other,))])
+        return SumExpression([self, -other])
 
     def __rsub__(self, other):
         return SummExpression([other, NegationExpression((self,))])
@@ -669,9 +673,8 @@ class BinaryExpression(ExpressionBase):
     def __init__(self, args):
         self._args_ = args
         arg0, arg1 = args
-        arg0 = _operand_map[type(arg0)](arg0)
-        arg1 = _operand_map[type(arg1)](arg1)
-        self._pe = self.func(arg0, arg1)
+        func, arg0, arg1 = _binary_map[type(arg0), type(arg1), self.func](arg0, arg1)
+        self._pe = func(arg0, arg1)
 
 
 class UnaryExpression(ExpressionBase):
@@ -713,10 +716,15 @@ class SumExpression(ExpressionBase, numeric_expr.SumExpression):
     __slots__ = ('_pe',)
 
     def __init__(self, args):
+        self._shared_args = False
         self._args_ = args
         self._nargs = len(self._args_)
-        self._shared_args = False
-        self._pe = pk.sum([_operand_map[type(arg)](arg) for arg in args])
+        if len(args) == 2:
+            arg0, arg1 = args
+            func, arg0, arg1 = _binary_map[type(arg0), type(arg1), operator.add](arg0, arg1)
+            self._pe = func(arg0, arg1)
+        else:
+            self._pe = pk.sum([_sum_operand_map[type(arg)](arg) for arg in args])
 
     def __add__(self, other):
         res = SumExpression([self, other])
@@ -749,12 +757,1042 @@ def quicksum(args):
     return SumExpression(list(args))
 
 
+def _get_float_mul_var(arg0, arg1):
+    return pk.float_mul_var, arg0, arg1._pe
+
+
+def _get_float_mul_expression(arg0, arg1):
+    return pk.float_mul_expression, arg0, arg1._pe
+
+
+def _get_float_add_var(arg0, arg1):
+    return pk.float_add_var, arg0, arg1._pe
+
+
+def _get_float_add_expression(arg0, arg1):
+    return pk.float_add_expression, arg0, arg1._pe
+
+
+def _get_float_sub_var(arg0, arg1):
+    return pk.float_sub_var, arg0, arg1._pe
+
+
+def _get_float_sub_expression(arg0, arg1):
+    return pk.float_sub_expression, arg0, arg1._pe
+
+
+def _get_float_div_var(arg0, arg1):
+    return pk.float_div_var, arg0, arg1._pe
+
+
+def _get_float_div_expression(arg0, arg1):
+    return pk.float_div_expression, arg0, arg1._pe
+
+
+def _get_float_pow_var(arg0, arg1):
+    return pk.float_pow_var, arg0, arg1._pe
+
+
+def _get_float_pow_expression(arg0, arg1):
+    return pk.float_pow_expression, arg0, arg1._pe
+
+
+def _get_float_le_var(arg0, arg1):
+    return pk.float_le_var, arg0, arg1._pe
+
+
+def _get_float_le_expression(arg0, arg1):
+    return pk.float_le_expression, arg0, arg1._pe
+
+
+def _get_float_ge_var(arg0, arg1):
+    return pk.float_ge_var, arg0, arg1._pe
+
+
+def _get_float_ge_expression(arg0, arg1):
+    return pk.float_ge_expression, arg0, arg1._pe
+
+
+def _get_float_eq_var(arg0, arg1):
+    return pk.float_eq_var, arg0, arg1._pe
+
+
+def _get_float_eq_expression(arg0, arg1):
+    return pk.float_eq_expression, arg0, arg1._pe
+
+
+def _get_var_mul_float(arg0, arg1):
+    return pk.var_mul_float, arg0._pe, arg1
+
+
+def _get_var_mul_var(arg0, arg1):
+    return pk.var_mul_var, arg0._pe, arg1._pe
+
+
+def _get_var_mul_expression(arg0, arg1):
+    return pk.var_mul_expression, arg0._pe, arg1._pe
+
+
+def _get_var_add_float(arg0, arg1):
+    return pk.var_add_float, arg0._pe, arg1
+
+
+def _get_var_add_var(arg0, arg1):
+    return pk.var_add_var, arg0._pe, arg1._pe
+
+
+def _get_var_add_expression(arg0, arg1):
+    return pk.var_add_expression, arg0._pe, arg1._pe
+
+
+def _get_var_sub_float(arg0, arg1):
+    return pk.var_sub_float, arg0._pe, arg1
+
+
+def _get_var_sub_var(arg0, arg1):
+    return pk.var_sub_var, arg0._pe, arg1._pe
+
+
+def _get_var_sub_expression(arg0, arg1):
+    return pk.var_sub_expression, arg0._pe, arg1._pe
+
+
+def _get_var_div_float(arg0, arg1):
+    return pk.var_div_float, arg0._pe, arg1
+
+
+def _get_var_div_var(arg0, arg1):
+    return pk.var_div_var, arg0._pe, arg1._pe
+
+
+def _get_var_div_expression(arg0, arg1):
+    return pk.var_div_expression, arg0._pe, arg1._pe
+
+
+def _get_var_pow_float(arg0, arg1):
+    return pk.var_pow_float, arg0._pe, arg1
+
+
+def _get_var_pow_var(arg0, arg1):
+    return pk.var_pow_var, arg0._pe, arg1._pe
+
+
+def _get_var_pow_expression(arg0, arg1):
+    return pk.var_pow_expression, arg0._pe, arg1._pe
+
+
+def _get_var_le_float(arg0, arg1):
+    return pk.var_le_float, arg0._pe, arg1
+
+
+def _get_var_le_var(arg0, arg1):
+    return pk.var_le_var, arg0._pe, arg1._pe
+
+
+def _get_var_le_expression(arg0, arg1):
+    return pk.var_le_expression, arg0._pe, arg1._pe
+
+
+def _get_var_ge_float(arg0, arg1):
+    return pk.var_ge_float, arg0._pe, arg1
+
+
+def _get_var_ge_var(arg0, arg1):
+    return pk.var_ge_var, arg0._pe, arg1._pe
+
+
+def _get_var_ge_expression(arg0, arg1):
+    return pk.var_ge_expression, arg0._pe, arg1._pe
+
+
+def _get_var_eq_float(arg0, arg1):
+    return pk.var_eq_float, arg0._pe, arg1
+
+
+def _get_var_eq_var(arg0, arg1):
+    return pk.var_eq_var, arg0._pe, arg1._pe
+
+
+def _get_var_eq_expression(arg0, arg1):
+    return pk.var_eq_expression, arg0._pe, arg1._pe
+
+
+def _get_expression_mul_float(arg0, arg1):
+    return pk.expression_mul_float, arg0._pe, arg1
+
+
+def _get_expression_mul_var(arg0, arg1):
+    return pk.expression_mul_var, arg0._pe, arg1._pe
+
+
+def _get_expression_mul_expression(arg0, arg1):
+    return pk.expression_mul_expression, arg0._pe, arg1._pe
+
+
+def _get_expression_add_float(arg0, arg1):
+    return pk.expression_add_float, arg0._pe, arg1
+
+
+def _get_expression_add_var(arg0, arg1):
+    return pk.expression_add_var, arg0._pe, arg1._pe
+
+
+def _get_expression_add_expression(arg0, arg1):
+    return pk.expression_add_expression, arg0._pe, arg1._pe
+
+
+def _get_expression_sub_float(arg0, arg1):
+    return pk.expression_sub_float, arg0._pe, arg1
+
+
+def _get_expression_sub_var(arg0, arg1):
+    return pk.expression_sub_var, arg0._pe, arg1._pe
+
+
+def _get_expression_sub_expression(arg0, arg1):
+    return pk.expression_sub_expression, arg0._pe, arg1._pe
+
+
+def _get_expression_div_float(arg0, arg1):
+    return pk.expression_div_float, arg0._pe, arg1
+
+
+def _get_expression_div_var(arg0, arg1):
+    return pk.expression_div_var, arg0._pe, arg1._pe
+
+
+def _get_expression_div_expression(arg0, arg1):
+    return pk.expression_div_expression, arg0._pe, arg1._pe
+
+
+def _get_expression_pow_float(arg0, arg1):
+    return pk.expression_pow_float, arg0._pe, arg1
+
+
+def _get_expression_pow_var(arg0, arg1):
+    return pk.expression_pow_var, arg0._pe, arg1._pe
+
+
+def _get_expression_pow_expression(arg0, arg1):
+    return pk.expression_pow_expression, arg0._pe, arg1._pe
+
+
+def _get_expression_le_float(arg0, arg1):
+    return pk.expression_le_float, arg0._pe, arg1
+
+
+def _get_expression_le_var(arg0, arg1):
+    return pk.expression_le_var, arg0._pe, arg1._pe
+
+
+def _get_expression_le_expression(arg0, arg1):
+    return pk.expression_le_expression, arg0._pe, arg1._pe
+
+
+def _get_expression_ge_float(arg0, arg1):
+    return pk.expression_ge_float, arg0._pe, arg1
+
+
+def _get_expression_ge_var(arg0, arg1):
+    return pk.expression_ge_var, arg0._pe, arg1._pe
+
+
+def _get_expression_ge_expression(arg0, arg1):
+    return pk.expression_ge_expression, arg0._pe, arg1._pe
+
+
+def _get_expression_eq_float(arg0, arg1):
+    return pk.expression_eq_float, arg0._pe, arg1
+
+
+def _get_expression_eq_var(arg0, arg1):
+    return pk.expression_eq_var, arg0._pe, arg1._pe
+
+
+def _get_expression_eq_expression(arg0, arg1):
+    return pk.expression_eq_expression, arg0._pe, arg1._pe
+
+
+_binary_map = dict()
+_binary_map[float, _GeneralVarData, operator.mul] = _get_float_mul_var
+_binary_map[int, _GeneralVarData, operator.mul] = _get_float_mul_var
+_binary_map[float, ScalarVar, operator.mul] = _get_float_mul_var
+_binary_map[int, ScalarVar, operator.mul] = _get_float_mul_var
+_binary_map[float, ProductExpression, operator.mul] = _get_float_mul_expression
+_binary_map[int, ProductExpression, operator.mul] = _get_float_mul_expression
+_binary_map[float, MonomialTermExpression, operator.mul] = _get_float_mul_expression
+_binary_map[int, MonomialTermExpression, operator.mul] = _get_float_mul_expression
+_binary_map[float, SumExpression, operator.mul] = _get_float_mul_expression
+_binary_map[int, SumExpression, operator.mul] = _get_float_mul_expression
+_binary_map[float, NegationExpression, operator.mul] = _get_float_mul_expression
+_binary_map[int, NegationExpression, operator.mul] = _get_float_mul_expression
+_binary_map[float, DivisionExpression, operator.mul] = _get_float_mul_expression
+_binary_map[int, DivisionExpression, operator.mul] = _get_float_mul_expression
+_binary_map[float, PowExpression, operator.mul] = _get_float_mul_expression
+_binary_map[int, PowExpression, operator.mul] = _get_float_mul_expression
+_binary_map[float, _GeneralVarData, operator.add] = _get_float_add_var
+_binary_map[int, _GeneralVarData, operator.add] = _get_float_add_var
+_binary_map[float, ScalarVar, operator.add] = _get_float_add_var
+_binary_map[int, ScalarVar, operator.add] = _get_float_add_var
+_binary_map[float, ProductExpression, operator.add] = _get_float_add_expression
+_binary_map[int, ProductExpression, operator.add] = _get_float_add_expression
+_binary_map[float, MonomialTermExpression, operator.add] = _get_float_add_expression
+_binary_map[int, MonomialTermExpression, operator.add] = _get_float_add_expression
+_binary_map[float, SumExpression, operator.add] = _get_float_add_expression
+_binary_map[int, SumExpression, operator.add] = _get_float_add_expression
+_binary_map[float, NegationExpression, operator.add] = _get_float_add_expression
+_binary_map[int, NegationExpression, operator.add] = _get_float_add_expression
+_binary_map[float, DivisionExpression, operator.add] = _get_float_add_expression
+_binary_map[int, DivisionExpression, operator.add] = _get_float_add_expression
+_binary_map[float, PowExpression, operator.add] = _get_float_add_expression
+_binary_map[int, PowExpression, operator.add] = _get_float_add_expression
+_binary_map[float, _GeneralVarData, operator.sub] = _get_float_sub_var
+_binary_map[int, _GeneralVarData, operator.sub] = _get_float_sub_var
+_binary_map[float, ScalarVar, operator.sub] = _get_float_sub_var
+_binary_map[int, ScalarVar, operator.sub] = _get_float_sub_var
+_binary_map[float, ProductExpression, operator.sub] = _get_float_sub_expression
+_binary_map[int, ProductExpression, operator.sub] = _get_float_sub_expression
+_binary_map[float, MonomialTermExpression, operator.sub] = _get_float_sub_expression
+_binary_map[int, MonomialTermExpression, operator.sub] = _get_float_sub_expression
+_binary_map[float, SumExpression, operator.sub] = _get_float_sub_expression
+_binary_map[int, SumExpression, operator.sub] = _get_float_sub_expression
+_binary_map[float, NegationExpression, operator.sub] = _get_float_sub_expression
+_binary_map[int, NegationExpression, operator.sub] = _get_float_sub_expression
+_binary_map[float, DivisionExpression, operator.sub] = _get_float_sub_expression
+_binary_map[int, DivisionExpression, operator.sub] = _get_float_sub_expression
+_binary_map[float, PowExpression, operator.sub] = _get_float_sub_expression
+_binary_map[int, PowExpression, operator.sub] = _get_float_sub_expression
+_binary_map[float, _GeneralVarData, operator.truediv] = _get_float_div_var
+_binary_map[int, _GeneralVarData, operator.truediv] = _get_float_div_var
+_binary_map[float, ScalarVar, operator.truediv] = _get_float_div_var
+_binary_map[int, ScalarVar, operator.truediv] = _get_float_div_var
+_binary_map[float, ProductExpression, operator.truediv] = _get_float_div_expression
+_binary_map[int, ProductExpression, operator.truediv] = _get_float_div_expression
+_binary_map[float, MonomialTermExpression, operator.truediv] = _get_float_div_expression
+_binary_map[int, MonomialTermExpression, operator.truediv] = _get_float_div_expression
+_binary_map[float, SumExpression, operator.truediv] = _get_float_div_expression
+_binary_map[int, SumExpression, operator.truediv] = _get_float_div_expression
+_binary_map[float, NegationExpression, operator.truediv] = _get_float_div_expression
+_binary_map[int, NegationExpression, operator.truediv] = _get_float_div_expression
+_binary_map[float, DivisionExpression, operator.truediv] = _get_float_div_expression
+_binary_map[int, DivisionExpression, operator.truediv] = _get_float_div_expression
+_binary_map[float, PowExpression, operator.truediv] = _get_float_div_expression
+_binary_map[int, PowExpression, operator.truediv] = _get_float_div_expression
+_binary_map[float, _GeneralVarData, operator.pow] = _get_float_pow_var
+_binary_map[int, _GeneralVarData, operator.pow] = _get_float_pow_var
+_binary_map[float, ScalarVar, operator.pow] = _get_float_pow_var
+_binary_map[int, ScalarVar, operator.pow] = _get_float_pow_var
+_binary_map[float, ProductExpression, operator.pow] = _get_float_pow_expression
+_binary_map[int, ProductExpression, operator.pow] = _get_float_pow_expression
+_binary_map[float, MonomialTermExpression, operator.pow] = _get_float_pow_expression
+_binary_map[int, MonomialTermExpression, operator.pow] = _get_float_pow_expression
+_binary_map[float, SumExpression, operator.pow] = _get_float_pow_expression
+_binary_map[int, SumExpression, operator.pow] = _get_float_pow_expression
+_binary_map[float, NegationExpression, operator.pow] = _get_float_pow_expression
+_binary_map[int, NegationExpression, operator.pow] = _get_float_pow_expression
+_binary_map[float, DivisionExpression, operator.pow] = _get_float_pow_expression
+_binary_map[int, DivisionExpression, operator.pow] = _get_float_pow_expression
+_binary_map[float, PowExpression, operator.pow] = _get_float_pow_expression
+_binary_map[int, PowExpression, operator.pow] = _get_float_pow_expression
+_binary_map[float, _GeneralVarData, operator.le] = _get_float_le_var
+_binary_map[int, _GeneralVarData, operator.le] = _get_float_le_var
+_binary_map[float, ScalarVar, operator.le] = _get_float_le_var
+_binary_map[int, ScalarVar, operator.le] = _get_float_le_var
+_binary_map[float, ProductExpression, operator.le] = _get_float_le_expression
+_binary_map[int, ProductExpression, operator.le] = _get_float_le_expression
+_binary_map[float, MonomialTermExpression, operator.le] = _get_float_le_expression
+_binary_map[int, MonomialTermExpression, operator.le] = _get_float_le_expression
+_binary_map[float, SumExpression, operator.le] = _get_float_le_expression
+_binary_map[int, SumExpression, operator.le] = _get_float_le_expression
+_binary_map[float, NegationExpression, operator.le] = _get_float_le_expression
+_binary_map[int, NegationExpression, operator.le] = _get_float_le_expression
+_binary_map[float, DivisionExpression, operator.le] = _get_float_le_expression
+_binary_map[int, DivisionExpression, operator.le] = _get_float_le_expression
+_binary_map[float, PowExpression, operator.le] = _get_float_le_expression
+_binary_map[int, PowExpression, operator.le] = _get_float_le_expression
+_binary_map[float, _GeneralVarData, operator.ge] = _get_float_ge_var
+_binary_map[int, _GeneralVarData, operator.ge] = _get_float_ge_var
+_binary_map[float, ScalarVar, operator.ge] = _get_float_ge_var
+_binary_map[int, ScalarVar, operator.ge] = _get_float_ge_var
+_binary_map[float, ProductExpression, operator.ge] = _get_float_ge_expression
+_binary_map[int, ProductExpression, operator.ge] = _get_float_ge_expression
+_binary_map[float, MonomialTermExpression, operator.ge] = _get_float_ge_expression
+_binary_map[int, MonomialTermExpression, operator.ge] = _get_float_ge_expression
+_binary_map[float, SumExpression, operator.ge] = _get_float_ge_expression
+_binary_map[int, SumExpression, operator.ge] = _get_float_ge_expression
+_binary_map[float, NegationExpression, operator.ge] = _get_float_ge_expression
+_binary_map[int, NegationExpression, operator.ge] = _get_float_ge_expression
+_binary_map[float, DivisionExpression, operator.ge] = _get_float_ge_expression
+_binary_map[int, DivisionExpression, operator.ge] = _get_float_ge_expression
+_binary_map[float, PowExpression, operator.ge] = _get_float_ge_expression
+_binary_map[int, PowExpression, operator.ge] = _get_float_ge_expression
+_binary_map[float, _GeneralVarData, operator.eq] = _get_float_eq_var
+_binary_map[int, _GeneralVarData, operator.eq] = _get_float_eq_var
+_binary_map[float, ScalarVar, operator.eq] = _get_float_eq_var
+_binary_map[int, ScalarVar, operator.eq] = _get_float_eq_var
+_binary_map[float, ProductExpression, operator.eq] = _get_float_eq_expression
+_binary_map[int, ProductExpression, operator.eq] = _get_float_eq_expression
+_binary_map[float, MonomialTermExpression, operator.eq] = _get_float_eq_expression
+_binary_map[int, MonomialTermExpression, operator.eq] = _get_float_eq_expression
+_binary_map[float, SumExpression, operator.eq] = _get_float_eq_expression
+_binary_map[int, SumExpression, operator.eq] = _get_float_eq_expression
+_binary_map[float, NegationExpression, operator.eq] = _get_float_eq_expression
+_binary_map[int, NegationExpression, operator.eq] = _get_float_eq_expression
+_binary_map[float, DivisionExpression, operator.eq] = _get_float_eq_expression
+_binary_map[int, DivisionExpression, operator.eq] = _get_float_eq_expression
+_binary_map[float, PowExpression, operator.eq] = _get_float_eq_expression
+_binary_map[int, PowExpression, operator.eq] = _get_float_eq_expression
+
+_binary_map[_GeneralVarData, float, operator.mul] = _get_var_mul_float
+_binary_map[_GeneralVarData, int, operator.mul] = _get_var_mul_float
+_binary_map[ScalarVar, float, operator.mul] = _get_var_mul_float
+_binary_map[ScalarVar, int, operator.mul] = _get_var_mul_float
+_binary_map[_GeneralVarData, _GeneralVarData, operator.mul] = _get_var_mul_var
+_binary_map[_GeneralVarData, ScalarVar, operator.mul] = _get_var_mul_var
+_binary_map[ScalarVar, _GeneralVarData, operator.mul] = _get_var_mul_var
+_binary_map[ScalarVar, ScalarVar, operator.mul] = _get_var_mul_var
+_binary_map[_GeneralVarData, ProductExpression, operator.mul] = _get_var_mul_expression
+_binary_map[ScalarVar, ProductExpression, operator.mul] = _get_var_mul_expression
+_binary_map[_GeneralVarData, MonomialTermExpression, operator.mul] = _get_var_mul_expression
+_binary_map[ScalarVar, MonomialTermExpression, operator.mul] = _get_var_mul_expression
+_binary_map[_GeneralVarData, SumExpression, operator.mul] = _get_var_mul_expression
+_binary_map[ScalarVar, SumExpression, operator.mul] = _get_var_mul_expression
+_binary_map[_GeneralVarData, NegationExpression, operator.mul] = _get_var_mul_expression
+_binary_map[ScalarVar, NegationExpression, operator.mul] = _get_var_mul_expression
+_binary_map[_GeneralVarData, DivisionExpression, operator.mul] = _get_var_mul_expression
+_binary_map[ScalarVar, DivisionExpression, operator.mul] = _get_var_mul_expression
+_binary_map[_GeneralVarData, PowExpression, operator.mul] = _get_var_mul_expression
+_binary_map[ScalarVar, PowExpression, operator.mul] = _get_var_mul_expression
+_binary_map[_GeneralVarData, float, operator.add] = _get_var_add_float
+_binary_map[_GeneralVarData, int, operator.add] = _get_var_add_float
+_binary_map[ScalarVar, float, operator.add] = _get_var_add_float
+_binary_map[ScalarVar, int, operator.add] = _get_var_add_float
+_binary_map[_GeneralVarData, _GeneralVarData, operator.add] = _get_var_add_var
+_binary_map[_GeneralVarData, ScalarVar, operator.add] = _get_var_add_var
+_binary_map[ScalarVar, _GeneralVarData, operator.add] = _get_var_add_var
+_binary_map[ScalarVar, ScalarVar, operator.add] = _get_var_add_var
+_binary_map[_GeneralVarData, ProductExpression, operator.add] = _get_var_add_expression
+_binary_map[ScalarVar, ProductExpression, operator.add] = _get_var_add_expression
+_binary_map[_GeneralVarData, MonomialTermExpression, operator.add] = _get_var_add_expression
+_binary_map[ScalarVar, MonomialTermExpression, operator.add] = _get_var_add_expression
+_binary_map[_GeneralVarData, SumExpression, operator.add] = _get_var_add_expression
+_binary_map[ScalarVar, SumExpression, operator.add] = _get_var_add_expression
+_binary_map[_GeneralVarData, NegationExpression, operator.add] = _get_var_add_expression
+_binary_map[ScalarVar, NegationExpression, operator.add] = _get_var_add_expression
+_binary_map[_GeneralVarData, DivisionExpression, operator.add] = _get_var_add_expression
+_binary_map[ScalarVar, DivisionExpression, operator.add] = _get_var_add_expression
+_binary_map[_GeneralVarData, PowExpression, operator.add] = _get_var_add_expression
+_binary_map[ScalarVar, PowExpression, operator.add] = _get_var_add_expression
+_binary_map[_GeneralVarData, float, operator.sub] = _get_var_sub_float
+_binary_map[_GeneralVarData, int, operator.sub] = _get_var_sub_float
+_binary_map[ScalarVar, float, operator.sub] = _get_var_sub_float
+_binary_map[ScalarVar, int, operator.sub] = _get_var_sub_float
+_binary_map[_GeneralVarData, _GeneralVarData, operator.sub] = _get_var_sub_var
+_binary_map[_GeneralVarData, ScalarVar, operator.sub] = _get_var_sub_var
+_binary_map[ScalarVar, _GeneralVarData, operator.sub] = _get_var_sub_var
+_binary_map[ScalarVar, ScalarVar, operator.sub] = _get_var_sub_var
+_binary_map[_GeneralVarData, ProductExpression, operator.sub] = _get_var_sub_expression
+_binary_map[ScalarVar, ProductExpression, operator.sub] = _get_var_sub_expression
+_binary_map[_GeneralVarData, MonomialTermExpression, operator.sub] = _get_var_sub_expression
+_binary_map[ScalarVar, MonomialTermExpression, operator.sub] = _get_var_sub_expression
+_binary_map[_GeneralVarData, SumExpression, operator.sub] = _get_var_sub_expression
+_binary_map[ScalarVar, SumExpression, operator.sub] = _get_var_sub_expression
+_binary_map[_GeneralVarData, NegationExpression, operator.sub] = _get_var_sub_expression
+_binary_map[ScalarVar, NegationExpression, operator.sub] = _get_var_sub_expression
+_binary_map[_GeneralVarData, DivisionExpression, operator.sub] = _get_var_sub_expression
+_binary_map[ScalarVar, DivisionExpression, operator.sub] = _get_var_sub_expression
+_binary_map[_GeneralVarData, PowExpression, operator.sub] = _get_var_sub_expression
+_binary_map[ScalarVar, PowExpression, operator.sub] = _get_var_sub_expression
+_binary_map[_GeneralVarData, float, operator.truediv] = _get_var_div_float
+_binary_map[_GeneralVarData, int, operator.truediv] = _get_var_div_float
+_binary_map[ScalarVar, float, operator.truediv] = _get_var_div_float
+_binary_map[ScalarVar, int, operator.truediv] = _get_var_div_float
+_binary_map[_GeneralVarData, _GeneralVarData, operator.truediv] = _get_var_div_var
+_binary_map[_GeneralVarData, ScalarVar, operator.truediv] = _get_var_div_var
+_binary_map[ScalarVar, _GeneralVarData, operator.truediv] = _get_var_div_var
+_binary_map[ScalarVar, ScalarVar, operator.truediv] = _get_var_div_var
+_binary_map[_GeneralVarData, ProductExpression, operator.truediv] = _get_var_div_expression
+_binary_map[ScalarVar, ProductExpression, operator.truediv] = _get_var_div_expression
+_binary_map[_GeneralVarData, MonomialTermExpression, operator.truediv] = _get_var_div_expression
+_binary_map[ScalarVar, MonomialTermExpression, operator.truediv] = _get_var_div_expression
+_binary_map[_GeneralVarData, SumExpression, operator.truediv] = _get_var_div_expression
+_binary_map[ScalarVar, SumExpression, operator.truediv] = _get_var_div_expression
+_binary_map[_GeneralVarData, NegationExpression, operator.truediv] = _get_var_div_expression
+_binary_map[ScalarVar, NegationExpression, operator.truediv] = _get_var_div_expression
+_binary_map[_GeneralVarData, DivisionExpression, operator.truediv] = _get_var_div_expression
+_binary_map[ScalarVar, DivisionExpression, operator.truediv] = _get_var_div_expression
+_binary_map[_GeneralVarData, PowExpression, operator.truediv] = _get_var_div_expression
+_binary_map[ScalarVar, PowExpression, operator.truediv] = _get_var_div_expression
+_binary_map[_GeneralVarData, float, operator.pow] = _get_var_pow_float
+_binary_map[_GeneralVarData, int, operator.pow] = _get_var_pow_float
+_binary_map[ScalarVar, float, operator.pow] = _get_var_pow_float
+_binary_map[ScalarVar, int, operator.pow] = _get_var_pow_float
+_binary_map[_GeneralVarData, _GeneralVarData, operator.pow] = _get_var_pow_var
+_binary_map[_GeneralVarData, ScalarVar, operator.pow] = _get_var_pow_var
+_binary_map[ScalarVar, _GeneralVarData, operator.pow] = _get_var_pow_var
+_binary_map[ScalarVar, ScalarVar, operator.pow] = _get_var_pow_var
+_binary_map[_GeneralVarData, ProductExpression, operator.pow] = _get_var_pow_expression
+_binary_map[ScalarVar, ProductExpression, operator.pow] = _get_var_pow_expression
+_binary_map[_GeneralVarData, MonomialTermExpression, operator.pow] = _get_var_pow_expression
+_binary_map[ScalarVar, MonomialTermExpression, operator.pow] = _get_var_pow_expression
+_binary_map[_GeneralVarData, SumExpression, operator.pow] = _get_var_pow_expression
+_binary_map[ScalarVar, SumExpression, operator.pow] = _get_var_pow_expression
+_binary_map[_GeneralVarData, NegationExpression, operator.pow] = _get_var_pow_expression
+_binary_map[ScalarVar, NegationExpression, operator.pow] = _get_var_pow_expression
+_binary_map[_GeneralVarData, DivisionExpression, operator.pow] = _get_var_pow_expression
+_binary_map[ScalarVar, DivisionExpression, operator.pow] = _get_var_pow_expression
+_binary_map[_GeneralVarData, PowExpression, operator.pow] = _get_var_pow_expression
+_binary_map[ScalarVar, PowExpression, operator.pow] = _get_var_pow_expression
+_binary_map[_GeneralVarData, float, operator.le] = _get_var_le_float
+_binary_map[_GeneralVarData, int, operator.le] = _get_var_le_float
+_binary_map[ScalarVar, float, operator.le] = _get_var_le_float
+_binary_map[ScalarVar, int, operator.le] = _get_var_le_float
+_binary_map[_GeneralVarData, _GeneralVarData, operator.le] = _get_var_le_var
+_binary_map[_GeneralVarData, ScalarVar, operator.le] = _get_var_le_var
+_binary_map[ScalarVar, _GeneralVarData, operator.le] = _get_var_le_var
+_binary_map[ScalarVar, ScalarVar, operator.le] = _get_var_le_var
+_binary_map[_GeneralVarData, ProductExpression, operator.le] = _get_var_le_expression
+_binary_map[ScalarVar, ProductExpression, operator.le] = _get_var_le_expression
+_binary_map[_GeneralVarData, MonomialTermExpression, operator.le] = _get_var_le_expression
+_binary_map[ScalarVar, MonomialTermExpression, operator.le] = _get_var_le_expression
+_binary_map[_GeneralVarData, SumExpression, operator.le] = _get_var_le_expression
+_binary_map[ScalarVar, SumExpression, operator.le] = _get_var_le_expression
+_binary_map[_GeneralVarData, NegationExpression, operator.le] = _get_var_le_expression
+_binary_map[ScalarVar, NegationExpression, operator.le] = _get_var_le_expression
+_binary_map[_GeneralVarData, DivisionExpression, operator.le] = _get_var_le_expression
+_binary_map[ScalarVar, DivisionExpression, operator.le] = _get_var_le_expression
+_binary_map[_GeneralVarData, PowExpression, operator.le] = _get_var_le_expression
+_binary_map[ScalarVar, PowExpression, operator.le] = _get_var_le_expression
+_binary_map[_GeneralVarData, float, operator.ge] = _get_var_ge_float
+_binary_map[_GeneralVarData, int, operator.ge] = _get_var_ge_float
+_binary_map[ScalarVar, float, operator.ge] = _get_var_ge_float
+_binary_map[ScalarVar, int, operator.ge] = _get_var_ge_float
+_binary_map[_GeneralVarData, _GeneralVarData, operator.ge] = _get_var_ge_var
+_binary_map[_GeneralVarData, ScalarVar, operator.ge] = _get_var_ge_var
+_binary_map[ScalarVar, _GeneralVarData, operator.ge] = _get_var_ge_var
+_binary_map[ScalarVar, ScalarVar, operator.ge] = _get_var_ge_var
+_binary_map[_GeneralVarData, ProductExpression, operator.ge] = _get_var_ge_expression
+_binary_map[ScalarVar, ProductExpression, operator.ge] = _get_var_ge_expression
+_binary_map[_GeneralVarData, MonomialTermExpression, operator.ge] = _get_var_ge_expression
+_binary_map[ScalarVar, MonomialTermExpression, operator.ge] = _get_var_ge_expression
+_binary_map[_GeneralVarData, SumExpression, operator.ge] = _get_var_ge_expression
+_binary_map[ScalarVar, SumExpression, operator.ge] = _get_var_ge_expression
+_binary_map[_GeneralVarData, NegationExpression, operator.ge] = _get_var_ge_expression
+_binary_map[ScalarVar, NegationExpression, operator.ge] = _get_var_ge_expression
+_binary_map[_GeneralVarData, DivisionExpression, operator.ge] = _get_var_ge_expression
+_binary_map[ScalarVar, DivisionExpression, operator.ge] = _get_var_ge_expression
+_binary_map[_GeneralVarData, PowExpression, operator.ge] = _get_var_ge_expression
+_binary_map[ScalarVar, PowExpression, operator.ge] = _get_var_ge_expression
+_binary_map[_GeneralVarData, float, operator.eq] = _get_var_eq_float
+_binary_map[_GeneralVarData, int, operator.eq] = _get_var_eq_float
+_binary_map[ScalarVar, float, operator.eq] = _get_var_eq_float
+_binary_map[ScalarVar, int, operator.eq] = _get_var_eq_float
+_binary_map[_GeneralVarData, _GeneralVarData, operator.eq] = _get_var_eq_var
+_binary_map[_GeneralVarData, ScalarVar, operator.eq] = _get_var_eq_var
+_binary_map[ScalarVar, _GeneralVarData, operator.eq] = _get_var_eq_var
+_binary_map[ScalarVar, ScalarVar, operator.eq] = _get_var_eq_var
+_binary_map[_GeneralVarData, ProductExpression, operator.eq] = _get_var_eq_expression
+_binary_map[ScalarVar, ProductExpression, operator.eq] = _get_var_eq_expression
+_binary_map[_GeneralVarData, MonomialTermExpression, operator.eq] = _get_var_eq_expression
+_binary_map[ScalarVar, MonomialTermExpression, operator.eq] = _get_var_eq_expression
+_binary_map[_GeneralVarData, SumExpression, operator.eq] = _get_var_eq_expression
+_binary_map[ScalarVar, SumExpression, operator.eq] = _get_var_eq_expression
+_binary_map[_GeneralVarData, NegationExpression, operator.eq] = _get_var_eq_expression
+_binary_map[ScalarVar, NegationExpression, operator.eq] = _get_var_eq_expression
+_binary_map[_GeneralVarData, DivisionExpression, operator.eq] = _get_var_eq_expression
+_binary_map[ScalarVar, DivisionExpression, operator.eq] = _get_var_eq_expression
+_binary_map[_GeneralVarData, PowExpression, operator.eq] = _get_var_eq_expression
+_binary_map[ScalarVar, PowExpression, operator.eq] = _get_var_eq_expression
+
+_binary_map[ProductExpression, float, operator.mul] = _get_expression_mul_float
+_binary_map[ProductExpression, int, operator.mul] = _get_expression_mul_float
+_binary_map[ProductExpression, _GeneralVarData, operator.mul] = _get_expression_mul_var
+_binary_map[ProductExpression, ScalarVar, operator.mul] = _get_expression_mul_var
+_binary_map[ProductExpression, ProductExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[ProductExpression, MonomialTermExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[ProductExpression, SumExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[ProductExpression, NegationExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[ProductExpression, DivisionExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[ProductExpression, PowExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[ProductExpression, float, operator.add] = _get_expression_add_float
+_binary_map[ProductExpression, int, operator.add] = _get_expression_add_float
+_binary_map[ProductExpression, _GeneralVarData, operator.add] = _get_expression_add_var
+_binary_map[ProductExpression, ScalarVar, operator.add] = _get_expression_add_var
+_binary_map[ProductExpression, ProductExpression, operator.add] = _get_expression_add_expression
+_binary_map[ProductExpression, MonomialTermExpression, operator.add] = _get_expression_add_expression
+_binary_map[ProductExpression, SumExpression, operator.add] = _get_expression_add_expression
+_binary_map[ProductExpression, NegationExpression, operator.add] = _get_expression_add_expression
+_binary_map[ProductExpression, DivisionExpression, operator.add] = _get_expression_add_expression
+_binary_map[ProductExpression, PowExpression, operator.add] = _get_expression_add_expression
+_binary_map[ProductExpression, float, operator.sub] = _get_expression_sub_float
+_binary_map[ProductExpression, int, operator.sub] = _get_expression_sub_float
+_binary_map[ProductExpression, _GeneralVarData, operator.sub] = _get_expression_sub_var
+_binary_map[ProductExpression, ScalarVar, operator.sub] = _get_expression_sub_var
+_binary_map[ProductExpression, ProductExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[ProductExpression, MonomialTermExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[ProductExpression, SumExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[ProductExpression, NegationExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[ProductExpression, DivisionExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[ProductExpression, PowExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[ProductExpression, float, operator.truediv] = _get_expression_div_float
+_binary_map[ProductExpression, int, operator.truediv] = _get_expression_div_float
+_binary_map[ProductExpression, _GeneralVarData, operator.truediv] = _get_expression_div_var
+_binary_map[ProductExpression, ScalarVar, operator.truediv] = _get_expression_div_var
+_binary_map[ProductExpression, ProductExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[ProductExpression, MonomialTermExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[ProductExpression, SumExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[ProductExpression, NegationExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[ProductExpression, DivisionExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[ProductExpression, PowExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[ProductExpression, float, operator.pow] = _get_expression_pow_float
+_binary_map[ProductExpression, int, operator.pow] = _get_expression_pow_float
+_binary_map[ProductExpression, _GeneralVarData, operator.pow] = _get_expression_pow_var
+_binary_map[ProductExpression, ScalarVar, operator.pow] = _get_expression_pow_var
+_binary_map[ProductExpression, ProductExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[ProductExpression, MonomialTermExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[ProductExpression, SumExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[ProductExpression, NegationExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[ProductExpression, DivisionExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[ProductExpression, PowExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[ProductExpression, float, operator.le] = _get_expression_le_float
+_binary_map[ProductExpression, int, operator.le] = _get_expression_le_float
+_binary_map[ProductExpression, _GeneralVarData, operator.le] = _get_expression_le_var
+_binary_map[ProductExpression, ScalarVar, operator.le] = _get_expression_le_var
+_binary_map[ProductExpression, ProductExpression, operator.le] = _get_expression_le_expression
+_binary_map[ProductExpression, MonomialTermExpression, operator.le] = _get_expression_le_expression
+_binary_map[ProductExpression, SumExpression, operator.le] = _get_expression_le_expression
+_binary_map[ProductExpression, NegationExpression, operator.le] = _get_expression_le_expression
+_binary_map[ProductExpression, DivisionExpression, operator.le] = _get_expression_le_expression
+_binary_map[ProductExpression, PowExpression, operator.le] = _get_expression_le_expression
+_binary_map[ProductExpression, float, operator.ge] = _get_expression_ge_float
+_binary_map[ProductExpression, int, operator.ge] = _get_expression_ge_float
+_binary_map[ProductExpression, _GeneralVarData, operator.ge] = _get_expression_ge_var
+_binary_map[ProductExpression, ScalarVar, operator.ge] = _get_expression_ge_var
+_binary_map[ProductExpression, ProductExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[ProductExpression, MonomialTermExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[ProductExpression, SumExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[ProductExpression, NegationExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[ProductExpression, DivisionExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[ProductExpression, PowExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[ProductExpression, float, operator.eq] = _get_expression_eq_float
+_binary_map[ProductExpression, int, operator.eq] = _get_expression_eq_float
+_binary_map[ProductExpression, _GeneralVarData, operator.eq] = _get_expression_eq_var
+_binary_map[ProductExpression, ScalarVar, operator.eq] = _get_expression_eq_var
+_binary_map[ProductExpression, ProductExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[ProductExpression, MonomialTermExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[ProductExpression, SumExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[ProductExpression, NegationExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[ProductExpression, DivisionExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[ProductExpression, PowExpression, operator.eq] = _get_expression_eq_expression
+
+_binary_map[MonomialTermExpression, float, operator.mul] = _get_expression_mul_float
+_binary_map[MonomialTermExpression, int, operator.mul] = _get_expression_mul_float
+_binary_map[MonomialTermExpression, _GeneralVarData, operator.mul] = _get_expression_mul_var
+_binary_map[MonomialTermExpression, ScalarVar, operator.mul] = _get_expression_mul_var
+_binary_map[MonomialTermExpression, ProductExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[MonomialTermExpression, MonomialTermExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[MonomialTermExpression, SumExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[MonomialTermExpression, NegationExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[MonomialTermExpression, DivisionExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[MonomialTermExpression, PowExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[MonomialTermExpression, float, operator.add] = _get_expression_add_float
+_binary_map[MonomialTermExpression, int, operator.add] = _get_expression_add_float
+_binary_map[MonomialTermExpression, _GeneralVarData, operator.add] = _get_expression_add_var
+_binary_map[MonomialTermExpression, ScalarVar, operator.add] = _get_expression_add_var
+_binary_map[MonomialTermExpression, ProductExpression, operator.add] = _get_expression_add_expression
+_binary_map[MonomialTermExpression, MonomialTermExpression, operator.add] = _get_expression_add_expression
+_binary_map[MonomialTermExpression, SumExpression, operator.add] = _get_expression_add_expression
+_binary_map[MonomialTermExpression, NegationExpression, operator.add] = _get_expression_add_expression
+_binary_map[MonomialTermExpression, DivisionExpression, operator.add] = _get_expression_add_expression
+_binary_map[MonomialTermExpression, PowExpression, operator.add] = _get_expression_add_expression
+_binary_map[MonomialTermExpression, float, operator.sub] = _get_expression_sub_float
+_binary_map[MonomialTermExpression, int, operator.sub] = _get_expression_sub_float
+_binary_map[MonomialTermExpression, _GeneralVarData, operator.sub] = _get_expression_sub_var
+_binary_map[MonomialTermExpression, ScalarVar, operator.sub] = _get_expression_sub_var
+_binary_map[MonomialTermExpression, ProductExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[MonomialTermExpression, MonomialTermExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[MonomialTermExpression, SumExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[MonomialTermExpression, NegationExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[MonomialTermExpression, DivisionExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[MonomialTermExpression, PowExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[MonomialTermExpression, float, operator.truediv] = _get_expression_div_float
+_binary_map[MonomialTermExpression, int, operator.truediv] = _get_expression_div_float
+_binary_map[MonomialTermExpression, _GeneralVarData, operator.truediv] = _get_expression_div_var
+_binary_map[MonomialTermExpression, ScalarVar, operator.truediv] = _get_expression_div_var
+_binary_map[MonomialTermExpression, ProductExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[MonomialTermExpression, MonomialTermExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[MonomialTermExpression, SumExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[MonomialTermExpression, NegationExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[MonomialTermExpression, DivisionExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[MonomialTermExpression, PowExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[MonomialTermExpression, float, operator.pow] = _get_expression_pow_float
+_binary_map[MonomialTermExpression, int, operator.pow] = _get_expression_pow_float
+_binary_map[MonomialTermExpression, _GeneralVarData, operator.pow] = _get_expression_pow_var
+_binary_map[MonomialTermExpression, ScalarVar, operator.pow] = _get_expression_pow_var
+_binary_map[MonomialTermExpression, ProductExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[MonomialTermExpression, MonomialTermExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[MonomialTermExpression, SumExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[MonomialTermExpression, NegationExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[MonomialTermExpression, DivisionExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[MonomialTermExpression, PowExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[MonomialTermExpression, float, operator.le] = _get_expression_le_float
+_binary_map[MonomialTermExpression, int, operator.le] = _get_expression_le_float
+_binary_map[MonomialTermExpression, _GeneralVarData, operator.le] = _get_expression_le_var
+_binary_map[MonomialTermExpression, ScalarVar, operator.le] = _get_expression_le_var
+_binary_map[MonomialTermExpression, ProductExpression, operator.le] = _get_expression_le_expression
+_binary_map[MonomialTermExpression, MonomialTermExpression, operator.le] = _get_expression_le_expression
+_binary_map[MonomialTermExpression, SumExpression, operator.le] = _get_expression_le_expression
+_binary_map[MonomialTermExpression, NegationExpression, operator.le] = _get_expression_le_expression
+_binary_map[MonomialTermExpression, DivisionExpression, operator.le] = _get_expression_le_expression
+_binary_map[MonomialTermExpression, PowExpression, operator.le] = _get_expression_le_expression
+_binary_map[MonomialTermExpression, float, operator.ge] = _get_expression_ge_float
+_binary_map[MonomialTermExpression, int, operator.ge] = _get_expression_ge_float
+_binary_map[MonomialTermExpression, _GeneralVarData, operator.ge] = _get_expression_ge_var
+_binary_map[MonomialTermExpression, ScalarVar, operator.ge] = _get_expression_ge_var
+_binary_map[MonomialTermExpression, ProductExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[MonomialTermExpression, MonomialTermExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[MonomialTermExpression, SumExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[MonomialTermExpression, NegationExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[MonomialTermExpression, DivisionExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[MonomialTermExpression, PowExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[MonomialTermExpression, float, operator.eq] = _get_expression_eq_float
+_binary_map[MonomialTermExpression, int, operator.eq] = _get_expression_eq_float
+_binary_map[MonomialTermExpression, _GeneralVarData, operator.eq] = _get_expression_eq_var
+_binary_map[MonomialTermExpression, ScalarVar, operator.eq] = _get_expression_eq_var
+_binary_map[MonomialTermExpression, ProductExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[MonomialTermExpression, MonomialTermExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[MonomialTermExpression, SumExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[MonomialTermExpression, NegationExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[MonomialTermExpression, DivisionExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[MonomialTermExpression, PowExpression, operator.eq] = _get_expression_eq_expression
+
+_binary_map[SumExpression, float, operator.mul] = _get_expression_mul_float
+_binary_map[SumExpression, int, operator.mul] = _get_expression_mul_float
+_binary_map[SumExpression, _GeneralVarData, operator.mul] = _get_expression_mul_var
+_binary_map[SumExpression, ScalarVar, operator.mul] = _get_expression_mul_var
+_binary_map[SumExpression, ProductExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[SumExpression, MonomialTermExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[SumExpression, SumExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[SumExpression, NegationExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[SumExpression, DivisionExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[SumExpression, PowExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[SumExpression, float, operator.add] = _get_expression_add_float
+_binary_map[SumExpression, int, operator.add] = _get_expression_add_float
+_binary_map[SumExpression, _GeneralVarData, operator.add] = _get_expression_add_var
+_binary_map[SumExpression, ScalarVar, operator.add] = _get_expression_add_var
+_binary_map[SumExpression, ProductExpression, operator.add] = _get_expression_add_expression
+_binary_map[SumExpression, MonomialTermExpression, operator.add] = _get_expression_add_expression
+_binary_map[SumExpression, SumExpression, operator.add] = _get_expression_add_expression
+_binary_map[SumExpression, NegationExpression, operator.add] = _get_expression_add_expression
+_binary_map[SumExpression, DivisionExpression, operator.add] = _get_expression_add_expression
+_binary_map[SumExpression, PowExpression, operator.add] = _get_expression_add_expression
+_binary_map[SumExpression, float, operator.sub] = _get_expression_sub_float
+_binary_map[SumExpression, int, operator.sub] = _get_expression_sub_float
+_binary_map[SumExpression, _GeneralVarData, operator.sub] = _get_expression_sub_var
+_binary_map[SumExpression, ScalarVar, operator.sub] = _get_expression_sub_var
+_binary_map[SumExpression, ProductExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[SumExpression, MonomialTermExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[SumExpression, SumExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[SumExpression, NegationExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[SumExpression, DivisionExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[SumExpression, PowExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[SumExpression, float, operator.truediv] = _get_expression_div_float
+_binary_map[SumExpression, int, operator.truediv] = _get_expression_div_float
+_binary_map[SumExpression, _GeneralVarData, operator.truediv] = _get_expression_div_var
+_binary_map[SumExpression, ScalarVar, operator.truediv] = _get_expression_div_var
+_binary_map[SumExpression, ProductExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[SumExpression, MonomialTermExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[SumExpression, SumExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[SumExpression, NegationExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[SumExpression, DivisionExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[SumExpression, PowExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[SumExpression, float, operator.pow] = _get_expression_pow_float
+_binary_map[SumExpression, int, operator.pow] = _get_expression_pow_float
+_binary_map[SumExpression, _GeneralVarData, operator.pow] = _get_expression_pow_var
+_binary_map[SumExpression, ScalarVar, operator.pow] = _get_expression_pow_var
+_binary_map[SumExpression, ProductExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[SumExpression, MonomialTermExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[SumExpression, SumExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[SumExpression, NegationExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[SumExpression, DivisionExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[SumExpression, PowExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[SumExpression, float, operator.le] = _get_expression_le_float
+_binary_map[SumExpression, int, operator.le] = _get_expression_le_float
+_binary_map[SumExpression, _GeneralVarData, operator.le] = _get_expression_le_var
+_binary_map[SumExpression, ScalarVar, operator.le] = _get_expression_le_var
+_binary_map[SumExpression, ProductExpression, operator.le] = _get_expression_le_expression
+_binary_map[SumExpression, MonomialTermExpression, operator.le] = _get_expression_le_expression
+_binary_map[SumExpression, SumExpression, operator.le] = _get_expression_le_expression
+_binary_map[SumExpression, NegationExpression, operator.le] = _get_expression_le_expression
+_binary_map[SumExpression, DivisionExpression, operator.le] = _get_expression_le_expression
+_binary_map[SumExpression, PowExpression, operator.le] = _get_expression_le_expression
+_binary_map[SumExpression, float, operator.ge] = _get_expression_ge_float
+_binary_map[SumExpression, int, operator.ge] = _get_expression_ge_float
+_binary_map[SumExpression, _GeneralVarData, operator.ge] = _get_expression_ge_var
+_binary_map[SumExpression, ScalarVar, operator.ge] = _get_expression_ge_var
+_binary_map[SumExpression, ProductExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[SumExpression, MonomialTermExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[SumExpression, SumExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[SumExpression, NegationExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[SumExpression, DivisionExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[SumExpression, PowExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[SumExpression, float, operator.eq] = _get_expression_eq_float
+_binary_map[SumExpression, int, operator.eq] = _get_expression_eq_float
+_binary_map[SumExpression, _GeneralVarData, operator.eq] = _get_expression_eq_var
+_binary_map[SumExpression, ScalarVar, operator.eq] = _get_expression_eq_var
+_binary_map[SumExpression, ProductExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[SumExpression, MonomialTermExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[SumExpression, SumExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[SumExpression, NegationExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[SumExpression, DivisionExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[SumExpression, PowExpression, operator.eq] = _get_expression_eq_expression
+
+_binary_map[NegationExpression, float, operator.mul] = _get_expression_mul_float
+_binary_map[NegationExpression, int, operator.mul] = _get_expression_mul_float
+_binary_map[NegationExpression, _GeneralVarData, operator.mul] = _get_expression_mul_var
+_binary_map[NegationExpression, ScalarVar, operator.mul] = _get_expression_mul_var
+_binary_map[NegationExpression, ProductExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[NegationExpression, MonomialTermExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[NegationExpression, SumExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[NegationExpression, NegationExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[NegationExpression, DivisionExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[NegationExpression, PowExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[NegationExpression, float, operator.add] = _get_expression_add_float
+_binary_map[NegationExpression, int, operator.add] = _get_expression_add_float
+_binary_map[NegationExpression, _GeneralVarData, operator.add] = _get_expression_add_var
+_binary_map[NegationExpression, ScalarVar, operator.add] = _get_expression_add_var
+_binary_map[NegationExpression, ProductExpression, operator.add] = _get_expression_add_expression
+_binary_map[NegationExpression, MonomialTermExpression, operator.add] = _get_expression_add_expression
+_binary_map[NegationExpression, SumExpression, operator.add] = _get_expression_add_expression
+_binary_map[NegationExpression, NegationExpression, operator.add] = _get_expression_add_expression
+_binary_map[NegationExpression, DivisionExpression, operator.add] = _get_expression_add_expression
+_binary_map[NegationExpression, PowExpression, operator.add] = _get_expression_add_expression
+_binary_map[NegationExpression, float, operator.sub] = _get_expression_sub_float
+_binary_map[NegationExpression, int, operator.sub] = _get_expression_sub_float
+_binary_map[NegationExpression, _GeneralVarData, operator.sub] = _get_expression_sub_var
+_binary_map[NegationExpression, ScalarVar, operator.sub] = _get_expression_sub_var
+_binary_map[NegationExpression, ProductExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[NegationExpression, MonomialTermExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[NegationExpression, SumExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[NegationExpression, NegationExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[NegationExpression, DivisionExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[NegationExpression, PowExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[NegationExpression, float, operator.truediv] = _get_expression_div_float
+_binary_map[NegationExpression, int, operator.truediv] = _get_expression_div_float
+_binary_map[NegationExpression, _GeneralVarData, operator.truediv] = _get_expression_div_var
+_binary_map[NegationExpression, ScalarVar, operator.truediv] = _get_expression_div_var
+_binary_map[NegationExpression, ProductExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[NegationExpression, MonomialTermExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[NegationExpression, SumExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[NegationExpression, NegationExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[NegationExpression, DivisionExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[NegationExpression, PowExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[NegationExpression, float, operator.pow] = _get_expression_pow_float
+_binary_map[NegationExpression, int, operator.pow] = _get_expression_pow_float
+_binary_map[NegationExpression, _GeneralVarData, operator.pow] = _get_expression_pow_var
+_binary_map[NegationExpression, ScalarVar, operator.pow] = _get_expression_pow_var
+_binary_map[NegationExpression, ProductExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[NegationExpression, MonomialTermExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[NegationExpression, SumExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[NegationExpression, NegationExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[NegationExpression, DivisionExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[NegationExpression, PowExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[NegationExpression, float, operator.le] = _get_expression_le_float
+_binary_map[NegationExpression, int, operator.le] = _get_expression_le_float
+_binary_map[NegationExpression, _GeneralVarData, operator.le] = _get_expression_le_var
+_binary_map[NegationExpression, ScalarVar, operator.le] = _get_expression_le_var
+_binary_map[NegationExpression, ProductExpression, operator.le] = _get_expression_le_expression
+_binary_map[NegationExpression, MonomialTermExpression, operator.le] = _get_expression_le_expression
+_binary_map[NegationExpression, SumExpression, operator.le] = _get_expression_le_expression
+_binary_map[NegationExpression, NegationExpression, operator.le] = _get_expression_le_expression
+_binary_map[NegationExpression, DivisionExpression, operator.le] = _get_expression_le_expression
+_binary_map[NegationExpression, PowExpression, operator.le] = _get_expression_le_expression
+_binary_map[NegationExpression, float, operator.ge] = _get_expression_ge_float
+_binary_map[NegationExpression, int, operator.ge] = _get_expression_ge_float
+_binary_map[NegationExpression, _GeneralVarData, operator.ge] = _get_expression_ge_var
+_binary_map[NegationExpression, ScalarVar, operator.ge] = _get_expression_ge_var
+_binary_map[NegationExpression, ProductExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[NegationExpression, MonomialTermExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[NegationExpression, SumExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[NegationExpression, NegationExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[NegationExpression, DivisionExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[NegationExpression, PowExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[NegationExpression, float, operator.eq] = _get_expression_eq_float
+_binary_map[NegationExpression, int, operator.eq] = _get_expression_eq_float
+_binary_map[NegationExpression, _GeneralVarData, operator.eq] = _get_expression_eq_var
+_binary_map[NegationExpression, ScalarVar, operator.eq] = _get_expression_eq_var
+_binary_map[NegationExpression, ProductExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[NegationExpression, MonomialTermExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[NegationExpression, SumExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[NegationExpression, NegationExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[NegationExpression, DivisionExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[NegationExpression, PowExpression, operator.eq] = _get_expression_eq_expression
+
+_binary_map[DivisionExpression, float, operator.mul] = _get_expression_mul_float
+_binary_map[DivisionExpression, int, operator.mul] = _get_expression_mul_float
+_binary_map[DivisionExpression, _GeneralVarData, operator.mul] = _get_expression_mul_var
+_binary_map[DivisionExpression, ScalarVar, operator.mul] = _get_expression_mul_var
+_binary_map[DivisionExpression, ProductExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[DivisionExpression, MonomialTermExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[DivisionExpression, SumExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[DivisionExpression, NegationExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[DivisionExpression, DivisionExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[DivisionExpression, PowExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[DivisionExpression, float, operator.add] = _get_expression_add_float
+_binary_map[DivisionExpression, int, operator.add] = _get_expression_add_float
+_binary_map[DivisionExpression, _GeneralVarData, operator.add] = _get_expression_add_var
+_binary_map[DivisionExpression, ScalarVar, operator.add] = _get_expression_add_var
+_binary_map[DivisionExpression, ProductExpression, operator.add] = _get_expression_add_expression
+_binary_map[DivisionExpression, MonomialTermExpression, operator.add] = _get_expression_add_expression
+_binary_map[DivisionExpression, SumExpression, operator.add] = _get_expression_add_expression
+_binary_map[DivisionExpression, NegationExpression, operator.add] = _get_expression_add_expression
+_binary_map[DivisionExpression, DivisionExpression, operator.add] = _get_expression_add_expression
+_binary_map[DivisionExpression, PowExpression, operator.add] = _get_expression_add_expression
+_binary_map[DivisionExpression, float, operator.sub] = _get_expression_sub_float
+_binary_map[DivisionExpression, int, operator.sub] = _get_expression_sub_float
+_binary_map[DivisionExpression, _GeneralVarData, operator.sub] = _get_expression_sub_var
+_binary_map[DivisionExpression, ScalarVar, operator.sub] = _get_expression_sub_var
+_binary_map[DivisionExpression, ProductExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[DivisionExpression, MonomialTermExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[DivisionExpression, SumExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[DivisionExpression, NegationExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[DivisionExpression, DivisionExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[DivisionExpression, PowExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[DivisionExpression, float, operator.truediv] = _get_expression_div_float
+_binary_map[DivisionExpression, int, operator.truediv] = _get_expression_div_float
+_binary_map[DivisionExpression, _GeneralVarData, operator.truediv] = _get_expression_div_var
+_binary_map[DivisionExpression, ScalarVar, operator.truediv] = _get_expression_div_var
+_binary_map[DivisionExpression, ProductExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[DivisionExpression, MonomialTermExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[DivisionExpression, SumExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[DivisionExpression, NegationExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[DivisionExpression, DivisionExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[DivisionExpression, PowExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[DivisionExpression, float, operator.pow] = _get_expression_pow_float
+_binary_map[DivisionExpression, int, operator.pow] = _get_expression_pow_float
+_binary_map[DivisionExpression, _GeneralVarData, operator.pow] = _get_expression_pow_var
+_binary_map[DivisionExpression, ScalarVar, operator.pow] = _get_expression_pow_var
+_binary_map[DivisionExpression, ProductExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[DivisionExpression, MonomialTermExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[DivisionExpression, SumExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[DivisionExpression, NegationExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[DivisionExpression, DivisionExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[DivisionExpression, PowExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[DivisionExpression, float, operator.le] = _get_expression_le_float
+_binary_map[DivisionExpression, int, operator.le] = _get_expression_le_float
+_binary_map[DivisionExpression, _GeneralVarData, operator.le] = _get_expression_le_var
+_binary_map[DivisionExpression, ScalarVar, operator.le] = _get_expression_le_var
+_binary_map[DivisionExpression, ProductExpression, operator.le] = _get_expression_le_expression
+_binary_map[DivisionExpression, MonomialTermExpression, operator.le] = _get_expression_le_expression
+_binary_map[DivisionExpression, SumExpression, operator.le] = _get_expression_le_expression
+_binary_map[DivisionExpression, NegationExpression, operator.le] = _get_expression_le_expression
+_binary_map[DivisionExpression, DivisionExpression, operator.le] = _get_expression_le_expression
+_binary_map[DivisionExpression, PowExpression, operator.le] = _get_expression_le_expression
+_binary_map[DivisionExpression, float, operator.ge] = _get_expression_ge_float
+_binary_map[DivisionExpression, int, operator.ge] = _get_expression_ge_float
+_binary_map[DivisionExpression, _GeneralVarData, operator.ge] = _get_expression_ge_var
+_binary_map[DivisionExpression, ScalarVar, operator.ge] = _get_expression_ge_var
+_binary_map[DivisionExpression, ProductExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[DivisionExpression, MonomialTermExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[DivisionExpression, SumExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[DivisionExpression, NegationExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[DivisionExpression, DivisionExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[DivisionExpression, PowExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[DivisionExpression, float, operator.eq] = _get_expression_eq_float
+_binary_map[DivisionExpression, int, operator.eq] = _get_expression_eq_float
+_binary_map[DivisionExpression, _GeneralVarData, operator.eq] = _get_expression_eq_var
+_binary_map[DivisionExpression, ScalarVar, operator.eq] = _get_expression_eq_var
+_binary_map[DivisionExpression, ProductExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[DivisionExpression, MonomialTermExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[DivisionExpression, SumExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[DivisionExpression, NegationExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[DivisionExpression, DivisionExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[DivisionExpression, PowExpression, operator.eq] = _get_expression_eq_expression
+
+_binary_map[PowExpression, float, operator.mul] = _get_expression_mul_float
+_binary_map[PowExpression, int, operator.mul] = _get_expression_mul_float
+_binary_map[PowExpression, _GeneralVarData, operator.mul] = _get_expression_mul_var
+_binary_map[PowExpression, ScalarVar, operator.mul] = _get_expression_mul_var
+_binary_map[PowExpression, ProductExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[PowExpression, MonomialTermExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[PowExpression, SumExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[PowExpression, NegationExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[PowExpression, DivisionExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[PowExpression, PowExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[PowExpression, float, operator.add] = _get_expression_add_float
+_binary_map[PowExpression, int, operator.add] = _get_expression_add_float
+_binary_map[PowExpression, _GeneralVarData, operator.add] = _get_expression_add_var
+_binary_map[PowExpression, ScalarVar, operator.add] = _get_expression_add_var
+_binary_map[PowExpression, ProductExpression, operator.add] = _get_expression_add_expression
+_binary_map[PowExpression, MonomialTermExpression, operator.add] = _get_expression_add_expression
+_binary_map[PowExpression, SumExpression, operator.add] = _get_expression_add_expression
+_binary_map[PowExpression, NegationExpression, operator.add] = _get_expression_add_expression
+_binary_map[PowExpression, DivisionExpression, operator.add] = _get_expression_add_expression
+_binary_map[PowExpression, PowExpression, operator.add] = _get_expression_add_expression
+_binary_map[PowExpression, float, operator.sub] = _get_expression_sub_float
+_binary_map[PowExpression, int, operator.sub] = _get_expression_sub_float
+_binary_map[PowExpression, _GeneralVarData, operator.sub] = _get_expression_sub_var
+_binary_map[PowExpression, ScalarVar, operator.sub] = _get_expression_sub_var
+_binary_map[PowExpression, ProductExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[PowExpression, MonomialTermExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[PowExpression, SumExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[PowExpression, NegationExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[PowExpression, DivisionExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[PowExpression, PowExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[PowExpression, float, operator.truediv] = _get_expression_div_float
+_binary_map[PowExpression, int, operator.truediv] = _get_expression_div_float
+_binary_map[PowExpression, _GeneralVarData, operator.truediv] = _get_expression_div_var
+_binary_map[PowExpression, ScalarVar, operator.truediv] = _get_expression_div_var
+_binary_map[PowExpression, ProductExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[PowExpression, MonomialTermExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[PowExpression, SumExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[PowExpression, NegationExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[PowExpression, DivisionExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[PowExpression, PowExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[PowExpression, float, operator.pow] = _get_expression_pow_float
+_binary_map[PowExpression, int, operator.pow] = _get_expression_pow_float
+_binary_map[PowExpression, _GeneralVarData, operator.pow] = _get_expression_pow_var
+_binary_map[PowExpression, ScalarVar, operator.pow] = _get_expression_pow_var
+_binary_map[PowExpression, ProductExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[PowExpression, MonomialTermExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[PowExpression, SumExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[PowExpression, NegationExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[PowExpression, DivisionExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[PowExpression, PowExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[PowExpression, float, operator.le] = _get_expression_le_float
+_binary_map[PowExpression, int, operator.le] = _get_expression_le_float
+_binary_map[PowExpression, _GeneralVarData, operator.le] = _get_expression_le_var
+_binary_map[PowExpression, ScalarVar, operator.le] = _get_expression_le_var
+_binary_map[PowExpression, ProductExpression, operator.le] = _get_expression_le_expression
+_binary_map[PowExpression, MonomialTermExpression, operator.le] = _get_expression_le_expression
+_binary_map[PowExpression, SumExpression, operator.le] = _get_expression_le_expression
+_binary_map[PowExpression, NegationExpression, operator.le] = _get_expression_le_expression
+_binary_map[PowExpression, DivisionExpression, operator.le] = _get_expression_le_expression
+_binary_map[PowExpression, PowExpression, operator.le] = _get_expression_le_expression
+_binary_map[PowExpression, float, operator.ge] = _get_expression_ge_float
+_binary_map[PowExpression, int, operator.ge] = _get_expression_ge_float
+_binary_map[PowExpression, _GeneralVarData, operator.ge] = _get_expression_ge_var
+_binary_map[PowExpression, ScalarVar, operator.ge] = _get_expression_ge_var
+_binary_map[PowExpression, ProductExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[PowExpression, MonomialTermExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[PowExpression, SumExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[PowExpression, NegationExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[PowExpression, DivisionExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[PowExpression, PowExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[PowExpression, float, operator.eq] = _get_expression_eq_float
+_binary_map[PowExpression, int, operator.eq] = _get_expression_eq_float
+_binary_map[PowExpression, _GeneralVarData, operator.eq] = _get_expression_eq_var
+_binary_map[PowExpression, ScalarVar, operator.eq] = _get_expression_eq_var
+_binary_map[PowExpression, ProductExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[PowExpression, MonomialTermExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[PowExpression, SumExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[PowExpression, NegationExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[PowExpression, DivisionExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[PowExpression, PowExpression, operator.eq] = _get_expression_eq_expression
+
+
 def _get_operand_float(operand):
     return operand
-
-
-def _sum_get_operand_float(operand):
-    return pk.ConstantTerm(operand)
 
 
 def _get_operand_var(operand):
@@ -777,11 +1815,20 @@ _operand_map[NegationExpression] = _get_operand_expr
 _operand_map[DivisionExpression] = _get_operand_expr
 _operand_map[PowExpression] = _get_operand_expr
 
+
+def _sum_get_operand_float(operand):
+    return pk.expression_from_float(operand)
+
+
+def _sum_get_operand_var(operand):
+    return pk.expression_from_var(operand._pe)
+
+
 _sum_operand_map = dict()
 _sum_operand_map[float] = _sum_get_operand_float
 _sum_operand_map[int] = _sum_get_operand_float
-_sum_operand_map[_GeneralVarData] = _get_operand_var
-_sum_operand_map[ScalarVar] = _get_operand_var
+_sum_operand_map[_GeneralVarData] = _sum_get_operand_var
+_sum_operand_map[ScalarVar] = _sum_get_operand_var
 _sum_operand_map[ProductExpression] = _get_operand_expr
 _sum_operand_map[MonomialTermExpression] = _get_operand_expr
 _sum_operand_map[SumExpression] = _get_operand_expr

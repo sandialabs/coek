@@ -11,9 +11,9 @@ from typing import Tuple, Dict
 from pyomo.core.base.block import _BlockData
 from pyomo.common.timing import HierarchicalTimer
 import pyomo.environ as pe
-from pyomo_coek.components_only.objective import Objective
-from pyomo_coek.components_only.constraint import Constraint
-from pyomo_coek.components_only.variable import Var
+from pyomo_coek.full_integration.objective import Objective
+from pyomo_coek.full_integration.constraint import Constraint
+from pyomo_coek.full_integration.expression import Var
 
 
 class Gurobi(Solver):
@@ -60,9 +60,9 @@ class Gurobi(Solver):
         for v in model.component_data_objects(Var, descend_into=True):
             pm.add_variable_(v._pe)
         for c in model.component_data_objects(Constraint, active=True, descend_into=True):
-            pm.add_constraint(c._pe)
+            pm.add_constraint(c.expr._pe)
         for obj in model.component_data_objects(Objective, active=True, descend_into=True):
-            pm.add_objective(obj._pe)
+            pm.add_objective(obj.expr._pe)
         timer.stop('construct poek model')
 
         for key, option in self.gurobi_options.items():
