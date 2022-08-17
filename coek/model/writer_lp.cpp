@@ -14,6 +14,7 @@
 #ifdef WITH_FMTLIB
 #include <fmt/core.h>
 #include <fmt/os.h>
+#include <fmt/compile.h>
 #endif
 
 #include "../ast/visitor_fns.hpp"
@@ -144,10 +145,11 @@ if (repn.linear_coefs.size() > 0) {
         i++;
         }
 
+    constexpr auto _fmt = FMT_COMPILE("{:+} x{}\n");
     for (auto& it: vval) {
         double tmp = it.second;
         if (tmp != 0)
-            ostr.print("{:+} x{}\n", tmp, it.first);
+            ostr.print(fmt::format(_fmt, tmp, it.first));
         }
     }
 
@@ -177,16 +179,18 @@ if (repn.quadratic_coefs.size() > 0) {
         }
 
     ostr.print("+ [\n");
+    constexpr auto _fmt_x2 = FMT_COMPILE("{:+} x{} ^ 2\n");
+    constexpr auto _fmt_x_x = FMT_COMPILE("{:+} x{} * x{}\n");
     for (auto& it: qval) {
         const std::pair<int,int>& tmp = it.first;
         double val = it.second;
         if (tmp.first == tmp.second) {
             if (val != 0)
-                ostr.print("{:+} x{} ^ 2\n", val, tmp.first);
+                ostr.print(fmt::format(_fmt_x2, val, tmp.first));
             }
         else {
             if (val != 0)
-                ostr.print("{:+} x{} * x{}\n", val, tmp.first, tmp.second);
+                ostr.print(fmt::format(_fmt_x_x, val, tmp.first, tmp.second));
             }
         }
     ostr.print("]\n");
@@ -586,7 +590,8 @@ double tmp = expr.constval;
 auto lower = c.lower();
 auto upper = c.upper();
 
-ostr.print("c{}:\n", ctr);
+constexpr auto _fmt = FMT_COMPILE("c{}:\n");
+ostr.print(fmt::format(_fmt, ctr));
 ++ctr;
 CALI_MARK_END("collect_terms");
 
@@ -595,11 +600,13 @@ bool is_equality = not c.is_inequality() or (lower.repn and upper.repn and (::fa
 if (not is_equality) {
     //CALI_MARK_BEGIN("IF");
     if (lower.repn) {
-        ostr.print("{} <= ", lower.value() - tmp);
+        constexpr auto _fmt = FMT_COMPILE("{} <= ");
+        ostr.print(fmt::format(_fmt, lower.value() - tmp));
         }
     print_repn(ostr, expr, vid);
     if (upper.repn) {
-        ostr.print(" <= {}", upper.value() - tmp);
+        constexpr auto _fmt = FMT_COMPILE(" <= {}");
+        ostr.print(fmt::format(_fmt, upper.value() - tmp));
         }
     ostr.print("\n\n");
     //CALI_MARK_END("IF");
@@ -607,7 +614,8 @@ if (not is_equality) {
 else {
     print_repn(ostr, expr, vid);
     CALI_MARK_BEGIN("ELSE");
-    ostr.print("= {}\n\n", lower.value() - tmp);
+    constexpr auto _fmt = FMT_COMPILE("= {}\n\n");
+    ostr.print(fmt::format(_fmt, lower.value() - tmp));
     CALI_MARK_END("ELSE");
     }
 }
@@ -621,6 +629,9 @@ if (one_var_constant) {
     }
 
 ostr.print("\nbounds\n");
+constexpr auto _fmt_x = FMT_COMPILE(" <= x{} <= ");
+constexpr auto _fmt_lb = FMT_COMPILE("{}");
+constexpr auto _fmt_ub = FMT_COMPILE("{}\n");
 for (auto& v: variables) {
     if (v.is_binary())          // TODO - Confirm that this optimization is helpful
         continue;
@@ -629,25 +640,27 @@ for (auto& v: variables) {
     if (lb <= -COEK_INFINITY)
         ostr.print("-inf");
     else
-        ostr.print("{}", lb);
-    ostr.print(" <= x{} <= ", vid[v.id()]);
+        ostr.print(fmt::format(_fmt_lb, lb));
+    ostr.print(fmt::format(_fmt_x, vid[v.id()]));
     auto ub = v.upper();
     if (ub >= COEK_INFINITY)
         ostr.print("inf\n");
     else
-        ostr.print("{}\n", ub);
+        ostr.print(fmt::format(_fmt_ub, ub));
     }
 
 if (bvars.size() > 0) {
     ostr.print("\nbinary\n");
+    constexpr auto _fmt = FMT_COMPILE("x{}\n");
     for (auto& it: bvars)
-        ostr.print("x{}\n", it.first);
+        ostr.print(fmt::format(_fmt, it.first));
     }
 
 if (ivars.size() > 0) {
     ostr.print("\ninteger\n");
+    constexpr auto _fmt = FMT_COMPILE("x{}\n");
     for (auto& it: ivars)
-        ostr.print("x{}\n", it.first);
+        ostr.print(fmt::format(_fmt, it.first));
     }
 
 ostr.print("\nend\n");      // << std::endl;
