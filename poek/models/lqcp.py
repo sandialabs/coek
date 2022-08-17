@@ -31,8 +31,9 @@ def lqcp(n):
         ))
 
     #pde
+    pde_coef = T*0.5*n      # == dt*0.5/h2
     for i, j in itertools.product(range(n), range(1, m)):
-        model.add_constraint((y[i+1, j] - y[i, j])/dt == 0.5*(y[i, j-1] - 2*y[i, j] + y[i, j+1] + y[i+1, j-1] - 2*y[i+1, j] + y[i+1, j+1])/h2)
+        model.add_constraint(y[i+1, j] - y[i, j] == pde_coef*(y[i, j-1] - 2*y[i, j] + y[i, j+1] + y[i+1, j-1] - 2*y[i+1, j] + y[i+1, j+1]))
 
     #ic
     for j in range(m+1):

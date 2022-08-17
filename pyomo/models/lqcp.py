@@ -32,8 +32,9 @@ def lqcp(n):
         )
     model.obj = Objective(rule=rule)
 
+    pde_coef = model.T*0.5*model.n     # == dt*0.5/h2
     def pde_rule(model, i, j):
-      return (model.y[i+1,j] - model.y[i,j])/model.dt == 0.5*(model.y[i,j-1] - 2*model.y[i,j] + model.y[i,j+1] + model.y[i+1,j-1] - 2*model.y[i+1,j] + model.y[i+1,j+1])/model.h2
+      return model.y[i+1,j] - model.y[i,j] == pde_coef*(model.y[i,j-1] - 2*model.y[i,j] + model.y[i,j+1] + model.y[i+1,j-1] - 2*model.y[i+1,j] + model.y[i+1,j+1])
     model.pde = Constraint(RangeSet(0,model.n-1), RangeSet(1,model.n-1), rule=pde_rule)
 
     def ic_rule(model, j):
