@@ -14,7 +14,7 @@ inline double yt(size_t j, double dx) {
 }
 
 
-void lqcp_array2(coek::Model& model, size_t n)
+void lqcp_array(coek::Model& model, size_t n)
 {
 size_t m = n;
 size_t n1 = n-1;

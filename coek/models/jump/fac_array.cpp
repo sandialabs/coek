@@ -4,7 +4,7 @@
 #include <coek/coek.hpp>
 
 
-void fac_array2(coek::Model& model, size_t F)
+void fac_array(coek::Model& model, size_t F)
 {
 size_t G = F;
 

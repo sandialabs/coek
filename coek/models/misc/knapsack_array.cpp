@@ -16,7 +16,7 @@ auto uniform = std::bind( distribution, rng );
 
 std::vector<double> v(N);
 std::vector<double> w(N);
-for (size_t n=0; n<N; n++) {
+for (size_t n : coek::range(N)) {
     v[n] = uniform();
     w[n] = uniform();
     }
@@ -27,13 +27,13 @@ model.add(x);
 
 // obj
 auto obj = coek::expression();
-for (size_t n=0; n<N; n++)
+for (size_t n : coek::range(N))
     obj += v[n]*x(n);
 model.add_objective( obj );
 
 // con
 auto con = coek::expression();
-for (size_t n=0; n<N; n++)
+for (size_t n : coek::range(N))
     con += w[n]*x(n);
 model.add( con <= W );
 }

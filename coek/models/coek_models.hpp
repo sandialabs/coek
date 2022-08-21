@@ -7,15 +7,13 @@
 // jump
 //
 void fac_array(coek::Model& model, size_t F);
-void fac_array2(coek::Model& model, size_t F);
 void fac_scalar(coek::Model& model, size_t F);
 void lqcp_array(coek::Model& model, size_t N);
-void lqcp_array2(coek::Model& model, size_t N);
+void lqcp_scalar(coek::Model& model, size_t N);
 #ifdef COEK_WITH_COMPACT_MODEL
 void lqcp_compact(coek::CompactModel& model, size_t N);
 void lqcp_map(coek::Model& model, size_t N);
 #endif
-void lqcp_scalar(coek::Model& model, size_t N);
 
 //
 // misc
@@ -32,12 +30,10 @@ inline void print_models(std::ostream& os)
 {
 os <<
 "  fac-array N\n"
-"  fac-array2 N\n"
 "  fac-scalar N\n"
 "  knapsack-array N\n"
 "  knapsack-scalar N\n"
 "  lqcp-array N\n"
-"  lqcp-array2 N\n"
 #ifdef COEK_WITH_COMPACT_MODEL
 "  lqcp-compact N\n"
 "  lqcp-map N\n"
@@ -54,7 +50,7 @@ os <<
 inline void check_data(const std::string& name, const std::vector<size_t>& data, size_t num)
 {
 if (data.size() != num)
-    throw std::runtime_error("Expected " + std::to_string(num) + " model parameters but only have " + std::to_string(data.size()));
+    throw std::runtime_error("Expected " + std::to_string(num) + " parameters in model " + name + " but only have " + std::to_string(data.size()));
 }
 
 
@@ -69,10 +65,6 @@ else if (name == "fac-array") {
     check_data(name, data, 1);
     fac_array(model, data[0]);
     }
-else if (name == "fac-array2") {
-    check_data(name, data, 1);
-    fac_array2(model, data[0]);
-    }
 else if (name == "fac-scalar") {
     check_data(name, data, 1);
     fac_scalar(model, data[0]);
@@ -80,10 +72,6 @@ else if (name == "fac-scalar") {
 else if (name == "lqcp-array") {
     check_data(name, data, 1);
     lqcp_array(model, data[0]);
-    }
-else if (name == "lqcp-array2") {
-    check_data(name, data, 1);
-    lqcp_array2(model, data[0]);
     }
 #ifdef COEK_WITH_COMPACT_MODEL
 else if (name == "lqcp-compact") {
