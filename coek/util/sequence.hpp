@@ -2,6 +2,7 @@
 
 namespace coek {
 
+namespace {
 //
 // The Subrange and ValueGenerator classes are adapted from 
 // examples in:
@@ -81,35 +82,37 @@ public:
         { return a.value < b.value; }
 };
 
+}
+
 
 // 0, 1, ..., stop-1
 template <class T>
-Subrange<SequentialValueGenerator<T>> range(T stop)
+Subrange<SequentialValueGenerator<T>> range(const T& stop)
 { return {SequentialValueGenerator<T>(0), SequentialValueGenerator<T>(stop)}; }
 
 // start, start+1, ..., stop-1
 template <class T>
-Subrange<SequentialValueGenerator<T>> range(T start, T stop)
+Subrange<SequentialValueGenerator<T>> range(const T& start, const T& stop)
 { return {SequentialValueGenerator<T>(start), SequentialValueGenerator<T>(stop)}; }
 
 // start, start+step, ..., stop-1
 template <class T>
-Subrange<ValueGenerator<T>> range(T start, T stop, T step)
+Subrange<ValueGenerator<T>> range(const T& start, const T& stop, const T& step)
 { return {ValueGenerator<T>(start,step), ValueGenerator<T>(stop,0)}; }
 
 // 1, 2, ..., stop
 template <class T>
-Subrange<SequentialValueGenerator<T>> sequence(T stop)
+Subrange<SequentialValueGenerator<T>> sequence(const T& stop)
 { return {SequentialValueGenerator<T>(1), SequentialValueGenerator<T>(stop+1)}; }
 
 // start, start+1, ..., stop
 template <class T>
-Subrange<SequentialValueGenerator<T>> sequence(T start, T stop)
+Subrange<SequentialValueGenerator<T>> sequence(const T& start, const T& stop)
 { return {SequentialValueGenerator<T>(start), SequentialValueGenerator<T>(stop+1)}; }
 
 // start, start+step, ..., stop
 template <class T>
-Subrange<ValueGenerator<T>> sequence(T start, T stop, T step)
+Subrange<ValueGenerator<T>> sequence(const T& start, const T& stop, const T& step)
 { return {ValueGenerator<T>(start,step), ValueGenerator<T>(stop+1,0)}; }
 
 }
