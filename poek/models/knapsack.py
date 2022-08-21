@@ -3,6 +3,7 @@ import random
 import itertools
 import poek as pk
 
+
 def knapsack(N):
     random.seed(1000)
 

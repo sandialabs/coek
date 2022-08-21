@@ -1,7 +1,6 @@
 import sys
 import itertools
 import poek as pk
-
 quicksum = pk.quicksum
 
 

@@ -4,9 +4,11 @@ __all__ = ['create_instance']
 
 
 from .fac import fac
+from .fac_affine import fac_affine
 from .knapsack import knapsack
 from .knapsack_affine import knapsack_affine
 from .lqcp import lqcp
+from .lqcp_affine import lqcp_affine
 from .nqueens import nqueens
 from .nqueens_affine import nqueens_affine
 from .pmedian import pmedian
@@ -15,9 +17,11 @@ from .srosenbr import srosenbr
 
 modules = {
             'fac':fac,
+            'fac-affine':fac_affine,
             'knapsack':knapsack,
             'knapsack-affine':knapsack_affine,
             'lqcp':lqcp,
+            'lqcp-affine':lqcp_affine,
             'nqueens':nqueens,
             'nqueens-affine':nqueens_affine,
             'pmedian':pmedian,
