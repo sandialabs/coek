@@ -37,15 +37,15 @@ SECTION( "sequence_stop" ) {
     std::vector<int> test;
     for (int i: coek::sequence(4))
         test.push_back(i);
-    std::vector<int> ans{0,1,2,3,4};
+    std::vector<int> ans{1,2,3,4};
     REQUIRE(test == ans);
     }
 
 SECTION( "sequence_start_stop" ) {
     std::vector<int> test;
-    for (int i: coek::sequence(1,4))
+    for (int i: coek::sequence(2,4))
         test.push_back(i);
-    std::vector<int> ans{1,2,3,4};
+    std::vector<int> ans{2,3,4};
     REQUIRE(test == ans);
     }
 
@@ -58,7 +58,7 @@ SECTION( "sequence_start_stop_step" ) {
     }
 }
 
-TEST_CASE( "range_sizet", "[smoke]" )
+TEST_CASE( "range_size_t", "[smoke]" )
 {
 SECTION( "range_stop" ) {
     std::vector<size_t> test;
@@ -91,15 +91,15 @@ SECTION( "sequence_stop" ) {
     std::vector<size_t> test;
     for (size_t i: coek::sequence<size_t>(4))
         test.push_back(i);
-    std::vector<size_t> ans{0,1,2,3,4};
+    std::vector<size_t> ans{1,2,3,4};
     REQUIRE(test == ans);
     }
 
 SECTION( "sequence_start_stop" ) {
     std::vector<size_t> test;
-    for (size_t i: coek::sequence<size_t>(1,4))
+    for (size_t i: coek::sequence<size_t>(2,4))
         test.push_back(i);
-    std::vector<size_t> ans{1,2,3,4};
+    std::vector<size_t> ans{2,3,4};
     REQUIRE(test == ans);
     }
 
