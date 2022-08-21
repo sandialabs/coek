@@ -37,7 +37,7 @@ def writer_lp(data, largest=False):
                 if not exp['model'].startswith(problem):
                     continue
                 res = [exp['model'], int(exp['size'][0]), tool]
-                if len(exp['data']['real']['trials']) == 0:
+                if 'real' not in exp['data'] or len(exp['data']['real']['trials']) == 0:
                     results.append( res + [None, None, None, None, None, None] )
                 else:
                     results.append( res + [exp['data']['real']['mean'], exp['data']['real']['stdev'],
@@ -90,7 +90,7 @@ def solve0(data, largest=False):
                 if not exp['model'].startswith(problem):
                     continue
                 res = [exp['model'], int(exp['size'][0]), tool]
-                if len(exp['data']['real']['trials']) == 0:
+                if 'real' not in exp['data'] or len(exp['data']['real']['trials']) == 0:
                     results.append( res + [None, None, None, None] )
                 else:
                     results.append( res + [exp['data']['real']['mean'], exp['data']['real']['stdev'],
@@ -110,7 +110,7 @@ def solve0(data, largest=False):
         for r in results:
             if r[3] is None:
                 r.append(r[3])
-                r.append(r[4])
+                r.append(r[5])
             elif r[1] in g_real:
                 r.append(r[3]/g_real[r[1]])
                 r.append(r[5]/g_user[r[1]])

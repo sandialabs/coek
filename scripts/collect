@@ -39,7 +39,7 @@ def get_filedata(fname):
             yield 'lines', len(INPUT.readlines())
         yield 'bytes', os.path.getsize(fname)
 
-def collect_results(directory, save=False):
+def collect_results(directory, save=False, debug=False):
     print("Collecting data in {}".format(directory))
     exp = os.path.basename(directory)
     for root, dirs, files in os.walk(directory):
@@ -51,6 +51,7 @@ def collect_results(directory, save=False):
         #
         test = os.path.basename(root)
         results = {"_experiment":exp, "_tool":test}
+
         print("  Collecting test results for "+test)
         for fname in files:
             if fname.endswith('.log') or fname.endswith('.csv') or fname.endswith('.json'):
@@ -70,6 +71,13 @@ def collect_results(directory, save=False):
                     if k not in tmp:
                         tmp[k] = {"trials":{}}
                     tmp[k]['trials'][str(trial)] = v
+            if debug:
+                print("  ",fname)
+            else:
+                sys.stdout.write(".")
+                sys.stdout.flush()
+        if not debug:
+            sys.stdout.write("\n")
 
         #
         # Summarize results
@@ -77,14 +85,39 @@ def collect_results(directory, save=False):
         for name in results:
             if name[0] == "_":
                 continue
+            results[name]['data']['_count'] = -1
+            results[name]['data']['_total'] = -1
             for measure in results[name]['data']:
+                if measure[0] == '_':
+                    continue
                 values = list(results[name]['data'][measure]['trials'].values())
-                results[name]['data'][measure]['mean'] = statistics.mean(values)
-                results[name]['data'][measure]['median'] = statistics.median(values)
-                results[name]['data'][measure]['variance'] = statistics.variance(values)
-                results[name]['data'][measure]['stdev'] = statistics.stdev(values)
-                results[name]['data'][measure]['min'] = min(values)
-                results[name]['data'][measure]['max'] = max(values)
+                if len(values) > 1:
+                    results[name]['data'][measure]['mean'] = statistics.mean(values)
+                    results[name]['data'][measure]['median'] = statistics.median(values)
+                    results[name]['data'][measure]['variance'] = statistics.variance(values)
+                    results[name]['data'][measure]['stdev'] = statistics.stdev(values)
+                    results[name]['data'][measure]['min'] = min(values)
+                    results[name]['data'][measure]['max'] = max(values)
+                elif len(values) == 1:
+                    results[name]['data'][measure]['mean'] = values[0]
+                    results[name]['data'][measure]['median'] = values[0]
+                    results[name]['data'][measure]['variance'] = float("nan")
+                    results[name]['data'][measure]['stdev'] = float("nan")
+                    results[name]['data'][measure]['min'] = values[0]
+                    results[name]['data'][measure]['max'] = values[0]
+                else:
+                    results[name]['data'][measure]['mean'] = float("nan")
+                    results[name]['data'][measure]['median'] = float("nan")
+                    results[name]['data'][measure]['variance'] = float("nan")
+                    results[name]['data'][measure]['stdev'] = float("nan")
+                    results[name]['data'][measure]['min'] = float("nan")
+                    results[name]['data'][measure]['max'] = float("nan")
+                count = len(set(results[name]['data'][measure]['trials'].keys()) - set(results[name]['data'].get('timeout',{}).get('trials',{}).keys()))
+                if results[name]['data']['_count'] > 0:
+                    assert count == results[name]['data']['_count'], "ERROR: Inconsistent data for experiment {}: count={} cache={}".format(name, count, results[name]['data']['_count'])
+                else:
+                    results[name]['data']['_count'] = count
+            results[name]['data']['_total'] = results[name]['data']['_count'] + len(results[name]['data'].get('timeout',{}).get('trials',[]))
 
         #
         # Save results
@@ -99,5 +132,5 @@ def collect_results(directory, save=False):
 if __name__ == "__main__":
     directory = 'results' if len(sys.argv) < 2 else sys.argv[1]
 
-    collect_results(directory+"/writer", save=True)
-    collect_results(directory+"/solve0", save=True)
+    collect_results(directory+"/writer", save=True, debug=False)
+    collect_results(directory+"/solve0", save=True, debug=False)

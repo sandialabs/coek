@@ -44,12 +44,10 @@ all_coek_models = [
     "pmedian-array",
     "pmedian-scalar",
     "fac-array",
-    "fac-array2",
     "fac-scalar",
-    "lqcp-scalar",
     "lqcp-array",
-    "lqcp-array2",
-    "lqcp-map",
+    "lqcp-scalar",
+    #"lqcp-map",
     #"lqcp-compact"         Problem constructing this model
     ]
 
@@ -63,9 +61,11 @@ all_gurobi_models = [
 
 all_poek_models = [
     "fac",
+    "fac-affine",
     "knapsack",
     "knapsack-affine",
     "lqcp",
+    "lqcp-affine",
     "nqueens",
     "nqueens-affine",
     "pmedian",
@@ -74,13 +74,24 @@ all_poek_models = [
 
 all_pyomo_models = [
     "fac",
+    "fac-linear",
     "knapsack",
+    "knapsack-linear",
     "lqcp",
+    "lqcp-linear",
     "nqueens",
+    "nqueens-linear",
     "pmedian",
     "pmedian-linear",
     ]
 
+
+def get_filedata(fname):
+    with open(fname,'r') as INPUT:
+        for line in INPUT.readlines():
+            line.strip()
+            tmp = line.split(' ')
+            yield tmp[0], float(tmp[1])
 
 
 def test_writer(*, test_type, models, suffixes, executable, subdir, timeout=300, ntrials=1, errors=[]):
@@ -130,8 +141,17 @@ def test_writer(*, test_type, models, suffixes, executable, subdir, timeout=300,
                     timefile = prefix + ".out"
 
                     if os.path.exists(timefile):
-                        print(". SKIP {}: results exist".format(timefile))
-                        continue
+                        if not os.path.exists(outfile):
+                            cflag=False
+                            for k,v in get_filedata(timefile):
+                                if k == 'timeout':
+                                    cflag=True
+                                    break
+                        else:
+                            cflag=True
+                        if cflag:
+                            print(". SKIP {}: results exist".format(timefile))
+                            continue
 
                     run = ["/usr/bin/time", "-p", "-o", timefile, executable, outfile]+cmd
                     try:
@@ -218,6 +238,10 @@ def test_solve0(*, test_type, models, solvers, executable, subdir, timeout=300, 
 
 if __name__ == "__main__":
     import sys
+
+    if len(sys.argv) == 1:
+        print("run <tests> [<num-trials>]")
+        sys.exit(1)
 
     if len(sys.argv) == 3:
         ntrials = int(sys.argv[2])
