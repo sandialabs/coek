@@ -35,11 +35,11 @@ def lqcp_linear(n):
     model.obj = pe.Objective(rule=rule)
 
     pde_coef = model.T*0.5*model.n     # == dt*0.5/h2
-    def pde_rule(model, i, j):
+    def pde_rule(m, i, j):
         variables =    [  m.y[i+1,j],      m.y[i,j], m.y[i,j-1], m.y[i,j+1], m.y[i+1,j-1], m.y[i+1,j+1]]
         coefficients = [1+2*pde_coef, -1+2*pde_coef,  -pde_coef,  -pde_coef,    -pde_coef,    -pde_coef]
         return LinearExpression(constant=0, linear_coefs=coefficients, linear_vars=variables) == 0
-    model.pde = pe.Constraint(RangeSet(0,model.n-1), RangeSet(1,model.n-1), rule=pde_rule)
+    model.pde = pe.Constraint(pe.RangeSet(0,model.n-1), pe.RangeSet(1,model.n-1), rule=pde_rule)
 
     def ic_rule(model, j):
       return model.y[0,j] == 0
@@ -47,10 +47,10 @@ def lqcp_linear(n):
 
     def bc1_rule(model, i):
       return model.y[i,  2] - 4*model.y[i, 1] + 3*model.y[i,0] == 0
-    model.bc1 = pe.Constraint(RangeSet(1,model.n), rule=bc1_rule)
+    model.bc1 = pe.Constraint(pe.RangeSet(1,model.n), rule=bc1_rule)
 
     def bc2_rule(model, i):
       return model.y[i,model.n-2] - 4*model.y[i,model.n-1] + 3*model.y[i,model.n-0] == (2*model.dx)*(model.u[i] - model.y[i,model.n-0])
-    model.bc2 = pe.Constraint(RangeSet(1,model.n), rule=bc2_rule)
+    model.bc2 = pe.Constraint(pe.RangeSet(1,model.n), rule=bc2_rule)
 
     return model

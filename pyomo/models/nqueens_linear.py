@@ -43,7 +43,7 @@ def nqueens_linear(N):
 
     # /diagonals_row
     def rdiag_rows_rule(model, i):
-        return model.x[i, N-1] + LinearExpression(linear_coefs=[1]*(N-i-1), linear_vars=[model.x[i+j, N-1-j] for j in range(1, N-1)]) <= 1
+        return model.x[i, N-1] + LinearExpression(linear_coefs=[1]*(N-i-1), linear_vars=[model.x[i+j,N-1-j] for j in range(1, N-i)]) <= 1
     model.rdiag_rows = pe.Constraint(range(1,N-1), rule=rdiag_rows_rule)
 
     return model
