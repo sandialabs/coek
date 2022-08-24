@@ -35,11 +35,6 @@ _expr_repn_map[float] = _expr_repn_float
 _expr_repn_map[int] = _expr_repn_float
 
 
-def construct_linear_expression(coefs, vlist):
-    # coef_exprs = pk.vector_of_expressions(len(coefs))
-    # for coef, cexpr in zip(coefs, coef_exprs):
-    #     _expr_repn_map[type(coef)](coef, cexpr)
-    # coefs = coef_exprs
-    # coefs = [_arg_map[type(arg)](arg) for arg in coefs]
+def construct_linear_expression(coefs, vlist, constant=0):
     vlist = [v._pe for v in vlist]
-    return pk.construct_linear_expression(coefs, vlist)
+    return pk.construct_linear_expression(coefs, vlist, constant)
