@@ -178,29 +178,31 @@ if (not ((lhs_repn.constval.repn == ZEROCONST) or (rhs_repn.constval.repn == ZER
 
 if (not (lhs_repn.constval.repn == ZEROCONST)) {
     // CONSTANT * LINEAR
-    for (size_t i=0; i<rhs_repn.linear_coefs.size(); i++) {
-        repn.linear_vars.push_back( rhs_repn.linear_vars[i] );
+    repn.linear_vars.insert(repn.linear_vars.end(),
+            rhs_repn.linear_vars.begin(), rhs_repn.linear_vars.end());
+    for (size_t i=0; i<rhs_repn.linear_coefs.size(); i++)
         repn.linear_coefs.push_back( times_(lhs_repn.constval.repn, rhs_repn.linear_coefs[i].repn) );
-        }
     // CONSTANT * QUADRATIC
-    for (size_t i=0; i<rhs_repn.quadratic_coefs.size(); i++) {
-        repn.quadratic_lvars.push_back( rhs_repn.quadratic_lvars[i] );
-        repn.quadratic_rvars.push_back( rhs_repn.quadratic_rvars[i] );
+    repn.quadratic_lvars.insert(repn.quadratic_lvars.end(),
+            rhs_repn.quadratic_lvars.begin(), rhs_repn.quadratic_lvars.end());
+    repn.quadratic_rvars.insert(repn.quadratic_rvars.end(),
+            rhs_repn.quadratic_rvars.begin(), rhs_repn.quadratic_rvars.end());
+    for (size_t i=0; i<rhs_repn.quadratic_coefs.size(); i++)
         repn.quadratic_coefs.push_back( times_(rhs_repn.quadratic_coefs[i].repn, lhs_repn.constval.repn) );
-        }
     }
 if (not (rhs_repn.constval.repn == ZEROCONST)) {
     // LINEAR * CONSTANT
-    for (size_t i=0; i<lhs_repn.linear_coefs.size(); i++) {
-        repn.linear_vars.push_back( lhs_repn.linear_vars[i] );
+    repn.linear_vars.insert(repn.linear_vars.end(),
+            lhs_repn.linear_vars.begin(), lhs_repn.linear_vars.end());
+    for (size_t i=0; i<lhs_repn.linear_coefs.size(); i++)
         repn.linear_coefs.push_back( times_(rhs_repn.constval.repn, lhs_repn.linear_coefs[i].repn) );
-        }
     // QUADRATIC * CONSTANT
-    for (size_t i=0; i<lhs_repn.quadratic_coefs.size(); i++) {
-        repn.quadratic_lvars.push_back( lhs_repn.quadratic_lvars[i] );
-        repn.quadratic_rvars.push_back( lhs_repn.quadratic_rvars[i] );
+    repn.quadratic_lvars.insert(repn.quadratic_lvars.end(),
+            lhs_repn.quadratic_lvars.begin(), lhs_repn.quadratic_lvars.end());
+    repn.quadratic_rvars.insert(repn.quadratic_rvars.end(),
+            lhs_repn.quadratic_rvars.begin(), lhs_repn.quadratic_rvars.end());
+    for (size_t i=0; i<lhs_repn.quadratic_coefs.size(); i++)
         repn.quadratic_coefs.push_back( times_(lhs_repn.quadratic_coefs[i].repn, rhs_repn.constval.repn) );
-        }
     }
 
 // LINEAR * LINEAR
@@ -211,59 +213,6 @@ for (size_t i=0; i<lhs_repn.linear_coefs.size(); i++) {
         repn.quadratic_coefs.push_back( times_(lhs_repn.linear_coefs[i].repn, rhs_repn.linear_coefs[j].repn) );
         }
     }
-
-#if 0
-// LINEAR * QUADRATIC and QUADRATIC * LINEAR and QUADRATIC * QUADRATIC
-Expression ltmp1;
-Expression ltmp2;
-for (size_t i=0; i<lhs_repn.linear_coefs.size(); i++)
-    ltmp1 += times_(lhs_repn.linear_coefs[i].repn, lhs_repn.linear_vars[i]);
-for (size_t i=0; i<lhs_repn.quadratic_coefs.size(); i++)
-    ltmp2 += times_(lhs_repn.quadratic_coefs[i].repn, times_(lhs_repn.quadratic_lvars[i], lhs_repn.quadratic_rvars[i]));
-
-Expression rtmp1;
-Expression rtmp2;
-for (size_t i=0; i<rhs_repn.linear_coefs.size(); i++)
-    rtmp1 += times_(rhs_repn.linear_coefs[i].repn, rhs_repn.linear_vars[i]);
-for (size_t i=0; i<rhs_repn.quadratic_coefs.size(); i++)
-    rtmp2 += times_(rhs_repn.quadratic_coefs[i].repn, times_(rhs_repn.quadratic_lvars[i], rhs_repn.quadratic_rvars[i]));
-
-if (not (ltmp1.repn == ZEROCONST) or (rtmp2.repn == ZEROCONST))
-    repn.nonlinear = plus_(repn.nonlinear.repn, times_(ltmp1.repn, rtmp2.repn));
-if (not (ltmp2.repn == ZEROCONST) or (rtmp1.repn == ZEROCONST))
-    repn.nonlinear = plus_(repn.nonlinear.repn, times_(ltmp2.repn, rtmp1.repn));
-if (not (ltmp2.repn == ZEROCONST) or (rtmp2.repn == ZEROCONST))
-    repn.nonlinear = plus_(repn.nonlinear.repn, times_(ltmp2.repn, rtmp2.repn));
-
-// NONLINEAR * CONSTANT and NONLINEAR * LINEAR and NONLINEAR * QUADRATIC
-if (not (lhs_repn.nonlinear.repn == ZEROCONST)) {
-    if (not (rhs_repn.constval.repn == ZEROCONST))
-        repn.nonlinear = plus( repn.nonlinear.repn, times_(lhs_repn.nonlinear.repn, rhs_repn.constval.repn) );
-    if (not (rtmp1.repn == ZEROCONST))
-        repn.nonlinear = plus( repn.nonlinear.repn, times_(lhs_repn.nonlinear.repn, rtmp1.repn) );
-    if (not (rtmp2.repn == ZEROCONST))
-        repn.nonlinear = plus( repn.nonlinear.repn, times_(lhs_repn.nonlinear.repn, rtmp2.repn) );
-
-    repn.nonlinear_vars.insert(lhs_repn.nonlinear_vars.begin(), lhs_repn.nonlinear_vars.end());
-    }
-    
-// CONSTANT * NONLINEAR and LINEAR * NONLINEAR and QUADRATIC * NONLINEAR
-if (not (rhs_repn.nonlinear.repn == ZEROCONST)) {
-    if (not (lhs_repn.constval.repn == ZEROCONST))
-        repn.nonlinear = plus( repn.nonlinear.repn, times_(lhs_repn.constval.repn, rhs_repn.nonlinear.repn) );
-    if (not (ltmp1.repn == ZEROCONST))
-        repn.nonlinear = plus( repn.nonlinear.repn, times_(ltmp1.repn, rhs_repn.nonlinear.repn) );
-    if (not (ltmp2.repn == ZEROCONST))
-        repn.nonlinear = plus( repn.nonlinear.repn, times_(ltmp2.repn, rhs_repn.nonlinear.repn) );
-
-    repn.nonlinear_vars.insert(rhs_repn.nonlinear_vars.begin(), rhs_repn.nonlinear_vars.end());
-    }
-    
-// NONLINEAR * NONLINEAR
-if (not ((lhs_repn.nonlinear.repn == ZEROCONST) or (rhs_repn.nonlinear.repn == ZEROCONST))) {
-    repn.nonlinear = plus( repn.nonlinear.repn, times_(lhs_repn.nonlinear.repn, rhs_repn.nonlinear.repn) );
-    }
-#endif
 }
 
 void visit(DivideTerm& expr,
@@ -290,15 +239,19 @@ if (((rhs_repn.linear_coefs.size()+rhs_repn.quadratic_coefs.size()) == 0) and (r
         repn.mutable_values = repn.mutable_values or lhs_repn.mutable_values or rhs_repn.mutable_values;
 
         repn.constval = plus_(repn.constval.repn, divide_(lhs_repn.constval.repn, rhs_repn.constval.repn));
-        for (size_t i=0; i<lhs_repn.linear_coefs.size(); i++) {
+
+        repn.linear_vars.insert(repn.linear_vars.end(),
+                lhs_repn.linear_vars.begin(), lhs_repn.linear_vars.end());
+        for (size_t i=0; i<lhs_repn.linear_coefs.size(); i++)
             repn.linear_coefs.push_back( divide_(lhs_repn.linear_coefs[i].repn, rhs_repn.constval.repn) );
-            repn.linear_vars.push_back( lhs_repn.linear_vars[i] );
-            }
-        for (size_t i=0; i<lhs_repn.quadratic_coefs.size(); i++) {
+
+        repn.quadratic_lvars.insert(repn.quadratic_lvars.end(),
+                lhs_repn.quadratic_lvars.begin(), lhs_repn.quadratic_lvars.end());
+        repn.quadratic_rvars.insert(repn.quadratic_rvars.end(),
+                lhs_repn.quadratic_rvars.begin(), lhs_repn.quadratic_rvars.end());
+        for (size_t i=0; i<lhs_repn.quadratic_coefs.size(); i++)
             repn.quadratic_coefs.push_back( divide_(lhs_repn.quadratic_coefs[i].repn, rhs_repn.constval.repn) );
-            repn.quadratic_lvars.push_back( lhs_repn.quadratic_lvars[i] );
-            repn.quadratic_rvars.push_back( lhs_repn.quadratic_rvars[i] );
-            }
+
         repn.nonlinear = plus_(repn.nonlinear.repn, divide_(lhs_repn.nonlinear.repn, rhs_repn.constval.repn) );
         }
     return;

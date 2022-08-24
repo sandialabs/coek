@@ -4,12 +4,12 @@
 minimize
 
 obj:
-+1 x(0)
++1 x0
 
 subject to
 
 
 bounds
-2 <= x(0) <= 2
+2 <= x0 <= 2
 
 end

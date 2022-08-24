@@ -15,6 +15,16 @@ namespace coek {
 
 void to_QuadraticExpr(expr_pointer_t expr, QuadraticExpr& repn);
 
+void QuadraticExpr::reset()
+{
+constval = 0;
+linear_vars.resize(0);
+linear_coefs.resize(0);
+quadratic_lvars.resize(0);
+quadratic_rvars.resize(0);
+quadratic_coefs.resize(0);
+}
+
 void QuadraticExpr::collect_terms(const Expression& expr)
 { to_QuadraticExpr(expr.repn, *this); }
 

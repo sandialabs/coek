@@ -105,9 +105,13 @@ return var;
 
 void Model::add_variable(PythonVariableArray& varray)
 {
+repn->variables.insert(repn->variables.end(),
+    varray.variables.begin(), varray.variables.end());
+/*
 for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
     repn->variables.push_back(*it);
     }
+*/
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
