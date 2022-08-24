@@ -334,8 +334,8 @@ namespace coek {
 	    return py::none();
     }
 
-    Expression construct_linear_expression(std::vector<double> coefs, std::vector<Variable*> vars) {
-    	Expression res(0);
+  Expression construct_linear_expression(std::vector<double> coefs, std::vector<Variable*> vars, double constant) {
+    	Expression res(constant);
     	for (unsigned int ndx=0; ndx < coefs.size(); ++ndx) {
     	  res += ((coefs[ndx])) * (*(vars[ndx]));
     	}

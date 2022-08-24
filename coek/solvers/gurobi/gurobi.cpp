@@ -81,12 +81,12 @@ void add_gurobi_constraint(GRBModel* gmodel, Constraint& con, std::unordered_map
                     if (con.lower().repn) {
                         double lower = con.lower().value();
                         if (lower > -COEK_INFINITY)
-                            gmodel->addQConstr(term1, GRB_GREATER_EQUAL, - repn.constval + lower);
+                            gmodel->addConstr(term1, GRB_GREATER_EQUAL, - repn.constval + lower);
                         }
                     if (con.upper().repn) {
                         double upper = con.upper().value();
                         if (upper < COEK_INFINITY)
-                            gmodel->addQConstr(term1, GRB_LESS_EQUAL, - repn.constval + upper);
+                            gmodel->addConstr(term1, GRB_LESS_EQUAL, - repn.constval + upper);
                         }
                     }
                 else
@@ -110,15 +110,10 @@ int GurobiSolver::solve(Model& model)
 {
 auto _model = model.repn.get();
 
-std::cout << "STARTING GUROBI" << std::endl << std::flush;
-
 env = new GRBEnv();
 gmodel = new GRBModel(*env);
 
-std::cout << "COLLECTING REPNS/VARS" << std::endl << std::flush;
 assert(_model->objectives.size() == 1);
-
-std::cout << "BUILDING GUROBI MODEL" << std::endl << std::flush;
 
 // Add Gurobi variables
 for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _model->variables.end(); ++it) {
@@ -181,7 +176,6 @@ catch (GRBException e) {
     throw;
     }
 
-std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
 // All options are converted to strings for Gurobi
 for (auto it=string_options.begin(); it != string_options.end(); ++it)
     gmodel->set(it->first, it->second);
