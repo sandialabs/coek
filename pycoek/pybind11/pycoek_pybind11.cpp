@@ -37,11 +37,6 @@ namespace coek {
 	return res;
     }
 
-  std::vector<Expression> vector_of_expressions(unsigned int num_exprs) {
-    std::vector<Expression> res(num_exprs);
-    return res;
-  }
-
   Expression expression_from_float(double val) {
     Expression res(val);
     return res;
@@ -341,15 +336,6 @@ namespace coek {
     	}
     	return res;
     }
-
-  //Expression construct_linear_expression(py::list coefs, py::list vars) {
-  //  Expression res(0);
-  //  unsigned long size = coefs.size();
-  //  for (unsigned long ndx=0; ndx<size; ++ndx) {
-  //    res += coefs[ndx].cast<double>() * *(vars[ndx].attr("_pe").cast<Variable*>());
-  //  }
-  //  return res;
-  //}
 
   double expression_eval(Expression& e, bool exception) {
     return e.value();
@@ -839,7 +825,6 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     m.def("copy_var", &coek::copy_var);
     m.def("expression_from_float", &coek::expression_from_float);
     m.def("expression_from_var", &coek::expression_from_var);
-    m.def("vector_of_expressions", &coek::vector_of_expressions);
     m.def("float_mul_var", &coek::float_mul_var);
     m.def("float_mul_expression", &coek::float_mul_expression);
     m.def("float_add_var", &coek::float_add_var);
@@ -904,9 +889,6 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     m.def("expression_ge_float", &coek::expression_ge_float);
     m.def("expression_ge_var", &coek::expression_ge_var);
     m.def("expression_ge_expression", &coek::expression_ge_expression);
-
-    py::class_<coek::ConstantTerm>(m, "ConstantTerm")
-	.def(py::init<double>());
 
     //
     // Parameter
