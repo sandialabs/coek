@@ -51,10 +51,9 @@ class Gurobi(Solver):
     def gurobi_options(self, val: Dict):
         self._solver_options = val
 
-    def solve(self, model: _BlockData, timer: HierarchicalTimer = None) -> Results:
-        if timer is None:
-            timer = HierarchicalTimer()
-
+    def _construct_poek_model(
+            self, model: _BlockData, timer: HierarchicalTimer
+    ) -> pk.model:
         timer.start('construct poek model')
         pm = pk.model()
         for v in model.component_data_objects(Var, descend_into=True):
@@ -64,6 +63,36 @@ class Gurobi(Solver):
         for obj in model.component_data_objects(Objective, active=True, descend_into=True):
             pm.add_objective(obj._pe)
         timer.stop('construct poek model')
+
+        return pm
+
+    def load(self, model: _BlockData, timer: HierarchicalTimer = None):
+        if timer is None:
+            timer = HierarchicalTimer()
+        pm = self._construct_poek_model(model, timer)
+        timer.start('coek load')
+        self._opt.load(pm)
+        timer.stop('coek load')
+
+    def resolve(self, timer: HierarchicalTimer = None):
+        if timer is None:
+            timer = HierarchicalTimer()
+
+        for key, option in self.gurobi_options.items():
+            self._opt.set_option(key, option)
+
+        timer.start('coek resolve')
+        self._opt.resolve()
+        timer.stop('coek resolve')
+
+        res = Results()
+        return res
+
+    def solve(self, model: _BlockData, timer: HierarchicalTimer = None) -> Results:
+        if timer is None:
+            timer = HierarchicalTimer()
+
+        pm = self._construct_poek_model(model, timer)
 
         for key, option in self.gurobi_options.items():
             self._opt.set_option(key, option)
