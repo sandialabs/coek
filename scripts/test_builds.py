@@ -81,6 +81,17 @@ all_pyomo_models = [
 
 all_hybrid_components_only_models = [
     "fac",
+    "lqcp",
+    "pmedian",
+    "pmedian-linear",
+    ]
+
+all_hybrid_expression_wrappers_models = [
+    "fac",
+    "fac-linear",
+    "lqcp",
+    "pmedian",
+    "pmedian-linear",
     ]
 
 
@@ -276,6 +287,7 @@ if __name__ == "__main__":
         test_solve0(test_type="all", models=['lqcp'], solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
         test_solve0(test_type="all", models=['lqcp'], solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo")
         test_solve0(test_type="all", models=['lqcp'], solvers=['gurobi'], executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only")
+        test_solve0(test_type="all", models=['lqcp'], solvers=['gurobi'], executable="../hybrid_expression_wrappers/hybrid_expression_wrappers_solve0", subdir="hybrid_expression_wrappers")
 
     elif sys.argv[1] == "all_solve0_fac":
         test_solve0(test_type="all", models=['fac-scalar'], solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")
@@ -283,6 +295,15 @@ if __name__ == "__main__":
         test_solve0(test_type="all", models=['fac'], solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
         test_solve0(test_type="all", models=['fac'], solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo")
         test_solve0(test_type="all", models=['fac'], solvers=['gurobi'], executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only")
+        test_solve0(test_type="all", models=['fac', 'fac-linear'], solvers=['gurobi'], executable="../hybrid_expression_wrappers/hybrid_expression_wrappers_solve0", subdir="hybrid_expression_wrappers")
+
+    elif sys.argv[1] == "all_solve0_pmedian":
+        test_solve0(test_type="all", models=['pmedian-scalar'], solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")
+        test_solve0(test_type="all", models=['pmedian-scalar'], solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi")
+        test_solve0(test_type="all", models=['pmedian', 'pmedian-affine'], solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
+        test_solve0(test_type="all", models=['pmedian', 'pmedian-linear'], solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo")
+        test_solve0(test_type="all", models=['pmedian', 'pmedian-linear'], solvers=['gurobi'], executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only")
+        test_solve0(test_type="all", models=['pmedian', 'pmedian-linear'], solvers=['gurobi'], executable="../hybrid_expression_wrappers/hybrid_expression_wrappers_solve0", subdir="hybrid_expression_wrappers")
 
     elif sys.argv[1] == "bench_solve0":
         test_solve0(test_type="all", models=all_coek_models, solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek")

@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+#
+# pyomo_solve0 [-d] <solver> <model> [<data> ...]
+#
+
+#from profiling import enable_c_profiler, disable_c_profiler
+
+#pr = enable_c_profiler()
+
+#import logging
+import sys
+import os.path
+import pyomo_coek.full_integration as pe
+
+#logging.basicConfig(level=logging.INFO)
+
+sys.path.insert(1, os.path.dirname(os.path.abspath(__file__)) )
+from models import create_instance, print_help
+
+if len(sys.argv) == 1:
+    print("pyomo_writer [-d] <solver> <model> [<data> ...]")
+    print_help()
+    sys.exit(1)
+
+i=1
+if sys.argv[i] == '-d':
+    debug=True
+    i += 1
+else:
+    debug=False
+solver = sys.argv[i]
+i += 1
+model = sys.argv[i]
+i += 1
+data = [int(val) for val in sys.argv[i:]]
+
+instance = create_instance(model, data)
+if instance is None:
+    print("Unknown pyomo model '%s'" % model)
+    sys.exit(1)
+
+opt = pe.Gurobi()
+if not opt.available:
+    print("Unknown solver '%s'" % solver)
+    sys.exit(1)
+
+if solver == 'gurobi':
+    options = {'TimeLimit':0}
+elif solver == 'ipopt':
+    options = {'max_iter':0, 'print_level':debug*5}
+else:
+    options = {}
+opt.gurobi_options = options
+opt.solve(instance)
+#opt.solve(instance, options=options, load_solutions=False, tee=debug)
+#disable_c_profiler(pr)
