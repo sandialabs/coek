@@ -55,6 +55,9 @@ public:
     /** \returns the expression for the constraint upper bound */
     Expression upper() const;
 
+    bool has_lower();
+    bool has_upper();
+
     /** Set the constraint name */
     Constraint& name(const std::string& name);
     /** \returns the constraint name */
