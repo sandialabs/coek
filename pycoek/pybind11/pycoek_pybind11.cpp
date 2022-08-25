@@ -42,10 +42,19 @@ namespace coek {
     return res;
   }
 
+  Expression expression_from_param(Parameter& val) {
+    Expression res(val);
+    return res;
+  }
+
   Expression expression_from_var(Variable& val) {
     Expression res(val);
     return res;
   }
+
+    Expression float_mul_param(double v, Parameter& other) {
+	return v*other;
+    }
 
     Expression float_mul_var(double v, Variable& other) {
 	return v*other;
@@ -53,6 +62,10 @@ namespace coek {
 
     Expression float_mul_expression(double v, Expression& other) {
 	return v*other;
+    }
+
+    Expression float_add_param(double v, Parameter& other) {
+	return v + other;
     }
 
     Expression float_add_var(double v, Variable& other) {
@@ -63,12 +76,20 @@ namespace coek {
 	return v + other;
     }
 
+    Expression float_sub_param(double v, Parameter& other) {
+	return v - other;
+    }
+
     Expression float_sub_var(double v, Variable& other) {
 	return v - other;
     }
 
     Expression float_sub_expression(double v, Expression& other) {
 	return v - other;
+    }
+
+    Expression float_div_param(double v, Parameter& other) {
+	return v / other;
     }
 
     Expression float_div_var(double v, Variable& other) {
@@ -79,12 +100,20 @@ namespace coek {
 	return v / other;
     }
   
+    Expression float_pow_param(double v, Parameter& other) {
+      return pow(v, other);
+    }
+  
     Expression float_pow_var(double v, Variable& other) {
       return pow(v, other);
     }
   
     Expression float_pow_expression(double v, Expression& other) {
       return pow(v, other);
+    }
+  
+    Constraint float_eq_param(double v, Parameter& other) {
+      return v == other;
     }
   
     Constraint float_eq_var(double v, Variable& other) {
@@ -95,12 +124,20 @@ namespace coek {
       return v == other;
     }
   
+    Constraint float_le_param(double v, Parameter& other) {
+      return v <= other;
+    }
+  
     Constraint float_le_var(double v, Variable& other) {
       return v <= other;
     }
   
     Constraint float_le_expression(double v, Expression& other) {
       return v <= other;
+    }
+  
+    Constraint float_ge_param(double v, Parameter& other) {
+      return v >= other;
     }
   
     Constraint float_ge_var(double v, Variable& other) {
@@ -112,6 +149,10 @@ namespace coek {
     }
 
     Expression var_mul_float(Variable& v, double other) {
+	return v*other;
+    }
+
+    Expression var_mul_param(Variable& v, Parameter& other) {
 	return v*other;
     }
 
@@ -127,6 +168,10 @@ namespace coek {
 	return v + other;
     }
 
+    Expression var_add_param(Variable& v, Parameter& other) {
+	return v + other;
+    }
+
     Expression var_add_var(Variable& v, Variable& other) {
 	return v + other;
     }
@@ -136,6 +181,10 @@ namespace coek {
     }
 
     Expression var_sub_float(Variable& v, double other) {
+	return v - other;
+    }
+
+    Expression var_sub_param(Variable& v, Parameter& other) {
 	return v - other;
     }
 
@@ -151,6 +200,10 @@ namespace coek {
 	return v / other;
     }
 
+    Expression var_div_param(Variable& v, Parameter& other) {
+	return v / other;
+    }
+
     Expression var_div_var(Variable& v, Variable& other) {
 	return v / other;
     }
@@ -160,6 +213,10 @@ namespace coek {
     }
 
     Expression var_pow_float(Variable& v, double other) {
+      return pow(v, other);
+    }
+
+    Expression var_pow_param(Variable& v, Parameter& other) {
       return pow(v, other);
     }
   
@@ -175,6 +232,10 @@ namespace coek {
       return v == other;
     }
   
+    Constraint var_eq_param(Variable& v, Parameter& other) {
+      return v == other;
+    }
+  
     Constraint var_eq_var(Variable& v, Variable& other) {
       return v == other;
     }
@@ -184,6 +245,10 @@ namespace coek {
     }
   
     Constraint var_le_float(Variable& v, double other) {
+      return v <= other;
+    }
+  
+    Constraint var_le_param(Variable& v, Parameter& other) {
       return v <= other;
     }
   
@@ -199,6 +264,10 @@ namespace coek {
       return v >= other;
     }
   
+    Constraint var_ge_param(Variable& v, Parameter& other) {
+      return v >= other;
+    }
+  
     Constraint var_ge_var(Variable& v, Variable& other) {
       return v >= other;
     }
@@ -208,6 +277,10 @@ namespace coek {
     }
 
     Expression expression_mul_float(Expression& v, double other) {
+	return v*other;
+    }
+
+    Expression expression_mul_param(Expression& v, Parameter& other) {
 	return v*other;
     }
 
@@ -223,6 +296,10 @@ namespace coek {
 	return v + other;
     }
 
+    Expression expression_add_param(Expression& v, Parameter& other) {
+	return v + other;
+    }
+
     Expression expression_add_var(Expression& v, Variable& other) {
 	return v + other;
     }
@@ -232,6 +309,10 @@ namespace coek {
     }
 
     Expression expression_sub_float(Expression& v, double other) {
+	return v - other;
+    }
+
+    Expression expression_sub_param(Expression& v, Parameter& other) {
 	return v - other;
     }
 
@@ -247,6 +328,10 @@ namespace coek {
 	return v / other;
     }
 
+    Expression expression_div_param(Expression& v, Parameter& other) {
+	return v / other;
+    }
+
     Expression expression_div_var(Expression& v, Variable& other) {
 	return v / other;
     }
@@ -256,6 +341,10 @@ namespace coek {
     }
 
     Expression expression_pow_float(Expression& v, double other) {
+      return pow(v, other);
+    }
+
+    Expression expression_pow_param(Expression& v, Parameter& other) {
       return pow(v, other);
     }
   
@@ -271,6 +360,10 @@ namespace coek {
       return v == other;
     }
   
+    Constraint expression_eq_param(Expression& v, Parameter& other) {
+      return v == other;
+    }
+  
     Constraint expression_eq_var(Expression& v, Variable& other) {
       return v == other;
     }
@@ -283,6 +376,10 @@ namespace coek {
       return v <= other;
     }
   
+    Constraint expression_le_param(Expression& v, Parameter& other) {
+      return v <= other;
+    }
+  
     Constraint expression_le_var(Expression& v, Variable& other) {
       return v <= other;
     }
@@ -292,6 +389,10 @@ namespace coek {
     }
   
     Constraint expression_ge_float(Expression& v, double other) {
+      return v >= other;
+    }
+  
+    Constraint expression_ge_param(Expression& v, Parameter& other) {
       return v >= other;
     }
   
@@ -824,69 +925,94 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     m.def("generate_standard_repn", &coek::generate_standard_repn);
     m.def("copy_var", &coek::copy_var);
     m.def("expression_from_float", &coek::expression_from_float);
+    m.def("expression_from_param", &coek::expression_from_param);
     m.def("expression_from_var", &coek::expression_from_var);
     m.def("float_mul_var", &coek::float_mul_var);
+    m.def("float_mul_param", &coek::float_mul_param);
     m.def("float_mul_expression", &coek::float_mul_expression);
     m.def("float_add_var", &coek::float_add_var);
+    m.def("float_add_param", &coek::float_add_param);
     m.def("float_add_expression", &coek::float_add_expression);
     m.def("float_sub_var", &coek::float_sub_var);
+    m.def("float_sub_param", &coek::float_sub_param);
     m.def("float_sub_expression", &coek::float_sub_expression);
     m.def("float_div_var", &coek::float_div_var);
+    m.def("float_div_param", &coek::float_div_param);
     m.def("float_div_expression", &coek::float_div_expression);
     m.def("float_pow_var", &coek::float_pow_var);
+    m.def("float_pow_param", &coek::float_pow_param);
     m.def("float_pow_expression", &coek::float_pow_expression);
     m.def("float_eq_var", &coek::float_eq_var);
+    m.def("float_eq_param", &coek::float_eq_param);
     m.def("float_eq_expression", &coek::float_eq_expression);
     m.def("float_le_var", &coek::float_le_var);
+    m.def("float_le_param", &coek::float_le_param);
     m.def("float_le_expression", &coek::float_le_expression);
     m.def("float_ge_var", &coek::float_ge_var);
+    m.def("float_ge_param", &coek::float_ge_param);
     m.def("float_ge_expression", &coek::float_ge_expression);
     m.def("var_mul_float", &coek::var_mul_float);
+    m.def("var_mul_param", &coek::var_mul_param);
     m.def("var_mul_var", &coek::var_mul_var);
     m.def("var_mul_expression", &coek::var_mul_expression);
     m.def("var_add_float", &coek::var_add_float);
+    m.def("var_add_param", &coek::var_add_param);
     m.def("var_add_var", &coek::var_add_var);
     m.def("var_add_expression", &coek::var_add_expression);
     m.def("var_sub_float", &coek::var_sub_float);
+    m.def("var_sub_param", &coek::var_sub_param);
     m.def("var_sub_var", &coek::var_sub_var);
     m.def("var_sub_expression", &coek::var_sub_expression);
     m.def("var_div_float", &coek::var_div_float);
+    m.def("var_div_param", &coek::var_div_param);
     m.def("var_div_var", &coek::var_div_var);
     m.def("var_div_expression", &coek::var_div_expression);
     m.def("var_pow_float", &coek::var_pow_float);
+    m.def("var_pow_param", &coek::var_pow_param);
     m.def("var_pow_var", &coek::var_pow_var);
     m.def("var_pow_expression", &coek::var_pow_expression);
     m.def("var_eq_float", &coek::var_eq_float);
+    m.def("var_eq_param", &coek::var_eq_param);
     m.def("var_eq_var", &coek::var_eq_var);
     m.def("var_eq_expression", &coek::var_eq_expression);
     m.def("var_le_float", &coek::var_le_float);
+    m.def("var_le_param", &coek::var_le_param);
     m.def("var_le_var", &coek::var_le_var);
     m.def("var_le_expression", &coek::var_le_expression);
     m.def("var_ge_float", &coek::var_ge_float);
+    m.def("var_ge_param", &coek::var_ge_param);
     m.def("var_ge_var", &coek::var_ge_var);
     m.def("var_ge_expression", &coek::var_ge_expression);
     m.def("expression_mul_float", &coek::expression_mul_float);
+    m.def("expression_mul_param", &coek::expression_mul_param);
     m.def("expression_mul_var", &coek::expression_mul_var);
     m.def("expression_mul_expression", &coek::expression_mul_expression);
     m.def("expression_add_float", &coek::expression_add_float);
+    m.def("expression_add_param", &coek::expression_add_param);
     m.def("expression_add_var", &coek::expression_add_var);
     m.def("expression_add_expression", &coek::expression_add_expression);
     m.def("expression_sub_float", &coek::expression_sub_float);
+    m.def("expression_sub_param", &coek::expression_sub_param);
     m.def("expression_sub_var", &coek::expression_sub_var);
     m.def("expression_sub_expression", &coek::expression_sub_expression);
     m.def("expression_div_float", &coek::expression_div_float);
+    m.def("expression_div_param", &coek::expression_div_param);
     m.def("expression_div_var", &coek::expression_div_var);
     m.def("expression_div_expression", &coek::expression_div_expression);
     m.def("expression_pow_float", &coek::expression_pow_float);
+    m.def("expression_pow_param", &coek::expression_pow_param);
     m.def("expression_pow_var", &coek::expression_pow_var);
     m.def("expression_pow_expression", &coek::expression_pow_expression);
     m.def("expression_eq_float", &coek::expression_eq_float);
+    m.def("expression_eq_param", &coek::expression_eq_param);
     m.def("expression_eq_var", &coek::expression_eq_var);
     m.def("expression_eq_expression", &coek::expression_eq_expression);
     m.def("expression_le_float", &coek::expression_le_float);
+    m.def("expression_le_param", &coek::expression_le_param);
     m.def("expression_le_var", &coek::expression_le_var);
     m.def("expression_le_expression", &coek::expression_le_expression);
     m.def("expression_ge_float", &coek::expression_ge_float);
+    m.def("expression_ge_param", &coek::expression_ge_param);
     m.def("expression_ge_var", &coek::expression_ge_var);
     m.def("expression_ge_expression", &coek::expression_ge_expression);
 
