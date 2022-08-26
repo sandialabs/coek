@@ -302,6 +302,7 @@ if __name__ == "__main__":
         test_solve0(test_type="all", models=['pmedian-scalar'], solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi")
         test_solve0(test_type="all", models=['pmedian', 'pmedian-affine'], solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek")
         test_solve0(test_type="all", models=['pmedian', 'pmedian-linear'], solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo")
+        test_solve0(test_type="all", models=['pmedian', 'pmedian-linear'], solvers=['appsi-gurobi'], executable="../pyomo/pyomo_solve0", subdir="appsi")
         test_solve0(test_type="all", models=['pmedian', 'pmedian-linear'], solvers=['gurobi'], executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only")
         test_solve0(test_type="all", models=['pmedian', 'pmedian-linear'], solvers=['gurobi'], executable="../hybrid_expression_wrappers/hybrid_expression_wrappers_solve0", subdir="hybrid_expression_wrappers")
 

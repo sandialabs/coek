@@ -32,12 +32,14 @@ if instance is None:
     print("Unknown pyomo model '%s'" % model)
     sys.exit(1)
 
+if solver.startswith('appsi-'):
+    solver.replace('appsi-', 'appsi_')
 opt = pe.SolverFactory(solver)
 if not opt.available:
     print("Unknown solver '%s'" % solver)
     sys.exit(1)
 
-if solver == 'gurobi':
+if solver == 'gurobi' or solver == 'appsi_gurobi':
     options = {'TimeLimit':0}
 elif solver == 'ipopt':
     options = {'max_iter':0, 'print_level':debug*5}
