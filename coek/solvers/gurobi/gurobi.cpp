@@ -19,9 +19,10 @@ namespace coek {
 
 namespace {
 
-void add_gurobi_objective(GRBModel* gmodel, Expression& expr, bool sense, std::unordered_map<int,GRBVar>& x)
+void add_gurobi_objective(GRBModel* gmodel, Expression& expr, bool sense, std::unordered_map<int,GRBVar>& x, coek::QuadraticExpr& orepn)
 {
-    coek::QuadraticExpr orepn;
+    orepn.reset();
+    //coek::QuadraticExpr orepn;
     orepn.collect_terms(expr);
     if (orepn.linear_coefs.size() + orepn.quadratic_coefs.size() > 0) {
         GRBLinExpr term1;
@@ -47,9 +48,10 @@ void add_gurobi_objective(GRBModel* gmodel, Expression& expr, bool sense, std::u
         gmodel->set(GRB_IntAttr_ModelSense, GRB_MAXIMIZE);
 }
 
-void add_gurobi_constraint(GRBModel* gmodel, Constraint& con, std::unordered_map<int,GRBVar>& x)
+void add_gurobi_constraint(GRBModel* gmodel, Constraint& con, std::unordered_map<int,GRBVar>& x, coek::QuadraticExpr& repn)
 {
-        coek::QuadraticExpr repn;
+        repn.reset();
+        //coek::QuadraticExpr repn;
         repn.collect_terms(con);
 
         if (repn.linear_coefs.size() + repn.quadratic_coefs.size() > 0) {
@@ -150,9 +152,10 @@ gmodel->update();
 // Add Gurobi objective
 int nobj=0;
 try {
-    for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it) {
-        Expression tmp = it->expr();
-        add_gurobi_objective(gmodel, tmp, it->sense(), x);
+    coek::QuadraticExpr orepn;
+    for (auto& obj : model.repn->objectives) {
+        Expression tmp = obj.expr();
+        add_gurobi_objective(gmodel, tmp, obj.sense(), x, orepn);
         nobj++;
         }
     }
@@ -170,10 +173,11 @@ if (nobj > 1) {
 
 // Add Gurobi constraints
 try {
-    for (auto it=_model->constraints.begin(); it != _model->constraints.end(); ++it) {
+    coek::QuadraticExpr repn;
+    for (auto& con : model.repn->constraints) {
         //crepn[i].collect_terms(_model->constraints[i]);
         //Constraint c = cval->expand();
-        add_gurobi_constraint(gmodel, *it, x);
+        add_gurobi_constraint(gmodel, con, x, repn);
         }
     }
 catch (GRBException e) {
@@ -260,18 +264,18 @@ gmodel->update();
 // Add Gurobi objective
 int nobj=0;
 try {
-    for (auto it=model.objectives.begin(); it != model.objectives.end(); ++it) {
-        auto& val = *it;
-        if (auto eval = std::get_if<Objective>(&val)) {
+    coek::QuadraticExpr orepn;
+    for (auto& obj : model.objectives) {
+        if (auto eval = std::get_if<Objective>(&obj)) {
             Expression tmp = eval->body().expand();             // TODO - revise API to avoid these tmp variables
-            add_gurobi_objective(gmodel, tmp, eval->sense(), x);
+            add_gurobi_objective(gmodel, tmp, eval->sense(), x, orepn);
             nobj++;
             }
         else {
-            auto& seq = std::get<ObjectiveSequence>(val);
+            auto& seq = std::get<ObjectiveSequence>(obj);
             for (auto jt=seq.begin(); jt != seq.end(); ++jt) {
                 Expression tmp = jt->body();
-                add_gurobi_objective(gmodel, tmp, jt->sense(), x);
+                add_gurobi_objective(gmodel, tmp, jt->sense(), x, orepn);
                 nobj++;
                 }
             }
@@ -291,16 +295,16 @@ if (nobj > 1) {
 
 // Add Gurobi constraints
 try {
-    for (auto it=model.constraints.begin(); it != model.constraints.end(); ++it) {
-        auto& val = *it;
-        if (auto cval = std::get_if<Constraint>(&val)) {
+    coek::QuadraticExpr repn;
+    for (auto& con : model.constraints) {
+        if (auto cval = std::get_if<Constraint>(&con)) {
             Constraint c = cval->expand();
-            add_gurobi_constraint(gmodel, c, x);
+            add_gurobi_constraint(gmodel, c, x, repn);
             }
         else {
-            auto& seq = std::get<ConstraintSequence>(val);
+            auto& seq = std::get<ConstraintSequence>(con);
             for (auto jt=seq.begin(); jt != seq.end(); ++jt) {
-                add_gurobi_constraint(gmodel, *jt, x);
+                add_gurobi_constraint(gmodel, *jt, x, repn);
                 }
             }
         }
