@@ -64,6 +64,20 @@ Expression Constraint::body() const
 Expression Constraint::upper() const
 { return repn->upper; }
 
+bool Constraint::has_lower() {
+    if (repn->lower)
+	return true;
+    else
+	return false;
+}
+
+bool Constraint::has_upper() {
+    if (repn->upper)
+	return true;
+    else
+	return false;
+}
+
 Constraint& Constraint::name(const std::string& name)
 {
 repn->name = name;
