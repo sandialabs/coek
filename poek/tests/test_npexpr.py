@@ -77,7 +77,7 @@ class Test_SumExpression(unittest.TestCase):
     def test_error2(self):
         x = variable(10)
         if poek.__using_pybind11__:
-            with self.assertRaisesRegex(TypeError,"__add__\(\): incompatible function arguments.*"):
+            with self.assertRaisesRegex(TypeError,"unsupported operand type.*"):
                 self.a + x
         elif poek.__using_cppyy__:
             with self.assertRaisesRegex(TypeError,"none of the .* overloaded methods succeeded.*"):

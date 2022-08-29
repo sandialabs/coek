@@ -307,11 +307,11 @@ class Test_Expr(unittest.TestCase):
         E = a
 
         if poek.__using_pybind11__:
-            with self.assertRaisesRegex(TypeError,"__add__\(\): incompatible function arguments.*"):
+            with self.assertRaisesRegex(TypeError,"unsupported operand type.*"):
                 a + e
             with self.assertRaisesRegex(TypeError,"__radd__\(\): incompatible function arguments.*"):
                 e + a
-            with self.assertRaisesRegex(TypeError,"__add__\(\): incompatible function arguments.*"):
+            with self.assertRaisesRegex(TypeError,"unsupported operand type.*"):
                 E += e
             with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
                 2 + e
