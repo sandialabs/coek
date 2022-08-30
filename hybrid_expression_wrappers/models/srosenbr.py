@@ -5,7 +5,7 @@
 # ACM Transactions on Mathematical Software, vol. 7(1), pp. 17-41, 1981.
 #
 
-import pyomo.environ as pe
+import pyomo_coek.components_only as pe
 
 
 def srosenbr(N):
@@ -20,7 +20,7 @@ def srosenbr(N):
             return 1
     model.x = pe.Var(model.A, initialize=init_fn)
 
-    model.o = pe.Objective(expr = sum(100*(model.x[2*i] - model.x[2*i-1]**2)**2 + (model.x[2*i-1] - 1)**2 for i in range(1,N//2)) )
+    model.o = pe.Objective(expr = pe.quicksum(100*(model.x[2*i] - model.x[2*i-1]**2)**2 + (model.x[2*i-1] - 1)**2 for i in range(1,N//2)) )
 
     return model
 

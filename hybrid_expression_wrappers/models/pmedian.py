@@ -1,4 +1,4 @@
-import pyomo_coek.full_integration as pe
+import pyomo_coek.components_only as pe
 
 
 def pmedian(N, P):
@@ -15,17 +15,14 @@ def pmedian(N, P):
 
     model.Customers = pe.RangeSet(1,model.M)
 
-    d = {}
-    for n in range(1,model.N+1):
-        for m in range(1,model.M+1):
-            d[n,m] = 1.0+1.0/(n+m+1)
+    model.d = pe.Param(model.Locations, model.Customers, initialize=lambda model, n, m : 1.0+1.0/(n+m+1), within=pe.Reals)
 
     model.x = pe.Var(model.Locations, model.Customers, bounds=(0.0,1.0), initialize=0.0)
 
     model.y = pe.Var(model.Locations, bounds=(0.0, 1.0), initialize=0.0)
 
     def rule(model):
-        return pe.quicksum( d[n,m]*model.x[n,m] for n in model.Locations for m in model.Customers )
+        return pe.quicksum( model.d[n,m]*model.x[n,m] for n in model.Locations for m in model.Customers )
     model.obj = pe.Objective(rule=rule)
 
     def rule(model, m):

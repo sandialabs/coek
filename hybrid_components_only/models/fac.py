@@ -4,11 +4,10 @@ from pyomo_coek.components_only import *
 def fac(G):
     model = ConcreteModel()
 
-    model.G = G                 #Param(within=PositiveIntegers)
-    model.F = model.G           #Param(within=PositiveIntegers)
+    F = G
 
-    model.Grid = RangeSet(0, model.G)
-    model.Facs = RangeSet(1, model.F)
+    model.Grid = RangeSet(0, G)
+    model.Facs = RangeSet(1, F)
     model.Dims = RangeSet(1, 2)
 
     model.d = Var()
@@ -32,11 +31,11 @@ def fac(G):
     model.quadrhs = Constraint(model.Grid, model.Grid, model.Facs, rule=quadrhs_rule)
 
     def quaddistk1_rule(mod,i,j,f):
-        return mod.r[i,j,f,1] == (1.0*i)/mod.G - mod.y[f,1]
+        return mod.r[i,j,f,1] == (1.0*i)/G - mod.y[f,1]
     model.quaddistk1 = Constraint(model.Grid, model.Grid, model.Facs, rule=quaddistk1_rule)
 
     def quaddistk2_rule(mod,i,j,f):
-        return mod.r[i,j,f,2] == (1.0*j)/mod.G - mod.y[f,2]
+        return mod.r[i,j,f,2] == (1.0*j)/G - mod.y[f,2]
     model.quaddistk2 = Constraint(model.Grid, model.Grid, model.Facs, rule=quaddistk2_rule)
 
     def quaddist_rule(mod,i,j,f):
