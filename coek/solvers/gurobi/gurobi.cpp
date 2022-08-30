@@ -118,27 +118,32 @@ assert(_model->objectives.size() == 1);
 // Add Gurobi variables
 for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _model->variables.end(); ++it) {
     coek::VariableTerm* v = it->repn;
-    double lb = v->lb->eval();
-    double ub = v->ub->eval();
-    if (v->binary)
-        x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
-    else if (v->integer)
-        x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
+    if (v->fixed) {
+	;
+    }
     else {
-        if (ub >= 1e19) {
-            if (lb <= -1e19)
-                x[ v->index ] = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
-            else
-                x[ v->index ] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
+	double lb = v->lb->eval();
+	double ub = v->ub->eval();
+	if (v->binary)
+	    x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
+	else if (v->integer)
+	    x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
+	else {
+	    if (ub >= 1e19) {
+		if (lb <= -1e19)
+		    x[ v->index ] = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
+		else
+		    x[ v->index ] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
             }
-        else {
-            if (lb <= -1e19)
-                x[ v->index ] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
-            else
-                x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
+	    else {
+		if (lb <= -1e19)
+		    x[ v->index ] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
+		else
+		    x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
             }
         }
     }
+}
 
 gmodel->update();
 
@@ -193,7 +198,9 @@ try {
         // Collect values of Gurobi variables
         for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _model->variables.end(); ++it) {
             coek::VariableTerm* v = it->repn;
-            v->set_value( x[v->index].get(GRB_DoubleAttr_X) );
+	    if (!(v->fixed)) {
+		v->set_value( x[v->index].get(GRB_DoubleAttr_X) );
+	    }
             }
         }
     }
@@ -354,25 +361,30 @@ if (initial_solve()) {
     // Add Gurobi variables
     for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _model->variables.end(); ++it) {
       coek::VariableTerm* v = it->repn;
-      double lb = v->lb->eval();
-      double ub = v->ub->eval();
-      if (v->binary)
-        x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
-      else if (v->integer)
-        x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
+      if (v->fixed) {
+	  ;
+      }
       else {
-        if (ub >= 1e19) {
-	  if (lb <= -1e19)
-	    x[ v->index ] = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
-	  else
-	    x[ v->index ] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
-	}
-        else {
-	  if (lb <= -1e19)
-	    x[ v->index ] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
-	  else
-	    x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
-	}
+	  double lb = v->lb->eval();
+	  double ub = v->ub->eval();
+	  if (v->binary)
+	      x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
+	  else if (v->integer)
+	      x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
+      else {
+	  if (ub >= 1e19) {
+	      if (lb <= -1e19)
+		  x[ v->index ] = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
+	      else
+		  x[ v->index ] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
+	  }
+	  else {
+	      if (lb <= -1e19)
+		  x[ v->index ] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
+	      else
+		  x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
+	  }
+      }
       }
     }
 
@@ -463,7 +475,9 @@ else {
  try {
    for (auto it=_model->variables.begin(); it != _model->variables.end(); ++it) {
      coek::VariableTerm* v = it->repn;
-     v->set_value( x[v->index].get(GRB_DoubleAttr_X) );
+     if (!(v->fixed)) {
+	 v->set_value( x[v->index].get(GRB_DoubleAttr_X) );
+     }
    }
  }
    catch (GRBException e) {
