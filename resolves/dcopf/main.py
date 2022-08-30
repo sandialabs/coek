@@ -1,176 +1,113 @@
-import pyomo.environ as pe
-from egret.data.model_data import ModelData
-from egret.models.dcopf import create_btheta_dcopf_model
 import argparse
-import time
 from pyomo.contrib import appsi
-from pyomo.common.timing import HierarchicalTimer
 import numpy as np
-from pyomo.core.expr.visitor import replace_expressions, ExpressionValueVisitor
-import cProfile
-import pstats
-import io
-import line_profiler
-from pyomo.core.base.param import _ParamData
-from typing import Optional
-import csv
+from dcopf import AML, build_dcopf_model, _get_pe
+from pyomo.common.timing import TicTocTimer
+import tqdm
 
 
 class Options(object):
     def __init__(self):
         self.case: str = 'pglib-opf-master/pglib_opf_case118_ieee.m'
-        self.solver: str = 'appsi_gurobi'
+        self.aml: AML = AML.pyomo
+        self.solver: str = 'gurobi'
         self.n_resolves: int = 10
-        self.replace_with_params = True
 
 
 def parse_args() -> Options:
     parser = argparse.ArgumentParser()
     parser.add_argument('--case', dest='case', required=True)
-    parser.add_argument('--solver', dest='solver', default='gurobi_direct')
-    parser.add_argument('--n_resolves', dest='n_resolves', default=100, type=int)
+    parser.add_argument('--aml', dest='aml', default=AML.pyomo, type=AML)
+    parser.add_argument('--n_resolves', dest='n_resolves', default=10, type=int)
+    parser.add_argument('--solver', dest='solver', default='gurobi', type=str)
     args = parser.parse_args()
     res = Options()
     res.case = args.case
-    res.solver = args.solver
+    res.aml = args.aml
     res.n_resolves = args.n_resolves
+    res.solver = args.solver
     return res
 
 
+def get_solver(options: Options):
+    pe = _get_pe(options.aml)
+    if options.aml == AML.pyomo:
+        solver = pe.SolverFactory(options.solver)
+    elif options.aml in {AML.hybrid_components_only, AML.hybrid_expression_wrappers}:
+        assert options.solver == 'gurobi'
+        solver = pe.Gurobi()
+    else:
+        raise ValueError(f'unexpected aml: {options.aml}')
+    return solver
+
+
 def get_min_and_max_load(options: Options):
-    md = ModelData.read(options.case)
-    m, scaled_md = create_btheta_dcopf_model(md)
-    m.scale = pe.Var(bounds=(0.1, 10))
-    m.load_scale_cons = pe.ConstraintList()
+    pe = _get_pe(options.aml)
+    m = build_dcopf_model(options.case, options.aml)
+    m.load_factor.unfix()
+    m.load_factor.setlb(0.1)
+    m.load_factor.setub(10)
 
-    for k, v in m.pl.items():
-        v.unfix()
-        m.load_scale_cons.add(v == m.scale * v.value)
-        
-    m.obj.deactivate()
-    m.scale_obj = pe.Objective(expr=m.scale)
+    m.objective.deactivate()
+    m.scale_obj = pe.Objective(expr=m.load_factor)
 
-    opt = pe.SolverFactory(options.solver)
-    res = opt.solve(m, tee=False, keepfiles=True)
-    pe.assert_optimal_termination(res)
-    min_scale = m.scale.value
+    opt = get_solver(options)
+    res = opt.solve(m)
+    min_load_factor = m.load_factor.value
 
     m.scale_obj.sense = pe.maximize
-    res = opt.solve(m, tee=False)
-    pe.assert_optimal_termination(res)
-    max_scale = m.scale.value
+    res = opt.solve(m)
+    max_load_factor = m.load_factor.value
 
-    return min_scale, max_scale
+    return min_load_factor, max_load_factor
 
 
 def param_updates(options: Options):
-    timer = HierarchicalTimer()
-    timer.start('load_data')
-    md = ModelData.read(options.case)
-    timer.stop('load_data')
-    timer.start('build_model')
-    m, scaled_md = create_btheta_dcopf_model(md)
-    timer.stop('build_model')
-    timer.start('get min and max load')
-    min_scale, max_scale = get_min_and_max_load(options)
-    _min_scale = max(min(0.5*(min_scale + max_scale), 0.8), min_scale)
-    _max_scale = min(max(0.5*(min_scale + max_scale), 1.2), max_scale)
-    min_scale = _min_scale
-    max_scale = _max_scale
-    timer.stop('get min and max load')
+    min_load_factor, max_load_factor = get_min_and_max_load(options)
+    print('done getting load factors: ', min_load_factor, max_load_factor)
+    m = build_dcopf_model(options.case, options.aml)
 
     base_loads = dict()
     for k, v in m.pl.items():
         base_loads[k] = v.value
 
-    if options.replace_with_params:
-        pl_set = list(m.pl.keys())
-        m.pl_param = pe.Param(pl_set, mutable=True, initialize=base_loads)
-        replace_dict = dict()
-        for k, v in m.pl.items():
-            replace_dict[id(v)] = m.pl_param[k]
-
-        for con in m.component_data_objects(pe.Constraint, descend_into=True, active=True):
-            new_body = replace_expressions(con.body, replace_dict)
-            if con.equality:
-                con.set_value(new_body == con.lower)
-            else:
-                con.set_value((con.lower, new_body, con.upper))
-
-    timer.start('create solver')
-    #opt = pe.SolverFactory(options.solver)
-    opt = appsi.solvers.Ipopt()
-    timer.stop('create solver')
+    opt = get_solver(options)
+    if options.aml in {AML.hybrid_components_only, AML.hybrid_expression_wrappers}:
+        opt.load(m)
 
     if isinstance(opt, appsi.base.PersistentSolver):
         opt.update_config.check_for_new_or_removed_constraints = False
-        opt.update_config.update_constraints = False
         opt.update_config.check_for_new_or_removed_vars = False
+        opt.update_config.check_for_new_or_removed_params = False
+        opt.update_config.check_for_new_objective = False
+        opt.update_config.update_constraints = False
         opt.update_config.update_vars = False
-        opt.config.stream_solver = False
-        
-    print('***** first solve ***********')
-    timer.start('first solve')
-    res = opt.solve(m)
-    #pe.assert_optimal_termination(res)
-    timer.stop('first solve')
+        opt.update_config.update_params = True
+        opt.update_config.update_named_expressions = False
+        opt.update_config.update_objective = False
+        opt.update_config.treat_fixed_vars_as_params = True
 
-    load_list = [float(i) for i in np.linspace(min_scale, max_scale, options.n_resolves)]
+    load_list = [float(i) for i in np.linspace(min_load_factor, max_load_factor, options.n_resolves)]
     obj_list = list()
-    timer.start('resolves')
-    for load in load_list:
-        if options.replace_with_params:
-            timer.start('update param vals')
-            for k, p in m.pl_param.items():
-                p.set_value(base_loads[k] * load, idx=k)
-            timer.stop('update param vals')
+    for load_factor in load_list:
+        for k, p in m.pl.items():
+            p.set_value(base_loads[k] * load_factor, idx=k)
+        if options.aml in {AML.hybrid_components_only, AML.hybrid_expression_wrappers}:
+            res = opt.resolve()
         else:
-            timer.start('update var vals')
-            for k, v in m.pl.items():
-                v.value = base_loads[k] * load
-            timer.stop('update var vals')
-        timer.start('actual solve')
-        res = opt.solve(m, timer=timer)
-        timer.stop('actual solve')
-        #pe.assert_optimal_termination(res)
-        obj_list.append(pe.value(m.obj))
-    timer.stop('resolves')
-    
-    print(timer)
-    return obj_list, timer
+            res = opt.solve(m)
+        obj_list.append(m.objective.expr())
+
+    return obj_list
 
 
 def main():
+    timer = TicTocTimer()
+    timer.tic('start')
     options = parse_args()
-
-    ipopt_options = Options()
-    ipopt_options.solver = 'appsi_ipopt'
-    ipopt_options.case = options.case
-    ipopt_options.replace_with_params = False
-    ipopt_options.n_resolves = options.n_resolves
-    ipopt_obj_list, ipopt_timer = param_updates(ipopt_options)
-    ipopt_obj_list = np.array(ipopt_obj_list)
-    quit()
-
-    first_solve_times = dict()
-    resolve_times = dict()
-    solvers_to_test = ['cbc', 'ipopt', 'gurobi', 'gurobi_direct', 'scip', 'appsi_cbc', 'appsi_ipopt', 'appsi_gurobi', 'appsi_highs']
-    #solvers_to_test = ['appsi_gurobi']
-    for solver in solvers_to_test:
-        print(solver)
-        options.solver = solver
-        obj_list, timer = param_updates(options)
-        obj_list = np.array(obj_list)
-        if not np.allclose(obj_list, ipopt_obj_list):
-            raise RuntimeError('failed\n' + str(np.abs(obj_list - ipopt_obj_list)))
-        first_solve_times[solver] = timer.get_total_time('first solve')
-        resolve_times[solver] = timer.get_total_time('resolves')
-
-    f = open('param_update_results.csv', 'w')
-    writer = csv.writer(f)
-    writer.writerow(['solver', 'first solve time', 'resolve time'])
-    for solver in solvers_to_test:
-        writer.writerow([solver, first_solve_times[solver], resolve_times[solver]])
+    obj_list = param_updates(options)
+    print(obj_list)
+    timer.toc('done')
 
 
 if __name__ == '__main__':
