@@ -33,7 +33,7 @@ if instance is None:
     sys.exit(1)
 
 if solver.startswith('appsi-'):
-    solver.replace('appsi-', 'appsi_')
+    solver = solver.replace('appsi-', 'appsi_')
 opt = pe.SolverFactory(solver)
 if not opt.available:
     print("Unknown solver '%s'" % solver)

@@ -8,7 +8,7 @@ def nqueens(N):
     model.Rows = pe.RangeSet(0,N-1)
     model.Cols = pe.RangeSet(0,N-1)
 
-    model.x = pe.Var(model.Rows, model.Cols, within=pe.Boolean)
+    model.x = pe.Var(model.Rows, model.Cols, within=pe.Binary)
 
 
     # obj
