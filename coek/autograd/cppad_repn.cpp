@@ -572,20 +572,22 @@ void CppAD_Repn::reset(void)
 //
 // Initialize the CppAD dynamic parameters
 //
-for (auto it=fixed_variables.begin(); it != fixed_variables.end(); ++it)
-    dynamic_param_vals[it->second] = it->first->eval();
-for (auto it=parameters.begin(); it != parameters.end(); ++it)
-    dynamic_param_vals[it->second] = it->first->eval();
+for (auto& it : fixed_variables)
+    dynamic_param_vals[it.second] = it.first->value->eval();
+for (auto& it : parameters)
+    dynamic_param_vals[it.second] = it.first->value->eval();
 ADfc.new_dynamic( dynamic_param_vals );
 
 //
 // Setup initial value
 //
-// TODO - Does this do anything?  Maybe, if the user has explicitly set the
-//          variable value.
-//
-for (auto it=used_variables.begin(); it != used_variables.end(); ++it)
-    currx[it->first] = it->second->value->eval();
+xlb.resize(used_variables.size());
+xub.resize(used_variables.size());
+for (auto& it : used_variables) {
+    currx[it.first] = it.second->value->eval();
+    xlb[it.first] = it.second->lb->eval();
+    xub[it.first] = it.second->ub->eval();
+    }
 set_variables(currx);
 }
 
