@@ -1,5 +1,5 @@
 import sys
-import pyomo_coek.components_only as pe
+import pyomo_coek.full_integration as pe
 
 
 def nqueens(N):

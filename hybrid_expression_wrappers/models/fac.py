@@ -1,5 +1,5 @@
 import sys
-from pyomo_coek.components_only import *
+from pyomo_coek.full_integration import *
 
 def fac(G):
     model = ConcreteModel()

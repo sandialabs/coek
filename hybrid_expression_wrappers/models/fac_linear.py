@@ -1,5 +1,5 @@
 import sys
-import pyomo_coek.components_only as pe
+import pyomo_coek.full_integration as pe
 
 
 def fac_linear(G):
@@ -24,7 +24,7 @@ def fac_linear(G):
     model.obj = pe.Objective(rule=obj_rule)
 
     def assmt_rule(mod, i, j):
-        return pe.construct_linear_expression(linear_coefs=ones, linear_vars=[mod.z[i,j,f] for f in mod.Facs]) == 1
+        return pe.LinearExpression(linear_coefs=ones, linear_vars=[mod.z[i,j,f] for f in mod.Facs]) == 1
     model.assmt = pe.Constraint(model.Grid, model.Grid, rule=assmt_rule)
 
     M = 2*1.414

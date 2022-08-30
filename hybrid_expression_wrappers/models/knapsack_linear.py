@@ -1,6 +1,6 @@
 import sys
 import random
-import pyomo_coek.components_only as pe
+import pyomo_coek.full_integration as pe
 
 
 def knapsack_linear(N):
@@ -20,10 +20,10 @@ def knapsack_linear(N):
 
     model.x = pe.Var(model.INDEX, bounds=(0.0,1.0))
 
-    model.o = pe.Objective(expr=pe.construct_linear_expression(linear_coefs=[model.v[i] for i in model.INDEX], 
+    model.o = pe.Objective(expr=pe.LinearExpression(linear_coefs=[model.v[i] for i in model.INDEX], 
                                                     linear_vars= [model.x[i] for i in model.INDEX]))
 
-    model.c = pe.Constraint(expr=pe.construct_linear_expression(linear_coefs=[model.w[i] for i in model.INDEX],
+    model.c = pe.Constraint(expr=pe.LinearExpression(linear_coefs=[model.w[i] for i in model.INDEX],
                                                      linear_vars= [model.x[i] for i in model.INDEX]) <= W)
 
     return model

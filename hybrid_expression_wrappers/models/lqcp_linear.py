@@ -1,5 +1,5 @@
 import sys
-import pyomo_coek.components_only as pe
+import pyomo_coek.full_integration as pe
 
 
 def lqcp_linear(n):
@@ -37,7 +37,7 @@ def lqcp_linear(n):
     def pde_rule(m, i, j):
         variables =    [  m.y[i+1,j],      m.y[i,j], m.y[i,j-1], m.y[i,j+1], m.y[i+1,j-1], m.y[i+1,j+1]]
         coefficients = [1+2*pde_coef, -1+2*pde_coef,  -pde_coef,  -pde_coef,    -pde_coef,    -pde_coef]
-        return pe.construct_linear_expression(constant=0, linear_coefs=coefficients, linear_vars=variables) == 0
+        return pe.LinearExpression(constant=0, linear_coefs=coefficients, linear_vars=variables) == 0
     model.pde = pe.Constraint(pe.RangeSet(0,model.n-1), pe.RangeSet(1,model.n-1), rule=pde_rule)
 
     def ic_rule(model, j):

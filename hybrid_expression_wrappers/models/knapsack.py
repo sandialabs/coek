@@ -1,6 +1,6 @@
 import sys
 import random
-import pyomo_coek.components_only as pe
+import pyomo_coek.full_integration as pe
 
 def knapsack(N):
     random.seed(1000)

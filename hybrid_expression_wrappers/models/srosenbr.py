@@ -5,7 +5,7 @@
 # ACM Transactions on Mathematical Software, vol. 7(1), pp. 17-41, 1981.
 #
 
-import pyomo_coek.components_only as pe
+import pyomo_coek.full_integration as pe
 
 
 def srosenbr(N):

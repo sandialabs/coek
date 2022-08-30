@@ -1,4 +1,4 @@
-import pyomo_coek.components_only as pe
+import pyomo_coek.full_integration as pe
 
 
 def pmedian_linear(N, P):
@@ -24,19 +24,19 @@ def pmedian_linear(N, P):
     model.y = pe.Var(model.Locations, bounds=(0.0, 1.0), initialize=0.0)
 
     def rule(model):
-        return pe.construct_linear_expression(linear_coefs=[model.d[n,m] for n in model.Locations for m in model.Customers], linear_vars=[model.x[n,m] for n in model.Locations for m in model.Customers])
+        return pe.LinearExpression(linear_coefs=[model.d[n,m] for n in model.Locations for m in model.Customers], linear_vars=[model.x[n,m] for n in model.Locations for m in model.Customers])
     model.obj = pe.Objective(rule=rule)
 
     def rule(model, m):
-        return (pe.construct_linear_expression(linear_coefs=ones, linear_vars=[model.x[n,m] for n in model.Locations]), 1.0)
+        return (pe.LinearExpression(linear_coefs=ones, linear_vars=[model.x[n,m] for n in model.Locations]), 1.0)
     model.single_x = pe.Constraint(model.Customers, rule=rule)
 
     def rule(model, n,m):
-        return (None, pe.construct_linear_expression(linear_coefs=[1,-1], linear_vars=[model.x[n,m], model.y[n]]), 0.0)
+        return (None, pe.LinearExpression(linear_coefs=[1,-1], linear_vars=[model.x[n,m], model.y[n]]), 0.0)
     model.bound_y = pe.Constraint(model.Locations, model.Customers, rule=rule)
 
     def rule(model):
-        return (pe.construct_linear_expression(linear_coefs=ones, linear_vars=[model.y[n] for n in model.Locations]) - model.P, 0.0)
+        return (pe.LinearExpression(linear_coefs=ones, linear_vars=[model.y[n] for n in model.Locations]) - model.P, 0.0)
     model.num_facilities = pe.Constraint(rule=rule)
 
     return model
