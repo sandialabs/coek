@@ -31,10 +31,13 @@ size_t G = F;
     // Add constraints
 
     // Each customer is assigned to a facility
-    for (size_t i = 0; i <= G; i++) {
-        for (size_t j = 0; j <= G; j++) {
+    //for (size_t i = 0; i <= G; i++) {
+    //    for (size_t j = 0; j <= G; j++) {
+    for (size_t i : coek::range<size_t>(G+1)) {
+        for (size_t j : coek::range<size_t>(G+1)) {
             auto lhs = coek::expression();
-            for (size_t f = 0; f < F; f++)
+            //for (size_t f = 0; f < F; f++)
+            for (size_t f : coek::range<size_t>(F))
                 lhs += z(i,j,f);
             model.add(lhs == 1);
         }
@@ -42,9 +45,12 @@ size_t G = F;
 
     const double M = 2*sqrt(2.0);
 
-    for (size_t i = 0; i <= G; i++) {
-        for (size_t j = 0; j <= G; j++) {
-            for (size_t f = 0; f < F; f++) {
+    //for (size_t i = 0; i <= G; i++) {
+    //    for (size_t j = 0; j <= G; j++) {
+    //        for (size_t f = 0; f < F; f++) {
+    for (size_t i : coek::range<size_t>(G+1)) {
+        for (size_t j : coek::range<size_t>(G+1)) {
+            for (size_t f : coek::range<size_t>(F)) {
                 model.add(s(i,j,f)   == d + M*(1 - z(i,j,f)));
                 model.add(r(i,j,f,0) == (1.0*i)/G - y(f,0));
                 model.add(r(i,j,f,1) == (1.0*j)/G - y(f,1));

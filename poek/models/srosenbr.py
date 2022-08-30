@@ -6,7 +6,6 @@
 #
 # TODO - Double-check example
 #
-
 import poek as pk
 
 

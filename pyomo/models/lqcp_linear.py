@@ -1,8 +1,10 @@
 import sys
-from pyomo.environ import *
+import pyomo.environ as pe
+from pyomo.core.expr.numeric_expr import LinearExpression
 
-def lqcp(n):
-    model = ConcreteModel()
+
+def lqcp_linear(n):
+    model = pe.ConcreteModel()
 
     model.n = n
     model.m = model.n
@@ -12,11 +14,11 @@ def lqcp(n):
     model.h2 = model.dx**2
     model.a = 0.001
 
-    model.ns = RangeSet(0, model.n)
-    model.ms = RangeSet(0, model.m)
+    model.ns = pe.RangeSet(0, model.n)
+    model.ms = pe.RangeSet(0, model.m)
 
-    model.y = Var(model.ms, model.ns, bounds=(0.0, 1.0))
-    model.u = Var(model.ms, bounds=(-1.0, 1.0))
+    model.y = pe.Var(model.ms, model.ns, bounds=(0.0, 1.0))
+    model.u = pe.Var(model.ms, bounds=(-1.0, 1.0))
 
     def yt(j,dx):
         return 0.5*(1 - (j*dx)*(j*dx))
@@ -30,23 +32,25 @@ def lqcp(n):
             2 * sum( model.u[i]**2 for i in range(1,model.m)) +
             model.u[model.m]**2
         )
-    model.obj = Objective(rule=rule)
+    model.obj = pe.Objective(rule=rule)
 
     pde_coef = model.T*0.5*model.n     # == dt*0.5/h2
-    def pde_rule(model, i, j):
-      return model.y[i+1,j] - model.y[i,j] == pde_coef*(model.y[i,j-1] - 2*model.y[i,j] + model.y[i,j+1] + model.y[i+1,j-1] - 2*model.y[i+1,j] + model.y[i+1,j+1])
-    model.pde = Constraint(RangeSet(0,model.n-1), RangeSet(1,model.n-1), rule=pde_rule)
+    def pde_rule(m, i, j):
+        variables =    [  m.y[i+1,j],      m.y[i,j], m.y[i,j-1], m.y[i,j+1], m.y[i+1,j-1], m.y[i+1,j+1]]
+        coefficients = [1+2*pde_coef, -1+2*pde_coef,  -pde_coef,  -pde_coef,    -pde_coef,    -pde_coef]
+        return LinearExpression(constant=0, linear_coefs=coefficients, linear_vars=variables) == 0
+    model.pde = pe.Constraint(pe.RangeSet(0,model.n-1), pe.RangeSet(1,model.n-1), rule=pde_rule)
 
     def ic_rule(model, j):
       return model.y[0,j] == 0
-    model.ic = Constraint(model.ms, rule=ic_rule)
+    model.ic = pe.Constraint(model.ms, rule=ic_rule)
 
     def bc1_rule(model, i):
       return model.y[i,  2] - 4*model.y[i, 1] + 3*model.y[i,0] == 0
-    model.bc1 = Constraint(RangeSet(1,model.n), rule=bc1_rule)
+    model.bc1 = pe.Constraint(pe.RangeSet(1,model.n), rule=bc1_rule)
 
     def bc2_rule(model, i):
       return model.y[i,model.n-2] - 4*model.y[i,model.n-1] + 3*model.y[i,model.n-0] == (2*model.dx)*(model.u[i] - model.y[i,model.n-0])
-    model.bc2 = Constraint(RangeSet(1,model.n), rule=bc2_rule)
+    model.bc2 = pe.Constraint(pe.RangeSet(1,model.n), rule=bc2_rule)
 
     return model

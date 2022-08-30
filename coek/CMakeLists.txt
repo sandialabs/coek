@@ -6,17 +6,15 @@ include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 set(sources
     models/jump/lqcp_array.cpp
-    models/jump/lqcp_array2.cpp
     models/jump/lqcp_scalar.cpp
     models/jump/fac_array.cpp
-    models/jump/fac_array2.cpp
     models/jump/fac_scalar.cpp
-    models/misc/pmedian.cpp
     models/misc/pmedian_array.cpp
-    models/misc/nqueens.cpp
+    models/misc/pmedian.cpp
     models/misc/nqueens_array.cpp
-    models/misc/knapsack.cpp
+    models/misc/nqueens.cpp
     models/misc/knapsack_array.cpp
+    models/misc/knapsack.cpp
     )
 if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
     list(APPEND sources
@@ -40,6 +38,10 @@ endif()
 # coek_solver0
 add_executable(coek_solve0 solve0.cpp ${sources})
 TARGET_LINK_LIBRARIES(coek_solve0 PRIVATE coek::coek fmt::fmt)
+
+# coek_micro
+add_executable(coek_micro micro.cpp)
+TARGET_LINK_LIBRARIES(coek_micro PRIVATE coek::coek fmt::fmt)
 
 # rlqcp
 ##add_executable(rlqcp rlqcp.cpp)

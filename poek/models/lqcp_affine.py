@@ -4,7 +4,7 @@ import poek as pk
 quicksum = pk.quicksum
 
 
-def lqcp(n):
+def lqcp_affine(n):
 
     m = n
     dx = 1.0/n
@@ -34,7 +34,8 @@ def lqcp(n):
     #pde
     pde_coef = T*0.5*n      # == dt*0.5/h2
     for i, j in itertools.product(range(n), range(1, m)):
-        model.add_constraint(y[i+1, j] - y[i, j] == pde_coef*(y[i, j-1] - 2*y[i, j] + y[i, j+1] + y[i+1, j-1] - 2*y[i+1, j] + y[i+1, j+1]))
+        model.add_constraint( pk.affine_expression([1+2*pde_coef, -1+2*pde_coef, -pde_coef, -pde_coef,   -pde_coef,  -pde_coef],
+                                                   [   y[i+1, j],       y[i, j], y[i, j-1], y[i, j+1], y[i+1, j-1], y[i+1, j+1]]) == 0 )
 
     #ic
     for j in range(m+1):

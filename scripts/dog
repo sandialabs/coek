@@ -8,42 +8,42 @@ import json
 import os
 from os.path import join, getsize
 import pprint
-import csv
+import json
 from tabulate import tabulate
 
 def load_results(directory):
     results = {}
     for root, dirs, files in os.walk(directory):
         for f in files:
-            if not f == 'results.csv':
+            if not f == 'results.json':
                 continue
-            test = os.path.basename(root)
-            results[test] = []
-            print("  Collecting test results for "+test)
+            tool = os.path.basename(root)
+            results[tool] = []
+            print("  Collecting test results for "+tool)
             with open(join(root,f), 'r') as INPUT:
-                reader = csv.reader(INPUT)
-                first = True
-                for row in reader:
-                    if first:
-                        first = False
-                        continue
-                    results[test].append(row)
+                results[tool] = json.load(INPUT)
     return results
 
 
 def writer_lp(data, largest=False):
     for problem in ['knapsack', 'pmedian', 'lqcp', 'fac', 'nqueens']:
         results = []
-        for test,rows in data.items():
-            for row in rows:
-                if row[0] != 'lp':
+        for tool,tooldata in data.items():
+            for name,exp in tooldata.items():
+                if name.startswith("_"):
                     continue
-                if not row[1].startswith(problem):
+                if exp['suffix'] != 'lp':
                     continue
-                if row[4] == "":
-                    results.append([row[1], int(row[2]), row[3], None, None, None, None])
+                if not exp['model'].startswith(problem):
+                    continue
+                res = [exp['model'], int(exp['size'][0]), tool]
+                if 'real' not in exp['data'] or len(exp['data']['real']['trials']) == 0:
+                    results.append( res + [None, None, None, None, None, None] )
                 else:
-                    results.append([row[1], int(row[2]), row[3], float(row[4]), float(row[5]), int(row[6]), int(row[7])])
+                    results.append( res + [exp['data']['real']['mean'], exp['data']['real']['stdev'],
+                                           exp['data']['user']['mean'], exp['data']['user']['stdev'],
+                                           exp['data']['lines']['mean'], 
+                                           exp['data']['bytes']['mean']] )
 
         #pprint.pprint(results)
         if largest:
@@ -57,40 +57,44 @@ def writer_lp(data, largest=False):
         for r in results:
             if r[2] == 'gurobi':
                 g_real[r[1]] = r[3]
-                g_user[r[1]] = r[4]
-                g_lines[r[1]] = r[5]
-                g_bytes[r[1]] = r[6]
+                g_user[r[1]] = r[5]
+                g_lines[r[1]] = r[7]
+                g_bytes[r[1]] = r[8]
         for r in results:
             if r[3] is None:
                 r.append(r[3])
-                r.append(r[4])
                 r.append(r[5])
-                r.append(r[6])
+                r.append(r[7])
+                r.append(r[8])
             elif r[1] in g_real:
                 r.append(r[3]/g_real[r[1]])
-                r.append(r[4]/g_user[r[1]])
-                r.append(r[5]/g_lines[r[1]])
-                r.append(r[6]/g_bytes[r[1]])
+                r.append(r[5]/g_user[r[1]])
+                r.append(r[7]/g_lines[r[1]])
+                r.append(r[8]/g_bytes[r[1]])
             else:
                 r.append(None)
                 r.append(None)
                 r.append(None)
                 r.append(None)
         print("")
-        print(tabulate(sorted(results,key=lambda x:(x[0].split('-')[0],x[2],x[0],x[1])), headers=["Model", "Size", "Test", "Real", "User", "Lines", "Bytes", "RealRatio", "UserRatio", "LinesRatio", "BytesRatio"]))
+        print(tabulate(sorted(results,key=lambda x:(x[0].split('-')[0],x[2],x[0],x[1])), headers=["Model", "Size", "Test", "Mean Real", "Stdev Real", "Mean User", "Stdev User", "Lines", "Bytes", "RealRatio", "UserRatio", "LinesRatio", "BytesRatio"]))
 
 
 def solve0(data, largest=False):
     for problem in ['knapsack', 'pmedian', 'lqcp', 'fac', 'nqueens']:
         results = []
-        for test,rows in data.items():
-            for row in rows:
-                if not row[1].startswith(problem):
+        for tool,tooldata in data.items():
+            for name,exp in tooldata.items():
+                if name.startswith("_"):
                     continue
-                if row[4] == "":
-                    results.append([row[1], int(row[2]), row[3], None, None])
+                if not exp['model'].startswith(problem):
+                    continue
+                res = [exp['model'], int(exp['size'][0]), tool]
+                if 'real' not in exp['data'] or len(exp['data']['real']['trials']) == 0:
+                    results.append( res + [None, None, None, None] )
                 else:
-                    results.append([row[1], int(row[2]), row[3], float(row[4]), float(row[5])])
+                    results.append( res + [exp['data']['real']['mean'], exp['data']['real']['stdev'],
+                                           exp['data']['user']['mean'], exp['data']['user']['stdev']] )
 
         #pprint.pprint(results)
         if largest:
@@ -102,19 +106,19 @@ def solve0(data, largest=False):
         for r in results:
             if r[2] == 'gurobi':
                 g_real[r[1]] = r[3]
-                g_user[r[1]] = r[4]
+                g_user[r[1]] = r[5]
         for r in results:
             if r[3] is None:
                 r.append(r[3])
-                r.append(r[4])
+                r.append(r[5])
             elif r[1] in g_real:
                 r.append(r[3]/g_real[r[1]])
-                r.append(r[4]/g_user[r[1]])
+                r.append(r[5]/g_user[r[1]])
             else:
                 r.append(None)
                 r.append(None)
         print("")
-        print(tabulate(sorted(results,key=lambda x:(x[0].split('-')[0],x[2],x[0],x[1])), headers=["Model", "Size", "Test", "Real", "User", "RealRatio", "UserRatio"]))
+        print(tabulate(sorted(results,key=lambda x:(x[0].split('-')[0],x[2],x[0],x[1])), headers=["Model", "Size", "Test", "Mean Real", "Stdev Real", "Mean User", "Stdev User", "RealRatio", "UserRatio"]))
 
 
 if __name__ == "__main__":
