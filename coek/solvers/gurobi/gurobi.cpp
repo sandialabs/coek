@@ -118,27 +118,32 @@ assert(_model->objectives.size() == 1);
 // Add Gurobi variables
 for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _model->variables.end(); ++it) {
     coek::VariableTerm* v = it->repn;
-    double lb = v->lb->eval();
-    double ub = v->ub->eval();
-    if (v->binary)
-        x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
-    else if (v->integer)
-        x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
+    if (v->fixed) {
+	;
+    }
     else {
-        if (ub >= 1e19) {
-            if (lb <= -1e19)
-                x[ v->index ] = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
-            else
-                x[ v->index ] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
+	double lb = v->lb->eval();
+	double ub = v->ub->eval();
+	if (v->binary)
+	    x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
+	else if (v->integer)
+	    x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
+	else {
+	    if (ub >= 1e19) {
+		if (lb <= -1e19)
+		    x[ v->index ] = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
+		else
+		    x[ v->index ] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
             }
-        else {
-            if (lb <= -1e19)
-                x[ v->index ] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
-            else
-                x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
+	    else {
+		if (lb <= -1e19)
+		    x[ v->index ] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
+		else
+		    x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
             }
         }
     }
+}
 
 gmodel->update();
 
@@ -193,7 +198,9 @@ try {
         // Collect values of Gurobi variables
         for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _model->variables.end(); ++it) {
             coek::VariableTerm* v = it->repn;
-            v->set_value( x[v->index].get(GRB_DoubleAttr_X) );
+	    if (!(v->fixed)) {
+		v->set_value( x[v->index].get(GRB_DoubleAttr_X) );
+	    }
             }
         }
     }
@@ -346,136 +353,91 @@ int GurobiSolver::resolve()
 auto _model = model.repn.get();
 
 if (initial_solve()) {
-    std::cout << "STARTING GUROBI" << std::endl << std::flush;
-
     env = new GRBEnv();
     gmodel = new GRBModel(*env);
 
-    std::cout << "BUILDING GUROBI MODEL" << std::endl << std::flush;
     assert(_model->objectives.size() == 1);
 
     // Add Gurobi variables
-    for (auto it=_model->variables.begin(); it != _model->variables.end(); ++it) {
-        coek::VariableTerm* v = it->repn;
-        double lb = v->lb->eval();
-        double ub = v->ub->eval();
-        if (v->binary)
-            x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
-        else if (v->integer)
-            x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
-        else {
-            if (ub >= 1e19) {
-                if (lb <= -1e19)
-                    x[ v->index ] = gmodel->addVar(GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
-                else
-                    x[ v->index ] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
-                }
-            else {
-                if (lb <= -1e19)
-                    x[ v->index ] = gmodel->addVar(GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
-                else
-                    x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
-                }
-            }
-        }
+    for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _model->variables.end(); ++it) {
+      coek::VariableTerm* v = it->repn;
+      if (v->fixed) {
+	  ;
+      }
+      else {
+	  double lb = v->lb->eval();
+	  double ub = v->ub->eval();
+	  if (v->binary)
+	      x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
+	  else if (v->integer)
+	      x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
+      else {
+	  if (ub >= 1e19) {
+	      if (lb <= -1e19)
+		  x[ v->index ] = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
+	      else
+		  x[ v->index ] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
+	  }
+	  else {
+	      if (lb <= -1e19)
+		  x[ v->index ] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
+	      else
+		  x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
+	  }
+      }
+      }
+    }
 
     gmodel->update();
 
     // Add Gurobi objective
+    int nobj=0;
     try {
-        for (size_t ii=0; ii<model.repn->objectives.size(); ++ii) {
-            coek::MutableNLPExpr& _repn = repn[ii];
-            GRBLinExpr term1;
-            for (size_t i=0; i< _repn.linear_coefs.size(); i++)
-                term1 += _repn.linear_coefs[i].value() * x[_repn.linear_vars[i]->index];
-            term1 += _repn.constval.value();
-            if (_repn.quadratic_coefs.size() > 0) {
-                GRBQuadExpr term2;
-                for (size_t i=0; i< _repn.quadratic_coefs.size(); i++)
-                    term2 += _repn.quadratic_coefs[i].value() * x[_repn.quadratic_lvars[i]->index] * x[_repn.quadratic_rvars[i]->index];
-                gmodel->setObjective(term1 + term2);
-                }
-            else
-                gmodel->setObjective(term1);
-
-            if (model.repn->objectives[ii].sense())
-                gmodel->set(GRB_IntAttr_ModelSense, GRB_MINIMIZE);
-            else
-                gmodel->set(GRB_IntAttr_ModelSense, GRB_MAXIMIZE);
-            }
-        }
+      for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it) {
+        Expression tmp = it->expr();
+        add_gurobi_objective(gmodel, tmp, it->sense(), x);
+        nobj++;
+      }
+    }
     catch (GRBException e) {
-        std::cerr << "GUROBI Exception: (objective) " << e.getMessage() << std::endl;
-        throw;
-        }
+      std::cerr << "GUROBI Exception: (objective) " << e.getMessage() << std::endl;
+      throw;
+    }
+    if (nobj > 1) {
+      //
+      // TODO - is this an error?
+      //
+      std::cerr << "Error initializing Gurobi: More than one objective defined!" << std::endl;
+      return -1;
+    }
 
     // Add Gurobi constraints
     try {
-        // TODO - confirm that we skip the first constraint... !?!
-        size_t nobjectives = _model->objectives.size();
-        for (size_t ii=1; ii<repn.size(); ii++) {
-            coek::MutableNLPExpr& _repn = repn[ii];
-            if (_repn.linear_coefs.size() + _repn.quadratic_coefs.size() > 0) {
-                GRBLinExpr term1;
-                for (size_t i=0; i< _repn.linear_coefs.size(); i++)
-                    term1 += _repn.linear_coefs[i].value() * x[_repn.linear_vars[i]->index];
-                if (_repn.quadratic_coefs.size() > 0) {
-                    GRBQuadExpr term2;
-                    for (size_t i=0; i< _repn.quadratic_coefs.size(); i++)
-                        term2 += _repn.quadratic_coefs[i].value() * x[_repn.quadratic_lvars[i]->index] * x[_repn.quadratic_rvars[i]->index];
-
-                    auto& con = _model->constraints[ii-nobjectives];
-                    if (con.is_inequality()) {
-                        if (con.lower().repn) {
-                            double lower = con.lower().value();
-                            if (lower > -COEK_INFINITY)
-                                gmodel->addQConstr(term1 + term2, GRB_LESS_EQUAL, - _repn.constval.value() + lower);
-                            }
-                        if (con.upper().repn) {
-                            double upper = con.upper().value();
-                            if (upper < COEK_INFINITY)
-                                gmodel->addQConstr(term1 + term2, GRB_LESS_EQUAL, - _repn.constval.value() + upper);
-                            }
-                        }
-                    else
-                        gmodel->addQConstr(term1 + term2, GRB_EQUAL, - _repn.constval.value());
-                    }
-                else {
-                    auto& con = _model->constraints[ii-nobjectives];
-                    if (con.is_inequality()) {
-                        if (con.lower().repn) {
-                            double lower = con.lower().value();
-                            if (lower > -COEK_INFINITY)
-                                gmodel->addQConstr(term1, GRB_LESS_EQUAL, - _repn.constval.value() + lower);
-                            }
-                        if (con.upper().repn) {
-                            double upper = con.upper().value();
-                            if (upper < COEK_INFINITY) {
-                                auto e = - _repn.constval.value() + upper;
-                                gmodel->addQConstr(term1, GRB_LESS_EQUAL, e);
-                                }
-                            }
-                        }
-                    else
-                        gmodel->addConstr(term1, GRB_EQUAL, - _repn.constval.value());
-                    }
-                }
-            }
-        }
+      for (auto it=_model->constraints.begin(); it != _model->constraints.end(); ++it) {
+        //crepn[i].collect_terms(_model->constraints[i]);
+        //Constraint c = cval->expand();
+        add_gurobi_constraint(gmodel, *it, x);
+      }
+    }
     catch (GRBException e) {
-        std::cerr << "GUROBI Exception: (constraint) " << e.getMessage() << std::endl;
-        throw;
-        }
+      std::cerr << "GUROBI Exception: (constraint) " << e.getMessage() << std::endl;
+      throw;
+    }
 
-    std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
     // All options are converted to strings for Gurobi
     for (auto it=string_options.begin(); it != string_options.end(); ++it)
-        gmodel->set(it->first, it->second);
-    gmodel->optimize();
+      gmodel->set(it->first, it->second);
+
+    try {
+      gmodel->optimize();
+    }
+    catch (GRBException e) {
+      std::cerr << "Gurobi Exception: (solve) " << e.getMessage() << std::endl;
+      throw;
+    }
     }
 
 else {
-    std::cout << "UPDATING GUROBI MODEL" << std::endl << std::flush;
 
     for (auto it=updated_coefs.begin(); it != updated_coefs.end(); ++it) {
         size_t i=std::get<0>(*it);
@@ -506,15 +468,22 @@ else {
             };
         }
 
-    std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
     gmodel->optimize();
     }
     
 // Collect values of Gurobi variables
-for (auto it=_model->variables.begin(); it != _model->variables.end(); ++it) {
-    coek::VariableTerm* v = it->repn;
-    v->set_value( x[v->index].get(GRB_DoubleAttr_X) );
-    }
+ try {
+   for (auto it=_model->variables.begin(); it != _model->variables.end(); ++it) {
+     coek::VariableTerm* v = it->repn;
+     if (!(v->fixed)) {
+	 v->set_value( x[v->index].get(GRB_DoubleAttr_X) );
+     }
+   }
+ }
+   catch (GRBException e) {
+     std::cerr << "Gurobi Exception: (results) " << e.getMessage() << std::endl;
+     throw;
+   }
 
 return 0;
 }
