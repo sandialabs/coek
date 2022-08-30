@@ -11,7 +11,7 @@ from typing import Tuple, Dict
 from pyomo.core.base.block import _BlockData
 from pyomo.common.timing import HierarchicalTimer
 import pyomo.environ as pe
-from pyomo_coek.components_only.objective import Objective
+from pyomo_coek.components_only.objective import Objective, minimize, maximize
 from pyomo_coek.components_only.constraint import Constraint
 from pyomo_coek.components_only.variable import Var
 
@@ -61,7 +61,7 @@ class Gurobi(Solver):
         for c in model.component_data_objects(Constraint, active=True, descend_into=True):
             pm.add_constraint(c._pe)
         for obj in model.component_data_objects(Objective, active=True, descend_into=True):
-            pm.add_objective(obj._pe)
+            pm.add_objective(obj._pe, obj.sense == minimize)
         timer.stop('construct poek model')
 
         return pm
@@ -74,12 +74,20 @@ class Gurobi(Solver):
         self._opt.load(pm)
         timer.stop('coek load')
 
+    def _set_options(self):
+        if self.config.stream_solver:
+            self._opt.set_option("OutputFlag", 1)
+        else:
+            self._opt.set_option("OutputFlag", 0)
+
+        for key, option in self.gurobi_options.items():
+            self._opt.set_option(key, option)
+
     def resolve(self, timer: HierarchicalTimer = None):
         if timer is None:
             timer = HierarchicalTimer()
 
-        for key, option in self.gurobi_options.items():
-            self._opt.set_option(key, option)
+        self._set_options()
 
         timer.start('coek resolve')
         self._opt.resolve()
@@ -94,8 +102,7 @@ class Gurobi(Solver):
 
         pm = self._construct_poek_model(model, timer)
 
-        for key, option in self.gurobi_options.items():
-            self._opt.set_option(key, option)
+        self._set_options()
 
         timer.start('coek solve')
         _res = self._opt.solve(pm)

@@ -1287,7 +1287,7 @@ class Param(IndexedComponent):
         else:
             default = str(self._default_val)
         if self._mutable or not self.is_indexed():
-            dataGen = lambda k, v: [ v._value, ]
+            dataGen = lambda k, v: [ v.value, ]
         else:
             dataGen = lambda k, v: [ v, ]
         headers = [
