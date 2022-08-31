@@ -1971,6 +1971,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         .def("solve", &coek::NLPSolver::solve)
         .def("load", &coek::NLPSolver::load)
         .def("resolve", &coek::NLPSolver::resolve)
+        .def_property_readonly("available", &coek::NLPSolver::available)
 
         .def("set_option", [](coek::NLPSolver& s, const std::string& o, std::string& v){s.set_option(o,v);})
         .def("set_option", [](coek::NLPSolver& s, const std::string& o, int v){s.set_option(o,v);})
