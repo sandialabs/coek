@@ -167,10 +167,10 @@ for (size_t j=0; j<repn.size(); j++) {
         GetWithDef(pnonlvals, *it).insert(j);
     }
 
-//#ifdef DEBUG
+#ifdef DEBUG
 std::cout << "# Model Expressions:   " << repn.size() << std::endl;
 std::cout << "# Mutable Expressions: " << nmutable << std::endl;
-//#endif
+#endif
 }
 
 
