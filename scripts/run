@@ -85,6 +85,10 @@ all_pyomo_models = [
     "pmedian-linear",
     ]
 
+all_hybrid_components_only_models = list(all_pyomo_models)
+
+all_hybrid_expression_wrappers_models = list(all_pyomo_models)
+
 
 def get_filedata(fname):
     with open(fname,'r') as INPUT:
@@ -276,12 +280,18 @@ if __name__ == "__main__":
         test_solve0(test_type="small", models=all_gurobi_models, solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi", ntrials=ntrials, errors=errors)
         test_solve0(test_type="small", models=all_poek_models, solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek", ntrials=ntrials, errors=errors)
         test_solve0(test_type="small", models=all_pyomo_models, solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="small", models=all_pyomo_models, solvers=['appsi-gurobi'], executable="../pyomo/pyomo_solve0", subdir="appsi", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="small", models=all_hybrid_components_only_models, solvers=['gurobi'], executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="small", models=all_hybrid_expression_wrappers_models, solvers=['gurobi'], executable="../hybrid_expression_wrappers/hybrid_expression_wrappers_solve0", subdir="hybrid_expression_wrappers", ntrials=ntrials, errors=errors)
 
     elif sys.argv[1] == "bench_solve0":
         test_solve0(test_type="all", models=all_coek_models, solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek", ntrials=ntrials, errors=errors)
         test_solve0(test_type="all", models=all_gurobi_models, solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi", ntrials=ntrials, errors=errors)
         test_solve0(test_type="all", models=all_poek_models, solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek", ntrials=ntrials, errors=errors)
         test_solve0(test_type="all", models=all_pyomo_models, solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="all", models=all_pyomo_models, solvers=['appsi-gurobi'], executable="../pyomo/pyomo_solve0", subdir="appsi", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="all", models=all_hybrid_components_only_models, solvers=['gurobi'], executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="all", models=all_hybrid_expression_wrappers_models, solvers=['gurobi'], executable="../hybrid_expression_wrappers/hybrid_expression_wrappers_solve0", subdir="hybrid_expression_wrappers", ntrials=ntrials, errors=errors)
 
     else:
         print("UNKNOWN TEST: "+sys.argv[1])

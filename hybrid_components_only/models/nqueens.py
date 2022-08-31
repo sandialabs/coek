@@ -1,0 +1,47 @@
+import sys
+import pyomo_coek.components_only as pe
+
+
+def nqueens(N):
+    model = pe.ConcreteModel()
+
+    model.Rows = pe.RangeSet(0,N-1)
+    model.Cols = pe.RangeSet(0,N-1)
+
+    model.x = pe.Var(model.Rows, model.Cols, within=pe.Binary)
+
+
+    # obj
+    model.obj = pe.Objective(expr=pe.quicksum( model.x[i,j] for i in model.Rows for j in model.Cols) )
+
+    # one per row
+    def row_rule(model, i):
+        return pe.quicksum(model.x[i,j] for j in range(N)) == 1
+    model.row_rule = pe.Constraint(model.Rows, rule=row_rule)
+
+    def col_rule(model, j):
+        return pe.quicksum(model.x[i,j] for i in range(N)) == 1
+    model.col_rule = pe.Constraint(model.Cols, rule=col_rule)
+
+    # \diagonals_col
+    def ldiag_cols_rule(model, i):
+        return model.x[0, i] + pe.quicksum(model.x[j, i+j] for j in range(1, N-i)) <= 1
+    model.ldiag_cols = pe.Constraint(range(N-1), rule=ldiag_cols_rule)
+
+    # \diagonals_row
+    def ldiag_rows_rule(model, i):
+        return model.x[i, 0] + pe.quicksum(model.x[i+j, j] for j in range(1, N-i)) <= 1
+    model.ldiag_rows = pe.Constraint(range(1, N-1), rule=ldiag_rows_rule)
+
+    # /diagonals_col
+    def rdiag_cols_rule(model, i):
+        return model.x[0, i] + pe.quicksum(model.x[j, i-j] for j in range(1, i+1)) <= 1
+    model.rdiag_cols = pe.Constraint(range(1,N), rule=rdiag_cols_rule)
+
+    # /diagonals_row
+    def rdiag_rows_rule(model, i):
+        return model.x[i, N-1] + pe.quicksum(model.x[i+j, N-1-j] for j in range(1, N-i)) <= 1
+    model.rdiag_rows = pe.Constraint(range(1,N-1), rule=rdiag_rows_rule)
+
+    return model
+
