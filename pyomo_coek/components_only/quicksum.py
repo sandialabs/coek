@@ -35,6 +35,6 @@ _expr_repn_map[float] = _expr_repn_float
 _expr_repn_map[int] = _expr_repn_float
 
 
-def construct_linear_expression(coefs, vlist, constant=0):
-    vlist = [v._pe for v in vlist]
-    return pk.construct_linear_expression(coefs, vlist, constant)
+def construct_linear_expression(linear_coefs, linear_vars, constant=0):
+    linear_vars = [v._pe for v in linear_vars]
+    return pk.construct_linear_expression(linear_coefs, linear_vars, constant)

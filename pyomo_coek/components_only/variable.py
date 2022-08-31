@@ -1228,7 +1228,7 @@ class Param(IndexedComponent):
             #
             val = self._default_val
             if type(val) in native_types \
-               and val not in self.domain:
+                    and val not in self.domain:
                 raise ValueError(
                     "Default value (%s) is not valid for Param %s domain %s" %
                     (str(val), self.name, self.domain.name))
