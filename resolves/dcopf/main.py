@@ -64,7 +64,6 @@ def get_min_and_max_load(options: Options):
 
 def param_updates(options: Options):
     min_load_factor, max_load_factor = get_min_and_max_load(options)
-    print('done getting load factors: ', min_load_factor, max_load_factor)
     m = build_dcopf_model(options.case, options.aml)
 
     base_loads = dict()
