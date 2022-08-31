@@ -11,7 +11,7 @@ from typing import Tuple, Dict
 from pyomo.core.base.block import _BlockData
 from pyomo.common.timing import HierarchicalTimer
 import pyomo.environ as pe
-from pyomo_coek.full_integration.objective import Objective
+from pyomo_coek.full_integration.objective import Objective, minimize, maximize
 from pyomo_coek.full_integration.constraint import Constraint
 from pyomo_coek.full_integration.expression import Var
 
@@ -51,10 +51,9 @@ class Gurobi(Solver):
     def gurobi_options(self, val: Dict):
         self._solver_options = val
 
-    def solve(self, model: _BlockData, timer: HierarchicalTimer = None) -> Results:
-        if timer is None:
-            timer = HierarchicalTimer()
-
+    def _construct_poek_model(
+            self, model: _BlockData, timer: HierarchicalTimer
+    ) -> pk.model:
         timer.start('construct poek model')
         pm = pk.model()
         for v in model.component_data_objects(Var, descend_into=True):
@@ -62,11 +61,48 @@ class Gurobi(Solver):
         for c in model.component_data_objects(Constraint, active=True, descend_into=True):
             pm.add_constraint(c.expr._pe)
         for obj in model.component_data_objects(Objective, active=True, descend_into=True):
-            pm.add_objective(obj.expr._pe)
+            pm.add_objective(obj.expr._pe, obj.sense == minimize)
         timer.stop('construct poek model')
+
+        return pm
+
+    def load(self, model: _BlockData, timer: HierarchicalTimer = None):
+        if timer is None:
+            timer = HierarchicalTimer()
+        pm = self._construct_poek_model(model, timer)
+        timer.start('coek load')
+        self._opt.load(pm)
+        timer.stop('coek load')
+
+    def _set_options(self):
+        if self.config.stream_solver:
+            self._opt.set_option("OutputFlag", 1)
+        else:
+            self._opt.set_option("OutputFlag", 0)
 
         for key, option in self.gurobi_options.items():
             self._opt.set_option(key, option)
+
+    def resolve(self, timer: HierarchicalTimer = None):
+        if timer is None:
+            timer = HierarchicalTimer()
+
+        self._set_options()
+
+        timer.start('coek resolve')
+        self._opt.resolve()
+        timer.stop('coek resolve')
+
+        res = Results()
+        return res
+
+    def solve(self, model: _BlockData, timer: HierarchicalTimer = None) -> Results:
+        if timer is None:
+            timer = HierarchicalTimer()
+
+        pm = self._construct_poek_model(model, timer)
+
+        self._set_options()
 
         timer.start('coek solve')
         _res = self._opt.solve(pm)

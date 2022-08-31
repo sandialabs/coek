@@ -7,3 +7,4 @@ from .solvers.gurobi import Gurobi
 from pyomo.core.base.PyomoModel import ConcreteModel
 from pyomo.core.base.set import RangeSet, Binary, Set, Reals
 from pyomo.opt.base.solvers import SolverFactory
+from pyomo.core.base.objective import minimize, maximize

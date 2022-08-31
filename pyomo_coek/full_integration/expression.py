@@ -1492,6 +1492,24 @@ class ExpressionBase(object):
     def __eq__(self, other):
         return EqualityExpression((self, other))
 
+    def __iadd__(self, other):
+        return self + other
+
+    def __isub__(self, other):
+        return self - other
+
+    def __imul__(self, other):
+        return self * other
+
+    def __idiv__(self, other):
+        return self / other
+
+    def __itruediv__(self, other):
+        return self / other
+
+    def __ipow__(self, other):
+        return  self ** other
+
 
 class BinaryExpression(ExpressionBase):
     __slots__ = tuple()
