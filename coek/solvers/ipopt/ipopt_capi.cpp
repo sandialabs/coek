@@ -706,6 +706,9 @@ error_code = load_ipopt_library("libipopt-3.dll", error_message);
 error_code = load_ipopt_library("libipopt.so", error_message);
 #endif
 if (error_code == 1) {
+    error_code = load_ipopt_library("libipopt.dylib", error_message);
+}
+if (error_code == 1) {
     error_code = NonIpopt_Exception_Thrown;
     error_occurred = true;
     }
