@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import os.path
 import sys
 import subprocess
 
@@ -248,38 +249,53 @@ if __name__ == "__main__":
     else:
         ntrials = 1
 
+    if os.path.exists('coek/coek_writer'):
+        build_dir='.'
+    elif os.path.exists('../build/coek/coek_writer'):
+        build_dir='../build'
+    build_dir = os.path.abspath(build_dir)
     errors = []
 
     if sys.argv[1] == "dev":
         test_solve0(test_type="small", models=all_pyomo_models, solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo", ntrials=ntrials, errors=errors)
 
     elif sys.argv[1] == "big_writer":
-        test_writer(test_type="big", models=all_coek_models, suffixes=['lp'], executable="coek/coek_writer", subdir="coek", ntrials=ntrials, errors=errors)
-        test_writer(test_type="big", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer", subdir="gurobi", ntrials=ntrials, errors=errors)
+        test_writer(test_type="big", models=all_coek_models, suffixes=['lp'], executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="big", models=all_gurobi_models, suffixes=['lp'], executable=os.path.join(build_dir,"gurobi/gurobi_writer"), subdir="gurobi", ntrials=ntrials, errors=errors)
         test_writer(test_type="big", models=all_poek_models, suffixes=['lp'], executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
         test_writer(test_type="big", models=all_pyomo_models, suffixes=['lp'], executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
 
     elif sys.argv[1] == "smoke_writer":
-        test_writer(test_type="small", models=all_coek_models, suffixes=['lp'], executable="coek/coek_writer", subdir="coek", ntrials=ntrials, errors=errors)
-        test_writer(test_type="small", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer", subdir="gurobi", ntrials=ntrials, errors=errors)
+        test_writer(test_type="small", models=all_coek_models, suffixes=['lp'], executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="small", models=all_gurobi_models, suffixes=['lp'], executable=os.path.join(build_dir,"gurobi/gurobi_writer"), subdir="gurobi", ntrials=ntrials, errors=errors)
         test_writer(test_type="small", models=all_poek_models, suffixes=['lp'], executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
         test_writer(test_type="small", models=all_pyomo_models, suffixes=['lp'], executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
 
     elif sys.argv[1] == "bench_writer":
-        test_writer(test_type="all", models=all_coek_models, suffixes=['lp'], executable="coek/coek_writer", subdir="coek", ntrials=ntrials, errors=errors)
-        test_writer(test_type="all", models=all_gurobi_models, suffixes=['lp'], executable="gurobi/gurobi_writer", subdir="gurobi", ntrials=ntrials, errors=errors)
+        test_writer(test_type="all", models=all_coek_models, suffixes=['lp'], executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="all", models=all_gurobi_models, suffixes=['lp'], executable=os.path.join(build_dir,"gurobi/gurobi_writer"), subdir="gurobi", ntrials=ntrials, errors=errors)
         test_writer(test_type="all", models=all_poek_models, suffixes=['lp'], executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
         test_writer(test_type="all", models=all_pyomo_models, suffixes=['lp'], executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
 
+    elif sys.argv[1] == "smoke_nl_writer":
+        test_writer(test_type="small", models=all_coek_models, suffixes=['nl'], executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="small", models=all_poek_models, suffixes=['nl'], executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="small", models=all_pyomo_models, suffixes=['nl'], executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
+
+    elif sys.argv[1] == "bench_nl_writer":
+        test_writer(test_type="all", models=all_coek_models, suffixes=['nl'], executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="all", models=all_poek_models, suffixes=['nl'], executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="all", models=all_pyomo_models, suffixes=['nl'], executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
+
     elif sys.argv[1] == "smoke_solve0":
-        test_solve0(test_type="small", models=all_coek_models, solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek", ntrials=ntrials, errors=errors)
-        test_solve0(test_type="small", models=all_gurobi_models, solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="small", models=all_coek_models, solvers=['gurobi'], executable=os.path.join(build_dir,"coek/coek_solve0"), subdir="coek", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="small", models=all_gurobi_models, solvers=['gurobi'], executable=os.path.join(build_dir,"gurobi/gurobi_solve0"), subdir="gurobi", ntrials=ntrials, errors=errors)
         test_solve0(test_type="small", models=all_poek_models, solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek", ntrials=ntrials, errors=errors)
         test_solve0(test_type="small", models=all_pyomo_models, solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo", ntrials=ntrials, errors=errors)
 
     elif sys.argv[1] == "bench_solve0":
-        test_solve0(test_type="all", models=all_coek_models, solvers=['gurobi'], executable="coek/coek_solve0", subdir="coek", ntrials=ntrials, errors=errors)
-        test_solve0(test_type="all", models=all_gurobi_models, solvers=['gurobi'], executable="gurobi/gurobi_solve0", subdir="gurobi", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="all", models=all_coek_models, solvers=['gurobi'], executable=os.path.join(build_dir,"coek/coek_solve0"), subdir="coek", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="all", models=all_gurobi_models, solvers=['gurobi'], executable=os.path.join(build_dir,"gurobi/gurobi_solve0"), subdir="gurobi", ntrials=ntrials, errors=errors)
         test_solve0(test_type="all", models=all_poek_models, solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek", ntrials=ntrials, errors=errors)
         test_solve0(test_type="all", models=all_pyomo_models, solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo", ntrials=ntrials, errors=errors)
 

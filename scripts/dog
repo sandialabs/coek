@@ -3,6 +3,7 @@
 # Generate graphs and other summaries of the results
 #
 
+import pprint
 import sys
 import json
 import os
@@ -10,6 +11,11 @@ from os.path import join, getsize
 import pprint
 import json
 from tabulate import tabulate
+
+
+all_problems = ['lqcp', 'fac', 'nqueens', 'pmedian', 'knapsack']
+baseline_problems = dict(gurobi=set(['lqcp', 'fac', 'nqueens-scalar', 'pmedian-scalar', 'knapsack-scalar']),
+                             pyomo=set(['lqcp', 'fac', 'nqueens', 'pmedian', 'knapsack']))
 
 def load_results(directory):
     results = {}
@@ -25,59 +31,141 @@ def load_results(directory):
     return results
 
 
-def writer_lp(data, largest=False):
-    for problem in ['knapsack', 'pmedian', 'lqcp', 'fac', 'nqueens']:
-        results = []
+def collect_writer(data, suffix, problems):
+    ans = {}
+    for problem in problems:
+        curr = ans[problem] = {"Model":[], "Size":[], "Test":[], "Mean Real":[], "Stdev Real":[], "Mean User":[], "Stdev User":[], "Lines":[], "Bytes":[]}
         for tool,tooldata in data.items():
             for name,exp in tooldata.items():
                 if name.startswith("_"):
                     continue
-                if exp['suffix'] != 'lp':
+                if exp['suffix'] != suffix:
                     continue
                 if not exp['model'].startswith(problem):
                     continue
-                res = [exp['model'], int(exp['size'][0]), tool]
+
+                curr['Model'].append( exp['model'] )
+                curr['Size'].append( int(exp['size'][0]) )
+                curr['Test'].append( tool )
+
                 if 'real' not in exp['data'] or len(exp['data']['real']['trials']) == 0:
-                    results.append( res + [None, None, None, None, None, None] )
+                    curr['Mean Real'].append(None)
+                    curr['Stdev Real'].append(None)
+                    curr['Mean User'].append(None)
+                    curr['Stdev User'].append(None)
+                    curr['Lines'].append(None)
+                    curr['Bytes'].append(None)
                 else:
-                    results.append( res + [exp['data']['real']['mean'], exp['data']['real']['stdev'],
-                                           exp['data']['user']['mean'], exp['data']['user']['stdev'],
-                                           exp['data']['lines']['mean'], 
-                                           exp['data']['bytes']['mean']] )
+                    curr['Mean Real'].append(exp['data']['real']['mean'])
+                    curr['Stdev Real'].append(exp['data']['real']['stdev'])
+                    curr['Mean User'].append(exp['data']['user']['mean'])
+                    curr['Stdev User'].append( exp['data']['user']['stdev'])
+                    curr['Lines'].append(exp['data']['lines']['mean'])
+                    curr['Bytes'].append(exp['data']['bytes']['mean'])
+    return ans, ['Mean Real', 'Stdev Real', 'Mean User', 'Stdev User', 'Lines', 'Bytes']
 
-        #pprint.pprint(results)
+
+def compute_statistics(data, cols, tool, baseline_problems):
+    ans = {}
+    for problem in data:
+        ans[problem] = {}
+        curr = data[problem]
+
+        for statistic in ['Ratio', 'Reduction', 'XFaster']:
+            ans[problem][statistic] = {}
+            if statistic == 'Ratio':
+                fn = lambda old,new: float('nan') if old==0 else new/old
+            elif statistic == 'Reduction':
+                fn = lambda old,new: float('nan') if old==0 else 100*(old-new)/old
+            elif statistic == 'XFaster':
+                fn = lambda old,new: float('nan') if new==0 else old/new
+
+            baseline = {}
+            for i in range(len(curr['Size'])):
+                if curr['Test'][i] == tool and curr['Model'][i] in baseline_problems:
+                    baseline[curr['Size'][i]] = {col:curr[col][i] for col in cols}
+            if len(baseline) == 0:
+                print("  Warning: No baseline data found for {} in problem {}".format(tool, problem)) 
+                continue
+                    
+            #pprint.pprint(baseline)
+            for col in cols:
+                ans[problem][statistic][col] = []
+                for i in range(len(curr[col])):
+                    if curr[col][i] is None or baseline[curr['Size'][i]][col] is None:
+                        ans[problem][statistic][col].append( None )
+                    else:
+                        ans[problem][statistic][col].append( fn( baseline[curr['Size'][i]][col], curr[col][i]) )
+    return ans
+    
+    
+
+def collect_writer_summary(directory):
+    ans = {}
+    ans['raw'] = load_results(os.path.join(directory, 'writer'))
+    ans['suffix'] = dict(lp={}, nl={})
+    for suffix in ['lp', 'nl']:
+        data, cols = collect_writer(ans['raw'], suffix, all_problems)
+        ans['suffix'][suffix]['raw'] = data
+        if suffix == 'lp':
+            print("Analyzing {} with baseline pyomo".format(suffix))
+            ans['suffix'][suffix]['pyomo'] = compute_statistics(data, cols, 'pyomo', baseline_problems['pyomo'])
+            print("Analyzing {} with baseline gurobi".format(suffix))
+            ans['suffix'][suffix]['gurobi'] = compute_statistics(data, cols, 'gurobi', baseline_problems['gurobi'])
+        elif suffix == 'nl':
+            print("Analyzing {} with baseline pyomo".format(suffix))
+            ans['suffix'][suffix]['pyomo'] = compute_statistics(data, cols, 'pyomo', baseline_problems['pyomo'])
+    with open(os.path.join(directory,'writer','summary.json'),'w') as OUTPUT:
+        json.dump(ans, OUTPUT, indent=4, sort_keys=True)
+
+
+
+def filter_results(data, largest=False, select={}):
+    for problem in data:
+        #
+        # Keep Largest
+        #
         if largest:
-            l = max(r[1] for r in results)
-            results = [r for r in results if r[1] == l]
+            curr = data[problem]
+            value = max(curr['Size'])
+            tmp = {col:[] for col in curr}
+            for i in range(len(curr['Size'])):
+                if curr['Size'][i] == value:
+                    for col in curr:
+                        tmp[col].append(curr[col][i])
+            data[problem] = tmp
+        #
+        # Keep only problem in the 'select' dictionary
+        #
+        elif len(select) > 0:
+            curr = data[problem]
+            tmp = {col:[] for col in curr}
+            for i in range(len(curr['Size'])):
+                for m,v in select.items():
+                    if curr['Model'][i].startswith(m) and curr['Size'][i] == v:
+                        for col in curr:
+                            tmp[col].append(curr[col][i])
+            data[problem] = tmp
 
-        g_real = {}
-        g_user = {}
-        g_lines = {}
-        g_bytes = {}
-        for r in results:
-            if r[2] == 'gurobi':
-                g_real[r[1]] = r[3]
-                g_user[r[1]] = r[5]
-                g_lines[r[1]] = r[7]
-                g_bytes[r[1]] = r[8]
-        for r in results:
-            if r[3] is None:
-                r.append(r[3])
-                r.append(r[5])
-                r.append(r[7])
-                r.append(r[8])
-            elif r[1] in g_real:
-                r.append(r[3]/g_real[r[1]])
-                r.append(r[5]/g_user[r[1]])
-                r.append(r[7]/g_lines[r[1]])
-                r.append(r[8]/g_bytes[r[1]])
-            else:
-                r.append(None)
-                r.append(None)
-                r.append(None)
-                r.append(None)
+    return data
+
+
+
+
+def writer_lp(directory, largest=False, select=False, suffix='lp', relative='gurobi', statistic='Ratio'):
+        keeper_size = dict(lqcp=1500, fac=75, nqueens=1000, pmedian=1280)
+
+        data = load_results(directory)
+        data, cols = collect_writer(data, suffix, problems=list(keeper_size.keys()))
+        if select:
+            data = filter_results(data, select=keeper_size)
+        else:
+            data = filter_results(data, largest=largest)
+
         print("")
-        print(tabulate(sorted(results,key=lambda x:(x[0].split('-')[0],x[2],x[0],x[1])), headers=["Model", "Size", "Test", "Mean Real", "Stdev Real", "Mean User", "Stdev User", "Lines", "Bytes", "RealRatio", "UserRatio", "LinesRatio", "BytesRatio"]))
+        allcols = ["Model", "Size", "Test"] + cols + newcols
+        results = [[data[col][i] for col in allcols] for i in range(len(data['Size']))]
+        print(tabulate(sorted(results, key=lambda x:(x[0].split('-')[0],x[2],x[0],x[1])), headers=allcols))
 
 
 def solve0(data, largest=False):
@@ -90,7 +178,7 @@ def solve0(data, largest=False):
                 if not exp['model'].startswith(problem):
                     continue
                 res = [exp['model'], int(exp['size'][0]), tool]
-                if 'real' not in exp['data'] or len(exp['data']['real']['trials']) == 0:
+                if 'real' not in exp['data'] or len(exp['data']['real']['trials']) == 0 or len(exp['data'].get('timeout',{})) > 0:
                     results.append( res + [None, None, None, None] )
                 else:
                     results.append( res + [exp['data']['real']['mean'], exp['data']['real']['stdev'],
@@ -124,6 +212,10 @@ def solve0(data, largest=False):
 if __name__ == "__main__":
     directory = 'results' if len(sys.argv) < 3 else sys.argv[2]
 
+    collect_writer_summary(directory)
+    sys.exit(0)
+
+
     if False:
         pass
 
@@ -134,6 +226,14 @@ if __name__ == "__main__":
     elif sys.argv[1] == "writer_largest":
         data = load_results(directory+"/writer")
         writer_lp(data, largest=True)
+
+    elif sys.argv[1] == "writer_select":
+        data = load_results(directory+"/writer")
+        writer_lp(data, select=True)
+
+    elif sys.argv[1] == "writer_select_pyomo":
+        data = load_results(directory+"/writer")
+        writer_lp(data, select=True, relative='pyomo', statistic='percent_reduction')
 
     elif sys.argv[1] == "solve0":
         data = load_results(directory+"/solve0")
@@ -150,6 +250,7 @@ if __name__ == "__main__":
         print("dog options")
         print("  writer")
         print("  writer_largest")
+        print("  writer_select")
         print("  solve0")
         print("  solve0_largest")
         print("  print_raw")
