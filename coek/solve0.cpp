@@ -52,16 +52,33 @@ catch (std::exception& e) {
     return 1;
     }
 
-coek::Solver solver;
-solver.initialize(solver_name);
-if (not solver.available()) {
-    std::cout << "ERROR - solver '" << solver_name << "' is not available" << std::endl;
-    return 2;
-    }
-solver.set_option("OutputFlag", debug);
-solver.set_option("TimeLimit", 0.0);
+if (solver_name == "gurobi") {
+    coek::Solver solver;
+    solver.initialize(solver_name);
+    if (not solver.available()) {
+        std::cout << "ERROR - solver '" << solver_name << "' is not available" << std::endl;
+        std::cout << "MESSAGE - " << solver.error_message() << std::endl;
+        return 2;
+        }
+    solver.set_option("OutputFlag", debug);
+    solver.set_option("TimeLimit", 0.0);
 
-solver.solve(model);
+    solver.solve(model);
+    }
+else if (solver_name == "ipopt") {
+    coek::NLPModel Model(model, "cppad");
+    coek::NLPSolver solver;
+    solver.initialize(solver_name);
+    if (not solver.available()) {
+        std::cout << "ERROR - solver '" << solver_name << "' is not available" << std::endl;
+        std::cout << "MESSAGE - " << solver.error_message() << std::endl;
+        return 2;
+        }
+    solver.set_option("max_iter", 1);
+    solver.set_option("print_level", 1);
+
+    solver.solve(Model);
+    }
 
 return 0;
 }
