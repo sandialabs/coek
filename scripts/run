@@ -261,53 +261,90 @@ if __name__ == "__main__":
     errors = []
 
     if sys.argv[1] == "dev":
-        test_solve0(test_type="small", models=all_pyomo_models, solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="small", models=all_coek_models, solvers=['ipopt'], 
+                    executable=os.path.join(build_dir,"coek/coek_solve0"), subdir="coek", ntrials=ntrials, errors=errors)
 
-    elif sys.argv[1] == "big_writer":
-        test_writer(test_type="big", models=all_coek_models, suffixes=['lp'], executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
-        test_writer(test_type="big", models=all_gurobi_models, suffixes=['lp'], executable=os.path.join(build_dir,"gurobi/gurobi_writer"), subdir="gurobi", ntrials=ntrials, errors=errors)
-        test_writer(test_type="big", models=all_poek_models, suffixes=['lp'], executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
-        test_writer(test_type="big", models=all_pyomo_models, suffixes=['lp'], executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
 
-    elif sys.argv[1] == "smoke_writer":
-        test_writer(test_type="small", models=all_coek_models, suffixes=['lp'], executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
-        test_writer(test_type="small", models=all_gurobi_models, suffixes=['lp'], executable=os.path.join(build_dir,"gurobi/gurobi_writer"), subdir="gurobi", ntrials=ntrials, errors=errors)
-        test_writer(test_type="small", models=all_poek_models, suffixes=['lp'], executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
-        test_writer(test_type="small", models=all_pyomo_models, suffixes=['lp'], executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
+    elif sys.argv[1] == "big_lp_writer":
+        test_writer(test_type="big", models=all_coek_models, suffixes=['lp'], 
+                    executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="big", models=all_gurobi_models, suffixes=['lp'], 
+                    executable=os.path.join(build_dir,"gurobi/gurobi_writer"), subdir="gurobi", ntrials=ntrials, errors=errors)
+        test_writer(test_type="big", models=all_poek_models, suffixes=['lp'], 
+                    executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="big", models=all_pyomo_models, suffixes=['lp'], 
+                    executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
 
-    elif sys.argv[1] == "bench_writer":
-        test_writer(test_type="all", models=all_coek_models, suffixes=['lp'], executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
-        test_writer(test_type="all", models=all_gurobi_models, suffixes=['lp'], executable=os.path.join(build_dir,"gurobi/gurobi_writer"), subdir="gurobi", ntrials=ntrials, errors=errors)
-        test_writer(test_type="all", models=all_poek_models, suffixes=['lp'], executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
-        test_writer(test_type="all", models=all_pyomo_models, suffixes=['lp'], executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
+    elif sys.argv[1] == "smoke_lp_writer":
+        test_writer(test_type="small", models=all_coek_models, suffixes=['lp'], 
+                    executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="small", models=all_gurobi_models, suffixes=['lp'], 
+                    executable=os.path.join(build_dir,"gurobi/gurobi_writer"), subdir="gurobi", ntrials=ntrials, errors=errors)
+        test_writer(test_type="small", models=all_poek_models, suffixes=['lp'], 
+                    executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="small", models=all_pyomo_models, suffixes=['lp'], 
+                    executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
+
+    elif sys.argv[1] == "bench_lp_writer":
+        test_writer(test_type="all", models=all_coek_models, suffixes=['lp'], 
+                    executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="all", models=all_gurobi_models, suffixes=['lp'], 
+                    executable=os.path.join(build_dir,"gurobi/gurobi_writer"), subdir="gurobi", ntrials=ntrials, errors=errors)
+        test_writer(test_type="all", models=all_poek_models, suffixes=['lp'], 
+                    executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="all", models=all_pyomo_models, suffixes=['lp'], 
+                    executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
+
 
     elif sys.argv[1] == "smoke_nl_writer":
-        test_writer(test_type="small", models=all_coek_models, suffixes=['nl'], executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
-        test_writer(test_type="small", models=all_poek_models, suffixes=['nl'], executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
-        test_writer(test_type="small", models=all_pyomo_models, suffixes=['nl'], executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
+        test_writer(test_type="small", models=all_coek_models, suffixes=['nl'], 
+                    executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="small", models=all_poek_models, suffixes=['nl'], 
+                    executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="small", models=all_pyomo_models, suffixes=['nl'], 
+                    executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
 
     elif sys.argv[1] == "bench_nl_writer":
-        test_writer(test_type="all", models=all_coek_models, suffixes=['nl'], executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
-        test_writer(test_type="all", models=all_poek_models, suffixes=['nl'], executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
-        test_writer(test_type="all", models=all_pyomo_models, suffixes=['nl'], executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
+        test_writer(test_type="all", models=all_coek_models, suffixes=['nl'], 
+                    executable=os.path.join(build_dir,"coek/coek_writer"), subdir="coek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="all", models=all_poek_models, suffixes=['nl'], 
+                    executable="../poek/poek_writer", subdir="poek", ntrials=ntrials, errors=errors)
+        test_writer(test_type="all", models=all_pyomo_models, suffixes=['nl'], 
+                    executable="../pyomo/pyomo_writer", subdir="pyomo", ntrials=ntrials, errors=errors)
+
 
     elif sys.argv[1] == "smoke_solve0":
-        test_solve0(test_type="small", models=all_coek_models, solvers=['gurobi'], executable=os.path.join(build_dir,"coek/coek_solve0"), subdir="coek", ntrials=ntrials, errors=errors)
-        test_solve0(test_type="small", models=all_gurobi_models, solvers=['gurobi'], executable=os.path.join(build_dir,"gurobi/gurobi_solve0"), subdir="gurobi", ntrials=ntrials, errors=errors)
-        test_solve0(test_type="small", models=all_poek_models, solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek", ntrials=ntrials, errors=errors)
-        test_solve0(test_type="small", models=all_pyomo_models, solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo", ntrials=ntrials, errors=errors)
-        test_solve0(test_type="small", models=all_pyomo_models, solvers=['appsi-gurobi'], executable="../pyomo/pyomo_solve0", subdir="appsi", ntrials=ntrials, errors=errors)
-        test_solve0(test_type="small", models=all_hybrid_components_only_models, solvers=['gurobi'], executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only", ntrials=ntrials, errors=errors)
-        test_solve0(test_type="small", models=all_hybrid_expression_wrappers_models, solvers=['gurobi'], executable="../hybrid_expression_wrappers/hybrid_expression_wrappers_solve0", subdir="hybrid_expression_wrappers", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="small", models=all_coek_models, solvers=['gurobi'], 
+                    executable=os.path.join(build_dir,"coek/coek_solve0"), subdir="coek", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="small", models=all_gurobi_models, solvers=['gurobi'], 
+                    executable=os.path.join(build_dir,"gurobi/gurobi_solve0"), subdir="gurobi", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="small", models=all_poek_models, solvers=['gurobi'], 
+                    executable="../poek/poek_solve0", subdir="poek", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="small", models=all_pyomo_models, solvers=['gurobi'], 
+                    executable="../pyomo/pyomo_solve0", subdir="pyomo", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="small", models=all_pyomo_models, solvers=['appsi-gurobi'], 
+                    executable="../pyomo/pyomo_solve0", subdir="appsi", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="small", models=all_hybrid_components_only_models, solvers=['gurobi'], 
+                    executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="small", models=all_hybrid_expression_wrappers_models, solvers=['gurobi'], 
+                    executable="../hybrid_expression_wrappers/hybrid_expression_wrappers_solve0", subdir="hybrid_expression_wrappers", ntrials=ntrials, errors=errors)
 
     elif sys.argv[1] == "bench_solve0":
-        test_solve0(test_type="all", models=all_coek_models, solvers=['gurobi'], executable=os.path.join(build_dir,"coek/coek_solve0"), subdir="coek", ntrials=ntrials, errors=errors)
-        test_solve0(test_type="all", models=all_gurobi_models, solvers=['gurobi'], executable=os.path.join(build_dir,"gurobi/gurobi_solve0"), subdir="gurobi", ntrials=ntrials, errors=errors)
-        test_solve0(test_type="all", models=all_poek_models, solvers=['gurobi'], executable="../poek/poek_solve0", subdir="poek", ntrials=ntrials, errors=errors)
-        test_solve0(test_type="all", models=all_pyomo_models, solvers=['gurobi'], executable="../pyomo/pyomo_solve0", subdir="pyomo", ntrials=ntrials, errors=errors)
-        test_solve0(test_type="all", models=all_pyomo_models, solvers=['appsi-gurobi'], executable="../pyomo/pyomo_solve0", subdir="appsi", ntrials=ntrials, errors=errors)
-        test_solve0(test_type="all", models=all_hybrid_components_only_models, solvers=['gurobi'], executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only", ntrials=ntrials, errors=errors)
-        test_solve0(test_type="all", models=all_hybrid_expression_wrappers_models, solvers=['gurobi'], executable="../hybrid_expression_wrappers/hybrid_expression_wrappers_solve0", subdir="hybrid_expression_wrappers", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="all", models=all_coek_models, solvers=['gurobi'], 
+                    executable=os.path.join(build_dir,"coek/coek_solve0"), subdir="coek", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="all", models=all_gurobi_models, solvers=['gurobi'], 
+                    executable=os.path.join(build_dir,"gurobi/gurobi_solve0"), subdir="gurobi", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="all", models=all_poek_models, solvers=['gurobi'], 
+                    executable="../poek/poek_solve0", subdir="poek", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="all", models=all_pyomo_models, solvers=['gurobi'], 
+                    executable="../pyomo/pyomo_solve0", subdir="pyomo", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="all", models=all_pyomo_models, solvers=['appsi-gurobi'], 
+                    executable="../pyomo/pyomo_solve0", subdir="appsi", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="all", models=all_hybrid_components_only_models, solvers=['gurobi'], 
+                    executable="../hybrid_components_only/hybrid_components_only_solve0", subdir="hybrid_components_only", ntrials=ntrials, errors=errors)
+        test_solve0(test_type="all", models=all_hybrid_expression_wrappers_models, solvers=['gurobi'], 
+                    executable="../hybrid_expression_wrappers/hybrid_expression_wrappers_solve0", subdir="hybrid_expression_wrappers", ntrials=ntrials, errors=errors)
+
 
     else:
         print("UNKNOWN TEST: "+sys.argv[1])
