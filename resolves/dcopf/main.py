@@ -34,8 +34,12 @@ def get_solver(options: Options):
     if options.aml == AML.pyomo:
         solver = pe.SolverFactory(options.solver)
     elif options.aml in {AML.hybrid_components_only, AML.hybrid_expression_wrappers}:
-        assert options.solver == 'gurobi'
-        solver = pe.Gurobi()
+        assert options.solver in {'gurobi', 'ipopt'}
+        if options.solver == 'gurobi':
+            solver = pe.Gurobi()
+        else:
+            solver = pe.Ipopt()
+        solver.config.stream_solver = False
     else:
         raise ValueError(f'unexpected aml: {options.aml}')
     return solver
