@@ -11,6 +11,7 @@
 #ifdef WITH_FMTLIB
 #include <fmt/core.h>
 #include <fmt/os.h>
+#include <fmt/compile.h>
 #endif
 
 #include "../ast/visitor_fns.hpp"
@@ -293,12 +294,18 @@ public:
     void visit(PowTerm& arg);
 };
 
+constexpr auto _fmtstr_value = FMT_COMPILE("{}\n");
+constexpr auto _fmtstr_n = FMT_COMPILE("n{}\n");
+constexpr auto _fmtstr_v = FMT_COMPILE("v{}\n");
+constexpr auto _fmtstr_o54 = FMT_COMPILE("o54\n{}\n");
+constexpr auto _fmtstr_o2 = FMT_COMPILE("o2\nn{}\n");
+constexpr auto _fmtstr_2vals = FMT_COMPILE("{} {}\n");
 
 void PrintExprFmtlib::visit(ConstantTerm& arg)
-{ ostr.print("n{}\n", arg.value); }
+{ ostr.print(fmt::format(_fmtstr_n, arg.value)); }
 
 void PrintExprFmtlib::visit(ParameterTerm& arg)
-{ ostr.print("n{}\n", arg.eval()); }
+{ ostr.print(fmt::format(_fmtstr_n, arg.eval())); }
 
 // GCOVR_EXCL_START
 void PrintExprFmtlib::visit(IndexParameterTerm& )
@@ -308,9 +315,9 @@ void PrintExprFmtlib::visit(IndexParameterTerm& )
 void PrintExprFmtlib::visit(VariableTerm& arg)
 { 
 if (arg.fixed)
-    ostr.print("n{}\n", arg.eval());
+    ostr.print(fmt::format(_fmtstr_n, arg.eval()));
 else
-    ostr.print("v{}\n", varmap.at(arg.index));
+    ostr.print(fmt::format(_fmtstr_v, varmap.at(arg.index)));
 }
 
 
@@ -323,16 +330,16 @@ void PrintExprFmtlib::visit(VariableRefTerm& )
 #endif
 
 void PrintExprFmtlib::visit(IndexedVariableTerm& arg)
-{ ostr.print("v{}\n", varmap.at(arg.index)); }
+{ ostr.print(fmt::format(_fmtstr_v, varmap.at(arg.index))); }
 
 void PrintExprFmtlib::visit(MonomialTerm& arg)
 {
-ostr.print("o2\nn{}\n", arg.coef);
+ostr.print(fmt::format(_fmtstr_o2, arg.coef));
 
 if (arg.var->fixed)
-    ostr.print("n{}\n", arg.var->value->eval());
+    ostr.print(fmt::format(_fmtstr_n, arg.var->value->eval()));
 else
-    ostr.print("v{}\n", varmap.at(arg.var->index));
+    ostr.print(fmt::format(_fmtstr_v, varmap.at(arg.var->index)));
 }
 
 // GCOVR_EXCL_START
@@ -357,7 +364,7 @@ void PrintExprFmtlib::visit(PlusTerm& arg)
 if (arg.n == 2)
     ostr.print("o0\n");
 else
-    ostr.print("o54\n{}\n", arg.n);
+    ostr.print(fmt::format(_fmtstr_o54, arg.n));
 std::vector<expr_pointer_t>& vec = *(arg.data);
 for (size_t i=0; i<arg.n; ++i)
     vec[i]->accept(*this);
@@ -529,16 +536,17 @@ if (ctr == 0)
 else if (ctr == 2)
     ostr.print("o0\n");
 else if (ctr > 2)
-    ostr.print("o54\n{}\n", ctr); 
+    ostr.print(fmt::format(_fmtstr_o54, ctr)); 
 
 // Write terms in the sum
+constexpr auto _fmtstr_o2_2 = FMT_COMPILE("o2\nv{}\nv{}\n");
 if (quadratic) {
     for (auto it=term.begin(); it != term.end(); ++it) {
         double coef = it->second;
         if (coef != 1) {
-            ostr.print("o2\nn{}\n", coef);      // FORMAT
+            ostr.print(fmt::format(_fmtstr_o2, coef));      // FORMAT
             }
-        ostr.print("o2\nv{}\nv{}\n", it->first.first, it->first.second);
+        ostr.print(fmt::format(_fmtstr_o2_2, it->first.first, it->first.second));
         }
     }
 if (nonlinear) {
@@ -546,7 +554,7 @@ if (nonlinear) {
     repn.nonlinear.repn->accept(visitor);
     }
 if (objective and (fabs(cval) > EPSILON)) {
-    ostr.print("n{}\n", cval);      // FORMAT
+    ostr.print(fmt::format(_fmtstr_n, cval));      // FORMAT
     }
 }
 #endif
@@ -1115,14 +1123,16 @@ ostr.print(" 0 0 0 0 0 # common exprs: b,c,o,c1,o1\n");
 //
 CALI_MARK_BEGIN("C");
 {
+constexpr auto _fmtstr_C = FMT_COMPILE("C{}\n");
+constexpr auto _fmtstr_C_n0 = FMT_COMPILE("C{}\nn0\n");
 int ctr = 0;
 for (auto it=c_expr.begin(); it != c_expr.end(); ++it, ++ctr) {
     if ((not it->nonlinear.is_constant()) or (it->quadratic_coefs.size() > 0)) {
-        ostr.print("C{}\n", ctr);
+        ostr.print(fmt::format(_fmtstr_C, ctr));
         print_expr(ostr, *it, varmap);
         }
     else {
-        ostr.print("C{}\nn0\n", ctr);
+        ostr.print(fmt::format(_fmtstr_C_n0, ctr));
         }
     }
 }
@@ -1133,18 +1143,20 @@ CALI_MARK_END("C");
 //
 CALI_MARK_BEGIN("O");
 {
+constexpr auto _fmtstr_O_0 = FMT_COMPILE("O{} 0\n");
+constexpr auto _fmtstr_O_1 = FMT_COMPILE("O{} 1\n");
 size_t ctr=0;
 for (auto it=o_expr.begin(); it != o_expr.end(); ++it, ++ctr) {
     bool sense = model.repn->objectives[ctr].sense();
     if (sense == Model::minimize)
-        ostr.print("O{} 0\n", ctr);
+        ostr.print(fmt::format(_fmtstr_O_0, ctr));
     else
-        ostr.print("O{} 1\n", ctr);
+        ostr.print(fmt::format(_fmtstr_O_1, ctr));
     if ((not it->nonlinear.is_constant()) or (it->quadratic_coefs.size() > 0)) {
         print_expr(ostr, *it, varmap, true);
         }
     else {
-        ostr.print("n{}\n", it->constval.value());
+        ostr.print(fmt::format(_fmtstr_n, it->constval.value()));
         }
     }
 }
@@ -1156,6 +1168,7 @@ CALI_MARK_END("O");
 {
 CALI_MARK_BEGIN("x_str");
 {
+constexpr auto _fmtstr_x = FMT_COMPILE("{} {}\n");
 auto out = std::vector<char>();
 //fmt::memory_buffer out;
 int num=0;
@@ -1164,7 +1177,7 @@ for (auto it=varobj.begin(); it != varobj.end(); ++it, ++ctr) {
     auto tmp = it->second.value();
     if (not std::isnan(tmp)) {
         num++;
-        fmt::format_to(std::back_inserter(out), "{} {}\n", ctr, tmp);
+        fmt::format_to(std::back_inserter(out), _fmtstr_x, ctr, tmp);
         }
     }
 if (num) {
@@ -1181,18 +1194,22 @@ CALI_MARK_END("x_str");
 //
 CALI_MARK_BEGIN("r");
 if (model.repn->constraints.size() > 0) {
+    constexpr auto _fmtstr_r0 = FMT_COMPILE("0 {} {}\n");
+    constexpr auto _fmtstr_r1 = FMT_COMPILE("1 {}\n");
+    constexpr auto _fmtstr_r2 = FMT_COMPILE("2 {}\n");
+    constexpr auto _fmtstr_r4 = FMT_COMPILE("4 {}\n");
     ostr.print("r\n");
     size_t ctr = 0;
     for (auto it=r.begin(); it != r.end(); ++it, ++ctr) {
         switch (*it) {
             case 0:
-                ostr.print("0 {} {}\n", rval[2*ctr], rval[2*ctr+1]);  // FORMAT
+                ostr.print(fmt::format(_fmtstr_r0, rval[2*ctr], rval[2*ctr+1]));  // FORMAT
                 break;
             case 1:
-                ostr.print("1 {}\n", rval[2*ctr]);  // FORMAT
+                ostr.print(fmt::format(_fmtstr_r1, rval[2*ctr]));  // FORMAT
                 break;
             case 2:
-                ostr.print("2 {}\n", rval[2*ctr]);  // FORMAT
+                ostr.print(fmt::format(_fmtstr_r2, rval[2*ctr]));  // FORMAT
                 break;
                 // GCOVR_EXCL_START
             case 3:
@@ -1200,7 +1217,7 @@ if (model.repn->constraints.size() > 0) {
                 break;
                 // GCOVR_EXCL_STOP
             case 4:
-                ostr.print("4 {}\n", rval[2*ctr]);  // FORMAT
+                ostr.print(fmt::format(_fmtstr_r4, rval[2*ctr]));  // FORMAT
                 break;
             };
         }
@@ -1211,6 +1228,10 @@ CALI_MARK_END("r");
 // "b" section - bounds on variables
 //
 CALI_MARK_BEGIN("b");
+constexpr auto _fmtstr_b1 = FMT_COMPILE("1 {}\n");
+constexpr auto _fmtstr_b2 = FMT_COMPILE("2 {}\n");
+constexpr auto _fmtstr_b4 = FMT_COMPILE("4 {}\n");
+constexpr auto _fmtstr_b0 = FMT_COMPILE("0 {} {}\n");
 ostr.print("b\n");
 for (auto it=vars.begin(); it != vars.end(); ++it) {
     auto& var = varobj[*it];
@@ -1221,19 +1242,19 @@ for (auto it=vars.begin(); it != vars.end(); ++it) {
             ostr.print("3\n");
             }
         else {
-            ostr.print("1 {}\n", ub);
+            ostr.print(fmt::format(_fmtstr_b1, ub));
             }
         }
     else {
         if (ub == COEK_INFINITY) {
-            ostr.print("2 {}\n", lb);
+            ostr.print(fmt::format(_fmtstr_b2, lb));
             }
         else {
             if (fabs(ub-lb) < EPSILON) {
-                ostr.print("4 {}\n", lb);
+                ostr.print(fmt::format(_fmtstr_b4, lb));
                 }
             else {
-                ostr.print("0 {} {}\n", lb, ub);
+                ostr.print(fmt::format(_fmtstr_b0, lb, ub));
                 }
             }
         }
@@ -1249,7 +1270,7 @@ ostr.print("k{}\n", k_count.size()-1);      // << "k" << (k_count.size()-1) << '
 size_t ctr = 0;
 for (size_t i=0; i<(k_count.size()-1); ++i) {
     ctr += k_count[i].size();
-    ostr.print("{}\n", ctr);        // << ctr << '\n';
+    ostr.print(fmt::format(_fmtstr_value, ctr));        // << ctr << '\n';
     }
 }
 CALI_MARK_END("k");
@@ -1259,12 +1280,13 @@ CALI_MARK_BEGIN("J");
 // "J" section - Jacobian sparsity, linear terms
 //
 {
+constexpr auto _fmtstr_J = FMT_COMPILE("J{} {}\n");
 int ctr=0;
 for (auto jt=J.begin(); jt != J.end(); ++ctr, ++jt) {
     if (jt->size() == 0) continue;
-    ostr.print("J{} {}\n", ctr, jt->size());                 // << "J" << i << " " << J[i].size() << '\n';
+    ostr.print(fmt::format(_fmtstr_J, ctr, jt->size()));                 // << "J" << i << " " << J[i].size() << '\n';
     for (auto it=jt->begin(); it != jt->end(); ++it) {
-        ostr.print("{} {}\n", it->first, it->second);       // << it->first << " " << it->second << '\n';
+        ostr.print(fmt::format(_fmtstr_2vals, it->first, it->second));       // << it->first << " " << it->second << '\n';
         }
     }
 }
@@ -1273,12 +1295,13 @@ CALI_MARK_END("J");
 //
 // "G" section - Gradient sparsity, linear terms
 //
+constexpr auto _fmtstr_G = FMT_COMPILE("G{} {}\n");
 CALI_MARK_BEGIN("G");
 for (size_t i=0; i<G.size(); ++i) {
     if (G[i].size() == 0) continue;
-    ostr.print("G{} {}\n", i, G[i].size());                 // << "G" << i << " " << G[i].size() << '\n';
+    ostr.print(fmt::format(_fmtstr_G, i, G[i].size()));                 // << "G" << i << " " << G[i].size() << '\n';
     for (auto it=G[i].begin(); it!=G[i].end(); ++it) {
-        ostr.print("{} {}\n", it->first, it->second);       // << it->first << " " << it->second << '\n';
+        ostr.print(fmt::format(_fmtstr_2vals, it->first, it->second));  // << it->first << " " << it->second << '\n';
         }
     }
 CALI_MARK_END("G");
