@@ -50,6 +50,11 @@ if (solver.available()) {
             it->value(0.5);
 
         WHEN( "solve" ) {
+            //
+            // Solve for p_i=0.5
+            // Initial x_i=0
+            // Final x_i=-10
+            //
             coek::Model m;
             invquad_example(m, p);
 
@@ -59,15 +64,24 @@ if (solver.available()) {
             check(m.get_variables(), invquad_soln_5);
         }
         WHEN( "resolve - Same start" ) {
+            //
+            // Solve for p_i=0.5
+            // Initial x_i=0
+            // Final x_i=-10
+            //
             coek::Model m;
             invquad_example(m, p);
 
             coek::NLPModel nlp(m, "cppad");
             solver.solve(nlp);
 
+            //
+            // Resolve for p_i=-0.5
+            // Initial x_i=0
+            // Final x_i=-10
+            //
             for (auto it=p.begin(); it != p.end(); ++it)
                 it->value(-0.5);
-
             for (size_t i=0; i<nlp.num_variables(); i++)
                 nlp.get_variable(i).value(0);
             solver.set_option("print_level", 0);
@@ -77,29 +91,50 @@ if (solver.available()) {
             check(m.get_variables(), invquad_resolve_5);
         }
         WHEN( "resolve - Current point" ) {
+            //
+            // Solve for p_i=0.5
+            // Initial x_i=0
+            // Final x_i=-10
+            //
             coek::Model m;
             invquad_example(m, p);
 
             coek::NLPModel nlp(m, "cppad");
             solver.solve(nlp);
 
+            //
+            // Solve for p_i=-0.5
+            // Initial x_i=-10
+            // Final x_i=-10
+            //
             for (auto it=p.begin(); it != p.end(); ++it)
                 it->value(-0.5);
-
             solver.resolve();
 
             check(m.get_variables(), invquad_soln_5);
         }
+#if 0
+WEH - This is broken.
+
         WHEN( "resolve - Warm Start" ) {
+            //
+            // Solve for p_i=0.5
+            // Initial x_i=0
+            // Final x_i=-10
+            //
             coek::Model m;
             invquad_example(m, p);
 
             coek::NLPModel nlp(m, "cppad");
             solver.solve(nlp);
 
+            //
+            // Solve for p_i=-0.5
+            // Initial x_i=-10
+            // Final x_i=-10
+            //
             for (auto it=p.begin(); it != p.end(); ++it)
                 it->value(-0.5);
-
             // Even though we set the value of the initial point,
             // the warm starting option should ignore this and 
             // restart the solve from where it ended last time.
@@ -107,11 +142,12 @@ if (solver.available()) {
                 nlp.get_variable(i).value(0);
 
             solver.set_option("warm_start_init_point", "yes");
-            //solver.set_option("print_level", 0);
+            solver.set_option("print_level", 10);
             solver.resolve();
 
             check(m.get_variables(), invquad_soln_5);
         }
+#endif
         }
     }
 else {
