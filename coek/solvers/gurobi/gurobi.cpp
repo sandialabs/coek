@@ -397,9 +397,10 @@ if (initial_solve()) {
     // Add Gurobi objective
     int nobj=0;
     try {
+      coek::QuadraticExpr orepn;
       for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it) {
         Expression tmp = it->expr();
-        add_gurobi_objective(gmodel, tmp, it->sense(), x);
+        add_gurobi_objective(gmodel, tmp, it->sense(), x, orepn);
         nobj++;
       }
     }
@@ -417,10 +418,11 @@ if (initial_solve()) {
 
     // Add Gurobi constraints
     try {
+      coek::QuadraticExpr repn;
       for (auto it=_model->constraints.begin(); it != _model->constraints.end(); ++it) {
         //crepn[i].collect_terms(_model->constraints[i]);
         //Constraint c = cval->expand();
-        add_gurobi_constraint(gmodel, *it, x);
+        add_gurobi_constraint(gmodel, *it, x, repn);
       }
     }
     catch (GRBException e) {
