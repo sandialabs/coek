@@ -38,7 +38,7 @@ int status = repn->perform_solve();
 
 auto curr = std::chrono::high_resolution_clock::now();
 std::chrono::duration<double> diff = curr-start;
-std::cout << "Time to solve: " << diff.count() << " s\n";
+//std::cout << "Time to solve: " << diff.count() << " s\n";
 
 return status;
 }
