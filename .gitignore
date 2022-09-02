@@ -1,2 +1,15 @@
+# -----------------------------------
+# .gitignore file for coek repository
+# -----------------------------------
+# ignore top level build directory
+/build/
+# ignore Catch2 directory in top level third_party directory
+/third_party/Catch2/
+# ignore CppAD directory in top level third_party directory
+/third_party/CppAD/
+
+/.vs
+/out/build
 __pycache__
 *egg-info
+

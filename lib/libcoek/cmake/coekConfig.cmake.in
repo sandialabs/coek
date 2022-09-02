@@ -1,0 +1,7 @@
+#if (NOT TARGET coek::coek)
+#  include ("${CMAKE_CURRENT_LIST_DIR}/coekTargets.cmake")
+#endif (NOT TARGET coek::coek)
+
+include(CMakeFindDependencyMacro)
+find_dependency(fmt)
+include ("${CMAKE_CURRENT_LIST_DIR}/coekTargets.cmake")
