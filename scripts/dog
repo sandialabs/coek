@@ -214,6 +214,43 @@ def writer_tabular(directory, largest=False, filter=False, suffix='lp', relative
             print(tabulate(sorted(results, key=lambda x:(x[0].split('-')[0],x[2],x[0],x[1])), headers=headers))
 
 
+def solve0_tabular(directory, largest=False, filter=False, relative='gurobi', statistic='Ratio'):
+        keeper_size = dict(lqcp=1500, fac=75, nqueens=1000, pmedian=1280, knapsack=1000)
+
+        with open(os.path.join(directory,'solve0','summary.json'),'r') as INPUT:
+            data = json.load(INPUT)
+
+        if filter:
+            data = filter_results(data['baseline'][relative], select=keeper_size)
+        else:
+            data = filter_results(data['baseline'][relative], largest=largest)
+
+        allcols = ["Model", "Size", "Test", 'Mean Real', 'Stdev Real', 'Mean User', 'Stdev User']
+        for problem in data:
+            results = []
+            print("")
+            for row in data[problem]:
+                #print(row['Model'], row['Size'])
+                if statistic is None:
+                    row.pop('Ratio')
+                    row.pop('Reduction')
+                    row.pop('XFaster')
+                    results.append( [row[col] for col in allcols] )
+                else:
+                    tmp = [row[col] for col in allcols]
+                    for col in ['Mean Real', 'Mean User']:
+                        tmp.append(row[statistic][col])
+                    results.append( tmp )
+                    row.pop('Ratio')
+                    row.pop('Reduction')
+                    row.pop('XFaster')
+            if statistic is None:
+                headers = allcols
+            else:
+                headers=allcols + [col+' '+statistic for col in ['Mean Real', 'Mean User']]
+            print(tabulate(sorted(results, key=lambda x:(x[0].split('-')[0],x[2],x[0],x[1])), headers=headers))
+
+
 
 def solve0(data, largest=False):
     for problem in ['knapsack', 'pmedian', 'lqcp', 'fac', 'nqueens']:
@@ -257,10 +294,12 @@ def solve0(data, largest=False):
 
 
 if __name__ == "__main__":
-    directory = 'results'
+    directory = 'results-new'
 
-    collect_writer_summary(directory)
-    collect_solve0_summary(directory)
+    if os.path.exists(os.path.join(directory,'writer')):
+        collect_writer_summary(directory)
+    if os.path.exists(os.path.join(directory,'solve0')):
+        collect_solve0_summary(directory)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--suffix', dest='suffix', action='store', default='lp', help='Specify the suffix shown')
@@ -278,15 +317,11 @@ if __name__ == "__main__":
         pass
 
     elif args.option == "writer":
+        print("HERE")
         writer_tabular(directory, suffix=args.suffix, statistic=args.statistic, largest=args.largest, filter=args.filter, relative=args.baseline)
 
     elif sys.argv[1] == "solve0":
-        data = load_results(directory+"/solve0")
-        solve0(data, largest=False)
-
-    elif sys.argv[1] == "solve0_largest":
-        data = load_results(directory+"/solve0")
-        solve0(data, largest=True)
+        solve0_tabular(directory, statistic=args.statistic, largest=args.largest, filter=args.filter, relative=args.baseline)
 
     elif sys.argv[1] == "print_raw":
         pprint.pprint(load_results(directory+"/writer"))
@@ -294,8 +329,5 @@ if __name__ == "__main__":
     else:
         print("dog options")
         print("  writer")
-        print("  writer_largest")
-        print("  writer_select")
         print("  solve0")
-        print("  solve0_largest")
         print("  print_raw")
