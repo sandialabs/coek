@@ -1,0 +1,29 @@
+poek:
+  script:
+    - apt-get update -yqq
+    - apt-get install -yq g++ cmake git
+    - apt-get install -yq python-pip python-virtualenv
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - "[[ -f /.dockerenv ]] && echo -e \"Host *\n\tStrictHostKeyChecking no\n\n\" > ~/.ssh/config"
+    - "echo \"$SSH_PRIVATE_KEY\" >> ~/.ssh/id_rsa && chmod 0600 ~/.ssh/id_rsa"
+    - cd ..
+    - pwd
+    - ls
+    - git clone https://gitlab.com/coopr/coek.git
+    - cd coek
+    - mkdir build
+    - cd build
+    - cmake -D with_tests=ON ..
+    - make
+    - make test_verbose
+    - cd ../..
+    - cd ../coek/build
+    - make test_verbose
+    - which python
+    - python --version
+    - virtualenv tmp
+    - tmp/bin/python setup.py develop
+    - tmp/bin/pip install nose
+    - tmp/bin/nose
+

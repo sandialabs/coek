@@ -1,0 +1,45 @@
+name: COEK Linux Build and Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  simple-build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: run cmake
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+      - name: make
+        run: |
+          cd build
+          make
+          
+  build-and-test-with-tpls:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: run cmake
+        run: |
+          mkdir build
+          cd build
+          cmake -Dbuild_all=ON -Dwith_tests=ON ..
+      - name: build
+        run: |
+          cd build
+          make tpls
+          make
+      - name: test
+        run: |
+          cd build
+          make test
