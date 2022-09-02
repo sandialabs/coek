@@ -1,0 +1,333 @@
+#!/usr/bin/env python
+#
+# Generate graphs and other summaries of the results
+#
+
+import argparse
+import copy
+import pprint
+import sys
+import json
+import os
+from os.path import join, getsize
+import pprint
+import json
+from tabulate import tabulate
+
+
+all_problems = ['lqcp', 'fac', 'nqueens', 'pmedian', 'knapsack']
+baseline_problems = dict(gurobi=set(['lqcp', 'fac', 'nqueens-scalar', 'pmedian-scalar', 'knapsack-scalar']),
+                             pyomo=set(['lqcp', 'fac', 'nqueens', 'pmedian', 'knapsack']))
+
+def load_results(directory):
+    results = {}
+    for root, dirs, files in os.walk(directory):
+        for f in files:
+            if not f == 'results.json':
+                continue
+            tool = os.path.basename(root)
+            results[tool] = []
+            print("  Collecting test results for "+tool)
+            with open(join(root,f), 'r') as INPUT:
+                results[tool] = json.load(INPUT)
+    return results
+
+
+def collect_writer(data, suffix, problems):
+    ans = {}
+    for problem in problems:
+        curr = ans[problem] = []
+        for tool,tooldata in data.items():
+            for name,exp in tooldata.items():
+                if name.startswith("_"):
+                    continue
+                if exp['suffix'] != suffix:
+                    continue
+                if not exp['model'].startswith(problem):
+                    continue
+
+                tmp = {"Model":exp['model'], "Size":int(exp['size'][0]), "Test":tool, 
+                       "Mean Real":None, "Stdev Real":None, 
+                       "Mean User":None, "Stdev User":None,
+                       "Lines":None, "Bytes":None}
+
+                if 'real' in exp['data'] and len(exp['data']['real']['trials']) > 0:
+                    tmp['Mean Real']    = exp['data']['real']['mean']
+                    tmp['Stdev Real']   = exp['data']['real']['stdev']
+                    tmp['Mean User']    = exp['data']['user']['mean']
+                    tmp['Stdev User']   = exp['data']['user']['stdev']
+                    tmp['Lines']        = exp['data']['lines']['mean']
+                    tmp['Bytes']        = exp['data']['bytes']['mean']
+                curr.append(tmp)
+    return ans, ['Mean Real', 'Stdev Real', 'Mean User', 'Stdev User', 'Lines', 'Bytes']
+
+
+def collect_solve0(data, problems):
+    ans = {}
+    for problem in problems:
+        curr = ans[problem] = []
+        for tool,tooldata in data.items():
+            for name,exp in tooldata.items():
+                if name.startswith("_"):
+                    continue
+                if not exp['model'].startswith(problem):
+                    continue
+
+                tmp = {"Model":exp['model'], "Size":int(exp['size'][0]), "Test":tool, 
+                       "Mean Real":None, "Stdev Real":None, 
+                       "Mean User":None, "Stdev User":None}
+
+                if 'real' in exp['data'] and len(exp['data']['real']['trials']) > 0:
+                    tmp['Mean Real']    = exp['data']['real']['mean']
+                    tmp['Stdev Real']   = exp['data']['real']['stdev']
+                    tmp['Mean User']    = exp['data']['user']['mean']
+                    tmp['Stdev User']   = exp['data']['user']['stdev']
+                curr.append(tmp)
+    return ans, ['Mean Real', 'Stdev Real', 'Mean User', 'Stdev User']
+
+
+def compute_statistics(data, cols, tool, baseline_problems):
+    ans = {}
+    for problem in data:
+        ans[problem] = copy.deepcopy(data[problem])
+        curr = ans[problem]
+
+        for statistic in ['Ratio', 'Reduction', 'XFaster']:
+            if statistic == 'Ratio':
+                fn = lambda old,new: float('nan') if old==0 else new/old
+            elif statistic == 'Reduction':
+                fn = lambda old,new: float('nan') if old==0 else 100*(old-new)/old
+            elif statistic == 'XFaster':
+                fn = lambda old,new: float('nan') if new==0 else old/new
+
+            baseline = {}
+            for row in curr:
+                if row['Test'] == tool and row['Model'] in baseline_problems:
+                    baseline[row['Size']] = {col:row[col] for col in cols}
+            if len(baseline) == 0:
+                print("  Warning: No baseline data found for {} in problem {}".format(tool, problem)) 
+                continue
+                    
+            #pprint.pprint(baseline)
+            for row in curr:
+                row[statistic] = {}
+                for col in cols:
+                    if row[col] is None or baseline[row['Size']][col] is None:
+                        row[statistic][col] = None
+                    else:
+                        row[statistic][col] = fn( baseline[row['Size']][col], row[col])
+    return ans
+    
+
+def collect_writer_summary(directory):
+    ans = {}
+    ans['raw'] = load_results(os.path.join(directory, 'writer'))
+    ans['suffix'] = dict(lp={}, nl={})
+    for suffix in ['lp', 'nl']:
+        data, cols = collect_writer(ans['raw'], suffix, all_problems)
+        if suffix == 'lp':
+            print("Analyzing {} with baseline pyomo".format(suffix))
+            ans['suffix'][suffix]['pyomo'] = compute_statistics(data, cols, 'pyomo', baseline_problems['pyomo'])
+            print("Analyzing {} with baseline gurobi".format(suffix))
+            ans['suffix'][suffix]['gurobi'] = compute_statistics(data, cols, 'gurobi', baseline_problems['gurobi'])
+        elif suffix == 'nl':
+            print("Analyzing {} with baseline pyomo".format(suffix))
+            ans['suffix'][suffix]['pyomo'] = compute_statistics(data, cols, 'pyomo', baseline_problems['pyomo'])
+    with open(os.path.join(directory,'writer','summary.json'),'w') as OUTPUT:
+        json.dump(ans, OUTPUT, indent=4, sort_keys=True)
+
+
+def collect_solve0_summary(directory):
+    ans = {}
+    ans['raw'] = load_results(os.path.join(directory, 'solve0'))
+    ans['baseline'] = {}
+    data, cols = collect_solve0(ans['raw'], all_problems)
+    for baseline in ['pyomo', 'gurobi']:
+        print("Analyzing with baseline {}".format(baseline))
+        ans['baseline'][baseline] = compute_statistics(data, cols, baseline, baseline_problems[baseline])
+    with open(os.path.join(directory,'solve0','summary.json'),'w') as OUTPUT:
+        json.dump(ans, OUTPUT, indent=4, sort_keys=True)
+
+
+def filter_results(data, largest=False, select={}):
+    for problem in data:
+        #
+        # Keep Largest
+        #
+        if largest:
+            curr = data[problem]
+            value = max([row['Size'] for row in curr])
+            tmp = []
+            for row in curr:
+                if row['Size'] == value:
+                    tmp.append(row)
+            data[problem] = tmp
+        #
+        # Keep only problem in the 'select' dictionary
+        #
+        elif len(select) > 0:
+            curr = data[problem]
+            tmp = []
+            for row in curr:
+                for m,v in select.items():
+                    if row['Model'].startswith(m) and row['Size'] == v:
+                        tmp.append(row)
+            data[problem] = tmp
+
+    return data
+
+
+def writer_tabular(directory, largest=False, filter=False, suffix='lp', relative='gurobi', statistic='Ratio'):
+        keeper_size = dict(lqcp=1500, fac=75, nqueens=1000, pmedian=1280, knapsack=1000)
+
+        with open(os.path.join(directory,'writer','summary.json'),'r') as INPUT:
+            data = json.load(INPUT)
+
+        if filter:
+            data = filter_results(data['suffix'][suffix][relative], select=keeper_size)
+        else:
+            data = filter_results(data['suffix'][suffix][relative], largest=largest)
+
+        allcols = ["Model", "Size", "Test", 'Mean Real', 'Stdev Real', 'Mean User', 'Stdev User', 'Lines', 'Bytes']
+        for problem in data:
+            results = []
+            print("")
+            for row in data[problem]:
+                #print(row['Model'], row['Size'])
+                if statistic is None:
+                    row.pop('Ratio')
+                    row.pop('Reduction')
+                    row.pop('XFaster')
+                    results.append( [row[col] for col in allcols] )
+                else:
+                    tmp = [row[col] for col in allcols]
+                    for col in ['Mean Real', 'Mean User', 'Lines', 'Bytes']:
+                        tmp.append(row[statistic][col])
+                    results.append( tmp )
+                    row.pop('Ratio')
+                    row.pop('Reduction')
+                    row.pop('XFaster')
+            if statistic is None:
+                headers = allcols
+            else:
+                headers=allcols + [col+' '+statistic for col in ['Mean Real', 'Mean User', 'Lines', 'Bytes']]
+            print(tabulate(sorted(results, key=lambda x:(x[0].split('-')[0],x[2],x[0],x[1])), headers=headers))
+
+
+def solve0_tabular(directory, largest=False, filter=False, relative='gurobi', statistic='Ratio'):
+        keeper_size = dict(lqcp=1500, fac=75, nqueens=1000, pmedian=1280, knapsack=1000)
+
+        with open(os.path.join(directory,'solve0','summary.json'),'r') as INPUT:
+            data = json.load(INPUT)
+
+        if filter:
+            data = filter_results(data['baseline'][relative], select=keeper_size)
+        else:
+            data = filter_results(data['baseline'][relative], largest=largest)
+
+        allcols = ["Model", "Size", "Test", 'Mean Real', 'Stdev Real', 'Mean User', 'Stdev User']
+        for problem in data:
+            results = []
+            print("")
+            for row in data[problem]:
+                #print(row['Model'], row['Size'])
+                if statistic is None:
+                    row.pop('Ratio')
+                    row.pop('Reduction')
+                    row.pop('XFaster')
+                    results.append( [row[col] for col in allcols] )
+                else:
+                    tmp = [row[col] for col in allcols]
+                    for col in ['Mean Real', 'Mean User']:
+                        tmp.append(row[statistic][col])
+                    results.append( tmp )
+                    row.pop('Ratio')
+                    row.pop('Reduction')
+                    row.pop('XFaster')
+            if statistic is None:
+                headers = allcols
+            else:
+                headers=allcols + [col+' '+statistic for col in ['Mean Real', 'Mean User']]
+            print(tabulate(sorted(results, key=lambda x:(x[0].split('-')[0],x[2],x[0],x[1])), headers=headers))
+
+
+
+def solve0(data, largest=False):
+    for problem in ['knapsack', 'pmedian', 'lqcp', 'fac', 'nqueens']:
+        results = []
+        for tool,tooldata in data.items():
+            for name,exp in tooldata.items():
+                if name.startswith("_"):
+                    continue
+                if not exp['model'].startswith(problem):
+                    continue
+                res = [exp['model'], int(exp['size'][0]), tool]
+                if 'real' not in exp['data'] or len(exp['data']['real']['trials']) == 0 or len(exp['data'].get('timeout',{})) > 0:
+                    results.append( res + [None, None, None, None] )
+                else:
+                    results.append( res + [exp['data']['real']['mean'], exp['data']['real']['stdev'],
+                                           exp['data']['user']['mean'], exp['data']['user']['stdev']] )
+
+        #pprint.pprint(results)
+        if largest:
+            l = max(r[1] for r in results)
+            results = [r for r in results if r[1] == l]
+
+        g_real = {}
+        g_user = {}
+        for r in results:
+            if r[2] == 'gurobi':
+                g_real[r[1]] = r[3]
+                g_user[r[1]] = r[5]
+        for r in results:
+            if r[3] is None:
+                r.append(r[3])
+                r.append(r[5])
+            elif r[1] in g_real:
+                r.append(r[3]/g_real[r[1]])
+                r.append(r[5]/g_user[r[1]])
+            else:
+                r.append(None)
+                r.append(None)
+        print("")
+        print(tabulate(sorted(results,key=lambda x:(x[0].split('-')[0],x[2],x[0],x[1])), headers=["Model", "Size", "Test", "Mean Real", "Stdev Real", "Mean User", "Stdev User", "RealRatio", "UserRatio"]))
+
+
+if __name__ == "__main__":
+    directory = 'results-new'
+
+    if os.path.exists(os.path.join(directory,'writer')):
+        collect_writer_summary(directory)
+    if os.path.exists(os.path.join(directory,'solve0')):
+        collect_solve0_summary(directory)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--suffix', dest='suffix', action='store', default='lp', help='Specify the suffix shown')
+    parser.add_argument('--statistic', '-s', dest='statistic', action='store', default=None, help='Show relative statistic')
+    parser.add_argument('--baseline', '-b', dest='baseline', action='store', default='gurobi', help='Baseline for performance comparisons')
+    parser.add_argument('--tabular', '-t', dest='tabular', action='store_true', default=False, help='Print a tabular summary')
+    parser.add_argument('--filter', '-f', dest='filter', action='store_true', default=False, help='Filter results')
+    parser.add_argument('--largest', '-l', dest='largest', action='store_true', default=False, help='Filter results')
+    parser.add_argument('option')
+    args = parser.parse_args()
+    #print(args)
+    #sys.exit(0)
+
+    if False:
+        pass
+
+    elif args.option == "writer":
+        print("HERE")
+        writer_tabular(directory, suffix=args.suffix, statistic=args.statistic, largest=args.largest, filter=args.filter, relative=args.baseline)
+
+    elif sys.argv[1] == "solve0":
+        solve0_tabular(directory, statistic=args.statistic, largest=args.largest, filter=args.filter, relative=args.baseline)
+
+    elif sys.argv[1] == "print_raw":
+        pprint.pprint(load_results(directory+"/writer"))
+        
+    else:
+        print("dog options")
+        print("  writer")
+        print("  solve0")
+        print("  print_raw")

@@ -1,0 +1,321 @@
+#!/usr/bin/env python
+#
+# poek_micro [-d] <filename.json> <testname> <size>
+#
+
+import sys
+import os.path
+import gc
+import json
+import signal
+import time
+import pprint
+
+sys.path.insert(1, os.path.dirname(os.path.abspath(__file__)) )
+from models import create_instance, print_help
+
+all_testnames = [
+    'constant-sum',
+    'constant-quicksum',
+    'linear-sum',
+    'linear-quicksum',
+    'bilinear-sum',
+    'bilinear-quicksum',
+    'nonlinear-sum',
+    'nonlinear-quicksum',
+    'product-2',
+    'product-3',
+    'polynomial',
+    'fixed-linear-sum',
+    'fixed-linear-quicksum',
+    ]
+if len(sys.argv) == 1:
+    print("poek_micro [-d] <filename.json> <ntrials> <testname> <size>")
+    print("")
+    print("TEST NAMES\n  " + "\n  ".join(all_testnames))
+    sys.exit(1)
+
+i=1
+if sys.argv[i] == '-d':
+    debug=True
+    i += 1
+else:
+    debug=False
+filename = sys.argv[i]
+i += 1
+ntrials = int(sys.argv[i])
+i += 1
+testname = sys.argv[i]
+i += 1
+N = int(sys.argv[i])
+
+#
+# Poek tests here
+#
+# TODO - Error handling for indexed variables outside of the index set
+# TODO - Revise API to compute the size of COEK expression trees
+# TODO - Revise API of affine_expression() to accept and list-of-parameter and variable_array objects
+# TODO - Revise with parameter_array constructs
+# TODO - Revise prod() function to work with list of values
+#
+def parameter(N, value=0):
+    return [pk.parameter(value=value) for i in range(N)]
+
+def prod(args):
+    expr = 1.0
+    for v_ in args:
+        expr *= v_
+    return expr
+
+
+
+import poek as pk
+
+def tests(testname, N):
+    try:
+    #if True:
+        with timeout():
+            if False:
+                pass
+
+            elif testname == "constant-sum":
+                # p'q using Python sum()
+                model = pk.model()
+                p = [2]*N
+                q = parameter(N, value=2)
+                gc.collect()
+                start = time.time()
+                expr = sum(p[i]*q[i] for i in range(N))
+                stop = time.time()
+
+            elif testname == "constant-quicksum":
+                # p'q using pyomo quicksum()
+                model = pk.model()
+                p = [2]*N
+                q = parameter(N, value=2)
+                gc.collect()
+                start = time.time()
+                expr = pk.quicksum(p[i]*q[i] for i in range(N))
+                stop = time.time()
+
+            elif testname == "linear-sum":
+                # p'x using Python sum()
+                model = pk.model()
+                p = [2]*N
+                x = model.add_variable(N, value=2)
+                gc.collect()
+                start = time.time()
+                expr = sum(p[i]*x[i] for i in range(N))
+                stop = time.time()
+
+            elif testname == "linear-quicksum":
+                # p'x using poek quicksum()
+                model = pk.model()
+                p = [2]*N
+                x = model.add_variable(N, value=2)
+                gc.collect()
+                start = time.time()
+                expr = pk.quicksum(p[i]*x[i] for i in range(N))
+                stop = time.time()
+
+            elif testname == "linear-affine":
+                # p'x using poek affine()
+                model = pk.model()
+                p = [2]*N
+                x = model.add_variable(N, value=2)
+                gc.collect()
+                start = time.time()
+                expr = pk.affine_expression(p,[x[i] for i in range(N)])
+                stop = time.time()
+
+            elif testname == "bilinear-sum":
+                # sum_i p_i x_i y_i using Python sum()
+                model = pk.model()
+                p = [2]*N
+                x = model.add_variable(N, value=2)
+                y = model.add_variable(N, value=2)
+                gc.collect()
+                start = time.time()
+                expr = sum(p[i]*x[i]*y[i] for i in range(N))
+                stop = time.time()
+
+            elif testname == "bilinear-quicksum":
+                # p'x using pyomo quicksum()
+                model = pk.model()
+                p = [2]*N
+                x = model.add_variable(N, value=2)
+                y = model.add_variable(N, value=2)
+                gc.collect()
+                start = time.time()
+                expr = pk.quicksum(p[i]*x[i]*y[i] for i in range(N))
+                stop = time.time()
+
+            #elif testname == "bilinear-sumprod":
+            #    # p'x using pyomo quicksum()
+            #    model = pe.ConcreteModel()
+            #    model.A = pe.RangeSet(N)
+            #    model.p = pe.Param(model.A, default=2)
+            #    model.x = pe.Var(model.A, initialize=2)
+            #    model.y = pe.Var(model.A, initialize=2)
+            #    gc.collect()
+            #    start = time.time()
+            #    expr = pe.sum_product(model.p, model.x, model.y)
+            #    stop = time.time()
+
+            elif testname == "nonlinear-sum":
+                # sum_i p_i tan(x_i) using Python sum()
+                model = pk.model()
+                p = [2]*N
+                x = model.add_variable(N, value=2)
+                gc.collect()
+                start = time.time()
+                expr = sum(p[i]*pk.tan(x[i]) for i in range(N))
+                stop = time.time()
+
+            elif testname == "nonlinear-quicksum":
+                # sum_i p_i tan(x_i) using pyomo quicksum()
+                model = pk.model()
+                p = [2]*N
+                x = model.add_variable(N, value=2)
+                gc.collect()
+                start = time.time()
+                expr = pk.quicksum(p[i]*pk.tan(x[i]) for i in range(N))
+                stop = time.time()
+
+            elif testname == "product-2":
+                # The product of immutable parameters generates a large expression tree
+                model = pk.model()
+                p = [2]*N
+                x = model.add_variable(value=2)
+                gc.collect()
+                start = time.time()
+                expr=x+x
+                for i in range(N):
+                    expr *= p[i]
+                stop = time.time()
+
+            elif testname == "product-3":
+                # The prod() function collapses the product of immutable parameters to a constant
+                model = pk.model()
+                p = [2]*N
+                x = model.add_variable(value=2)
+                gc.collect()
+                start = time.time()
+                expr=(x+x) * prod(p[i] for i in range(N))
+                stop = time.time()
+
+            elif testname == "polynomial":
+                # Pyomo generates a large, unbalanced expression tree
+                model = pk.model()
+                p = [2]*N
+                x = model.add_variable(N, value=2)
+                gc.collect()
+                start = time.time()
+                expr = 0
+                for i in range(N):
+                    expr = x[i] * (1 + expr)
+                stop = time.time()
+
+            elif testname == "fixed-linear-sum":
+                # p'x with fixed x variables, using Python sum()
+                model = pk.model()
+                p = [2]*N
+                x = model.add_variable(N, value=2)
+                for i in range(N):
+                    if i != N:
+                        x[i].fixed = True
+                gc.collect()
+                start = time.time()
+                expr = sum(p[i]*x[i] for i in range(N))
+                stop = time.time()
+
+            elif testname == "fixed-linear-quicksum":
+                # p'x with fixed x variables, using pyomo quicksum()
+                model = pk.model()
+                p = [2]*N
+                x = model.add_variable(N, value=2)
+                for i in range(N):
+                    if i != N:
+                        x[i].fixed = True
+                gc.collect()
+                start = time.time()
+                expr = pk.quicksum(p[i]*x[i] for i in range(N))
+                stop = time.time()
+
+            else:
+                print("Unknown test name: "+testname)
+                raise RuntimeError()
+        construction_time = stop-start
+    #try:
+    #    pass
+    except:
+        construction_time = -999
+
+    try:
+        with timeout():
+            size = expr.size()
+    except:
+        size = -1
+
+    return {'construction':construction_time, 'size':size}
+
+#
+# Logic to run tests here
+#
+
+class TimeoutError(Exception):
+    pass
+
+class timeout:
+    def __init__(self, seconds=10, error_message='Timeout'):
+        self.seconds = seconds
+        self.error_message = error_message
+    def handle_timeout(self, signum, frame):
+        raise TimeoutError(self.error_message)
+    def __enter__(self):
+        signal.signal(signal.SIGALRM, self.handle_timeout)
+        signal.alarm(self.seconds)
+    def __exit__(self, type, value, traceback):
+        signal.alarm(0)
+
+
+#
+# Execute a function 'n' times, collecting performance statistics and
+# averaging them
+#
+def measure(f, n=25):
+    """measure average execution time over n trials"""
+    data = []
+    for i in range(n):
+        data.append(f())
+        sys.stdout.write('.')
+        sys.stdout.flush()
+    sys.stdout.write('\n')
+    #
+    ans = {}
+    for key in data[0]:
+        d_ = []
+        for i in range(n):
+            d_.append( data[i][key] )
+        ans[key] = {"mean": sum(d_)/float(n), "data": d_}
+    #
+    return ans
+
+#
+# MAIN
+#
+
+if testname == 'all':
+    results = {}
+    for name in all_testnames:
+        print(name)
+        f = lambda : tests(name,N)
+        results[name] = measure(f, ntrials)
+else:
+    f = lambda : tests(testname,N)
+    results = {testname:measure(f, ntrials)}
+
+pprint.pprint(results)
+with open(filename,'w') as OUTPUT:
+    json.dump(results, OUTPUT)
+
