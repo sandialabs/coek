@@ -18,7 +18,7 @@ import sys
 # -- Project information -----------------------------------------------------
 
 project = 'Poek'
-copyright = '2021, Poek Developers'
+copyright = '2022, Poek Developers'
 author = 'Poek Developers'
 
 
@@ -28,6 +28,7 @@ author = 'Poek Developers'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+              'breathe',
               'sphinx.ext.autodoc',
               'sphinx.ext.coverage',
               'sphinx.ext.mathjax',
@@ -53,9 +54,9 @@ source_suffix = '.rst'
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-pygments_style = 'sphinx'
+#pygments_style = 'sphinx'
 
-numfig = True
+#numfig = True
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -91,3 +92,10 @@ else:
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+
+# -- Options for Breathe -------------------------------------------------
+
+# Breathe Configuration
+breathe_default_project = "Poek"
+

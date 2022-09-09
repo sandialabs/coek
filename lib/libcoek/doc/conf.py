@@ -18,7 +18,7 @@ import sys
 # -- Project information -----------------------------------------------------
 
 project = 'Coek'
-copyright = '2020, Coek Developers'
+copyright = '2022, Coek Developers'
 author = 'Coek Developers'
 
 

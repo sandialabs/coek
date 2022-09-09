@@ -16,7 +16,6 @@ these libraries is to support fast optimization modeling capabilities
 in both C++ and Python.  For example:
 
 * Poek interfaces with [Coek]_ and integrates [CppAD]_ to compute derivatives for nonlinear problems,
-* Poek can express large optimization problems in Python nearly as fast [Gurobi]_,
 * Poek and [Coek]_ include mutable parameters that allow model constants to be  modified in place, and
 * Poek can express large optimization problems in Python with modest overhead.
 
