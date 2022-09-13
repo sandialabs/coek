@@ -17,12 +17,12 @@ for performant optimization modeling.
 Coek
 
 * [README](lib/coek/README.md)
-* Oneline Documentation
+* Online Documentation
 
 Poek
 
 * [README](lib/poek/README.md)
-* Oneline Documentation
+* Online Documentation
 
 
 ## Test Utilities
