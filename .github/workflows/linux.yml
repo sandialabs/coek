@@ -19,7 +19,7 @@ jobs:
           mkdir build
           cd build
           cmake ../lib/coek
-      - name: make
+      - name: build
         run: |
           cd build
           make

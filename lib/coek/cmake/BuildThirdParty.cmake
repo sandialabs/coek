@@ -175,6 +175,6 @@ macro(setup_builds)
 
     add_custom_target(tpls 
         DEPENDS ${tpls}
-        COMMAND ${CMAKE_COMMAND} -Duse_superbuild=OFF ..
+        COMMAND ${CMAKE_COMMAND} -Duse_superbuild=OFF ${PROJECT_SOURCE_DIR}
         )
 endmacro()
