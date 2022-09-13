@@ -14,12 +14,12 @@ for performant optimization modeling.
 
 ## Libraries
 
-Coek
+**Coek**
 
 * [README](lib/coek/README.md)
 * Online Documentation
 
-Poek
+**Poek**
 
 * [README](lib/poek/README.md)
 * Online Documentation
@@ -27,6 +27,6 @@ Poek
 
 ## Test Utilities
 
-aml_comparisons
+**aml_comparisons**
 
 * [README](test/aml_comparisons/README.md)
