@@ -3,93 +3,70 @@ Examples
 
 The following examples illustrate the functionality of Coek.
 
-.. warning::
-    These examples are not automatically tested with Coek, but they reflect
-    use cases that are known to work.
+Model Syntax
+------------
 
-A Simple Linear Program
------------------------
+Rosenbrock
+~~~~~~~~~~
 
-.. code-block:: c
+.. literalinclude:: ../examples/rosenbr.cpp
+    :language: C++
+    :linenos:
 
-    //
-    // Create the model
-    //
-    coek::Model m;
+The function ``rosenbr`` constructs a ``coek::Model`` object and returns
+it.  In Lines 7 and 8, two decision variables are defined, initialized
+and added to the model.  On Line 10, an expression is constructed for
+the optimization objective, and this expression is added to the model.
 
-    auto x = m.add_variable("x", 0, m.inf);
-    auto y = m.add_variable("y", 0, m.inf);
+Multidimentional Rosenbrock
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    m.add_objective( 50*x + 40*y, coek::Model::maximize );
-    m.add_constraint( 2*x + 3*y <= 1500 );
-    m.add_constraint( 2*x + y <= 1000 );
+.. literalinclude:: ../examples/srosenbr_vector.cpp
+    :language: C++
+    :linenos:
 
-    //
-    // Optimize the model
-    //
-    coek::Solver solver('gurobi');
-    auto status = solver.solve(m);
-    
-    std::cout << "Value of x: " << x.get_value() << std::endl;
-    std::cout << "Value of y: " << y.get_value() << std::endl;
+The function ``rosenbr_vector`` constructs a ``coek::Model`` object
+and returns it.  In Lines 7-14, a ``std::vector`` of Coek variables
+is declared, initialized, and added to the model.  In Lines 16-19,
+an expression is constructed for the optimization objective, and this
+expression is added to the model.
+
+.. literalinclude:: ../examples/srosenbr_array.cpp
+    :language: C++
+    :linenos:
+
+The function ``rosenbr_array`` constructs a ``coek::Model`` object
+using the more compact array syntax supported by Coek.  Line 8 declares
+an array of variables and adds it to the model.  Lines 9-14 initialize
+the variables, using the ``coek::range`` function to simplify the loop.
+Similarly, Lines 16-19, construct an expression for the objective using
+the ``coek::range`` function, which is then added to the model.
 
 
-A Simple Quadratic Problem
---------------------------
+Applying Optimizers
+-------------------
 
-.. code-block:: c
+Solving a Linear Program
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-    //
-    // Mutable parameters define the maximum of an inverted quadratic
-    //
-    std::vector<coek::Parameter> p(5);
-    for (auto it=p.begin(); it != p.end(); ++it)
-        it->set_value(0.5);
+.. literalinclude:: ../examples/simplelp1_solve.cpp
 
-    //
-    // Create the model
-    //
-    coek::Model m;
+The function ``simplelp1_solve`` constructs a simple linear program that is 
+solved using the ipopt nonlinear optimization solver.
 
-    std::vector<coek::Variable> x(p.size());
-    for (auto it=x.begin(); it != x.end(); ++it) {
-        *it = coek::Variable(-10, 10, 0);
-        m.add_variable(*it);
-        }
 
-    coek::Expression e;
-    for (size_t i=0; i<x.size(); i++)
-        e += (x[i]-p[i])*(x[i]-p[i]);
-    m.add_objective( -e );
+Solving a Quadratic Problem
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    coek::NLPModel nlp(m, "cppad");
-    coek::NLPSolver solver("ipopt");
+.. literalinclude:: ../examples/invquad_array_solve.cpp
 
-    //
-    // Optimize the model
-    //
-    solver.set_option("print_level", 0);
-    solver.solve(nlp);
+The function ``invquad_array_solve`` constructs an inverse quadratic
+problem that is optimized using the ipopt nonlinear optimization solver.  The optimal solution
+is in the opposite corner of the feasible space from the constant values passed into this function.
 
-    // x^*_i = -10
-    for (size_t i=0; i<x.size(); i++)
-        std::cout << "Value of x[" << i << "]: " << x[i].get_value() << std::endl;
+.. literalinclude:: ../examples/invquad_array_resolve.cpp
 
-    // Set p_i = -0.5 and resolve
-    for (auto it=p.begin(); it != p.end(); ++it)
-        it->set_value(-0.5);
-    solver.resolve();
-
-    // x^*_i = -10
-    for (size_t i=0; i<x.size(); i++)
-        std::cout << "Value of x[" << i << "]: " << x[i].get_value() << std::endl;
-
-    // Set x_i = 0 and resolve
-    for (size_t i=0; i<nlp.num_variables(); i++)
-        nlp.get_variable(i).set_value(0);
-    solver.resolve();
-
-    // x^*_i = 10
-    for (size_t i=0; i<x.size(); i++)
-        std::cout << "Value of x[" << i << "]: " << x[i].get_value() << std::endl;
-
+The function ``invquad_array_resolve`` constructs an inverse quadratic
+problem that is successively re-optimized using the ipopt nonlinear optimization solver.  
+The initial optimal solution is [-10, -10, -10, -10, -10], which is maximally far away from the initial 
+parameter values.  Resolving after changing the parameter values does not move the solution, since the resolve uses an initial value matching the last solution.

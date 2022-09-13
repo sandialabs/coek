@@ -31,6 +31,7 @@ set(SPHINX_DEPENDS
             ${CMAKE_CURRENT_SOURCE_DIR}/constraint.rst
             ${CMAKE_CURRENT_SOURCE_DIR}/api.rst
             ${CMAKE_CURRENT_SOURCE_DIR}/api_sets.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/api_models.rst
             ${CMAKE_CURRENT_SOURCE_DIR}/components_elementary.rst
             ${CMAKE_CURRENT_SOURCE_DIR}/components_indexed.rst
             ${CMAKE_CURRENT_SOURCE_DIR}/components_sequence.rst

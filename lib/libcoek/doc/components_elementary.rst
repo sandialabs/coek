@@ -4,7 +4,7 @@ Elementary Components
 Variables
 ---------
 
-In COEK and POEK, variables are not owned by a model.  However, it is
+In Coek and Poek, variables are not owned by a model.  However, it is
 necessary to associate a variable with a model to facilitate efficient
 processing of models.  Thus, the following are equivalent:
 
@@ -69,7 +69,7 @@ Similarly, the ``Variable::bounds()`` function can be used instead of ``Variable
                     value(3).
                     within(coek::Integers);
 
-These methods can be passed scalar values as well as COEK expressions that are mutable constant values.  For example:
+These methods can be passed scalar values as well as Coek expressions that are mutable constant values.  For example:
 
 .. code:: C++
 
@@ -101,14 +101,14 @@ The variable object is initialized with the expression object, which is evaluate
     I think it's reasonable to limit the specification for 'within'
     to enumeration types.  We could follow a Pyomo model of specifying
     class instances here, but I worry that will complicate the interface
-    between COEK and POEK.
+    between Coek and Poek.
 
     Maybe these types (or class instances) should be defined within a
     separate namespace?  Something like 'coek::types::Integers'?
 
 .. note::
 
-    COEK confirms that expressions used to index variables do not
+    Coek confirms that expressions used to index variables do not
     contain a variable unless it is fixed.  Thus, the following creates
     a runtime error:
 
@@ -139,17 +139,6 @@ function chaining:
     // A single parameter initialized to 1.0
     auto q = coek::parameter("q").value(1.0);
 
-.. admonition:: WEH
-
-    Note that this syntax is different from what is currently implemented in COEK:
-
-    .. code:: C++
-
-        coek::Parameter p("p", 1.0);
-
-    This is motivated by the syntax needed for indexed parameters, where the 
-    second argument may specify the array length.
-
 .. admonition:: Question
 
     Do we forsee a need for non-double parameters?  I could imagine
@@ -173,8 +162,8 @@ function chaining:
 Expressions
 -----------
 
-A COEK expression is formed by performing arithmetic operations on
-COEK variables, parameters and set indices, including operations with
+A Coek expression is formed by performing arithmetic operations on
+Coek variables, parameters and set indices, including operations with
 constant values.  For example:
 
 .. code:: C++
@@ -183,9 +172,9 @@ constant values.  For example:
     auto e = sin(3*x+1);
     auto v = e.value();
 
-Note that these fundamental types are not owned by a COEK model, so such
+Note that these fundamental types are not owned by a Coek model, so such
 an expression can be used and re-used within multiple expressions and
-within multiple COEK models.
+within multiple Coek models.
 
 The ``expression()`` function is used to create expressions, particularly
 an empty expression or a constant expression.  This is a convenient
@@ -196,7 +185,7 @@ is a double value:
 .. code:: C++
 
     double e = 0;
-    std::vector<coek::Variable> x(10);
+    auto x = coek::variable(10);
     for (auto& val: x)
         e += val;                       // Error here
 
@@ -206,7 +195,7 @@ with initial value of zero:
 .. code:: C++
 
     auto e = coek::expression();
-    std::vector<coek::Variable> x(10);
+    auto x = coek::variable(10);
     for (auto& val: x)
         e += val;
 
@@ -219,7 +208,7 @@ expressions for parameters and variables.  For example, the following syntax wou
 .. code:: C++
 
     auto e = coek::parameter();
-    std::vector<coek::Variable> x(10);
+    auto x = coek::variable(10);
     for (auto& val: x)
         e += val;                       // Error here
 
@@ -235,7 +224,7 @@ parameter or variable:
 
 .. note::
 
-    COEK does not have support for first-order named expressions right
+    Coek does not have support for first-order named expressions right
     now.  The re-use described here is part of what a named expression
     provides.  I think more fundamentally a named expression allows users
     to interact with expressions that reflect fundamental values in their
@@ -266,7 +255,7 @@ parameter or variable:
 Objectives
 ----------
 
-In COEK and POEK, objectives are not owned by a model, but they are
+In Coek and Poek, objectives are not owned by a model, but they are
 typically associated with a model.  The ``objective()`` function is used
 to declare an objective:
 
@@ -289,7 +278,7 @@ defaults to minimization).  For example:
 .. note::
 
     We can think of an objective as an expression that we minimize.  However, we cannot
-    simple treat an expression as an objective.  Thus, COEK does the allow 
+    simple treat an expression as an objective.  Thus, Coek does the allow 
     expressions to be added to models:
 
     .. code:: C++
@@ -312,22 +301,22 @@ defaults to minimization).  For example:
 
 .. note::
 
-    This API supports the declaration of multiple objectives, though COEK solvers
+    This API supports the declaration of multiple objectives, though Coek solvers
     do not currently support multi-objective optimization:
 
     .. code:: C++
 
         // A single objective
-        auto a = model.add( coek::objective(2*x) );
-        auto b = model.add( coek::objective("b", 2*x) );
+        auto a = model.add( coek::objective().expr(2*x) );
+        auto b = model.add( coek::objective("b").expr(2*x) );
 
 
 Constraints
 -----------
 
-In COEK and POEK, constraints are not owned by a model, but they are
+In Coek and Poek, constraints are not owned by a model, but they are
 typically associated with a model.
-There are several forms of constraint expressions supported by COEK:
+There are several forms of constraint expressions supported by Coek:
 inequalities, equalities and ranges.  For example:
 
 .. code:: C++
@@ -345,7 +334,7 @@ inequalities, equalities and ranges.  For example:
     // Ranged
     auto c6 = coek::inequality( 0, x + y, 1);
 
-Constraint expressions can be directly added to COEK models:
+Constraint expressions can be directly added to Coek models:
 
 .. code:: C++
 
@@ -365,7 +354,7 @@ The ``coek::constraint()`` function is included, which simplifies the naming of 
     auto c2 = 2*x == 0;
     model.add( c2.name("c2") );
 
-COEK constraints are defined by lower and upper bounds with a constraint body.  The values for these can be accessed using the ``lower()``, ``upper()`` and ``body()`` 
+Coek constraints are defined by lower and upper bounds with a constraint body.  The values for these can be accessed using the ``lower()``, ``upper()`` and ``body()`` 
 methods:
 
 .. code:: C++
@@ -388,7 +377,7 @@ methods:
 
         auto upper = c.upper().value();     // Generates an error because this value is undefined
 
-    COEK needs to explicitly represent infinite bound values and return them as appropriate.
+    Coek needs to explicitly represent infinite bound values and return them as appropriate.
 
 .. admonition:: Question
 

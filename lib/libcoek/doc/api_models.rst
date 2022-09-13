@@ -24,12 +24,4 @@ of objectives, gradients, constraints, Jacobians and the Hessian of
 the Lagrangian.  These are key kernels required by nonlinear programming
 solvers, and this class facilitates optimization with these methods.
 
-The `CompactModel` Class
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-The `CompactModel` class is used to generate an instance of `Model` using a compact specification of 
-objectives and constraints.  The 
-
-
-
 

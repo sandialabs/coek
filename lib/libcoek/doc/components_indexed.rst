@@ -28,9 +28,9 @@ use a subset of the declared indices in the indexed component.
 Index Sets
 ~~~~~~~~~~
 
-Associative arrays in COEK are declared using an index set, and COEK
+Associative arrays in Coek are declared using an index set, and Coek
 includes several ways of declaring index sets.  The ``SetOf()`` function
-converts integer data in an STL vector or initializer list into a COEK
+converts integer data in an STL vector or initializer list into a Coek
 set object:
 
 .. code:: C++
@@ -48,7 +48,7 @@ values with a specified start, stop and step value:
     auto s = coek::RangeSet(1, 10);     // 1, 2, 3, ..., 10
     auto t = coek::RangeSet(1, 10, 2);  // 1, 3, ..., 9
 
-A variety of standard set operations are supported in COEK, include set
+A variety of standard set operations are supported in Coek, include set
 products and set difference:
 
 .. code:: C++
@@ -62,7 +62,7 @@ See :ref:`api-sets` for further details.
 
 .. warning::
 
-    Associative arrays are currently only defined with configuring COEK
+    Associative arrays are currently only defined with configuring Coek
     using the ``with_compact`` build option.  This is likely to be the
     default build mode in the future, so these capabilities are not
     documented separately.
@@ -76,23 +76,23 @@ information.  The following are basic examples:
 .. code:: C++
 
     // A single continuous variable
-    auto x = model.add( coek::variable() );
-    auto y = model.add( coek::variable("y") );
+    auto x = coek::variable();
+    auto y = coek::variable("y");
 
     // An array of continuous variables of length 'n'
     size_t n=100;
-    auto x = model.add( coek::variable(n) );
-    auto y = model.add( coek::variable("y", n) );
+    auto x = coek::variable(n);
+    auto y = coek::variable("y", n);
 
     // A multi-dimensional array of continuous variables:  R^{2 x 3 x 5}
-    auto x = model.add( coek::variable({2,3,4}) );
-    auto y = model.add( coek::variable("y", {2,3,4}) );
+    auto x = coek::variable({2,3,4});
+    auto y = coek::variable("y", {2,3,4});
 
-    // A tensor of continuous variables indexed by COEK set objects
+    // A tensor of continuous variables indexed by Coek set objects
     auto A = coek::RangeSet(1,10);
     auto B = coek::RangeSet(11,20);
-    auto x = model.add( coek::variable(A*B) );
-    auto y = model.add( coek::variable("y", A*B) );
+    auto x = coek::variable(A*B);
+    auto y = coek::variable("y", A*B);
 
 Variable declarations require the specification of various information:
 
@@ -106,7 +106,7 @@ variables in the indexed component:
 
 .. code:: C++
 
-    auto x = model.add( coek::variable("x", A*B) ).
+    auto x = coek::variable("x", A*B).
                     lower(2).
                     upper(10).
                     value(3).
@@ -140,19 +140,19 @@ Variables declared over sets can be indexed using the ``()`` operator in a natur
 
     // An array of continuous variables of length 'n'
     size_t n=100;
-    auto x = model.add( coek::variable(n) );
+    auto x = coek::variable(n);
     // Value of the 4th element of the array
     auto v = x(3).value();
 
     // A tensor of continuous variables:  R^{2 x 3 x 5}
-    auto x = model.add( coek::variable({2,3,5}) );
+    auto x = coek::variable({2,3,5});
     // Value of the variable indexed by (0,2,1)
     auto v = x(0,2,1).value();
 
-    // A tensor of continuous variables indexed by COEK set objects
+    // A tensor of continuous variables indexed by Coek set objects
     auto A = coek::RangeSet(1,10);
     auto B = coek::RangeSet(11,20);
-    auto x = model.add( coek::variable(A*B) );
+    auto x = coek::variable(A*B);
     // Value of the variable indexed by (1,11)
     auto v = x(1,11).value();
 
@@ -161,14 +161,14 @@ Variables declared over sets can be indexed using the ``()`` operator in a natur
     For historical reasons, it would be preferable to use the [] operator.
     However, this operator cannot be overloaded with C++ while allowing
     multiple subscripts.  This will change with C++23, but for now we
-    restrict COEK to the use of operator() logic.
+    restrict Coek to the use of operator() logic.
 
 Note that arguments of the ``()`` operator may be constant expressions with mutable values.  For example, the
 following are valid expressions:
 
 .. code:: C++
 
-    auto x = model.add( coek::variable(10) );
+    auto x = coek::variable(10);
 
     auto p = coek::parameter().value(1);
     x(p+1).value();         // The value of the x(2) 
@@ -207,7 +207,7 @@ Indexed parameters are declared in a similar manner to indexed variables:
     auto x = coek::parameter(dim);
     auto q = coek::parameter("q", dim);
 
-    // A tensor of parameters indexed by COEK set objects
+    // A tensor of parameters indexed by Coek set objects
     auto A = coek::RangeSet(1,10);
     auto B = coek::RangeSet(11,20);
     auto p = coek::parameter(A*B);
@@ -230,7 +230,7 @@ function chaining:
     std::vector<size_t> dim = {2,3,5};
     auto q = coek::parameter("q", dim).value(1.0);
 
-    // A tensor of parameters indexed by COEK set objects, initialized to 1.0
+    // A tensor of parameters indexed by Coek set objects, initialized to 1.0
     auto A = coek::RangeSet(1,10);
     auto B = coek::RangeSet(11,20);
     auto q = coek::parameter("q", A*B).value(1.0);
@@ -241,7 +241,7 @@ The ``()`` operator also has the same behavior as for variable components.
 Objectives
 ----------
 
-Indexed objectives are not currently supported in COEK.
+Indexed objectives are not currently supported in Coek.
 
 .. admonition:: WEH
 
@@ -251,24 +251,24 @@ Indexed objectives are not currently supported in COEK.
     .. code:: C++
 
         // A single objective
-        auto a = model.add( coek::objective(2*x) );
-        auto b = model.add( coek::objective("b", 2*x) );
+        auto a = coek::objective(2*x);
+        auto b = coek::objective("b", 2*x);
 
         // An array of objectives
         size_t n=100;
-        auto a = model.add( coek::objective(n) );
-        auto b = model.add( coek::objective("y", n) );
+        auto a = coek::objective(n);
+        auto b = coek::objective("y", n);
 
         // A tensor of objectives:  R^{2 x 3 x 5}
         std::vector<size_t> dim = {2,3,5};
-        auto a = model.add( coek::objective(dim) );
-        auto b = model.add( coek::objective("b", dim) );
+        auto a = coek::objective(dim);
+        auto b = coek::objective("b", dim);
 
-        // A tensor of objectives indexed by COEK set objects
+        // A tensor of objectives indexed by Coek set objects
         auto A = coek::RangeSet(1,10);
         auto B = coek::RangeSet(11,20);
-        auto a = model.add( coek::objective(A*B) );
-        auto b = model.add( coek::objective("b", A*B) );
+        auto a = coek::objective(A*B);
+        auto b = coek::objective("b", A*B);
 
 
 Constraints
@@ -279,24 +279,24 @@ Indexed constraints are declared in a similar manner to indexed variables:
 .. code:: C++
 
     // A single constraint
-    auto a = model.add( coek::constraint(2*x == 0) );
-    auto b = model.add( coek::constraint("b", 2*x == 0) );
+    auto a = coek::constraint(2*x == 0);
+    auto b = coek::constraint("b", 2*x == 0);
 
     // An array of constraints
     size_t n=100;
-    auto a = model.add( coek::constraint(n) );
-    auto b = model.add( coek::constraint("b", n) );
+    auto a = coek::constraint(n);
+    auto b = coek::constraint("b", n);
 
     // A tensor of constraints:  R^{2 x 3 x 5}
     std::vector<size_t> dim = {2,3,5};
-    auto a = model.add( coek::constraint(dim) );
-    auto b = model.add( coek::constraint("b", dim) );
+    auto a = coek::constraint(dim);
+    auto b = coek::constraint("b", dim);
 
-    // A tensor of constraints indexed by COEK set objects
+    // A tensor of constraints indexed by Coek set objects
     auto A = coek::RangeSet(1,10);
     auto B = coek::RangeSet(11,20);
-    auto a = model.add( coek::constraint(A*B) );
-    auto b = model.add( coek::constraint("b", A*B) );
+    auto a = coek::constraint(A*B);
+    auto b = coek::constraint("b", A*B);
 
 A declaration of an indexed constraint indicates the space of possible
 indices associated with the constraint, but only elementary constraints
@@ -305,7 +305,7 @@ constraint objects and specify the constraint value:
 
 .. code:: C++
 
-    auto x = model.add( coek::variable(10) );
+    auto x = coek::variable(10);
 
     auto c = coek::constraint("c", 10);
     for (int i=0; i<10; i++)
@@ -316,7 +316,7 @@ As noted earlier, not all indices need to be added to an indexed constraint:
 
 .. code:: C++
 
-    auto x = model.add( coek::variable(10) );
+    auto x = coek::variable(10);
 
     auto c = coek::constraint("c", {10,10});
     for (int i=0; i<10; i++)
