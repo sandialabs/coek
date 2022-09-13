@@ -9,7 +9,7 @@ on:
 
 jobs:
 
-  simple-build:
+  coek-simple-build:
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -18,13 +18,13 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ..
+          cmake ../lib/coek
       - name: make
         run: |
           cd build
           make
           
-  build-and-test-with-tpls:
+  coek-build-and-test-with-tpls:
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -33,7 +33,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -Dbuild_all=ON -Dwith_tests=ON ..
+          cmake -Dbuild_all=ON -Dwith_tests=ON ../lib/coek
       - name: build
         run: |
           cd build
