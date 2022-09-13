@@ -1,8 +1,6 @@
-The Coek Project
-----------------
+# The Coek Project
 
-Overview
-========
+## Overview
 
 The goal of the Coek project is to develop performant optimization
 modeling capabilities in both C++ and Python.  This is a monorepo that
@@ -14,8 +12,7 @@ targetted experiments that demonstrate new strategies
 for performant optimization modeling.
 
 
-Libraries
-=========
+## Libraries
 
 Coek
 
@@ -28,8 +25,7 @@ Poek
 * Oneline Documentation
 
 
-Test Utilities
-==============
+## Test Utilities
 
 aml_comparisons
 
