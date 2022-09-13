@@ -4,7 +4,8 @@ __all__ = [
 ]
 
 __title__ = "poek"
-__summary__ = "POEK: A Python Optimization Expression Kernel"
+__summary__ = "Poek: A performant Python library that supports the definition of expressions used to formulate and solve optimization problems."
+
 __url__ = None
 
 __version__ = "1.0.0"
