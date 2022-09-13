@@ -14,12 +14,12 @@ for performant optimization modeling.
 
 ## Libraries
 
-**Coek**
+**Coek**: A fast C++ library that supports the definition of expressions used to formulate and solve optimization problems.
 
 * [README](lib/coek/README.md)
 * Online Documentation
 
-**Poek**
+**Poek**: A performant Python library that supports the definition of expressions used to formulate and solve optimization problems.
 
 * [README](lib/poek/README.md)
 * Online Documentation
