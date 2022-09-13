@@ -3,8 +3,7 @@
 ![coverage](https://gitlab.com/coopr/coek/badges/master/coverage.svg)
 
 
-The C/C++ library that supports the definition of expressions used to
-formulate and solve optimization problems.
+A fast C++ library that supports the definition of expressions used to formulate and solve optimization problems.
 
 ## Setup and Configuration
 

@@ -27,6 +27,6 @@ for performant optimization modeling.
 
 ## Test Utilities
 
-**aml_comparisons**
+**aml_comparisons**: Performance tests for Coek, Poek and related optimization modeling environmants.
 
 * [README](test/aml_comparisons/README.md)

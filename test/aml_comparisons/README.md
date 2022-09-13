@@ -1,5 +1,7 @@
 # coek_testmodels
 
+Performance tests for Coek, Poek and related optimization modeling environments.
+
 ## Building
 
 First, build COEK in a peer directory.  Then, create a build directory here:
