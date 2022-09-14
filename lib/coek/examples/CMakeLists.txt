@@ -9,9 +9,14 @@ OPTION(STATIC_LINK "STATIC_LINK" OFF)
 
 SET(sources
     simplelp1.cpp
+    simplelp1_solve.cpp
     rosenbr.cpp
-    srosenbr.cpp
-    invquad.cpp
+    srosenbr_vector.cpp
+    srosenbr_array.cpp
+    invquad_vector.cpp
+    invquad_array.cpp
+    invquad_array_solve.cpp
+    invquad_array_resolve.cpp
    )
 
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)

@@ -1,6 +1,6 @@
 #include <coek/coek.hpp>
 
-coek::Model simplelp1()
+void simplelp1_solve()
 {
 coek::Model m;
 
@@ -11,5 +11,12 @@ m.add_objective(  50*x + 40*y ).sense( m.maximize );
 m.add_constraint(  2*x +  3*y <= 1500 );
 m.add_constraint(  2*x +    y <= 1000 );
 
-return m;
+//
+// Optimize the model
+//
+coek::Solver solver("ipopt");
+auto status = solver.solve(m);
+
+std::cout << "Value of " + x.name() + ": " << x.value() << std::endl;
+std::cout << "Value of " + y.name() + ": " << y.value() << std::endl;
 }
