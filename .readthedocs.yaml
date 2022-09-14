@@ -8,8 +8,6 @@ build:
     tools:
         python: "mambaforge-4.10"
     commands:
-        - mamba env create -f doc/environment.yml
-        - conda init bash
         - ./doc/coek_doc_setup.sh ${SPHINX_PROJECT}
 
 #python:
