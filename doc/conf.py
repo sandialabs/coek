@@ -17,7 +17,8 @@ import sys
 
 # -- Project information -----------------------------------------------------
 
-project = 'CoekProject'
+project = os.environ.get('SPHINX_PROJECT','CoekProject')
+breathe_default_project = project
 copyright = '2022, Coek Developers'
 author = 'Coek Developers'
 
@@ -28,6 +29,7 @@ author = 'Coek Developers'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [ "multiproject",
+    'breathe',
     'sphinx.ext.intersphinx',
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
