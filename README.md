@@ -22,7 +22,7 @@ for performant optimization modeling.
 **Poek**: A performant Python library that supports the definition of expressions used to formulate and solve optimization problems.
 
 * [README](lib/poek/README.md)
-* Online Documentation
+* [Online Documentation](http://coek.readthedocs.org/en/latest/) ![Documentation Status](https://readthedocs.org/projects/coek/badge/?version=latest)
 
 
 ## Test Utilities
