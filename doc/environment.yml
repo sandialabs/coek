@@ -1,0 +1,6 @@
+name: rtd
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - breathe

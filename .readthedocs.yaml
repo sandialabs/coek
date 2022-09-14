@@ -1,4 +1,8 @@
 version: 2
+
+conda:
+    environment: doc/environment.yml
+
 build:
     os: ubuntu-22.04
     tools:
@@ -7,9 +11,9 @@ build:
         pre_build:
             - ./doc/coek_doc_setup.sh ${SPHINX_PROJECT}
 
-sphinx:
-    configuration: lib/${SPHINX_PROJECT}/doc/conf.py
+#sphinx:
+#    configuration: lib/${SPHINX_PROJECT}/doc/conf.py
 
-python:
-    install:
-        - requirements: doc/requirements.txt
+#python:
+#    install:
+#        - requirements: doc/requirements.txt
