@@ -5,7 +5,7 @@
 
 ##mamba env create -p rtd -f doc/environment.yml
 
-mkdir -f _readthedocs
+[ -d _readthedocs/. ] || mkdir _readthedocs
 
 if [[ $1 == "coek" ]]; then
     echo "Running doxygen";
