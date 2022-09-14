@@ -7,9 +7,9 @@ build:
     os: ubuntu-22.04
     tools:
         python: "3.9"
-    jobs:
-        commands:
-            - ./doc/coek_doc_setup.sh ${SPHINX_PROJECT}
+    commands:
+        - conda env create -f environment.yml
+        - ./doc/coek_doc_setup.sh ${SPHINX_PROJECT}
 
 #python:
 #    install:
