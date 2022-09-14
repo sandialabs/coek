@@ -8,11 +8,8 @@ build:
     tools:
         python: "3.9"
     jobs:
-        pre_build:
+        commands:
             - ./doc/coek_doc_setup.sh ${SPHINX_PROJECT}
-
-#sphinx:
-#    configuration: lib/${SPHINX_PROJECT}/doc/conf.py
 
 #python:
 #    install:
