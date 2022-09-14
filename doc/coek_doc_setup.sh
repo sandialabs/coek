@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/bash -v
 
-mamba create -p rtd -f doc/environment.yml
+mamba env create -p rtd -f doc/environment.yml
 conda activate `pwd`/rtd
 
 if [[ $1 == "coek" ]]; then
