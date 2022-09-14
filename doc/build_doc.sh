@@ -3,17 +3,17 @@
 # build_doc.sh <PROJECT>
 #
 
-mamba env create -p rtd -f doc/environment.yml
-
 [ -d _readthedocs/. ] || mkdir _readthedocs
 
 if [[ $1 == "coek" ]]; then
+    echo "Creating conda environment";
+    mamba env create -p rtd -f doc/environment.yml
     echo "Building documentation with cmake";
     mkdir _build
     cd _build
     ../rtd/bin/cmake -Dwith_docs=ON ../lib/coek
     make sphinx
-    pwd
+    #pwd
     #ls
     #ls doc
     #ls doc/sphinx
@@ -22,6 +22,7 @@ if [[ $1 == "coek" ]]; then
     mv doc/sphinx ../_readthedocs/html
 fi
 if [[ $1 == "poek" ]]; then
+    pip install sphinx sphinx_rtd_theme
     echo "Building documentation with sphinx";
     cd lib/poek/doc
     make html
