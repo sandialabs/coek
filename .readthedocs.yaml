@@ -6,9 +6,9 @@ conda:
 build:
     os: ubuntu-22.04
     tools:
-        python: "3.9"
+        python: "mambaforge-4.10"
     commands:
-        - conda env create -f environment.yml
+        - mamba env create -f environment.yml
         - ./doc/coek_doc_setup.sh ${SPHINX_PROJECT}
 
 #python:
