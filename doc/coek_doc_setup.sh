@@ -10,7 +10,7 @@ if [[ $1 == "coek" ]]; then
     mkdir _build
     cd _build
     ../rtd/bin/cmake -Dwith_docs=ON ../lib/coek
-    make docs
+    make sphinx
     pwd
     ls
     ls docs
