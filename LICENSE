@@ -19,3 +19,13 @@ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
 OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
+
+---------------------------------------------------------------------------
+
+
+The following test models in the test/aml_comparisons directory are
+adapted from test models provided in the JUMPSupplement repository
+(https://github.com/mlubin/JuMPSupplement):
+
+* Gurobi test models for fac and lqcp
+* Pyomo test models for fac and lqcp
