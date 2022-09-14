@@ -1,4 +1,4 @@
-name: COEK Linux Build and Tests
+name: Linux Build and Tests
 
 on:
   workflow_dispatch:
