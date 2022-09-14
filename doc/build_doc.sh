@@ -14,10 +14,10 @@ if [[ $1 == "coek" ]]; then
     cd _build
     ../rtd/bin/cmake -Dwith_docs=ON ../lib/coek
     make sphinx
-    pwd
-    ls
-    ls doc
-    ls doc/sphinx
+    #pwd
+    #ls
+    #ls doc
+    #ls doc/sphinx
     mv doc/sphinx ../_readthedocs/html
 fi
 if [[ $1 == "poek" ]]; then
