@@ -1,4 +1,4 @@
-[![Github Actions Status](https://github.com/sandialabs/coek/workflows/Linux%20Build%20and%20Tests/badge.svg?event=push)](https://github.com/sandialabs/coek/actions?query=event%3Apush+workflow%3A%Linux+Build+and+Tests%22)
+[![Github Actions Status](https://github.com/sandialabs/coek/workflows/Linux%20Build%20and%20Tests/badge.svg?event=push)](https://github.com/sandialabs/coek/actions?query=workflow%3A%22Linux+Build+and+Tests%22++)
 
 # The Coek Project
 
