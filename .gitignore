@@ -8,6 +8,7 @@
 # ignore CppAD directory in top level third_party directory
 /third_party/CppAD/
 
+_build
 /.vs
 /out/build
 __pycache__
