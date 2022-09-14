@@ -1,4 +1,7 @@
 #!/bin/bash -v
+#
+# build_doc.sh <PROJECT>
+#
 
 mamba env create -p rtd -f doc/environment.yml
 #conda activate `pwd`/rtd

@@ -8,7 +8,7 @@ build:
     tools:
         python: "mambaforge-4.10"
     commands:
-        - ./doc/coek_doc_setup.sh ${SPHINX_PROJECT}
+        - ./doc/build_doc.sh ${SPHINX_PROJECT}
 
 #python:
 #    install:
