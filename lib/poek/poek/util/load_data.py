@@ -1,7 +1,8 @@
-__all__ = ['load_data']
+__all__ = ["load_data"]
 
 import os
 from collections import defaultdict
+
 try:
     import ujson as json
 except:
@@ -9,15 +10,14 @@ except:
 
 
 class ModelDataFromJson(object):
-
     def __init__(self, jsonfile):
         self._tables_ = {}
         self._params_ = {}
         self._sets_ = {}
-        with open(jsonfile, 'r') as INPUT:
+        with open(jsonfile, "r") as INPUT:
             data = json.load(INPUT)
         #
-        tables = data.get('table',{})
+        tables = data.get("table", {})
         for t, table in tables.items():
             ans = {}
             tmp = {}
@@ -28,11 +28,11 @@ class ModelDataFromJson(object):
                 i += 1
             for row in table[1:]:
                 for name in tmp:
-                    ans[name].append( row[tmp[name]] )
+                    ans[name].append(row[tmp[name]])
             setattr(self, t, ans)
             self._tables_[t] = ans
         #
-        params = data.get('param',{})
+        params = data.get("param", {})
         for p, table in params.items():
             if type(table) is list:
                 ans = {}
@@ -48,7 +48,7 @@ class ModelDataFromJson(object):
                 self._params_[p] = table
                 setattr(self, p, table)
         #
-        sets = data.get('set',{})
+        sets = data.get("set", {})
         for s, table in sets.items():
             indexed = None
             for row in table:
@@ -66,12 +66,15 @@ class ModelDataFromJson(object):
             else:
                 ans = []
                 for row in table:
-                    ans.append( row )
+                    ans.append(row)
             setattr(self, s, ans)
             self._sets_[s] = ans
 
     def unpack(self, *args, table=None, index=None, default=None):
-        ans = tuple(val for val in self._unpack(*args, table=table, index=index, default=default))
+        ans = tuple(
+            val
+            for val in self._unpack(*args, table=table, index=index, default=default)
+        )
         if len(ans) == 1:
             return ans[0]
         else:
@@ -83,7 +86,7 @@ class ModelDataFromJson(object):
                 if default is None:
                     yield self._params_[key]
                 else:
-                    yield defaultdict(lambda:default, self._params_[key])
+                    yield defaultdict(lambda: default, self._params_[key])
             elif key in self._sets_:
                 yield self._sets_[key]
             else:
@@ -107,6 +110,7 @@ class ModelDataFromJson(object):
                                     ans[ndx] = table_[key][i]
                         break
                 yield ans
+
 
 def load_data(filename):
     if not os.path.exists(filename):

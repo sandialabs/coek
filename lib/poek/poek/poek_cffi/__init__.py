@@ -1,5 +1,4 @@
-
-#import pycoek
+# import pycoek
 
 #
 # CFFI definitions here

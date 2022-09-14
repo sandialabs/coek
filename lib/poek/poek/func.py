@@ -1,10 +1,10 @@
-
 def seq(*args):
     if len(args) > 1:
         tmp = list(args)
         tmp[1] += 1
         args = tuple(tmp)
     return range(*args)
+
 
 def prod(args):
     """
@@ -45,4 +45,3 @@ def quicksum(args, start=0):
     for arg in args:
         e += arg
     return e
-
