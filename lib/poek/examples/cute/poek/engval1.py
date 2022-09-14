@@ -31,8 +31,8 @@ model = pk.model()
 
 N = 5000
 
-x = model.add_variable(index=range(1,N+1), value=2.0)
+x = model.add_variable(index=range(1, N + 1), value=2.0)
 
-sumexp1 = sum(-4*x[i]+3.0 for i in range(1,N))
-sumexp2 = sum((x[i]**2+x[i+1]**2)**2 for i in range(1,N))
-model.add_objective( sumexp1 + sumexp2 )
+sumexp1 = sum(-4 * x[i] + 3.0 for i in range(1, N))
+sumexp2 = sum((x[i] ** 2 + x[i + 1] ** 2) ** 2 for i in range(1, N))
+model.add_objective(sumexp1 + sumexp2)

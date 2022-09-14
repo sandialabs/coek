@@ -28,10 +28,10 @@ import poek as pk
 model = pk.model()
 
 n = 5000
-h = 1.0/n
+h = 1.0 / n
 
-Sx = list(range(0,n+1))
-Su = list(range(1,n+1))
+Sx = list(range(0, n + 1))
+Su = list(range(1, n + 1))
 
 x = model.add_variable(index=Sx, value=0.0)
 u = model.add_variable(index=Su, value=0.0)
@@ -39,14 +39,21 @@ u = model.add_variable(index=Su, value=0.0)
 sum_expr_1 = 0
 sum_expr_2 = 0
 for i in Su:
-    sum_expr_1 += h*(0.625*(x[i-1]**2 + x[i-1]*x[i] + x[i]**2) + ((x[i-1]+x[i])*u[i]))/8
-    sum_expr_2 += (h*u[i]**2)/4
+    sum_expr_1 += (
+        h
+        * (
+            0.625 * (x[i - 1] ** 2 + x[i - 1] * x[i] + x[i] ** 2)
+            + ((x[i - 1] + x[i]) * u[i])
+        )
+        / 8
+    )
+    sum_expr_2 += (h * u[i] ** 2) / 4
 obj = sum_expr_1 + sum_expr_2
-model.add_objective( obj )
+model.add_objective(obj)
 
 for i in Su:
-    con = (n-0.25)*x[i] - (n+0.25)*x[i-1] - u[i]
-    model.add_constraint( con == 0 )
+    con = (n - 0.25) * x[i] - (n + 0.25) * x[i - 1] - u[i]
+    model.add_constraint(con == 0)
 
 x[0].value = 1.0
 x[0].fixed = True

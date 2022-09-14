@@ -10,9 +10,9 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
-#   Source: 
+#   Source:
 #   K.C. Kiwiel,
 #   "Methods of Descent for Nondifferentiable Optimization"
 #   Lectures Notes in Mathematics 1133, Springer Verlag, 1985.
@@ -26,14 +26,14 @@ import poek as pk
 
 model = pk.model()
 
-N = [1,2]
+N = [1, 2]
 
 x = model.add_variable(index=N)
 x[1].value = -1.5
-x[2].value =  2.0
+x[2].value = 2.0
 u = model.add_variable()
 
-model.add_objective( u )
+model.add_objective(u)
 
-model.add_constraint( -u+x[2]-1+x[1]**2+(x[2]-1.0)**2 <= 0.0 )
-model.add_constraint( -u+x[2]+1-x[1]**2-(x[2]-1.0)**2 <= 0.0 )
+model.add_constraint(-u + x[2] - 1 + x[1] ** 2 + (x[2] - 1.0) ** 2 <= 0.0)
+model.add_constraint(-u + x[2] + 1 - x[1] ** 2 - (x[2] - 1.0) ** 2 <= 0.0)

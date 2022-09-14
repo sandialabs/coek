@@ -48,7 +48,7 @@ rate3 = 28
 rate4 = 29
 rate5 = 30
 
-N = list(range(1,7))
+N = list(range(1, 7))
 
 z1 = model.add_variable()
 z2 = model.add_variable()
@@ -78,34 +78,35 @@ x4.value = 340.5
 x5.value = 198.175
 x6.value = 0.5
 
-model.add_objective( z1 + z2 )
+model.add_objective(z1 + z2)
 
-def f1(model,x):
+
+def f1(model, x):
     if x == 0:
         return 0.0
     elif x == 300:
-        return 300*30.0
+        return 300 * 30.0
     elif x == 400:
-        return 30.0*300.0+31.0*100.0
+        return 30.0 * 300.0 + 31.0 * 100.0
 
-def f2(model,x):
+
+def f2(model, x):
     if x == 0:
         return 0.0
     elif x == 100:
-        return 28.0*100.0
+        return 28.0 * 100.0
     elif x == 200:
-        return 28.0*100.0+29*100.0
+        return 28.0 * 100.0 + 29 * 100.0
     elif x == 1000:
-        return 28.0*100.0+29*100.0+30.0*800
+        return 28.0 * 100.0 + 29 * 100.0 + 30.0 * 800
 
-piecew1 = Piecewise(z1,x1,pw_constr_type='LB',pw_pts=[0.0,lim1,400.0],f_rule=f1)
-piecew2 = Piecewise(z2,x2,pw_constr_type='LB',pw_pts=[0.0,lim2,lim3,1000.0],f_rule=f2)
 
-e1 = Constraint(expr = x1 == 300 - x3*x4*cos(b - x6)/a\
-     + c*x3**2*d/a)
-e2 = Constraint(expr = x2 == -x3*x4*cos(b + x6)/a\
-     + c*x4**2*d/a)
-e3 = Constraint(expr = x5 == -x3*x4*sin(b + x6)/a\
-     + c*x4**2*e/a)
-e4 = Constraint(expr = 200 - x3*x4*sin(b - x6)/a\
-     + c*x3**2*e/a == 0)
+piecew1 = Piecewise(z1, x1, pw_constr_type="LB", pw_pts=[0.0, lim1, 400.0], f_rule=f1)
+piecew2 = Piecewise(
+    z2, x2, pw_constr_type="LB", pw_pts=[0.0, lim2, lim3, 1000.0], f_rule=f2
+)
+
+e1 = Constraint(expr=x1 == 300 - x3 * x4 * cos(b - x6) / a + c * x3**2 * d / a)
+e2 = Constraint(expr=x2 == -x3 * x4 * cos(b + x6) / a + c * x4**2 * d / a)
+e3 = Constraint(expr=x5 == -x3 * x4 * sin(b + x6) / a + c * x4**2 * e / a)
+e4 = Constraint(expr=200 - x3 * x4 * sin(b - x6) / a + c * x3**2 * e / a == 0)

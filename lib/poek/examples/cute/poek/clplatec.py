@@ -10,7 +10,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source:
 #   J. Nocedal,
@@ -29,19 +29,25 @@ model = pk.model()
 
 p = 71
 wght = -0.1
-hp2 = 0.5*p**2
-wr = wght*0.99
-wl = wght*0.01
+hp2 = 0.5 * p**2
+wr = wght * 0.99
+wl = wght * 0.01
 
-x = model.add_variable(pk.RangeSet(1,p)*pk.RangeSet(1,p), value=0.0)
+x = model.add_variable(pk.RangeSet(1, p) * pk.RangeSet(1, p), value=0.0)
 
 
-model.add_objective( sum(hp2*(x[i,j]-x[i,j-1])**2+\
-    0.5*(x[i,j]-x[i-1,j])**2+\
-    (x[i,j]-x[i,j-1])**4+\
-    (x[i,j]-x[i-1,j])**4 for i in pk.seq(2,p) for j in pk.seq(2,p)) +\
-    (wr*x[p,p]+wl*x[p,1]) )
+model.add_objective(
+    sum(
+        hp2 * (x[i, j] - x[i, j - 1]) ** 2
+        + 0.5 * (x[i, j] - x[i - 1, j]) ** 2
+        + (x[i, j] - x[i, j - 1]) ** 4
+        + (x[i, j] - x[i - 1, j]) ** 4
+        for i in pk.seq(2, p)
+        for j in pk.seq(2, p)
+    )
+    + (wr * x[p, p] + wl * x[p, 1])
+)
 
-for j in pk.seq(1,p):
-    x[1,j].value = 0.0
-    x[1,j].fixed = True
+for j in pk.seq(1, p):
+    x[1, j].value = 0.0
+    x[1, j].fixed = True

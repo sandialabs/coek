@@ -25,7 +25,7 @@ import poek as pk
 
 model = pk.model()
 
-S = list(range(1,6))
+S = list(range(1, 6))
 num = {}
 num[1] = 61.0
 num[2] = 37.0
@@ -36,7 +36,7 @@ num[5] = 1.0
 x = model.add_variable(index=S, lb=0.000001, value=1.0)
 
 se = sum(x[i] for i in S)
-model.add_objective( se*0.0624 )
+model.add_objective(se * 0.0624)
 
-see = sum(num[i]/x[i]**3 for i in S)
-model.add_constraint( see - 1.0 <= 0 )
+see = sum(num[i] / x[i] ** 3 for i in S)
+model.add_constraint(see - 1.0 <= 0)

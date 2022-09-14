@@ -10,9 +10,9 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
-#   Source: 
+#   Source:
 #   Ph. Toint, private communication, 1997.
 
 #   SDIF input: Ph. Toint, May 1997.
@@ -20,6 +20,7 @@
 #   classification SUR2-AN-2-0
 
 import poek as pk
+
 sin = pk.sin
 
 
@@ -29,4 +30,4 @@ zeta = 20.0
 x = model.add_variable(value=-506.0)
 y = model.add_variable(value=-506.2)
 
-model.add_objective( 0.05*(x**2+y**2)+(sin(zeta*x)*sin(zeta*y))**2 )
+model.add_objective(0.05 * (x**2 + y**2) + (sin(zeta * x) * sin(zeta * y)) ** 2)

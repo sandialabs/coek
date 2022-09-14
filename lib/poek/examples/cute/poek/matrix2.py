@@ -1,7 +1,7 @@
 # Adapted from Pyomo model by William E. Hart
 # Formulated in Pyomo by Carl D. Laird, Daniel P. Word, Brandon C. Barrera and Saumyajyoti Chaudhuri
 
-#Taken from:
+# Taken from:
 
 # AMPL Model by Hande Y. Benson
 #
@@ -28,7 +28,7 @@ y11 = model.add_variable(ub=0, value=1)
 y12 = model.add_variable(value=1)
 y22 = model.add_variable(ub=0, value=1)
 
-model.add_objective( (x11-y11)**2 + 2*(x12-y12)**2 + (x22-y22)**2 )
+model.add_objective((x11 - y11) ** 2 + 2 * (x12 - y12) ** 2 + (x22 - y22) ** 2)
 
-model.add_constraint( 0 <= x11*x22 - x12**2 )
-model.add_constraint( y11*y22 - y12**2 <= 0 )
+model.add_constraint(0 <= x11 * x22 - x12**2)
+model.add_constraint(y11 * y22 - y12**2 <= 0)

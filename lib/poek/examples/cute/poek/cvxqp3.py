@@ -21,11 +21,18 @@ import poek as pk
 model = pk.model()
 
 N = 10000
-M = 3*N//4
+M = 3 * N // 4
 
-x = model.add_variable(index=range(1,N+1), lb=0, ub=10, value=0.5)
+x = model.add_variable(index=range(1, N + 1), lb=0, ub=10, value=0.5)
 
-model.add_objective( sum((x[i]+x[((2*i-1) % N)+1]+x[((3*i-1) % N)+1])**2*i/2.0 for i in x) )
+model.add_objective(
+    sum(
+        (x[i] + x[((2 * i - 1) % N) + 1] + x[((3 * i - 1) % N) + 1]) ** 2 * i / 2.0
+        for i in x
+    )
+)
 
-for i in range(1,M+1):
-    model.add_constraint( x[i]+2*x[((4*i-1) % N)+1] + 3*x[((5*i-1)  % N)+1] - 6.0 == 0 )
+for i in range(1, M + 1):
+    model.add_constraint(
+        x[i] + 2 * x[((4 * i - 1) % N) + 1] + 3 * x[((5 * i - 1) % N) + 1] - 6.0 == 0
+    )

@@ -24,13 +24,14 @@
 #   classification OOR2-AY-V-V
 
 import poek as pk
+
 sin = pk.sin
 
 
 model = pk.model()
 
 n = 100
-S = list(range(1,n+1))
+S = list(range(1, n + 1))
 
 y = model.add_variable()
 x = model.add_variable(index=S, value=0.5)
@@ -38,12 +39,12 @@ for i in S:
     x[i].lb = -1
     x[i].ub = i
 
-model.add_objective( 0.5*( (x[1] - x[n]) * x[2] + y )**2 )
+model.add_objective(0.5 * ((x[1] - x[n]) * x[2] + y) ** 2)
 
-for i in range(1,n):
-    model.add_constraint( y + x[1]*x[i+1] + (1+2.0/i)*x[i]*x[n] <= 0 )
+for i in range(1, n):
+    model.add_constraint(y + x[1] * x[i + 1] + (1 + 2.0 / i) * x[i] * x[n] <= 0)
 
 for i in S:
-    model.add_constraint( sin(x[i])**2 <= 0.5 )
+    model.add_constraint(sin(x[i]) ** 2 <= 0.5)
 
-model.add_constraint( 1 == (x[1]+x[n])**2 )
+model.add_constraint(1 == (x[1] + x[n]) ** 2)

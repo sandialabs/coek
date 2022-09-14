@@ -25,15 +25,15 @@ import poek as pk
 model = pk.model()
 
 N = 50
-S = list(range(1,N+1))
+S = list(range(1, N + 1))
 
-data = pk.util.load_data('errinros.json')
+data = pk.util.load_data("errinros.json")
 alpha = data.alpha
 
-SS = list(range(2,N+1))
+SS = list(range(2, N + 1))
 
 x = model.add_variable(index=S, value=-1.0)
 
-sum1 = sum((x[i-1]-16*alpha[i]**2*x[i]**2)**2 for i in SS)
-sum2 = sum((x[i]-1.0)**2 for i in SS)
-model.add_objective( sum1 + sum2 )
+sum1 = sum((x[i - 1] - 16 * alpha[i] ** 2 * x[i] ** 2) ** 2 for i in SS)
+sum2 = sum((x[i] - 1.0) ** 2 for i in SS)
+model.add_objective(sum1 + sum2)

@@ -10,7 +10,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source:
 #   M. Batholomew-Biggs and F.G. Hernandez,
@@ -28,9 +28,11 @@ import poek as pk
 model = pk.model()
 
 N = 1000
-x = model.add_variable(index=range(1,N+1))
+x = model.add_variable(index=range(1, N + 1))
 
-model.add_objective( (x[1]-1)**2 + sum((x[i+1]-x[i])**2 for i in range(1,N)) + (1-x[N])**2 )
+model.add_objective(
+    (x[1] - 1) ** 2 + sum((x[i + 1] - x[i]) ** 2 for i in range(1, N)) + (1 - x[N]) ** 2
+)
 
-for i in range(1,N):
-    model.add_constraint( pk.inequality(0.0, x[i], 0.9) )
+for i in range(1, N):
+    model.add_constraint(pk.inequality(0.0, x[i], 0.9))

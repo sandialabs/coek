@@ -36,7 +36,10 @@ beta = 1.0
 gamma = 1.0
 delta = 1.0
 
-x = model.add_variable(index=range(1,N+1), value=1.0)
+x = model.add_variable(index=range(1, N + 1), value=1.0)
 
 
-model.add_objective( gamma*(x[1]*delta-1.0)**2 + sum( i*(-beta*x[i-1]+alpha*x[i])**2 for i in range(2,N+1) ) )
+model.add_objective(
+    gamma * (x[1] * delta - 1.0) ** 2
+    + sum(i * (-beta * x[i - 1] + alpha * x[i]) ** 2 for i in range(2, N + 1))
+)

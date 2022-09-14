@@ -11,7 +11,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source: a variant on a problem of optimal knot placement in a
 #   scheme for ordinary differential equations with boundary values
@@ -31,23 +31,25 @@ model = pk.model()
 
 K = 350
 
-alpha = {i: 1.0+1.01**i if i>1 else 2.0 for i in range(1,K+2)}
+alpha = {i: 1.0 + 1.01**i if i > 1 else 2.0 for i in range(1, K + 2)}
 
-knot = model.add_variable(index=range(1,K+1))
-for i in range(1,K+1):
+knot = model.add_variable(index=range(1, K + 1))
+for i in range(1, K + 1):
     knot[i].value = alpha[i]
     knot[i].lb = alpha[i]
-    knot[i].ub = alpha[i+1]
+    knot[i].ub = alpha[i + 1]
 
-space = model.add_variable(index=range(1,K))
-for i in range(1,K):
-    space[i].value =   alpha[i+1] - alpha[i]
-    space[i].lb = 0.4*(alpha[i+2] - alpha[i])
-    space[i].ub = 0.6*(alpha[i+2] - alpha[i])
+space = model.add_variable(index=range(1, K))
+for i in range(1, K):
+    space[i].value = alpha[i + 1] - alpha[i]
+    space[i].lb = 0.4 * (alpha[i + 2] - alpha[i])
+    space[i].ub = 0.6 * (alpha[i + 2] - alpha[i])
 
 
-model.add_objective( sum(0.5*(space[i+1]-space[i])**2 for i in range(1,K-1))+\
-           sum(0.5*(knot[K-i]+space[i]-alpha[K+1-i])**2 for i in range(1,K)) )
+model.add_objective(
+    sum(0.5 * (space[i + 1] - space[i]) ** 2 for i in range(1, K - 1))
+    + sum(0.5 * (knot[K - i] + space[i] - alpha[K + 1 - i]) ** 2 for i in range(1, K))
+)
 
-for i in range(1,K):
-    model.add_constraint( space[i]-knot[i+1]+knot[i] == 0 )
+for i in range(1, K):
+    model.add_constraint(space[i] - knot[i + 1] + knot[i] == 0)

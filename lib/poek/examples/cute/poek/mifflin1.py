@@ -28,14 +28,14 @@ import poek as pk
 
 model = pk.model()
 
-N = [1,2]
+N = [1, 2]
 
 x = model.add_variable(index=N)
 x[1].value = 0.8
 x[2].value = 0.6
-u = model.add_variable();
+u = model.add_variable()
 
-model.add_objective( u )
+model.add_objective(u)
 
-model.add_constraint( -u - x[1] - 1.0 + x[1]**2 + x[2]**2 <= 0 )
-model.add_constraint( -u-x[1] <= 0 )
+model.add_constraint(-u - x[1] - 1.0 + x[1] ** 2 + x[2] ** 2 <= 0)
+model.add_constraint(-u - x[1] <= 0)

@@ -1,6 +1,6 @@
 # Adapted from Pyomo model by William E. Hart
 # Formulated in Pyomo by Carl D. Laird, Daniel P. Word, Brandon C. Barrera and Saumyajyoti Chaudhuri
-#Taken from:
+# Taken from:
 
 # AMPL Model by Hande Y. Benson
 #
@@ -30,6 +30,6 @@ model = pk.model()
 x = model.add_variable(lb=0.0)
 y = model.add_variable(lb=0.0)
 
-model.add_objective( (x-y)**2 )
+model.add_objective((x - y) ** 2)
 
-model.add_constraint( x+y-1 == 0 )
+model.add_constraint(x + y - 1 == 0)

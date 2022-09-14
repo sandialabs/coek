@@ -2,7 +2,9 @@
 # Formulated in pyomo by Logan Barnes.
 
 import poek as pk
+
 log = pk.log
+
 
 def prod(x):
     expr = 1.0
@@ -13,8 +15,10 @@ def prod(x):
 
 model = pk.model()
 
-N = list(range(1,11))
+N = list(range(1, 11))
 
 x = model.add_variable(index=N, lb=2.001, ub=9.999, value=9.0)
 
-model.add_objective( sum(log(x[j]-2.0)**2 + log(10.0 - x[j])**2 for j in N) - prod(x)**0.2 )
+model.add_objective(
+    sum(log(x[j] - 2.0) ** 2 + log(10.0 - x[j]) ** 2 for j in N) - prod(x) ** 0.2
+)

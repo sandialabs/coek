@@ -9,7 +9,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source: Problem 5 in
 #   J.J. More', B.S. Garbow and K.E. Hillstrom,
@@ -28,6 +28,10 @@ model = pk.model()
 
 N = 2
 
-x = model.add_variable(index=list(range(1,N+1)), value=1.0)
+x = model.add_variable(index=list(range(1, N + 1)), value=1.0)
 
-model.add_objective( (-1.5+x[1]*(1.0-x[2]))**2 + (-2.25+x[1]*(1.0-x[2]**2))**2 + (-2.625+x[1]*(1.0-x[2]**3))**2 )
+model.add_objective(
+    (-1.5 + x[1] * (1.0 - x[2])) ** 2
+    + (-2.25 + x[1] * (1.0 - x[2] ** 2)) ** 2
+    + (-2.625 + x[1] * (1.0 - x[2] ** 3)) ** 2
+)

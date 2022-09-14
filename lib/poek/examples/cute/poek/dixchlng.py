@@ -25,41 +25,41 @@ import poek as pk
 
 model = pk.model()
 
-S = list(range(1,11))
-SS = list(range(1,8))
+S = list(range(1, 11))
+SS = list(range(1, 8))
 
 x0 = {
-1:-2,
-2:-0.5,
-3:3,
-4:0.33333,
-5:-4,
-6:-0.25,
-7:5,
-8:0.2,
-9:-6,
-10:-0.16667
+    1: -2,
+    2: -0.5,
+    3: 3,
+    4: 0.33333,
+    5: -4,
+    6: -0.25,
+    7: 5,
+    8: 0.2,
+    9: -6,
+    10: -0.16667,
 }
 
 x = model.add_variable(index=S)
 for i in S:
     x[i].value = x0[i]
 
-es1 = sum(100*(x[i+1]-x[i]**2)**2 for i in SS)
-es2 = sum((x[i]-1)**2 for i in SS)
-es3 = sum(90*(x[i+3]-x[i+2]**2)**2 for i in SS)
-es4 = sum((x[i+2]-1)**2 for i in SS)
-es5 = sum(10.1*(x[i+1]-1)**2 for i in SS)
-es6 = sum(10.1*(x[i+3]-1)**2 for i in SS)
-es7 = sum(19.8*(x[i+1]-1)*(x[i+3]-1) for i in SS)
-model.add_objective( es1 + es2 + es3 + es4 + es5 + es6 + es7 )
+es1 = sum(100 * (x[i + 1] - x[i] ** 2) ** 2 for i in SS)
+es2 = sum((x[i] - 1) ** 2 for i in SS)
+es3 = sum(90 * (x[i + 3] - x[i + 2] ** 2) ** 2 for i in SS)
+es4 = sum((x[i + 2] - 1) ** 2 for i in SS)
+es5 = sum(10.1 * (x[i + 1] - 1) ** 2 for i in SS)
+es6 = sum(10.1 * (x[i + 3] - 1) ** 2 for i in SS)
+es7 = sum(19.8 * (x[i + 1] - 1) * (x[i + 3] - 1) for i in SS)
+model.add_objective(es1 + es2 + es3 + es4 + es5 + es6 + es7)
 
 
-for i in [2,4,6,8,10]:
+for i in [2, 4, 6, 8, 10]:
     expr = 1.0
-    for j in range(1,i+1):
+    for j in range(1, i + 1):
         expr *= x[j]
-    model.add_constraint( expr == 1 )
+    model.add_constraint(expr == 1)
 
 """
 def cons1(model):

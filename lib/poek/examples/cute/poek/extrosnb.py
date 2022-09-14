@@ -30,10 +30,10 @@ import poek as pk
 model = pk.model()
 
 N = 10
-S = list(range(1,N+1))
+S = list(range(1, N + 1))
 x = model.add_variable(index=S, value=1)
 
-Sf = list(range(2,N+1))
+Sf = list(range(2, N + 1))
 
-sumexp = sum (100*(x[i]-x[i-1]**2)**2 for i in Sf)
-model.add_objective( (x[1]-1)**2 + sumexp )
+sumexp = sum(100 * (x[i] - x[i - 1] ** 2) ** 2 for i in Sf)
+model.add_objective((x[1] - 1) ** 2 + sumexp)

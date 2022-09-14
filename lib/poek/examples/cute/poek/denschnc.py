@@ -24,15 +24,18 @@
 #   classification SUR2-AN-2-0
 
 import poek as pk
+
 exp = pk.exp
 
 
 model = pk.model()
 
-S = [1,2]
+S = [1, 2]
 
 x = model.add_variable(index=S)
 x[1].value = 2
 x[2].value = 3
 
-model.add_objective( (-2+x[1]**2+x[2]**2)**2 + (-2+exp(x[1]-1)+x[2]**3)**2 )
+model.add_objective(
+    (-2 + x[1] ** 2 + x[2] ** 2) ** 2 + (-2 + exp(x[1] - 1) + x[2] ** 3) ** 2
+)

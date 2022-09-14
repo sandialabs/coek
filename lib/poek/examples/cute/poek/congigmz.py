@@ -11,9 +11,9 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
-#   Source: 
+#   Source:
 #   M.C. Pinar and S.A. Zenios,
 #   "Approximately Exact Smoothing Functions for Exact Penalty Methods",
 #   Institute for Numerical Analysis, TUD, Lyngby, Denmark.
@@ -27,18 +27,18 @@ import poek as pk
 
 model = pk.model()
 
-x = model.add_variable(index=[1,2], value=2.0)
+x = model.add_variable(index=[1, 2], value=2.0)
 z = model.add_variable(value=2.0)
 
 
-model.add_objective( z )
+model.add_objective(z)
 
-model.add_constraint( z+5*x[1]-x[2] >= 0 )
+model.add_constraint(z + 5 * x[1] - x[2] >= 0)
 
-model.add_constraint( z-4*x[2]-x[1]**2-x[2]**2 >= 0 )
+model.add_constraint(z - 4 * x[2] - x[1] ** 2 - x[2] ** 2 >= 0)
 
-model.add_constraint( z-5*x[1]-x[2] >= 0 )
+model.add_constraint(z - 5 * x[1] - x[2] >= 0)
 
-model.add_constraint( x[1]+x[2]+10.0 <= 0 )
+model.add_constraint(x[1] + x[2] + 10.0 <= 0)
 
-model.add_constraint( 2*x[1]**2-x[2]**2+4.0 <= 0 )
+model.add_constraint(2 * x[1] ** 2 - x[2] ** 2 + 4.0 <= 0)

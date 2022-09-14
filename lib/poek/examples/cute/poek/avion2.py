@@ -17,6 +17,7 @@
 #   classification OLR2-RN-49-15
 
 import poek as pk
+
 sqrt = pk.sqrt
 
 
@@ -120,51 +121,56 @@ NP = model.add_variable(value=1.0, lb=1, ub=2)
 
 NG = model.add_variable(value=1.0, lb=1, ub=2)
 
-expr = (SK - 0.01*PK*SR)**2 \
-+ (CA - (SS-SO-CB*LF)/(LF**2) )**2 \
-+ (-2*AM+SO+SS + 0.01*EF/LF)**2 \
-+ (AM - 0.025*SO*CB**2/CA)**2 \
-+ (IMPDER - 27.5*SD - 1.3*SD**2)**2 \
-+ (IMPK - 70*SK + 8.6*SK**2)**2 \
-+ (QI - 1000 + MV**2/24000)**2 \
-+ (1000*PT - MD*PD)**2 \
-+ (VN + VS +QF/790 + 2 - MZ/CR +DV*PT)**2 \
-+ (IMPMOT - 1000*PT/(PM+20) - 12*sqrt(PT))**2 \
-+ (ST - 1.25*SR*NM)**2 \
-+ (SR - MD/MS)**2 \
-+ (QV - 2.4*SX*sqrt(SX)*EL/sqrt(LX))**2 \
-+ (SO - 0.785*DE**2*PT)**2 \
-+ (SS - 0.785*DS**2*PT)**2 \
-+ (CB - 2*(VN-CA*LF**3)/(LF**2*(3-SO*LF)))**2 \
-+ (IMPVOIL - 1.15*SX*(15+0.15*SX)*(8+(MC*LX/(50*SR*EL))**1.5))**2
-model.add_objective( expr )
+expr = (
+    (SK - 0.01 * PK * SR) ** 2
+    + (CA - (SS - SO - CB * LF) / (LF**2)) ** 2
+    + (-2 * AM + SO + SS + 0.01 * EF / LF) ** 2
+    + (AM - 0.025 * SO * CB**2 / CA) ** 2
+    + (IMPDER - 27.5 * SD - 1.3 * SD**2) ** 2
+    + (IMPK - 70 * SK + 8.6 * SK**2) ** 2
+    + (QI - 1000 + MV**2 / 24000) ** 2
+    + (1000 * PT - MD * PD) ** 2
+    + (VN + VS + QF / 790 + 2 - MZ / CR + DV * PT) ** 2
+    + (IMPMOT - 1000 * PT / (PM + 20) - 12 * sqrt(PT)) ** 2
+    + (ST - 1.25 * SR * NM) ** 2
+    + (SR - MD / MS) ** 2
+    + (QV - 2.4 * SX * sqrt(SX) * EL / sqrt(LX)) ** 2
+    + (SO - 0.785 * DE**2 * PT) ** 2
+    + (SS - 0.785 * DS**2 * PT) ** 2
+    + (CB - 2 * (VN - CA * LF**3) / (LF**2 * (3 - SO * LF))) ** 2
+    + (IMPVOIL - 1.15 * SX * (15 + 0.15 * SX) * (8 + (MC * LX / (50 * SR * EL)) ** 1.5))
+    ** 2
+)
+model.add_objective(expr)
 
-model.add_constraint( 0 == SD-0.13*SR) 
+model.add_constraint(0 == SD - 0.13 * SR)
 
-model.add_constraint( SX-0.7*SR == 0 )
+model.add_constraint(SX - 0.7 * SR == 0)
 
-model.add_constraint( LX-LR == 0 )
+model.add_constraint(LX - LR == 0)
 
-model.add_constraint( SF - ST - 2*SD - 2*SX - 2*SK == 0 )
+model.add_constraint(SF - ST - 2 * SD - 2 * SX - 2 * SK == 0)
 
-model.add_constraint( IMPFUS - 20*SF == 0 )
+model.add_constraint(IMPFUS - 20 * SF == 0)
 
-model.add_constraint( MD - 2*MV == 0 )
+model.add_constraint(MD - 2 * MV == 0)
 
-model.add_constraint( QF - QI - QV == 0 )
+model.add_constraint(QF - QI - QV == 0)
 
-model.add_constraint( IMPTRAIN - 0.137*MV == 0 )
+model.add_constraint(IMPTRAIN - 0.137 * MV == 0)
 
-model.add_constraint( IMPNMOT - 35*NM == 0 )
+model.add_constraint(IMPNMOT - 35 * NM == 0)
 
-model.add_constraint( IMPPET - 0.043*QI == 0 )
+model.add_constraint(IMPPET - 0.043 * QI == 0)
 
-model.add_constraint( IMPPIL - 200*NP == 0 )
+model.add_constraint(IMPPIL - 200 * NP == 0)
 
-model.add_constraint( IMPCAN - 120*NG == 0 )
+model.add_constraint(IMPCAN - 120 * NG == 0)
 
-model.add_constraint( IMPSNA - 300*NS -400 == 0 )
+model.add_constraint(IMPSNA - 300 * NS - 400 == 0)
 
-model.add_constraint( MC - MV + 95*NP + 70*NG + 660*NM + 0.5*QI -380 == 0 )
+model.add_constraint(MC - MV + 95 * NP + 70 * NG + 660 * NM + 0.5 * QI - 380 == 0)
 
-model.add_constraint( MZ - IMPTRAIN + IMPNMOT + IMPPET + IMPPIL + IMPCAN + IMPSNA + 290 == 0 )
+model.add_constraint(
+    MZ - IMPTRAIN + IMPNMOT + IMPPET + IMPPIL + IMPCAN + IMPSNA + 290 == 0
+)

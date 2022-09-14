@@ -28,16 +28,16 @@ N = 6
 DEG = 3
 PEN = 1e4
 
-range1 = list(range(0,N))
-range2 = list(range(0,DEG))
+range1 = list(range(0, N))
+range2 = list(range(0, DEG))
 
 c = {}
 for i in range(DEG):
-    for j in range(i,N):
-        c[i,j] = 1 if i==0 else c[i-1,j]*j
+    for j in range(i, N):
+        c[i, j] = 1 if i == 0 else c[i - 1, j] * j
 ct = {}
 for i in range(DEG):
-    ct[i] = -1 if i==0 else ct[i-1]*(N-i+1)
+    ct[i] = -1 if i == 0 else ct[i - 1] * (N - i + 1)
 
 a = model.add_variable(index=range1, lb=-10, ub=10)
 a[0].value = -1.0
@@ -47,12 +47,12 @@ a[3].value = 0.0
 a[4].value = 1.0
 a[5].value = -1.0
 
-model.add_objective( sum(a[j]**2 for j in range1) )
+model.add_objective(sum(a[j] ** 2 for j in range1))
 
 for j in range1:
-    model.add_constraint( (a[j]**3-a[j])/PEN == 0 )
+    model.add_constraint((a[j] ** 3 - a[j]) / PEN == 0)
 
-model.add_constraint( sum(a[j]*c[0,j] for j in range1) - ct[0] == 0 )
+model.add_constraint(sum(a[j] * c[0, j] for j in range1) - ct[0] == 0)
 
-for i in range(1,DEG):
-    model.add_constraint( sum(a[j]*c[i,j] for j in range(i,N)) - ct[i] == 0 )
+for i in range(1, DEG):
+    model.add_constraint(sum(a[j] * c[i, j] for j in range(i, N)) - ct[i] == 0)

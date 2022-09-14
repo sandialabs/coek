@@ -11,7 +11,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source:  problem 206 (p. 46) in
 #   A.R. Buckley,
@@ -24,13 +24,14 @@
 #   classification OUR2-AN-2-0
 
 import poek as pk
+
 exp = pk.exp
 
 
 model = pk.model()
 
-x = model.add_variable(index=[1,2])
-x[1].value =  0.0
+x = model.add_variable(index=[1, 2])
+x[1].value = 0.0
 x[2].value = -1.0
 
-model.add_objective( (0.01*x[1]-0.03)**2 -x[1]+x[2]+exp(20*(x[1]-x[2])) )
+model.add_objective((0.01 * x[1] - 0.03) ** 2 - x[1] + x[2] + exp(20 * (x[1] - x[2])))

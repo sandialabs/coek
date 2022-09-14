@@ -7,13 +7,18 @@ from math import sqrt
 
 model = pk.model()
 
-N = list(range(1,6))
+N = list(range(1, 6))
 
 x = model.add_variable(index=N, value=2.0)
 
-model.add_objective( (x[1]-1)**2 + (x[1]-x[2])**2 + (x[2]-x[3])**2\
-                                 + (x[3]-x[4])**4 + (x[4]-x[5])**4)
+model.add_objective(
+    (x[1] - 1) ** 2
+    + (x[1] - x[2]) ** 2
+    + (x[2] - x[3]) ** 2
+    + (x[3] - x[4]) ** 4
+    + (x[4] - x[5]) ** 4
+)
 
-model.add_constraint( x[1] + x[2]**2 + x[3]**3 == 2 + 3*sqrt(2))
-model.add_constraint( x[2] - x[3]**2 + x[4]    == -2 + 2*sqrt(2))
-model.add_constraint( x[1] * x[5] == 2)
+model.add_constraint(x[1] + x[2] ** 2 + x[3] ** 3 == 2 + 3 * sqrt(2))
+model.add_constraint(x[2] - x[3] ** 2 + x[4] == -2 + 2 * sqrt(2))
+model.add_constraint(x[1] * x[5] == 2)

@@ -23,22 +23,23 @@
 #   classification  LOR2-AY-3-3
 
 import poek as pk
+
 exp = pk.exp
 
 
 model = pk.model()
 
-S = [1,2]
+S = [1, 2]
 
 x = model.add_variable(index=S)
-x[1].value =  2.0
+x[1].value = 2.0
 x[2].value = -0.1
 u = model.add_variable()
 
-model.add_objective( u )
+model.add_objective(u)
 
-model.add_constraint( -u+x[1]**4+x[2]**2 <= 0 )
+model.add_constraint(-u + x[1] ** 4 + x[2] ** 2 <= 0)
 
-model.add_constraint( -u+(2-x[1])**2+(2-x[2])**2 <= 0 )
+model.add_constraint(-u + (2 - x[1]) ** 2 + (2 - x[2]) ** 2 <= 0)
 
-model.add_constraint( -u+2*exp(x[2]-x[1]) <= 0 )
+model.add_constraint(-u + 2 * exp(x[2] - x[1]) <= 0)

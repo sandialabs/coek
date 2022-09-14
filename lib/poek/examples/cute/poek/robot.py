@@ -26,6 +26,7 @@
 #   classification QOR2-MY-14-2
 
 import poek as pk
+
 cos = pk.cos
 sin = pk.sin
 
@@ -36,8 +37,8 @@ XPOS = 4
 YPOS = 4
 HIGH = 2.356194
 DOWN = -2.356194
-R1 = list(range(1,8))
-R2 = list(range(1,7))
+R1 = list(range(1, 8))
+R2 = list(range(1, 7))
 THIN = {}
 for i in R1:
     THIN[i] = 0.0
@@ -46,11 +47,11 @@ for i in R1:
 TH = model.add_variable(index=R1)
 THI = model.add_variable(index=R1)
 
-model.add_objective( sum( (TH[i]-THI[i])**2 for i in R1 ) )
+model.add_objective(sum((TH[i] - THI[i]) ** 2 for i in R1))
 
-model.add_constraint( 0 == sum(cos(TH[i]) for i in R2 ) + 0.5*cos(TH[7]) - XPOS )
+model.add_constraint(0 == sum(cos(TH[i]) for i in R2) + 0.5 * cos(TH[7]) - XPOS)
 
-model.add_constraint( 0 == sum(sin(TH[i]) for i in R2) + 0.5*sin(TH[7]) - YPOS )
+model.add_constraint(0 == sum(sin(TH[i]) for i in R2) + 0.5 * sin(TH[7]) - YPOS)
 
 for i in R1:
-    model.add_constraint( THI[i] == THIN[i] )
+    model.add_constraint(THI[i] == THIN[i])

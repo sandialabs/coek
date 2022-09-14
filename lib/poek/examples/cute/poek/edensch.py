@@ -11,7 +11,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source:
 #   G. Li,
@@ -30,7 +30,12 @@ import poek as pk
 model = pk.model()
 
 N = 2000
-x = model.add_variable(index=range(1,N+1), value=0.0)
+x = model.add_variable(index=range(1, N + 1), value=0.0)
 
-model.add_objective( sum((x[i]-2)**4 + (x[i]*x[i+1]-2*x[i+1])**2 +\
-    (x[i+1]+1)**2 for i in range(1,N)) + 16 )
+model.add_objective(
+    sum(
+        (x[i] - 2) ** 4 + (x[i] * x[i + 1] - 2 * x[i + 1]) ** 2 + (x[i + 1] + 1) ** 2
+        for i in range(1, N)
+    )
+    + 16
+)

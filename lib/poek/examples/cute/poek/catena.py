@@ -35,30 +35,30 @@ tmass = 500.0
 bl = 1.0
 fract = 0.6
 
-length = bl*(N+1)*fract
-mass = tmass/(N+1.0)
-mg = mass*gamma
+length = bl * (N + 1) * fract
+mass = tmass / (N + 1.0)
+mg = mass * gamma
 
-Sv = list(range(0,N+2))
+Sv = list(range(0, N + 2))
 
 x = model.add_variable(index=Sv, name="x")
 for i in Sv:
-    x[i].value = i*length/(N+1.0)
+    x[i].value = i * length / (N + 1.0)
 y = model.add_variable(index=Sv, name="y")
 for i in Sv:
-    y[i].value = -i*length/(N+1.0)
+    y[i].value = -i * length / (N + 1.0)
 z = model.add_variable(index=Sv, value=0.0, name="z")
 
 obsum = 0
-for i in range(1,N+1):
-    obsum += mg*y[i]
-obsum += mg*y[N+1]/2.0
-expr = mg*y[0]/2.0 + obsum
-model.add_objective( expr )
+for i in range(1, N + 1):
+    obsum += mg * y[i]
+obsum += mg * y[N + 1] / 2.0
+expr = mg * y[0] / 2.0 + obsum
+model.add_objective(expr)
 
-for i in range(1,N+2):
-    expr = (x[i]-x[i-1])**2 + (y[i]-y[i-1])**2 + (z[i]-z[i-1])**2
-    model.add_constraint( expr == bl**2 )
+for i in range(1, N + 2):
+    expr = (x[i] - x[i - 1]) ** 2 + (y[i] - y[i - 1]) ** 2 + (z[i] - z[i - 1]) ** 2
+    model.add_constraint(expr == bl**2)
 
 x[0].value = 0.0
 x[0].fixed = True
@@ -66,5 +66,5 @@ y[0].value = 0.0
 y[0].fixed = True
 z[0].value = 0.0
 z[0].fixed = True
-x[N+1].value = length
-x[N+1].fixed = True
+x[N + 1].value = length
+x[N + 1].fixed = True

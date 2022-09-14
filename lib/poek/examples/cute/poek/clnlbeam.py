@@ -11,7 +11,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source:
 #   H. Maurer and H.D. Mittelman,
@@ -24,6 +24,7 @@
 
 import math
 import poek as pk
+
 cos = pk.cos
 sin = pk.sin
 
@@ -32,28 +33,35 @@ model = pk.model()
 
 ni = 500
 alpha = 350.0
-h = 1.0/ni
+h = 1.0 / ni
 
-S = list(range(ni+1))
+S = list(range(ni + 1))
 
 t = model.add_variable(index=S, lb=-1.0, ub=1.0)
 for i in S:
-    t[i].value = 0.05*math.cos(i*h)
+    t[i].value = 0.05 * math.cos(i * h)
 
 x = model.add_variable(index=S, lb=-0.05, ub=0.05)
 for i in S:
-    x[i].value = 0.05*math.cos(i*h)
+    x[i].value = 0.05 * math.cos(i * h)
 
 u = model.add_variable(index=S)
 
-model.add_objective( sum((0.5*h*(u[i+1]**2 + u[i]**2) + 0.5*alpha*h*(cos(t[i+1]) +\
-    cos(t[i]))) for i in range(ni)) )
+model.add_objective(
+    sum(
+        (
+            0.5 * h * (u[i + 1] ** 2 + u[i] ** 2)
+            + 0.5 * alpha * h * (cos(t[i + 1]) + cos(t[i]))
+        )
+        for i in range(ni)
+    )
+)
 
 for i in range(ni):
-    model.add_constraint( x[i+1] - x[i] - 0.5*h*(sin(t[i+1]) + sin(t[i]))== 0 )
+    model.add_constraint(x[i + 1] - x[i] - 0.5 * h * (sin(t[i + 1]) + sin(t[i])) == 0)
 
 for i in range(ni):
-    model.add_constraint( t[i+1] - t[i] - 0.5*h*u[i+1] - 0.5*h*u[i] == 0 )
+    model.add_constraint(t[i + 1] - t[i] - 0.5 * h * u[i + 1] - 0.5 * h * u[i] == 0)
 
 x[0].value = 0.0
 x[0].fixed = True

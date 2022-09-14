@@ -10,7 +10,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source: problem 21 in
 #   W. Hock and K. Schittkowski,
@@ -27,7 +27,7 @@ import poek as pk
 
 model = pk.model()
 
-N = list(range(1,8))
+N = list(range(1, 8))
 
 x = model.add_variable(index=N)
 for i in N:
@@ -36,12 +36,16 @@ for i in N:
     else:
         x[i].value = 0.0
 
-model.add_objective( -100+0.01*(x[1]**2+x[3]**2+x[5]**2+x[6]**2) + (x[2]**2+x[4]**2+x[7]**2) )
+model.add_objective(
+    -100
+    + 0.01 * (x[1] ** 2 + x[3] ** 2 + x[5] ** 2 + x[6] ** 2)
+    + (x[2] ** 2 + x[4] ** 2 + x[7] ** 2)
+)
 
-model.add_constraint( 10.0*x[1]-x[2]-10 >= 0 )
-model.add_constraint( pk.inequality(2, x[1], 50) )
-model.add_constraint( pk.inequality(-50, x[2], 50) )
-model.add_constraint( x[3] <= 50 )
-model.add_constraint( 2 <= x[4] )
-model.add_constraint( x[6] <= 0 )
-model.add_constraint( 0 <= x[7] )
+model.add_constraint(10.0 * x[1] - x[2] - 10 >= 0)
+model.add_constraint(pk.inequality(2, x[1], 50))
+model.add_constraint(pk.inequality(-50, x[2], 50))
+model.add_constraint(x[3] <= 50)
+model.add_constraint(2 <= x[4])
+model.add_constraint(x[6] <= 0)
+model.add_constraint(0 <= x[7])

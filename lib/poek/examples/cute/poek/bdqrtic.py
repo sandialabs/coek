@@ -30,10 +30,18 @@ model = pk.model()
 
 N = 1000
 
-x = model.add_variable(index=range(1,N+1), value=1.0)
+x = model.add_variable(index=range(1, N + 1), value=1.0)
 
-expsum1 = sum((-4*x[i] + 3.0)**2 
-              for i in range(1,N-3))
-expsum2 = sum((x[i]**2 + 2*x[i+1]**2 + 3*x[i+2]**2 + 4*x[i+3]**2 + 5*x[N]**2)**2 
-              for i in range(1,N-3))
-model.add_objective( expsum1 + expsum2 )
+expsum1 = sum((-4 * x[i] + 3.0) ** 2 for i in range(1, N - 3))
+expsum2 = sum(
+    (
+        x[i] ** 2
+        + 2 * x[i + 1] ** 2
+        + 3 * x[i + 2] ** 2
+        + 4 * x[i + 3] ** 2
+        + 5 * x[N] ** 2
+    )
+    ** 2
+    for i in range(1, N - 3)
+)
+model.add_objective(expsum1 + expsum2)

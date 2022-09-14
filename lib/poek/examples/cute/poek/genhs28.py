@@ -11,7 +11,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source a multi-dimensional extension of problem 28 in
 #   W. Hock and K. Schittkowski,
@@ -29,13 +29,13 @@ import poek as pk
 
 model = pk.model()
 
-N=10
+N = 10
 
-x = model.add_variable(index=range(1,N+1))
+x = model.add_variable(index=range(1, N + 1))
 for i in x:
-    x[i].value = -4 if i==1 else 1
+    x[i].value = -4 if i == 1 else 1
 
-model.add_objective( sum((x[i]+x[i+1])**2 for i in range(1,N)) )
-    
-for i in range(1,N-1):
-    model.add_constraint( -1.0+x[i]+2*x[i+1]+3*x[i+2] == 0 )
+model.add_objective(sum((x[i] + x[i + 1]) ** 2 for i in range(1, N)))
+
+for i in range(1, N - 1):
+    model.add_constraint(-1.0 + x[i] + 2 * x[i + 1] + 3 * x[i + 2] == 0)

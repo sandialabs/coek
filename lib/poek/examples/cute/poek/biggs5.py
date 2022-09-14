@@ -31,8 +31,8 @@ model = pk.model()
 
 N = 6
 M = 13
-S = list(range(1,N+1))
-SS = list(range(1,M+1))
+S = list(range(1, N + 1))
+SS = list(range(1, M + 1))
 
 xinit = {}
 xinit[1] = 1
@@ -48,8 +48,14 @@ for i in S:
 
 sum1 = 0
 for i in SS:
-    sum1 += (-exp(-0.1*i)+5*exp(-i)-3*exp(-0.4*i)+ x[3]*pk.exp(-0.1*i*x[1])\
-    - x[4]*pk.exp(-0.1*i*x[2]) + x[6]*pk.exp(-0.1*i*x[5]))**2
-model.add_objective( sum1 )
+    sum1 += (
+        -exp(-0.1 * i)
+        + 5 * exp(-i)
+        - 3 * exp(-0.4 * i)
+        + x[3] * pk.exp(-0.1 * i * x[1])
+        - x[4] * pk.exp(-0.1 * i * x[2])
+        + x[6] * pk.exp(-0.1 * i * x[5])
+    ) ** 2
+model.add_objective(sum1)
 
-model.add_constraint( x[6] == 3 )
+model.add_constraint(x[6] == 3)

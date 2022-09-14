@@ -3,9 +3,9 @@
 #
 # Taken from:
 #
-#**************************
+# **************************
 # SET UP THE INITIAL DATA *
-#**************************
+# **************************
 #   Problem :
 #   *********
 #   Source: an expanded form of problem 99 in
@@ -21,6 +21,7 @@
 #   Solution
 
 import poek as pk
+
 sin = pk.sin
 cos = pk.cos
 
@@ -93,26 +94,26 @@ r8 = model.add_variable()
 q8 = model.add_variable()
 s8 = model.add_variable()
 
-model.add_objective( -r8*r8 )
+model.add_objective(-r8 * r8)
 
-model.add_constraint(  1250.0*(cos(x1)) - r2 + r1 == 0 )
-model.add_constraint(  15625.0*(sin(x1)) - q2 + q1 + 25.0*s1 - 10000.0 == 0 )
-model.add_constraint(  1250.0*(sin(x1)) - s2 + s1 - 800.0 == 0 )
-model.add_constraint(  1250.0*(cos(x2)) - r3 + r2 == 0 )
-model.add_constraint(  15625.0*(sin(x2)) - q3 + q2 + 25.0*s2 - 10000.0 == 0 )
-model.add_constraint(  1250.0*(sin(x2)) - s3 + s2 - 800.0 == 0 )
-model.add_constraint(  3750.0*(cos(x3)) - r4 + r3 == 0 )
-model.add_constraint(  93750.0*(sin(x3)) - q4 + q3 + 50.0*s3 - 40000.0 == 0 )
-model.add_constraint(  3750.0*(sin(x3)) - s4 + s3 - 1600.0 == 0 )
-model.add_constraint(  3750.0*(cos(x4)) - r5 + r4 == 0 )
-model.add_constraint(  93750.0*(sin(x4)) - q5 + q4 + 50.0*s4 - 40000.0 == 0 )
-model.add_constraint(  3750.0*(sin(x4)) - s5 + s4 - 1600.0 == 0 )
-model.add_constraint(  3750.0*(cos(x5)) - r6 + r5 == 0 )
-model.add_constraint(  93750.0*(sin(x5)) - q6 + q5 + 50.0*s5 - 40000.0 == 0 )
-model.add_constraint(  3750.0*(sin(x5)) - s6 + s5 - 1600.0 == 0 )
-model.add_constraint(  9000.0*(cos(x6)) - r7 + r6 == 0 )
-model.add_constraint(  405000.0*(sin(x6)) - q7 + q6 + 90.0*s6 - 129600.0 == 0 )
-model.add_constraint(  9000.0*(sin(x6)) - s7 + s6 - 2880.0 == 0 )
-model.add_constraint(  9000.0*(cos(x7)) - r8 + r7 == 0 )
-model.add_constraint(  405000.0*(sin(x7)) - q8 + q7 + 90.0*s7 - 100000.0 == 0 )
-model.add_constraint(  9000.0*(sin(x7)) - s8 + s7 - 1000.0 == 0 )
+model.add_constraint(1250.0 * (cos(x1)) - r2 + r1 == 0)
+model.add_constraint(15625.0 * (sin(x1)) - q2 + q1 + 25.0 * s1 - 10000.0 == 0)
+model.add_constraint(1250.0 * (sin(x1)) - s2 + s1 - 800.0 == 0)
+model.add_constraint(1250.0 * (cos(x2)) - r3 + r2 == 0)
+model.add_constraint(15625.0 * (sin(x2)) - q3 + q2 + 25.0 * s2 - 10000.0 == 0)
+model.add_constraint(1250.0 * (sin(x2)) - s3 + s2 - 800.0 == 0)
+model.add_constraint(3750.0 * (cos(x3)) - r4 + r3 == 0)
+model.add_constraint(93750.0 * (sin(x3)) - q4 + q3 + 50.0 * s3 - 40000.0 == 0)
+model.add_constraint(3750.0 * (sin(x3)) - s4 + s3 - 1600.0 == 0)
+model.add_constraint(3750.0 * (cos(x4)) - r5 + r4 == 0)
+model.add_constraint(93750.0 * (sin(x4)) - q5 + q4 + 50.0 * s4 - 40000.0 == 0)
+model.add_constraint(3750.0 * (sin(x4)) - s5 + s4 - 1600.0 == 0)
+model.add_constraint(3750.0 * (cos(x5)) - r6 + r5 == 0)
+model.add_constraint(93750.0 * (sin(x5)) - q6 + q5 + 50.0 * s5 - 40000.0 == 0)
+model.add_constraint(3750.0 * (sin(x5)) - s6 + s5 - 1600.0 == 0)
+model.add_constraint(9000.0 * (cos(x6)) - r7 + r6 == 0)
+model.add_constraint(405000.0 * (sin(x6)) - q7 + q6 + 90.0 * s6 - 129600.0 == 0)
+model.add_constraint(9000.0 * (sin(x6)) - s7 + s6 - 2880.0 == 0)
+model.add_constraint(9000.0 * (cos(x7)) - r8 + r7 == 0)
+model.add_constraint(405000.0 * (sin(x7)) - q8 + q7 + 90.0 * s7 - 100000.0 == 0)
+model.add_constraint(9000.0 * (sin(x7)) - s8 + s7 - 1000.0 == 0)

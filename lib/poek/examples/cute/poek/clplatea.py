@@ -11,7 +11,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source:
 #   J. Nocedal,
@@ -30,17 +30,22 @@ model = pk.model()
 
 p = 71
 wght = -0.1
-hp2 = 0.5*p**2
+hp2 = 0.5 * p**2
 
-x = model.add_variable(pk.RangeSet(1,p)*pk.RangeSet(1,p), value=0.0)
+x = model.add_variable(pk.RangeSet(1, p) * pk.RangeSet(1, p), value=0.0)
 
-model.add_objective( sum(\
-    0.5*(x[i,j]-x[i,j-1])**2+\
-    0.5*(x[i,j]-x[i-1,j])**2+\
-    hp2*(x[i,j]-x[i,j-1])**4+\
-    hp2*(x[i,j]-x[i-1,j])**4\
-    for i in pk.seq(2,p) for j in pk.seq(2,p)) + (wght*x[p,p]) )
+model.add_objective(
+    sum(
+        0.5 * (x[i, j] - x[i, j - 1]) ** 2
+        + 0.5 * (x[i, j] - x[i - 1, j]) ** 2
+        + hp2 * (x[i, j] - x[i, j - 1]) ** 4
+        + hp2 * (x[i, j] - x[i - 1, j]) ** 4
+        for i in pk.seq(2, p)
+        for j in pk.seq(2, p)
+    )
+    + (wght * x[p, p])
+)
 
-for j in pk.seq(1,p):
-    x[1,j].value = 0.0
-    x[1,j].fixed = True
+for j in pk.seq(1, p):
+    x[1, j].value = 0.0
+    x[1, j].fixed = True

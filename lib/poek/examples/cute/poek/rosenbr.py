@@ -1,6 +1,6 @@
 # Adapted from Pyomo model by William E. Hart
 # Formulated in Pyomo by Carl D. Laird, Daniel P. Word, Brandon C. Barrera and Saumyajyoti Chaudhuri
-#Taken from:
+# Taken from:
 #
 # AMPL Model by Hande Y. Benson
 #
@@ -27,9 +27,9 @@ import poek as pk
 
 model = pk.model()
 
-N = [1,2]
+N = [1, 2]
 x = model.add_variable(index=N)
 x[1].value = -1.2
 x[2].value = 1.0
 
-model.add_objective( (x[2]-x[1]**2)**2/0.01 + (x[1]-1)**2 )
+model.add_objective((x[2] - x[1] ** 2) ** 2 / 0.01 + (x[1] - 1) ** 2)

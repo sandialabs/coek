@@ -11,7 +11,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source:  problem 208 (p. 56) in
 #   A.R. Buckley,
@@ -28,10 +28,10 @@ import poek as pk
 
 model = pk.model()
 
-x = model.add_variable(index=[1,2], value=0.5)
+x = model.add_variable(index=[1, 2], value=0.5)
 
-model.add_objective( pk.expression(0) )
-    
-model.add_constraint( (x[1]-0.1136*(x[1]+3.0*x[2])*(1-x[1])) == 0 )
+model.add_objective(pk.expression(0))
 
-model.add_constraint( (x[2]+7.5*(2.0*x[1]-x[2])*(1-x[2])) == 0 )
+model.add_constraint((x[1] - 0.1136 * (x[1] + 3.0 * x[2]) * (1 - x[1])) == 0)
+
+model.add_constraint((x[2] + 7.5 * (2.0 * x[1] - x[2]) * (1 - x[2])) == 0)

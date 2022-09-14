@@ -35,10 +35,10 @@ import poek as pk
 
 model = pk.model()
 
-S = [1,2]
+S = [1, 2]
 x = model.add_variable(index=S, value=2.0)
 
-model.add_objective( -x[1] )
+model.add_objective(-x[1])
 
-model.add_constraint( x[2]-x[1]**3 == 0 )
-model.add_constraint( -x[2]+x[1]**2 == 0 )
+model.add_constraint(x[2] - x[1] ** 3 == 0)
+model.add_constraint(-x[2] + x[1] ** 2 == 0)

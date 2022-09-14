@@ -32,8 +32,8 @@ model = pk.model()
 M = 20
 N = 4
 
-S = [1,2,3,4]
-St = list(range(1,M+1))
+S = [1, 2, 3, 4]
+St = list(range(1, M + 1))
 
 x = model.add_variable(index=S)
 x[1].value = 25
@@ -43,8 +43,14 @@ x[4].value = -1
 
 t = {}
 for i in St:
-    t[i] = i/5.0
+    t[i] = i / 5.0
 
-expa = sum(( (x[1]+t[i]*x[2]-math.exp(t[i]))**2 \
-    + (x[3]+x[4]*math.sin(t[i])-math.cos(t[i]))**2 )**2 for i in St)
-model.add_objective( expa )
+expa = sum(
+    (
+        (x[1] + t[i] * x[2] - math.exp(t[i])) ** 2
+        + (x[3] + x[4] * math.sin(t[i]) - math.cos(t[i])) ** 2
+    )
+    ** 2
+    for i in St
+)
+model.add_objective(expa)

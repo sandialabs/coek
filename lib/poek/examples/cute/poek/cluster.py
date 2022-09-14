@@ -3,9 +3,9 @@
 # Taken from:
 
 #
-#**************************
+# **************************
 # SET UP THE INITIAL DATA *
-#**************************
+# **************************
 #   Problem :
 #   *********
 #   Source:  problem 207 in
@@ -18,6 +18,7 @@
 #   Solution
 
 import poek as pk
+
 sin = pk.sin
 cos = pk.cos
 
@@ -27,8 +28,8 @@ model = pk.model()
 x1 = model.add_variable()
 x2 = model.add_variable()
 
-model.add_objective( pk.expression(0) )
+model.add_objective(pk.expression(0))
 
-model.add_constraint( ((x1-x2*x2) * (x1-sin(x2))) == 0 )
+model.add_constraint(((x1 - x2 * x2) * (x1 - sin(x2))) == 0)
 
-model.add_constraint( (((cos(x2))-x1) * (x2-cos(x1))) == 0 )
+model.add_constraint((((cos(x2)) - x1) * (x2 - cos(x1))) == 0)

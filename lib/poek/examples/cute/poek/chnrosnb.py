@@ -11,7 +11,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source:
 #   Ph.L. Toint,
@@ -36,7 +36,9 @@ n = len(S)
 
 x = model.add_variable(index=S, value=-1.0)
 
-model.add_objective( sum(
-                        (x[i-1]-x[i]**2)**2*16*alph[i]**2 +
-                        (x[i]-1.0)**2 
-                        for i in range(2,n+1)) )
+model.add_objective(
+    sum(
+        (x[i - 1] - x[i] ** 2) ** 2 * 16 * alph[i] ** 2 + (x[i] - 1.0) ** 2
+        for i in range(2, n + 1)
+    )
+)

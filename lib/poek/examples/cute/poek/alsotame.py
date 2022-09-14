@@ -10,7 +10,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source:
 #   A.R. Conn, N. Gould and Ph.L. Toint,
@@ -22,6 +22,7 @@
 #   classification OOR2-AN-2-1
 
 import poek as pk
+
 sin = pk.sin
 exp = pk.exp
 
@@ -32,8 +33,8 @@ x = model.add_variable()
 y = model.add_variable()
 
 
-model.add_objective(exp(x-2*y))
+model.add_objective(exp(x - 2 * y))
 
-model.add_constraint(sin(-x+y-1)==0)
-model.add_constraint(pk.inequality(-2,x,2))
-model.add_constraint(pk.inequality(-1.5,y,1.5))
+model.add_constraint(sin(-x + y - 1) == 0)
+model.add_constraint(pk.inequality(-2, x, 2))
+model.add_constraint(pk.inequality(-1.5, y, 1.5))

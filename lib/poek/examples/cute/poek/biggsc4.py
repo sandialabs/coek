@@ -10,7 +10,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source:
 #   M. Batholomew-Biggs and F.G. Hernandez,
@@ -27,22 +27,22 @@ import poek as pk
 
 model = pk.model()
 
-S = [1,2,3,4]
+S = [1, 2, 3, 4]
 
 x = model.add_variable(index=S, lb=0, ub=5, value=0)
 
-model.add_objective( (-x[1]*x[3]-x[2]*x[4]) )
+model.add_objective((-x[1] * x[3] - x[2] * x[4]))
 
-model.add_constraint( pk.inequality(0, x[1]+x[2] -2.5, 5.0) )
+model.add_constraint(pk.inequality(0, x[1] + x[2] - 2.5, 5.0))
 
-model.add_constraint( pk.inequality(0, x[1]+x[3] -2.5, 5.0) )
+model.add_constraint(pk.inequality(0, x[1] + x[3] - 2.5, 5.0))
 
-model.add_constraint( pk.inequality(0, x[1]+x[4] -2.5, 5.0) )
+model.add_constraint(pk.inequality(0, x[1] + x[4] - 2.5, 5.0))
 
-model.add_constraint( pk.inequality(0, x[2]+x[3] -2.0, 5.0) )
-    
-model.add_constraint( pk.inequality(0, x[2]+x[4] -2.0, 5.0) )
-    
-model.add_constraint( pk.inequality(0, x[3]+x[4] -1.5, 5.0) )
-    
-model.add_constraint( x[1]+x[2]+x[3]+x[4]-5.0 >= 0 )
+model.add_constraint(pk.inequality(0, x[2] + x[3] - 2.0, 5.0))
+
+model.add_constraint(pk.inequality(0, x[2] + x[4] - 2.0, 5.0))
+
+model.add_constraint(pk.inequality(0, x[3] + x[4] - 1.5, 5.0))
+
+model.add_constraint(x[1] + x[2] + x[3] + x[4] - 5.0 >= 0)

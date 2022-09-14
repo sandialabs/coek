@@ -1,6 +1,6 @@
 # Adapted from Pyomo model by William E. Hart
 # Formulated in Pyomo by Carl D. Laird, Daniel P. Word, Brandon C. Barrera and Saumyajyoti Chaudhuri
-#Taken from:
+# Taken from:
 
 # AMPL Model by Hande Y. Benson
 #
@@ -27,7 +27,7 @@ import poek as pk
 
 model = pk.model()
 
-N = list(range(1,21))
+N = list(range(1, 21))
 
 x = model.add_variable(index=N)
 for i in N:
@@ -37,7 +37,7 @@ for i in N:
         x[i].value = -i
 u = model.add_variable()
 
-model.add_objective( u )
+model.add_objective(u)
 
 for i in N:
-    model.add_constraint( -u + x[i]**2 <= 0 )
+    model.add_constraint(-u + x[i] ** 2 <= 0)

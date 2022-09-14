@@ -11,7 +11,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source: problem MAXTPH in
 #   Vasko and Stott
@@ -42,10 +42,9 @@ len = model.add_variable(lb=0.0, ub=lenmax, value=0.5)
 tph = model.add_variable(lb=0.0, value=0.5)
 ipm = model.add_variable(lb=0.0, value=0.5)
 
-model.add_objective( -tph )
+model.add_objective(-tph)
 
-model.add_constraint( 117.370892*tph/(wid*thick)-ipm == 0.0 )
-model.add_constraint( thick**2*ipm/48.0-len == 0.0 )
-model.add_constraint( wid/thick <= maxaspr )
-model.add_constraint( pk.inequality(0.0, thick*wid - minarea, maxarea-minarea) )
-    
+model.add_constraint(117.370892 * tph / (wid * thick) - ipm == 0.0)
+model.add_constraint(thick**2 * ipm / 48.0 - len == 0.0)
+model.add_constraint(wid / thick <= maxaspr)
+model.add_constraint(pk.inequality(0.0, thick * wid - minarea, maxarea - minarea))

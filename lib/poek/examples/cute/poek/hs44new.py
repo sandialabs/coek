@@ -10,7 +10,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source: problem 44 in
 #   W. Hock and K. Schittkowski,
@@ -28,15 +28,17 @@ import poek as pk
 model = pk.model()
 N = 4
 
-M = [1,2,3,4]
+M = [1, 2, 3, 4]
 
 x = model.add_variable(index=M, lb=0.0, value=1.0)
 
-model.add_objective( x[1]-x[2]-x[3]-x[1]*x[3]+x[1]*x[4]+x[2]*x[3]-x[2]*x[4])
+model.add_objective(
+    x[1] - x[2] - x[3] - x[1] * x[3] + x[1] * x[4] + x[2] * x[3] - x[2] * x[4]
+)
 
-model.add_constraint( -x[1]-x[2]+8 >= 0 )
-model.add_constraint( -4*x[1]-x[2]+12 >= 0 )
-model.add_constraint( -3*x[1]-4*x[2]+12 >= 0 )
-model.add_constraint( -2*x[3]-x[4]+8 >= 0 )
-model.add_constraint( -x[3]-2*x[4]+8 >= 0 )
-model.add_constraint( -x[3]-x[4]+5 >= 0 )
+model.add_constraint(-x[1] - x[2] + 8 >= 0)
+model.add_constraint(-4 * x[1] - x[2] + 12 >= 0)
+model.add_constraint(-3 * x[1] - 4 * x[2] + 12 >= 0)
+model.add_constraint(-2 * x[3] - x[4] + 8 >= 0)
+model.add_constraint(-x[3] - 2 * x[4] + 8 >= 0)
+model.add_constraint(-x[3] - x[4] + 5 >= 0)

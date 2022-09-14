@@ -9,7 +9,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source: problem from Kortanek and No
 #   The problem is really a semi-infinite QP
@@ -39,12 +39,12 @@ from math import sin
 model = pk.model()
 n = 20
 m = 1000
-N = list(range(1,n+1))
-M = list(range(0,m+1))
+N = list(range(1, n + 1))
+M = list(range(0, m + 1))
 
 x = model.add_variable(index=N, value=2.0)
 
-model.add_objective(sum((x[j]**2/(2.0*j) + x[j]/j) for j in N))
+model.add_objective(sum((x[j] ** 2 / (2.0 * j) + x[j] / j) for j in N))
 
 for i in M:
-    model.add_constraint( sum((i/m)**(j-1)*x[j] for j in N) >= sin(i/m) )
+    model.add_constraint(sum((i / m) ** (j - 1) * x[j] for j in N) >= sin(i / m))

@@ -2,12 +2,13 @@
 # Taken from cute suite. Formulated in pyomo by Logan Barnes.
 
 import poek as pk
+
 exp = pk.exp
 
 
 model = pk.model()
 
-N = list(range(1,6))
+N = list(range(1, 6))
 a = 2.3
 b = 3.2
 
@@ -31,8 +32,8 @@ x[5].lb = -b
 expr = 1.0
 for j in N:
     expr *= x[j]
-model.add_objective( exp(expr) )
+model.add_objective(exp(expr))
 
-model.add_constraint( sum(x[j]**2 for j in N) == 10)
-model.add_constraint( x[2]*x[3] - 5*x[4]*x[5] == 0)
-model.add_constraint( x[1]**3 + x[2]**3 == -1)
+model.add_constraint(sum(x[j] ** 2 for j in N) == 10)
+model.add_constraint(x[2] * x[3] - 5 * x[4] * x[5] == 0)
+model.add_constraint(x[1] ** 3 + x[2] ** 3 == -1)

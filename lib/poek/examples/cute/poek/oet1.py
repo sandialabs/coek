@@ -24,25 +24,32 @@
 
 import poek as pk
 from math import exp
-#exp = pk.exp
+
+# exp = pk.exp
 
 model = pk.model()
 
 M = 500
 lower = 0.0
 upper = 2.0
-diff = upper-lower
-h = diff/M
-S = [1,2]
-OP = list(range(0,M+1))
+diff = upper - lower
+h = diff / M
+S = [1, 2]
+OP = list(range(0, M + 1))
 
 u = model.add_variable()
 x = model.add_variable(index=S)
 
-model.add_objective( u )
+model.add_objective(u)
 
 for i in OP:
-    model.add_constraint( u - (i*h + lower)*x[1] - exp(i*h + lower)*x[2] - (i*h + lower)**2 >= 0 )
+    model.add_constraint(
+        u - (i * h + lower) * x[1] - exp(i * h + lower) * x[2] - (i * h + lower) ** 2
+        >= 0
+    )
 
 for i in OP:
-    model.add_constraint( u + (i*h + lower)*x[1] + exp(i*h + lower)*x[2] + (i*h + lower)**2 >= 0 )
+    model.add_constraint(
+        u + (i * h + lower) * x[1] + exp(i * h + lower) * x[2] + (i * h + lower) ** 2
+        >= 0
+    )

@@ -10,7 +10,7 @@
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
 # copies and that the copyright notice and this
-# permission notice appear in all supporting documentation.                     
+# permission notice appear in all supporting documentation.
 
 #   Source:
 #   W. Li and J. Swetits,
@@ -32,21 +32,25 @@ pi = 3.1415
 K = 2
 N = 10000
 
-S = list(range(0,K+1))
-R = list(range(1,N+K+1))
-Q = list(range(1,N+1))
+S = list(range(0, K + 1))
+R = list(range(1, N + K + 1))
+Q = list(range(1, N + 1))
 
 B = {}
 for i in S:
-    B[i] = 1 if i == 0 else B[i-1]*i
+    B[i] = 1 if i == 0 else B[i - 1] * i
 
-C = {i: 1 if i == 0 else (-1)**i*B[K]/(B[i]*B[K-i]) for i in S}
+C = {i: 1 if i == 0 else (-1) ** i * B[K] / (B[i] * B[K - i]) for i in S}
 
-T = {i: (i-1.0)/(N+K-1.0) for i in R}
+T = {i: (i - 1.0) / (N + K - 1.0) for i in R}
 
 x = model.add_variable(index=R, value=0.0)
 
-model.add_objective( sum(-(cos(pi*T[i])+0.1*sin(i))*x[i] for i in R) + sum(0.5*(cos(pi*T[i])+0.1*sin(i))**2 for i in R) + sum(0.5*x[i]**2 for i in R) )
+model.add_objective(
+    sum(-(cos(pi * T[i]) + 0.1 * sin(i)) * x[i] for i in R)
+    + sum(0.5 * (cos(pi * T[i]) + 0.1 * sin(i)) ** 2 for i in R)
+    + sum(0.5 * x[i] ** 2 for i in R)
+)
 
 for j in Q:
-    model.add_constraint( sum(C[i]*x[j+K-i] for i in S) >= 0 )
+    model.add_constraint(sum(C[i] * x[j + K - i] for i in S) >= 0)

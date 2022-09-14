@@ -1,7 +1,7 @@
 # Adapted from Pyomo model by William E. Hart
 # Formulated in Pyomo by Carl D. Laird, Daniel P. Word, Brandon C. Barrera and Saumyajyoti Chaudhuri
 #
-#Taken from:
+# Taken from:
 
 # AMPL Model by Hande Y. Benson
 #
@@ -35,7 +35,9 @@ Rx = list(range(n))
 
 x = model.add_variable(n, lb=0.0, ub=1.0)
 
-model.add_objective( sum( -x[i]**2*x[j]**4 for i in Rx for j in Rx ) +\
-           sum(  x[i]**3*x[j]**3 for i in Rx for j in Rx ) )
+model.add_objective(
+    sum(-x[i] ** 2 * x[j] ** 4 for i in Rx for j in Rx)
+    + sum(x[i] ** 3 * x[j] ** 3 for i in Rx for j in Rx)
+)
 
 model.write("s368.nl")

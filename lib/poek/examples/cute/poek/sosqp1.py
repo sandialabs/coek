@@ -1,6 +1,6 @@
 # Adapted from Pyomo model by William E. Hart
 # Formulated in Pyomo by Carl D. Laird, Daniel P. Word, Brandon C. Barrera and Saumyajyoti Chaudhuri
-#Taken from:
+# Taken from:
 #
 # AMPL Model by Hande Y. Benson
 #
@@ -26,9 +26,9 @@ R1 = list(range(N))
 x = model.add_variable(N, lb=-1, ub=1)
 y = model.add_variable(N, lb=-1, ub=1)
 
-model.add_objective( sum( x[i]*y[i] for i in R1 ) )
+model.add_objective(sum(x[i] * y[i] for i in R1))
 
 for i in R1:
-    model.add_constraint( 1 == x[i]-y[i] )
+    model.add_constraint(1 == x[i] - y[i])
 
-model.add_constraint( N == sum( x[i]+y[i] for i in R1 ) )
+model.add_constraint(N == sum(x[i] + y[i] for i in R1))

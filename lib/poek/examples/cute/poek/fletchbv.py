@@ -26,6 +26,7 @@
 #   classification OUR2-AN-V-0
 
 import poek as pk
+
 cos = pk.cos
 
 
@@ -34,19 +35,19 @@ model = pk.model()
 n = 10
 kappa = 1
 objscale = 1.0e0
-h = 1/(n+1.0)
-p = 1/(objscale)
+h = 1 / (n + 1.0)
+p = 1 / (objscale)
 
-S = list(range(1,n+1))
-SS = list(range(1,n))
+S = list(range(1, n + 1))
+SS = list(range(1, n))
 
 x = model.add_variable(index=S)
 for i in S:
-    x[i].value = i*h
+    x[i].value = i * h
 
-exp1 = 0.5*p*(x[1])**2
-exp2 = 0.5*p*(x[n])**2
-sum1 = sum(0.5*p*(x[i]-x[i+1])**2 for i in SS)
-sum2 = sum((p*(-1-2/h**2)*x[i]) for i in S)
-sum3 = sum((-kappa*p*cos(x[i])/h**2) for i in S)
-model.add_objective( exp1 + sum1 + exp2 + sum2 + sum3 )
+exp1 = 0.5 * p * (x[1]) ** 2
+exp2 = 0.5 * p * (x[n]) ** 2
+sum1 = sum(0.5 * p * (x[i] - x[i + 1]) ** 2 for i in SS)
+sum2 = sum((p * (-1 - 2 / h**2) * x[i]) for i in S)
+sum3 = sum((-kappa * p * cos(x[i]) / h**2) for i in S)
+model.add_objective(exp1 + sum1 + exp2 + sum2 + sum3)
