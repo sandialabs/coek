@@ -8,7 +8,7 @@ mamba env create -p rtd -f doc/environment.yml
 [ -d _readthedocs/. ] || mkdir _readthedocs
 
 if [[ $1 == "coek" ]]; then
-    echo "Running doxygen";
+    echo "Building documentation with cmake";
     mkdir _build
     cd _build
     ../rtd/bin/cmake -Dwith_docs=ON ../lib/coek
@@ -22,5 +22,8 @@ if [[ $1 == "coek" ]]; then
     mv doc/sphinx ../_readthedocs/html
 fi
 if [[ $1 == "poek" ]]; then
-    echo "Running doxygen";
+    echo "Building documentation with sphinx";
+    cd lib/poek/doc
+    make html
+    mv _build/html ../../../_readthedocs
 fi
