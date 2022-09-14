@@ -8,18 +8,18 @@ import tqdm
 
 class Options(object):
     def __init__(self):
-        self.case: str = 'pglib-opf-master/pglib_opf_case118_ieee.m'
+        self.case: str = "pglib-opf-master/pglib_opf_case118_ieee.m"
         self.aml: AML = AML.pyomo
-        self.solver: str = 'gurobi'
+        self.solver: str = "gurobi"
         self.n_resolves: int = 10
 
 
 def parse_args() -> Options:
     parser = argparse.ArgumentParser()
-    parser.add_argument('--case', dest='case', required=True)
-    parser.add_argument('--aml', dest='aml', default=AML.pyomo, type=AML)
-    parser.add_argument('--n_resolves', dest='n_resolves', default=10, type=int)
-    parser.add_argument('--solver', dest='solver', default='gurobi', type=str)
+    parser.add_argument("--case", dest="case", required=True)
+    parser.add_argument("--aml", dest="aml", default=AML.pyomo, type=AML)
+    parser.add_argument("--n_resolves", dest="n_resolves", default=10, type=int)
+    parser.add_argument("--solver", dest="solver", default="gurobi", type=str)
     args = parser.parse_args()
     res = Options()
     res.case = args.case
@@ -34,14 +34,14 @@ def get_solver(options: Options):
     if options.aml == AML.pyomo:
         solver = pe.SolverFactory(options.solver)
     elif options.aml in {AML.hybrid_components_only, AML.hybrid_expression_wrappers}:
-        assert options.solver in {'gurobi', 'ipopt'}
-        if options.solver == 'gurobi':
+        assert options.solver in {"gurobi", "ipopt"}
+        if options.solver == "gurobi":
             solver = pe.Gurobi()
         else:
             solver = pe.Ipopt()
         solver.config.stream_solver = False
     else:
-        raise ValueError(f'unexpected aml: {options.aml}')
+        raise ValueError(f"unexpected aml: {options.aml}")
     return solver
 
 
@@ -90,7 +90,10 @@ def param_updates(options: Options):
         opt.update_config.update_objective = False
         opt.update_config.treat_fixed_vars_as_params = True
 
-    load_list = [float(i) for i in np.linspace(min_load_factor, max_load_factor, options.n_resolves)]
+    load_list = [
+        float(i)
+        for i in np.linspace(min_load_factor, max_load_factor, options.n_resolves)
+    ]
     obj_list = list()
     for load_factor in load_list:
         for k, p in m.pl.items():
@@ -106,12 +109,12 @@ def param_updates(options: Options):
 
 def main():
     timer = TicTocTimer()
-    timer.tic('start')
+    timer.tic("start")
     options = parse_args()
     obj_list = param_updates(options)
     print(obj_list)
-    timer.toc('done')
+    timer.toc("done")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

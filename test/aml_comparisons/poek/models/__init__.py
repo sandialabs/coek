@@ -1,6 +1,6 @@
 # poek.models
 
-__all__ = ['create_instance']
+__all__ = ["create_instance"]
 
 
 from .fac import fac
@@ -16,24 +16,24 @@ from .pmedian_affine import pmedian_affine
 from .srosenbr import srosenbr
 
 modules = {
-            'fac':fac,
-            'fac-affine':fac_affine,
-            'knapsack':knapsack,
-            'knapsack-affine':knapsack_affine,
-            'lqcp':lqcp,
-            'lqcp-affine':lqcp_affine,
-            'nqueens':nqueens,
-            'nqueens-affine':nqueens_affine,
-            'pmedian':pmedian,
-            'pmedian-affine':pmedian_affine,
-            'srosenbr':srosenbr
-            }
+    "fac": fac,
+    "fac-affine": fac_affine,
+    "knapsack": knapsack,
+    "knapsack-affine": knapsack_affine,
+    "lqcp": lqcp,
+    "lqcp-affine": lqcp_affine,
+    "nqueens": nqueens,
+    "nqueens-affine": nqueens_affine,
+    "pmedian": pmedian,
+    "pmedian-affine": pmedian_affine,
+    "srosenbr": srosenbr,
+}
 
 
 def print_help():
     print("\nTEST MODELS")
     for name in sorted(modules.keys()):
-        print("  "+name)
+        print("  " + name)
     print("")
     print("VALID FILENAME SUFFIXES")
     print("  lp     - Canonical LP file, written with FMT library")
@@ -52,4 +52,3 @@ def create_instance(model_name, data):
     if model_name in modules:
         return modules[model_name](*data)
     return None
-
