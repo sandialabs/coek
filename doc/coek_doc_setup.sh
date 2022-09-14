@@ -13,8 +13,8 @@ if [[ $1 == "coek" ]]; then
     make sphinx
     pwd
     ls
-    ls docs
-    mv docs/sphinx/html ../_readthedocs
+    ls doc
+    mv doc/sphinx/html ../_readthedocs
 fi
 if [[ $1 == "poek" ]]; then
     echo "Running doxygen";
