@@ -33,6 +33,7 @@ capabilities are demonstrated.  Consequently, the following documentation
 does not provide a detailed specification of the Coek API.  Rather,
 we focus on examples that illustrate Coek capabilities.
 
+
 Capabilities
 ------------
 
