@@ -429,8 +429,8 @@ if (start_from_last_x) {
         this);
     }
 else {
-    for (size_t i=0; i<model.num_variables(); i++) {
-        auto v = model.get_variable(i);
+    for (size_t i : coek::range(model.num_variables())) {
+        auto& v = model.get_variable(i);
         last_x[i] = v.value();
         }
     status = (*IpoptSolve_func_ptr)(
@@ -445,12 +445,13 @@ else {
     }
  
 if (status == Solve_Succeeded) {
-    //std::cout << std::endl << std::endl << "*** The problem solved in " << last_iter_count << " iterations!" << std::endl;
+    #ifdef DEBUG
+    std::cout << std::endl << std::endl << "*** The problem solved in " << last_iter_count << " iterations!" << std::endl;
+    std::cout << std::endl << std::endl << "*** The final value of the objective function is " << last_objval << '.' << std::endl;
+    #endif
 
-    //std::cout << std::endl << std::endl << "*** The final value of the objective function is " << last_objval << '.' << std::endl;
-
-    for (size_t i=0; i<model.num_variables(); i++) {
-        auto v = model.get_variable(i);
+    for (size_t i : coek::range(model.num_variables())) {
+        auto& v = model.get_variable(i);
         v.value( last_x[i] );
         }
     }

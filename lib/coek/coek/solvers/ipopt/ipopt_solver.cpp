@@ -23,7 +23,9 @@ return repn->perform_solve();
 
 int IpoptSolver::resolve()
 {
+#ifdef DEBUG
 auto start = std::chrono::high_resolution_clock::now();
+#endif
 
 if (not initial_solve())
     model->reset();
@@ -36,9 +38,11 @@ else
     repn->set_start_from_last_x(false);
 int status = repn->perform_solve();
 
+#ifdef DEBUG
 auto curr = std::chrono::high_resolution_clock::now();
 std::chrono::duration<double> diff = curr-start;
-//std::cout << "Time to solve: " << diff.count() << " s\n";
+std::cout << "Time to solve: " << diff.count() << " s\n";
+#endif
 
 return status;
 }
