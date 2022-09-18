@@ -1,6 +1,7 @@
 #include <memory>
 #include <cassert>
 
+#include "coek/util/sequence.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
@@ -430,7 +431,7 @@ if (start_from_last_x) {
     }
 else {
     for (size_t i : coek::range(model.num_variables())) {
-        auto& v = model.get_variable(i);
+        const auto& v = model.get_variable(i);
         last_x[i] = v.value();
         }
     status = (*IpoptSolve_func_ptr)(
@@ -451,7 +452,7 @@ if (status == Solve_Succeeded) {
     #endif
 
     for (size_t i : coek::range(model.num_variables())) {
-        auto& v = model.get_variable(i);
+        auto v = model.get_variable(i);
         v.value( last_x[i] );
         }
     }
