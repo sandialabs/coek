@@ -7,7 +7,7 @@ void invquad_array_solve()
 coek::Model m;
 
 size_t N=10;
-std::vector<coek::Parameter> p(10);
+auto p = coek::parameter("p", N);
 for (auto& param : p)
     param.value(0.5);
 
@@ -18,8 +18,8 @@ m.add(x);
 
 // Create objective and add it to the model
 auto e = coek::expression();
-for (size_t i : coek::range(p.size()))
-    e -= (x(i)-p[i])*(x(i)-p[i]);
+for (size_t i : coek::range(N))
+    e -= (x(i)-p(i))*(x(i)-p(i));
 m.add_objective( e );
 
 // Optimize the model
@@ -29,6 +29,6 @@ solver.set_option("print_level", 0);
 solver.solve(nlp);
 
 // x^*_i = -10
-for (size_t i=0; i<N; i++)
+for (size_t i : coek::range(N))
     std::cout << "Value of " << x(i).name() << ": " << x(i).value() << std::endl;
 }
