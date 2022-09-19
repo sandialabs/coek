@@ -39,13 +39,14 @@ namespace {
 
 inline size_t get_vid_value(const std::unordered_map<size_t,size_t>& vid, size_t id)
 {
-/* C++-17
+#if 1
 if (auto it{ vid.find(id) };  it != vid.end() )
     return it->second;
-*/
+#else
 auto it = vid.find(id);
 if (it != vid.end())
     return it->second;
+#endif
 throw std::runtime_error("Model expressions contain variable that is not declared in the model.");
 }
 
@@ -131,12 +132,13 @@ if (repn.linear_coefs.size() > 0) {
     for (auto& it: repn.linear_vars) {
         size_t index = get_vid_value(vid, it->index);
 
+#if 0
         auto curr = vval.find(index);
         if (curr != vval.end())
             curr->second += repn.linear_coefs[i];
         else
             vval[index] = repn.linear_coefs[i];
-#if 0
+#else
         if (auto jt{ vval.find(index) };  jt != vval.end() )
             jt->second += repn.linear_coefs[i];
         else
@@ -165,12 +167,13 @@ if (repn.quadratic_coefs.size() > 0) {
         else
             tmp = std::pair<size_t,size_t>(rindex, lindex);
 
+#if 0
         auto curr = qval.find(tmp);
         if (curr != qval.end())
             curr->second += repn.quadratic_coefs[ii];
         else
             qval[ tmp ] = repn.quadratic_coefs[ii];
-#if 0
+#else
         if (auto it{ qval.find(tmp) };  it != qval.end() )
             it->second += repn.quadratic_coefs[ii];
         else
@@ -184,19 +187,18 @@ if (repn.quadratic_coefs.size() > 0) {
     for (auto& it: qval) {
         const std::pair<int,int>& tmp = it.first;
         double val = it.second;
-        if (tmp.first == tmp.second) {
-            if (val != 0)
-                ostr.print(fmt::format(_fmt_x2, val, tmp.first));
-            }
-        else {
-            if (val != 0)
-                ostr.print(fmt::format(_fmt_x_x, val, tmp.first, tmp.second));
-            }
+        if (val == 0)
+            continue;
+        if (tmp.first == tmp.second)
+            ostr.print(fmt::format(_fmt_x2, val, tmp.first));
+        else
+            ostr.print(fmt::format(_fmt_x_x, val, tmp.first, tmp.second));
         }
     ostr.print("]\n");
     }
 }
 #endif
+
 
 class LPWriter
 {
@@ -210,7 +212,7 @@ public:
     std::map<size_t,size_t>& invvarmap;
     std::map<size_t,size_t>& invconmap;
 
-    QuadraticExpr expr;
+    QuadraticExpr repn;
 
     LPWriter(std::map<size_t,size_t>& _invvarmap, std::map<size_t,size_t>& _invconmap)
         : one_var_constant(false),
@@ -223,8 +225,10 @@ public:
 
     template <class StreamType>
     void print_objectives(StreamType& ostr, Model& model);
+
     template <class StreamType>
     void print_constraints(StreamType& ostr, Model& model);
+
     void collect_variables(Model& model);
 
     #ifdef COEK_WITH_COMPACT_MODEL
@@ -375,6 +379,8 @@ for (auto& val: model.repn->variables) {
 
         vid[eval->id()] = ctr;
         invvarmap[ctr] = variables.size();
+        //vid[tmp.id()] = ctr;
+        //invvarmap[ctr] = tmp.id();
         ++ctr;
         }
     else {
@@ -390,6 +396,7 @@ for (auto& val: model.repn->variables) {
 
             vid[jt.id()] = ctr;
             invvarmap[ctr] = variables.size();
+            //invvarmap[ctr] = jt.id();
             ++ctr;
             }
         }
@@ -450,10 +457,10 @@ else
     ostr << "\nmaximize\n\n";
 ostr << "obj:\n";
 
-expr.reset();
-expr.collect_terms(obj);
-print_repn(ostr, expr, vid);
-double tmp = expr.constval;
+repn.reset();
+repn.collect_terms(obj);
+print_repn(ostr, repn, vid);
+double tmp = repn.constval;
 if (tmp != 0) {
     one_var_constant=true;
     if (tmp > 0)
@@ -462,24 +469,27 @@ if (tmp != 0) {
     }
 }
 
+
 void LPWriter::print_st(std::ostream& ostr)
 { ostr << "\nsubject to\n\n"; }
+
 
 void LPWriter::print_constraint(std::ostream& ostr, const Constraint& c, size_t ctr)
 {
 CALI_CXX_MARK_FUNCTION;
 
 CALI_MARK_BEGIN("collect_terms");
-expr.reset();
-expr.collect_terms(c);
-double tmp = expr.constval;
+repn.reset();
+repn.collect_terms(c);
+CALI_MARK_END("collect_terms");
+
+double tmp = repn.constval;
 
 auto lower = c.lower();
 auto upper = c.upper();
 
 ostr << "c" << ctr << ":\n";
 ++ctr;
-CALI_MARK_END("collect_terms");
 
 bool is_equality = not c.is_inequality() or (lower.repn and upper.repn and (::fabs(lower.value()-upper.value()) < EPSILON));
 
@@ -489,7 +499,7 @@ if (not is_equality) {
         ostr << lower.value() - tmp;
         ostr << " <= ";
         }
-    print_repn(ostr, expr, vid);
+    print_repn(ostr, repn, vid);
     if (upper.repn) {
         ostr << " <= ";
         ostr << upper.value() - tmp;
@@ -498,7 +508,7 @@ if (not is_equality) {
     //CALI_MARK_END("IF");
     }
 else {
-    print_repn(ostr, expr, vid);
+    print_repn(ostr, repn, vid);
     CALI_MARK_BEGIN("ELSE");
     ostr << "= ";
     ostr << lower.value() - tmp;
@@ -565,10 +575,10 @@ else
     ostr.print("\nmaximize\n\n");
 ostr.print("obj:\n");
 
-expr.reset();
-expr.collect_terms(obj);
-print_repn(ostr, expr, vid);
-double tmp = expr.constval;
+repn.reset();
+repn.collect_terms(obj);
+print_repn(ostr, repn, vid);
+double tmp = repn.constval;
 if (tmp != 0) {
     one_var_constant=true;
     ostr.print("{:+} ONE_VAR_CONSTANT\n", tmp);
@@ -583,9 +593,11 @@ void LPWriter::print_constraint(fmt::ostream& ostr, const Constraint& c, size_t 
 CALI_CXX_MARK_FUNCTION;
 
 CALI_MARK_BEGIN("collect_terms");
-expr.reset();
-expr.collect_terms(c);
-double tmp = expr.constval;
+repn.reset();
+repn.collect_terms(c);
+CALI_MARK_END("collect_terms");
+
+double tmp = repn.constval;
 
 auto lower = c.lower();
 auto upper = c.upper();
@@ -593,7 +605,6 @@ auto upper = c.upper();
 constexpr auto _fmt = FMT_COMPILE("c{}:\n");
 ostr.print(fmt::format(_fmt, ctr));
 ++ctr;
-CALI_MARK_END("collect_terms");
 
 bool is_equality = not c.is_inequality() or (lower.repn and upper.repn and (::fabs(lower.value()-upper.value()) < EPSILON));
 
@@ -603,7 +614,7 @@ if (not is_equality) {
         constexpr auto _fmt = FMT_COMPILE("{} <= ");
         ostr.print(fmt::format(_fmt, lower.value() - tmp));
         }
-    print_repn(ostr, expr, vid);
+    print_repn(ostr, repn, vid);
     if (upper.repn) {
         constexpr auto _fmt = FMT_COMPILE(" <= {}");
         ostr.print(fmt::format(_fmt, upper.value() - tmp));
@@ -612,7 +623,7 @@ if (not is_equality) {
     //CALI_MARK_END("IF");
     }
 else {
-    print_repn(ostr, expr, vid);
+    print_repn(ostr, repn, vid);
     CALI_MARK_BEGIN("ELSE");
     constexpr auto _fmt = FMT_COMPILE("= {}\n\n");
     ostr.print(fmt::format(_fmt, lower.value() - tmp));
@@ -715,9 +726,6 @@ catch (std::exception& e) {
     }
 }
 
-void write_lp_problem(Model& model, std::string& fname, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
-{ write_lp_problem_fmtlib(model, fname, invvarmap, invconmap); }
-
 #ifdef COEK_WITH_COMPACT_MODEL
 void write_lp_problem_fmtlib(CompactModel& model, std::string& fname, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
 {
@@ -732,13 +740,26 @@ catch (std::exception& e) {
     throw;
     }
 }
+#endif
+#endif
 
+
+#ifdef WITH_FMTLIB
+//
+// write_lp_problem - Defaulting to FMTLIB
+//
+void write_lp_problem(Model& model, std::string& fname, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
+{ write_lp_problem_fmtlib(model, fname, invvarmap, invconmap); }
+
+#ifdef COEK_WITH_COMPACT_MODEL
 void write_lp_problem(CompactModel& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap)
 { write_lp_problem_fmtlib(model, fname, varmap, conmap); }
 #endif
+
 #else
-
-
+//
+// write_lp_problem - Defaulting to std::ostream
+//
 void write_lp_problem(Model& model, std::string& fname, std::map<size_t,size_t>& invvarmap, std::map<size_t,size_t>& invconmap)
 { write_lp_problem_ostream(model, fname, invvarmap, invconmap); }
 
@@ -746,6 +767,6 @@ void write_lp_problem(Model& model, std::string& fname, std::map<size_t,size_t>&
 void write_lp_problem(CompactModel& model, std::string& fname, std::map<size_t,size_t>& varmap, std::map<size_t,size_t>& conmap)
 { write_lp_problem_ostream(model, fname, varmap, conmap); }
 #endif
-#endif
 
+#endif
 }
