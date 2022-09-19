@@ -197,8 +197,7 @@ expr_pointer_t get_concrete_var(VariableRefTerm& varref)
 VariableAssocArray* var = static_cast<VariableAssocArray*>(varref.var);
 
 std::vector<int> index;
-for (auto it=varref.indices.begin(); it != varref.indices.end(); ++it) {
-    refarg_types& reftmp = *it;
+for (auto& reftmp : varref.indices) {
     if (auto ival = std::get_if<int>(&reftmp))
         index.push_back(*ival);
     else {
