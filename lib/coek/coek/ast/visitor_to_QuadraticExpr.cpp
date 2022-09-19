@@ -52,15 +52,10 @@ void visit(ParameterTerm& expr, QuadraticExpr& repn, double multiplier)
 void visit(IndexParameterTerm& /*expr*/, 
            QuadraticExpr& /*repn*/, 
            double /*multiplier*/)
-{
-throw std::runtime_error("Unexpected index parameter.");
-}
+{ throw std::runtime_error("Unexpected index parameter."); }
 
 void visit(VariableTerm& expr, QuadraticExpr& repn, double multiplier)
 {
-//if (! expr.index)
-//    throw std::runtime_error("Unexpected variable not owned by a model.");
-
 if (expr.fixed)  {
     repn.constval += multiplier * expr.value->eval();
     }
@@ -79,9 +74,6 @@ void visit(VariableRefTerm& /*expr*/,
 
 void visit(IndexedVariableTerm& expr, QuadraticExpr& repn, double multiplier)
 {
-//if (! expr.index)
-//    throw std::runtime_error("Unexpected variable not owned by a model.");
-
 if (expr.fixed)  {
     repn.constval += multiplier * expr.value->eval();
     }
@@ -93,9 +85,6 @@ else {
 
 void visit(MonomialTerm& expr, QuadraticExpr& repn, double multiplier)
 {
-//if (! expr.var->index)
-//    throw std::runtime_error("Unexpected variable not owned by a model.");
-
 if (expr.var->fixed) {
     repn.constval += multiplier * expr.coef * expr.var->value->eval();
     }
@@ -106,24 +95,16 @@ else {
 }
 
 void visit(InequalityTerm& expr, QuadraticExpr& repn, double multiplier)
-{
-visit_expression(expr.body, repn, multiplier);
-}
+{ visit_expression(expr.body, repn, multiplier); }
 
 void visit(EqualityTerm& expr, QuadraticExpr& repn, double multiplier)
-{
-visit_expression(expr.body, repn, multiplier);
-}
+{ visit_expression(expr.body, repn, multiplier); }
 
 void visit(ObjectiveTerm& expr, QuadraticExpr& repn, double multiplier)
-{
-visit_expression(expr.body, repn, multiplier);
-}
+{ visit_expression(expr.body, repn, multiplier); }
 
 void visit(NegateTerm& expr, QuadraticExpr& repn, double multiplier)
-{
-visit_expression(expr.body, repn, - multiplier);
-}
+{ visit_expression(expr.body, repn, - multiplier); }
 
 void visit(PlusTerm& expr, QuadraticExpr& repn, double multiplier)
 {
