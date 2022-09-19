@@ -5,6 +5,8 @@
 #include <coek/model/model.hpp>
 #include <variant>
 #include <coek/api/variable_array.hpp>
+#include <coek/api/objective.hpp>
+#include <coek/api/constraint.hpp>
 #include <coek/compact/coek_sets.hpp>
 #include <coek/compact/variable_map.hpp>
 
