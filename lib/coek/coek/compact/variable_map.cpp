@@ -3,6 +3,7 @@
 #include "coek/api/variable_assoc_array_repn.hpp"
 #include "coek/compact/variable_map.hpp"
 #include "coek/model/model.hpp"
+#include "coek/model/compact_model.hpp"
 
 
 namespace coek {
@@ -245,5 +246,23 @@ for (auto& var: vars.repn->values)
 return vars;
 }
 */
+
+VariableMap& CompactModel::add_variable(VariableMap& vars)
+{
+if (vars.repn->call_setup)
+    vars.repn->setup();
+for (auto& var: vars.repn->values)
+    add_variable(var);
+return vars;
+}
+
+VariableMap& CompactModel::add_variable(VariableMap&& vars)
+{
+if (vars.repn->call_setup)
+    vars.repn->setup();
+for (auto& var: vars.repn->values)
+    add_variable(var);
+return vars;
+}
 
 }
