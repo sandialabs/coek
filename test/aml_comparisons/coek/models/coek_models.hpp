@@ -54,7 +54,7 @@ if (data.size() != num)
 }
 
 
-inline void create_instance(coek::Model& model, const std::string& name, const std::vector<size_t>& data)
+inline bool create_instance(coek::Model& model, const std::string& name, const std::vector<size_t>& data)
 {
 if (false) {}
 
@@ -64,30 +64,29 @@ if (false) {}
 else if (name == "fac-array") {
     check_data(name, data, 1);
     fac_array(model, data[0]);
+    return true;
     }
 else if (name == "fac-scalar") {
     check_data(name, data, 1);
     fac_scalar(model, data[0]);
+    return true;
     }
 else if (name == "lqcp-array") {
     check_data(name, data, 1);
     lqcp_array(model, data[0]);
+    return true;
     }
 #ifdef COEK_WITH_COMPACT_MODEL
-else if (name == "lqcp-compact") {
-    check_data(name, data, 1);
-    coek::CompactModel cmodel;
-    lqcp_compact(cmodel, data[0]);
-    model = cmodel.expand();
-    }
 else if (name == "lqcp-map") {
     check_data(name, data, 1);
     lqcp_map(model, data[0]);
+    return true;
     }
 #endif
 else if (name == "lqcp-scalar") {
     check_data(name, data, 1);
     lqcp_scalar(model, data[0]);
+    return true;
     }
 //
 // misc
@@ -95,28 +94,52 @@ else if (name == "lqcp-scalar") {
 else if (name == "knapsack-array") {
     check_data(name, data, 1);
     knapsack_array(model, data[0]);
+    return true;
     }
 else if (name == "knapsack-scalar") {
     check_data(name, data, 1);
     knapsack_scalar(model, data[0]);
+    return true;
     }
 else if (name == "nqueens-array") {
     check_data(name, data, 1);
     nqueens_array(model, data[0]);
+    return true;
     }
 else if (name == "nqueens-scalar") {
     check_data(name, data, 1);
     nqueens_scalar(model, data[0]);
+    return true;
     }
 else if (name == "pmedian-array") {
     check_data(name, data, 2);
     pmedian_array(model, data[0], data[1]);
+    return true;
     }
 else if (name == "pmedian-scalar") {
     check_data(name, data, 2);
     pmedian_scalar(model, data[0], data[1]);
+    return true;
     }
-else
-    throw std::runtime_error("Unknown test model: " + name);
+
+return false;
 }
 
+
+#ifdef COEK_WITH_COMPACT_MODEL
+inline bool create_instance(coek::CompactModel& model, const std::string& name, const std::vector<size_t>& data)
+{
+if (false) {}
+
+//
+// jump
+//
+else if (name == "lqcp-compact") {
+    check_data(name, data, 1);
+    lqcp_compact(model, data[0]);
+    return true;
+    }
+
+return false;
+}
+#endif
