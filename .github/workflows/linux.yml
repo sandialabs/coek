@@ -53,19 +53,15 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -Dbuild_all=ON -Dwith_tests=ON ../lib/coek
+          cmake -Dbuild_all=ON ../lib/coek
       - name: build
         run: |
           cd build
           make tpls
           make
-      - name: test
-        run: |
-          cd build
-          make test
       - name: build pycoek_pybind11
         run: |
           cd build
-          cmake -Dwith_pybind11=ON ..
+          cmake -Dwith_pybind11=ON ../lib/coek
           make
         
