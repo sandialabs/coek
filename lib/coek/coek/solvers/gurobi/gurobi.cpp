@@ -118,34 +118,31 @@ gmodel = new GRBModel(*env);
 assert(_model->objectives.size() == 1);
 
 // Add Gurobi variables
-for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _model->variables.end(); ++it) {
-    coek::VariableTerm* v = it->repn;
-    if (v->fixed) {
-	;
-    }
-    else {
-	double lb = v->lb->eval();
-	double ub = v->ub->eval();
-	if (v->binary)
-	    x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
-	else if (v->integer)
-	    x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
-	else {
-	    if (ub >= 1e19) {
-		if (lb <= -1e19)
-		    x[ v->index ] = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
-		else
-		    x[ v->index ] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
-            }
-	    else {
-		if (lb <= -1e19)
-		    x[ v->index ] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
-		else
-		    x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
+for (auto& var : _model->variables) {
+    coek::VariableTerm* v = var->repn;
+    if (not v->fixed) {
+        double lb = v->lb->eval();
+        double ub = v->ub->eval();
+        if (v->binary)
+            x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
+        else if (v->integer)
+            x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
+        else {
+            if (ub >= 1e19) {
+                if (lb <= -1e19)
+                    x[ v->index ] = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
+                else
+                    x[ v->index ] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
+                }
+            else {
+                if (lb <= -1e19)
+                    x[ v->index ] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
+                else
+                    x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
+                }
             }
         }
     }
-}
 
 gmodel->update();
 
@@ -175,8 +172,6 @@ if (nobj > 1) {
 try {
     coek::QuadraticExpr repn;
     for (auto& con : model.repn->constraints) {
-        //crepn[i].collect_terms(_model->constraints[i]);
-        //Constraint c = cval->expand();
         add_gurobi_constraint(gmodel, con, x, repn);
         }
     }
@@ -200,11 +195,11 @@ try {
         // TODO: Is there a string description of the solver status?
 
         // Collect values of Gurobi variables
-        for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _model->variables.end(); ++it) {
+        for (auto& var : _model->variables) {
             coek::VariableTerm* v = it->repn;
-	    if (!(v->fixed)) {
-		v->set_value( x[v->index].get(GRB_DoubleAttr_X) );
-	    }
+	        if (not v->fixed) {
+		        v->set_value( x[v->index].get(GRB_DoubleAttr_X) );
+	            }
             }
         }
     }
@@ -236,8 +231,8 @@ assert(model.objectives.size() == 1);
 std::cout << "BUILDING GUROBI MODEL" << std::endl << std::flush;
 
 // Add Gurobi variables
-for (std::vector<coek::Variable>::iterator it=model.variables.begin(); it != model.variables.end(); ++it) {
-    coek::VariableTerm* v = it->repn;
+for (auto& var : model->variables) {
+    coek::VariableTerm* v = var->repn;
     double lb = v->lb->eval();
     double ub = v->ub->eval();
     if (v->binary)
@@ -363,33 +358,30 @@ if (initial_solve()) {
     assert(_model->objectives.size() == 1);
 
     // Add Gurobi variables
-    for (std::vector<coek::Variable>::iterator it=_model->variables.begin(); it != _model->variables.end(); ++it) {
-      coek::VariableTerm* v = it->repn;
-      if (v->fixed) {
-	  ;
-      }
-      else {
-	  double lb = v->lb->eval();
-	  double ub = v->ub->eval();
-	  if (v->binary)
-	      x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
-	  else if (v->integer)
-	      x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
-      else {
-	  if (ub >= 1e19) {
-	      if (lb <= -1e19)
-		  x[ v->index ] = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
-	      else
-		  x[ v->index ] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
-	  }
-	  else {
-	      if (lb <= -1e19)
-		  x[ v->index ] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
-	      else
-		  x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
-	  }
-      }
-      }
+    for (auto& var : _model->variables) {
+      coek::VariableTerm* v = var->repn;
+      if (not v->fixed) {
+          double lb = v->lb->eval();
+          double ub = v->ub->eval();
+          if (v->binary)
+              x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
+          else if (v->integer)
+              x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
+          else {
+              if (ub >= 1e19) {
+                  if (lb <= -1e19)
+                    x[ v->index ] = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
+                  else
+                    x[ v->index ] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
+                }
+            else {
+                if (lb <= -1e19)
+                    x[ v->index ] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
+                else
+                    x[ v->index ] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
+                }
+            }
+        }
     }
 
     gmodel->update();
@@ -398,9 +390,9 @@ if (initial_solve()) {
     int nobj=0;
     try {
       coek::QuadraticExpr orepn;
-      for (auto it=model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it) {
-        Expression tmp = it->expr();
-        add_gurobi_objective(gmodel, tmp, it->sense(), x, orepn);
+      for (auto& obj : model.repn->objectives) {
+        Expression tmp = obj->expr();
+        add_gurobi_objective(gmodel, tmp, obj->sense(), x, orepn);
         nobj++;
       }
     }
@@ -419,10 +411,8 @@ if (initial_solve()) {
     // Add Gurobi constraints
     try {
       coek::QuadraticExpr repn;
-      for (auto it=_model->constraints.begin(); it != _model->constraints.end(); ++it) {
-        //crepn[i].collect_terms(_model->constraints[i]);
-        //Constraint c = cval->expand();
-        add_gurobi_constraint(gmodel, *it, x, repn);
+      for (auto& con : model->constraints) {
+        add_gurobi_constraint(gmodel, con, x, repn);
       }
     }
     catch (GRBException e) {

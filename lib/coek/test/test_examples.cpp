@@ -17,8 +17,8 @@ coek::Model simplelp1_solve();
 coek::Model invquad_vector(std::vector<coek::Parameter>& p);
 coek::Model invquad_array(std::vector<coek::Parameter>& p);
 std::vector<double> invquad_soln_5 {-10,-10,-10,-10,-10};
-coek::Model invquad_array_solve();
-coek::Model invquad_array_resolve();
+void invquad_array_solve();
+void invquad_array_resolve();
 
 
 void check(std::vector<coek::Variable>& variables, std::vector<double>& soln)
@@ -90,6 +90,7 @@ if (solver.available()) {
 
             check(m.get_variables(), invquad_soln_5);
         }
+/*
         WHEN( "resolve - Warm Start" ) {
             auto m = invquad_vector(p);
 
@@ -111,6 +112,7 @@ if (solver.available()) {
 
             check(m.get_variables(), invquad_soln_5);
         }
+*/
         }
 
     SECTION( "invquad_array" ) {
@@ -126,7 +128,6 @@ if (solver.available()) {
 
             check(m.get_variables(), invquad_soln_5);
         }
-/*
         WHEN( "resolve - Same start" ) {
             auto m = invquad_array(p);
 
@@ -157,6 +158,7 @@ if (solver.available()) {
 
             check(m.get_variables(), invquad_soln_5);
         }
+/*
         WHEN( "resolve - Warm Start" ) {
             auto m = invquad_array(p);
 
@@ -183,12 +185,9 @@ if (solver.available()) {
         WHEN( "invquad_solve" ) {
             invquad_array_solve();
             }
-
-/*
         WHEN( "invquad_resolve" ) {
             invquad_array_resolve();
             }
-*/
         }
     }
 else {

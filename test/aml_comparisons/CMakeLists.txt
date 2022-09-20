@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-PROJECT(coek_testmodels)
+PROJECT(compare_amls)
 
 #
 # For now, let's just assume we have C++17
@@ -56,11 +56,11 @@ message("-- with_gurobi: ${with_gurobi}")
 ##################### COEK configuration #####################
 
 if("${coek_dir}" STREQUAL "")
-    if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/../../coek/build/install)
-        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../coek/build/install/lib/cmake/coek")
-        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../coek/build/install/lib/cmake/fmt")
-        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../coek/build/install/lib64/cmake/coek")
-        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../coek/build/install/lib64/cmake/fmt")
+    if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/../../../lib/coek/build/install)
+        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../../lib/coek/build/install/lib/cmake/coek")
+        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../../lib/coek/build/install/lib/cmake/fmt")
+        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../../lib/coek/build/install/lib64/cmake/coek")
+        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../../lib/coek/build/install/lib64/cmake/fmt")
     endif()
 else()
     if(NOT IS_ABSOLUTE ${coek_dir})

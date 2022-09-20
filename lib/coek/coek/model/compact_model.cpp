@@ -73,7 +73,7 @@ VariableMap& CompactModel::add_variable(VariableMap& vars)
 {
 repn->variables.insert(repn->variables.end(),
     vars.begin(), vars.end());
-repn->variable_names.insert(repn->variable_names.end(), varray.variables.size(), "");
+repn->variable_names.insert(repn->variable_names.end(), vars.size(), "");
 /*
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
@@ -88,7 +88,7 @@ VariableMap& CompactModel::add_variable(VariableMap&& vars)
 {
 repn->variables.insert(repn->variables.end(),
     vars.begin(), vars.end());
-repn->variable_names.insert(repn->variable_names.end(), varray.variables.size(), "");
+repn->variable_names.insert(repn->variable_names.end(), vars.size(), "");
 /*
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
@@ -103,7 +103,7 @@ VariableArray& CompactModel::add_variable(VariableArray& vars)
 {
 repn->variables.insert(repn->variables.end(),
     vars.begin(), vars.end());
-repn->variable_names.insert(repn->variable_names.end(), varray.variables.size(), "");
+repn->variable_names.insert(repn->variable_names.end(), vars.size(), "");
 /*
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
@@ -118,7 +118,7 @@ VariableArray& CompactModel::add_variable(VariableArray&& vars)
 {
 repn->variables.insert(repn->variables.end(),
     vars.begin(), vars.end());
-repn->variable_names.insert(repn->variable_names.end(), varray.variables.size(), "");
+repn->variable_names.insert(repn->variable_names.end(), vars.size(), "");
 /*
 auto end = vars.end();
 for (auto it=vars.begin(); it != end; ++it) {
