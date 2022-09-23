@@ -1,5 +1,5 @@
 # This maintains the configuration for third-party packages that can be installed 
-# with COEK.  Simply update this file to change the revision.
+# with the Coek Project.  Simply update this file to change the revision.
 # One can use different revision on different platforms.
 # e.g.
 # if (UNIX)
