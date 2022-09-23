@@ -81,7 +81,7 @@ message("COEK Installation Configuration")
 message("-- COEK_DIR:  ${coek_dir}")
 message("-- COEK_HOME: $ENV{COEK_HOME}")
 message("-- CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
-find_package(coek REQUIRED NO_MODULE)
+#find_package(coek REQUIRED NO_MODULE)
 
 
 ##################### Checks for compiler #####################
