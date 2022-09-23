@@ -10,79 +10,18 @@ endif()
 
 set(COEK_VERSION 1.0.0)
 
-#
-# GLOBAL INCLUDES
-#
-include(GNUInstallDirs)
-include(CheckCXXCompilerFlag)
-
-#
-# Change the default install directory for the sub-builds, as we will
-# seldom have access to nor want to install to /usr/local. This can be
-# overridden from the command line via cmake -DCMAKE_INSTALL_PREFIX=...
-#
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install"
-    CACHE PATH
-    "Top level directory for installation"
-    FORCE
-  )
-endif()
-
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
 set(CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/lib/cmake;${CMAKE_MODULE_PATH})
 
 
 
-##################### Options #####################
-
-# Download options
-option(insecure_downloads "If enabled, then builds with download third party software without verifying the SSL connection" OFF)
-
-# Build options
-option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
-option(build_catch2 "Build Catch2" OFF)
-option(build_cppad "Build the CppAD autograd library" OFF)
-option(build_fmtlib "Build the FMT library" OFF)
-option(build_pybind11 "Build the Pybind11 library" OFF)
-option(build_rapidjson "Build the RapidJson library" OFF)
-option(build_all "Build the all third-party libraries" OFF)
-if (build_all)
-    set(build_catch2 ON)
-    set(build_cppad ON)
-    set(build_fmtlib ON)
-    set(build_pybind11 ON)
-    set(build_rapidjson ON)
-endif()
-option(use_superbuild "Use superbuild logic to build dependencies" ON)
-set(build_dependencies OFF)
-if (use_superbuild)
-    if (build_catch2 OR build_cppad OR build_fmtlib OR build_pybind11 OR build_rapidjson)
-        set(build_dependencies ON)
-    endif()
-endif()
-if (build_catch2 OR build_cppad OR build_fmtlib OR build_pybind11 OR build_rapidjson)
-    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib64")
-endif()
+##################### Coek Options #####################
 
 # Configuration options
-option(with_catch2 "Add tests using Catch2" ${build_catch2})
-option(with_fmtlib "Use the fmtlib library" ${build_fmtlib})
-option(with_rapidjson "Add support for reading JSON/JPOF files" ${build_rapidjson})
-
 option(with_compact "Add support for compact expressions" OFF)
-option(with_tests "Build tests" OFF)
 option(with_examples "Build examples" OFF)
-option(with_debug "Debug build" OFF)
-option(build_shared_libs "Build a shared library" ON)
-option(with_verbose "Verbose build" OFF)
-option(with_gcov "Add code coverage using gcov" OFF)
-option(with_gprof "Profile build" OFF)
-option(with_caliper "Use the Caliper library" OFF)
-option(with_docs "Build documentation" OFF)
 
 # Autograd Dependencies
-option(with_cppad "Use the CppAD autograd library" ${build_cppad})
 option(with_sacado "Use the Sacado autograd library" OFF)
 option(with_asl "Use the ASL autograd library" OFF)
 
@@ -90,114 +29,21 @@ option(with_asl "Use the ASL autograd library" OFF)
 option(with_gurobi "Use the Gurobi solver" OFF)
 set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
 
-message("Configuration Options")
-
-
-##################### Checks for compiler #####################
-
-if(with_compact)
-    CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
-    set(CMAKE_CXX_STANDARD 17)
-
-    if(COMPILER_SUPPORTS_CXX17)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-    else()
-      # TODO: Verify these minimum requirements
-      message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
-      if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.1)
-          message(FATAL_ERROR "CLANG version must be at least 3.1!")
-        endif()
-      elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.7)
-          message(FATAL_ERROR "GCC version must be at least 4.7!")
-        endif()
-      elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
-          message(FATAL_ERROR "ICC version must be at least 12.0!")
-        endif()
-      elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
-           message(FATAL_ERROR "MSVC version must be at least 12.0!")
-        endif()
-      endif()
-    endif()
-    MESSAGE("-- C++ version: C++17")
-elseif(NOT "${CMAKE_CXX_STANDARD}")
-    CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
-    set(CMAKE_CXX_STANDARD 17)
-    MESSAGE("-- C++ version: C++17")
-else()
-    MESSAGE("-- C++ version: C++${CMAKE_CXX_STANDARD}")
-endif()
-
-if (with_gcov)
-  if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
-  else()
-    set(with_gcov OFF)
-  endif()
-endif()
-MESSAGE("-- With gcov: ${with_gcov}")
-if (with_tests)
-  find_package(gcovr)
-  if (gcovr_FOUND)
-    MESSAGE("-- With gcovr: ON")
-  else()
-    MESSAGE("-- With gcovr: OFF")
-  endif()
-endif()
-
-message("-- With Debug: ${with_debug}")
-message("-- With gprof: ${with_gprof}")
-message("-- With Staticlib: ${with_staticlib}")
-
-if(${with_gcov})
-  set(CMAKE_BUILD_TYPE debug)
-endif()
-
-if(${with_verbose})
-    set(CMAKE_VERBOSE_MAKEFILE ON)
-endif()
-if(${with_debug})
-    set(CMAKE_BUILD_TYPE debug)
-    if (MSVC)
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Wall /DDEBUG /permissive-")
-    else()
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG")
-    endif()
-else()
-    if (MSVC)
-        set(CMAKE_CXX_FLAGS_RELEASE "/permissive-")
-    endif()
-endif()
-
 
 ##################### Other Config #####################
 
 # define build type
+MESSAGE("-- With Compact Models: ${with_compact}")
 if(with_compact)
-    MESSAGE("-- With Compact Models: on")
     list(APPEND coek_compile_options "-DCOEK_WITH_COMPACT_MODEL")
-else()
-    MESSAGE("-- With Compact Models: off")
 endif()
 
 ##################### Solvers #####################
 
+MESSAGE("-- With Gurobi Solver: ${with_gurobi}")
 if(with_gurobi)
   find_package(GUROBI)
   list(APPEND solver_flags "-DWITH_GUROBI")
-  MESSAGE("-- With Gurobi Solver: on")
-else()
-  MESSAGE("-- With Gurobi Solver: off")
-endif()
-
-##################### Docs #####################
-
-if (with_docs)
-    MESSAGE("-- With Docs: on")
-else()
-    MESSAGE("-- With Docs: off")
 endif()
 
 
@@ -215,24 +61,21 @@ endif()
 if (NOT catch2_available)
     set(with_tests OFF)
 endif()
+MESSAGE("-- With Tests: ${with_tests}")
 if (with_tests)
-  MESSAGE("-- With Tests: on")
-
   add_subdirectory(test)
   include(CTest)
 
-  add_custom_target(test_verbose
+  add_custom_target(test_coek_verbose
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
-  add_custom_target(test_memcheck
+  add_custom_target(test_coek_memcheck
     COMMAND ${CMAKE_CTEST_COMMAND} --force-new-ctest-process --test-action memcheck
     COMMAND cat "${CMAKE_BINARY_DIR}/Testing/Temporary/MemoryChecker.*.log")
 
   if (gcovr_FOUND)
-    add_custom_target(gcovr 
+    add_custom_target(gcovr_coek
       COMMAND ${GCOVR_EXECUTABLE} -d -r ${CMAKE_CURRENT_SOURCE_DIR} -e ../third_party/ -e ../test/ -e install/ )
   endif()
-else()
-  MESSAGE("-- With Tests: off")
 endif()
 
 # docs
@@ -241,36 +84,27 @@ if (with_docs)
 endif()
 
 # cffi
-if(with_cffi)
-    MESSAGE("-- With Cffi: on")
-    add_subdirectory(cffi)
-
-    #
-    # Note that this target is automatically build when with_cffi is ON
-    #
-    add_custom_target(python_cffi
-        DEPENDS pycoek)
-    add_custom_target(test_python_cffi
-        DEPENDS pycoek
-        COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/cffi ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-        )
-else()
-    MESSAGE("-- With Cffi: off")
-endif()
+#if(with_cffi)
+#    MESSAGE("-- With Cffi: on")
+#    add_subdirectory(cffi)
+#
+#    #
+#    # Note that this target is automatically build when with_cffi is ON
+#    #
+#    add_custom_target(python_cffi
+#        DEPENDS pycoek)
+#    add_custom_target(test_python_cffi
+#        DEPENDS pycoek
+#        COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/cffi ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+#        )
+#else()
+#    MESSAGE("-- With Cffi: off")
+#endif()
 
 
 # =============================================================================
 # Provide config and version files to be used by other applications
 # =============================================================================
-
-set(INCLUDE_INSTALL_DIR "include/" CACHE STRING "Where to install headers relative to prefix")
-set(LIBRARY_INSTALL_DIR "lib/" CACHE STRING "Where to install libraries relative to prefix")
-
-#set(INCLUDE_INSTALL_DIR include/ ... CACHE )
-#set(LIB_INSTALL_DIR lib/ ... CACHE )
-#set(SYSCONFIG_INSTALL_DIR etc/foo/ ... CACHE )
-
-include(CMakePackageConfigHelpers)
 
 configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/coekConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/coekConfig.cmake

@@ -166,14 +166,14 @@ macro(setup_builds)
         list(APPEND tpls rapidjson)
     endif()
 
-    MESSAGE("-- Configured to Install Third Party Packages (use 'make install_tpl')")
+    MESSAGE("Configured to Install Third Party Packages (use 'make install_tpls')")
     MESSAGE("   Catch2 Library:    ${catch2_available}")
     MESSAGE("   CppAD Library:     ${cppad_available}")
     MESSAGE("   FMT Library:       ${fmtlib_available}")
     MESSAGE("   Pybind11 Library:  ${pybind11_available}")
     MESSAGE("   RapidJSON Library: ${rapidjson_available}")
 
-    add_custom_target(install_tpl 
+    add_custom_target(install_tpls
         DEPENDS ${tpls}
         COMMAND ${CMAKE_COMMAND} -Duse_superbuild=OFF ${PROJECT_SOURCE_DIR}
         )

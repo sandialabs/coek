@@ -43,6 +43,8 @@ option(with_catch2 "Add tests using Catch2" ${install_catch2})
 option(with_fmtlib "Use the fmtlib library" ${install_fmtlib})
 option(with_rapidjson "Add support for reading JSON/JPOF files" ${install_rapidjson})
 option(with_cppad "Use the CppAD autograd library" ${build_cppad})
+option(with_pybind11 "Use the pybind11 library" ON)
+option(with_cppyy "Use the cppyy library" OFF)
 
 
 include(download_dir)

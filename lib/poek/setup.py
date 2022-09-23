@@ -20,7 +20,7 @@ base_dir = os.path.dirname(__file__)
 #
 requires=[]
 ext_modules = []
-readme = os.path.join(base_dir, "README.rst")
+readme = os.path.join(base_dir, "README.md")
 with open(readme) as f:
     long_description = f.read()
 about = {}
