@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.12)
 project(CoekProject)
 
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
+
 #
 # GLOBAL INCLUDES
 #
@@ -41,9 +43,11 @@ option(with_debug "Debug build" OFF)
 option(with_verbose "Verbose build" OFF)
 option(with_gcov "Add code coverage using gcov" OFF)
 option(with_gprof "Profile build" OFF)
+option(with_caliper "Use the Caliper library" OFF)
+# Monorepo configuration
 option(with_tests "Build tests" OFF)
 option(with_docs "Build documentation" OFF)
-option(with_caliper "Use the Caliper library" OFF)
+option(with_python "Build/Install Python libs" ON)
 
 message("Initial Configuration Options")
 # Options defined here
@@ -51,9 +55,10 @@ message("-- with_debug: ${with_debug}")
 message("-- with_verbose: ${with_verbose}")
 message("-- with_gcov: ${with_gcov}")
 message("-- with_gprof: ${with_gprof}")
+message("-- with_caliper: ${with_caliper}")
 message("-- with_tests: ${with_tests}")
 message("-- with_docs: ${with_docs}")
-message("-- with_caliper: ${with_caliper}")
+message("-- with_python: ${with_python}")
 # Options defined in tpl
 message("-- with_catch2: ${with_catch2}")
 message("-- with_cppad: ${with_cppad}")

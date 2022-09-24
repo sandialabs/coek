@@ -3,15 +3,23 @@
 #
 
 message("")
-message("Configuring lib/coek")
+message("Configuring lib/coek build")
 add_subdirectory(coek)
 
 message("")
-message("Configuring lib/pycoek")
-add_subdirectory(pycoek)
+if(${with_python})
+    message("Configuring lib/pycoek build/install")
+    add_subdirectory(pycoek)
+else()
+    message("Ignoring lib/pycoek")
+endif()
 
-# Add Poek installation target
-add_custom_target(pip_install_poek ALL
+message("")
+if(${with_python})
+    message("Configuring lib/poek install")
+    add_custom_target(pip_install_poek ALL
         COMMAND ${PYTHON_EXECUTABLE} -m pip install -e ${CMAKE_CURRENT_SOURCE_DIR}/poek
         )
-
+else()
+    message("Ignoring lib/poek")
+endif()
