@@ -1,16 +1,14 @@
 cmake_minimum_required(VERSION 3.12)
-PROJECT(compare_amls)
+project(CoekProject)
 
-#
-# For now, let's just assume we have C++17
-#
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
 
 #
 # GLOBAL INCLUDES
 #
 include(GNUInstallDirs)
 include(CheckCXXCompilerFlag)
+include(CMakePackageConfigHelpers)
 
 #
 # Change the default install directory for the sub-builds, as we will
@@ -25,12 +23,20 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   )
 endif()
 
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
-set(CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/lib/cmake;${CMAKE_MODULE_PATH})
+set(INCLUDE_INSTALL_DIR "include/" CACHE STRING "Where to install headers relative to prefix")
+set(LIBRARY_INSTALL_DIR "lib/" CACHE STRING "Where to install libraries relative to prefix")
+
+
+##################### TPL Configuration #####################
+#
+# Installation options for TPLs define default values of configuration options.
+#
+add_subdirectory(tpl)
 
 
 ##################### Options #####################
 
+option(build_shared_libs "Build a shared library" ON)
 
 # Build options
 option(with_debug "Debug build" OFF)
@@ -38,46 +44,32 @@ option(with_verbose "Verbose build" OFF)
 option(with_gcov "Add code coverage using gcov" OFF)
 option(with_gprof "Profile build" OFF)
 option(with_caliper "Use the Caliper library" OFF)
+# Monorepo configuration
+option(with_tests "Build tests" OFF)
+option(with_docs "Build documentation" OFF)
+option(with_python "Build/Install Python libs" ON)
 
-# Solver Dependencies
-option(with_gurobi "Use the Gurobi solver" OFF)
-set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
-
-message("Configuration Options")
-message("-- coek_dir: ${coek_dir}")
+message("Initial Configuration Options")
+# Options defined here
 message("-- with_debug: ${with_debug}")
 message("-- with_verbose: ${with_verbose}")
 message("-- with_gcov: ${with_gcov}")
 message("-- with_gprof: ${with_gprof}")
 message("-- with_caliper: ${with_caliper}")
-message("-- with_gurobi: ${with_gurobi}")
-
-
-##################### COEK configuration #####################
-
-if("${coek_dir}" STREQUAL "")
-    if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/../../../lib/coek/build/install)
-        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../../lib/coek/build/install/lib/cmake/coek")
-        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../../lib/coek/build/install/lib/cmake/fmt")
-        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../../lib/coek/build/install/lib64/cmake/coek")
-        list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/../../../lib/coek/build/install/lib64/cmake/fmt")
-    endif()
-else()
-    if(NOT IS_ABSOLUTE ${coek_dir})
-        set(coek_dir "${CMAKE_CURRENT_BINARY_DIR}/${coek_dir}")
-    endif()
-    list(APPEND CMAKE_PREFIX_PATH "${coek_dir}")
-endif()
-message("")
-message("COEK Installation Configuration")
-message("-- COEK_DIR:  ${coek_dir}")
-message("-- COEK_HOME: $ENV{COEK_HOME}")
-message("-- CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
-#find_package(coek REQUIRED NO_MODULE)
-
+message("-- with_tests: ${with_tests}")
+message("-- with_docs: ${with_docs}")
+message("-- with_python: ${with_python}")
+# Options defined in tpl
+message("-- with_catch2: ${with_catch2}")
+message("-- with_cppad: ${with_cppad}")
+message("-- with_pybind11: ${with_pybind11}")
+message("-- with_cppyy: ${with_cppyy}")
+message("-- with_rapidjson: ${with_rapidjson}")
+message("-- with_fmtlib: ${with_fmtlib}")
 
 ##################### Checks for compiler #####################
 
+message("Revised Configuration Options")
 if(with_compact)
     CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
     set(CMAKE_CXX_STANDARD 17)
@@ -130,6 +122,9 @@ if (with_tests)
   endif()
 endif()
 
+message("-- With debug: ${with_debug}")
+message("-- With gprof: ${with_gprof}")
+message("-- With staticlib: ${with_staticlib}")
 
 if(${with_gcov})
   set(CMAKE_BUILD_TYPE debug)
@@ -150,27 +145,13 @@ else()
         set(CMAKE_CXX_FLAGS_RELEASE "/permissive-")
     endif()
 endif()
-#if (!MSVC)
-#    if(${with_gprof})
-#        set(CMAKE_CXX_FLAGS_RELEASE "-pg")
-#        MESSAGE("-- With gprof: on")
-#    else()
-#        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
-#        MESSAGE("-- With gprof: off")
-#    endif()
-#endif()
 
-##################### SubDirectories #####################
-# coek
-add_subdirectory(coek)
+##################### Monorepo Subpackages #####################
 
-if(with_gurobi)
-    find_package(GUROBI)
-    add_subdirectory(gurobi)
-    list(APPEND solver_flags "-DWITH_GUROBI")
-    MESSAGE("-- With Gurobi Solver: on")
-else()
-    MESSAGE("-- With Gurobi Solver: off")
-endif()
+message("")
 
+message("Configuring Monorepo Packages")
+add_subdirectory(lib)
+add_subdirectory(test)
 
+message("")

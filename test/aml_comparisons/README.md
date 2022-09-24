@@ -1,16 +1,8 @@
-# coek_testmodels
+# aml_comparisons
 
 Performance tests for Coek, Poek and related optimization modeling environments.
 
-## Building
-
-First, build COEK in a peer directory.  Then, create a build directory here:
-
-* mkdir build
-* cd build
-* cmake ..
-
-## Running tets
+## Running tests
 
 From the build directory, you can run the *run* script to generate 10 trials for each test:
 

@@ -9,11 +9,8 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
-#include "coek/ast/base_terms.hpp"
-#include "coek/ast/value_terms.hpp"
-//#include "coek/api/expression.hpp"
-//#include "coek/api/intrinsic_fn.hpp"
-//#include "coek/coek_model.hpp"
+//#include "coek/ast/base_terms.hpp"
+//#include "coek/ast/value_terms.hpp"
 #include "coek/coek.hpp"
 
 namespace py = pybind11;
@@ -1229,7 +1226,10 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
     //
     py::class_<coek::Variable>(m, "variable_single")
         .def(py::init<>())
-	.def(py::init<const coek::VariableRepn&>())
+#if 0
+    // TODO - Check with Mike
+        .def(py::init<const coek::VariableRepn&>())
+#endif
         .def("get_name",[](const coek::Variable& x){return x.name();})
         .def_property_readonly("name",[](const coek::Variable& x){return x.name();})
         .def_property("value", [](const coek::Variable& x){return x.value();}, [](coek::Variable& x, double value){x.value(value);})
@@ -1238,7 +1238,10 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         .def_property("fixed", [](const coek::Variable& x){return x.fixed();}, [](coek::Variable& x, bool value){x.fixed(value);})
         .def_property("within", [](const coek::Variable& x){return x.within();}, [](coek::Variable& x, coek::VariableTypes value){x.within(value);})
         .def_property_readonly("id", &coek::Variable::id)
-	.def_readonly("repn", &coek::Variable::repn)
+#if 0
+        // TODO - Check with Mike
+        .def_readonly("repn", &coek::Variable::repn)
+#endif
         .def("is_constraint",[](const coek::Variable& ){return false;})
         .def("is_continuous", [](const coek::Variable& x){return x.is_continuous();})
         .def("is_integer", [](const coek::Variable& x){return x.is_integer();})
@@ -1433,7 +1436,7 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         .def("is_constraint",[](const coek::Expression& ){return false;})
         .def("is_numeric_type",[](const coek::Expression& ){return true;})
         .def("__call__", &coek::expression_eval, py::arg("exception") = false)
-	.def("is_variable_type", [](const coek::Expression& ){return false;})
+        .def("is_variable_type", [](const coek::Expression& ){return false;})
 
         .def("__neg__", [](const coek::Expression& x){return -x;})
         .def("__pos__", [](const coek::Expression& x){return +x;})
@@ -1601,12 +1604,12 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         .def_property_readonly("lb", [](coek::Constraint& c){return coek::constraint_lb(c);})
         .def_property_readonly("ub", [](coek::Constraint& c){return coek::constraint_ub(c);})
         .def("lower", &coek::Constraint::lower)
-	.def("body", &coek::Constraint::body)
-	.def("upper", &coek::Constraint::upper)
-	.def("has_lower", &coek::Constraint::has_lower)
-	.def("has_upper", &coek::Constraint::has_upper)
-	.def("is_inequality", &coek::Constraint::is_inequality)
-	.def("is_equality", &coek::Constraint::is_equality)
+        .def("body", &coek::Constraint::body)
+        .def("upper", &coek::Constraint::upper)
+        .def("has_lower", &coek::Constraint::has_lower)
+        .def("has_upper", &coek::Constraint::has_upper)
+        .def("is_inequality", &coek::Constraint::is_inequality)
+        .def("is_equality", &coek::Constraint::is_equality)
         .def_property_readonly("id", &coek::Constraint::id)
         .def_property_readonly("name", [](coek::Constraint& c){return std::string("c")+std::to_string(c.id());})
         .def("is_feasible", &coek::Constraint::is_feasible)
@@ -1633,19 +1636,23 @@ PYBIND11_MODULE(pycoek_pybind11, m) {
         .def("expand", [](coek::Constraint& x) {return x.expand();})
         ;
 
+#if 0
+    // TODO - Check with Mike
+
     py::class_<coek::QuadraticExpr>(m, "QuadraticExpr")
-	.def_readwrite("linear_vars", &coek::QuadraticExpr::linear_vars)
-	.def_readwrite("linear_coefs", &coek::QuadraticExpr::linear_coefs)
-	.def_readwrite("quadratic_lvars", &coek::QuadraticExpr::quadratic_lvars)
-	.def_readwrite("quadratic_rvars", &coek::QuadraticExpr::quadratic_rvars)
-	.def_readwrite("quadratic_coefs", &coek::QuadraticExpr::quadratic_coefs)
-	.def_readwrite("constval", &coek::QuadraticExpr::constval)
-	.def("is_constant", &coek::QuadraticExpr::is_constant)
-	.def("is_linear", &coek::QuadraticExpr::is_linear)
-	.def("is_quadratic", &coek::QuadraticExpr::is_quadratic);
+        .def_readwrite("linear_vars", &coek::QuadraticExpr::linear_vars)
+        .def_readwrite("linear_coefs", &coek::QuadraticExpr::linear_coefs)
+        .def_readwrite("quadratic_lvars", &coek::QuadraticExpr::quadratic_lvars)
+        .def_readwrite("quadratic_rvars", &coek::QuadraticExpr::quadratic_rvars)
+        .def_readwrite("quadratic_coefs", &coek::QuadraticExpr::quadratic_coefs)
+        .def_readwrite("constval", &coek::QuadraticExpr::constval)
+        .def("is_constant", &coek::QuadraticExpr::is_constant)
+        .def("is_linear", &coek::QuadraticExpr::is_linear)
+        .def("is_quadratic", &coek::QuadraticExpr::is_quadratic);
 
     py::class_<coek::VariableTerm>(m, "VariableTerm")
 	.def_readonly("index", &coek::VariableTerm::index);
+#endif
 
     //
     // Intrinsics

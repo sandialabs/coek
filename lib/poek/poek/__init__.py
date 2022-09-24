@@ -23,7 +23,7 @@ for import_ in imports:
             import pycoek_cppyy
 
             __using_cppyy__ = True
-        except ImportError:
+        except (ImportError, RuntimeError):
             if config.coek_home is not None:
                 sys.path.insert(0, os.path.join(config.coek_home, "lib"))
                 sys.path.insert(0, os.path.join(config.coek_home, "lib64"))
@@ -31,7 +31,7 @@ for import_ in imports:
                 import pycoek_cppyy
 
                 __using_cppyy__ = True
-            except ImportError:
+            except (ImportError, RuntimeError):
                 pass
         if __using_cppyy__:
             break
