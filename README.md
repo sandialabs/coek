@@ -63,10 +63,12 @@ The default build logic for Coek is executed using `make`:
 
 By default, this does the following:
 
-* Build the Coek library.  If third-party libraries are automatically installed, this includes support for automatic differentiation using CppAD.
-* Build and install pycoek extensions.  If third-party libraries are automatically installed, this includes support for pybind11 extensions.
-* Install the Poek library in `editable` mode.
-* Build the aml\_comparisons performance testing utilities.
+1. Build the Coek library.
+   * If third-party libraries are automatically installed, this includes support for automatic differentiation using CppAD.
+1. Build and install pycoek extensions.
+   * If third-party libraries are automatically installed, this includes support for pybind11 extensions.
+1. Install the Poek library in `editable` mode.
+1. Build the aml\_comparisons performance testing utilities.
 
 ### Build with Tests
 
