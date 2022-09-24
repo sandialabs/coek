@@ -18,7 +18,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -Dinstall_all_tpls=OFF -Dwith_python=OFF ../lib/coek
+          cmake -Dinstall_all_tpls=OFF -Dwith_python=OFF ..
       - name: build
         run: |
           cd build
@@ -33,7 +33,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -Dwith_python=OFF -Dwith_tests=ON ../lib/coek
+          cmake -Dwith_python=OFF -Dwith_tests=ON ..
       - name: build
         run: |
           cd build
@@ -53,7 +53,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake  ../lib/coek
+          cmake  ..
       - name: build
         run: |
           cd build
