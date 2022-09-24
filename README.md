@@ -18,16 +18,11 @@ optimization modeling.
 
 **Coek**: A fast C++ library that supports the definition of expressions used to formulate and solve optimization problems.
 
-* [README](lib/coek/README.md)
 * [Online Documentation](http://coek.readthedocs.org/en/latest/)
 
 **pycoek**: A library of Python bindings for Coek.
 
-* [README](lib/pycoek/README.md)
-
 **Poek**: A performant Python library that supports the definition of expressions used to formulate and solve optimization problems.
-
-* [README](lib/poek/README.md)
 
 
 ## Test Utilities
@@ -84,7 +79,7 @@ By default, this does the following:
 * mkdir build
 * cd build
 * cmake -Dinsecure\_downloads=ON ..
-* make tpls
+* make install_tpls
 * make
 
 ### Build with Gurobi
@@ -92,6 +87,6 @@ By default, this does the following:
 * mkdir build
 * cd build
 * cmake -Dwith\_gurobi=ON ..
-* make tpls
+* make install_tpls
 * make
 
