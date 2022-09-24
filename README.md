@@ -32,14 +32,14 @@ optimization modeling.
 
 ## Test Utilities
 
-**aml_comparisons**: Performance tests for Coek, Poek and related optimization modeling environmants.
+**aml_comparisons**: Performance tests for Coek, Poek and related optimization modeling environments.
 
 * [README](test/aml_comparisons/README.md)
 
 
 ## Installation
 
-## Simple Build
+### Simple Build
 
 The Coek Project uses CMake to manage configuration of the build:
 
