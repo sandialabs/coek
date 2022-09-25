@@ -50,7 +50,7 @@ macro(setup_builds)
 
     # Catch
     set(catch2_available OFF CACHE BOOL "Catch2 is available")
-    if (build_catch2)
+    if (install_catch2)
         define_download_command("NAME;catch2;${catch2_revision}")
         list(REMOVE_AT catch2_revision 0 1)         # Remove SRC
         ExternalProject_Add(catch2
@@ -74,7 +74,7 @@ macro(setup_builds)
 
     # CPPAD
     set(cppad_available OFF CACHE BOOL "CppAD is available")
-    if (build_cppad)
+    if (install_cppad)
         define_download_command("NAME;cppad;${cppad_revision}")
         list(REMOVE_AT cppad_revision 0 1)         # Remove SRC
         ExternalProject_Add(cppad
@@ -96,7 +96,7 @@ macro(setup_builds)
 
     # fmtlib
     set(fmtlib_available OFF CACHE BOOL "FMT is available")
-    if (build_fmtlib)
+    if (install_fmtlib)
         define_download_command("NAME;fmtlib;${fmtlib_revision}")
         list(REMOVE_AT fmtlib_revision 0 1)         # Remove SRC
         ExternalProject_Add(fmtlib
@@ -120,7 +120,7 @@ macro(setup_builds)
 
     # Pybind11
     set(pybind11_available OFF CACHE BOOL "Pybind11 is available")
-    if (build_pybind11)
+    if (install_pybind11)
         define_download_command("NAME;pybind11;${pybind11_revision}")
         list(REMOVE_AT pybind11_revision 0 1)         # Remove SRC
         ExternalProject_Add(pybind11
@@ -144,7 +144,7 @@ macro(setup_builds)
 
     # RapidJson
     set(rapidjson_available OFF CACHE BOOL "RapidJSON is available")
-    if (build_rapidjson)
+    if (install_rapidjson)
         define_download_command("NAME;rapidjson;${rapidjson_revision}")
         list(REMOVE_AT rapidjson_revision 0 1)         # Remove SRC
         ExternalProject_Add(rapidjson
@@ -166,15 +166,20 @@ macro(setup_builds)
         list(APPEND tpls rapidjson)
     endif()
 
-    MESSAGE("-- Third Party Package Dependencies")
+    MESSAGE("Configured to Install Third Party Packages (use 'make install_tpls')")
     MESSAGE("   Catch2 Library:    ${catch2_available}")
     MESSAGE("   CppAD Library:     ${cppad_available}")
     MESSAGE("   FMT Library:       ${fmtlib_available}")
     MESSAGE("   Pybind11 Library:  ${pybind11_available}")
     MESSAGE("   RapidJSON Library: ${rapidjson_available}")
 
-    add_custom_target(tpls 
+    #
+    # Enable pybind11 here, since we now have the pybind11 cmake file
+    #
+    add_custom_target(_install_tpls
         DEPENDS ${tpls}
         COMMAND ${CMAKE_COMMAND} -Duse_superbuild=OFF ${PROJECT_SOURCE_DIR}
+        #COMMAND ${CMAKE_COMMAND} rebuild_cache
+        #COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON ${PROJECT_SOURCE_DIR}/..
         )
 endmacro()

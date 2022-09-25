@@ -3,9 +3,9 @@ name: Linux Build and Tests
 on:
   workflow_dispatch:
   push:
-    branches: [ main, dev ]
+    branches: [ main, dev, public ]
   pull_request:
-    branches: [ main, dev ]
+    branches: [ main, dev, public ]
 
 jobs:
 
@@ -18,7 +18,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ../lib/coek
+          cmake -Dinstall_all_tpls=OFF -Dwith_python=OFF ..
       - name: build
         run: |
           cd build
@@ -33,11 +33,11 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -Dbuild_all=ON -Dwith_tests=ON ../lib/coek
+          cmake -Dwith_python=OFF -Dwith_tests=ON ..
       - name: build
         run: |
           cd build
-          make tpls
+          make install_tpls
           make
       - name: test
         run: |
@@ -53,15 +53,10 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -Dbuild_all=ON ../lib/coek
+          cmake  ..
       - name: build
         run: |
           cd build
-          make tpls
-          make
-      - name: build pycoek_pybind11
-        run: |
-          cd build
-          cmake -Dwith_pybind11=ON ../lib/coek
+          make install_tpls
           make
         

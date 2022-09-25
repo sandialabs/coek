@@ -183,6 +183,7 @@ else()
     add_library(coek STATIC ${sources})
     message("-- Building static libcoek library")
 endif()
+add_library(coek::coek ALIAS coek)
 
 target_compile_options(coek PUBLIC ${coek_compile_options})
 target_include_directories(coek
