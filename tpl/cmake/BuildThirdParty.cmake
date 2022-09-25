@@ -173,8 +173,13 @@ macro(setup_builds)
     MESSAGE("   Pybind11 Library:  ${pybind11_available}")
     MESSAGE("   RapidJSON Library: ${rapidjson_available}")
 
-    add_custom_target(install_tpls
+    #
+    # Enable pybind11 here, since we now have the pybind11 cmake file
+    #
+    add_custom_target(_install_tpls
         DEPENDS ${tpls}
         COMMAND ${CMAKE_COMMAND} -Duse_superbuild=OFF ${PROJECT_SOURCE_DIR}
+        #COMMAND ${CMAKE_COMMAND} rebuild_cache
+        #COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON ${PROJECT_SOURCE_DIR}/..
         )
 endmacro()

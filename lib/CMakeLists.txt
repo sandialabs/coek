@@ -18,7 +18,7 @@ message("")
 if(${with_python})
     message("Configuring lib/poek install")
     add_custom_target(pip_install_poek ALL
-        COMMAND ${PYTHON_EXECUTABLE} -m pip install -e ${CMAKE_CURRENT_SOURCE_DIR}/poek
+        COMMAND ${Python_EXECUTABLE} -m pip install -e ${CMAKE_CURRENT_SOURCE_DIR}/poek
         )
 else()
     message("Ignoring lib/poek")

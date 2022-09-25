@@ -23,11 +23,13 @@ endif()
 # pybind11
 MESSAGE("-- with pybind11: ${with_pybind11}")
 if(with_pybind11)
+    if (install_pybind11)
+        set(CMAKE_MODULE_PATH ${download_dir}/pybind11/tools;${CMAKE_MODULE_PATH})
+    endif()
     find_package(pybind11)
-    add_subdirectory(pybind11)
-    #if (build_pybind11)
-    #    set(CMAKE_MODULE_PATH ${download_dir}/pybind11/tools;${CMAKE_MODULE_PATH})
-    #endif()
+    if (${pybind11_FOUND})
+        add_subdirectory(pybind11)
+    endif()
 
     #
     # Note that this target is automatically build when with_pybind11 is ON

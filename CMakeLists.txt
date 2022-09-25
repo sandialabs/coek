@@ -9,6 +9,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
 include(GNUInstallDirs)
 include(CheckCXXCompilerFlag)
 include(CMakePackageConfigHelpers)
+find_package(Python COMPONENTS Interpreter Development)
 
 #
 # Change the default install directory for the sub-builds, as we will
@@ -33,6 +34,10 @@ set(LIBRARY_INSTALL_DIR "lib/" CACHE STRING "Where to install libraries relative
 #
 add_subdirectory(tpl)
 
+add_custom_target(install_tpls
+        DEPENDS _install_tpls
+        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON ${PROJECT_SOURCE_DIR}
+        )
 
 ##################### Options #####################
 
@@ -47,7 +52,7 @@ option(with_caliper "Use the Caliper library" OFF)
 # Monorepo configuration
 option(with_tests "Build tests" OFF)
 option(with_docs "Build documentation" OFF)
-option(with_python "Build/Install Python libs" ON)
+option(with_python "Build/Install Python libs" ${Python_FOUND})
 
 message("Initial Configuration Options")
 # Options defined here
