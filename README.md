@@ -24,6 +24,8 @@ optimization modeling.
 
 **Poek**: A performant Python library that supports the definition of expressions used to formulate and solve optimization problems.
 
+**pyomo_coek**: Pyomo hybrids that leverage Coek to accelerate common operations.
+
 
 ## Test Utilities
 
