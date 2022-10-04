@@ -49,6 +49,12 @@ jobs:
     needs: coek-build-and-test-with-tpls
     steps:
       - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: test
+          environment-file: environment.yml
+          python-version: 3.8
+          auto-activate-base: false
       - name: run cmake
         run: |
           mkdir build
