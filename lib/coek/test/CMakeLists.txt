@@ -50,8 +50,7 @@ target_compile_definitions(runner PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_D
 
 include(CTest)
 include(Catch)
-catch_discover_tests(runner
-                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+catch_discover_tests(runner)
 
 # demo1
 add_executable(demo1 demo1.cpp)
