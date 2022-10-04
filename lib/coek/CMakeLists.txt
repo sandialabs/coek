@@ -58,13 +58,13 @@ if (with_examples OR with_tests)
 endif()
 
 # testing
-if (NOT catch2_available)
+if (NOT with_catch2)
     set(with_tests OFF)
 endif()
 MESSAGE("-- With Tests: ${with_tests}")
 if (with_tests)
   add_subdirectory(test)
-  include(CTest)
+  #include(CTest)
 
   add_custom_target(test_coek_verbose
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose)

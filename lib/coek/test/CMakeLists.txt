@@ -3,7 +3,7 @@ find_package(Catch2 REQUIRED)
 add_library(Catch INTERFACE)
 target_include_directories(Catch INTERFACE ${CMAKE_INSTALL_PREFIX}/include)
 
-if (fmtlib_available)
+if (with_fmtlib)
     find_package(fmt REQUIRED)
 endif()
 
@@ -50,9 +50,8 @@ target_compile_definitions(runner PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_D
 
 include(CTest)
 include(Catch)
-catch_discover_tests(runner)
-
-#message("LINK LIBS: ${coek_link_libraries}")
+catch_discover_tests(runner
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 # demo1
 add_executable(demo1 demo1.cpp)

@@ -36,7 +36,11 @@ add_subdirectory(tpl)
 
 add_custom_target(install_tpls
         DEPENDS _install_tpls
-        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON ${PROJECT_SOURCE_DIR}
+        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON ${PROJECT_SOURCE_DIR}
+        )
+add_custom_target(install_tpl
+        DEPENDS _install_tpls
+        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON ${PROJECT_SOURCE_DIR}
         )
 
 ##################### Options #####################
@@ -119,6 +123,7 @@ if (with_gcov)
 endif()
 MESSAGE("-- With gcov: ${with_gcov}")
 if (with_tests)
+  include(CTest)
   find_package(gcovr)
   if (gcovr_FOUND)
     MESSAGE("-- With gcovr: ON")
