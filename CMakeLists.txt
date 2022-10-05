@@ -123,7 +123,6 @@ if (with_gcov)
 endif()
 MESSAGE("-- With gcov: ${with_gcov}")
 if (with_tests)
-  include(CTest)
   find_package(gcovr)
   if (gcovr_FOUND)
     MESSAGE("-- With gcovr: ON")
@@ -155,6 +154,12 @@ else()
         set(CMAKE_CXX_FLAGS_RELEASE "/permissive-")
     endif()
 endif()
+
+if(${with_tests})
+  #include(CTest)
+  add_custom_target(test DEPENDS test_lib)
+endif()
+
 
 ##################### Monorepo Subpackages #####################
 
