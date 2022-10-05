@@ -393,7 +393,7 @@ def solve0(data, largest=False):
 
 
 if __name__ == "__main__":
-    directory = "results-new"
+    directory = "results"
 
     if os.path.exists(os.path.join(directory, "writer")):
         collect_writer_summary(directory)
