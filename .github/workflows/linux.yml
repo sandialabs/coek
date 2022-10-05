@@ -60,6 +60,7 @@ jobs:
       - name: run cmake
         run: |
           conda activate test
+          conda install -y pytest pyutilib
           mkdir build
           cd build
           cmake -Dwith_tests=ON ..
