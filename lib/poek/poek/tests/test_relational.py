@@ -332,9 +332,13 @@ class Test_Expr(unittest.TestCase):
                 e + a
             with self.assertRaisesRegex(TypeError, "unsupported operand type.*"):
                 E += e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with self.assertRaisesRegex(
+                TypeError, "unsupported operand type\\(s\\) .*"
+            ):
                 2 + e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with self.assertRaisesRegex(
+                TypeError, "unsupported operand type\\(s\\) .*"
+            ):
                 e += 2
         else:
             with self.assertRaisesRegex(
@@ -365,9 +369,13 @@ class Test_Expr(unittest.TestCase):
                 TypeError, "__sub__\\(\\): incompatible function arguments.*"
             ):
                 E -= e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with self.assertRaisesRegex(
+                TypeError, "unsupported operand type\\(s\\) .*"
+            ):
                 2 - e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with self.assertRaisesRegex(
+                TypeError, "unsupported operand type\\(s\\) .*"
+            ):
                 e -= 2
         else:
             with self.assertRaisesRegex(
@@ -398,9 +406,13 @@ class Test_Expr(unittest.TestCase):
                 TypeError, "__mul__\\(\\): incompatible function arguments.*"
             ):
                 E *= e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with self.assertRaisesRegex(
+                TypeError, "unsupported operand type\\(s\\) .*"
+            ):
                 2 * e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with self.assertRaisesRegex(
+                TypeError, "unsupported operand type\\(s\\) .*"
+            ):
                 e *= 2
         else:
             with self.assertRaisesRegex(
@@ -431,9 +443,13 @@ class Test_Expr(unittest.TestCase):
                 TypeError, "__truediv__\\(\\): incompatible function arguments.*"
             ):
                 E /= e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with self.assertRaisesRegex(
+                TypeError, "unsupported operand type\\(s\\) .*"
+            ):
                 2 / e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with self.assertRaisesRegex(
+                TypeError, "unsupported operand type\\(s\\) .*"
+            ):
                 e /= 2
         else:
             with self.assertRaisesRegex(
