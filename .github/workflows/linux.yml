@@ -46,7 +46,7 @@ jobs:
 
   pycoek_pybind11:
     runs-on: ubuntu-latest
-    needs: coek-build-and-test-with-tpls
+    #needs: coek-build-and-test-with-tpls
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
