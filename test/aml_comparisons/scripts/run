@@ -5,6 +5,8 @@ import os.path
 import sys
 import subprocess
 
+currdir = os.path.abspath(os.path.dirname(__file__))
+
 config = {
     "knapsack": {"small": ["50"], "big": ["1000"], "all": ["50", "100", "500", "1000"]},
     "nqueens": {
@@ -293,11 +295,23 @@ if __name__ == "__main__":
     else:
         ntrials = 1
 
+    build_dir = None
     if os.path.exists("coek/coek_writer"):
         build_dir = "."
-    elif os.path.exists("../build/coek/coek_writer"):
-        build_dir = "../build"
+    elif os.path.exists(
+        os.path.join(currdir, "../../../build/test/aml_comparisons/coek/coek_writer")
+    ):
+        build_dir = os.path.join(currdir, "../../../build")
+    if build_dir is None:
+        print("Cannot find Coek build directory")
+        print(
+            os.path.join(
+                currdir, "../../../build/test/aml_comparisons/coek/coek_writer"
+            )
+        )
+        sys.exit(1)
     build_dir = os.path.abspath(build_dir)
+
     errors = []
 
     if sys.argv[1] == "dev":
@@ -305,7 +319,7 @@ if __name__ == "__main__":
             test_type="small",
             models=all_coek_models,
             solvers=["ipopt"],
-            executable=os.path.join(build_dir, "coek/coek_solve0"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_solve0"),
             subdir="coek",
             ntrials=ntrials,
             errors=errors,
@@ -316,7 +330,7 @@ if __name__ == "__main__":
             test_type="big",
             models=all_coek_models,
             suffixes=["lp"],
-            executable=os.path.join(build_dir, "coek/coek_writer"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_writer"),
             subdir="coek",
             ntrials=ntrials,
             errors=errors,
@@ -325,7 +339,7 @@ if __name__ == "__main__":
             test_type="big",
             models=all_gurobi_models,
             suffixes=["lp"],
-            executable=os.path.join(build_dir, "gurobi/gurobi_writer"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_writer"),
             subdir="gurobi",
             ntrials=ntrials,
             errors=errors,
@@ -354,7 +368,7 @@ if __name__ == "__main__":
             test_type="small",
             models=all_coek_models,
             suffixes=["lp"],
-            executable=os.path.join(build_dir, "coek/coek_writer"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_writer"),
             subdir="coek",
             ntrials=ntrials,
             errors=errors,
@@ -363,7 +377,7 @@ if __name__ == "__main__":
             test_type="small",
             models=all_gurobi_models,
             suffixes=["lp"],
-            executable=os.path.join(build_dir, "gurobi/gurobi_writer"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_writer"),
             subdir="gurobi",
             ntrials=ntrials,
             errors=errors,
@@ -392,7 +406,7 @@ if __name__ == "__main__":
             test_type="all",
             models=all_coek_models,
             suffixes=["lp"],
-            executable=os.path.join(build_dir, "coek/coek_writer"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_writer"),
             subdir="coek",
             ntrials=ntrials,
             errors=errors,
@@ -401,7 +415,7 @@ if __name__ == "__main__":
             test_type="all",
             models=all_gurobi_models,
             suffixes=["lp"],
-            executable=os.path.join(build_dir, "gurobi/gurobi_writer"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_writer"),
             subdir="gurobi",
             ntrials=ntrials,
             errors=errors,
@@ -430,7 +444,7 @@ if __name__ == "__main__":
             test_type="small",
             models=all_coek_models,
             suffixes=["nl"],
-            executable=os.path.join(build_dir, "coek/coek_writer"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_writer"),
             subdir="coek",
             ntrials=ntrials,
             errors=errors,
@@ -459,7 +473,7 @@ if __name__ == "__main__":
             test_type="all",
             models=all_coek_models,
             suffixes=["nl"],
-            executable=os.path.join(build_dir, "coek/coek_writer"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_writer"),
             subdir="coek",
             ntrials=ntrials,
             errors=errors,
@@ -488,7 +502,7 @@ if __name__ == "__main__":
             test_type="big",
             models=all_coek_models,
             solvers=["gurobi"],
-            executable=os.path.join(build_dir, "coek/coek_solve0"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_solve0"),
             subdir="coek",
             ntrials=ntrials,
             errors=errors,
@@ -497,7 +511,7 @@ if __name__ == "__main__":
             test_type="big",
             models=all_gurobi_models,
             solvers=["gurobi"],
-            executable=os.path.join(build_dir, "gurobi/gurobi_solve0"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"),
             subdir="gurobi",
             ntrials=ntrials,
             errors=errors,
@@ -553,7 +567,7 @@ if __name__ == "__main__":
             test_type="small",
             models=all_coek_models,
             solvers=["gurobi"],
-            executable=os.path.join(build_dir, "coek/coek_solve0"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_solve0"),
             subdir="coek",
             ntrials=ntrials,
             errors=errors,
@@ -562,7 +576,7 @@ if __name__ == "__main__":
             test_type="small",
             models=all_gurobi_models,
             solvers=["gurobi"],
-            executable=os.path.join(build_dir, "gurobi/gurobi_solve0"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"),
             subdir="gurobi",
             ntrials=ntrials,
             errors=errors,
@@ -618,7 +632,7 @@ if __name__ == "__main__":
             test_type="all",
             models=all_coek_models,
             solvers=["gurobi"],
-            executable=os.path.join(build_dir, "coek/coek_solve0"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_solve0"),
             subdir="coek",
             ntrials=ntrials,
             errors=errors,
@@ -627,7 +641,7 @@ if __name__ == "__main__":
             test_type="all",
             models=all_gurobi_models,
             solvers=["gurobi"],
-            executable=os.path.join(build_dir, "gurobi/gurobi_solve0"),
+            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"),
             subdir="gurobi",
             ntrials=ntrials,
             errors=errors,

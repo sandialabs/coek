@@ -36,12 +36,12 @@ class TestValue(unittest.TestCase):
 
     def test_float(self):
         p = parameter(value=-1)
-        with self.assertRaisesRegex(TypeError, "float\(\) argument must.*"):
+        with self.assertRaisesRegex(TypeError, "float\\(\\) argument must.*"):
             float(p)
 
     def test_int(self):
         p = parameter(value=-1)
-        with self.assertRaisesRegex(TypeError, "int\(\) argument must.*"):
+        with self.assertRaisesRegex(TypeError, "int\\(\\) argument must.*"):
             int(p)
 
 
@@ -56,7 +56,7 @@ class Test_SumExpression(unittest.TestCase):
     def test_error1(self):
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__radd__\(\): incompatible function arguments.*"
+                TypeError, "__radd__\\(\\): incompatible function arguments.*"
             ):
 
                 class TMP(object):
@@ -333,7 +333,7 @@ class TestDiffExpression(unittest.TestCase):
     def test_error1(self):
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__rsub__\(\): incompatible function arguments.*"
+                TypeError, "__rsub__\\(\\): incompatible function arguments.*"
             ):
 
                 class TMP(object):
@@ -354,7 +354,7 @@ class TestDiffExpression(unittest.TestCase):
         x = variable(10)
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__sub__\(\): incompatible function arguments.*"
+                TypeError, "__sub__\\(\\): incompatible function arguments.*"
             ):
                 self.a - x
         elif poek.__using_cppyy__:
@@ -639,7 +639,7 @@ class Test_MulExpression(unittest.TestCase):
     def test_error1(self):
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__rmul__\(\): incompatible function arguments.*"
+                TypeError, "__rmul__\\(\\): incompatible function arguments.*"
             ):
 
                 class TMP(object):
@@ -660,7 +660,7 @@ class Test_MulExpression(unittest.TestCase):
         x = variable(10)
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__mul__\(\): incompatible function arguments.*"
+                TypeError, "__mul__\\(\\): incompatible function arguments.*"
             ):
                 self.a * x
         elif poek.__using_cppyy__:
@@ -967,7 +967,7 @@ class Test_DivExpression(unittest.TestCase):
     def test_error1(self):
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__rtruediv__\(\): incompatible function arguments.*"
+                TypeError, "__rtruediv__\\(\\): incompatible function arguments.*"
             ):
 
                 class TMP(object):
@@ -988,7 +988,7 @@ class Test_DivExpression(unittest.TestCase):
         x = variable(10)
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__truediv__\(\): incompatible function arguments.*"
+                TypeError, "__truediv__\\(\\): incompatible function arguments.*"
             ):
                 self.a / x
         elif poek.__using_cppyy__:
@@ -1194,7 +1194,7 @@ class Test_PowExpression(unittest.TestCase):
     def test_error1(self):
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__rpow__\(\): incompatible function arguments.*"
+                TypeError, "__rpow__\\(\\): incompatible function arguments.*"
             ):
 
                 class TMP(object):
@@ -1215,7 +1215,7 @@ class Test_PowExpression(unittest.TestCase):
         x = variable(10)
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__pow__\(\): incompatible function arguments.*"
+                TypeError, "__pow__\\(\\): incompatible function arguments.*"
             ):
                 self.a**x
         elif poek.__using_cppyy__:

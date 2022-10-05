@@ -74,7 +74,9 @@ By default, this does the following:
 * cmake -Dwith\_tests=ON ..
 * make intall_tpls
 * make
-* make test
+* make test         # Test all libraries
+* make test_coek    # Test the Coek library
+* make test_poek    # Test the Poek library
 
 ### Download and build TPLs with curl insecure flags
 

@@ -32,12 +32,12 @@ if(with_pybind11)
     endif()
 
     #
-    # Note that this target is automatically build when with_pybind11 is ON
+    # This target is automatically build when with_pybind11 is ON
     #
     add_custom_target(python_pybind11
-        DEPENDS pycoek_pybind11)
+        DEPENDS install_pycoek_pybind11)
     add_custom_target(test_python_pybind11
-        DEPENDS pycoek_pybind11
+        DEPENDS install_pycoek_pybind11
         COMMAND nosetests ${CMAKE_CURRENT_SOURCE_DIR}/pybind11 ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
         )
 endif()

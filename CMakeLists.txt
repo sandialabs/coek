@@ -36,7 +36,11 @@ add_subdirectory(tpl)
 
 add_custom_target(install_tpls
         DEPENDS _install_tpls
-        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON ${PROJECT_SOURCE_DIR}
+        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON ${PROJECT_SOURCE_DIR}
+        )
+add_custom_target(install_tpl
+        DEPENDS _install_tpls
+        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON ${PROJECT_SOURCE_DIR}
         )
 
 ##################### Options #####################
@@ -150,6 +154,12 @@ else()
         set(CMAKE_CXX_FLAGS_RELEASE "/permissive-")
     endif()
 endif()
+
+if(${with_tests})
+  #include(CTest)
+  add_custom_target(test DEPENDS test_lib)
+endif()
+
 
 ##################### Monorepo Subpackages #####################
 

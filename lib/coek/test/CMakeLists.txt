@@ -3,7 +3,7 @@ find_package(Catch2 REQUIRED)
 add_library(Catch INTERFACE)
 target_include_directories(Catch INTERFACE ${CMAKE_INSTALL_PREFIX}/include)
 
-if (fmtlib_available)
+if (with_fmtlib)
     find_package(fmt REQUIRED)
 endif()
 
@@ -52,11 +52,24 @@ include(CTest)
 include(Catch)
 catch_discover_tests(runner)
 
-#message("LINK LIBS: ${coek_link_libraries}")
-
 # demo1
 add_executable(demo1 demo1.cpp)
 TARGET_LINK_LIBRARIES(demo1 PUBLIC coek ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(demo1 PUBLIC ${coek_compile_options})
 target_compile_definitions(demo1 PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
+
+
+# testing
+add_custom_target(test_coek
+COMMAND ${CMAKE_CTEST_COMMAND})
+add_custom_target(test_coek_verbose
+COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
+add_custom_target(test_coek_memcheck
+COMMAND ${CMAKE_CTEST_COMMAND} --force-new-ctest-process --test-action memcheck
+COMMAND cat "${CMAKE_BINARY_DIR}/Testing/Temporary/MemoryChecker.*.log")
+
+if (gcovr_FOUND)
+add_custom_target(gcovr_coek
+  COMMAND ${GCOVR_EXECUTABLE} -d -r ${CMAKE_CURRENT_SOURCE_DIR} -e ../third_party/ -e ../test/ -e install/ )
+endif()
 

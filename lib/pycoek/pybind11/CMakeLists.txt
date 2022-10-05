@@ -4,9 +4,6 @@ cmake_minimum_required(VERSION 3.7)
 
 set(PYBIND11_CPP_STANDARD -std=c++17)
 
-#find_package(coek REQUIRED)
-#find_package(fmt REQUIRED)
-
 if(${with_debug})
     pybind11_add_module(pycoek_pybind11 NO_EXTRAS pycoek_pybind11.cpp)
 else()
@@ -22,13 +19,13 @@ install(TARGETS pycoek_pybind11
 
 # Uninstall pycoek_pybind11 in python environment
 add_custom_target(uninstall_pycoek_pybind11
-        COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/pybind11/setup.py develop -u
-        #COMMAND ${PYTHON_EXECUTABLE} -m pip uninstall -y pycoek_pybind11
+        COMMAND ${Python_EXECUTABLE} ${PROJECT_SOURCE_DIR}/pybind11/setup.py develop -u
+        #COMMAND ${Python_EXECUTABLE} -m pip uninstall -y pycoek_pybind11
         )
 
 # Install pycoek_pybind11 in python environment, after uninstalling it
-add_custom_target(install_pycoek_pybind11
+add_custom_target(install_pycoek_pybind11 ALL
         DEPENDS uninstall_pycoek_pybind11
-        COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/pybind11/setup.py develop -v
-        #COMMAND ${PYTHON_EXECUTABLE} -m pip install ${PROJECT_SOURCE_DIR}/pybind11
+        COMMAND ${Python_EXECUTABLE} ${PROJECT_SOURCE_DIR}/pybind11/setup.py develop -v
+        #COMMAND ${Python_EXECUTABLE} -m pip install ${PROJECT_SOURCE_DIR}/pybind11
         )
