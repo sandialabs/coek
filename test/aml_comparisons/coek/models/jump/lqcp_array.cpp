@@ -21,7 +21,7 @@ size_t n1 = n-1;
 double dx = 1.0/n;
 double T = 1.58;
 double dt = T/m;
-double h2 = dx*dx;
+//double h2 = dx*dx;
 double a = 0.001;
 
 auto y = model.add( coek::variable("y", {m+1,n+1}) ).
