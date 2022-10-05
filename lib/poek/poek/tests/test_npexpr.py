@@ -12,6 +12,10 @@ except:
     numpy_available = False
 
 
+@unittest.skipIf(
+    not numpy_available,
+    "Skipping tests that require numpy",
+)
 class TestValue(unittest.TestCase):
     def test_var(self):
         p = variable(value=2)
@@ -56,6 +60,10 @@ class TestValue(unittest.TestCase):
             int(p)
 
 
+@unittest.skipIf(
+    not numpy_available,
+    "Skipping tests that require numpy",
+)
 class Test_SumExpression(unittest.TestCase):
     def setUp(self):
         self.a = variable(name="a")
@@ -327,6 +335,10 @@ class Test_SumExpression(unittest.TestCase):
         self.assertEqual(e.to_list(), ["+", "b", "c", ["*", "5", "a"]])
 
 
+@unittest.skipIf(
+    not numpy_available,
+    "Skipping tests that require numpy",
+)
 class TestDiffExpression(unittest.TestCase):
     def setUp(self):
         self.a = variable(name="a")
@@ -638,6 +650,10 @@ class TestDiffExpression(unittest.TestCase):
         self.assertEqual(e.to_list(), ["+", "b", ["*", "-1", "c"], ["*", "-5", "a"]])
 
 
+@unittest.skipIf(
+    not numpy_available,
+    "Skipping tests that require numpy",
+)
 class Test_MulExpression(unittest.TestCase):
     def setUp(self):
         self.a = variable(name="a")
@@ -975,6 +991,10 @@ class Test_MulExpression(unittest.TestCase):
         self.assertEqual(e.to_list(), ["a"])
 
 
+@unittest.skipIf(
+    not numpy_available,
+    "Skipping tests that require numpy",
+)
 class Test_DivExpression(unittest.TestCase):
     def setUp(self):
         self.a = variable(name="a")
@@ -1201,6 +1221,10 @@ class Test_DivExpression(unittest.TestCase):
         self.assertEqual(e.to_list(), ["/", "1.000000", "p"])
 
 
+@unittest.skipIf(
+    not numpy_available,
+    "Skipping tests that require numpy",
+)
 class Test_PowExpression(unittest.TestCase):
     def setUp(self):
         self.a = variable(name="a")
@@ -1407,6 +1431,10 @@ class Test_PowExpression(unittest.TestCase):
         self.assertEqual(e.to_list(), ["pow", "2.000000", "a"])
 
 
+@unittest.skipIf(
+    not numpy_available,
+    "Skipping tests that require numpy",
+)
 class EntangledExpressionErrors(unittest.TestCase):
     def setUp(self):
         self.a = variable(name="a")
@@ -1440,6 +1468,10 @@ class EntangledExpressionErrors(unittest.TestCase):
         self.assertEqual(e3.to_list(), ["+", "d", ["+", "a", "b"]])
 
 
+@unittest.skipIf(
+    not numpy_available,
+    "Skipping tests that require numpy",
+)
 class TestVariables(unittest.TestCase):
     def test_default_value(self):
         v = variable(3, name="v")
@@ -1487,6 +1519,10 @@ class TestVariables(unittest.TestCase):
         self.assertEqual(v.name[0], "x")
 
 
+@unittest.skipIf(
+    not numpy_available,
+    "Skipping tests that require numpy",
+)
 class TestNDVariables(unittest.TestCase):
     def test_default_value(self):
         v = variable((3, 2, 4), name="v")

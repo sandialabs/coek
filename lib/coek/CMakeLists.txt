@@ -61,19 +61,6 @@ endif()
 if (${with_tests} AND ${with_catch2})
   MESSAGE("-- With Tests: ON")
   add_subdirectory(test)
-
-  add_custom_target(test_coek
-    COMMAND ${CMAKE_CTEST_COMMAND})
-  add_custom_target(test_coek_verbose
-    COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
-  add_custom_target(test_coek_memcheck
-    COMMAND ${CMAKE_CTEST_COMMAND} --force-new-ctest-process --test-action memcheck
-    COMMAND cat "${CMAKE_BINARY_DIR}/Testing/Temporary/MemoryChecker.*.log")
-
-  if (gcovr_FOUND)
-    add_custom_target(gcovr_coek
-      COMMAND ${GCOVR_EXECUTABLE} -d -r ${CMAKE_CURRENT_SOURCE_DIR} -e ../third_party/ -e ../test/ -e install/ )
-  endif()
 else()
   MESSAGE("-- With Tests: OFF")
 endif()
