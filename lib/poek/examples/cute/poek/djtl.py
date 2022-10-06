@@ -69,14 +69,5 @@ else:
     obj8 = -log(x2 + 1)
 
 model.add_objective(
-    (x1 - 10) ** 3
-    + (x2 - 20) ** 3
-    + obj1
-    + obj2
-    + obj3
-    + obj4
-    + obj5
-    + obj6
-    + obj7
-    + obj8
+    (x1 - 10) ** 3 + (x2 - 20) ** 3 + obj1 + obj2 + obj3 + obj4 + obj5 + obj6 + obj7 + obj8
 )

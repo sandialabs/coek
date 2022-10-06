@@ -38,7 +38,6 @@ x = model.add_variable(index=S, value=-1.0)
 
 model.add_objective(
     sum(
-        (x[i - 1] - x[i] ** 2) ** 2 * 16 * alph[i] ** 2 + (x[i] - 1.0) ** 2
-        for i in range(2, n + 1)
+        (x[i - 1] - x[i] ** 2) ** 2 * 16 * alph[i] ** 2 + (x[i] - 1.0) ** 2 for i in range(2, n + 1)
     )
 )

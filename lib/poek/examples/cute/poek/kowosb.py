@@ -45,8 +45,6 @@ x[4].value = 0.39
 
 model.add_objective(
     sum(
-        (y[i] - x[1] * (u[i] ** 2 + u[i] * x[2]) / (u[i] ** 2 + u[i] * x[3] + x[4]))
-        ** 2
-        for i in m
+        (y[i] - x[1] * (u[i] ** 2 + u[i] * x[2]) / (u[i] ** 2 + u[i] * x[3] + x[4])) ** 2 for i in m
     )
 )

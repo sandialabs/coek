@@ -102,9 +102,7 @@ def f2(model, x):
 
 
 piecew1 = Piecewise(z1, x1, pw_constr_type="LB", pw_pts=[0.0, lim1, 400.0], f_rule=f1)
-piecew2 = Piecewise(
-    z2, x2, pw_constr_type="LB", pw_pts=[0.0, lim2, lim3, 1000.0], f_rule=f2
-)
+piecew2 = Piecewise(z2, x2, pw_constr_type="LB", pw_pts=[0.0, lim2, lim3, 1000.0], f_rule=f2)
 
 e1 = Constraint(expr=x1 == 300 - x3 * x4 * cos(b - x6) / a + c * x3**2 * d / a)
 e2 = Constraint(expr=x2 == -x3 * x4 * cos(b + x6) / a + c * x4**2 * d / a)

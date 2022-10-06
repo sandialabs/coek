@@ -6,7 +6,6 @@ from poek import *
 
 
 class Test_ConditionalValue(unittest.TestCase):
-
     def setUp(self):
         self.model = model()
         # Do we expect arithmetic operations to return expressions?
@@ -23,7 +22,7 @@ class Test_ConditionalValue(unittest.TestCase):
 
     @unittest.nottest
     def value_test(self, exp, val, expectExpression=None):
-        """ Test the value of the expression. """
+        """Test the value of the expression."""
         #
         # Override the class value of 'expectExpression'
         #
@@ -40,7 +39,7 @@ class Test_ConditionalValue(unittest.TestCase):
 
     @unittest.nottest
     def relation_test(self, exp, val, expectConstExpression=None):
-        """ Test a relationship expression. """
+        """Test a relationship expression."""
         #
         # Override the class value of 'expectConstExpression'
         #
@@ -74,82 +73,81 @@ class Test_ConditionalValue(unittest.TestCase):
         #
         # Test the 'less than' operator
         #
-        a=self.create(1.3)
-        b=self.create(2.0)
-        self.relation_test(a<b, True)
-        self.relation_test(a<a, False)
-        self.relation_test(b<a, False)
-        self.relation_test(a<2.0, True)
-        self.relation_test(a<1.3, False)
-        self.relation_test(b<1.3, False)
-        self.relation_test(1.3<b, True)
-        self.relation_test(1.3<a, False)
-        self.relation_test(2.0<a, False)
+        a = self.create(1.3)
+        b = self.create(2.0)
+        self.relation_test(a < b, True)
+        self.relation_test(a < a, False)
+        self.relation_test(b < a, False)
+        self.relation_test(a < 2.0, True)
+        self.relation_test(a < 1.3, False)
+        self.relation_test(b < 1.3, False)
+        self.relation_test(1.3 < b, True)
+        self.relation_test(1.3 < a, False)
+        self.relation_test(2.0 < a, False)
 
     def test_gt(self):
         #
         # Test the 'greater than' operator
         #
-        a=self.create(1.3)
-        b=self.create(2.0)
-        self.relation_test(a>b, False)
-        self.relation_test(a>a, False)
-        self.relation_test(b>a, True)
-        self.relation_test(a>2.0, False)
-        self.relation_test(a>1.3, False)
-        self.relation_test(b>1.3, True)
-        self.relation_test(1.3>b, False)
-        self.relation_test(1.3>a, False)
-        self.relation_test(2.0>a, True)
+        a = self.create(1.3)
+        b = self.create(2.0)
+        self.relation_test(a > b, False)
+        self.relation_test(a > a, False)
+        self.relation_test(b > a, True)
+        self.relation_test(a > 2.0, False)
+        self.relation_test(a > 1.3, False)
+        self.relation_test(b > 1.3, True)
+        self.relation_test(1.3 > b, False)
+        self.relation_test(1.3 > a, False)
+        self.relation_test(2.0 > a, True)
 
     def test_eq(self):
         #
         # Test the 'equals' operator
         #
-        a=self.create(1.3)
-        b=self.create(2.0)
-        self.relation_test(a==b, False, True)
-        self.relation_test(a==a, True, True)
-        self.relation_test(b==a, False, True)
-        self.relation_test(a==2.0, False, True)
-        self.relation_test(a==1.3, True, True)
-        self.relation_test(b==1.3, False, True)
-        self.relation_test(1.3==b, False, True)
-        self.relation_test(1.3==a, True, True)
-        self.relation_test(2.0==a, False, True)
+        a = self.create(1.3)
+        b = self.create(2.0)
+        self.relation_test(a == b, False, True)
+        self.relation_test(a == a, True, True)
+        self.relation_test(b == a, False, True)
+        self.relation_test(a == 2.0, False, True)
+        self.relation_test(a == 1.3, True, True)
+        self.relation_test(b == 1.3, False, True)
+        self.relation_test(1.3 == b, False, True)
+        self.relation_test(1.3 == a, True, True)
+        self.relation_test(2.0 == a, False, True)
 
     def test_arithmetic(self):
         #
         #
         # Test binary arithmetic operators
         #
-        a=self.create(-0.5)
-        b=self.create(2.0)
-        self.value_test(a-b, -2.5)
-        self.value_test(a+b, 1.5)
-        self.value_test(a*b, -1.0)
-        self.value_test(b/a, -4.0)
+        a = self.create(-0.5)
+        b = self.create(2.0)
+        self.value_test(a - b, -2.5)
+        self.value_test(a + b, 1.5)
+        self.value_test(a * b, -1.0)
+        self.value_test(b / a, -4.0)
         self.value_test(a**b, 0.25)
 
-        self.value_test(a-2.0, -2.5)
-        self.value_test(a+2.0, 1.5)
-        self.value_test(a*2.0, -1.0)
-        self.value_test(b/(0.5), 4.0)
+        self.value_test(a - 2.0, -2.5)
+        self.value_test(a + 2.0, 1.5)
+        self.value_test(a * 2.0, -1.0)
+        self.value_test(b / (0.5), 4.0)
         self.value_test(a**2.0, 0.25)
 
-        self.value_test(0.5-b, -1.5)
-        self.value_test(0.5+b, 2.5)
-        self.value_test(0.5*b, 1.0)
-        self.value_test(2.0/a, -4.0)
-        self.value_test((0.5)**b, 0.25)
+        self.value_test(0.5 - b, -1.5)
+        self.value_test(0.5 + b, 2.5)
+        self.value_test(0.5 * b, 1.0)
+        self.value_test(2.0 / a, -4.0)
+        self.value_test((0.5) ** b, 0.25)
 
         self.value_test(-a, 0.5)
-        self.value_test(+a, -0.5, False)        # This doesn't generate an expression
+        self.value_test(+a, -0.5, False)  # This doesn't generate an expression
         self.value_test(abs(-a), 0.5)
 
 
 class Test_VarValue(Test_ConditionalValue):
-
     def setUp(self):
         self.model = model()
         #
@@ -166,19 +164,18 @@ class Test_VarValue(Test_ConditionalValue):
         self.model = None
 
     def create(self, val):
-        tmp=variable()
-        tmp.value=val
+        tmp = variable()
+        tmp.value = val
         return tmp
 
 
 class Test_Expr(unittest.TestCase):
-
     def setUp(self):
         self.model = model()
-        self.a = variable(name='a')
-        self.b = variable(name='b')
-        self.c = variable(name='c')
-        self.x = variable(10, name='x')
+        self.a = variable(name="a")
+        self.b = variable(name="b")
+        self.c = variable(name="c")
+        self.x = variable(10, name="x")
 
     def tearDown(self):
         self.model = None
@@ -191,7 +188,7 @@ class Test_Expr(unittest.TestCase):
         b = self.b
 
         e = a == b
-        self.assertEqual( e.to_list(), ['==', ['+', 'a', ['*', '-1', 'b']], '0'] )
+        self.assertEqual(e.to_list(), ["==", ["+", "a", ["*", "-1", "b"]], "0"])
 
     def test_error1(self):
         #
@@ -206,12 +203,12 @@ class Test_Expr(unittest.TestCase):
         #    / \
         #   a   b
         e = a == b == 5
-        self.assertEqual( e.to_list(), ['==', ['+', 'b', "-5.000"], '0'] )
+        self.assertEqual(e.to_list(), ["==", ["+", "b", "-5.000"], "0"])
 
         a.value = 3
         b.value = 3
         e = a == b == 5
-        self.assertEqual( e.to_list(), ['==', ['+', 'b', "-5.000"], '0'] )
+        self.assertEqual(e.to_list(), ["==", ["+", "b", "-5.000"], "0"])
 
         e = a == b
         try:
@@ -245,7 +242,7 @@ class Test_Expr(unittest.TestCase):
         #
         a = self.a
         b = self.b
-        
+
         e = a == b
         E = a
 
@@ -282,11 +279,17 @@ class Test_Expr(unittest.TestCase):
         with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
             e *= 2
 
-        with self.assertRaisesRegex(TypeError, "__truediv__\(\): incompatible function arguments. .*"):
+        with self.assertRaisesRegex(
+            TypeError, "__truediv__\(\): incompatible function arguments. .*"
+        ):
             a / e
-        with self.assertRaisesRegex(TypeError, "__rtruediv__\(\): incompatible function arguments. .*"):
+        with self.assertRaisesRegex(
+            TypeError, "__rtruediv__\(\): incompatible function arguments. .*"
+        ):
             e / a
-        with self.assertRaisesRegex(TypeError, "__truediv__\(\): incompatible function arguments. .*"):
+        with self.assertRaisesRegex(
+            TypeError, "__truediv__\(\): incompatible function arguments. .*"
+        ):
             E /= e
         with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
             2 / e
@@ -294,13 +297,13 @@ class Test_Expr(unittest.TestCase):
             e /= 2
 
         with self.assertRaisesRegex(TypeError, "__pow__\(\): incompatible function arguments. .*"):
-            a ** e
+            a**e
         with self.assertRaisesRegex(TypeError, "__rpow__\(\): incompatible function arguments. .*"):
-            e ** a
+            e**a
         with self.assertRaisesRegex(TypeError, "__pow__\(\): incompatible function arguments. .*"):
             E **= e
         with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
-            2 ** e
+            2**e
         with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) .*"):
             e **= 2
 
@@ -310,7 +313,7 @@ class Test_Expr(unittest.TestCase):
         #
         a = self.a
         b = self.b
-        
+
         e = a == b
 
         with self.assertRaisesRegex(TypeError, "__lt__\(\): incompatible function arguments. .*"):
@@ -323,6 +326,7 @@ class Test_Expr(unittest.TestCase):
             e >= a
         with self.assertRaisesRegex(TypeError, "__eq__\(\): incompatible function arguments. .*"):
             e == a
+
 
 if __name__ == "__main__":
     unittest.main()

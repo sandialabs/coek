@@ -49,11 +49,7 @@ model.add_constraint(
     == 0
 )
 model.add_constraint(
-    0.8
-    + 2 * c * x[7] ** 2
-    + x[5] * x[7] * (d * y3 - c * y4)
-    - x[6] * x[7] * (d * y5 + c * y6)
-    == 0
+    0.8 + 2 * c * x[7] ** 2 + x[5] * x[7] * (d * y3 - c * y4) - x[6] * x[7] * (d * y5 + c * y6) == 0
 )
 model.add_constraint(
     0.2
@@ -72,10 +68,7 @@ model.add_constraint(
     == 0
 )
 model.add_constraint(
-    -0.337
-    + 2 * d * x[7] ** 2
-    - x[5] * x[7] * (c * y3 + d * y4)
-    + x[6] * x[7] * (c * y5 - d * y6)
+    -0.337 + 2 * d * x[7] ** 2 - x[5] * x[7] * (c * y3 + d * y4) + x[6] * x[7] * (c * y5 - d * y6)
     == 0
 )
 model.add_constraint(x[1] >= 0)

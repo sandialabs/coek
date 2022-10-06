@@ -31,6 +31,4 @@ N = 100
 
 x = model.add_variable(index=range(1, N + 1), value=0.0)
 
-model.add_objective(
-    sum(100 * (x[i + 1] - x[i] + 1 - x[i] ** 2) ** 2 for i in range(1, N))
-)
+model.add_objective(sum(100 * (x[i + 1] - x[i] + 1 - x[i] ** 2) ** 2 for i in range(1, N)))

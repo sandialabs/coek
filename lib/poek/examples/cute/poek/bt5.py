@@ -37,9 +37,7 @@ N = 3
 
 x = model.add_variable(index=[1, 2, 3], value=2.0)
 
-model.add_objective(
-    1000 - x[1] ** 2 - x[3] ** 2 - 2 * x[2] ** 2 - x[1] * x[2] - x[1] * x[3]
-)
+model.add_objective(1000 - x[1] ** 2 - x[3] ** 2 - 2 * x[2] ** 2 - x[1] * x[2] - x[1] * x[3])
 
 model.add_constraint(-25 + x[1] ** 2 + x[2] ** 2 + x[3] ** 2 == 0)
 

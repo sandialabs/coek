@@ -40,15 +40,12 @@ model.add_objective(u)
 
 for i in range(1, 22):
     model.add_constraint(
-        (x[1] + y[i] * x[2]) / (1.0 + x[3] * y[i] + x[4] * y[i] ** 2 + x[5] * y[i] ** 3)
-        - u
+        (x[1] + y[i] * x[2]) / (1.0 + x[3] * y[i] + x[4] * y[i] ** 2 + x[5] * y[i] ** 3) - u
         <= ey[i]
     )
 
 for i in range(1, 22):
     model.add_constraint(
-        -(x[1] + y[i] * x[2])
-        / (1.0 + x[3] * y[i] + x[4] * y[i] ** 2 + x[5] * y[i] ** 3)
-        - u
+        -(x[1] + y[i] * x[2]) / (1.0 + x[3] * y[i] + x[4] * y[i] ** 2 + x[5] * y[i] ** 3) - u
         <= -ey[i]
     )

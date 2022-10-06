@@ -34,9 +34,7 @@ TO, U, oc_init = data.unpack("TO", "U", "oc_init")
 
 model = pk.model()
 
-x = model.add_variable(
-    index=product(range(1, NS + 1), range(0, NT + 1)), lb=0, value=0.001
-)
+x = model.add_variable(index=product(range(1, NS + 1), range(0, NT + 1)), lb=0, value=0.001)
 k = model.add_variable(index=range(1, NP + 1), lb=0, value=0.001)
 
 x[1, 0].value = 0.0

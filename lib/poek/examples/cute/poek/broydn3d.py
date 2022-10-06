@@ -38,8 +38,6 @@ model.add_objective(pk.expression(0))
 model.add_constraint((-2 * x[2] + kappa2 + (3 - kappa1 * x[1]) * x[1]) == 0)
 
 for i in range(2, N):
-    model.add_constraint(
-        (-x[i - 1] - 2 * x[i + 1] + kappa2 + (3 - kappa1 * x[i]) * x[i]) == 0
-    )
+    model.add_constraint((-x[i - 1] - 2 * x[i + 1] + kappa2 + (3 - kappa1 * x[i]) * x[i]) == 0)
 
 model.add_constraint((-x[N - 1] + kappa2 + (3 - kappa1 * x[N]) * x[N]) == 0)

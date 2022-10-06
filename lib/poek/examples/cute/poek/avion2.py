@@ -138,8 +138,7 @@ expr = (
     + (SO - 0.785 * DE**2 * PT) ** 2
     + (SS - 0.785 * DS**2 * PT) ** 2
     + (CB - 2 * (VN - CA * LF**3) / (LF**2 * (3 - SO * LF))) ** 2
-    + (IMPVOIL - 1.15 * SX * (15 + 0.15 * SX) * (8 + (MC * LX / (50 * SR * EL)) ** 1.5))
-    ** 2
+    + (IMPVOIL - 1.15 * SX * (15 + 0.15 * SX) * (8 + (MC * LX / (50 * SR * EL)) ** 1.5)) ** 2
 )
 model.add_objective(expr)
 
@@ -171,6 +170,4 @@ model.add_constraint(IMPSNA - 300 * NS - 400 == 0)
 
 model.add_constraint(MC - MV + 95 * NP + 70 * NG + 660 * NM + 0.5 * QI - 380 == 0)
 
-model.add_constraint(
-    MZ - IMPTRAIN + IMPNMOT + IMPPET + IMPPIL + IMPCAN + IMPSNA + 290 == 0
-)
+model.add_constraint(MZ - IMPTRAIN + IMPNMOT + IMPPET + IMPPIL + IMPCAN + IMPSNA + 290 == 0)

@@ -34,11 +34,7 @@ x = model.add_variable(index=range(1, N + 1), lb=-10, ub=10)
 y = model.add_variable(index=range(1, N + 1), lb=-10, ub=10)
 
 model.add_objective(
-    sum(
-        (x[i] - x[j]) ** 2 + (y[i] - y[j]) ** 2
-        for i in range(1, N)
-        for j in range(i + 1, N + 1)
-    )
+    sum((x[i] - x[j]) ** 2 + (y[i] - y[j]) ** 2 for i in range(1, N) for j in range(i + 1, N + 1))
 )
 
 for i in x:

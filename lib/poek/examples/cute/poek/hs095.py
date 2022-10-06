@@ -19,9 +19,7 @@ x = model.add_variable(index=N, lb=0, value=0)
 for i in N:
     x[i].ub = u[i]
 
-model.add_objective(
-    4.3 * x[1] + 31.8 * x[2] + 63.3 * x[3] + 15.8 * x[4] + 68.5 * x[5] + 4.7 * x[6]
-)
+model.add_objective(4.3 * x[1] + 31.8 * x[2] + 63.3 * x[3] + 15.8 * x[4] + 68.5 * x[5] + 4.7 * x[6])
 
 model.add_constraint(
     17.1 * x[1]
@@ -50,9 +48,7 @@ model.add_constraint(
     - 17200.0 * x[5] * x[6]
     >= -1.88
 )
-model.add_constraint(
-    -273.0 * x[2] - 70.0 * x[4] - 819.0 * x[5] + 26000.0 * x[4] * x[5] >= -29.08
-)
+model.add_constraint(-273.0 * x[2] - 70.0 * x[4] - 819.0 * x[5] + 26000.0 * x[4] * x[5] >= -29.08)
 model.add_constraint(
     159.9 * x[1]
     - 311.0 * x[2]

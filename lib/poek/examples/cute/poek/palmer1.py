@@ -37,6 +37,4 @@ B = model.add_variable(lb=0.00001, value=1.0)
 C = model.add_variable(lb=0.00001, value=1.0)
 D = model.add_variable(lb=0.00001, value=1.0)
 
-model.add_objective(
-    sum((Y[m] - (A * (X[m] ** 2) + B / (C + (X[m] ** 2) / D))) ** 2 for m in M)
-)
+model.add_objective(sum((Y[m] - (A * (X[m] ** 2) + B / (C + (X[m] ** 2) / D))) ** 2 for m in M))

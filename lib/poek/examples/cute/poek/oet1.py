@@ -44,12 +44,10 @@ model.add_objective(u)
 
 for i in OP:
     model.add_constraint(
-        u - (i * h + lower) * x[1] - exp(i * h + lower) * x[2] - (i * h + lower) ** 2
-        >= 0
+        u - (i * h + lower) * x[1] - exp(i * h + lower) * x[2] - (i * h + lower) ** 2 >= 0
     )
 
 for i in OP:
     model.add_constraint(
-        u + (i * h + lower) * x[1] + exp(i * h + lower) * x[2] + (i * h + lower) ** 2
-        >= 0
+        u + (i * h + lower) * x[1] + exp(i * h + lower) * x[2] + (i * h + lower) ** 2 >= 0
     )

@@ -11,15 +11,7 @@ N = list(range(1, 10))
 x = model.add_variable(index=N, value=1.0)
 
 model.add_objective(
-    -0.5
-    * (
-        x[1] * x[4]
-        - x[2] * x[3]
-        + x[3] * x[9]
-        - x[5] * x[9]
-        + x[5] * x[8]
-        - x[6] * x[7]
-    )
+    -0.5 * (x[1] * x[4] - x[2] * x[3] + x[3] * x[9] - x[5] * x[9] + x[5] * x[8] - x[6] * x[7])
 )
 
 model.add_constraint(1 - x[3] ** 2 - x[4] ** 2 >= 0)

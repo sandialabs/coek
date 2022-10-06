@@ -36,6 +36,4 @@ x = model.add_variable(index=S)
 x[1].value = 2
 x[2].value = 3
 
-model.add_objective(
-    (-2 + x[1] ** 2 + x[2] ** 2) ** 2 + (-2 + exp(x[1] - 1) + x[2] ** 3) ** 2
-)
+model.add_objective((-2 + x[1] ** 2 + x[2] ** 2) ** 2 + (-2 + exp(x[1] - 1) + x[2] ** 3) ** 2)

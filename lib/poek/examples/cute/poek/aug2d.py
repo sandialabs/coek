@@ -42,22 +42,16 @@ model.add_objective(
 
 for i in snx:
     for j in sny:
-        model.add_constraint(
-            ((x[i, j] - x[i - 1, j]) + (y[i, j] - y[i, j - 1]) - 1) == 0
-        )
+        model.add_constraint(((x[i, j] - x[i - 1, j]) + (y[i, j] - y[i, j - 1]) - 1) == 0)
 
 for i in snx:
     model.add_constraint((x[i, 0] + (x[i, 1] - x[i - 1, 1]) + y[i, 1] - 1) == 0)
 
 for i in snx:
-    model.add_constraint(
-        x[i, ny + 1] + (x[i, ny] - x[i - 1, ny]) - y[i, ny - 1] - 1 == 0
-    )
+    model.add_constraint(x[i, ny + 1] + (x[i, ny] - x[i - 1, ny]) - y[i, ny - 1] - 1 == 0)
 
 for j in sny:
     model.add_constraint(y[0, j] + (y[1, j] - y[1, j - 1]) + x[1, j] - 1 == 0)
 
 for j in sny:
-    model.add_constraint(
-        y[nx + 1, j] + (y[nx, j] - y[nx, j - 1]) - x[nx - 1, j] - 1 == 0
-    )
+    model.add_constraint(y[nx + 1, j] + (y[nx, j] - y[nx, j - 1]) - x[nx - 1, j] - 1 == 0)

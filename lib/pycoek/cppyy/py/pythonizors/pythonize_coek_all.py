@@ -1,21 +1,22 @@
 import pycoek_cppyy as pycoek
 
-NAN = float('nan')
+NAN = float("nan")
+
 
 def pythonize_coek_all(klass, name):
-    #print(("PYTHONIZE COEK", klass, name))
+    # print(("PYTHONIZE COEK", klass, name))
 
     def _to_nested_list(b, e):
         tmp = []
-        while (b != e):
+        while b != e:
             val = b.__deref__()
             b.__preinc__()
-            if val == ']':
+            if val == "]":
                 return tmp
-            elif val == '[':
-                tmp.append( _to_nested_list(b,e) )
+            elif val == "[":
+                tmp.append(_to_nested_list(b, e))
             else:
-                tmp.append( val )
+                tmp.append(val)
         return tmp
 
     def to_list(self):
@@ -23,7 +24,7 @@ def pythonize_coek_all(klass, name):
         vals = self.__to_list()
         b = vals.begin()
         e = vals.end()
-        ans = _to_nested_list(b,e)
+        ans = _to_nested_list(b, e)
         if len(ans) == 1 and type(ans[0]) is list:
             return ans[0]
         return ans
@@ -38,12 +39,12 @@ def pythonize_coek_all(klass, name):
         if len(args) == 1:
             return self._add_variable_singlevar(args[0])
         else:
-            name = kwds.get('name',"x")
-            lb = kwds.get('lb', -self.inf)
-            ub = kwds.get('ub', self.inf)
-            init = kwds.get('value', NAN)
-            binval = kwds.get('binary', 0)
-            integer = kwds.get('integer', 0)
+            name = kwds.get("name", "x")
+            lb = kwds.get("lb", -self.inf)
+            ub = kwds.get("ub", self.inf)
+            init = kwds.get("value", NAN)
+            binval = kwds.get("binary", 0)
+            integer = kwds.get("integer", 0)
             return self._add_variable_newvar(name, lb, ub, init, binval, integer)
 
     def XVariableArray_iter(self):
@@ -92,18 +93,24 @@ def pythonize_coek_all(klass, name):
         raise TypeError("VariableArray argument cannot be used in a boolean expression.")
 
     def expression__init(self, *args, **kwargs):
-        #if type(args[0]) is pycoek.coek.VariableArray:
+        # if type(args[0]) is pycoek.coek.VariableArray:
         #    raise TypeError("Variable array argument cannot be used in a boolean expression.")
         if type(args[0]) is pycoek.coek.Constraint:
             raise TypeError("Constraint argument cannot be used in a boolean expression.")
         return self.__init__bak(*args, **kwargs)
 
-    if name == 'Parameter':
+    if name == "Parameter":
         klass.__init__ = klass.__init__.__overload__("const std::string&")
         klass._value = klass.value
-        klass.value = property(lambda self: self._value(), lambda self, v: self._value(v), doc="Value of this parameter")
+        klass.value = property(
+            lambda self: self._value(),
+            lambda self, v: self._value(v),
+            doc="Value of this parameter",
+        )
         klass._name = klass.name
-        klass.name = property(get_name_str_or_None, lambda self, v: self.name(v), doc="Name of this parameter")
+        klass.name = property(
+            get_name_str_or_None, lambda self, v: self.name(v), doc="Name of this parameter"
+        )
         klass.__pos__ = pycoek.coek.Parameter_operator_pos
         klass.__neg__ = pycoek.coek.Parameter_operator_neg
         klass.__radd__ = pycoek.coek.Parameter_operator_radd
@@ -120,16 +127,36 @@ def pythonize_coek_all(klass, name):
         klass.__ge__ = pycoek.coek.Parameter_operator_ge
         klass.__bool__ = bool_error
 
-    elif name == 'Variable':
+    elif name == "Variable":
         klass.__init__ = klass.__init__.__overload__("const std::string&")
         klass._value = klass.value
-        klass.value = property(lambda self: self._value(), lambda self, v: self._value(v), doc="Value of this variable")
-        klass.lower = property(lambda self: self.lower(), lambda self, v: self.lower(v), doc="Lower bound of this variable")
-        klass.upper = property(lambda self: self.upper(), lambda self, v: self.upper(v), doc="Upper bound of this variable")
+        klass.value = property(
+            lambda self: self._value(), lambda self, v: self._value(v), doc="Value of this variable"
+        )
+        klass.lower = property(
+            lambda self: self.lower(),
+            lambda self, v: self.lower(v),
+            doc="Lower bound of this variable",
+        )
+        klass.upper = property(
+            lambda self: self.upper(),
+            lambda self, v: self.upper(v),
+            doc="Upper bound of this variable",
+        )
         klass._name = klass.name
-        klass.name = property(get_name_str_or_None, lambda self, v: self.name(v), doc="Name of this variable")
-        klass.fixed = property(lambda self: self.fixed(), lambda self, v: self.fixed(v), doc="Fix the value of this variable")
-        klass.within = property(lambda self: self.within(), lambda self, v: self.within(v), doc="Domain value of this variable")
+        klass.name = property(
+            get_name_str_or_None, lambda self, v: self.name(v), doc="Name of this variable"
+        )
+        klass.fixed = property(
+            lambda self: self.fixed(),
+            lambda self, v: self.fixed(v),
+            doc="Fix the value of this variable",
+        )
+        klass.within = property(
+            lambda self: self.within(),
+            lambda self, v: self.within(v),
+            doc="Domain value of this variable",
+        )
         klass.__pos__ = pycoek.coek.Variable_operator_pos
         klass.__neg__ = pycoek.coek.Variable_operator_neg
         klass.__radd__ = pycoek.coek.Variable_operator_radd
@@ -146,7 +173,7 @@ def pythonize_coek_all(klass, name):
         klass.__gt__ = pycoek.coek.Variable_operator_gt
         klass.__bool__ = bool_error
 
-    elif name == 'Expression':
+    elif name == "Expression":
         klass.__init__bak = klass.__init__
         klass.__init__ = expression__init
         klass._value = klass.value
@@ -169,18 +196,26 @@ def pythonize_coek_all(klass, name):
         klass.__ge__ = pycoek.coek.Expression_operator_ge
         klass.__bool__ = bool_error
 
-    elif name == 'Objective':
+    elif name == "Objective":
         klass.__to_list = klass.to_list
         klass.to_list = to_list
 
-    elif name == 'Constraint':
+    elif name == "Constraint":
         klass.id = property(klass.id, doc="A unique integer id.")
-        klass.feasible = property(klass.is_feasible, doc="This value is True if the constraint is feasible.")
-        #klass.lb = property(klass.get_lb, doc="The value of the constraint lower bound.")
-        #klass.ub = property(klass.get_ub, doc="The value of the constraint upper bound.")
-        klass.value = property(lambda self: self.body()._value(), doc="The value of the constraint body")
-        klass.lb = property(lambda self: self.lower()._value(), doc="The value of the constraint lower bound")
-        klass.ub = property(lambda self: self.upper()._value(), doc="The value of the constraint upper bound")
+        klass.feasible = property(
+            klass.is_feasible, doc="This value is True if the constraint is feasible."
+        )
+        # klass.lb = property(klass.get_lb, doc="The value of the constraint lower bound.")
+        # klass.ub = property(klass.get_ub, doc="The value of the constraint upper bound.")
+        klass.value = property(
+            lambda self: self.body()._value(), doc="The value of the constraint body"
+        )
+        klass.lb = property(
+            lambda self: self.lower()._value(), doc="The value of the constraint lower bound"
+        )
+        klass.ub = property(
+            lambda self: self.upper()._value(), doc="The value of the constraint upper bound"
+        )
         klass.__to_list = klass.to_list
         klass.to_list = to_list
         klass.__bool__ = bool_error
@@ -190,8 +225,10 @@ def pythonize_coek_all(klass, name):
         klass.__gt__ = constraint_bool_error
         klass.__ge__ = constraint_bool_error
 
-    elif name == 'XVariableArray':
-        klass.__init__ = klass.__init__.__overload__("int,string,double,double,double,bool,bool,bool")
+    elif name == "XVariableArray":
+        klass.__init__ = klass.__init__.__overload__(
+            "int,string,double,double,double,bool,bool,bool"
+        )
         klass._name = klass.name
         klass.name = property(get_name_str_or_None, doc="Name of this variable")
         klass.__getitem__ = klass.get
@@ -202,11 +239,13 @@ def pythonize_coek_all(klass, name):
         klass.__gt__ = varray_bool_error
         klass.__ge__ = varray_bool_error
 
-    #elif name == 'Model':
-        #klass._add_variable_newvar = klass.add_variable.__overload__('const string&,double,double,double,bool,bool')
-        #klass._add_variable_singlevar = klass.add_variable.__overload__('coek::Variable&')
-        #klass._add_variable_vararray = klass.add_variable.__overload__('coek::VariableArray&')
-        #klass.add_variable = Model_add_variable
+    # elif name == 'Model':
+    # klass._add_variable_newvar = klass.add_variable.__overload__('const string&,double,double,double,bool,bool')
+    # klass._add_variable_singlevar = klass.add_variable.__overload__('coek::Variable&')
+    # klass._add_variable_vararray = klass.add_variable.__overload__('coek::VariableArray&')
+    # klass.add_variable = Model_add_variable
 
-    elif name == 'Solver':
-        klass.available = property(lambda self: self.available(), doc="A flag that indicates if the solver is available")
+    elif name == "Solver":
+        klass.available = property(
+            lambda self: self.available(), doc="A flag that indicates if the solver is available"
+        )

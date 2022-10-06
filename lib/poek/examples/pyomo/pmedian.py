@@ -40,11 +40,7 @@ def create_model():
     model.y = Var(model.Locations, within=Binary, initialize=0)
 
     def rule(model):
-        return sum(
-            model.d[n, m] * model.x[n, m]
-            for n in model.Locations
-            for m in model.Customers
-        )
+        return sum(model.d[n, m] * model.x[n, m] for n in model.Locations for m in model.Customers)
 
     model.obj = Objective(rule=rule)
 

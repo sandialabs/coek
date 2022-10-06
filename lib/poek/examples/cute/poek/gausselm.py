@@ -23,12 +23,7 @@ model = pk.model()
 n = 16
 
 x = model.add_variable(
-    index=[
-        (k, i, j)
-        for k in range(1, n + 1)
-        for i in range(k, n + 1)
-        for j in range(k, n + 1)
-    ]
+    index=[(k, i, j) for k in range(1, n + 1) for i in range(k, n + 1) for j in range(k, n + 1)]
 )
 for k, i, j in x:
     x[k, i, j].value = 1 if i == j else 0.01

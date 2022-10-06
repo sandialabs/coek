@@ -44,6 +44,4 @@ for i in S:
 
 x = model.add_variable(index=[1, 2, 3], value=1.0)
 
-model.add_objective(
-    sum((y[i] - (x[1] + u[i] / (v[i] * x[2] + w[i] * x[3]))) ** 2 for i in S)
-)
+model.add_objective(sum((y[i] - (x[1] + u[i] / (v[i] * x[2] + w[i] * x[3]))) ** 2 for i in S))

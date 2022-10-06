@@ -41,8 +41,5 @@ x[2].value = 2.5
 x[3].value = 0.15
 
 model.add_objective(
-    sum(
-        (pk.exp(abs(y[i] - x[2]) ** x[3] / (-x[1])) - t[i]) ** 2
-        for i in range(1, M + 1)
-    )
+    sum((pk.exp(abs(y[i] - x[2]) ** x[3] / (-x[1])) - t[i]) ** 2 for i in range(1, M + 1))
 )

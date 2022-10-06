@@ -34,6 +34,5 @@ range1 = list(range(1, N + 1))
 x = model.add_variable(index=range1, value=4.0)
 
 model.add_objective(
-    sum(4.0 * (-x[1] + x[i] ** 2) ** 2 for i in range1)
-    + sum((x[i] - 1.0) ** 2 for i in range1)
+    sum(4.0 * (-x[1] + x[i] ** 2) ** 2 for i in range1) + sum((x[i] - 1.0) ** 2 for i in range1)
 )

@@ -32,6 +32,4 @@ x = model.add_variable(index=N)
 for i in N:
     x[i].value = i / (n + 1.0)
 
-model.add_objective(
-    sum(x[i] for i in N) + sum(alpha * cos(2 * x[i] - x[n] - x[1]) for i in M)
-)
+model.add_objective(sum(x[i] for i in N) + sum(alpha * cos(2 * x[i] - x[n] - x[1]) for i in M))

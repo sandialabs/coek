@@ -39,24 +39,17 @@ t = model.add_variable(lb=0.0, ub=6.2831852, value=1.5)
 r = model.add_variable(lb=0.39, value=0.75)
 
 model.add_objective(
-    (d + r) ** 2
-    * acos(-((a * d) ** 2 - (a * d + r) ** 2 + (d + r) ** 2) / (2 * (d + r) * a * d))
+    (d + r) ** 2 * acos(-((a * d) ** 2 - (a * d + r) ** 2 + (d + r) ** 2) / (2 * (d + r) * a * d))
     - (a * d + r) ** 2
     * acos(((a * d) ** 2 + (a * d + r) ** 2 - (d + r) ** 2) / (2 * (a * d + r) * a * d))
     + (d + r)
     * a
     * d
-    * sin(
-        acos(-((a * d) ** 2 - (a * d + r) ** 2 + (d + r) ** 2) / (2 * (d + r) * a * d))
-    )
+    * sin(acos(-((a * d) ** 2 - (a * d + r) ** 2 + (d + r) ** 2) / (2 * (d + r) * a * d)))
 )
 
 for i in S:
-    exp1 = (
-        (v1 + a * d * cos(t) - x[i]) ** 2
-        + (w1 + a * d * sin(t) - y[i]) ** 2
-        - (d + r) ** 2
-    )
+    exp1 = (v1 + a * d * cos(t) - x[i]) ** 2 + (w1 + a * d * sin(t) - y[i]) ** 2 - (d + r) ** 2
     model.add_constraint(exp1 <= 0.0)
 
 for i in S:

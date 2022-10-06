@@ -40,12 +40,7 @@ sum_expr_1 = 0
 sum_expr_2 = 0
 for i in Su:
     sum_expr_1 += (
-        h
-        * (
-            0.625 * (x[i - 1] ** 2 + x[i - 1] * x[i] + x[i] ** 2)
-            + ((x[i - 1] + x[i]) * u[i])
-        )
-        / 8
+        h * (0.625 * (x[i - 1] ** 2 + x[i - 1] * x[i] + x[i] ** 2) + ((x[i - 1] + x[i]) * u[i])) / 8
     )
     sum_expr_2 += (h * u[i] ** 2) / 4
 obj = sum_expr_1 + sum_expr_2

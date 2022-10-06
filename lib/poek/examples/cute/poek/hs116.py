@@ -61,8 +61,7 @@ model.add_constraint(
     1 - a * (x[2] * x[9] + x[5] * x[8] - x[1] * x[8] - x[6] * x[9]) - x[5] - x[6] >= 0
 )
 model.add_constraint(
-    x[2] * x[9] - x[3] * x[10] - x[6] * x[9] - 500 * x[2] + 500 * x[6] + x[2] * x[10]
-    >= 0
+    x[2] * x[9] - x[3] * x[10] - x[6] * x[9] - 500 * x[2] + 500 * x[6] + x[2] * x[10] >= 0
 )
 model.add_constraint(x[2] - 0.9 - a * (x[2] * x[10] - x[3] * x[10]) >= 0)
 model.add_constraint(x[11] + x[12] + x[13] <= 250)

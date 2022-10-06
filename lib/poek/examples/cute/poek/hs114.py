@@ -58,9 +58,7 @@ for i in I:
     x[i].value = x0[i]
 
 
-model.add_objective(
-    5.04 * x[1] + 0.035 * x[2] + 10.0 * x[3] + 3.36 * x[5] - 0.063 * x[4] * x[7]
-)
+model.add_objective(5.04 * x[1] + 0.035 * x[2] + 10.0 * x[3] + 3.36 * x[5] - 0.063 * x[4] * x[7])
 
 # shared sub-expressions
 G1 = 35.82 - 0.222 * x[10] - b * x[9]

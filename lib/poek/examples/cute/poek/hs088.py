@@ -55,10 +55,7 @@ model.add_constraint(
         for j in range(i + 1, 30 + 1)
     )
     + sum(
-        mu[j] ** 4
-        * A[j] ** 2
-        * rho[j] ** 2
-        * ((sin(2.0 * mu[j]) / (2.0 * mu[j]) + 1.0) / 2.0)
+        mu[j] ** 4 * A[j] ** 2 * rho[j] ** 2 * ((sin(2.0 * mu[j]) / (2.0 * mu[j]) + 1.0) / 2.0)
         for j in N
     )
     - sum(

@@ -42,10 +42,7 @@ model.add_objective(
     2 * L * h * (exp(x[1]) - exp(x[0])) / (x[1] - x[0])
     + sum(2.0 * x[i] ** 2 / h for i in range(1, N + 1))
     - sum(2.0 * x[i] * x[i - 1] / h for i in range(1, N + 1))
-    + sum(
-        2.0 * L * h * (exp(x[i + 1]) - exp(x[i])) / (x[i + 1] - x[i])
-        for i in range(1, N + 1)
-    )
+    + sum(2.0 * L * h * (exp(x[i + 1]) - exp(x[i])) / (x[i + 1] - x[i]) for i in range(1, N + 1))
 )
 
 x[0].value = 0.0

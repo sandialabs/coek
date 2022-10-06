@@ -358,15 +358,11 @@ if set(all_models) != set(smoke_models + moderate_models + expensive_models):
     sys.stdout.write("         (someone should classify them)\n")
     sys.stdout.write("\n")
     pprint.pprint(
-        set(all_models).difference(
-            set(smoke_models + moderate_models + expensive_models)
-        )
+        set(all_models).difference(set(smoke_models + moderate_models + expensive_models))
     )
 
 if len(asl_skipped_models + baseline_skipped_models) > 0:
     sys.stdout.write("\n")
-    sys.stdout.write(
-        "***NOTE: The following cute models are being skipped in various tests:\n"
-    )
+    sys.stdout.write("***NOTE: The following cute models are being skipped in various tests:\n")
     sys.stdout.write("\n")
     pprint.pprint(set(asl_skipped_models + baseline_skipped_models))

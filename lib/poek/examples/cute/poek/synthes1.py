@@ -42,9 +42,7 @@ model.add_objective(e)
 
 model.add_constraint(0 <= 0.8 * log(x2 + 1.0) + 0.96 * log(x1 - x2 + 1.0) - 0.8 * x3)
 
-model.add_constraint(
-    0 <= log(x2 + 1.0) + 1.2 * log(x1 - x2 + 1.0) - x3 - 2.0 * y3 + 2.0
-)
+model.add_constraint(0 <= log(x2 + 1.0) + 1.2 * log(x1 - x2 + 1.0) - x3 - 2.0 * y3 + 2.0)
 
 model.add_constraint(0 >= x2 - x1)
 

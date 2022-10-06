@@ -51,12 +51,8 @@ for i in M:
             x[i]
             + h
             * (
-                (1 - t[i])
-                * sum(t[j] * (x[j] + t[j] + 1.0) ** 3 for j in range(1, i + 1))
-                + t[i]
-                * sum(
-                    (1.0 - t[j]) * (x[j] + t[j] + 1.0) ** 3 for j in range(i + 1, N + 1)
-                )
+                (1 - t[i]) * sum(t[j] * (x[j] + t[j] + 1.0) ** 3 for j in range(1, i + 1))
+                + t[i] * sum((1.0 - t[j]) * (x[j] + t[j] + 1.0) ** 3 for j in range(i + 1, N + 1))
             )
             / 2.0
         )

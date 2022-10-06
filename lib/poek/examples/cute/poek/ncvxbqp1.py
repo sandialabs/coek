@@ -30,12 +30,8 @@ Rsum2 = list(range(Nplus + 1, N + 1))
 x = model.add_variable(index=Rx, lb=0.1, ub=10.0, value=0.5)
 
 model.add_objective(
-    sum(
-        0.5 * i * (x[i] + x[((2 * i - 1) % N) + 1] + x[((3 * i - 1) % N) + 1]) ** 2
-        for i in Rsum1
-    )
+    sum(0.5 * i * (x[i] + x[((2 * i - 1) % N) + 1] + x[((3 * i - 1) % N) + 1]) ** 2 for i in Rsum1)
     - sum(
-        0.5 * i * (x[i] + x[((2 * i - 1) % N) + 1] + x[((3 * i - 1) % N) + 1]) ** 2
-        for i in Rsum2
+        0.5 * i * (x[i] + x[((2 * i - 1) % N) + 1] + x[((3 * i - 1) % N) + 1]) ** 2 for i in Rsum2
     )
 )

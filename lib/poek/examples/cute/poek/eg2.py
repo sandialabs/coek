@@ -34,6 +34,4 @@ S = list(range(1, N + 1))
 
 x = model.add_variable(index=S)
 
-model.add_objective(
-    sum(sin(x[1] + x[i] ** 2 - 1.0) for i in range(1, N)) + 0.5 * sin(x[N] ** 2)
-)
+model.add_objective(sum(sin(x[1] + x[i] ** 2 - 1.0) for i in range(1, N)) + 0.5 * sin(x[N] ** 2))

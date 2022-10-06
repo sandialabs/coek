@@ -35,12 +35,7 @@ x8 = model.add_variable(value=1.0)
 x9 = model.add_variable(lb=0, value=1.0)
 
 model.add_objective(
-    -0.5 * x1 * x4
-    + 0.5 * x2 * x3
-    - 0.5 * x3 * x9
-    + 0.5 * x5 * x9
-    - 0.5 * x5 * x8
-    + 0.5 * x6 * x7
+    -0.5 * x1 * x4 + 0.5 * x2 * x3 - 0.5 * x3 * x9 + 0.5 * x5 * x9 - 0.5 * x5 * x8 + 0.5 * x6 * x7
 )
 
 model.add_constraint(x3 * x3 + x4 * x4 - 1.0 <= 0)

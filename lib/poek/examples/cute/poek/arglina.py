@@ -42,8 +42,5 @@ model.add_objective(
         ** 2
         for i in range(1, N + 1)
     )
-    + sum(
-        (sum(-2.0 * x[j] / M for j in range(1, N + 1)) - 1.0) ** 2
-        for i in range(N + 1, M + 1)
-    )
+    + sum((sum(-2.0 * x[j] / M for j in range(1, N + 1)) - 1.0) ** 2 for i in range(N + 1, M + 1))
 )

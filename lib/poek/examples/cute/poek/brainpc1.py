@@ -35,9 +35,7 @@ NT = 3450
 data = pk.util.load_data("brainpc1.json")
 TO, U, oc_init = data.unpack("TO", "U", "oc_init")
 
-x = model.add_variable(
-    index=product(range(1, NS + 1), range(0, NT + 1)), lb=0, value=0.001
-)
+x = model.add_variable(index=product(range(1, NS + 1), range(0, NT + 1)), lb=0, value=0.001)
 k = model.add_variable(index=range(1, NP + 1), lb=0, value=0.001)
 
 x[1, 0].value = 0.0
@@ -61,15 +59,9 @@ model.add_objective(
 
 for t in range(0, NT):
     model.add_constraint(
-        H * (k[3] + k[4]) * x[1, t]
-        - H * k[5] * x[2, t]
-        - H * U[t] * k[2]
-        + x[1, t + 1]
-        - x[1, t]
+        H * (k[3] + k[4]) * x[1, t] - H * k[5] * x[2, t] - H * U[t] * k[2] + x[1, t + 1] - x[1, t]
         == 0
     )
 
 for t in range(0, NT):
-    model.add_constraint(
-        H * k[5] * x[2, t] - H * k[4] * x[1, t] + x[2, t + 1] - x[2, t] == 0
-    )
+    model.add_constraint(H * k[5] * x[2, t] - H * k[4] * x[1, t] + x[2, t + 1] - x[2, t] == 0)

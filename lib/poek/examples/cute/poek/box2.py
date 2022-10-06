@@ -42,13 +42,7 @@ for i in range(1, M + 1):
 
 model.add_objective(
     sum(
-        (
-            pk.exp(-t[i] * x[1])
-            - pk.exp(-t[i] * x[2])
-            - x[3] * exp(-t[i])
-            + x[3] * exp(-i)
-        )
-        ** 2
+        (pk.exp(-t[i] * x[1]) - pk.exp(-t[i] * x[2]) - x[3] * exp(-t[i]) + x[3] * exp(-i)) ** 2
         for i in range(1, M + 1)
     )
 )

@@ -36,8 +36,7 @@ for i in x:
 
 model.add_objective(
     sum(
-        sin(zeta * x[i]) ** 2 * sin(zeta * x[i + 1]) ** 2
-        + 0.05 * (x[i] ** 2 + x[i + 1] ** 2)
+        sin(zeta * x[i]) ** 2 * sin(zeta * x[i + 1]) ** 2 + 0.05 * (x[i] ** 2 + x[i + 1] ** 2)
         for i in range(1, N)
     )
 )

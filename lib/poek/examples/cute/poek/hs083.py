@@ -25,20 +25,14 @@ for i in N:
     x[i].lb = l[i]
     x[i].ub = u[i]
 
-model.add_objective(
-    5.3578547 * x[3] ** 2 + 0.8356891 * x[1] * x[5] + 37.293239 * x[1] - 40792.141
+model.add_objective(5.3578547 * x[3] ** 2 + 0.8356891 * x[1] * x[5] + 37.293239 * x[1] - 40792.141)
+
+model.add_constraint(
+    pk.inequality(0, a[1] + a[2] * x[2] * x[5] + a[3] * x[1] * x[4] - a[4] * x[3] * x[5], 92)
 )
 
 model.add_constraint(
-    pk.inequality(
-        0, a[1] + a[2] * x[2] * x[5] + a[3] * x[1] * x[4] - a[4] * x[3] * x[5], 92
-    )
-)
-
-model.add_constraint(
-    pk.inequality(
-        0, a[5] + a[6] * x[2] * x[5] + a[7] * x[1] * x[2] + a[8] * x[3] ** 2 - 90, 20
-    )
+    pk.inequality(0, a[5] + a[6] * x[2] * x[5] + a[7] * x[1] * x[2] + a[8] * x[3] ** 2 - 90, 20)
 )
 
 model.add_constraint(

@@ -34,9 +34,7 @@ for i in L:
         + q[i - 1]
     )
 for i in L:
-    model.add_constraint(
-        s[i] == (t[i] - t[i - 1]) * (a[i] * sin(x[i - 1]) - b) + s[i - 1]
-    )
+    model.add_constraint(s[i] == (t[i] - t[i - 1]) * (a[i] * sin(x[i - 1]) - b) + s[i - 1])
 
 # model.add_constraint( r[1] == 0 )
 

@@ -56,6 +56,4 @@ x[3].value = 0
 model.add_objective(pk.expression(0))
 
 for i in range(1, 16):
-    model.add_constraint(
-        x[1] * exp(-0.5 * x[2] * (0.5 * (8 - i) - x[3]) ** 2) == rhs[i]
-    )
+    model.add_constraint(x[1] * exp(-0.5 * x[2] * (0.5 * (8 - i) - x[3]) ** 2) == rhs[i])

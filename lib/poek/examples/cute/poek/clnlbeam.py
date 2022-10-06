@@ -49,10 +49,7 @@ u = model.add_variable(index=S)
 
 model.add_objective(
     sum(
-        (
-            0.5 * h * (u[i + 1] ** 2 + u[i] ** 2)
-            + 0.5 * alpha * h * (cos(t[i + 1]) + cos(t[i]))
-        )
+        (0.5 * h * (u[i + 1] ** 2 + u[i] ** 2) + 0.5 * alpha * h * (cos(t[i + 1]) + cos(t[i])))
         for i in range(ni)
     )
 )

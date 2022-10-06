@@ -64,9 +64,7 @@ D = {
 x = model.add_variable(index=N, value=1.0)
 
 model.add_objective(
-    14463.0
-    + sum(D[i, j] * x[i] * x[j] for i in N for j in N)
-    + -2 * sum(B[i] * x[i] for i in N)
+    14463.0 + sum(D[i, j] * x[i] * x[j] for i in N for j in N) + -2 * sum(B[i] * x[i] for i in N)
 )
 
 model.add_constraint(-sum(x[i] for i in N) + 5 >= 0)

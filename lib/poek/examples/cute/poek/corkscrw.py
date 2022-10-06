@@ -96,6 +96,4 @@ for i in SS:
 for i in SS:
     model.add_constraint((z[i] - z[i - 1]) / h - vz[i] == 0)
 for i in SS:
-    model.add_constraint(
-        (y[i] - sin(x[i])) ** 2 + (z[i] - cos(x[i])) ** 2 - tol**2 <= 0
-    )
+    model.add_constraint((y[i] - sin(x[i])) ** 2 + (z[i] - cos(x[i])) ** 2 - tol**2 <= 0)

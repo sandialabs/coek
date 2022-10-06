@@ -34,7 +34,5 @@ S = list(range(1, N + 1))
 x = model.add_variable(index=S, value=1.0)
 
 model.add_objective(
-    sum(
-        (sum(x[j] * i * j for j in range(1, N + 1)) - 1.0) ** 2 for i in range(1, M + 1)
-    )
+    sum((sum(x[j] * i * j for j in range(1, N + 1)) - 1.0) ** 2 for i in range(1, M + 1))
 )

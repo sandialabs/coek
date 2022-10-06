@@ -36,6 +36,5 @@ for j in range(1, N + 1):
     expr *= x[j]
 expr -= 1.0
 model.add_objective(
-    sum((x[i] + sum(x[j] for j in range(1, N + 1)) - (N + 1)) ** 2 for i in range(1, N))
-    + expr**2
+    sum((x[i] + sum(x[j] for j in range(1, N + 1)) - (N + 1)) ** 2 for i in range(1, N)) + expr**2
 )

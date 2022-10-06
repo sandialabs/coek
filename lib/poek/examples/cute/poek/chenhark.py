@@ -44,8 +44,7 @@ model.add_objective(
         for i in range(1, nfree + ndegen + 1)
     )
     + sum(
-        x[i]
-        * (-6 * x_p[i] + 4 * x_p[i + 1] + 4 * x_p[i - 1] - x_p[i + 2] - x_p[i - 2] + 1)
+        x[i] * (-6 * x_p[i] + 4 * x_p[i + 1] + 4 * x_p[i - 1] - x_p[i + 2] - x_p[i - 2] + 1)
         for i in range(nfree + ndegen + 1, n + 1)
     )
 )

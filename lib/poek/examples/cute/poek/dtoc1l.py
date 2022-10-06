@@ -47,8 +47,7 @@ for t in S3:
     for j in S5:
         sc2 = sum(b[j, i] * x[t, i] for i in S2)
         model.add_constraint(
-            -y[t + 1, j] + 0.5 * y[t, j] - 0.25 * y[t, j - 1] + 0.25 * y[t, j + 1] + sc2
-            == 0
+            -y[t + 1, j] + 0.5 * y[t, j] - 0.25 * y[t, j - 1] + 0.25 * y[t, j + 1] + sc2 == 0
         )
 
 for t in S3:

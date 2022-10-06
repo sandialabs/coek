@@ -58,18 +58,13 @@ model.add_objective(
     + sum(-2 * u[i] * u[i + 1] + 2 * u[i] ** 2 for i in range(1, int(N)))
     + u[N] ** 2
     + sum(1 / N**2 * u[i] * w[i] for i in range(0, int(N) + 1))
-    + sum(
-        -1 / N**2 * v[i] * u[i] - 2 / N**2 * v[i] * w[i]
-        for i in range(0, int(N) + 1)
-    )
+    + sum(-1 / N**2 * v[i] * u[i] - 2 / N**2 * v[i] * w[i] for i in range(0, int(N) + 1))
     + (v[1] - v[0]) * u[0]
     + sum((v[i - 1] - 2 * v[i] + v[i + 1]) * u[i] for i in range(1, int(N)))
     + (v[N - 1] - v[N]) * u[N]
 )
 
-model.add_constraint(
-    0.5 * u[0] + sum(u[i] for i in range(1, int(N))) + 0.5 * u[N] == 0.2 * INT
-)
+model.add_constraint(0.5 * u[0] + sum(u[i] for i in range(1, int(N))) + 0.5 * u[N] == 0.2 * INT)
 
 model.add_constraint(u[0] - u[1] - 1 / N**2 * w[0] == 0)
 

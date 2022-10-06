@@ -142,9 +142,7 @@ class TestExpression_Intrinsic(unittest.TestCase):
         v.value = 0.0
         self.assertAlmostEqual(e.value, 0.0)
         v.value = 1.0
-        self.assertAlmostEqual(
-            e.value, (math.e - 1.0 / math.e) / (math.e + 1.0 / math.e)
-        )
+        self.assertAlmostEqual(e.value, (math.e - 1.0 / math.e) / (math.e + 1.0 / math.e))
 
     def test_asinh(self):
         v = self.v

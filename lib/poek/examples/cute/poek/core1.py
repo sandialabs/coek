@@ -21,17 +21,7 @@ import poek as pk
 model = pk.model()
 
 data = pk.util.load_data("core1.json")
-(
-    Region,
-    loflows,
-    hiflows,
-    hisupply,
-    loprods,
-    hiprods,
-    lopi,
-    hipi,
-    Flow_init,
-) = data.unpack(
+(Region, loflows, hiflows, hisupply, loprods, hiprods, lopi, hipi, Flow_init,) = data.unpack(
     "Region",
     "loflows",
     "hiflows",

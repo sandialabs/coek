@@ -42,18 +42,10 @@ f4 = model.add_variable(ub=400.0, value=1000.0)
 
 model.add_objective(-p1 - p2 - p3 - p4 - p5 - p6 - p7)
 
-model.add_constraint(
-    p1 * (abs(p1)) - p2 * (abs(p2)) - 0.597053452 * q1 * (abs(q1)) ** 0.8539 == 0
-)
-model.add_constraint(
-    p3 * (abs(p3)) - p4 * (abs(p4)) - 0.597053452 * q2 * (abs(q2)) ** 0.8539 == 0
-)
-model.add_constraint(
-    p4 * (abs(p4)) - p5 * (abs(p5)) - 0.597053452 * q3 * (abs(q3)) ** 0.8539 == 0
-)
-model.add_constraint(
-    p6 * (abs(p6)) - p7 * (abs(p7)) - 0.597053452 * q4 * (abs(q4)) ** 0.8539 == 0
-)
+model.add_constraint(p1 * (abs(p1)) - p2 * (abs(p2)) - 0.597053452 * q1 * (abs(q1)) ** 0.8539 == 0)
+model.add_constraint(p3 * (abs(p3)) - p4 * (abs(p4)) - 0.597053452 * q2 * (abs(q2)) ** 0.8539 == 0)
+model.add_constraint(p4 * (abs(p4)) - p5 * (abs(p5)) - 0.597053452 * q3 * (abs(q3)) ** 0.8539 == 0)
+model.add_constraint(p6 * (abs(p6)) - p7 * (abs(p7)) - 0.597053452 * q4 * (abs(q4)) ** 0.8539 == 0)
 model.add_constraint(q1 - f3 == 0)
 model.add_constraint(-q1 + f1 == 0)
 model.add_constraint(q2 - f1 == 0)

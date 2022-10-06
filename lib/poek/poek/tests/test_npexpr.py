@@ -83,9 +83,7 @@ class Test_SumExpression(unittest.TestCase):
 
                 TMP() + self.a
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
 
                 class TMP(object):
                     pass
@@ -98,9 +96,7 @@ class Test_SumExpression(unittest.TestCase):
             with self.assertRaisesRegex(TypeError, "unsupported operand type.*"):
                 self.a + x
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 self.a + x
 
     def test_simpleSum(self):
@@ -359,9 +355,7 @@ class TestDiffExpression(unittest.TestCase):
 
                 TMP() - self.a
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
 
                 class TMP(object):
                     pass
@@ -376,9 +370,7 @@ class TestDiffExpression(unittest.TestCase):
             ):
                 self.a - x
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 self.a - x
 
     def test_simpleDiff(self):
@@ -485,9 +477,7 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a - b
         e = z - e1
         #
-        self.assertEqual(
-            e.to_list(), ["+", "5.000000", ["-", ["+", "a", ["*", "-1", "b"]]]]
-        )
+        self.assertEqual(e.to_list(), ["+", "5.000000", ["-", ["+", "a", ["*", "-1", "b"]]]])
 
         #       -
         #      / \
@@ -635,9 +625,7 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a * z
         e2 = b - c
         e = e1 - e2
-        self.assertEqual(
-            e.to_list(), ["+", ["*", "5", "a"], ["-", ["+", "b", ["*", "-1", "c"]]]]
-        )
+        self.assertEqual(e.to_list(), ["+", ["*", "5", "a"], ["-", ["+", "b", ["*", "-1", "c"]]]])
 
         #            -
         #          /   \
@@ -676,9 +664,7 @@ class Test_MulExpression(unittest.TestCase):
 
                 TMP() * self.a
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
 
                 class TMP(object):
                     pass
@@ -693,9 +679,7 @@ class Test_MulExpression(unittest.TestCase):
             ):
                 self.a * x
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 self.a * x
 
     def test_simpleProduct(self):
@@ -831,9 +815,7 @@ class Test_MulExpression(unittest.TestCase):
         e2 = c + e1
         e3 = e1 + d
         e = e2 * e3
-        self.assertEqual(
-            e.to_list(), ["*", ["+", "c", ["+", "a", "b"]], ["+", "a", "b", "d"]]
-        )
+        self.assertEqual(e.to_list(), ["*", ["+", "c", ["+", "a", "b"]], ["+", "a", "b", "d"]])
 
         #
         # Check the structure of nested products
@@ -1017,9 +999,7 @@ class Test_DivExpression(unittest.TestCase):
 
                 TMP() / self.a
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
 
                 class TMP(object):
                     pass
@@ -1034,9 +1014,7 @@ class Test_DivExpression(unittest.TestCase):
             ):
                 self.a / x
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 self.a / x
 
     def test_simpleDivision(self):
@@ -1247,9 +1225,7 @@ class Test_PowExpression(unittest.TestCase):
 
                 TMP() ** self.a
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
 
                 class TMP(object):
                     pass
@@ -1264,9 +1240,7 @@ class Test_PowExpression(unittest.TestCase):
             ):
                 self.a**x
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 self.a**x
 
     def test_simplePow(self):
