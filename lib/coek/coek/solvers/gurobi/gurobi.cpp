@@ -119,7 +119,7 @@ assert(_model->objectives.size() == 1);
 
 // Add Gurobi variables
 for (auto& var : _model->variables) {
-    coek::VariableTerm* v = var->repn;
+    coek::VariableTerm* v = var.repn;
     if (not v->fixed) {
         double lb = v->lb->eval();
         double ub = v->ub->eval();
@@ -196,7 +196,7 @@ try {
 
         // Collect values of Gurobi variables
         for (auto& var : _model->variables) {
-            coek::VariableTerm* v = it->repn;
+            coek::VariableTerm* v = var.repn;
 	        if (not v->fixed) {
 		        v->set_value( x[v->index].get(GRB_DoubleAttr_X) );
 	            }
@@ -231,7 +231,7 @@ assert(model.objectives.size() == 1);
 std::cout << "BUILDING GUROBI MODEL" << std::endl << std::flush;
 
 // Add Gurobi variables
-for (auto& var : model->variables) {
+for (auto& var : model.variables) {
     coek::VariableTerm* v = var->repn;
     double lb = v->lb->eval();
     double ub = v->ub->eval();
@@ -359,7 +359,7 @@ if (initial_solve()) {
 
     // Add Gurobi variables
     for (auto& var : _model->variables) {
-      coek::VariableTerm* v = var->repn;
+      coek::VariableTerm* v = var.repn;
       if (not v->fixed) {
           double lb = v->lb->eval();
           double ub = v->ub->eval();
@@ -391,8 +391,8 @@ if (initial_solve()) {
     try {
       coek::QuadraticExpr orepn;
       for (auto& obj : model.repn->objectives) {
-        Expression tmp = obj->expr();
-        add_gurobi_objective(gmodel, tmp, obj->sense(), x, orepn);
+        Expression tmp = obj.expr();
+        add_gurobi_objective(gmodel, tmp, obj.sense(), x, orepn);
         nobj++;
       }
     }
@@ -411,7 +411,7 @@ if (initial_solve()) {
     // Add Gurobi constraints
     try {
       coek::QuadraticExpr repn;
-      for (auto& con : model->constraints) {
+      for (auto& con : model.repn->constraints) {
         add_gurobi_constraint(gmodel, con, x, repn);
       }
     }
