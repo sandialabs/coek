@@ -43,7 +43,7 @@ if(with_python)
         endif()
 
     else()
-        message(SEND_ERROR "Cannot retrieve version information for Python black package")
+        message("WARNING: Python formatting targets not setup the black package is not available")
     endif()
 
 endif()
