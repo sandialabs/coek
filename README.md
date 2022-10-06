@@ -92,3 +92,14 @@ By default, this does the following:
 * make install_tpls
 * make
 
+### Reformat code
+
+* mkdir build
+* cd build
+* cmake ..
+* make install_tpls
+* make format-cpp-check     # Show C++ files that would be reformatted with clang-format
+* make format-cpp           # Reformat C++ files with clang-format
+* make format-py-check      # Show Python files that would be reformatted with black
+* make format-py            # Reformat Python files with black
+

@@ -6,10 +6,12 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
 #
 # GLOBAL INCLUDES
 #
+find_package(Python COMPONENTS Interpreter Development)
+include(Clang-Format)
+include(Black-Format)
 include(GNUInstallDirs)
 include(CheckCXXCompilerFlag)
 include(CMakePackageConfigHelpers)
-find_package(Python COMPONENTS Interpreter Development)
 
 #
 # Change the default install directory for the sub-builds, as we will
@@ -32,6 +34,7 @@ set(LIBRARY_INSTALL_DIR "lib/" CACHE STRING "Where to install libraries relative
 #
 # Installation options for TPLs define default values of configuration options.
 #
+message("")
 add_subdirectory(tpl)
 
 add_custom_target(install_tpls
