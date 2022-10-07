@@ -5,22 +5,20 @@
 // "Testing Unconstrained Optimization Software",
 // ACM Transactions on Mathematical Software, vol. 7(1), pp. 17-41, 1981.
 
-
 void srosenbr_example(coek::Model& m)
 {
-size_t N = 10000;
-std::vector<coek::Variable> x(N);
-for (size_t i=0; i<N; i++) {
-    if (i%2 == 0)
-        m.add( x[i].value(-1.2) );
-    else
-        m.add( x[i].value(1) );
+    size_t N = 10000;
+    std::vector<coek::Variable> x(N);
+    for (size_t i = 0; i < N; i++) {
+        if (i % 2 == 0)
+            m.add(x[i].value(-1.2));
+        else
+            m.add(x[i].value(1));
     }
 
-auto obj = coek::expression();
-for (size_t i=0; i<N/2; i++)
-    obj += 100*pow(x[2*i] - pow(x[2*i-1],2), 2) + pow(x[2*i-1]-1, 2);
+    auto obj = coek::expression();
+    for (size_t i = 0; i < N / 2; i++)
+        obj += 100 * pow(x[2 * i] - pow(x[2 * i - 1], 2), 2) + pow(x[2 * i - 1] - 1, 2);
 
-m.add_objective( obj );
+    m.add_objective(obj);
 }
-

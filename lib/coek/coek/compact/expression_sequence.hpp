@@ -9,11 +9,8 @@ class Expression;
 class ExpressionSequenceRepn;
 class SequenceContext;
 
-
-class ExpressionSeqIterator
-{
-public:
-
+class ExpressionSeqIterator {
+   public:
     std::shared_ptr<ExpressionSeqIteratorRepn> repn;
 
     typedef Expression* pointer;
@@ -21,10 +18,9 @@ public:
     typedef Expression& reference;
     typedef const Expression& const_reference;
 
-public:
-
+   public:
     ExpressionSeqIterator();
-    ExpressionSeqIterator(ExpressionSequenceRepn* seq, bool end=false);
+    ExpressionSeqIterator(ExpressionSequenceRepn* seq, bool end = false);
 
     ExpressionSeqIterator& operator++();
 
@@ -37,15 +33,11 @@ public:
     const_pointer operator->() const;
 };
 
+class ExpressionSequence {
+   public:
+    std::shared_ptr<ExpressionSequenceRepn> repn;
 
-class ExpressionSequence
-{
-public:
-
-  std::shared_ptr<ExpressionSequenceRepn> repn;
-
-public:
-
+   public:
     ExpressionSequence(const std::shared_ptr<ExpressionSequenceRepn>& _repn);
     ExpressionSequence(const SequenceContext& context, const Expression& expr);
 
@@ -55,6 +47,5 @@ public:
     const ExpressionSeqIterator end() const;
 };
 
-
 Expression Sum(const SequenceContext& context, const Expression& expr);
-}
+}  // namespace coek

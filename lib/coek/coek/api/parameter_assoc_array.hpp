@@ -2,19 +2,15 @@
 
 #include "coek/api/parameter_assoc_array_repn.hpp"
 
-
 namespace coek {
 
-class ParameterAssocArray
-{
-public:
-
+class ParameterAssocArray {
+   public:
     virtual ParameterAssocArrayRepn* get_repn() = 0;
     IndexVector tmp;
     std::vector<refarg_types> reftmp;
 
-public:
-
+   public:
     std::vector<Parameter>::iterator begin();
     std::vector<Parameter>::iterator end();
 
@@ -25,4 +21,4 @@ public:
     Expression create_paramref(const std::vector<refarg_types>& indices);
 };
 
-}
+}  // namespace coek

@@ -2,20 +2,16 @@
 
 #include "coek/api/variable_assoc_array_repn.hpp"
 
-
 namespace coek {
 
-class VariableAssocArray
-{
-public:
-
+class VariableAssocArray {
+   public:
     virtual VariableAssocArrayRepn* get_repn() = 0;
     virtual const VariableAssocArrayRepn* get_repn() const = 0;
     IndexVector tmp;
     std::vector<refarg_types> reftmp;
 
-public:
-
+   public:
     std::vector<Variable>::iterator begin();
     std::vector<Variable>::iterator end();
 
@@ -26,4 +22,4 @@ public:
     Expression create_varref(const std::vector<refarg_types>& indices);
 };
 
-}
+}  // namespace coek

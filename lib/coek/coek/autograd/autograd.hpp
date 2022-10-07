@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+
 #include "coek/api/expression.hpp"
 #include "coek/model/model.hpp"
 
@@ -9,24 +10,19 @@ namespace coek {
 
 class Model;
 
-
-class NLPModelRepn
-{
-public:
-
+class NLPModelRepn {
+   public:
     Model model;
-    std::map<size_t,VariableTerm*> used_variables;
-    std::map<VariableTerm*,size_t> fixed_variables;
-    std::map<ParameterTerm*,size_t> parameters;
+    std::map<size_t, VariableTerm*> used_variables;
+    std::map<VariableTerm*, size_t> fixed_variables;
+    std::map<ParameterTerm*, size_t> parameters;
 
-public:
-
+   public:
     NLPModelRepn() {}
-    NLPModelRepn(Model& _model)
-        : model(_model) {}
+    NLPModelRepn(Model& _model) : model(_model) {}
     virtual ~NLPModelRepn() {}
 
-    virtual void initialize(bool sparse_JH=true) = 0;
+    virtual void initialize(bool sparse_JH = true) = 0;
     virtual void reset(void) = 0;
 
     virtual size_t num_variables() const = 0;
@@ -58,13 +54,11 @@ public:
     // NOTE: Should we always assume column- or row-major order?
     virtual void get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol) = 0;
 
-public:
-
+   public:
     void find_used_variables();
 };
-
 
 NLPModelRepn* create_NLPModelRepn(Model& model, const std::string& name);
 NLPModelRepn* create_NLPModelRepn(const std::string& name);
 
-}
+}  // namespace coek

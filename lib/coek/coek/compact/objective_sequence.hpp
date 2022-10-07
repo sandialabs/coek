@@ -9,11 +9,8 @@ class ObjectiveSequenceRepn;
 class ObjectiveSeqIteratorRepn;
 class SequenceContext;
 
-
-class ObjectiveSeqIterator
-{
-public:
-
+class ObjectiveSeqIterator {
+   public:
     std::shared_ptr<ObjectiveSeqIteratorRepn> repn;
 
     typedef Objective* pointer;
@@ -21,10 +18,9 @@ public:
     typedef Objective& reference;
     typedef const Objective& const_reference;
 
-public:
-
+   public:
     ObjectiveSeqIterator();
-    ObjectiveSeqIterator(ObjectiveSequenceRepn* seq, bool end=false);
+    ObjectiveSeqIterator(ObjectiveSequenceRepn* seq, bool end = false);
 
     ObjectiveSeqIterator& operator++();
 
@@ -37,15 +33,11 @@ public:
     const_pointer operator->() const;
 };
 
+class ObjectiveSequence {
+   public:
+    std::shared_ptr<ObjectiveSequenceRepn> repn;
 
-class ObjectiveSequence
-{
-public:
-
-  std::shared_ptr<ObjectiveSequenceRepn> repn;
-
-public:
-
+   public:
     ObjectiveSequence(const std::shared_ptr<ObjectiveSequenceRepn>& _repn);
     ObjectiveSequence(const SequenceContext& context, const Objective& expr);
     ObjectiveSequence(const SequenceContext& context, const Expression& expr, bool sense);
@@ -53,4 +45,4 @@ public:
     ObjectiveSeqIterator begin();
     ObjectiveSeqIterator end();
 };
-}
+}  // namespace coek

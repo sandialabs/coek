@@ -1,10 +1,9 @@
+#include "../ast/ast_operators.hpp"
 #include "../ast/base_terms.hpp"
 #include "../ast/constraint_terms.hpp"
 #include "../ast/expr_terms.hpp"
-#include "../ast/ast_operators.hpp"
 #include "../ast/visitor_fns.hpp"
 #include "expression.hpp"
-
 
 namespace coek {
 
@@ -13,22 +12,22 @@ namespace coek {
 //
 Expression abs(const Expression& body)
 {
-if (body.repn->is_constant()) {
-    ConstantTerm* _body = dynamic_cast<ConstantTerm*>(body.repn);
-    return Expression(::fabs(_body->value));
+    if (body.repn->is_constant()) {
+        ConstantTerm* _body = dynamic_cast<ConstantTerm*>(body.repn);
+        return Expression(::fabs(_body->value));
     }
-return intrinsic_abs(body.repn);
+    return intrinsic_abs(body.repn);
 }
 
-#define INTRINSIC_DEF1(FN)\
-Expression FN(const Expression& body)\
-{\
-if (body.repn->is_constant()) {\
-    ConstantTerm* _body = dynamic_cast<ConstantTerm*>(body.repn);\
-    return Expression(::FN(_body->value));\
-    }\
-return intrinsic_ ## FN(body.repn);\
-}
+#define INTRINSIC_DEF1(FN)                                                \
+    Expression FN(const Expression& body)                                 \
+    {                                                                     \
+        if (body.repn->is_constant()) {                                   \
+            ConstantTerm* _body = dynamic_cast<ConstantTerm*>(body.repn); \
+            return Expression(::FN(_body->value));                        \
+        }                                                                 \
+        return intrinsic_##FN(body.repn);                                 \
+    }
 
 INTRINSIC_DEF1(ceil)
 INTRINSIC_DEF1(floor)
@@ -49,32 +48,32 @@ INTRINSIC_DEF1(asinh)
 INTRINSIC_DEF1(acosh)
 INTRINSIC_DEF1(atanh)
 
-#define INTRINSIC_DEF2(FN)\
-Expression FN(const Expression& lhs, const Expression& rhs)\
-{\
-if (lhs.is_constant() and rhs.is_constant()) {\
-    return Expression(::FN(lhs.repn->eval(), rhs.repn->eval()));\
-    }\
-return intrinsic_ ## FN(lhs.repn, rhs.repn);\
-}\
-\
-Expression FN(const Expression& lhs, double rhs)\
-{\
-if (lhs.is_constant()) {\
-    return Expression(::FN(lhs.repn->eval(), rhs));\
-    }\
-Expression _rhs(rhs);\
-return intrinsic_ ## FN(lhs.repn, _rhs.repn);\
-}\
-\
-Expression FN(double lhs, const Expression& rhs)\
-{\
-if (rhs.is_constant()) {\
-    return Expression(::FN(lhs, rhs.repn->eval()));\
-    }\
-Expression _lhs(lhs);\
-return intrinsic_ ## FN(_lhs.repn, rhs.repn);\
-}
+#define INTRINSIC_DEF2(FN)                                               \
+    Expression FN(const Expression& lhs, const Expression& rhs)          \
+    {                                                                    \
+        if (lhs.is_constant() and rhs.is_constant()) {                   \
+            return Expression(::FN(lhs.repn->eval(), rhs.repn->eval())); \
+        }                                                                \
+        return intrinsic_##FN(lhs.repn, rhs.repn);                       \
+    }                                                                    \
+                                                                         \
+    Expression FN(const Expression& lhs, double rhs)                     \
+    {                                                                    \
+        if (lhs.is_constant()) {                                         \
+            return Expression(::FN(lhs.repn->eval(), rhs));              \
+        }                                                                \
+        Expression _rhs(rhs);                                            \
+        return intrinsic_##FN(lhs.repn, _rhs.repn);                      \
+    }                                                                    \
+                                                                         \
+    Expression FN(double lhs, const Expression& rhs)                     \
+    {                                                                    \
+        if (rhs.is_constant()) {                                         \
+            return Expression(::FN(lhs, rhs.repn->eval()));              \
+        }                                                                \
+        Expression _lhs(lhs);                                            \
+        return intrinsic_##FN(_lhs.repn, rhs.repn);                      \
+    }
 
 INTRINSIC_DEF2(pow)
-}
+}  // namespace coek

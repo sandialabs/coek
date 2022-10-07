@@ -11,5 +11,3 @@ TEST_CASE( "Factorial Test", "[factorial]" ) {
   REQUIRE( Factorial(2) == 2 );
 }
 */
-
-
