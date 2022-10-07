@@ -126,8 +126,7 @@ def col_test(N, nsolves):
     # Ax <= b
     for n in range(N):
         model.add_constraint(
-            pk.quicksum(A[n, m] * x[m] if m != k else A_[n] * x[m] for m in range(N))
-            <= b[n]
+            pk.quicksum(A[n, m] * x[m] if m != k else A_[n] * x[m] for m in range(N)) <= b[n]
         )
 
     opt = pk.solver("gurobi")

@@ -18,9 +18,8 @@ def knapsack(Narg):
     v = {i: random.uniform(0.0, 1.0) for i in range(N)}
 
     # Add vars with objective coefficients
-    x = model.addVars(v.keys(), lb=0.0, ub=1.0, vtype='C', obj=v.values())
+    x = model.addVars(v.keys(), lb=0.0, ub=1.0, vtype="C", obj=v.values())
     # Capacity
     model.addConstr(x.prod(w) <= W)
 
     return model
-

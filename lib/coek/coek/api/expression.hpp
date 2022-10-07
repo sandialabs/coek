@@ -1,71 +1,68 @@
 #pragma once
 
-#include <iostream>
-#include <string>
-#include <list>
-#include <vector>
-#include <set>
-#include <memory>
-#include <initializer_list>
-
 #include <coek/api/constants.hpp>
+#include <initializer_list>
+#include <iostream>
+#include <list>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
-#define COEK_API_OPERATORS\
-    /** \returns a new expression: (*this) + arg */\
-    Expression operator+(int arg) const;\
-    /** \returns a new expression: (*this) + arg */\
-    Expression operator+(double arg) const;\
-    /** \returns a new expression: (*this) + arg */\
-    Expression operator+(const Parameter& arg) const;\
-    /** \returns a new expression: (*this) + arg */\
-    Expression operator+(const IndexParameter& arg) const;\
-    /** \returns a new expression: (*this) + arg */\
-    Expression operator+(const Variable& arg) const;\
-    /** \returns a new expression: (*this) + arg */\
-    Expression operator+(const Expression& arg) const;\
-\
-    /** \returns a new expression: (*this) - arg */\
-    Expression operator-(int arg) const;\
-    /** \returns a new expression: (*this) - arg */\
-    Expression operator-(double arg) const;\
-    /** \returns a new expression: (*this) - arg */\
-    Expression operator-(const Parameter& arg) const;\
-    /** \returns a new expression: (*this) - arg */\
-    Expression operator-(const IndexParameter& arg) const;\
-    /** \returns a new expression: (*this) - arg */\
-    Expression operator-(const Variable& arg) const;\
-    /** \returns a new expression: (*this) - arg */\
-    Expression operator-(const Expression& arg) const;\
-\
-    /** \returns a new expression: (*this) * arg */\
-    Expression operator*(int arg) const;\
-    /** \returns a new expression: (*this) * arg */\
-    Expression operator*(double arg) const;\
-    /** \returns a new expression: (*this) * arg */\
-    Expression operator*(const Parameter& arg) const;\
-    /** \returns a new expression: (*this) * arg */\
-    Expression operator*(const IndexParameter& arg) const;\
-    /** \returns a new expression: (*this) * arg */\
-    Expression operator*(const Variable& arg) const;\
-    /** \returns a new expression: (*this) * arg */\
-    Expression operator*(const Expression& arg) const;\
-\
-    /** \returns a new expression: (*this) / arg */\
-    Expression operator/(int arg) const;\
-    /** \returns a new expression: (*this) / arg */\
-    Expression operator/(double arg) const;\
-    /** \returns a new expression: (*this) / arg */\
-    Expression operator/(const Parameter& arg) const;\
-    /** \returns a new expression: (*this) / arg */\
-    Expression operator/(const IndexParameter& arg) const;\
-    /** \returns a new expression: (*this) / arg */\
-    Expression operator/(const Variable& arg) const;\
-    /** \returns a new expression: (*this) / arg */\
+#define COEK_API_OPERATORS                                 \
+    /** \returns a new expression: (*this) + arg */        \
+    Expression operator+(int arg) const;                   \
+    /** \returns a new expression: (*this) + arg */        \
+    Expression operator+(double arg) const;                \
+    /** \returns a new expression: (*this) + arg */        \
+    Expression operator+(const Parameter& arg) const;      \
+    /** \returns a new expression: (*this) + arg */        \
+    Expression operator+(const IndexParameter& arg) const; \
+    /** \returns a new expression: (*this) + arg */        \
+    Expression operator+(const Variable& arg) const;       \
+    /** \returns a new expression: (*this) + arg */        \
+    Expression operator+(const Expression& arg) const;     \
+                                                           \
+    /** \returns a new expression: (*this) - arg */        \
+    Expression operator-(int arg) const;                   \
+    /** \returns a new expression: (*this) - arg */        \
+    Expression operator-(double arg) const;                \
+    /** \returns a new expression: (*this) - arg */        \
+    Expression operator-(const Parameter& arg) const;      \
+    /** \returns a new expression: (*this) - arg */        \
+    Expression operator-(const IndexParameter& arg) const; \
+    /** \returns a new expression: (*this) - arg */        \
+    Expression operator-(const Variable& arg) const;       \
+    /** \returns a new expression: (*this) - arg */        \
+    Expression operator-(const Expression& arg) const;     \
+                                                           \
+    /** \returns a new expression: (*this) * arg */        \
+    Expression operator*(int arg) const;                   \
+    /** \returns a new expression: (*this) * arg */        \
+    Expression operator*(double arg) const;                \
+    /** \returns a new expression: (*this) * arg */        \
+    Expression operator*(const Parameter& arg) const;      \
+    /** \returns a new expression: (*this) * arg */        \
+    Expression operator*(const IndexParameter& arg) const; \
+    /** \returns a new expression: (*this) * arg */        \
+    Expression operator*(const Variable& arg) const;       \
+    /** \returns a new expression: (*this) * arg */        \
+    Expression operator*(const Expression& arg) const;     \
+                                                           \
+    /** \returns a new expression: (*this) / arg */        \
+    Expression operator/(int arg) const;                   \
+    /** \returns a new expression: (*this) / arg */        \
+    Expression operator/(double arg) const;                \
+    /** \returns a new expression: (*this) / arg */        \
+    Expression operator/(const Parameter& arg) const;      \
+    /** \returns a new expression: (*this) / arg */        \
+    Expression operator/(const IndexParameter& arg) const; \
+    /** \returns a new expression: (*this) / arg */        \
+    Expression operator/(const Variable& arg) const;       \
+    /** \returns a new expression: (*this) / arg */        \
     Expression operator/(const Expression& arg) const;
 
-
 namespace coek {
-
 
 class ParameterTerm;
 class IndexParameterTerm;
@@ -132,39 +129,36 @@ Expression operator/(double, const IndexParameter&);
 Expression operator/(double, const Variable&);
 Expression operator/(double, const Expression&);
 
-Expression affine_expression(const std::vector<double>& coef, const std::vector<Variable>& var, double offset);
+Expression affine_expression(const std::vector<double>& coef, const std::vector<Variable>& var,
+                             double offset);
 Expression affine_expression(const std::vector<Variable>& var, double offset);
 
-
 /**
-  * \class Parameter
-  * \brief Values that appear as mutable constants in expressions.
-  *
-  * Mutable parameters are used to define coefficients and
-  * constant terms can be changed without reconstructing the expression.
-  */
-class Parameter
-{
-public:
-
+ * \class Parameter
+ * \brief Values that appear as mutable constants in expressions.
+ *
+ * Mutable parameters are used to define coefficients and
+ * constant terms can be changed without reconstructing the expression.
+ */
+class Parameter {
+   public:
     ParameterRepn repn;
 
-public:
-
+   public:
     /** Constructs a Parameter with the default value zero. */
     Parameter();
     /**
-      * Constructs a Parameter initialized with a given value and a name.
-      *  
-      * \param value   the initial value of the parameter
-      * \param name   the name of the parameter
-      */
+     * Constructs a Parameter initialized with a given value and a name.
+     *
+     * \param value   the initial value of the parameter
+     * \param name   the name of the parameter
+     */
     explicit Parameter(const std::string& name);
     /**
-      * Copy constructor
-      *
-      * \param arg   a parameter whose value is shared
-      */
+     * Copy constructor
+     *
+     * \param arg   a parameter whose value is shared
+     */
     Parameter(const Parameter& arg);
     Parameter(const ParameterRepn& _repn);
     ~Parameter();
@@ -185,36 +179,30 @@ public:
     Parameter& name(const std::string& name);
 
     /** \returns \c false because this is not a contant */
-    bool is_constant() const
-        {return false;}
+    bool is_constant() const { return false; }
 
     COEK_API_OPERATORS
 
     /**
-      * \name Stream operator
-      *
-      * Stream the parameter to an output stream.
-      *
-      * \param ostr   output stream
-      * \param arg   parameter
-      */
+     * \name Stream operator
+     *
+     * Stream the parameter to an output stream.
+     *
+     * \param ostr   output stream
+     * \param arg   parameter
+     */
     friend std::ostream& operator<<(std::ostream& ostr, const Parameter& arg);
 };
-
 
 Parameter parameter();
 Parameter parameter(const std::string& name);
 
-
-// Index Parameter 
-class IndexParameter
-{
-public:
-
+// Index Parameter
+class IndexParameter {
+   public:
     IndexParameterRepn repn;
 
-public:
-
+   public:
     IndexParameter();
     explicit IndexParameter(const std::string& name);
     IndexParameter(const IndexParameter& arg);
@@ -238,27 +226,22 @@ public:
     friend std::ostream& operator<<(std::ostream& ostr, const IndexParameter& arg);
 };
 
-
 IndexParameter set_element();
 IndexParameter set_element(const std::string& name);
 
-
-enum VariableTypes : unsigned int { Reals=0, Integers=1, Boolean=2, Binary=3 };
+enum VariableTypes : unsigned int { Reals = 0, Integers = 1, Boolean = 2, Binary = 3 };
 
 /**
-  * \class Variable
-  * \brief Decision variables that appear in expressions.
-  *
-  * Variables are used to define decision variables that are optimized.
-  */
-class Variable
-{
-public:
-
+ * \class Variable
+ * \brief Decision variables that appear in expressions.
+ *
+ * Variables are used to define decision variables that are optimized.
+ */
+class Variable {
+   public:
     VariableRepn repn;
 
-public:
-
+   public:
     /** Construct a continuous decision variable.  */
     Variable();
     explicit Variable(const std::string& name);
@@ -331,41 +314,35 @@ public:
     unsigned int id() const;
 
     /** \returns \c false because this is not a constant expression */
-    bool is_constant() const
-        {return false;}
+    bool is_constant() const { return false; }
 
     COEK_API_OPERATORS
 
     /**
-      * \name Stream operator
-      *
-      * Stream the variable to an output stream.
-      *
-      * \param ostr   output stream
-      * \param arg   variable
-      */
+     * \name Stream operator
+     *
+     * Stream the variable to an output stream.
+     *
+     * \param ostr   output stream
+     * \param arg   variable
+     */
     friend std::ostream& operator<<(std::ostream& ostr, const Variable& arg);
 };
-
 
 Variable variable();
 Variable variable(const std::string& name);
 
-
 /**
-  * \class Expression
-  * \brief Container for expressions in equations.
-  *
-  * This class is the core container for expressions that appear in objectives and constraints.
-  */
-class Expression
-{
-public:
-
+ * \class Expression
+ * \brief Container for expressions in equations.
+ *
+ * This class is the core container for expressions that appear in objectives and constraints.
+ */
+class Expression {
+   public:
     ExpressionRepn repn;
 
-public:
-
+   public:
     /** Constructs an Expression without defining its value */
     Expression();
     /** Explict construction of an Expression from a double */
@@ -389,21 +366,21 @@ public:
     bool is_constant() const;
 
     /** \returns the value of the expression
-      *
-      * \note The expression value is computed from the
-      * expression tree using values for the associated
-      * Parameter and Variable objects.
-      */
+     *
+     * \note The expression value is computed from the
+     * expression tree using values for the associated
+     * Parameter and Variable objects.
+     */
     double value() const;
 
     /** \returns a list representation of the expression */
     std::list<std::string> to_list() const;
     /**
-      * Create an expression that computes the partial derivative relative to a specified variable.
-      *
-      * \param var - The variable that will be used to cmopute the partial derivative
-      * \returns an expression that computes the partial derivative
-      */
+     * Create an expression that computes the partial derivative relative to a specified variable.
+     *
+     * \param var - The variable that will be used to cmopute the partial derivative
+     * \returns an expression that computes the partial derivative
+     */
     Expression diff(const Variable& var) const;
 
     /** Add an integer to the expression */
@@ -466,13 +443,11 @@ public:
     Expression expand();
 };
 
-
 Expression expression();
 Expression expression(double arg);
 Expression expression(int arg);
 Expression expression(const Parameter& arg);
 Expression expression(const Variable& arg);
-
 
 //
 // operator<<
@@ -481,4 +456,4 @@ std::ostream& operator<<(std::ostream& ostr, const Parameter& arg);
 std::ostream& operator<<(std::ostream& ostr, const Variable& arg);
 std::ostream& operator<<(std::ostream& ostr, const Expression& arg);
 
-}
+}  // namespace coek

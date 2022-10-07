@@ -22,17 +22,13 @@ def pmedian(N, P):
         within=pe.Reals,
     )
 
-    model.x = pe.Var(
-        model.Locations, model.Customers, bounds=(0.0, 1.0), initialize=0.0
-    )
+    model.x = pe.Var(model.Locations, model.Customers, bounds=(0.0, 1.0), initialize=0.0)
 
     model.y = pe.Var(model.Locations, bounds=(0.0, 1.0), initialize=0.0)
 
     def rule(model):
         return pe.quicksum(
-            model.d[n, m] * model.x[n, m]
-            for n in model.Locations
-            for m in model.Customers
+            model.d[n, m] * model.x[n, m] for n in model.Locations for m in model.Customers
         )
 
     model.obj = pe.Objective(rule=rule)

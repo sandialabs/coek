@@ -26,10 +26,7 @@ def lqcp_linear(n):
     def rule(model):
         return 0.25 * model.dx * (
             (model.y[model.m, 0] - yt(0, model.dx)) ** 2
-            + 2
-            * sum(
-                (model.y[model.m, j] - yt(j, model.dx)) ** 2 for j in range(1, model.n)
-            )
+            + 2 * sum((model.y[model.m, j] - yt(j, model.dx)) ** 2 for j in range(1, model.n))
             + (model.y[model.m, model.n] - yt(model.n, model.dx)) ** 2
         ) + 0.25 * model.a * model.dt * (
             2 * sum(model.u[i] ** 2 for i in range(1, model.m)) + model.u[model.m] ** 2
@@ -56,12 +53,7 @@ def lqcp_linear(n):
             -pde_coef,
             -pde_coef,
         ]
-        return (
-            LinearExpression(
-                constant=0, linear_coefs=coefficients, linear_vars=variables
-            )
-            == 0
-        )
+        return LinearExpression(constant=0, linear_coefs=coefficients, linear_vars=variables) == 0
 
     model.pde = pe.Constraint(
         pe.RangeSet(0, model.n - 1), pe.RangeSet(1, model.n - 1), rule=pde_rule

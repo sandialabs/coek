@@ -1,7 +1,7 @@
 #
 # Test examples.
 #
-if (fmtlib_available)
+if (with_fmtlib)
     find_package(fmt REQUIRED)
 endif()
 

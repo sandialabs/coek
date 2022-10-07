@@ -20,9 +20,7 @@ def knapsack_affine(N):
 
     x = model.add_variable(N, lb=0.0, ub=1.0)
 
-    model.add_objective(
-        pk.affine_expression([v[i] for i in range(N)], [x[i] for i in range(N)])
-    )
+    model.add_objective(pk.affine_expression([v[i] for i in range(N)], [x[i] for i in range(N)]))
     model.add_constraint(
         pk.affine_expression([w[i] for i in range(N)], [x[i] for i in range(N)]) <= W
     )

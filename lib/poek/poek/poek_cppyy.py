@@ -51,9 +51,7 @@ class variable(object):
         elif len(args) == 1:
             dimen = args[0]
             if type(dimen) is tuple or type(dimen) is list:
-                return _variable_array(
-                    dimen, name, lb, ub, init, binval, integer, fixed
-                )
+                return _variable_array(dimen, name, lb, ub, init, binval, integer, fixed)
             return pycoek_cppyy.coek.VariableArray(
                 dimen, name, lb, ub, init, binval, integer, fixed
             )

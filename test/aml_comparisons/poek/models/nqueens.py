@@ -23,20 +23,14 @@ def nqueens(N):
 
     # \diagonals_col
     for i in range(N - 1):
-        model.add_constraint(
-            x[0, i] + quicksum(x[j, i + j] for j in range(1, N - i)) <= 1
-        )
+        model.add_constraint(x[0, i] + quicksum(x[j, i + j] for j in range(1, N - i)) <= 1)
     # \diagonals_row
     for i in range(1, N - 1):
-        model.add_constraint(
-            x[i, 0] + quicksum(x[i + j, j] for j in range(1, N - i)) <= 1
-        )
+        model.add_constraint(x[i, 0] + quicksum(x[i + j, j] for j in range(1, N - i)) <= 1)
 
     # /diagonals_col
     for i in range(1, N):
-        model.add_constraint(
-            x[0, i] + quicksum(x[j, i - j] for j in range(1, i + 1)) <= 1
-        )
+        model.add_constraint(x[0, i] + quicksum(x[j, i - j] for j in range(1, i + 1)) <= 1)
     # /diagonals_row
     for i in range(1, N - 1):
         model.add_constraint(

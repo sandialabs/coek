@@ -28,34 +28,26 @@ def nqueens(N):
 
     # \diagonals_col
     def ldiag_cols_rule(model, i):
-        return (
-            model.x[0, i] + pe.quicksum(model.x[j, i + j] for j in range(1, N - i)) <= 1
-        )
+        return model.x[0, i] + pe.quicksum(model.x[j, i + j] for j in range(1, N - i)) <= 1
 
     model.ldiag_cols = pe.Constraint(range(N - 1), rule=ldiag_cols_rule)
 
     # \diagonals_row
     def ldiag_rows_rule(model, i):
-        return (
-            model.x[i, 0] + pe.quicksum(model.x[i + j, j] for j in range(1, N - i)) <= 1
-        )
+        return model.x[i, 0] + pe.quicksum(model.x[i + j, j] for j in range(1, N - i)) <= 1
 
     model.ldiag_rows = pe.Constraint(range(1, N - 1), rule=ldiag_rows_rule)
 
     # /diagonals_col
     def rdiag_cols_rule(model, i):
-        return (
-            model.x[0, i] + pe.quicksum(model.x[j, i - j] for j in range(1, i + 1)) <= 1
-        )
+        return model.x[0, i] + pe.quicksum(model.x[j, i - j] for j in range(1, i + 1)) <= 1
 
     model.rdiag_cols = pe.Constraint(range(1, N), rule=rdiag_cols_rule)
 
     # /diagonals_row
     def rdiag_rows_rule(model, i):
         return (
-            model.x[i, N - 1]
-            + pe.quicksum(model.x[i + j, N - 1 - j] for j in range(1, N - i))
-            <= 1
+            model.x[i, N - 1] + pe.quicksum(model.x[i + j, N - 1 - j] for j in range(1, N - i)) <= 1
         )
 
     model.rdiag_rows = pe.Constraint(range(1, N - 1), rule=rdiag_rows_rule)

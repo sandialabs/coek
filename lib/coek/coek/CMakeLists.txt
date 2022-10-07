@@ -61,7 +61,7 @@ if(with_compact)
 endif()
 
 # fmtlib LIBRARY
-if(fmtlib_available)
+if(with_fmtlib)
     find_package(fmt REQUIRED)
     list(APPEND coek_compile_options -DWITH_FMTLIB -Wextra -Wconversion -Wpedantic -Wsign-conversion)
     list(APPEND coek_link_libraries fmt::fmt)
@@ -76,7 +76,7 @@ if(with_caliper)
     list(APPEND coek_include_directories ${CALIPER_INCLUDE_DIR})
 endif()
 
-if(rapidjson_available)
+if(with_rapidjson)
     find_package(RapidJSON REQUIRED)
     list(APPEND coek_compile_options -DWITH_RAPIDJSON)
     list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
@@ -105,7 +105,7 @@ endif()
 #
 # CppAD LIBRARY
 #
-if(cppad_available)
+if(with_cppad)
     list(APPEND sources
                 autograd/cppad_repn.cpp)
     list(APPEND coek_compile_options "-DWITH_CPPAD")
@@ -183,6 +183,7 @@ else()
     add_library(coek STATIC ${sources})
     message("-- Building static libcoek library")
 endif()
+add_library(coek::coek ALIAS coek)
 
 target_compile_options(coek PUBLIC ${coek_compile_options})
 target_include_directories(coek

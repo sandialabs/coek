@@ -5,28 +5,19 @@
 
 namespace coek {
 
-class SumExpressionTerm : public BaseExpressionTerm
-{
-public:
-
+class SumExpressionTerm : public BaseExpressionTerm {
+   public:
     ExpressionSequence seq;
 
-public:
+   public:
+    SumExpressionTerm(const ExpressionSequence& _seq) : seq(_seq) {}
 
-    SumExpressionTerm(const ExpressionSequence& _seq)
-        : seq(_seq)
-        {}
+    double eval() const { throw std::runtime_error("Cannot evaluate a Sum() expression."); }
 
-    double eval() const
-        { throw std::runtime_error("Cannot evaluate a Sum() expression."); }
+    bool is_expression() const { return false; }
 
-    bool is_expression() const
-        { return false; }
-
-    void accept(Visitor& v)
-        { v.visit(*this); }
-    term_id id()
-        {return SumExpressionTerm_id;}
+    void accept(Visitor& v) { v.visit(*this); }
+    term_id id() { return SumExpressionTerm_id; }
 };
 
 namespace visitors {
@@ -35,4 +26,4 @@ expr_pointer_t visitor(SumExpressionTerm&);
 
 }
 
-}
+}  // namespace coek

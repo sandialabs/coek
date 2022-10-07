@@ -37,16 +37,12 @@ def fac(G):
     def quaddistk1_rule(mod, i, j, f):
         return mod.r[i, j, f, 1] == (1.0 * i) / G - mod.y[f, 1]
 
-    model.quaddistk1 = Constraint(
-        model.Grid, model.Grid, model.Facs, rule=quaddistk1_rule
-    )
+    model.quaddistk1 = Constraint(model.Grid, model.Grid, model.Facs, rule=quaddistk1_rule)
 
     def quaddistk2_rule(mod, i, j, f):
         return mod.r[i, j, f, 2] == (1.0 * j) / G - mod.y[f, 2]
 
-    model.quaddistk2 = Constraint(
-        model.Grid, model.Grid, model.Facs, rule=quaddistk2_rule
-    )
+    model.quaddistk2 = Constraint(model.Grid, model.Grid, model.Facs, rule=quaddistk2_rule)
 
     def quaddist_rule(mod, i, j, f):
         return mod.r[i, j, f, 1] ** 2 + mod.r[i, j, f, 2] ** 2 <= mod.s[i, j, f] ** 2

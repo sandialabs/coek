@@ -24,20 +24,14 @@ def nqueens_linear(N):
     # one per row
     def row_rule(model, i):
         return (
-            LinearExpression(
-                linear_coefs=onesN, linear_vars=[model.x[i, j] for j in range(N)]
-            )
-            == 1
+            LinearExpression(linear_coefs=onesN, linear_vars=[model.x[i, j] for j in range(N)]) == 1
         )
 
     model.row_rule = pe.Constraint(model.Rows, rule=row_rule)
 
     def col_rule(model, j):
         return (
-            LinearExpression(
-                linear_coefs=onesN, linear_vars=[model.x[i, j] for i in range(N)]
-            )
-            == 1
+            LinearExpression(linear_coefs=onesN, linear_vars=[model.x[i, j] for i in range(N)]) == 1
         )
 
     model.col_rule = pe.Constraint(model.Cols, rule=col_rule)

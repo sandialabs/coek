@@ -24,8 +24,7 @@ def srosenbr(N):
 
     model.o = pe.Objective(
         expr=sum(
-            100 * (model.x[2 * i] - model.x[2 * i - 1] ** 2) ** 2
-            + (model.x[2 * i - 1] - 1) ** 2
+            100 * (model.x[2 * i] - model.x[2 * i - 1] ** 2) ** 2 + (model.x[2 * i - 1] - 1) ** 2
             for i in range(1, N // 2)
         )
     )

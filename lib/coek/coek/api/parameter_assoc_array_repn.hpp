@@ -2,31 +2,27 @@
 
 #include <cassert>
 #include <string>
-#include <vector>
 #include <variant>
+#include <vector>
+
 #include "coek/api/expression.hpp"
 #include "coek/util/index_vector.hpp"
-
 
 namespace coek {
 
 class BaseExpressionTerm;
 
 typedef BaseExpressionTerm* expr_pointer_t;
-typedef std::variant<int,expr_pointer_t> refarg_types;
+typedef std::variant<int, expr_pointer_t> refarg_types;
 
-
-class ParameterAssocArrayRepn
-{
-public:
-
+class ParameterAssocArrayRepn {
+   public:
     IndexVectorCache cache;
     std::vector<Parameter> values;
     Parameter parameter_template;
     bool call_setup;
 
-public:
-
+   public:
     ParameterAssocArrayRepn();
 
     virtual void setup();
@@ -47,4 +43,4 @@ public:
     void name(const std::string& name);
 };
 
-}
+}  // namespace coek
