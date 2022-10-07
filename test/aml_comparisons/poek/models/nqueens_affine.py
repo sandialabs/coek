@@ -9,9 +9,7 @@ def nqueens_affine(N):
     x = model.add_variable((N, N), lb=0.0, ub=1.0, binary=True)
 
     # obj
-    model.add_objective(
-        pk.affine_expression([x[i, j] for i in range(N) for j in range(N)])
-    )
+    model.add_objective(pk.affine_expression([x[i, j] for i in range(N) for j in range(N)]))
 
     # one per row
     for i in range(N):
@@ -40,9 +38,7 @@ def nqueens_affine(N):
     # /diagonals_row
     for i in range(1, N - 1):
         model.add_constraint(
-            x[i, N - 1]
-            + pk.affine_expression([x[i + j, N - 1 - j] for j in range(1, N - i)])
-            <= 1
+            x[i, N - 1] + pk.affine_expression([x[i + j, N - 1 - j] for j in range(1, N - i)]) <= 1
         )
 
     return model

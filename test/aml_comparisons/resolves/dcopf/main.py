@@ -91,8 +91,7 @@ def param_updates(options: Options):
         opt.update_config.treat_fixed_vars_as_params = True
 
     load_list = [
-        float(i)
-        for i in np.linspace(min_load_factor, max_load_factor, options.n_resolves)
+        float(i) for i in np.linspace(min_load_factor, max_load_factor, options.n_resolves)
     ]
     obj_list = list()
     for load_factor in load_list:

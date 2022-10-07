@@ -11,9 +11,7 @@ def nqueens(N):
     model.x = pe.Var(model.Rows, model.Cols, within=pe.Boolean)
 
     # obj
-    model.obj = pe.Objective(
-        expr=sum(model.x[i, j] for i in model.Rows for j in model.Cols)
-    )
+    model.obj = pe.Objective(expr=sum(model.x[i, j] for i in model.Rows for j in model.Cols))
 
     # one per row
     def row_rule(model, i):
@@ -46,10 +44,7 @@ def nqueens(N):
 
     # /diagonals_row
     def rdiag_rows_rule(model, i):
-        return (
-            model.x[i, N - 1] + sum(model.x[i + j, N - 1 - j] for j in range(1, N - i))
-            <= 1
-        )
+        return model.x[i, N - 1] + sum(model.x[i + j, N - 1 - j] for j in range(1, N - i)) <= 1
 
     model.rdiag_rows = pe.Constraint(range(1, N - 1), rule=rdiag_rows_rule)
 

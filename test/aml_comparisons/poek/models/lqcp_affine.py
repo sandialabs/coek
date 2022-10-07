@@ -70,8 +70,7 @@ def lqcp_affine(n):
     # bc2
     for i in range(1, n + 1):
         model.add_constraint(
-            y[i, n - 2] - 4 * y[i, n - 1] + 3 * y[i, n - 0]
-            == (2 * dx) * (u[i] - y[i, n - 0])
+            y[i, n - 2] - 4 * y[i, n - 1] + 3 * y[i, n - 0] == (2 * dx) * (u[i] - y[i, n - 0])
         )
 
     return model

@@ -1,8 +1,9 @@
 # gurobipy_perf.models
 
-__all__ = ['create_instance']
+__all__ = ["create_instance"]
 
 import sys
+
 try:
     import gurobipy
 except:
@@ -13,16 +14,13 @@ from .knapsack import knapsack
 from .nqueens import nqueens
 from .pmedian import pmedian
 
-modules = {'knapsack':knapsack,
-           'nqueens':nqueens,
-           'pmedian':pmedian
-          }
+modules = {"knapsack": knapsack, "nqueens": nqueens, "pmedian": pmedian}
 
 
 def print_help():
     print("\nTEST MODELS")
     for name in sorted(modules.keys()):
-        print("  "+name)
+        print("  " + name)
     print("")
     print("VALID FILENAME SUFFIXES")
     print("  lp     - Canonical LP file")
