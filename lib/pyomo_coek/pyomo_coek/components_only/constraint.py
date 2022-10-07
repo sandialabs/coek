@@ -2,15 +2,23 @@ from pyomo.core.base.component import ActiveComponentData
 from pyomo.core.base.indexed_component import ActiveIndexedComponent
 from pyomo.core.base.constraint import _ConstraintData
 from pyomo.core.expr.numvalue import (
-    NumericValue, value, as_numeric, is_fixed, native_numeric_types,
+    NumericValue,
+    value,
+    as_numeric,
+    is_fixed,
+    native_numeric_types,
 )
 from pyomo.core.base.component import ActiveComponentData, ModelComponentFactory
 from pyomo.core.base.indexed_component import (
-    ActiveIndexedComponent, UnindexedComponent_set, rule_wrapper,
+    ActiveIndexedComponent,
+    UnindexedComponent_set,
+    rule_wrapper,
 )
 from typing import overload
 from pyomo.core.base.initializer import (
-    Initializer, IndexedCallInitializer, CountedCallInitializer,
+    Initializer,
+    IndexedCallInitializer,
+    CountedCallInitializer,
 )
 from pyomo.common.timing import ConstructionTimer
 from pyomo.common.log import is_debug_set
@@ -26,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 class _GeneralConstraintData(_ConstraintData):
 
-    __slots__ = ('_pe',)
+    __slots__ = ("_pe",)
 
     def __init__(self, expr=None, component=None):
         super().__init__(component)
@@ -91,9 +99,7 @@ class _GeneralConstraintData(_ConstraintData):
                 elif expr[2] is None:
                     self._pe = expr[0] <= expr[1]
                 else:
-                    raise NotImplementedError(
-                        'Ranged inequalities are not supported yet'
-                    )
+                    raise NotImplementedError("Ranged inequalities are not supported yet")
             else:
                 raise ValueError(
                     f"expected 2 or 3 arguments for tuple expressions; got {len(expr)}"
@@ -127,15 +133,14 @@ class Constraint(ActiveIndexedComponent):
         ...
 
     def __init__(self, *args, **kwargs):
-        _init = self._pop_from_kwargs(
-            'Constraint', kwargs, ('rule', 'expr'), None)
+        _init = self._pop_from_kwargs("Constraint", kwargs, ("rule", "expr"), None)
         # Special case: we accept 2- and 3-tuples as constraints
         if type(_init) is tuple:
             self.rule = Initializer(_init, treat_sequences_as_mappings=False)
         else:
             self.rule = Initializer(_init)
 
-        kwargs.setdefault('ctype', Constraint)
+        kwargs.setdefault("ctype", Constraint)
         ActiveIndexedComponent.__init__(self, *args, **kwargs)
 
     def construct(self, data=None):
@@ -163,8 +168,8 @@ class Constraint(ActiveIndexedComponent):
             if rule.constant() and self.is_indexed():
                 raise IndexError(
                     "Constraint '%s': Cannot initialize multiple indices "
-                    "of a constraint with a single expression" %
-                    (self.name,))
+                    "of a constraint with a single expression" % (self.name,)
+                )
 
             block = self.parent_block()
             if rule.contains_indices():
@@ -187,10 +192,8 @@ class Constraint(ActiveIndexedComponent):
             logger.error(
                 "Rule failed when generating expression for "
                 "Constraint %s with index %s:\n%s: %s"
-                % (self.name,
-                   str(index),
-                   type(err).__name__,
-                   err))
+                % (self.name, str(index), type(err).__name__, err)
+            )
             raise
         finally:
             timer.report()
@@ -198,8 +201,7 @@ class Constraint(ActiveIndexedComponent):
     def _getitem_when_not_present(self, idx):
         if self.rule is None:
             raise KeyError(idx)
-        con = self._setitem_when_not_present(
-            idx, self.rule(self.parent_block(), idx))
+        con = self._setitem_when_not_present(idx, self.rule(self.parent_block(), idx))
         if con is None:
             raise KeyError(idx)
         return con
@@ -209,17 +211,19 @@ class Constraint(ActiveIndexedComponent):
         Return data that will be printed for this component.
         """
         return (
-            [("Size", len(self)),
-             ("Index", self._index_set if self.is_indexed() else None),
-             ("Active", self.active),
-             ],
+            [
+                ("Size", len(self)),
+                ("Index", self._index_set if self.is_indexed() else None),
+                ("Active", self.active),
+            ],
             self.items(),
             ("Lower", "Body", "Upper", "Active"),
-            lambda k, v: ["-Inf" if v.lower is None else v.lower,
-                          v.body,
-                          "+Inf" if v.upper is None else v.upper,
-                          v.active,
-                          ]
+            lambda k, v: [
+                "-Inf" if v.lower is None else v.lower,
+                v.body,
+                "+Inf" if v.upper is None else v.upper,
+                v.active,
+            ],
         )
 
     def display(self, prefix="", ostream=None):
@@ -237,14 +241,17 @@ class Constraint(ActiveIndexedComponent):
         ostream.write("Size=" + str(len(self)))
 
         ostream.write("\n")
-        tabular_writer(ostream, prefix + tab,
-                       ((k, v) for k, v in self._data.items() if v.active),
-                       ("Lower", "Body", "Upper"),
-                       lambda k, v: [
-                           value(v.lower, exception=False),
-                           value(v.body, exception=False),
-                           value(v.upper, exception=False),
-                       ])
+        tabular_writer(
+            ostream,
+            prefix + tab,
+            ((k, v) for k, v in self._data.items() if v.active),
+            ("Lower", "Body", "Upper"),
+            lambda k, v: [
+                value(v.lower, exception=False),
+                value(v.body, exception=False),
+                value(v.upper, exception=False),
+            ],
+        )
 
 
 class ScalarConstraint(_GeneralConstraintData, Constraint):
@@ -286,7 +293,8 @@ class ScalarConstraint(_GeneralConstraintData, Constraint):
                 "Accessing the body of ScalarConstraint "
                 "'%s' before the Constraint has been assigned "
                 "an expression. There is currently "
-                "nothing to access." % (self.name))
+                "nothing to access." % (self.name)
+            )
         return _GeneralConstraintData.body.fget(self)
 
     @property
@@ -297,7 +305,8 @@ class ScalarConstraint(_GeneralConstraintData, Constraint):
                 "Accessing the lower bound of ScalarConstraint "
                 "'%s' before the Constraint has been assigned "
                 "an expression. There is currently "
-                "nothing to access." % (self.name))
+                "nothing to access." % (self.name)
+            )
         return _GeneralConstraintData.lower.fget(self)
 
     @property
@@ -308,7 +317,8 @@ class ScalarConstraint(_GeneralConstraintData, Constraint):
                 "Accessing the upper bound of ScalarConstraint "
                 "'%s' before the Constraint has been assigned "
                 "an expression. There is currently "
-                "nothing to access." % (self.name))
+                "nothing to access." % (self.name)
+            )
         return _GeneralConstraintData.upper.fget(self)
 
     @property
@@ -319,7 +329,8 @@ class ScalarConstraint(_GeneralConstraintData, Constraint):
                 "Accessing the equality flag of ScalarConstraint "
                 "'%s' before the Constraint has been assigned "
                 "an expression. There is currently "
-                "nothing to access." % (self.name))
+                "nothing to access." % (self.name)
+            )
         return _GeneralConstraintData.equality.fget(self)
 
     @property
@@ -330,7 +341,8 @@ class ScalarConstraint(_GeneralConstraintData, Constraint):
                 "Accessing the strict_lower flag of ScalarConstraint "
                 "'%s' before the Constraint has been assigned "
                 "an expression. There is currently "
-                "nothing to access." % (self.name))
+                "nothing to access." % (self.name)
+            )
         return _GeneralConstraintData.strict_lower.fget(self)
 
     @property
@@ -341,7 +353,8 @@ class ScalarConstraint(_GeneralConstraintData, Constraint):
                 "Accessing the strict_upper flag of ScalarConstraint "
                 "'%s' before the Constraint has been assigned "
                 "an expression. There is currently "
-                "nothing to access." % (self.name))
+                "nothing to access." % (self.name)
+            )
         return _GeneralConstraintData.strict_upper.fget(self)
 
     def clear(self):
@@ -362,14 +375,15 @@ class ScalarConstraint(_GeneralConstraintData, Constraint):
         if index is not None:
             raise ValueError(
                 "ScalarConstraint object '%s' does not accept "
-                "index values other than None. Invalid value: %s"
-                % (self.name, index))
+                "index values other than None. Invalid value: %s" % (self.name, index)
+            )
         self.set_value(expr)
         return self
 
 
-@disable_methods({'add', 'set_value', 'body', 'lower', 'upper', 'equality',
-                  'strict_lower', 'strict_upper'})
+@disable_methods(
+    {"add", "set_value", "body", "lower", "upper", "equality", "strict_lower", "strict_upper"}
+)
 class AbstractScalarConstraint(ScalarConstraint):
     pass
 

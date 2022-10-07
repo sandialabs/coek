@@ -46,7 +46,7 @@ _var_term_to_var_map = dict()
 
 class _GeneralVarData(ComponentData):
 
-    __slots__ = ('_stale', '_pe')
+    __slots__ = ("_stale", "_pe")
 
     def __init__(self, component=None):
         super().__init__(component=component)
@@ -301,22 +301,18 @@ class Var(IndexedComponent):
 
     def __init__(self, *args, **kwargs):
         self._rule_init = Initializer(
-            self._pop_from_kwargs(
-                'Var', kwargs, ('rule', 'initialize'), 0
-            )
+            self._pop_from_kwargs("Var", kwargs, ("rule", "initialize"), 0)
         )
         self._rule_domain = Initializer(
-            self._pop_from_kwargs(
-                'Var', kwargs, ('domain', 'within'), Reals
-            )
+            self._pop_from_kwargs("Var", kwargs, ("domain", "within"), Reals)
         )
-        _bounds_arg = kwargs.pop('bounds', None)
-        self._dense = kwargs.pop('dense', True)
-        self._units = kwargs.pop('units', None)
+        _bounds_arg = kwargs.pop("bounds", None)
+        self._dense = kwargs.pop("dense", True)
+        self._units = kwargs.pop("units", None)
         if self._units is not None:
             self._units = units.get_units(self._units)
 
-        kwargs.setdefault('ctype', Var)
+        kwargs.setdefault("ctype", Var)
         IndexedComponent.__init__(self, *args, **kwargs)
 
         if self.is_indexed():
@@ -334,8 +330,7 @@ class Var(IndexedComponent):
                 )
                 self._dense = True
         self._rule_bounds = Initializer(
-            _bounds_arg,
-            treat_sequences_as_mappings=treat_bounds_sequences_as_mappings
+            _bounds_arg, treat_sequences_as_mappings=treat_bounds_sequences_as_mappings
         )
 
     def flag_as_stale(self):
@@ -365,7 +360,7 @@ class Var(IndexedComponent):
         """
         if self._constructed:
             return
-        self._constructed=True
+        self._constructed = True
 
         timer = ConstructionTimer(self)
         if is_debug_set(logger):
@@ -388,17 +383,16 @@ class Var(IndexedComponent):
                     "with 'dense=True'.  Reverting to 'dense=False' as "
                     "it is not possible to make this variable dense.  "
                     "This warning can be suppressed by specifying "
-                    "'dense=False'" % (self.name,))
+                    "'dense=False'" % (self.name,)
+                )
                 self._dense = False
 
-            if ( self._rule_init is not None and
-                 self._rule_init.contains_indices() ):
+            if self._rule_init is not None and self._rule_init.contains_indices():
                 # Historically we have allowed Vars to be initialized by
                 # a sparse map (i.e., a dict containing only some of the
                 # keys).  We will wrap the incoming initializer to map
                 # KeyErrors to None
-                self._rule_init = DefaultInitializer(
-                    self._rule_init, None, KeyError)
+                self._rule_init = DefaultInitializer(self._rule_init, None, KeyError)
                 # The index is coming in externally; we need to validate it
                 for index in self._rule_init.indices():
                     self[index]
@@ -421,20 +415,21 @@ class Var(IndexedComponent):
                 # (constant portions of) every VarData so as to not
                 # repeat all the domain/bounds validation.
                 try:
-                    ref = self._getitem_when_not_present(
-                        next(iter(self.index_set())))
+                    ref = self._getitem_when_not_present(next(iter(self.index_set())))
                 except StopIteration:
                     # Empty index!
                     return
                 call_domain_rule = not self._rule_domain.constant()
                 call_bounds_rule = self._rule_bounds is not None and (
-                        not self._rule_bounds.constant())
+                    not self._rule_bounds.constant()
+                )
                 call_init_rule = self._rule_init is not None and (
                     not self._rule_init.constant()
                     # If either the domain or bounds change, then we
                     # need to re-verify the initial value, even if it is
                     # constant:
-                    or call_domain_rule or call_bounds_rule
+                    or call_domain_rule
+                    or call_bounds_rule
                 )
                 # Initialize all the component datas with the common data
                 poek_var_list = pk.copy_var(ref._pe, len(self.index_set()))
@@ -468,11 +463,8 @@ class Var(IndexedComponent):
             err = sys.exc_info()[1]
             logger.error(
                 "Rule failed when initializing variable for "
-                "Var %s with index %s:\n%s: %s"
-                % (self.name,
-                   str(index),
-                   type(err).__name__,
-                   err))
+                "Var %s with index %s:\n%s: %s" % (self.name, str(index), type(err).__name__, err)
+            )
             raise
         finally:
             timer.report()
@@ -521,18 +513,13 @@ class Var(IndexedComponent):
             ("Index", self._index_set if self.is_indexed() else None),
         ]
         if self._units is not None:
-            headers.append(('Units', str(self._units)))
-        return ( headers,
-                 self._data.items(),
-                 ( "Lower","Value","Upper","Fixed","Stale","Domain"),
-                 lambda k, v: [ v.lb,
-                                v.value,
-                                v.ub,
-                                v.fixed,
-                                v.stale,
-                                v.domain
-                                ]
-                 )
+            headers.append(("Units", str(self._units)))
+        return (
+            headers,
+            self._data.items(),
+            ("Lower", "Value", "Upper", "Fixed", "Stale", "Domain"),
+            lambda k, v: [v.lb, v.value, v.ub, v.fixed, v.stale, v.domain],
+        )
 
 
 class ScalarVar(_GeneralVarData, Var):
@@ -595,7 +582,9 @@ class IndexedVar(Var):
         raise AttributeError(
             "The domain is not an attribute for IndexedVar. It "
             "can be set for all indices using this property setter, "
-            "but must be accessed for individual variables in this container.")
+            "but must be accessed for individual variables in this container."
+        )
+
     @domain.setter
     def domain(self, domain):
         """Sets the domain for all variables in this container."""
@@ -617,8 +606,8 @@ def _raise_modifying_immutable_error(obj, index):
         "Attempting to set the value of the immutable parameter "
         "%s after the parameter has been constructed.  If you intend "
         "to change the value of this parameter dynamically, please "
-        "declare the parameter as mutable [i.e., Param(mutable=True)]"
-        % (name,))
+        "declare the parameter as mutable [i.e., Param(mutable=True)]" % (name,)
+    )
 
 
 class _ImplicitAny(Any.__class__):
@@ -628,6 +617,7 @@ class _ImplicitAny(Any.__class__):
     change of Param's implicit domain from Any to Reals.
 
     """
+
     def __new__(cls, **kwargs):
         # Strip off owner / kwargs before calling base __new__
         return super().__new__(cls)
@@ -640,11 +630,11 @@ class _ImplicitAny(Any.__class__):
 
     def __getstate__(self):
         state = super().__getstate__()
-        state['_owner'] = None if self._owner is None else self._owner()
+        state["_owner"] = None if self._owner is None else self._owner()
         return state
 
     def __setstate__(self, state):
-        _owner = state.pop('_owner')
+        _owner = state.pop("_owner")
         super().__setstate__(state)
         self._owner = None if _owner is None else weakref_ref(_owner)
 
@@ -656,7 +646,7 @@ class _ImplicitAny(Any.__class__):
     def __contains__(self, val):
         if val not in Reals:
             if self._owner is None or self._owner() is None:
-                name = 'Unknown'
+                name = "Unknown"
             else:
                 name = self._owner().name
             deprecation_warning(
@@ -666,7 +656,9 @@ class _ImplicitAny(Any.__class__):
                 "future.  If you really intend the domain of this Param"
                 "to be 'Any', you can suppress this warning by explicitly "
                 "specifying 'within=Any' to the Param constructor.",
-                version='5.6.9', remove_in='6.0')
+                version="5.6.9",
+                remove_in="6.0",
+            )
         return True
 
     # This should "mock up" a global set, so the "name" should always be
@@ -682,6 +674,7 @@ class _ImplicitAny(Any.__class__):
         if self._owner is None or self._owner() is None:
             return None
         return self._owner()._parent
+
     # This is not settable.  However the base classes assume that it is,
     # so we need to define the setter and just ignore the incoming value
     @_parent.setter
@@ -691,7 +684,7 @@ class _ImplicitAny(Any.__class__):
 
 class _ParamData(ComponentData):
 
-    __slots__ = ('_pe',)
+    __slots__ = ("_pe",)
 
     def __init__(self, component):
         super().__init__(component=component)
@@ -823,27 +816,26 @@ class Param(IndexedComponent):
             return super(Param, cls).__new__(IndexedParam)
 
     def __init__(self, *args, **kwd):
-        _init = self._pop_from_kwargs(
-            'Param', kwd, ('rule', 'initialize'), NOTSET)
-        self.domain = self._pop_from_kwargs('Param', kwd, ('domain', 'within'))
-        self._validate      = kwd.pop('validate', None )
-        self._mutable       = kwd.pop('mutable', Param.DefaultMutable )
-        self._default_val   = kwd.pop('default', 0 )
-        self._dense_initialize = kwd.pop('initialize_as_dense', False)
-        self._units         = kwd.pop('units', None)
+        _init = self._pop_from_kwargs("Param", kwd, ("rule", "initialize"), NOTSET)
+        self.domain = self._pop_from_kwargs("Param", kwd, ("domain", "within"))
+        self._validate = kwd.pop("validate", None)
+        self._mutable = kwd.pop("mutable", Param.DefaultMutable)
+        self._default_val = kwd.pop("default", 0)
+        self._dense_initialize = kwd.pop("initialize_as_dense", False)
+        self._units = kwd.pop("units", None)
         if self._units is not None:
             self._units = units.get_units(self._units)
             self._mutable = True
 
-        kwd.setdefault('ctype', Param)
+        kwd.setdefault("ctype", Param)
         IndexedComponent.__init__(self, *args, **kwd)
 
         if self.domain is None:
-            self.domain = _ImplicitAny(owner=self, name='Any')
+            self.domain = _ImplicitAny(owner=self, name="Any")
         # After IndexedComponent.__init__ so we can call is_indexed().
-        self._rule = Initializer(_init,
-                                 treat_sequences_as_mappings=self.is_indexed(),
-                                 arg_not_specified=NOTSET)
+        self._rule = Initializer(
+            _init, treat_sequences_as_mappings=self.is_indexed(), arg_not_specified=NOTSET
+        )
 
     def __len__(self):
         """
@@ -863,7 +855,7 @@ class Param(IndexedComponent):
     # We do not need to override keys(), as the __len__ override will
     # cause the base class keys() to correctly correctly handle default
     # values
-    #def keys(self, ordered=False):
+    # def keys(self, ordered=False):
 
     @property
     def mutable(self):
@@ -917,19 +909,19 @@ class Param(IndexedComponent):
             # Thus, we need to create a temporary dictionary that contains the
             # values from the ParamData objects.
             #
-            return {key:param_value() for key,param_value in self.items()}
+            return {key: param_value() for key, param_value in self.items()}
         elif not self.is_indexed():
             #
             # The parameter is a scalar, so we need to create a temporary
             # dictionary using the value for this parameter.
             #
-            return { None: self() }
+            return {None: self()}
         else:
             #
             # The parameter is not mutable, so iteritems() can be
             # converted into a dictionary containing parameter values.
             #
-            return dict( self.items() )
+            return dict(self.items())
 
     def extract_values_sparse(self):
         """
@@ -955,13 +947,13 @@ class Param(IndexedComponent):
             # The parameter is a scalar, so we need to create a temporary
             # dictionary using the value for this parameter.
             #
-            return { None: self() }
+            return {None: self()}
         else:
             #
             # The parameter is not mutable, so sparse_iteritems() can be
             # converted into a dictionary containing parameter values.
             #
-            return dict( self.sparse_iteritems() )
+            return dict(self.sparse_iteritems())
 
     def store_values(self, new_values, check=True):
         """
@@ -972,13 +964,13 @@ class Param(IndexedComponent):
         should only be used by developers!
         """
         if not self._mutable:
-            _raise_modifying_immutable_error(self, '*')
+            _raise_modifying_immutable_error(self, "*")
         #
         _srcType = type(new_values)
         _isDict = False
         if _srcType is dict:
             _isDict = True
-        elif hasattr(new_values, '__getitem__'):
+        elif hasattr(new_values, "__getitem__"):
             if isinstance(new_values, IndexedComponent):
                 if new_values.is_indexed():
                     _isDict = True
@@ -1011,7 +1003,7 @@ class Param(IndexedComponent):
             else:
                 # For scalars, we will choose an approach based on
                 # how "dense" the Param is
-                if not self._data: # empty
+                if not self._data:  # empty
                     for index in self._index_set:
                         p = self._data[index] = _ParamData(self)
                         p.value = new_values
@@ -1031,8 +1023,8 @@ class Param(IndexedComponent):
                 if None not in new_values:
                     raise RuntimeError(
                         "Cannot store value for scalar Param %s:\n\tNo value "
-                        "with index None in the new values dict."
-                        % (self.name,))
+                        "with index None in the new values dict." % (self.name,)
+                    )
                 new_values = new_values[None]
             # scalars have to be handled differently
             self[None] = new_values
@@ -1043,12 +1035,11 @@ class Param(IndexedComponent):
 
         NOTE: this test will not validate the value of function return values.
         """
-        if self._constructed \
-                and type(val) in native_types \
-                and val not in self.domain:
+        if self._constructed and type(val) in native_types and val not in self.domain:
             raise ValueError(
-                "Default value (%s) is not valid for Param %s domain %s" %
-                (str(val), self.name, self.domain.name))
+                "Default value (%s) is not valid for Param %s domain %s"
+                % (str(val), self.name, self.domain.name)
+            )
         self._default_val = val
 
     def default(self):
@@ -1080,7 +1071,7 @@ class Param(IndexedComponent):
         _isDict = False
         if _default_type is dict:
             _isDict = True
-        elif hasattr(val, '__getitem__'):
+        elif hasattr(val, "__getitem__"):
             if isinstance(val, IndexedComponent):
                 if val.is_indexed():
                     _isDict = True
@@ -1228,18 +1219,21 @@ class Param(IndexedComponent):
                 index = data.index()
             raise ValueError(
                 "Invalid parameter value: %s[%s] = '%s', value type=%s.\n"
-                "\tValue not in parameter domain %s" %
-                (self.name, index, value, type(value), self.domain.name))
+                "\tValue not in parameter domain %s"
+                % (self.name, index, value, type(value), self.domain.name)
+            )
         if self._validate:
             if index is NOTSET:
                 index = data.index()
             valid = apply_parameterized_indexed_rule(
-                self, self._validate, self.parent_block(), value, index )
+                self, self._validate, self.parent_block(), value, index
+            )
             if not valid:
                 raise ValueError(
                     "Invalid parameter value: %s[%s] = '%s', value type=%s.\n"
-                    "\tValue failed parameter validation rule" %
-                    ( self.name, index, value, type(value) ) )
+                    "\tValue failed parameter validation rule"
+                    % (self.name, index, value, type(value))
+                )
 
     def construct(self, data=None):
         """
@@ -1258,9 +1252,8 @@ class Param(IndexedComponent):
             return
 
         timer = ConstructionTimer(self)
-        if is_debug_set(logger):   #pragma:nocover
-            logger.debug("Constructing Param, name=%s, from data=%s"
-                         % ( self.name, str(data) ))
+        if is_debug_set(logger):  # pragma:nocover
+            logger.debug("Constructing Param, name=%s, from data=%s" % (self.name, str(data)))
 
         try:
             #
@@ -1268,11 +1261,11 @@ class Param(IndexedComponent):
             # the domain.
             #
             val = self._default_val
-            if type(val) in native_types \
-                    and val not in self.domain:
+            if type(val) in native_types and val not in self.domain:
                 raise ValueError(
-                    "Default value (%s) is not valid for Param %s domain %s" %
-                    (str(val), self.name, self.domain.name))
+                    "Default value (%s) is not valid for Param %s domain %s"
+                    % (str(val), self.name, self.domain.name)
+                )
             #
             # Flag that we are in the "during construction" phase
             #
@@ -1292,20 +1285,20 @@ class Param(IndexedComponent):
                     raise ValueError(
                         "Attempting to initialize parameter=%s with data=%s.\n"
                         "\tData type is not a mapping type, and a Mapping is "
-                        "expected." % (self.name, str(data)) )
+                        "expected." % (self.name, str(data))
+                    )
             else:
                 data_items = iter(())
 
             try:
                 for key, val in data_items:
-                    self._setitem_when_not_present(
-                        self._validate_index(key), val)
+                    self._setitem_when_not_present(self._validate_index(key), val)
             except:
                 msg = sys.exc_info()[1]
                 raise RuntimeError(
                     "Failed to set value for param=%s, index=%s, value=%s.\n"
-                    "\tsource error message=%s"
-                    % (self.name, str(key), str(val), str(msg)) )
+                    "\tsource error message=%s" % (self.name, str(key), str(val), str(msg))
+                )
             #
             # Flag that things are fully constructed now (and changing an
             # immutable Param is now an exception).
@@ -1328,9 +1321,13 @@ class Param(IndexedComponent):
         else:
             default = str(self._default_val)
         if self._mutable or not self.is_indexed():
-            dataGen = lambda k, v: [ v.value, ]
+            dataGen = lambda k, v: [
+                v.value,
+            ]
         else:
-            dataGen = lambda k, v: [ v, ]
+            dataGen = lambda k, v: [
+                v,
+            ]
         headers = [
             ("Size", len(self)),
             ("Index", self._index_set if self.is_indexed() else None),
@@ -1339,16 +1336,16 @@ class Param(IndexedComponent):
             ("Mutable", self._mutable),
         ]
         if self._units is not None:
-            headers.append(('Units', str(self._units)))
-        return ( headers,
-                 self.sparse_iteritems(),
-                 ("Value",),
-                 dataGen,
-                 )
+            headers.append(("Units", str(self._units)))
+        return (
+            headers,
+            self.sparse_iteritems(),
+            ("Value",),
+            dataGen,
+        )
 
 
 class ScalarParam(_ParamData, Param):
-
     def __init__(self, *args, **kwds):
         Param.__init__(self, *args, **kwds)
         _ParamData.__init__(self, component=self)
@@ -1382,7 +1379,8 @@ class ScalarParam(_ParamData, Param):
             raise ValueError(
                 "Evaluating the numeric value of parameter '%s' before\n\t"
                 "the Param has been constructed (there is currently no "
-                "value to return)." % (self.name,) )
+                "value to return)." % (self.name,)
+            )
 
     def set_value(self, value, index=NOTSET):
         if index is NOTSET:
@@ -1404,12 +1402,10 @@ class ScalarParam(_ParamData, Param):
 
 
 class IndexedParam(Param):
-
     def __call__(self, exception=True):
         """Compute the value of the parameter"""
         if exception:
-            raise TypeError('Cannot compute the value of an indexed Param (%s)'
-                            % (self.name,) )
+            raise TypeError("Cannot compute the value of an indexed Param (%s)" % (self.name,))
 
     # Because IndexedParam can use a non-standard data store (i.e., the
     # values in the _data dict may not be ComponentData objects), we
@@ -1440,7 +1436,7 @@ class ExpressionBase(object):
 
     def __rmul__(self, other):
         return ProductExpression((other, self))
-    
+
     def __add__(self, other):
         if type(other) is SumExpression:
             return other + self
@@ -1508,7 +1504,7 @@ class ExpressionBase(object):
         return self / other
 
     def __ipow__(self, other):
-        return  self ** other
+        return self**other
 
 
 class BinaryExpression(ExpressionBase):
@@ -1533,12 +1529,12 @@ class UnaryExpression(ExpressionBase):
 
 
 class NegationExpression(UnaryExpression, numeric_expr.NegationExpression):
-    __slots__ = ('_pe')
+    __slots__ = "_pe"
     func = operator.neg
 
 
 class ProductExpression(BinaryExpression, numeric_expr.ProductExpression):
-    __slots__ = ('_pe',)
+    __slots__ = ("_pe",)
     func = operator.mul
 
 
@@ -1548,17 +1544,17 @@ class MonomialTermExpression(ProductExpression, numeric_expr.MonomialTermExpress
 
 
 class DivisionExpression(BinaryExpression, numeric_expr.DivisionExpression):
-    __slots__ = ('_pe',)
+    __slots__ = ("_pe",)
     func = operator.truediv
 
 
 class PowExpression(BinaryExpression, numeric_expr.PowExpression):
-    __slots__ = ('_pe',)
+    __slots__ = ("_pe",)
     func = operator.pow
 
 
 class SumExpression(ExpressionBase, numeric_expr.SumExpression):
-    __slots__ = ('_pe',)
+    __slots__ = ("_pe",)
 
     def __init__(self, args):
         self._shared_args = False
@@ -1585,7 +1581,7 @@ class SumExpression(ExpressionBase, numeric_expr.SumExpression):
 
 
 class LinearExpression(ExpressionBase, numeric_expr.LinearExpression):
-    __slots__ = ('_pe',)
+    __slots__ = ("_pe",)
 
     def __init__(self, args=None, constant=None, linear_coefs=None, linear_vars=None):
         """A linear expression of the form `const + sum_i(c_i*x_i).
@@ -1602,20 +1598,27 @@ class LinearExpression(ExpressionBase, numeric_expr.LinearExpression):
         # it does.  If they are provided, they should be the (non-zero)
         # constant followed by MonomialTermExpressions.
         if args:
-            if any(arg is not None for arg in
-                   (constant, linear_coefs, linear_vars)):
-                raise ValueError("Cannot specify both args and any of "
-                                 "{constant, linear_coeffs, or linear_vars}")
-            if len(args) > 1 and (args[1].__class__ in native_types
-                                  or not args[1].is_potentially_variable()):
+            if any(arg is not None for arg in (constant, linear_coefs, linear_vars)):
+                raise ValueError(
+                    "Cannot specify both args and any of "
+                    "{constant, linear_coeffs, or linear_vars}"
+                )
+            if len(args) > 1 and (
+                args[1].__class__ in native_types or not args[1].is_potentially_variable()
+            ):
                 deprecation_warning(
                     "LinearExpression has been updated to expect args= to "
                     "be a constant followed by MonomialTermExpressions.  "
                     "The older format (`[const, coefficient_1, ..., "
-                    "variable_1, ...]`) is deprecated.", version='6.2')
-                args = args[:1] + list(map(
-                    MonomialTermExpression,
-                    zip(args[1:1+len(args)//2], args[1+len(args)//2:])))
+                    "variable_1, ...]`) is deprecated.",
+                    version="6.2",
+                )
+                args = args[:1] + list(
+                    map(
+                        MonomialTermExpression,
+                        zip(args[1 : 1 + len(args) // 2], args[1 + len(args) // 2 :]),
+                    )
+                )
             self._args_ = args
         else:
             self.constant = constant if constant is not None else 0
@@ -1624,14 +1627,12 @@ class LinearExpression(ExpressionBase, numeric_expr.LinearExpression):
             self._args_cache_ = []
 
         self._pe = pk.construct_linear_expression(
-            self.linear_coefs,
-            [v._pe for v in self.linear_vars],
-            self.constant
+            self.linear_coefs, [v._pe for v in self.linear_vars], self.constant
         )
 
 
 class InequalityExpression(BinaryExpression, logical_expr.InequalityExpression):
-    __slots__ = ('_pe',)
+    __slots__ = ("_pe",)
     func = operator.le
 
     def __init__(self, args, strict=False):
@@ -1640,7 +1641,7 @@ class InequalityExpression(BinaryExpression, logical_expr.InequalityExpression):
 
 
 class EqualityExpression(BinaryExpression, logical_expr.EqualityExpression):
-    __slots__ = ('_pe',)
+    __slots__ = ("_pe",)
     func = operator.eq
 
 
@@ -2130,13 +2131,13 @@ def _get_expression_eq_expression(arg0, arg1):
 
 _binary_map = dict()
 _binary_map[float, _GeneralVarData, operator.mul] = _get_float_mul_var
-_binary_map[int, _GeneralVarData,  operator.mul] = _get_float_mul_var
+_binary_map[int, _GeneralVarData, operator.mul] = _get_float_mul_var
 _binary_map[float, _ParamData, operator.mul] = _get_float_mul_param
-_binary_map[int, _ParamData,  operator.mul] = _get_float_mul_param
+_binary_map[int, _ParamData, operator.mul] = _get_float_mul_param
 _binary_map[float, ScalarVar, operator.mul] = _get_float_mul_var
-_binary_map[int, ScalarVar,  operator.mul] = _get_float_mul_var
+_binary_map[int, ScalarVar, operator.mul] = _get_float_mul_var
 _binary_map[float, ScalarParam, operator.mul] = _get_float_mul_param
-_binary_map[int, ScalarParam,  operator.mul] = _get_float_mul_param
+_binary_map[int, ScalarParam, operator.mul] = _get_float_mul_param
 _binary_map[float, ProductExpression, operator.mul] = _get_float_mul_expression
 _binary_map[int, ProductExpression, operator.mul] = _get_float_mul_expression
 _binary_map[float, MonomialTermExpression, operator.mul] = _get_float_mul_expression
@@ -2152,13 +2153,13 @@ _binary_map[int, DivisionExpression, operator.mul] = _get_float_mul_expression
 _binary_map[float, PowExpression, operator.mul] = _get_float_mul_expression
 _binary_map[int, PowExpression, operator.mul] = _get_float_mul_expression
 _binary_map[float, _GeneralVarData, operator.add] = _get_float_add_var
-_binary_map[int, _GeneralVarData,  operator.add] = _get_float_add_var
+_binary_map[int, _GeneralVarData, operator.add] = _get_float_add_var
 _binary_map[float, _ParamData, operator.add] = _get_float_add_param
-_binary_map[int, _ParamData,  operator.add] = _get_float_add_param
+_binary_map[int, _ParamData, operator.add] = _get_float_add_param
 _binary_map[float, ScalarVar, operator.add] = _get_float_add_var
-_binary_map[int, ScalarVar,  operator.add] = _get_float_add_var
+_binary_map[int, ScalarVar, operator.add] = _get_float_add_var
 _binary_map[float, ScalarParam, operator.add] = _get_float_add_param
-_binary_map[int, ScalarParam,  operator.add] = _get_float_add_param
+_binary_map[int, ScalarParam, operator.add] = _get_float_add_param
 _binary_map[float, ProductExpression, operator.add] = _get_float_add_expression
 _binary_map[int, ProductExpression, operator.add] = _get_float_add_expression
 _binary_map[float, MonomialTermExpression, operator.add] = _get_float_add_expression
@@ -2174,13 +2175,13 @@ _binary_map[int, DivisionExpression, operator.add] = _get_float_add_expression
 _binary_map[float, PowExpression, operator.add] = _get_float_add_expression
 _binary_map[int, PowExpression, operator.add] = _get_float_add_expression
 _binary_map[float, _GeneralVarData, operator.sub] = _get_float_sub_var
-_binary_map[int, _GeneralVarData,  operator.sub] = _get_float_sub_var
+_binary_map[int, _GeneralVarData, operator.sub] = _get_float_sub_var
 _binary_map[float, _ParamData, operator.sub] = _get_float_sub_param
-_binary_map[int, _ParamData,  operator.sub] = _get_float_sub_param
+_binary_map[int, _ParamData, operator.sub] = _get_float_sub_param
 _binary_map[float, ScalarVar, operator.sub] = _get_float_sub_var
-_binary_map[int, ScalarVar,  operator.sub] = _get_float_sub_var
+_binary_map[int, ScalarVar, operator.sub] = _get_float_sub_var
 _binary_map[float, ScalarParam, operator.sub] = _get_float_sub_param
-_binary_map[int, ScalarParam,  operator.sub] = _get_float_sub_param
+_binary_map[int, ScalarParam, operator.sub] = _get_float_sub_param
 _binary_map[float, ProductExpression, operator.sub] = _get_float_sub_expression
 _binary_map[int, ProductExpression, operator.sub] = _get_float_sub_expression
 _binary_map[float, MonomialTermExpression, operator.sub] = _get_float_sub_expression
@@ -2196,13 +2197,13 @@ _binary_map[int, DivisionExpression, operator.sub] = _get_float_sub_expression
 _binary_map[float, PowExpression, operator.sub] = _get_float_sub_expression
 _binary_map[int, PowExpression, operator.sub] = _get_float_sub_expression
 _binary_map[float, _GeneralVarData, operator.truediv] = _get_float_div_var
-_binary_map[int, _GeneralVarData,  operator.truediv] = _get_float_div_var
+_binary_map[int, _GeneralVarData, operator.truediv] = _get_float_div_var
 _binary_map[float, _ParamData, operator.truediv] = _get_float_div_param
-_binary_map[int, _ParamData,  operator.truediv] = _get_float_div_param
+_binary_map[int, _ParamData, operator.truediv] = _get_float_div_param
 _binary_map[float, ScalarVar, operator.truediv] = _get_float_div_var
-_binary_map[int, ScalarVar,  operator.truediv] = _get_float_div_var
+_binary_map[int, ScalarVar, operator.truediv] = _get_float_div_var
 _binary_map[float, ScalarParam, operator.truediv] = _get_float_div_param
-_binary_map[int, ScalarParam,  operator.truediv] = _get_float_div_param
+_binary_map[int, ScalarParam, operator.truediv] = _get_float_div_param
 _binary_map[float, ProductExpression, operator.truediv] = _get_float_div_expression
 _binary_map[int, ProductExpression, operator.truediv] = _get_float_div_expression
 _binary_map[float, MonomialTermExpression, operator.truediv] = _get_float_div_expression
@@ -2218,13 +2219,13 @@ _binary_map[int, DivisionExpression, operator.truediv] = _get_float_div_expressi
 _binary_map[float, PowExpression, operator.truediv] = _get_float_div_expression
 _binary_map[int, PowExpression, operator.truediv] = _get_float_div_expression
 _binary_map[float, _GeneralVarData, operator.pow] = _get_float_pow_var
-_binary_map[int, _GeneralVarData,  operator.pow] = _get_float_pow_var
+_binary_map[int, _GeneralVarData, operator.pow] = _get_float_pow_var
 _binary_map[float, _ParamData, operator.pow] = _get_float_pow_param
-_binary_map[int, _ParamData,  operator.pow] = _get_float_pow_param
+_binary_map[int, _ParamData, operator.pow] = _get_float_pow_param
 _binary_map[float, ScalarVar, operator.pow] = _get_float_pow_var
-_binary_map[int, ScalarVar,  operator.pow] = _get_float_pow_var
+_binary_map[int, ScalarVar, operator.pow] = _get_float_pow_var
 _binary_map[float, ScalarParam, operator.pow] = _get_float_pow_param
-_binary_map[int, ScalarParam,  operator.pow] = _get_float_pow_param
+_binary_map[int, ScalarParam, operator.pow] = _get_float_pow_param
 _binary_map[float, ProductExpression, operator.pow] = _get_float_pow_expression
 _binary_map[int, ProductExpression, operator.pow] = _get_float_pow_expression
 _binary_map[float, MonomialTermExpression, operator.pow] = _get_float_pow_expression
@@ -2240,13 +2241,13 @@ _binary_map[int, DivisionExpression, operator.pow] = _get_float_pow_expression
 _binary_map[float, PowExpression, operator.pow] = _get_float_pow_expression
 _binary_map[int, PowExpression, operator.pow] = _get_float_pow_expression
 _binary_map[float, _GeneralVarData, operator.le] = _get_float_le_var
-_binary_map[int, _GeneralVarData,  operator.le] = _get_float_le_var
+_binary_map[int, _GeneralVarData, operator.le] = _get_float_le_var
 _binary_map[float, _ParamData, operator.le] = _get_float_le_param
-_binary_map[int, _ParamData,  operator.le] = _get_float_le_param
+_binary_map[int, _ParamData, operator.le] = _get_float_le_param
 _binary_map[float, ScalarVar, operator.le] = _get_float_le_var
-_binary_map[int, ScalarVar,  operator.le] = _get_float_le_var
+_binary_map[int, ScalarVar, operator.le] = _get_float_le_var
 _binary_map[float, ScalarParam, operator.le] = _get_float_le_param
-_binary_map[int, ScalarParam,  operator.le] = _get_float_le_param
+_binary_map[int, ScalarParam, operator.le] = _get_float_le_param
 _binary_map[float, ProductExpression, operator.le] = _get_float_le_expression
 _binary_map[int, ProductExpression, operator.le] = _get_float_le_expression
 _binary_map[float, MonomialTermExpression, operator.le] = _get_float_le_expression
@@ -2262,13 +2263,13 @@ _binary_map[int, DivisionExpression, operator.le] = _get_float_le_expression
 _binary_map[float, PowExpression, operator.le] = _get_float_le_expression
 _binary_map[int, PowExpression, operator.le] = _get_float_le_expression
 _binary_map[float, _GeneralVarData, operator.ge] = _get_float_ge_var
-_binary_map[int, _GeneralVarData,  operator.ge] = _get_float_ge_var
+_binary_map[int, _GeneralVarData, operator.ge] = _get_float_ge_var
 _binary_map[float, _ParamData, operator.ge] = _get_float_ge_param
-_binary_map[int, _ParamData,  operator.ge] = _get_float_ge_param
+_binary_map[int, _ParamData, operator.ge] = _get_float_ge_param
 _binary_map[float, ScalarVar, operator.ge] = _get_float_ge_var
-_binary_map[int, ScalarVar,  operator.ge] = _get_float_ge_var
+_binary_map[int, ScalarVar, operator.ge] = _get_float_ge_var
 _binary_map[float, ScalarParam, operator.ge] = _get_float_ge_param
-_binary_map[int, ScalarParam,  operator.ge] = _get_float_ge_param
+_binary_map[int, ScalarParam, operator.ge] = _get_float_ge_param
 _binary_map[float, ProductExpression, operator.ge] = _get_float_ge_expression
 _binary_map[int, ProductExpression, operator.ge] = _get_float_ge_expression
 _binary_map[float, MonomialTermExpression, operator.ge] = _get_float_ge_expression
@@ -2284,13 +2285,13 @@ _binary_map[int, DivisionExpression, operator.ge] = _get_float_ge_expression
 _binary_map[float, PowExpression, operator.ge] = _get_float_ge_expression
 _binary_map[int, PowExpression, operator.ge] = _get_float_ge_expression
 _binary_map[float, _GeneralVarData, operator.eq] = _get_float_eq_var
-_binary_map[int, _GeneralVarData,  operator.eq] = _get_float_eq_var
+_binary_map[int, _GeneralVarData, operator.eq] = _get_float_eq_var
 _binary_map[float, _ParamData, operator.eq] = _get_float_eq_param
-_binary_map[int, _ParamData,  operator.eq] = _get_float_eq_param
+_binary_map[int, _ParamData, operator.eq] = _get_float_eq_param
 _binary_map[float, ScalarVar, operator.eq] = _get_float_eq_var
-_binary_map[int, ScalarVar,  operator.eq] = _get_float_eq_var
+_binary_map[int, ScalarVar, operator.eq] = _get_float_eq_var
 _binary_map[float, ScalarParam, operator.eq] = _get_float_eq_param
-_binary_map[int, ScalarParam,  operator.eq] = _get_float_eq_param
+_binary_map[int, ScalarParam, operator.eq] = _get_float_eq_param
 _binary_map[float, ProductExpression, operator.eq] = _get_float_eq_expression
 _binary_map[int, ProductExpression, operator.eq] = _get_float_eq_expression
 _binary_map[float, MonomialTermExpression, operator.eq] = _get_float_eq_expression
@@ -2731,7 +2732,9 @@ _binary_map[ProductExpression, _ParamData, operator.mul] = _get_expression_mul_p
 _binary_map[ProductExpression, ScalarVar, operator.mul] = _get_expression_mul_var
 _binary_map[ProductExpression, ScalarParam, operator.mul] = _get_expression_mul_param
 _binary_map[ProductExpression, ProductExpression, operator.mul] = _get_expression_mul_expression
-_binary_map[ProductExpression, MonomialTermExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[
+    ProductExpression, MonomialTermExpression, operator.mul
+] = _get_expression_mul_expression
 _binary_map[ProductExpression, SumExpression, operator.mul] = _get_expression_mul_expression
 _binary_map[ProductExpression, LinearExpression, operator.mul] = _get_expression_mul_expression
 _binary_map[ProductExpression, NegationExpression, operator.mul] = _get_expression_mul_expression
@@ -2744,7 +2747,9 @@ _binary_map[ProductExpression, _ParamData, operator.add] = _get_expression_add_p
 _binary_map[ProductExpression, ScalarVar, operator.add] = _get_expression_add_var
 _binary_map[ProductExpression, ScalarParam, operator.add] = _get_expression_add_param
 _binary_map[ProductExpression, ProductExpression, operator.add] = _get_expression_add_expression
-_binary_map[ProductExpression, MonomialTermExpression, operator.add] = _get_expression_add_expression
+_binary_map[
+    ProductExpression, MonomialTermExpression, operator.add
+] = _get_expression_add_expression
 _binary_map[ProductExpression, SumExpression, operator.add] = _get_expression_add_expression
 _binary_map[ProductExpression, LinearExpression, operator.add] = _get_expression_add_expression
 _binary_map[ProductExpression, NegationExpression, operator.add] = _get_expression_add_expression
@@ -2757,7 +2762,9 @@ _binary_map[ProductExpression, _ParamData, operator.sub] = _get_expression_sub_p
 _binary_map[ProductExpression, ScalarVar, operator.sub] = _get_expression_sub_var
 _binary_map[ProductExpression, ScalarParam, operator.sub] = _get_expression_sub_param
 _binary_map[ProductExpression, ProductExpression, operator.sub] = _get_expression_sub_expression
-_binary_map[ProductExpression, MonomialTermExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[
+    ProductExpression, MonomialTermExpression, operator.sub
+] = _get_expression_sub_expression
 _binary_map[ProductExpression, SumExpression, operator.sub] = _get_expression_sub_expression
 _binary_map[ProductExpression, LinearExpression, operator.sub] = _get_expression_sub_expression
 _binary_map[ProductExpression, NegationExpression, operator.sub] = _get_expression_sub_expression
@@ -2770,11 +2777,17 @@ _binary_map[ProductExpression, _ParamData, operator.truediv] = _get_expression_d
 _binary_map[ProductExpression, ScalarVar, operator.truediv] = _get_expression_div_var
 _binary_map[ProductExpression, ScalarParam, operator.truediv] = _get_expression_div_param
 _binary_map[ProductExpression, ProductExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[ProductExpression, MonomialTermExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[
+    ProductExpression, MonomialTermExpression, operator.truediv
+] = _get_expression_div_expression
 _binary_map[ProductExpression, SumExpression, operator.truediv] = _get_expression_div_expression
 _binary_map[ProductExpression, LinearExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[ProductExpression, NegationExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[ProductExpression, DivisionExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[
+    ProductExpression, NegationExpression, operator.truediv
+] = _get_expression_div_expression
+_binary_map[
+    ProductExpression, DivisionExpression, operator.truediv
+] = _get_expression_div_expression
 _binary_map[ProductExpression, PowExpression, operator.truediv] = _get_expression_div_expression
 _binary_map[ProductExpression, float, operator.pow] = _get_expression_pow_float
 _binary_map[ProductExpression, int, operator.pow] = _get_expression_pow_float
@@ -2783,7 +2796,9 @@ _binary_map[ProductExpression, _ParamData, operator.pow] = _get_expression_pow_p
 _binary_map[ProductExpression, ScalarVar, operator.pow] = _get_expression_pow_var
 _binary_map[ProductExpression, ScalarParam, operator.pow] = _get_expression_pow_param
 _binary_map[ProductExpression, ProductExpression, operator.pow] = _get_expression_pow_expression
-_binary_map[ProductExpression, MonomialTermExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[
+    ProductExpression, MonomialTermExpression, operator.pow
+] = _get_expression_pow_expression
 _binary_map[ProductExpression, SumExpression, operator.pow] = _get_expression_pow_expression
 _binary_map[ProductExpression, LinearExpression, operator.pow] = _get_expression_pow_expression
 _binary_map[ProductExpression, NegationExpression, operator.pow] = _get_expression_pow_expression
@@ -2835,12 +2850,20 @@ _binary_map[MonomialTermExpression, _GeneralVarData, operator.mul] = _get_expres
 _binary_map[MonomialTermExpression, _ParamData, operator.mul] = _get_expression_mul_param
 _binary_map[MonomialTermExpression, ScalarVar, operator.mul] = _get_expression_mul_var
 _binary_map[MonomialTermExpression, ScalarParam, operator.mul] = _get_expression_mul_param
-_binary_map[MonomialTermExpression, ProductExpression, operator.mul] = _get_expression_mul_expression
-_binary_map[MonomialTermExpression, MonomialTermExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[
+    MonomialTermExpression, ProductExpression, operator.mul
+] = _get_expression_mul_expression
+_binary_map[
+    MonomialTermExpression, MonomialTermExpression, operator.mul
+] = _get_expression_mul_expression
 _binary_map[MonomialTermExpression, SumExpression, operator.mul] = _get_expression_mul_expression
 _binary_map[MonomialTermExpression, LinearExpression, operator.mul] = _get_expression_mul_expression
-_binary_map[MonomialTermExpression, NegationExpression, operator.mul] = _get_expression_mul_expression
-_binary_map[MonomialTermExpression, DivisionExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[
+    MonomialTermExpression, NegationExpression, operator.mul
+] = _get_expression_mul_expression
+_binary_map[
+    MonomialTermExpression, DivisionExpression, operator.mul
+] = _get_expression_mul_expression
 _binary_map[MonomialTermExpression, PowExpression, operator.mul] = _get_expression_mul_expression
 _binary_map[MonomialTermExpression, float, operator.add] = _get_expression_add_float
 _binary_map[MonomialTermExpression, int, operator.add] = _get_expression_add_float
@@ -2848,12 +2871,20 @@ _binary_map[MonomialTermExpression, _GeneralVarData, operator.add] = _get_expres
 _binary_map[MonomialTermExpression, _ParamData, operator.add] = _get_expression_add_param
 _binary_map[MonomialTermExpression, ScalarVar, operator.add] = _get_expression_add_var
 _binary_map[MonomialTermExpression, ScalarParam, operator.add] = _get_expression_add_param
-_binary_map[MonomialTermExpression, ProductExpression, operator.add] = _get_expression_add_expression
-_binary_map[MonomialTermExpression, MonomialTermExpression, operator.add] = _get_expression_add_expression
+_binary_map[
+    MonomialTermExpression, ProductExpression, operator.add
+] = _get_expression_add_expression
+_binary_map[
+    MonomialTermExpression, MonomialTermExpression, operator.add
+] = _get_expression_add_expression
 _binary_map[MonomialTermExpression, SumExpression, operator.add] = _get_expression_add_expression
 _binary_map[MonomialTermExpression, LinearExpression, operator.add] = _get_expression_add_expression
-_binary_map[MonomialTermExpression, NegationExpression, operator.add] = _get_expression_add_expression
-_binary_map[MonomialTermExpression, DivisionExpression, operator.add] = _get_expression_add_expression
+_binary_map[
+    MonomialTermExpression, NegationExpression, operator.add
+] = _get_expression_add_expression
+_binary_map[
+    MonomialTermExpression, DivisionExpression, operator.add
+] = _get_expression_add_expression
 _binary_map[MonomialTermExpression, PowExpression, operator.add] = _get_expression_add_expression
 _binary_map[MonomialTermExpression, float, operator.sub] = _get_expression_sub_float
 _binary_map[MonomialTermExpression, int, operator.sub] = _get_expression_sub_float
@@ -2861,12 +2892,20 @@ _binary_map[MonomialTermExpression, _GeneralVarData, operator.sub] = _get_expres
 _binary_map[MonomialTermExpression, _ParamData, operator.sub] = _get_expression_sub_param
 _binary_map[MonomialTermExpression, ScalarVar, operator.sub] = _get_expression_sub_var
 _binary_map[MonomialTermExpression, ScalarParam, operator.sub] = _get_expression_sub_param
-_binary_map[MonomialTermExpression, ProductExpression, operator.sub] = _get_expression_sub_expression
-_binary_map[MonomialTermExpression, MonomialTermExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[
+    MonomialTermExpression, ProductExpression, operator.sub
+] = _get_expression_sub_expression
+_binary_map[
+    MonomialTermExpression, MonomialTermExpression, operator.sub
+] = _get_expression_sub_expression
 _binary_map[MonomialTermExpression, SumExpression, operator.sub] = _get_expression_sub_expression
 _binary_map[MonomialTermExpression, LinearExpression, operator.sub] = _get_expression_sub_expression
-_binary_map[MonomialTermExpression, NegationExpression, operator.sub] = _get_expression_sub_expression
-_binary_map[MonomialTermExpression, DivisionExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[
+    MonomialTermExpression, NegationExpression, operator.sub
+] = _get_expression_sub_expression
+_binary_map[
+    MonomialTermExpression, DivisionExpression, operator.sub
+] = _get_expression_sub_expression
 _binary_map[MonomialTermExpression, PowExpression, operator.sub] = _get_expression_sub_expression
 _binary_map[MonomialTermExpression, float, operator.truediv] = _get_expression_div_float
 _binary_map[MonomialTermExpression, int, operator.truediv] = _get_expression_div_float
@@ -2874,25 +2913,47 @@ _binary_map[MonomialTermExpression, _GeneralVarData, operator.truediv] = _get_ex
 _binary_map[MonomialTermExpression, _ParamData, operator.truediv] = _get_expression_div_param
 _binary_map[MonomialTermExpression, ScalarVar, operator.truediv] = _get_expression_div_var
 _binary_map[MonomialTermExpression, ScalarParam, operator.truediv] = _get_expression_div_param
-_binary_map[MonomialTermExpression, ProductExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[MonomialTermExpression, MonomialTermExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[MonomialTermExpression, SumExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[MonomialTermExpression, LinearExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[MonomialTermExpression, NegationExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[MonomialTermExpression, DivisionExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[MonomialTermExpression, PowExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[
+    MonomialTermExpression, ProductExpression, operator.truediv
+] = _get_expression_div_expression
+_binary_map[
+    MonomialTermExpression, MonomialTermExpression, operator.truediv
+] = _get_expression_div_expression
+_binary_map[
+    MonomialTermExpression, SumExpression, operator.truediv
+] = _get_expression_div_expression
+_binary_map[
+    MonomialTermExpression, LinearExpression, operator.truediv
+] = _get_expression_div_expression
+_binary_map[
+    MonomialTermExpression, NegationExpression, operator.truediv
+] = _get_expression_div_expression
+_binary_map[
+    MonomialTermExpression, DivisionExpression, operator.truediv
+] = _get_expression_div_expression
+_binary_map[
+    MonomialTermExpression, PowExpression, operator.truediv
+] = _get_expression_div_expression
 _binary_map[MonomialTermExpression, float, operator.pow] = _get_expression_pow_float
 _binary_map[MonomialTermExpression, int, operator.pow] = _get_expression_pow_float
 _binary_map[MonomialTermExpression, _GeneralVarData, operator.pow] = _get_expression_pow_var
 _binary_map[MonomialTermExpression, _ParamData, operator.pow] = _get_expression_pow_param
 _binary_map[MonomialTermExpression, ScalarVar, operator.pow] = _get_expression_pow_var
 _binary_map[MonomialTermExpression, ScalarParam, operator.pow] = _get_expression_pow_param
-_binary_map[MonomialTermExpression, ProductExpression, operator.pow] = _get_expression_pow_expression
-_binary_map[MonomialTermExpression, MonomialTermExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[
+    MonomialTermExpression, ProductExpression, operator.pow
+] = _get_expression_pow_expression
+_binary_map[
+    MonomialTermExpression, MonomialTermExpression, operator.pow
+] = _get_expression_pow_expression
 _binary_map[MonomialTermExpression, SumExpression, operator.pow] = _get_expression_pow_expression
 _binary_map[MonomialTermExpression, LinearExpression, operator.pow] = _get_expression_pow_expression
-_binary_map[MonomialTermExpression, NegationExpression, operator.pow] = _get_expression_pow_expression
-_binary_map[MonomialTermExpression, DivisionExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[
+    MonomialTermExpression, NegationExpression, operator.pow
+] = _get_expression_pow_expression
+_binary_map[
+    MonomialTermExpression, DivisionExpression, operator.pow
+] = _get_expression_pow_expression
 _binary_map[MonomialTermExpression, PowExpression, operator.pow] = _get_expression_pow_expression
 _binary_map[MonomialTermExpression, float, operator.le] = _get_expression_le_float
 _binary_map[MonomialTermExpression, int, operator.le] = _get_expression_le_float
@@ -2901,7 +2962,9 @@ _binary_map[MonomialTermExpression, _ParamData, operator.le] = _get_expression_l
 _binary_map[MonomialTermExpression, ScalarVar, operator.le] = _get_expression_le_var
 _binary_map[MonomialTermExpression, ScalarParam, operator.le] = _get_expression_le_param
 _binary_map[MonomialTermExpression, ProductExpression, operator.le] = _get_expression_le_expression
-_binary_map[MonomialTermExpression, MonomialTermExpression, operator.le] = _get_expression_le_expression
+_binary_map[
+    MonomialTermExpression, MonomialTermExpression, operator.le
+] = _get_expression_le_expression
 _binary_map[MonomialTermExpression, SumExpression, operator.le] = _get_expression_le_expression
 _binary_map[MonomialTermExpression, LinearExpression, operator.le] = _get_expression_le_expression
 _binary_map[MonomialTermExpression, NegationExpression, operator.le] = _get_expression_le_expression
@@ -2914,7 +2977,9 @@ _binary_map[MonomialTermExpression, _ParamData, operator.ge] = _get_expression_g
 _binary_map[MonomialTermExpression, ScalarVar, operator.ge] = _get_expression_ge_var
 _binary_map[MonomialTermExpression, ScalarParam, operator.ge] = _get_expression_ge_param
 _binary_map[MonomialTermExpression, ProductExpression, operator.ge] = _get_expression_ge_expression
-_binary_map[MonomialTermExpression, MonomialTermExpression, operator.ge] = _get_expression_ge_expression
+_binary_map[
+    MonomialTermExpression, MonomialTermExpression, operator.ge
+] = _get_expression_ge_expression
 _binary_map[MonomialTermExpression, SumExpression, operator.ge] = _get_expression_ge_expression
 _binary_map[MonomialTermExpression, LinearExpression, operator.ge] = _get_expression_ge_expression
 _binary_map[MonomialTermExpression, NegationExpression, operator.ge] = _get_expression_ge_expression
@@ -2927,7 +2992,9 @@ _binary_map[MonomialTermExpression, _ParamData, operator.eq] = _get_expression_e
 _binary_map[MonomialTermExpression, ScalarVar, operator.eq] = _get_expression_eq_var
 _binary_map[MonomialTermExpression, ScalarParam, operator.eq] = _get_expression_eq_param
 _binary_map[MonomialTermExpression, ProductExpression, operator.eq] = _get_expression_eq_expression
-_binary_map[MonomialTermExpression, MonomialTermExpression, operator.eq] = _get_expression_eq_expression
+_binary_map[
+    MonomialTermExpression, MonomialTermExpression, operator.eq
+] = _get_expression_eq_expression
 _binary_map[MonomialTermExpression, SumExpression, operator.eq] = _get_expression_eq_expression
 _binary_map[MonomialTermExpression, LinearExpression, operator.eq] = _get_expression_eq_expression
 _binary_map[MonomialTermExpression, NegationExpression, operator.eq] = _get_expression_eq_expression
@@ -2980,7 +3047,9 @@ _binary_map[SumExpression, _ParamData, operator.truediv] = _get_expression_div_p
 _binary_map[SumExpression, ScalarVar, operator.truediv] = _get_expression_div_var
 _binary_map[SumExpression, ScalarParam, operator.truediv] = _get_expression_div_param
 _binary_map[SumExpression, ProductExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[SumExpression, MonomialTermExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[
+    SumExpression, MonomialTermExpression, operator.truediv
+] = _get_expression_div_expression
 _binary_map[SumExpression, SumExpression, operator.truediv] = _get_expression_div_expression
 _binary_map[SumExpression, LinearExpression, operator.truediv] = _get_expression_div_expression
 _binary_map[SumExpression, NegationExpression, operator.truediv] = _get_expression_div_expression
@@ -3085,7 +3154,9 @@ _binary_map[LinearExpression, _ParamData, operator.truediv] = _get_expression_di
 _binary_map[LinearExpression, ScalarVar, operator.truediv] = _get_expression_div_var
 _binary_map[LinearExpression, ScalarParam, operator.truediv] = _get_expression_div_param
 _binary_map[LinearExpression, ProductExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[LinearExpression, MonomialTermExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[
+    LinearExpression, MonomialTermExpression, operator.truediv
+] = _get_expression_div_expression
 _binary_map[LinearExpression, SumExpression, operator.truediv] = _get_expression_div_expression
 _binary_map[LinearExpression, LinearExpression, operator.truediv] = _get_expression_div_expression
 _binary_map[LinearExpression, NegationExpression, operator.truediv] = _get_expression_div_expression
@@ -3151,7 +3222,9 @@ _binary_map[NegationExpression, _ParamData, operator.mul] = _get_expression_mul_
 _binary_map[NegationExpression, ScalarVar, operator.mul] = _get_expression_mul_var
 _binary_map[NegationExpression, ScalarParam, operator.mul] = _get_expression_mul_param
 _binary_map[NegationExpression, ProductExpression, operator.mul] = _get_expression_mul_expression
-_binary_map[NegationExpression, MonomialTermExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[
+    NegationExpression, MonomialTermExpression, operator.mul
+] = _get_expression_mul_expression
 _binary_map[NegationExpression, SumExpression, operator.mul] = _get_expression_mul_expression
 _binary_map[NegationExpression, LinearExpression, operator.mul] = _get_expression_mul_expression
 _binary_map[NegationExpression, NegationExpression, operator.mul] = _get_expression_mul_expression
@@ -3164,7 +3237,9 @@ _binary_map[NegationExpression, _ParamData, operator.add] = _get_expression_add_
 _binary_map[NegationExpression, ScalarVar, operator.add] = _get_expression_add_var
 _binary_map[NegationExpression, ScalarParam, operator.add] = _get_expression_add_param
 _binary_map[NegationExpression, ProductExpression, operator.add] = _get_expression_add_expression
-_binary_map[NegationExpression, MonomialTermExpression, operator.add] = _get_expression_add_expression
+_binary_map[
+    NegationExpression, MonomialTermExpression, operator.add
+] = _get_expression_add_expression
 _binary_map[NegationExpression, SumExpression, operator.add] = _get_expression_add_expression
 _binary_map[NegationExpression, LinearExpression, operator.add] = _get_expression_add_expression
 _binary_map[NegationExpression, NegationExpression, operator.add] = _get_expression_add_expression
@@ -3177,7 +3252,9 @@ _binary_map[NegationExpression, _ParamData, operator.sub] = _get_expression_sub_
 _binary_map[NegationExpression, ScalarVar, operator.sub] = _get_expression_sub_var
 _binary_map[NegationExpression, ScalarParam, operator.sub] = _get_expression_sub_param
 _binary_map[NegationExpression, ProductExpression, operator.sub] = _get_expression_sub_expression
-_binary_map[NegationExpression, MonomialTermExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[
+    NegationExpression, MonomialTermExpression, operator.sub
+] = _get_expression_sub_expression
 _binary_map[NegationExpression, SumExpression, operator.sub] = _get_expression_sub_expression
 _binary_map[NegationExpression, LinearExpression, operator.sub] = _get_expression_sub_expression
 _binary_map[NegationExpression, NegationExpression, operator.sub] = _get_expression_sub_expression
@@ -3189,12 +3266,20 @@ _binary_map[NegationExpression, _GeneralVarData, operator.truediv] = _get_expres
 _binary_map[NegationExpression, _ParamData, operator.truediv] = _get_expression_div_param
 _binary_map[NegationExpression, ScalarVar, operator.truediv] = _get_expression_div_var
 _binary_map[NegationExpression, ScalarParam, operator.truediv] = _get_expression_div_param
-_binary_map[NegationExpression, ProductExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[NegationExpression, MonomialTermExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[
+    NegationExpression, ProductExpression, operator.truediv
+] = _get_expression_div_expression
+_binary_map[
+    NegationExpression, MonomialTermExpression, operator.truediv
+] = _get_expression_div_expression
 _binary_map[NegationExpression, SumExpression, operator.truediv] = _get_expression_div_expression
 _binary_map[NegationExpression, LinearExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[NegationExpression, NegationExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[NegationExpression, DivisionExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[
+    NegationExpression, NegationExpression, operator.truediv
+] = _get_expression_div_expression
+_binary_map[
+    NegationExpression, DivisionExpression, operator.truediv
+] = _get_expression_div_expression
 _binary_map[NegationExpression, PowExpression, operator.truediv] = _get_expression_div_expression
 _binary_map[NegationExpression, float, operator.pow] = _get_expression_pow_float
 _binary_map[NegationExpression, int, operator.pow] = _get_expression_pow_float
@@ -3203,7 +3288,9 @@ _binary_map[NegationExpression, _ParamData, operator.pow] = _get_expression_pow_
 _binary_map[NegationExpression, ScalarVar, operator.pow] = _get_expression_pow_var
 _binary_map[NegationExpression, ScalarParam, operator.pow] = _get_expression_pow_param
 _binary_map[NegationExpression, ProductExpression, operator.pow] = _get_expression_pow_expression
-_binary_map[NegationExpression, MonomialTermExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[
+    NegationExpression, MonomialTermExpression, operator.pow
+] = _get_expression_pow_expression
 _binary_map[NegationExpression, SumExpression, operator.pow] = _get_expression_pow_expression
 _binary_map[NegationExpression, LinearExpression, operator.pow] = _get_expression_pow_expression
 _binary_map[NegationExpression, NegationExpression, operator.pow] = _get_expression_pow_expression
@@ -3256,7 +3343,9 @@ _binary_map[DivisionExpression, _ParamData, operator.mul] = _get_expression_mul_
 _binary_map[DivisionExpression, ScalarVar, operator.mul] = _get_expression_mul_var
 _binary_map[DivisionExpression, ScalarParam, operator.mul] = _get_expression_mul_param
 _binary_map[DivisionExpression, ProductExpression, operator.mul] = _get_expression_mul_expression
-_binary_map[DivisionExpression, MonomialTermExpression, operator.mul] = _get_expression_mul_expression
+_binary_map[
+    DivisionExpression, MonomialTermExpression, operator.mul
+] = _get_expression_mul_expression
 _binary_map[DivisionExpression, SumExpression, operator.mul] = _get_expression_mul_expression
 _binary_map[DivisionExpression, LinearExpression, operator.mul] = _get_expression_mul_expression
 _binary_map[DivisionExpression, NegationExpression, operator.mul] = _get_expression_mul_expression
@@ -3269,7 +3358,9 @@ _binary_map[DivisionExpression, _ParamData, operator.add] = _get_expression_add_
 _binary_map[DivisionExpression, ScalarVar, operator.add] = _get_expression_add_var
 _binary_map[DivisionExpression, ScalarParam, operator.add] = _get_expression_add_param
 _binary_map[DivisionExpression, ProductExpression, operator.add] = _get_expression_add_expression
-_binary_map[DivisionExpression, MonomialTermExpression, operator.add] = _get_expression_add_expression
+_binary_map[
+    DivisionExpression, MonomialTermExpression, operator.add
+] = _get_expression_add_expression
 _binary_map[DivisionExpression, SumExpression, operator.add] = _get_expression_add_expression
 _binary_map[DivisionExpression, LinearExpression, operator.add] = _get_expression_add_expression
 _binary_map[DivisionExpression, NegationExpression, operator.add] = _get_expression_add_expression
@@ -3282,7 +3373,9 @@ _binary_map[DivisionExpression, _ParamData, operator.sub] = _get_expression_sub_
 _binary_map[DivisionExpression, ScalarVar, operator.sub] = _get_expression_sub_var
 _binary_map[DivisionExpression, ScalarParam, operator.sub] = _get_expression_sub_param
 _binary_map[DivisionExpression, ProductExpression, operator.sub] = _get_expression_sub_expression
-_binary_map[DivisionExpression, MonomialTermExpression, operator.sub] = _get_expression_sub_expression
+_binary_map[
+    DivisionExpression, MonomialTermExpression, operator.sub
+] = _get_expression_sub_expression
 _binary_map[DivisionExpression, SumExpression, operator.sub] = _get_expression_sub_expression
 _binary_map[DivisionExpression, LinearExpression, operator.sub] = _get_expression_sub_expression
 _binary_map[DivisionExpression, NegationExpression, operator.sub] = _get_expression_sub_expression
@@ -3294,12 +3387,20 @@ _binary_map[DivisionExpression, _GeneralVarData, operator.truediv] = _get_expres
 _binary_map[DivisionExpression, _ParamData, operator.truediv] = _get_expression_div_param
 _binary_map[DivisionExpression, ScalarVar, operator.truediv] = _get_expression_div_var
 _binary_map[DivisionExpression, ScalarParam, operator.truediv] = _get_expression_div_param
-_binary_map[DivisionExpression, ProductExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[DivisionExpression, MonomialTermExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[
+    DivisionExpression, ProductExpression, operator.truediv
+] = _get_expression_div_expression
+_binary_map[
+    DivisionExpression, MonomialTermExpression, operator.truediv
+] = _get_expression_div_expression
 _binary_map[DivisionExpression, SumExpression, operator.truediv] = _get_expression_div_expression
 _binary_map[DivisionExpression, LinearExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[DivisionExpression, NegationExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[DivisionExpression, DivisionExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[
+    DivisionExpression, NegationExpression, operator.truediv
+] = _get_expression_div_expression
+_binary_map[
+    DivisionExpression, DivisionExpression, operator.truediv
+] = _get_expression_div_expression
 _binary_map[DivisionExpression, PowExpression, operator.truediv] = _get_expression_div_expression
 _binary_map[DivisionExpression, float, operator.pow] = _get_expression_pow_float
 _binary_map[DivisionExpression, int, operator.pow] = _get_expression_pow_float
@@ -3308,7 +3409,9 @@ _binary_map[DivisionExpression, _ParamData, operator.pow] = _get_expression_pow_
 _binary_map[DivisionExpression, ScalarVar, operator.pow] = _get_expression_pow_var
 _binary_map[DivisionExpression, ScalarParam, operator.pow] = _get_expression_pow_param
 _binary_map[DivisionExpression, ProductExpression, operator.pow] = _get_expression_pow_expression
-_binary_map[DivisionExpression, MonomialTermExpression, operator.pow] = _get_expression_pow_expression
+_binary_map[
+    DivisionExpression, MonomialTermExpression, operator.pow
+] = _get_expression_pow_expression
 _binary_map[DivisionExpression, SumExpression, operator.pow] = _get_expression_pow_expression
 _binary_map[DivisionExpression, LinearExpression, operator.pow] = _get_expression_pow_expression
 _binary_map[DivisionExpression, NegationExpression, operator.pow] = _get_expression_pow_expression
@@ -3400,7 +3503,9 @@ _binary_map[PowExpression, _ParamData, operator.truediv] = _get_expression_div_p
 _binary_map[PowExpression, ScalarVar, operator.truediv] = _get_expression_div_var
 _binary_map[PowExpression, ScalarParam, operator.truediv] = _get_expression_div_param
 _binary_map[PowExpression, ProductExpression, operator.truediv] = _get_expression_div_expression
-_binary_map[PowExpression, MonomialTermExpression, operator.truediv] = _get_expression_div_expression
+_binary_map[
+    PowExpression, MonomialTermExpression, operator.truediv
+] = _get_expression_div_expression
 _binary_map[PowExpression, SumExpression, operator.truediv] = _get_expression_div_expression
 _binary_map[PowExpression, LinearExpression, operator.truediv] = _get_expression_div_expression
 _binary_map[PowExpression, NegationExpression, operator.truediv] = _get_expression_div_expression

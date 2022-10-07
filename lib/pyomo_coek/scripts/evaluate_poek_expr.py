@@ -20,19 +20,19 @@ def main():
     N = 50000
 
     timer = TicTocTimer()
-    timer.tic('start')
+    timer.tic("start")
 
     for ndx in range(N):
         # e = LinearExpression(linear_coefs=[i for i in range(n_vars)],
         #                      linear_vars=[m.x[i] for i in range(n_vars)])
-        e = sum(i*m.x[i] for i in range(n_vars))
-    timer.toc('constructed pyomo expressions')
+        e = sum(i * m.x[i] for i in range(n_vars))
+    timer.toc("constructed pyomo expressions")
 
-    #pr = enable_c_profiler()
+    # pr = enable_c_profiler()
     for ndx in range(N):
-        ce = pc.quicksum(i*m.cx[i] for i in range(n_vars))
-    timer.toc('constructed pyomo-coek expressions')
-    #disable_c_profiler(pr)
+        ce = pc.quicksum(i * m.cx[i] for i in range(n_vars))
+    timer.toc("constructed pyomo-coek expressions")
+    # disable_c_profiler(pr)
 
     # for ndx in range(N):
     #     pk_e = pk.construct_linear_expression([i for i in range(n_vars)], [x[i] for i in range(n_vars)])
@@ -40,35 +40,35 @@ def main():
 
     print(pe.value(e))
     print(pe.value(ce))
-    timer.toc('printed values')
+    timer.toc("printed values")
 
     for ndx in range(N):
         e_val = e()
-    timer.toc('done pyomo eval')
+    timer.toc("done pyomo eval")
 
     for ndx in range(N):
         e_val = ce(False)
-    timer.toc('done pyomo-coek eval')
+    timer.toc("done pyomo-coek eval")
 
     for ndx in range(N):
         repn = generate_standard_repn(e)
-    timer.toc('pyomo generate_standard_repn')
+    timer.toc("pyomo generate_standard_repn")
 
     for ndx in range(N):
         repn = pc.generate_standard_repn(ce)
-    timer.toc('pyomo-poek generate_standard_repn')
+    timer.toc("pyomo-poek generate_standard_repn")
 
     for ndx in range(N):
         vlist = list(identify_variables(e))
-    timer.toc('pyomo identify_variables')
+    timer.toc("pyomo identify_variables")
 
     for ndx in range(N):
         vlist = list(identify_variables(ce))
-    timer.toc('pyomo-poek identify_variables')
+    timer.toc("pyomo-poek identify_variables")
 
     print([str(i) for i in vlist])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
     # create_indexed_var()

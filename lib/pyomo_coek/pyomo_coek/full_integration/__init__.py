@@ -1,5 +1,14 @@
 from . import expression, constraint, objective
-from .expression import Var, ScalarVar, IndexedVar, quicksum, LinearExpression, Param, IndexedParam, ScalarParam
+from .expression import (
+    Var,
+    ScalarVar,
+    IndexedVar,
+    quicksum,
+    LinearExpression,
+    Param,
+    IndexedParam,
+    ScalarParam,
+)
 from .standard_repn import _generate_standard_repn
 from .constraint import Constraint, ScalarConstraint, IndexedConstraint
 from .objective import Objective, ScalarObjective, IndexedObjective

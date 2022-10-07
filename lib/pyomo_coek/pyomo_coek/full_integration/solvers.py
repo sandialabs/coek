@@ -1,11 +1,11 @@
 from pyomo.contrib.appsi.base import (
-TerminationCondition,
-SolverConfig,
-MIPSolverConfig,
-SolutionLoader,
-Results,
-Solver,
-SolverFactory
+    TerminationCondition,
+    SolverConfig,
+    MIPSolverConfig,
+    SolutionLoader,
+    Results,
+    Solver,
+    SolverFactory,
 )
 import poek as pk
 from typing import Tuple, Dict
@@ -17,7 +17,9 @@ from pyomo_coek.full_integration.constraint import Constraint
 from pyomo_coek.full_integration.expression import Var
 
 
-_nlp_solvers = {'ipopt',}
+_nlp_solvers = {
+    "ipopt",
+}
 
 
 class HybridSolver(Solver):
@@ -35,7 +37,7 @@ class HybridSolver(Solver):
             return self.Availability.NotFound
 
     def version(self) -> Tuple:
-        raise NotImplementedError('ToDo')
+        raise NotImplementedError("ToDo")
 
     @property
     def options(self):
@@ -47,12 +49,10 @@ class HybridSolver(Solver):
 
     @property
     def symbol_map(self):
-        raise NotImplementedError('ToDo')
+        raise NotImplementedError("ToDo")
 
-    def _construct_poek_model(
-            self, model: _BlockData, timer: HierarchicalTimer
-    ) -> pk.model:
-        timer.start('construct poek model')
+    def _construct_poek_model(self, model: _BlockData, timer: HierarchicalTimer) -> pk.model:
+        timer.start("construct poek model")
         pm = pk.model()
         for v in model.component_data_objects(Var, descend_into=True):
             pm.add_variable_(v._pe)
@@ -64,7 +64,7 @@ class HybridSolver(Solver):
             else:
                 obj_expr = -obj.expr._pe
             pm.add_objective(obj_expr, True)
-        timer.stop('construct poek model')
+        timer.stop("construct poek model")
 
         self._poek_model = pm
         return pm
@@ -73,7 +73,7 @@ class HybridSolver(Solver):
         if timer is None:
             timer = HierarchicalTimer()
         pm = self._construct_poek_model(model, timer)
-        timer.start('coek load')
+        timer.start("coek load")
 
         if self._solver_name in _nlp_solvers:
             self._opt = pk.nlp_solver(self._solver_name)
@@ -83,7 +83,7 @@ class HybridSolver(Solver):
         else:
             self._opt = pk.solver(self._solver_name)
             self._opt.load(pm)
-        timer.stop('coek load')
+        timer.stop("coek load")
 
     def _set_options(self):
         for key, option in self.options.items():
@@ -95,9 +95,9 @@ class HybridSolver(Solver):
 
         self._set_options()
 
-        timer.start('coek resolve')
+        timer.start("coek resolve")
         self._opt.resolve()
-        timer.stop('coek resolve')
+        timer.stop("coek resolve")
 
         res = Results()
         return res
@@ -108,7 +108,7 @@ class HybridSolver(Solver):
 
         pm = self._construct_poek_model(model, timer)
 
-        timer.start('coek solve')
+        timer.start("coek solve")
         if self._solver_name in _nlp_solvers:
             self._opt = pk.nlp_solver(self._solver_name)
             nlp = pk.nlp_model(pm, "cppad")
@@ -119,7 +119,7 @@ class HybridSolver(Solver):
             self._opt = pk.solver(self._solver_name)
             self._set_options()
             _res = self._opt.solve(pm)
-        timer.stop('coek solve')
+        timer.stop("coek solve")
 
         res = Results()
         return res
@@ -127,7 +127,7 @@ class HybridSolver(Solver):
 
 class Gurobi(HybridSolver):
     def __init__(self):
-        super().__init__('gurobi')
+        super().__init__("gurobi")
         self._config = MIPSolverConfig()
 
     @property
@@ -156,7 +156,7 @@ class Gurobi(HybridSolver):
 
 class Ipopt(HybridSolver):
     def __init__(self):
-        super().__init__('ipopt')
+        super().__init__("ipopt")
         self._config = SolverConfig()
 
     @property
@@ -183,7 +183,5 @@ class Ipopt(HybridSolver):
         super()._set_options()
 
 
-SolverFactory.register(name='coek_gurobi',
-                       doc='Coek interface to Gurobi')(Gurobi)
-SolverFactory.register(name='coek_ipopt',
-                       doc='Coek interface to Gurobi')(Ipopt)
+SolverFactory.register(name="coek_gurobi", doc="Coek interface to Gurobi")(Gurobi)
+SolverFactory.register(name="coek_ipopt", doc="Coek interface to Gurobi")(Ipopt)

@@ -9,8 +9,8 @@ from pyomo.core.expr.visitor import identify_variables
 
 def create_indexed_var():
     m = pe.ConcreteModel()
-    m.x = pc.Var([1,2,3])
-    e = 2*m.x[1] + m.x[2] - m.x[3]
+    m.x = pc.Var([1, 2, 3])
+    e = 2 * m.x[1] + m.x[2] - m.x[3]
     print(e.to_list())
 
 
@@ -27,19 +27,19 @@ def main():
     N = 50000
 
     timer = TicTocTimer()
-    timer.tic('start')
+    timer.tic("start")
 
     for ndx in range(N):
         # e = LinearExpression(linear_coefs=[i for i in range(n_vars)],
         #                      linear_vars=[m.x[i] for i in range(n_vars)])
-        e = sum(i*m.x[i] for i in range(n_vars))
-    timer.toc('constructed pyomo expressions')
+        e = sum(i * m.x[i] for i in range(n_vars))
+    timer.toc("constructed pyomo expressions")
 
-    #pr = enable_c_profiler()
+    # pr = enable_c_profiler()
     for ndx in range(N):
-        ce = sum(i*m.cx[i] for i in range(n_vars))
-    timer.toc('constructed pyomo-poek expressions')
-    #disable_c_profiler(pr)
+        ce = sum(i * m.cx[i] for i in range(n_vars))
+    timer.toc("constructed pyomo-poek expressions")
+    # disable_c_profiler(pr)
 
     # for ndx in range(N):
     #     pk_e = pk.construct_linear_expression([i for i in range(n_vars)], [x[i] for i in range(n_vars)])
@@ -47,25 +47,25 @@ def main():
 
     print(pe.value(e))
     print(pe.value(ce))
-    timer.toc('printed values')
+    timer.toc("printed values")
 
     for ndx in range(N):
         e_val = e()
-    timer.toc('done pyomo eval')
+    timer.toc("done pyomo eval")
 
     for ndx in range(N):
         e_val = ce(False)
-    timer.toc('done pyomo-poek eval')
+    timer.toc("done pyomo-poek eval")
 
     for ndx in range(N):
         repn = generate_standard_repn(e)
-    timer.toc('pyomo generate_standard_repn')
+    timer.toc("pyomo generate_standard_repn")
 
     for ndx in range(N):
         repn = pk.generate_standard_repn(ce)
-    timer.toc('pyomo-poek generate_standard_repn')
+    timer.toc("pyomo-poek generate_standard_repn")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
     # create_indexed_var()

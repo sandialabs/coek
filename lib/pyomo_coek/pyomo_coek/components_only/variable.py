@@ -39,7 +39,7 @@ _rev_domain_map[pk.VariableTypes.Integers] = Integers
 
 class _GeneralVarData(ComponentData):
 
-    __slots__ = ('_stale', '_pe')
+    __slots__ = ("_stale", "_pe")
 
     def __init__(self, component=None):
         super().__init__(component=component)
@@ -240,7 +240,7 @@ class _GeneralVarData(ComponentData):
     def __pow__(self, other):
         func, other = _var_pow_map[type(other)](other)
         return func(self._pe, other)
-        #return self._pe ** _other_operand_map[type(other)](other)
+        # return self._pe ** _other_operand_map[type(other)](other)
 
     def __rpow__(self, other):
         return _other_operand_map[type(other)](other) ** self._pe
@@ -257,7 +257,7 @@ class _GeneralVarData(ComponentData):
     def __eq__(self, other):
         func, other = _var_eq_map[type(other)](other)
         return func(self._pe, other)
-        #return self._pe == _other_operand_map[type(other)](other)
+        # return self._pe == _other_operand_map[type(other)](other)
 
     def is_numeric_type(self):
         return True
@@ -278,22 +278,18 @@ class Var(IndexedComponent):
 
     def __init__(self, *args, **kwargs):
         self._rule_init = Initializer(
-            self._pop_from_kwargs(
-                'Var', kwargs, ('rule', 'initialize'), 0
-            )
+            self._pop_from_kwargs("Var", kwargs, ("rule", "initialize"), 0)
         )
         self._rule_domain = Initializer(
-            self._pop_from_kwargs(
-                'Var', kwargs, ('domain', 'within'), Reals
-            )
+            self._pop_from_kwargs("Var", kwargs, ("domain", "within"), Reals)
         )
-        _bounds_arg = kwargs.pop('bounds', None)
-        self._dense = kwargs.pop('dense', True)
-        self._units = kwargs.pop('units', None)
+        _bounds_arg = kwargs.pop("bounds", None)
+        self._dense = kwargs.pop("dense", True)
+        self._units = kwargs.pop("units", None)
         if self._units is not None:
             self._units = units.get_units(self._units)
 
-        kwargs.setdefault('ctype', Var)
+        kwargs.setdefault("ctype", Var)
         IndexedComponent.__init__(self, *args, **kwargs)
 
         if self.is_indexed():
@@ -311,8 +307,7 @@ class Var(IndexedComponent):
                 )
                 self._dense = True
         self._rule_bounds = Initializer(
-            _bounds_arg,
-            treat_sequences_as_mappings=treat_bounds_sequences_as_mappings
+            _bounds_arg, treat_sequences_as_mappings=treat_bounds_sequences_as_mappings
         )
 
     def flag_as_stale(self):
@@ -342,7 +337,7 @@ class Var(IndexedComponent):
         """
         if self._constructed:
             return
-        self._constructed=True
+        self._constructed = True
 
         timer = ConstructionTimer(self)
         if is_debug_set(logger):
@@ -365,17 +360,16 @@ class Var(IndexedComponent):
                     "with 'dense=True'.  Reverting to 'dense=False' as "
                     "it is not possible to make this variable dense.  "
                     "This warning can be suppressed by specifying "
-                    "'dense=False'" % (self.name,))
+                    "'dense=False'" % (self.name,)
+                )
                 self._dense = False
 
-            if ( self._rule_init is not None and
-                 self._rule_init.contains_indices() ):
+            if self._rule_init is not None and self._rule_init.contains_indices():
                 # Historically we have allowed Vars to be initialized by
                 # a sparse map (i.e., a dict containing only some of the
                 # keys).  We will wrap the incoming initializer to map
                 # KeyErrors to None
-                self._rule_init = DefaultInitializer(
-                    self._rule_init, None, KeyError)
+                self._rule_init = DefaultInitializer(self._rule_init, None, KeyError)
                 # The index is coming in externally; we need to validate it
                 for index in self._rule_init.indices():
                     self[index]
@@ -398,20 +392,21 @@ class Var(IndexedComponent):
                 # (constant portions of) every VarData so as to not
                 # repeat all the domain/bounds validation.
                 try:
-                    ref = self._getitem_when_not_present(
-                        next(iter(self.index_set())))
+                    ref = self._getitem_when_not_present(next(iter(self.index_set())))
                 except StopIteration:
                     # Empty index!
                     return
                 call_domain_rule = not self._rule_domain.constant()
                 call_bounds_rule = self._rule_bounds is not None and (
-                        not self._rule_bounds.constant())
+                    not self._rule_bounds.constant()
+                )
                 call_init_rule = self._rule_init is not None and (
                     not self._rule_init.constant()
                     # If either the domain or bounds change, then we
                     # need to re-verify the initial value, even if it is
                     # constant:
-                    or call_domain_rule or call_bounds_rule
+                    or call_domain_rule
+                    or call_bounds_rule
                 )
                 # Initialize all the component datas with the common data
                 poek_var_list = pk.copy_var(ref._pe, len(self.index_set()))
@@ -445,11 +440,8 @@ class Var(IndexedComponent):
             err = sys.exc_info()[1]
             logger.error(
                 "Rule failed when initializing variable for "
-                "Var %s with index %s:\n%s: %s"
-                % (self.name,
-                   str(index),
-                   type(err).__name__,
-                   err))
+                "Var %s with index %s:\n%s: %s" % (self.name, str(index), type(err).__name__, err)
+            )
             raise
         finally:
             timer.report()
@@ -498,18 +490,13 @@ class Var(IndexedComponent):
             ("Index", self._index_set if self.is_indexed() else None),
         ]
         if self._units is not None:
-            headers.append(('Units', str(self._units)))
-        return ( headers,
-                 self._data.items(),
-                 ( "Lower","Value","Upper","Fixed","Stale","Domain"),
-                 lambda k, v: [ v.lb,
-                                v.value,
-                                v.ub,
-                                v.fixed,
-                                v.stale,
-                                v.domain
-                                ]
-                 )
+            headers.append(("Units", str(self._units)))
+        return (
+            headers,
+            self._data.items(),
+            ("Lower", "Value", "Upper", "Fixed", "Stale", "Domain"),
+            lambda k, v: [v.lb, v.value, v.ub, v.fixed, v.stale, v.domain],
+        )
 
 
 class ScalarVar(_GeneralVarData, Var):
@@ -572,7 +559,9 @@ class IndexedVar(Var):
         raise AttributeError(
             "The domain is not an attribute for IndexedVar. It "
             "can be set for all indices using this property setter, "
-            "but must be accessed for individual variables in this container.")
+            "but must be accessed for individual variables in this container."
+        )
+
     @domain.setter
     def domain(self, domain):
         """Sets the domain for all variables in this container."""
@@ -594,8 +583,8 @@ def _raise_modifying_immutable_error(obj, index):
         "Attempting to set the value of the immutable parameter "
         "%s after the parameter has been constructed.  If you intend "
         "to change the value of this parameter dynamically, please "
-        "declare the parameter as mutable [i.e., Param(mutable=True)]"
-        % (name,))
+        "declare the parameter as mutable [i.e., Param(mutable=True)]" % (name,)
+    )
 
 
 class _ImplicitAny(Any.__class__):
@@ -605,6 +594,7 @@ class _ImplicitAny(Any.__class__):
     change of Param's implicit domain from Any to Reals.
 
     """
+
     def __new__(cls, **kwargs):
         # Strip off owner / kwargs before calling base __new__
         return super().__new__(cls)
@@ -617,11 +607,11 @@ class _ImplicitAny(Any.__class__):
 
     def __getstate__(self):
         state = super().__getstate__()
-        state['_owner'] = None if self._owner is None else self._owner()
+        state["_owner"] = None if self._owner is None else self._owner()
         return state
 
     def __setstate__(self, state):
-        _owner = state.pop('_owner')
+        _owner = state.pop("_owner")
         super().__setstate__(state)
         self._owner = None if _owner is None else weakref_ref(_owner)
 
@@ -633,7 +623,7 @@ class _ImplicitAny(Any.__class__):
     def __contains__(self, val):
         if val not in Reals:
             if self._owner is None or self._owner() is None:
-                name = 'Unknown'
+                name = "Unknown"
             else:
                 name = self._owner().name
             deprecation_warning(
@@ -643,7 +633,9 @@ class _ImplicitAny(Any.__class__):
                 "future.  If you really intend the domain of this Param"
                 "to be 'Any', you can suppress this warning by explicitly "
                 "specifying 'within=Any' to the Param constructor.",
-                version='5.6.9', remove_in='6.0')
+                version="5.6.9",
+                remove_in="6.0",
+            )
         return True
 
     # This should "mock up" a global set, so the "name" should always be
@@ -659,6 +651,7 @@ class _ImplicitAny(Any.__class__):
         if self._owner is None or self._owner() is None:
             return None
         return self._owner()._parent
+
     # This is not settable.  However the base classes assume that it is,
     # so we need to define the setter and just ignore the incoming value
     @_parent.setter
@@ -668,7 +661,7 @@ class _ImplicitAny(Any.__class__):
 
 class _ParamData(ComponentData):
 
-    __slots__ = ('_pe',)
+    __slots__ = ("_pe",)
 
     def __init__(self, component):
         super().__init__(component=component)
@@ -782,27 +775,26 @@ class Param(IndexedComponent):
             return super(Param, cls).__new__(IndexedParam)
 
     def __init__(self, *args, **kwd):
-        _init = self._pop_from_kwargs(
-            'Param', kwd, ('rule', 'initialize'), NOTSET)
-        self.domain = self._pop_from_kwargs('Param', kwd, ('domain', 'within'))
-        self._validate      = kwd.pop('validate', None )
-        self._mutable       = kwd.pop('mutable', Param.DefaultMutable )
-        self._default_val   = kwd.pop('default', 0 )
-        self._dense_initialize = kwd.pop('initialize_as_dense', False)
-        self._units         = kwd.pop('units', None)
+        _init = self._pop_from_kwargs("Param", kwd, ("rule", "initialize"), NOTSET)
+        self.domain = self._pop_from_kwargs("Param", kwd, ("domain", "within"))
+        self._validate = kwd.pop("validate", None)
+        self._mutable = kwd.pop("mutable", Param.DefaultMutable)
+        self._default_val = kwd.pop("default", 0)
+        self._dense_initialize = kwd.pop("initialize_as_dense", False)
+        self._units = kwd.pop("units", None)
         if self._units is not None:
             self._units = units.get_units(self._units)
             self._mutable = True
 
-        kwd.setdefault('ctype', Param)
+        kwd.setdefault("ctype", Param)
         IndexedComponent.__init__(self, *args, **kwd)
 
         if self.domain is None:
-            self.domain = _ImplicitAny(owner=self, name='Any')
+            self.domain = _ImplicitAny(owner=self, name="Any")
         # After IndexedComponent.__init__ so we can call is_indexed().
-        self._rule = Initializer(_init,
-                                 treat_sequences_as_mappings=self.is_indexed(),
-                                 arg_not_specified=NOTSET)
+        self._rule = Initializer(
+            _init, treat_sequences_as_mappings=self.is_indexed(), arg_not_specified=NOTSET
+        )
 
     def __len__(self):
         """
@@ -822,7 +814,7 @@ class Param(IndexedComponent):
     # We do not need to override keys(), as the __len__ override will
     # cause the base class keys() to correctly correctly handle default
     # values
-    #def keys(self, ordered=False):
+    # def keys(self, ordered=False):
 
     @property
     def mutable(self):
@@ -876,19 +868,19 @@ class Param(IndexedComponent):
             # Thus, we need to create a temporary dictionary that contains the
             # values from the ParamData objects.
             #
-            return {key:param_value() for key,param_value in self.items()}
+            return {key: param_value() for key, param_value in self.items()}
         elif not self.is_indexed():
             #
             # The parameter is a scalar, so we need to create a temporary
             # dictionary using the value for this parameter.
             #
-            return { None: self() }
+            return {None: self()}
         else:
             #
             # The parameter is not mutable, so iteritems() can be
             # converted into a dictionary containing parameter values.
             #
-            return dict( self.items() )
+            return dict(self.items())
 
     def extract_values_sparse(self):
         """
@@ -914,13 +906,13 @@ class Param(IndexedComponent):
             # The parameter is a scalar, so we need to create a temporary
             # dictionary using the value for this parameter.
             #
-            return { None: self() }
+            return {None: self()}
         else:
             #
             # The parameter is not mutable, so sparse_iteritems() can be
             # converted into a dictionary containing parameter values.
             #
-            return dict( self.sparse_iteritems() )
+            return dict(self.sparse_iteritems())
 
     def store_values(self, new_values, check=True):
         """
@@ -931,13 +923,13 @@ class Param(IndexedComponent):
         should only be used by developers!
         """
         if not self._mutable:
-            _raise_modifying_immutable_error(self, '*')
+            _raise_modifying_immutable_error(self, "*")
         #
         _srcType = type(new_values)
         _isDict = False
         if _srcType is dict:
             _isDict = True
-        elif hasattr(new_values, '__getitem__'):
+        elif hasattr(new_values, "__getitem__"):
             if isinstance(new_values, IndexedComponent):
                 if new_values.is_indexed():
                     _isDict = True
@@ -970,7 +962,7 @@ class Param(IndexedComponent):
             else:
                 # For scalars, we will choose an approach based on
                 # how "dense" the Param is
-                if not self._data: # empty
+                if not self._data:  # empty
                     for index in self._index_set:
                         p = self._data[index] = _ParamData(self)
                         p.value = new_values
@@ -990,8 +982,8 @@ class Param(IndexedComponent):
                 if None not in new_values:
                     raise RuntimeError(
                         "Cannot store value for scalar Param %s:\n\tNo value "
-                        "with index None in the new values dict."
-                        % (self.name,))
+                        "with index None in the new values dict." % (self.name,)
+                    )
                 new_values = new_values[None]
             # scalars have to be handled differently
             self[None] = new_values
@@ -1002,12 +994,11 @@ class Param(IndexedComponent):
 
         NOTE: this test will not validate the value of function return values.
         """
-        if self._constructed \
-                and type(val) in native_types \
-                and val not in self.domain:
+        if self._constructed and type(val) in native_types and val not in self.domain:
             raise ValueError(
-                "Default value (%s) is not valid for Param %s domain %s" %
-                (str(val), self.name, self.domain.name))
+                "Default value (%s) is not valid for Param %s domain %s"
+                % (str(val), self.name, self.domain.name)
+            )
         self._default_val = val
 
     def default(self):
@@ -1039,7 +1030,7 @@ class Param(IndexedComponent):
         _isDict = False
         if _default_type is dict:
             _isDict = True
-        elif hasattr(val, '__getitem__'):
+        elif hasattr(val, "__getitem__"):
             if isinstance(val, IndexedComponent):
                 if val.is_indexed():
                     _isDict = True
@@ -1187,18 +1178,21 @@ class Param(IndexedComponent):
                 index = data.index()
             raise ValueError(
                 "Invalid parameter value: %s[%s] = '%s', value type=%s.\n"
-                "\tValue not in parameter domain %s" %
-                (self.name, index, value, type(value), self.domain.name))
+                "\tValue not in parameter domain %s"
+                % (self.name, index, value, type(value), self.domain.name)
+            )
         if self._validate:
             if index is NOTSET:
                 index = data.index()
             valid = apply_parameterized_indexed_rule(
-                self, self._validate, self.parent_block(), value, index )
+                self, self._validate, self.parent_block(), value, index
+            )
             if not valid:
                 raise ValueError(
                     "Invalid parameter value: %s[%s] = '%s', value type=%s.\n"
-                    "\tValue failed parameter validation rule" %
-                    ( self.name, index, value, type(value) ) )
+                    "\tValue failed parameter validation rule"
+                    % (self.name, index, value, type(value))
+                )
 
     def construct(self, data=None):
         """
@@ -1217,9 +1211,8 @@ class Param(IndexedComponent):
             return
 
         timer = ConstructionTimer(self)
-        if is_debug_set(logger):   #pragma:nocover
-            logger.debug("Constructing Param, name=%s, from data=%s"
-                         % ( self.name, str(data) ))
+        if is_debug_set(logger):  # pragma:nocover
+            logger.debug("Constructing Param, name=%s, from data=%s" % (self.name, str(data)))
 
         try:
             #
@@ -1227,11 +1220,11 @@ class Param(IndexedComponent):
             # the domain.
             #
             val = self._default_val
-            if type(val) in native_types \
-                    and val not in self.domain:
+            if type(val) in native_types and val not in self.domain:
                 raise ValueError(
-                    "Default value (%s) is not valid for Param %s domain %s" %
-                    (str(val), self.name, self.domain.name))
+                    "Default value (%s) is not valid for Param %s domain %s"
+                    % (str(val), self.name, self.domain.name)
+                )
             #
             # Flag that we are in the "during construction" phase
             #
@@ -1251,20 +1244,20 @@ class Param(IndexedComponent):
                     raise ValueError(
                         "Attempting to initialize parameter=%s with data=%s.\n"
                         "\tData type is not a mapping type, and a Mapping is "
-                        "expected." % (self.name, str(data)) )
+                        "expected." % (self.name, str(data))
+                    )
             else:
                 data_items = iter(())
 
             try:
                 for key, val in data_items:
-                    self._setitem_when_not_present(
-                        self._validate_index(key), val)
+                    self._setitem_when_not_present(self._validate_index(key), val)
             except:
                 msg = sys.exc_info()[1]
                 raise RuntimeError(
                     "Failed to set value for param=%s, index=%s, value=%s.\n"
-                    "\tsource error message=%s"
-                    % (self.name, str(key), str(val), str(msg)) )
+                    "\tsource error message=%s" % (self.name, str(key), str(val), str(msg))
+                )
             #
             # Flag that things are fully constructed now (and changing an
             # immutable Param is now an exception).
@@ -1287,9 +1280,13 @@ class Param(IndexedComponent):
         else:
             default = str(self._default_val)
         if self._mutable or not self.is_indexed():
-            dataGen = lambda k, v: [ v.value, ]
+            dataGen = lambda k, v: [
+                v.value,
+            ]
         else:
-            dataGen = lambda k, v: [ v, ]
+            dataGen = lambda k, v: [
+                v,
+            ]
         headers = [
             ("Size", len(self)),
             ("Index", self._index_set if self.is_indexed() else None),
@@ -1298,16 +1295,16 @@ class Param(IndexedComponent):
             ("Mutable", self._mutable),
         ]
         if self._units is not None:
-            headers.append(('Units', str(self._units)))
-        return ( headers,
-                 self.sparse_iteritems(),
-                 ("Value",),
-                 dataGen,
-                 )
+            headers.append(("Units", str(self._units)))
+        return (
+            headers,
+            self.sparse_iteritems(),
+            ("Value",),
+            dataGen,
+        )
 
 
 class ScalarParam(_ParamData, Param):
-
     def __init__(self, *args, **kwds):
         Param.__init__(self, *args, **kwds)
         _ParamData.__init__(self, component=self)
@@ -1341,7 +1338,8 @@ class ScalarParam(_ParamData, Param):
             raise ValueError(
                 "Evaluating the numeric value of parameter '%s' before\n\t"
                 "the Param has been constructed (there is currently no "
-                "value to return)." % (self.name,) )
+                "value to return)." % (self.name,)
+            )
 
     def set_value(self, value, index=NOTSET):
         if index is NOTSET:
@@ -1363,12 +1361,10 @@ class ScalarParam(_ParamData, Param):
 
 
 class IndexedParam(Param):
-
     def __call__(self, exception=True):
         """Compute the value of the parameter"""
         if exception:
-            raise TypeError('Cannot compute the value of an indexed Param (%s)'
-                            % (self.name,) )
+            raise TypeError("Cannot compute the value of an indexed Param (%s)" % (self.name,))
 
     # Because IndexedParam can use a non-standard data store (i.e., the
     # values in the _data dict may not be ComponentData objects), we
