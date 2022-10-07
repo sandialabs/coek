@@ -27,10 +27,7 @@ def fac_linear(G):
 
     def assmt_rule(mod, i, j):
         return (
-            LinearExpression(
-                linear_coefs=ones, linear_vars=[mod.z[i, j, f] for f in mod.Facs]
-            )
-            == 1
+            LinearExpression(linear_coefs=ones, linear_vars=[mod.z[i, j, f] for f in mod.Facs]) == 1
         )
 
     model.assmt = pe.Constraint(model.Grid, model.Grid, rule=assmt_rule)
@@ -45,22 +42,16 @@ def fac_linear(G):
     def quaddistk1_rule(mod, i, j, f):
         return mod.r[i, j, f, 1] == (1.0 * i) / G - mod.y[f, 1]
 
-    model.quaddistk1 = pe.Constraint(
-        model.Grid, model.Grid, model.Facs, rule=quaddistk1_rule
-    )
+    model.quaddistk1 = pe.Constraint(model.Grid, model.Grid, model.Facs, rule=quaddistk1_rule)
 
     def quaddistk2_rule(mod, i, j, f):
         return mod.r[i, j, f, 2] == (1.0 * j) / G - mod.y[f, 2]
 
-    model.quaddistk2 = pe.Constraint(
-        model.Grid, model.Grid, model.Facs, rule=quaddistk2_rule
-    )
+    model.quaddistk2 = pe.Constraint(model.Grid, model.Grid, model.Facs, rule=quaddistk2_rule)
 
     def quaddist_rule(mod, i, j, f):
         return mod.r[i, j, f, 1] ** 2 + mod.r[i, j, f, 2] ** 2 <= mod.s[i, j, f] ** 2
 
-    model.quaddist = pe.Constraint(
-        model.Grid, model.Grid, model.Facs, rule=quaddist_rule
-    )
+    model.quaddist = pe.Constraint(model.Grid, model.Grid, model.Facs, rule=quaddist_rule)
 
     return model

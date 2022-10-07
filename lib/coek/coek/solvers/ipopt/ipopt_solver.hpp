@@ -1,42 +1,33 @@
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
-#include <map>
+
 #include "coek/model/nlp_model.hpp"
 #include "coek/solvers/solver_repn.hpp"
 
-
 namespace coek {
 
-class IpoptSolverRepn
-{
-public:
-
+class IpoptSolverRepn {
+   public:
     virtual int perform_solve() = 0;
     virtual void set_start_from_last_x(bool flag) = 0;
-    virtual void set_options(
-                    std::map<std::string,std::string>& string_options,
-                    std::map<std::string,int>& integer_options,
-                    std::map<std::string,double>& double_options
-                    ) = 0;
+    virtual void set_options(std::map<std::string, std::string>& string_options,
+                             std::map<std::string, int>& integer_options,
+                             std::map<std::string, double>& double_options)
+        = 0;
 };
 
-
-class IpoptSolver : public NLPSolverRepn
-{
-protected:
-
+class IpoptSolver : public NLPSolverRepn {
+   protected:
     bool available_;
     std::shared_ptr<IpoptSolverRepn> repn;
 
     void initialize();
 
-public:
-
-    IpoptSolver() 
-        : NLPSolverRepn(), available_(true)
-        { initialize(); }
+   public:
+    IpoptSolver() : NLPSolverRepn(), available_(true) { initialize(); }
 
     void load(NLPModel& model);
 
@@ -44,8 +35,7 @@ public:
 
     int solve(NLPModel& model);
 
-    bool available()
-        {return available_;}
+    bool available() { return available_; }
 };
 
-}
+}  // namespace coek

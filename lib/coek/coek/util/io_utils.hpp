@@ -4,33 +4,27 @@
 #include <list>
 #include <string>
 
-namespace coek
-{
+namespace coek {
 
 template <typename TYPE>
 std::ostream& operator<<(std::ostream& ostr, const std::vector<TYPE>& vec)
 {
-for (size_t i=0; i<vec.size(); i++)
-  ostr << vec[i] << " ";
-return ostr;
+    for (size_t i = 0; i < vec.size(); i++) ostr << vec[i] << " ";
+    return ostr;
 }
 
 std::ostream& operator<<(std::ostream& ostr, const std::list<std::string>& vals)
 {
-auto it = vals.begin();
-auto end = vals.end();
-if (it == end)
-    return ostr;
-ostr << *it;
-++it;
+    auto it = vals.begin();
+    auto end = vals.end();
+    if (it == end) return ostr;
+    ostr << *it;
+    ++it;
 
-for (; it != end; ++it) {
-    ostr << " " << *it;
+    for (; it != end; ++it) {
+        ostr << " " << *it;
     }
-return ostr;
+    return ostr;
 }
 
-
-}
-
-
+}  // namespace coek

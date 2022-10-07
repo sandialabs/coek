@@ -2,25 +2,24 @@
 
 coek::Model srosenbr_vector()
 {
-coek::Model m;
+    coek::Model m;
 
-size_t N = 10000;
-std::vector<coek::Variable> x(N);
-for (size_t i=0; i<N; i++) {
-    if (i%2 == 0)
-        m.add( x[i].value(-1.2) );
-    else
-        m.add( x[i].value(1) );
+    size_t N = 10000;
+    std::vector<coek::Variable> x(N);
+    for (size_t i = 0; i < N; i++) {
+        if (i % 2 == 0)
+            m.add(x[i].value(-1.2));
+        else
+            m.add(x[i].value(1));
     }
 
-auto obj = coek::expression();
-for (size_t i=0; i<N/2; i++)
-    obj += 100*pow(x[2*i] - pow(x[2*i-1],2), 2) + pow(x[2*i-1]-1, 2);
-m.add_objective( obj );
+    auto obj = coek::expression();
+    for (size_t i = 0; i < N / 2; i++)
+        obj += 100 * pow(x[2 * i] - pow(x[2 * i - 1], 2), 2) + pow(x[2 * i - 1] - 1, 2);
+    m.add_objective(obj);
 
-return m;
+    return m;
 }
-
 
 // Source:  problem 21 in
 // J.J. More', B.S. Garbow and K.E. Hillstrom,

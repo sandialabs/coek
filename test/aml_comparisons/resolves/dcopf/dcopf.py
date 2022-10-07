@@ -77,9 +77,7 @@ def declare_power_flow_con(pe, m, md: ModelData, index_set):
         x = branch["reactance"]
         b = -1 / (tau * x)
 
-        m.power_flow_con[bname] = m.pf[bname] == b * (
-            m.va[from_bus] - m.va[to_bus] + shift
-        )
+        m.power_flow_con[bname] = m.pf[bname] == b * (m.va[from_bus] - m.va[to_bus] + shift)
 
 
 def declare_power_balance(pe, m, md: ModelData, index_set):

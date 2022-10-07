@@ -36,12 +36,12 @@ class TestValue(unittest.TestCase):
 
     def test_float(self):
         p = parameter(value=-1)
-        with self.assertRaisesRegex(TypeError, "float\(\) argument must.*"):
+        with self.assertRaisesRegex(TypeError, "float\\(\\) argument must.*"):
             float(p)
 
     def test_int(self):
         p = parameter(value=-1)
-        with self.assertRaisesRegex(TypeError, "int\(\) argument must.*"):
+        with self.assertRaisesRegex(TypeError, "int\\(\\) argument must.*"):
             int(p)
 
 
@@ -56,7 +56,7 @@ class Test_SumExpression(unittest.TestCase):
     def test_error1(self):
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__radd__\(\): incompatible function arguments.*"
+                TypeError, "__radd__\\(\\): incompatible function arguments.*"
             ):
 
                 class TMP(object):
@@ -64,9 +64,7 @@ class Test_SumExpression(unittest.TestCase):
 
                 TMP() + self.a
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
 
                 class TMP(object):
                     pass
@@ -79,9 +77,7 @@ class Test_SumExpression(unittest.TestCase):
             with self.assertRaisesRegex(TypeError, "unsupported operand type.*"):
                 self.a + x
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 self.a + x
 
     def test_simpleSum(self):
@@ -333,7 +329,7 @@ class TestDiffExpression(unittest.TestCase):
     def test_error1(self):
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__rsub__\(\): incompatible function arguments.*"
+                TypeError, "__rsub__\\(\\): incompatible function arguments.*"
             ):
 
                 class TMP(object):
@@ -341,9 +337,7 @@ class TestDiffExpression(unittest.TestCase):
 
                 TMP() - self.a
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
 
                 class TMP(object):
                     pass
@@ -354,13 +348,11 @@ class TestDiffExpression(unittest.TestCase):
         x = variable(10)
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__sub__\(\): incompatible function arguments.*"
+                TypeError, "__sub__\\(\\): incompatible function arguments.*"
             ):
                 self.a - x
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 self.a - x
 
     def test_simpleDiff(self):
@@ -463,9 +455,7 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a - b
         e = 5 - e1
         #
-        self.assertEqual(
-            e.to_list(), ["+", "5.000000", ["-", ["+", "a", ["*", "-1", "b"]]]]
-        )
+        self.assertEqual(e.to_list(), ["+", "5.000000", ["-", ["+", "a", ["*", "-1", "b"]]]])
 
         #       -
         #      / \
@@ -610,9 +600,7 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a * 5
         e2 = b - c
         e = e1 - e2
-        self.assertEqual(
-            e.to_list(), ["+", ["*", "5", "a"], ["-", ["+", "b", ["*", "-1", "c"]]]]
-        )
+        self.assertEqual(e.to_list(), ["+", ["*", "5", "a"], ["-", ["+", "b", ["*", "-1", "c"]]]])
 
         #            -
         #          /   \
@@ -639,7 +627,7 @@ class Test_MulExpression(unittest.TestCase):
     def test_error1(self):
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__rmul__\(\): incompatible function arguments.*"
+                TypeError, "__rmul__\\(\\): incompatible function arguments.*"
             ):
 
                 class TMP(object):
@@ -647,9 +635,7 @@ class Test_MulExpression(unittest.TestCase):
 
                 TMP() * self.a
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
 
                 class TMP(object):
                     pass
@@ -660,13 +646,11 @@ class Test_MulExpression(unittest.TestCase):
         x = variable(10)
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__mul__\(\): incompatible function arguments.*"
+                TypeError, "__mul__\\(\\): incompatible function arguments.*"
             ):
                 self.a * x
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 self.a * x
 
     def test_simpleProduct(self):
@@ -799,9 +783,7 @@ class Test_MulExpression(unittest.TestCase):
         e2 = c + e1
         e3 = e1 + d
         e = e2 * e3
-        self.assertEqual(
-            e.to_list(), ["*", ["+", "c", ["+", "a", "b"]], ["+", "a", "b", "d"]]
-        )
+        self.assertEqual(e.to_list(), ["*", ["+", "c", ["+", "a", "b"]], ["+", "a", "b", "d"]])
 
         #
         # Check the structure of nested products
@@ -967,7 +949,7 @@ class Test_DivExpression(unittest.TestCase):
     def test_error1(self):
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__rtruediv__\(\): incompatible function arguments.*"
+                TypeError, "__rtruediv__\\(\\): incompatible function arguments.*"
             ):
 
                 class TMP(object):
@@ -975,9 +957,7 @@ class Test_DivExpression(unittest.TestCase):
 
                 TMP() / self.a
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
 
                 class TMP(object):
                     pass
@@ -988,13 +968,11 @@ class Test_DivExpression(unittest.TestCase):
         x = variable(10)
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__truediv__\(\): incompatible function arguments.*"
+                TypeError, "__truediv__\\(\\): incompatible function arguments.*"
             ):
                 self.a / x
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 self.a / x
 
     def test_simpleDivision(self):
@@ -1194,7 +1172,7 @@ class Test_PowExpression(unittest.TestCase):
     def test_error1(self):
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__rpow__\(\): incompatible function arguments.*"
+                TypeError, "__rpow__\\(\\): incompatible function arguments.*"
             ):
 
                 class TMP(object):
@@ -1202,9 +1180,7 @@ class Test_PowExpression(unittest.TestCase):
 
                 TMP() ** self.a
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
 
                 class TMP(object):
                     pass
@@ -1215,13 +1191,11 @@ class Test_PowExpression(unittest.TestCase):
         x = variable(10)
         if poek.__using_pybind11__:
             with self.assertRaisesRegex(
-                TypeError, "__pow__\(\): incompatible function arguments.*"
+                TypeError, "__pow__\\(\\): incompatible function arguments.*"
             ):
                 self.a**x
         elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 self.a**x
 
     def test_simplePow(self):

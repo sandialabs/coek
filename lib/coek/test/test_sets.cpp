@@ -1,93 +1,104 @@
 #include "catch2/catch.hpp"
-
 #include "coek/ast/base_terms.hpp"
 #include "coek/coek.hpp"
 
 #ifdef COEK_WITH_COMPACT_MODEL
 
-TEST_CASE( "simple_finite", "[smoke]" ) {
+TEST_CASE("simple_finite", "[smoke]")
+{
+    SECTION("setof_vector_int")
+    {
+        std::vector<int> v = {1, 5, 3, 7};
 
-  SECTION( "setof_vector_int" ) {
-      std::vector<int> v = {1,5,3,7};
-
-      WHEN( "dim" ) {
-        auto s = coek::SetOf( v );
-        REQUIRE( s.dim() == 1 );
-      }
-
-      WHEN( "size" ) {
-        auto s = coek::SetOf( v );
-        REQUIRE( s.size() == 4 );
-      }
-
-      WHEN( "finite" ) {
-        auto s = coek::SetOf( v );
-        REQUIRE( s.finite() == true );
-      }
-
-      WHEN( "countable" ) {
-        auto s = coek::SetOf( v );
-        REQUIRE( s.countable() == true );
-      }
-
-      WHEN( "empty" ) {
-        auto s = coek::SetOf( v );
-        REQUIRE( s.empty() == false );
-      }
-
-      WHEN( "value" ) {
-        auto s = coek::SetOf( v );
-        for (size_t i=0; i<4; i++) {
-            int ans;
-            s.value(i, ans);
-            REQUIRE( ans == v[i] );
-            }
-      }
-
-      WHEN( "contains" ) {
-        auto s = coek::SetOf( v );
-        for (size_t i=0; i<4; i++) {
-            REQUIRE( s.contains(v[i]) == true );
-            }
+        WHEN("dim")
+        {
+            auto s = coek::SetOf(v);
+            REQUIRE(s.dim() == 1);
         }
 
-      WHEN( "begin" ) {
-        auto s = coek::SetOf( v );
-        auto it = s.begin();
-        REQUIRE( (it == s.end()) == false );
+        WHEN("size")
+        {
+            auto s = coek::SetOf(v);
+            REQUIRE(s.size() == 4);
         }
 
-      WHEN( "iterate" ) {
-        auto s = coek::SetOf( v );
-        size_t i=0;
-        for (auto it=s.begin(); it != s.end(); ++it) {
-            //REQUIRE( v[i] == std::get<int>((*it)[0]) );
-            REQUIRE( v[i] == (*it)[0] );
-            i++;
+        WHEN("finite")
+        {
+            auto s = coek::SetOf(v);
+            REQUIRE(s.finite() == true);
+        }
+
+        WHEN("countable")
+        {
+            auto s = coek::SetOf(v);
+            REQUIRE(s.countable() == true);
+        }
+
+        WHEN("empty")
+        {
+            auto s = coek::SetOf(v);
+            REQUIRE(s.empty() == false);
+        }
+
+        WHEN("value")
+        {
+            auto s = coek::SetOf(v);
+            for (size_t i = 0; i < 4; i++) {
+                int ans;
+                s.value(i, ans);
+                REQUIRE(ans == v[i]);
             }
         }
 
-      WHEN( "index" ) {
-        auto s = coek::SetOf( v );
-        auto i = coek::set_element("i");
-
-        std::vector<int> vals(4);
-        size_t ii=0;
-        for (auto it=s.begin({i}); it != s.end(); ++it) {
-            i.get_value(vals[ii++]);
+        WHEN("contains")
+        {
+            auto s = coek::SetOf(v);
+            for (size_t i = 0; i < 4; i++) {
+                REQUIRE(s.contains(v[i]) == true);
             }
-        REQUIRE( v == vals );
         }
 
-      WHEN( "index_error" ) {
-        auto s = coek::SetOf( v );
-        auto i = coek::set_element("i");
-        auto j = coek::set_element("j");
-        CHECK_THROWS( s.begin({i,j}) );
+        WHEN("begin")
+        {
+            auto s = coek::SetOf(v);
+            auto it = s.begin();
+            REQUIRE((it == s.end()) == false);
         }
-  }
 
-#if 0
+        WHEN("iterate")
+        {
+            auto s = coek::SetOf(v);
+            size_t i = 0;
+            for (auto it = s.begin(); it != s.end(); ++it) {
+                // REQUIRE( v[i] == std::get<int>((*it)[0]) );
+                REQUIRE(v[i] == (*it)[0]);
+                i++;
+            }
+        }
+
+        WHEN("index")
+        {
+            auto s = coek::SetOf(v);
+            auto i = coek::set_element("i");
+
+            std::vector<int> vals(4);
+            size_t ii = 0;
+            for (auto it = s.begin({i}); it != s.end(); ++it) {
+                i.get_value(vals[ii++]);
+            }
+            REQUIRE(v == vals);
+        }
+
+        WHEN("index_error")
+        {
+            auto s = coek::SetOf(v);
+            auto i = coek::set_element("i");
+            auto j = coek::set_element("j");
+            CHECK_THROWS(s.begin({i, j}));
+        }
+    }
+
+#    if 0
   SECTION( "setof_vector_double" ) {
       std::vector<double> v = {1.0,5.0,3.0,7.0};
 
@@ -207,64 +218,72 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
             }
         }
   }
-#endif
+#    endif
 
-  SECTION( "setof_set_int" ) {
-      std::set<int> v = {1,500,3,7};
+    SECTION("setof_set_int")
+    {
+        std::set<int> v = {1, 500, 3, 7};
 
-      WHEN( "dim" ) {
-        auto s = coek::SetOf( v );
-        REQUIRE( s.dim() == 1 );
-      }
-
-      WHEN( "size" ) {
-        auto s = coek::SetOf( v );
-        REQUIRE( s.size() == 4 );
-      }
-
-      WHEN( "finite" ) {
-        auto s = coek::SetOf( v );
-        REQUIRE( s.finite() == true );
-      }
-
-      WHEN( "countable" ) {
-        auto s = coek::SetOf( v );
-        REQUIRE( s.countable() == true );
-      }
-
-      WHEN( "empty" ) {
-        auto s = coek::SetOf( v );
-        REQUIRE( s.empty() == false );
-      }
-
-      WHEN( "contains" ) {
-        auto s = coek::SetOf( v );
-        for (auto it=v.begin(); it != v.end(); ++it)
-            REQUIRE( s.contains(*it) == true );
+        WHEN("dim")
+        {
+            auto s = coek::SetOf(v);
+            REQUIRE(s.dim() == 1);
         }
 
-      WHEN( "index" ) {
-        auto s = coek::SetOf( v );
-        auto i = coek::set_element("i");
+        WHEN("size")
+        {
+            auto s = coek::SetOf(v);
+            REQUIRE(s.size() == 4);
+        }
 
-        std::set<int> vals;
-        for (auto it=s.begin({i}); it != s.end(); ++it) {
-            int val;
-            i.get_value(val);
-            vals.insert(val);
+        WHEN("finite")
+        {
+            auto s = coek::SetOf(v);
+            REQUIRE(s.finite() == true);
+        }
+
+        WHEN("countable")
+        {
+            auto s = coek::SetOf(v);
+            REQUIRE(s.countable() == true);
+        }
+
+        WHEN("empty")
+        {
+            auto s = coek::SetOf(v);
+            REQUIRE(s.empty() == false);
+        }
+
+        WHEN("contains")
+        {
+            auto s = coek::SetOf(v);
+            for (auto it = v.begin(); it != v.end(); ++it) REQUIRE(s.contains(*it) == true);
+        }
+
+        WHEN("index")
+        {
+            auto s = coek::SetOf(v);
+            auto i = coek::set_element("i");
+
+            std::set<int> vals;
+            for (auto it = s.begin({i}); it != s.end(); ++it) {
+                int val;
+                i.get_value(val);
+                vals.insert(val);
             }
-        REQUIRE( v == vals );
+            REQUIRE(v == vals);
         }
 
-      WHEN( "index_error" ) {
-        auto s = coek::SetOf( v );
-        auto i = coek::set_element("i");
-        auto j = coek::set_element("j");
-        CHECK_THROWS( s.begin({i,j}) );
+        WHEN("index_error")
+        {
+            auto s = coek::SetOf(v);
+            auto i = coek::set_element("i");
+            auto j = coek::set_element("j");
+            CHECK_THROWS(s.begin({i, j}));
         }
-  }
+    }
 
-#if 0
+#    if 0
   SECTION( "setof_set_double" ) {
       std::set<double> v = {1.0,500.0,3.0,7.0};
 
@@ -334,86 +353,94 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
             REQUIRE( s.contains(*it) == true );
         }
   }
-#endif
+#    endif
 
-  SECTION( "rangeset_int" ) {
-      auto s = coek::RangeSet(0,10,2);
+    SECTION("rangeset_int")
+    {
+        auto s = coek::RangeSet(0, 10, 2);
 
-      WHEN( "dim" ) {
-        REQUIRE( s.dim() == 1 );
-      }
+        WHEN("dim") { REQUIRE(s.dim() == 1); }
 
-      WHEN( "size" ) {
-        REQUIRE( s.size() == 6 );
-        s.initialize();
-        REQUIRE( s.size() == 6 );
-      }
+        WHEN("size")
+        {
+            REQUIRE(s.size() == 6);
+            s.initialize();
+            REQUIRE(s.size() == 6);
+        }
 
-      WHEN( "finite" ) {
-        REQUIRE( s.finite() == true );
-        s.initialize();
-        REQUIRE( s.finite() == true );
-      }
+        WHEN("finite")
+        {
+            REQUIRE(s.finite() == true);
+            s.initialize();
+            REQUIRE(s.finite() == true);
+        }
 
-      WHEN( "countable" ) {
-        REQUIRE( s.countable() == true );
-        s.countable();
-        REQUIRE( s.countable() == true );
-      }
+        WHEN("countable")
+        {
+            REQUIRE(s.countable() == true);
+            s.countable();
+            REQUIRE(s.countable() == true);
+        }
 
-      WHEN( "empty" ) {
-        REQUIRE( s.empty() == false );
-        s.initialize();
-        REQUIRE( s.empty() == false );
-      }
+        WHEN("empty")
+        {
+            REQUIRE(s.empty() == false);
+            s.initialize();
+            REQUIRE(s.empty() == false);
+        }
 
-      WHEN( "value" ) {
-        for (size_t i=0; i<6; i++) {
-            int ans;
-            s.value(i, ans);
-            REQUIRE( ans == static_cast<int>(i*2) );
-            }
-      }
-
-      WHEN( "contains" ) {
-        for (int i=0; i<6; i++) {
-            REQUIRE( s.contains(2*i) == true );
+        WHEN("value")
+        {
+            for (size_t i = 0; i < 6; i++) {
+                int ans;
+                s.value(i, ans);
+                REQUIRE(ans == static_cast<int>(i * 2));
             }
         }
 
-      WHEN( "begin" ) {
-        auto it = s.begin();
-        REQUIRE( (it == s.end()) == false );
-        }
-
-      WHEN( "iterate" ) {
-        size_t i=0;
-        for (auto it=s.begin(); it != s.end(); ++it) {
-            //REQUIRE( 2*i == std::get<int>((*it)[0]) );
-            REQUIRE( static_cast<int>(2*i) == (*it)[0] );
-            i++;
+        WHEN("contains")
+        {
+            for (int i = 0; i < 6; i++) {
+                REQUIRE(s.contains(2 * i) == true);
             }
         }
 
-      WHEN( "index" ) {
-        std::vector<int> vals(6);
-
-        auto i = coek::set_element("i");
-        size_t ii=0;
-        for (auto it=s.begin({i}); it != s.end(); ++it)
-            i.get_value(vals[ii++]);
-        std::vector<int> v = {0,2,4,6,8,10};
-        REQUIRE( v == vals );
+        WHEN("begin")
+        {
+            auto it = s.begin();
+            REQUIRE((it == s.end()) == false);
         }
 
-      WHEN( "index_error" ) {
-        auto i = coek::set_element("i");
-        auto j = coek::set_element("j");
-        CHECK_THROWS( s.begin({i,j}) );
+        WHEN("iterate")
+        {
+            size_t i = 0;
+            for (auto it = s.begin(); it != s.end(); ++it) {
+                // REQUIRE( 2*i == std::get<int>((*it)[0]) );
+                REQUIRE(static_cast<int>(2 * i) == (*it)[0]);
+                i++;
+            }
         }
-  }
 
-#if 0
+        WHEN("index")
+        {
+            std::vector<int> vals(6);
+
+            auto i = coek::set_element("i");
+            size_t ii = 0;
+            for (auto it = s.begin({i}); it != s.end(); ++it) i.get_value(vals[ii++]);
+            std::vector<int> v = {0, 2, 4, 6, 8, 10};
+            REQUIRE(v == vals);
+        }
+
+        WHEN("index_error")
+        {
+            auto i = coek::set_element("i");
+            auto j = coek::set_element("j");
+            CHECK_THROWS(s.begin({i, j}));
+        }
+    }
+
+#    if 0
   SECTION( "rangeset_double" ) {
       auto s = coek::RangeSet(0.0,5.0,0.5);
 
@@ -472,70 +499,80 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
             }
         }
   }
-#endif
+#    endif
 
-  SECTION( "setof_list_int" ) {
-      std::vector<int> v = {1,5,3,7};
+    SECTION("setof_list_int")
+    {
+        std::vector<int> v = {1, 5, 3, 7};
 
-      WHEN( "dim" ) {
-        auto s = coek::SetOf( {1,5,3,7} );
-        REQUIRE( s.dim() == 1 );
-      }
-
-      WHEN( "size" ) {
-        auto s = coek::SetOf( {1,5,3,7} );
-        REQUIRE( s.size() == 4 );
-      }
-
-      WHEN( "finite" ) {
-        auto s = coek::SetOf( {1,5,3,7} );
-        REQUIRE( s.finite() == true );
-      }
-
-      WHEN( "countable" ) {
-        auto s = coek::SetOf( {1,5,3,7} );
-        REQUIRE( s.countable() == true );
-      }
-
-      WHEN( "empty" ) {
-        auto s = coek::SetOf( {1,5,3,7} );
-        REQUIRE( s.empty() == false );
-      }
-
-      WHEN( "value" ) {
-        auto s = coek::SetOf( {1,5,3,7} );
-        for (size_t i=0; i<4; i++) {
-            int ans;
-            s.value(i, ans);
-            REQUIRE( ans == v[i] );
-            }
-      }
-
-      WHEN( "contains" ) {
-        auto s = coek::SetOf( {1,5,3,7} );
-        for (size_t i=0; i<4; i++) {
-            REQUIRE( s.contains(v[i]) == true );
-            }
+        WHEN("dim")
+        {
+            auto s = coek::SetOf({1, 5, 3, 7});
+            REQUIRE(s.dim() == 1);
         }
 
-      WHEN( "begin" ) {
-        auto s = coek::SetOf( {1,5,3,7} );
-        auto it = s.begin();
-        REQUIRE( (it == s.end()) == false );
+        WHEN("size")
+        {
+            auto s = coek::SetOf({1, 5, 3, 7});
+            REQUIRE(s.size() == 4);
         }
 
-      WHEN( "iterate" ) {
-        auto s = coek::SetOf( {1,5,3,7} );
-        size_t i=0;
-        for (auto it=s.begin(); it != s.end(); ++it) {
-            //REQUIRE( v[i] == std::get<int>((*it)[0]) );
-            REQUIRE( v[i] == (*it)[0] );
-            i++;
+        WHEN("finite")
+        {
+            auto s = coek::SetOf({1, 5, 3, 7});
+            REQUIRE(s.finite() == true);
+        }
+
+        WHEN("countable")
+        {
+            auto s = coek::SetOf({1, 5, 3, 7});
+            REQUIRE(s.countable() == true);
+        }
+
+        WHEN("empty")
+        {
+            auto s = coek::SetOf({1, 5, 3, 7});
+            REQUIRE(s.empty() == false);
+        }
+
+        WHEN("value")
+        {
+            auto s = coek::SetOf({1, 5, 3, 7});
+            for (size_t i = 0; i < 4; i++) {
+                int ans;
+                s.value(i, ans);
+                REQUIRE(ans == v[i]);
             }
         }
-  }
 
-#if 0
+        WHEN("contains")
+        {
+            auto s = coek::SetOf({1, 5, 3, 7});
+            for (size_t i = 0; i < 4; i++) {
+                REQUIRE(s.contains(v[i]) == true);
+            }
+        }
+
+        WHEN("begin")
+        {
+            auto s = coek::SetOf({1, 5, 3, 7});
+            auto it = s.begin();
+            REQUIRE((it == s.end()) == false);
+        }
+
+        WHEN("iterate")
+        {
+            auto s = coek::SetOf({1, 5, 3, 7});
+            size_t i = 0;
+            for (auto it = s.begin(); it != s.end(); ++it) {
+                // REQUIRE( v[i] == std::get<int>((*it)[0]) );
+                REQUIRE(v[i] == (*it)[0]);
+                i++;
+            }
+        }
+    }
+
+#    if 0
   SECTION( "setof_list_double" ) {
       std::vector<double> v = {1.0,5.1,3.4,7.3};
 
@@ -655,633 +692,699 @@ TEST_CASE( "simple_finite", "[smoke]" ) {
             }
         }
   }
-#endif
+#    endif
 
-#ifdef DEBUG
-REQUIRE( coek::env.check_memory() == true );
-#endif
+#    ifdef DEBUG
+    REQUIRE(coek::env.check_memory() == true);
+#    endif
 }
 
-TEST_CASE( "finite_operations_int", "[smoke]" ) {
-
-    SECTION( "intersection" ) {
-        auto s1 = coek::RangeSet(0,6,2);
-        auto s2 = coek::SetOf({4,5,6,7,8,9,10});
+TEST_CASE("finite_operations_int", "[smoke]")
+{
+    SECTION("intersection")
+    {
+        auto s1 = coek::RangeSet(0, 6, 2);
+        auto s2 = coek::SetOf({4, 5, 6, 7, 8, 9, 10});
         auto s = s1.set_intersection(s2);
         std::vector<int> v = {4, 6};
 
-        WHEN( "dim" ) {
-            REQUIRE( s.dim() == 1 );
+        WHEN("dim") { REQUIRE(s.dim() == 1); }
+
+        WHEN("size")
+        {
+            auto S = s.initialize();
+            REQUIRE(S.size() == 2);
         }
 
-        WHEN( "size" ) {
+        WHEN("finite")
+        {
             auto S = s.initialize();
-            REQUIRE( S.size() == 2 );
+            REQUIRE(S.finite() == true);
         }
 
-        WHEN( "finite" ) {
+        WHEN("empty")
+        {
             auto S = s.initialize();
-            REQUIRE( S.finite() == true );
+            REQUIRE(S.empty() == false);
         }
 
-        WHEN( "empty" ) {
+        WHEN("value")
+        {
             auto S = s.initialize();
-            REQUIRE( S.empty() == false );
-        }
-
-        WHEN( "value" ) {
-            auto S = s.initialize();
-            for (size_t i=0; i<2; i++) {
+            for (size_t i = 0; i < 2; i++) {
                 int ans;
                 S.value(i, ans);
-                REQUIRE( ans == v[i] );
-                }
+                REQUIRE(ans == v[i]);
+            }
         }
 
-        WHEN( "contains" ) {
+        WHEN("contains")
+        {
             auto S = s.initialize();
-            for (size_t i=0; i<2; i++) {
-                REQUIRE( S.contains(v[i]) == true );
-                }
+            for (size_t i = 0; i < 2; i++) {
+                REQUIRE(S.contains(v[i]) == true);
+            }
         }
 
-        WHEN( "begin" ) {
+        WHEN("begin")
+        {
             auto S = s.initialize();
             auto it = S.begin();
-            REQUIRE( (it == S.end()) == false );
+            REQUIRE((it == S.end()) == false);
         }
 
-        WHEN( "iterate" ) {
+        WHEN("iterate")
+        {
             auto S = s.initialize();
-            size_t i=0;
-            for (auto it=S.begin(); it != S.end(); ++it) {
-                //REQUIRE( v[i] == std::get<int>((*it)[0]) );
-                REQUIRE( v[i] == (*it)[0] );
+            size_t i = 0;
+            for (auto it = S.begin(); it != S.end(); ++it) {
+                // REQUIRE( v[i] == std::get<int>((*it)[0]) );
+                REQUIRE(v[i] == (*it)[0]);
                 i++;
-                }
+            }
         }
     }
 
-    SECTION( "intersection_AND" ) {
-        auto s1 = coek::RangeSet(0,6,2);
-        auto s2 = coek::SetOf({4,5,6,7,8,9,10});
+    SECTION("intersection_AND")
+    {
+        auto s1 = coek::RangeSet(0, 6, 2);
+        auto s2 = coek::SetOf({4, 5, 6, 7, 8, 9, 10});
         auto s = s1 & s2;
         std::vector<int> v = {4, 6};
 
-        WHEN( "dim" ) {
-            REQUIRE( s.dim() == 1 );
+        WHEN("dim") { REQUIRE(s.dim() == 1); }
+
+        WHEN("size")
+        {
+            auto S = s.initialize();
+            REQUIRE(S.size() == 2);
         }
 
-        WHEN( "size" ) {
+        WHEN("finite")
+        {
             auto S = s.initialize();
-            REQUIRE( S.size() == 2 );
+            REQUIRE(S.finite() == true);
         }
 
-        WHEN( "finite" ) {
+        WHEN("empty")
+        {
             auto S = s.initialize();
-            REQUIRE( S.finite() == true );
+            REQUIRE(S.empty() == false);
         }
 
-        WHEN( "empty" ) {
+        WHEN("value")
+        {
             auto S = s.initialize();
-            REQUIRE( S.empty() == false );
-        }
-
-        WHEN( "value" ) {
-            auto S = s.initialize();
-            for (size_t i=0; i<2; i++) {
+            for (size_t i = 0; i < 2; i++) {
                 int ans;
                 S.value(i, ans);
-                REQUIRE( ans == v[i] );
-                }
+                REQUIRE(ans == v[i]);
+            }
         }
 
-        WHEN( "contains" ) {
+        WHEN("contains")
+        {
             auto S = s.initialize();
-            for (size_t i=0; i<2; i++) {
-                REQUIRE( S.contains(v[i]) == true );
-                }
+            for (size_t i = 0; i < 2; i++) {
+                REQUIRE(S.contains(v[i]) == true);
+            }
         }
 
-        WHEN( "begin" ) {
+        WHEN("begin")
+        {
             auto S = s.initialize();
             auto it = S.begin();
-            REQUIRE( (it == S.end()) == false );
+            REQUIRE((it == S.end()) == false);
         }
 
-        WHEN( "iterate" ) {
+        WHEN("iterate")
+        {
             auto S = s.initialize();
-            size_t i=0;
-            for (auto it=S.begin(); it != S.end(); ++it) {
-                //REQUIRE( v[i] == std::get<int>((*it)[0]) );
-                REQUIRE( v[i] == (*it)[0] );
+            size_t i = 0;
+            for (auto it = S.begin(); it != S.end(); ++it) {
+                // REQUIRE( v[i] == std::get<int>((*it)[0]) );
+                REQUIRE(v[i] == (*it)[0]);
                 i++;
-                }
+            }
         }
     }
 
-    SECTION( "union" ) {
-        auto s1 = coek::RangeSet(0,6,2);
-        auto s2 = coek::RangeSet(4,10);
+    SECTION("union")
+    {
+        auto s1 = coek::RangeSet(0, 6, 2);
+        auto s2 = coek::RangeSet(4, 10);
         auto s = s1.set_union(s2);
         std::vector<int> v = {0, 2, 4, 6, 5, 7, 8, 9, 10};
 
-        WHEN( "dim" ) {
-            REQUIRE( s.dim() == 1 );
+        WHEN("dim") { REQUIRE(s.dim() == 1); }
+
+        WHEN("size")
+        {
+            auto S = s.initialize();
+            REQUIRE(S.size() == 9);
         }
 
-        WHEN( "size" ) {
+        WHEN("finite")
+        {
             auto S = s.initialize();
-            REQUIRE( S.size() == 9 );
+            REQUIRE(S.finite() == true);
         }
 
-        WHEN( "finite" ) {
+        WHEN("empty")
+        {
             auto S = s.initialize();
-            REQUIRE( S.finite() == true );
+            REQUIRE(S.empty() == false);
         }
 
-        WHEN( "empty" ) {
+        WHEN("value")
+        {
             auto S = s.initialize();
-            REQUIRE( S.empty() == false );
-        }
-
-        WHEN( "value" ) {
-            auto S = s.initialize();
-            for (size_t i=0; i<9; i++) {
+            for (size_t i = 0; i < 9; i++) {
                 int ans;
                 S.value(i, ans);
-                REQUIRE( ans == v[i] );
-                }
+                REQUIRE(ans == v[i]);
+            }
         }
 
-        WHEN( "contains" ) {
+        WHEN("contains")
+        {
             auto S = s.initialize();
-            for (size_t i=0; i<9; i++) {
-                REQUIRE( S.contains(v[i]) == true );
-                }
+            for (size_t i = 0; i < 9; i++) {
+                REQUIRE(S.contains(v[i]) == true);
+            }
         }
 
-        WHEN( "begin" ) {
+        WHEN("begin")
+        {
             auto S = s.initialize();
             auto it = S.begin();
-            REQUIRE( (it == S.end()) == false );
+            REQUIRE((it == S.end()) == false);
         }
 
-        WHEN( "iterate" ) {
+        WHEN("iterate")
+        {
             auto S = s.initialize();
-            size_t i=0;
-            for (auto it=S.begin(); it != S.end(); ++it) {
-                //REQUIRE( v[i] == std::get<int>((*it)[0]) );
-                REQUIRE( v[i] == (*it)[0] );
+            size_t i = 0;
+            for (auto it = S.begin(); it != S.end(); ++it) {
+                // REQUIRE( v[i] == std::get<int>((*it)[0]) );
+                REQUIRE(v[i] == (*it)[0]);
                 i++;
-                }
+            }
         }
     }
 
-    SECTION( "union_PLUS" ) {
-        auto s1 = coek::RangeSet(0,6,2);
-        auto s2 = coek::RangeSet(4,10);
+    SECTION("union_PLUS")
+    {
+        auto s1 = coek::RangeSet(0, 6, 2);
+        auto s2 = coek::RangeSet(4, 10);
         auto s = s1 + s2;
         std::vector<int> v = {0, 2, 4, 6, 5, 7, 8, 9, 10};
 
-        WHEN( "dim" ) {
-            REQUIRE( s.dim() == 1 );
+        WHEN("dim") { REQUIRE(s.dim() == 1); }
+
+        WHEN("size")
+        {
+            auto S = s.initialize();
+            REQUIRE(S.size() == 9);
         }
 
-        WHEN( "size" ) {
+        WHEN("finite")
+        {
             auto S = s.initialize();
-            REQUIRE( S.size() == 9 );
+            REQUIRE(S.finite() == true);
         }
 
-        WHEN( "finite" ) {
+        WHEN("empty")
+        {
             auto S = s.initialize();
-            REQUIRE( S.finite() == true );
+            REQUIRE(S.empty() == false);
         }
 
-        WHEN( "empty" ) {
+        WHEN("value")
+        {
             auto S = s.initialize();
-            REQUIRE( S.empty() == false );
-        }
-
-        WHEN( "value" ) {
-            auto S = s.initialize();
-            for (size_t i=0; i<9; i++) {
+            for (size_t i = 0; i < 9; i++) {
                 int ans;
                 S.value(i, ans);
-                REQUIRE( ans == v[i] );
-                }
+                REQUIRE(ans == v[i]);
+            }
         }
 
-        WHEN( "contains" ) {
+        WHEN("contains")
+        {
             auto S = s.initialize();
-            for (size_t i=0; i<9; i++) {
-                REQUIRE( S.contains(v[i]) == true );
-                }
+            for (size_t i = 0; i < 9; i++) {
+                REQUIRE(S.contains(v[i]) == true);
+            }
         }
 
-        WHEN( "begin" ) {
+        WHEN("begin")
+        {
             auto S = s.initialize();
             auto it = S.begin();
-            REQUIRE( (it == S.end()) == false );
+            REQUIRE((it == S.end()) == false);
         }
 
-        WHEN( "iterate" ) {
+        WHEN("iterate")
+        {
             auto S = s.initialize();
-            size_t i=0;
-            for (auto it=S.begin(); it != S.end(); ++it) {
-                //REQUIRE( v[i] == std::get<int>((*it)[0]) );
-                REQUIRE( v[i] == (*it)[0] );
+            size_t i = 0;
+            for (auto it = S.begin(); it != S.end(); ++it) {
+                // REQUIRE( v[i] == std::get<int>((*it)[0]) );
+                REQUIRE(v[i] == (*it)[0]);
                 i++;
-                }
+            }
         }
     }
 
-    SECTION( "union_OR" ) {
-        auto s1 = coek::RangeSet(0,6,2);
-        auto s2 = coek::RangeSet(4,10);
+    SECTION("union_OR")
+    {
+        auto s1 = coek::RangeSet(0, 6, 2);
+        auto s2 = coek::RangeSet(4, 10);
         auto s = s1 | s2;
         std::vector<int> v = {0, 2, 4, 6, 5, 7, 8, 9, 10};
 
-        WHEN( "dim" ) {
-            REQUIRE( s.dim() == 1 );
+        WHEN("dim") { REQUIRE(s.dim() == 1); }
+
+        WHEN("size")
+        {
+            auto S = s.initialize();
+            REQUIRE(S.size() == 9);
         }
 
-        WHEN( "size" ) {
+        WHEN("finite")
+        {
             auto S = s.initialize();
-            REQUIRE( S.size() == 9 );
+            REQUIRE(S.finite() == true);
         }
 
-        WHEN( "finite" ) {
+        WHEN("empty")
+        {
             auto S = s.initialize();
-            REQUIRE( S.finite() == true );
+            REQUIRE(S.empty() == false);
         }
 
-        WHEN( "empty" ) {
+        WHEN("value")
+        {
             auto S = s.initialize();
-            REQUIRE( S.empty() == false );
-        }
-
-        WHEN( "value" ) {
-            auto S = s.initialize();
-            for (size_t i=0; i<9; i++) {
+            for (size_t i = 0; i < 9; i++) {
                 int ans;
                 S.value(i, ans);
-                REQUIRE( ans == v[i] );
-                }
+                REQUIRE(ans == v[i]);
+            }
         }
 
-        WHEN( "contains" ) {
+        WHEN("contains")
+        {
             auto S = s.initialize();
-            for (size_t i=0; i<9; i++) {
-                REQUIRE( S.contains(v[i]) == true );
-                }
+            for (size_t i = 0; i < 9; i++) {
+                REQUIRE(S.contains(v[i]) == true);
+            }
         }
 
-        WHEN( "begin" ) {
-            auto S = s.initialize();
-            auto it = S.begin();
-            REQUIRE( (it == S.end()) == false );
-        }
-
-        WHEN( "iterate" ) {
-            auto S = s.initialize();
-            size_t i=0;
-            for (auto it=S.begin(); it != S.end(); ++it) {
-                //REQUIRE( v[i] == std::get<int>((*it)[0]) );
-                REQUIRE( v[i] == (*it)[0] );
-                i++;
-                }
-        }
-
-        WHEN( "begin" ) {
+        WHEN("begin")
+        {
             auto S = s.initialize();
             auto it = S.begin();
-            REQUIRE( (it == S.end()) == false );
+            REQUIRE((it == S.end()) == false);
         }
 
-        WHEN( "iterate" ) {
+        WHEN("iterate")
+        {
             auto S = s.initialize();
-            size_t i=0;
-            for (auto it=S.begin(); it != S.end(); ++it) {
-                //REQUIRE( v[i] == std::get<int>((*it)[0]) );
-                REQUIRE( v[i] == (*it)[0] );
+            size_t i = 0;
+            for (auto it = S.begin(); it != S.end(); ++it) {
+                // REQUIRE( v[i] == std::get<int>((*it)[0]) );
+                REQUIRE(v[i] == (*it)[0]);
                 i++;
-                }
+            }
+        }
+
+        WHEN("begin")
+        {
+            auto S = s.initialize();
+            auto it = S.begin();
+            REQUIRE((it == S.end()) == false);
+        }
+
+        WHEN("iterate")
+        {
+            auto S = s.initialize();
+            size_t i = 0;
+            for (auto it = S.begin(); it != S.end(); ++it) {
+                // REQUIRE( v[i] == std::get<int>((*it)[0]) );
+                REQUIRE(v[i] == (*it)[0]);
+                i++;
+            }
         }
     }
 
-    SECTION( "difference" ) {
-        auto s1 = coek::RangeSet(0,6,2);
-        auto s2 = coek::RangeSet(4,10);
+    SECTION("difference")
+    {
+        auto s1 = coek::RangeSet(0, 6, 2);
+        auto s2 = coek::RangeSet(4, 10);
         auto s = s1.set_difference(s2);
         std::vector<int> v = {0, 2};
 
-        WHEN( "dim" ) {
-            REQUIRE( s.dim() == 1 );
+        WHEN("dim") { REQUIRE(s.dim() == 1); }
+
+        WHEN("size")
+        {
+            auto S = s.initialize();
+            REQUIRE(S.size() == 2);
         }
 
-        WHEN( "size" ) {
+        WHEN("finite")
+        {
             auto S = s.initialize();
-            REQUIRE( S.size() == 2 );
+            REQUIRE(S.finite() == true);
         }
 
-        WHEN( "finite" ) {
+        WHEN("empty")
+        {
             auto S = s.initialize();
-            REQUIRE( S.finite() == true );
+            REQUIRE(S.empty() == false);
         }
 
-        WHEN( "empty" ) {
+        WHEN("value")
+        {
             auto S = s.initialize();
-            REQUIRE( S.empty() == false );
-        }
-
-        WHEN( "value" ) {
-            auto S = s.initialize();
-            for (size_t i=0; i<2; i++) {
+            for (size_t i = 0; i < 2; i++) {
                 int ans;
                 S.value(i, ans);
-                REQUIRE( ans == v[i] );
-                }
+                REQUIRE(ans == v[i]);
+            }
         }
 
-        WHEN( "contains" ) {
+        WHEN("contains")
+        {
             auto S = s.initialize();
-            for (size_t i=0; i<2; i++) {
-                REQUIRE( S.contains(v[i]) == true );
-                }
+            for (size_t i = 0; i < 2; i++) {
+                REQUIRE(S.contains(v[i]) == true);
+            }
         }
 
-        WHEN( "begin" ) {
+        WHEN("begin")
+        {
             auto S = s.initialize();
             auto it = S.begin();
-            REQUIRE( (it == S.end()) == false );
+            REQUIRE((it == S.end()) == false);
         }
 
-        WHEN( "iterate" ) {
+        WHEN("iterate")
+        {
             auto S = s.initialize();
-            size_t i=0;
-            for (auto it=S.begin(); it != S.end(); ++it) {
-                //REQUIRE( v[i] == std::get<int>((*it)[0]) );
-                REQUIRE( v[i] == (*it)[0] );
+            size_t i = 0;
+            for (auto it = S.begin(); it != S.end(); ++it) {
+                // REQUIRE( v[i] == std::get<int>((*it)[0]) );
+                REQUIRE(v[i] == (*it)[0]);
                 i++;
-                }
+            }
         }
     }
 
-    SECTION( "difference_MINUS" ) {
-        auto s1 = coek::RangeSet(0,6,2);
-        auto s2 = coek::RangeSet(4,10);
+    SECTION("difference_MINUS")
+    {
+        auto s1 = coek::RangeSet(0, 6, 2);
+        auto s2 = coek::RangeSet(4, 10);
         auto s = s1 - s2;
         std::vector<int> v = {0, 2};
 
-        WHEN( "dim" ) {
-            REQUIRE( s.dim() == 1 );
+        WHEN("dim") { REQUIRE(s.dim() == 1); }
+
+        WHEN("size")
+        {
+            auto S = s.initialize();
+            REQUIRE(S.size() == 2);
         }
 
-        WHEN( "size" ) {
+        WHEN("finite")
+        {
             auto S = s.initialize();
-            REQUIRE( S.size() == 2 );
+            REQUIRE(S.finite() == true);
         }
 
-        WHEN( "finite" ) {
+        WHEN("empty")
+        {
             auto S = s.initialize();
-            REQUIRE( S.finite() == true );
+            REQUIRE(S.empty() == false);
         }
 
-        WHEN( "empty" ) {
+        WHEN("value")
+        {
             auto S = s.initialize();
-            REQUIRE( S.empty() == false );
-        }
-
-        WHEN( "value" ) {
-            auto S = s.initialize();
-            for (size_t i=0; i<2; i++) {
+            for (size_t i = 0; i < 2; i++) {
                 int ans;
                 S.value(i, ans);
-                REQUIRE( ans == v[i] );
-                }
+                REQUIRE(ans == v[i]);
+            }
         }
 
-        WHEN( "contains" ) {
+        WHEN("contains")
+        {
             auto S = s.initialize();
-            for (size_t i=0; i<2; i++) {
-                REQUIRE( S.contains(v[i]) == true );
-                }
+            for (size_t i = 0; i < 2; i++) {
+                REQUIRE(S.contains(v[i]) == true);
+            }
         }
 
-        WHEN( "begin" ) {
+        WHEN("begin")
+        {
             auto S = s.initialize();
             auto it = S.begin();
-            REQUIRE( (it == S.end()) == false );
+            REQUIRE((it == S.end()) == false);
         }
 
-        WHEN( "iterate" ) {
+        WHEN("iterate")
+        {
             auto S = s.initialize();
-            size_t i=0;
-            for (auto it=S.begin(); it != S.end(); ++it) {
-                //REQUIRE( v[i] == std::get<int>((*it)[0]) );
-                REQUIRE( v[i] == (*it)[0] );
+            size_t i = 0;
+            for (auto it = S.begin(); it != S.end(); ++it) {
+                // REQUIRE( v[i] == std::get<int>((*it)[0]) );
+                REQUIRE(v[i] == (*it)[0]);
                 i++;
-                }
+            }
         }
     }
 
-    SECTION( "symmetric_difference" ) {
-        auto s1 = coek::RangeSet(0,6,2);
-        auto s2 = coek::RangeSet(4,10);
+    SECTION("symmetric_difference")
+    {
+        auto s1 = coek::RangeSet(0, 6, 2);
+        auto s2 = coek::RangeSet(4, 10);
         auto s = s1.set_symmetric_difference(s2);
         std::vector<int> v = {0, 2, 5, 7, 8, 9, 10};
 
-        WHEN( "dim" ) {
-            REQUIRE( s.dim() == 1 );
+        WHEN("dim") { REQUIRE(s.dim() == 1); }
+
+        WHEN("size")
+        {
+            auto S = s.initialize();
+            REQUIRE(S.size() == 7);
         }
 
-        WHEN( "size" ) {
+        WHEN("finite")
+        {
             auto S = s.initialize();
-            REQUIRE( S.size() == 7 );
+            REQUIRE(S.finite() == true);
         }
 
-        WHEN( "finite" ) {
+        WHEN("empty")
+        {
             auto S = s.initialize();
-            REQUIRE( S.finite() == true );
+            REQUIRE(S.empty() == false);
         }
 
-        WHEN( "empty" ) {
+        WHEN("value")
+        {
             auto S = s.initialize();
-            REQUIRE( S.empty() == false );
-        }
-
-        WHEN( "value" ) {
-            auto S = s.initialize();
-            for (size_t i=0; i<7; i++) {
+            for (size_t i = 0; i < 7; i++) {
                 int ans;
                 S.value(i, ans);
-                REQUIRE( ans == v[i] );
-                }
+                REQUIRE(ans == v[i]);
+            }
         }
 
-        WHEN( "contains" ) {
+        WHEN("contains")
+        {
             auto S = s.initialize();
-            for (size_t i=0; i<7; i++) {
-                REQUIRE( S.contains(v[i]) == true );
-                }
+            for (size_t i = 0; i < 7; i++) {
+                REQUIRE(S.contains(v[i]) == true);
+            }
         }
 
-        WHEN( "begin" ) {
+        WHEN("begin")
+        {
             auto S = s.initialize();
             auto it = S.begin();
-            REQUIRE( (it == S.end()) == false );
+            REQUIRE((it == S.end()) == false);
         }
 
-        WHEN( "iterate" ) {
+        WHEN("iterate")
+        {
             auto S = s.initialize();
-            size_t i=0;
-            for (auto it=S.begin(); it != S.end(); ++it) {
-                //REQUIRE( v[i] == std::get<int>((*it)[0]) );
-                REQUIRE( v[i] == (*it)[0] );
+            size_t i = 0;
+            for (auto it = S.begin(); it != S.end(); ++it) {
+                // REQUIRE( v[i] == std::get<int>((*it)[0]) );
+                REQUIRE(v[i] == (*it)[0]);
                 i++;
-                }
+            }
         }
     }
 
-    SECTION( "symmetric_difference_XOR" ) {
-        auto s1 = coek::RangeSet(0,6,2);
-        auto s2 = coek::RangeSet(4,10);
+    SECTION("symmetric_difference_XOR")
+    {
+        auto s1 = coek::RangeSet(0, 6, 2);
+        auto s2 = coek::RangeSet(4, 10);
         auto s = s1 ^ s2;
         std::vector<int> v = {0, 2, 5, 7, 8, 9, 10};
 
-        WHEN( "dim" ) {
-            REQUIRE( s.dim() == 1 );
+        WHEN("dim") { REQUIRE(s.dim() == 1); }
+
+        WHEN("size")
+        {
+            auto S = s.initialize();
+            REQUIRE(S.size() == 7);
         }
 
-        WHEN( "size" ) {
+        WHEN("finite")
+        {
             auto S = s.initialize();
-            REQUIRE( S.size() == 7 );
+            REQUIRE(S.finite() == true);
         }
 
-        WHEN( "finite" ) {
+        WHEN("empty")
+        {
             auto S = s.initialize();
-            REQUIRE( S.finite() == true );
+            REQUIRE(S.empty() == false);
         }
 
-        WHEN( "empty" ) {
+        WHEN("value")
+        {
             auto S = s.initialize();
-            REQUIRE( S.empty() == false );
-        }
-
-        WHEN( "value" ) {
-            auto S = s.initialize();
-            for (size_t i=0; i<7; i++) {
+            for (size_t i = 0; i < 7; i++) {
                 int ans;
                 S.value(i, ans);
-                REQUIRE( ans == v[i] );
-                }
+                REQUIRE(ans == v[i]);
+            }
         }
 
-        WHEN( "contains" ) {
+        WHEN("contains")
+        {
             auto S = s.initialize();
-            for (size_t i=0; i<7; i++) {
-                REQUIRE( S.contains(v[i]) == true );
-                }
+            for (size_t i = 0; i < 7; i++) {
+                REQUIRE(S.contains(v[i]) == true);
+            }
         }
 
-        WHEN( "begin" ) {
+        WHEN("begin")
+        {
             auto S = s.initialize();
             auto it = S.begin();
-            REQUIRE( (it == S.end()) == false );
+            REQUIRE((it == S.end()) == false);
         }
 
-        WHEN( "iterate" ) {
+        WHEN("iterate")
+        {
             auto S = s.initialize();
-            size_t i=0;
-            for (auto it=S.begin(); it != S.end(); ++it) {
-                //REQUIRE( v[i] == std::get<int>((*it)[0]) );
-                REQUIRE( v[i] == (*it)[0] );
+            size_t i = 0;
+            for (auto it = S.begin(); it != S.end(); ++it) {
+                // REQUIRE( v[i] == std::get<int>((*it)[0]) );
+                REQUIRE(v[i] == (*it)[0]);
                 i++;
-                }
+            }
         }
     }
 
-#ifdef DEBUG
-REQUIRE( coek::env.check_memory() == true );
-#endif
+#    ifdef DEBUG
+    REQUIRE(coek::env.check_memory() == true);
+#    endif
 }
 
-TEST_CASE( "logical_operations_int", "[smoke]" ) {
-    auto s1 = coek::SetOf({1,2});
-    auto s2 = coek::SetOf({4,5,6,7,8,9,10});
-    auto s3 = coek::SetOf({1,2,4,5,6,7,8,9,10});
+TEST_CASE("logical_operations_int", "[smoke]")
+{
+    auto s1 = coek::SetOf({1, 2});
+    auto s2 = coek::SetOf({4, 5, 6, 7, 8, 9, 10});
+    auto s3 = coek::SetOf({1, 2, 4, 5, 6, 7, 8, 9, 10});
 
-    SECTION( "is_disjoint" ) {
-        REQUIRE( s1.is_disjoint(s2) == true );
-        REQUIRE( s1.is_disjoint(s3) == false );
-        REQUIRE( s2.is_disjoint(s1) == true );
-        REQUIRE( s2.is_disjoint(s3) == false );
-        REQUIRE( s3.is_disjoint(s1) == false );
-        REQUIRE( s3.is_disjoint(s2) == false );
+    SECTION("is_disjoint")
+    {
+        REQUIRE(s1.is_disjoint(s2) == true);
+        REQUIRE(s1.is_disjoint(s3) == false);
+        REQUIRE(s2.is_disjoint(s1) == true);
+        REQUIRE(s2.is_disjoint(s3) == false);
+        REQUIRE(s3.is_disjoint(s1) == false);
+        REQUIRE(s3.is_disjoint(s2) == false);
     }
 
-    SECTION( "is_subset" ) {
-        REQUIRE( s1.is_subset(s2) == false );
-        REQUIRE( s1.is_subset(s3) == true );
-        REQUIRE( s2.is_subset(s1) == false );
-        REQUIRE( s2.is_subset(s3) == true );
-        REQUIRE( s3.is_subset(s1) == false );
-        REQUIRE( s3.is_subset(s2) == false );
+    SECTION("is_subset")
+    {
+        REQUIRE(s1.is_subset(s2) == false);
+        REQUIRE(s1.is_subset(s3) == true);
+        REQUIRE(s2.is_subset(s1) == false);
+        REQUIRE(s2.is_subset(s3) == true);
+        REQUIRE(s3.is_subset(s1) == false);
+        REQUIRE(s3.is_subset(s2) == false);
     }
 
-    SECTION( "is_superset" ) {
-        REQUIRE( s1.is_superset(s2) == false );
-        REQUIRE( s1.is_superset(s3) == false );
-        REQUIRE( s2.is_superset(s1) == false );
-        REQUIRE( s2.is_superset(s3) == false );
-        REQUIRE( s3.is_superset(s1) == true );
-        REQUIRE( s3.is_superset(s2) == true );
+    SECTION("is_superset")
+    {
+        REQUIRE(s1.is_superset(s2) == false);
+        REQUIRE(s1.is_superset(s3) == false);
+        REQUIRE(s2.is_superset(s1) == false);
+        REQUIRE(s2.is_superset(s3) == false);
+        REQUIRE(s3.is_superset(s1) == true);
+        REQUIRE(s3.is_superset(s2) == true);
     }
 
-#ifdef DEBUG
-REQUIRE( coek::env.check_memory() == true );
-#endif
+#    ifdef DEBUG
+    REQUIRE(coek::env.check_memory() == true);
+#    endif
 }
 
-TEST_CASE( "product_finite", "[smoke]" ) {
+TEST_CASE("product_finite", "[smoke]")
+{
+    SECTION("int_int")
+    {
+        auto s1 = coek::SetOf({1, 2, 3});
+        auto s2 = coek::SetOf({4, 5, 6, 7});
 
-    SECTION( "int_int" ) {
-        auto s1 = coek::SetOf({1,2,3});
-        auto s2 = coek::SetOf({4,5,6,7});
-
-        WHEN( "dim" ) {
-            auto s = s1*s2;
-            REQUIRE( s1.dim() == 1 );
-            REQUIRE( s2.dim() == 1 );
-            REQUIRE( s.dim() == 2 );
+        WHEN("dim")
+        {
+            auto s = s1 * s2;
+            REQUIRE(s1.dim() == 1);
+            REQUIRE(s2.dim() == 1);
+            REQUIRE(s.dim() == 2);
         }
 
-        WHEN( "size" ) {
-            auto s = s1*s2;
+        WHEN("size")
+        {
+            auto s = s1 * s2;
             auto S = s.initialize();
-            REQUIRE( S.size() == 12 );
+            REQUIRE(S.size() == 12);
         }
 
-        WHEN( "finite" ) {
-            auto s = s1*s2;
+        WHEN("finite")
+        {
+            auto s = s1 * s2;
             auto S = s.initialize();
-            REQUIRE( S.finite() == true );
+            REQUIRE(S.finite() == true);
         }
 
-        WHEN( "countable" ) {
-            auto s = s1*s2;
+        WHEN("countable")
+        {
+            auto s = s1 * s2;
             auto S = s.initialize();
-            REQUIRE( S.countable() == true );
+            REQUIRE(S.countable() == true);
         }
 
-        WHEN( "empty" ) {
-            auto s = s1*s2;
+        WHEN("empty")
+        {
+            auto s = s1 * s2;
             auto S = s.initialize();
-            REQUIRE( S.empty() == false );
+            REQUIRE(S.empty() == false);
         }
 
-#if 0
+#    if 0
         WHEN( "value" ) {
             auto s = s1*s2;
             for (int i=0; i<4; i++) {
@@ -1290,55 +1393,58 @@ TEST_CASE( "product_finite", "[smoke]" ) {
                 REQUIRE( ans == v[i] );
                 }
         }
-#endif
+#    endif
 
-        WHEN( "contains" ) {
-            auto s = s1*s2;
+        WHEN("contains")
+        {
+            auto s = s1 * s2;
             auto S = s.initialize();
             std::vector<coek::set_types> v(2);
-            for (size_t i=0; i<s1.size(); i++) {
+            for (size_t i = 0; i < s1.size(); i++) {
                 int arg1;
                 s1.value(i, arg1);
                 v[0] = arg1;
-                for (size_t j=0; j<s2.size(); j++) {
+                for (size_t j = 0; j < s2.size(); j++) {
                     int arg2;
                     s2.value(i, arg2);
                     v[1] = arg2;
-                    REQUIRE( S.contains(v) == true );
+                    REQUIRE(S.contains(v) == true);
                 }
             }
         }
 
-      WHEN( "index" ) {
-          auto s = s1*s2;
-          auto i = coek::set_element("i");
-          auto j = coek::set_element("j");
-  
-          std::set<int> ivals;
-          std::set<int> jvals;
-          for (auto it=s.begin({i,j}); it != s.end(); ++it) {
-              int tmp;
-              i.get_value(tmp);
-              ivals.insert(tmp);
-              j.get_value(tmp);
-              jvals.insert(tmp);
-              }
-  
-          std::set<int> vset({1,2,3});
-          std::set<int> wset({4,5,6,7});
-          REQUIRE( vset == ivals );
-          REQUIRE( wset == jvals );
-          }
-  
-        WHEN( "set_element_error" ) {
-          auto s = s1*s2;
-          auto i = coek::set_element("i");
-          auto j = coek::set_element("j");
-          CHECK_THROWS( s.begin({i}) );
-          }
+        WHEN("index")
+        {
+            auto s = s1 * s2;
+            auto i = coek::set_element("i");
+            auto j = coek::set_element("j");
+
+            std::set<int> ivals;
+            std::set<int> jvals;
+            for (auto it = s.begin({i, j}); it != s.end(); ++it) {
+                int tmp;
+                i.get_value(tmp);
+                ivals.insert(tmp);
+                j.get_value(tmp);
+                jvals.insert(tmp);
+            }
+
+            std::set<int> vset({1, 2, 3});
+            std::set<int> wset({4, 5, 6, 7});
+            REQUIRE(vset == ivals);
+            REQUIRE(wset == jvals);
+        }
+
+        WHEN("set_element_error")
+        {
+            auto s = s1 * s2;
+            auto i = coek::set_element("i");
+            auto j = coek::set_element("j");
+            CHECK_THROWS(s.begin({i}));
+        }
     }
 
-#if 0
+#    if 0
     SECTION( "int_string" ) {
         auto s1 = coek::SetOf({1,2,3});
         auto s2 = coek::SetOf({"aa", "cc", "bb", "dd"});
@@ -1374,7 +1480,7 @@ TEST_CASE( "product_finite", "[smoke]" ) {
             REQUIRE( S.empty() == false );
         }
 
-#if 0
+#        if 0
         WHEN( "value" ) {
             auto s = s1*s2;
             for (int i=0; i<4; i++) {
@@ -1383,7 +1489,7 @@ TEST_CASE( "product_finite", "[smoke]" ) {
                 REQUIRE( ans == v[i] );
                 }
         }
-#endif
+#        endif
 
         WHEN( "contains" ) {
             auto s = s1*s2;
@@ -1519,221 +1625,249 @@ TEST_CASE( "product_finite", "[smoke]" ) {
             REQUIRE( S.empty() == false );
         }
     }
-#endif
+#    endif
 
-#ifdef DEBUG
-REQUIRE( coek::env.check_memory() == true );
-#endif
+#    ifdef DEBUG
+    REQUIRE(coek::env.check_memory() == true);
+#    endif
 }
 
-TEST_CASE( "product_finite_operations", "[smoke]" ) {
+TEST_CASE("product_finite_operations", "[smoke]")
+{
+    SECTION("intersection")
+    {
+        auto s1 = coek::SetOf({1, 2, 3});
+        auto s2 = coek::SetOf({4, 5, 6, 7});
+        auto s3 = coek::SetOf({6, 7, 8, 9});
 
-    SECTION( "intersection" ) {
-        auto s1 = coek::SetOf({1,2,3});
-        auto s2 = coek::SetOf({4,5,6,7});
-        auto s3 = coek::SetOf({6,7,8,9});
-
-        WHEN( "dim" ) {
-            auto s = s1*s2 & s1*s3;
-            REQUIRE( s.dim() == 2 );
+        WHEN("dim")
+        {
+            auto s = s1 * s2 & s1 * s3;
+            REQUIRE(s.dim() == 2);
         }
 
-        WHEN( "size" ) {
-            auto s = s1*s2 & s1*s3;
+        WHEN("size")
+        {
+            auto s = s1 * s2 & s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.size() == 6 );
+            REQUIRE(S.size() == 6);
         }
 
-        WHEN( "finite" ) {
-            auto s = s1*s2 & s1*s3;
+        WHEN("finite")
+        {
+            auto s = s1 * s2 & s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.finite() == true );
+            REQUIRE(S.finite() == true);
         }
 
-        WHEN( "countable" ) {
-            auto s = s1*s2 & s1*s3;
+        WHEN("countable")
+        {
+            auto s = s1 * s2 & s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.countable() == true );
+            REQUIRE(S.countable() == true);
         }
 
-        WHEN( "empty" ) {
-            auto s = s1*s2 & s1*s3;
+        WHEN("empty")
+        {
+            auto s = s1 * s2 & s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.empty() == false );
+            REQUIRE(S.empty() == false);
         }
 
-        WHEN( "contains" ) {
-            auto s = s1*s2 & s1*s3;
+        WHEN("contains")
+        {
+            auto s = s1 * s2 & s1 * s3;
             auto S = s.initialize();
-            std::vector<int> RHS = {6,7};
+            std::vector<int> RHS = {6, 7};
             std::vector<coek::set_types> v(2);
-            for (size_t i=0; i<s1.size(); i++) {
+            for (size_t i = 0; i < s1.size(); i++) {
                 int arg1;
                 s1.value(i, arg1);
                 v[0] = arg1;
-                for (size_t j=0; j<2; j++) {
+                for (size_t j = 0; j < 2; j++) {
                     v[1] = RHS[j];
-                    REQUIRE( S.contains(v) == true );
+                    REQUIRE(S.contains(v) == true);
                 }
             }
         }
     }
 
-    SECTION( "union" ) {
-        auto s1 = coek::SetOf({1,2,3});
-        auto s2 = coek::SetOf({4,5,6,7});
-        auto s3 = coek::SetOf({6,7,8,9});
+    SECTION("union")
+    {
+        auto s1 = coek::SetOf({1, 2, 3});
+        auto s2 = coek::SetOf({4, 5, 6, 7});
+        auto s3 = coek::SetOf({6, 7, 8, 9});
 
-        WHEN( "dim" ) {
-            auto s = s1*s2 + s1*s3;
-            REQUIRE( s.dim() == 2 );
+        WHEN("dim")
+        {
+            auto s = s1 * s2 + s1 * s3;
+            REQUIRE(s.dim() == 2);
         }
 
-        WHEN( "size" ) {
-            auto s = s1*s2 + s1*s3;
+        WHEN("size")
+        {
+            auto s = s1 * s2 + s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.size() == 18 );
+            REQUIRE(S.size() == 18);
         }
 
-        WHEN( "finite" ) {
-            auto s = s1*s2 + s1*s3;
+        WHEN("finite")
+        {
+            auto s = s1 * s2 + s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.finite() == true );
+            REQUIRE(S.finite() == true);
         }
 
-        WHEN( "countable" ) {
-            auto s = s1*s2 + s1*s3;
+        WHEN("countable")
+        {
+            auto s = s1 * s2 + s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.countable() == true );
+            REQUIRE(S.countable() == true);
         }
 
-        WHEN( "empty" ) {
-            auto s = s1*s2 + s1*s3;
+        WHEN("empty")
+        {
+            auto s = s1 * s2 + s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.empty() == false );
+            REQUIRE(S.empty() == false);
         }
 
-        WHEN( "contains" ) {
-            auto s = s1*s2 + s1*s3;
+        WHEN("contains")
+        {
+            auto s = s1 * s2 + s1 * s3;
             auto S = s.initialize();
-            std::vector<int> RHS = {4,5,6,7,8,9};
+            std::vector<int> RHS = {4, 5, 6, 7, 8, 9};
             std::vector<coek::set_types> v(2);
-            for (size_t i=0; i<s1.size(); i++) {
+            for (size_t i = 0; i < s1.size(); i++) {
                 int arg1;
                 s1.value(i, arg1);
                 v[0] = arg1;
-                for (size_t j=0; j<2; j++) {
+                for (size_t j = 0; j < 2; j++) {
                     v[1] = RHS[j];
-                    REQUIRE( S.contains(v) == true );
+                    REQUIRE(S.contains(v) == true);
                 }
             }
         }
     }
 
-    SECTION( "difference" ) {
-        auto s1 = coek::SetOf({1,2,3});
-        auto s2 = coek::SetOf({4,5,6,7});
-        auto s3 = coek::SetOf({6,7,8,9});
+    SECTION("difference")
+    {
+        auto s1 = coek::SetOf({1, 2, 3});
+        auto s2 = coek::SetOf({4, 5, 6, 7});
+        auto s3 = coek::SetOf({6, 7, 8, 9});
 
-        WHEN( "dim" ) {
-            auto s = s1*s2 - s1*s3;
-            REQUIRE( s.dim() == 2 );
+        WHEN("dim")
+        {
+            auto s = s1 * s2 - s1 * s3;
+            REQUIRE(s.dim() == 2);
         }
 
-        WHEN( "size" ) {
-            auto s = s1*s2 - s1*s3;
+        WHEN("size")
+        {
+            auto s = s1 * s2 - s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.size() == 6 );
+            REQUIRE(S.size() == 6);
         }
 
-        WHEN( "finite" ) {
-            auto s = s1*s2 - s1*s3;
+        WHEN("finite")
+        {
+            auto s = s1 * s2 - s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.finite() == true );
+            REQUIRE(S.finite() == true);
         }
 
-        WHEN( "countable" ) {
-            auto s = s1*s2 - s1*s3;
+        WHEN("countable")
+        {
+            auto s = s1 * s2 - s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.countable() == true );
+            REQUIRE(S.countable() == true);
         }
 
-        WHEN( "empty" ) {
-            auto s = s1*s2 - s1*s3;
+        WHEN("empty")
+        {
+            auto s = s1 * s2 - s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.empty() == false );
+            REQUIRE(S.empty() == false);
         }
 
-        WHEN( "contains" ) {
-            auto s = s1*s2 - s1*s3;
+        WHEN("contains")
+        {
+            auto s = s1 * s2 - s1 * s3;
             auto S = s.initialize();
-            std::vector<int> RHS = {4,5};
+            std::vector<int> RHS = {4, 5};
             std::vector<coek::set_types> v(2);
-            for (size_t i=0; i<s1.size(); i++) {
+            for (size_t i = 0; i < s1.size(); i++) {
                 int arg1;
                 s1.value(i, arg1);
                 v[0] = arg1;
-                for (size_t j=0; j<2; j++) {
+                for (size_t j = 0; j < 2; j++) {
                     v[1] = RHS[j];
-                    REQUIRE( S.contains(v) == true );
+                    REQUIRE(S.contains(v) == true);
                 }
             }
         }
     }
 
-    SECTION( "symmetric_difference" ) {
-        auto s1 = coek::SetOf({1,2,3});
-        auto s2 = coek::SetOf({4,5,6,7});
-        auto s3 = coek::SetOf({6,7,8,9});
+    SECTION("symmetric_difference")
+    {
+        auto s1 = coek::SetOf({1, 2, 3});
+        auto s2 = coek::SetOf({4, 5, 6, 7});
+        auto s3 = coek::SetOf({6, 7, 8, 9});
 
-        WHEN( "dim" ) {
-            auto s = s1*s2 ^ s1*s3;
-            REQUIRE( s.dim() == 2 );
+        WHEN("dim")
+        {
+            auto s = s1 * s2 ^ s1 * s3;
+            REQUIRE(s.dim() == 2);
         }
 
-        WHEN( "size" ) {
-            auto s = s1*s2 ^ s1*s3;
+        WHEN("size")
+        {
+            auto s = s1 * s2 ^ s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.size() == 12 );
+            REQUIRE(S.size() == 12);
         }
 
-        WHEN( "finite" ) {
-            auto s = s1*s2 ^ s1*s3;
+        WHEN("finite")
+        {
+            auto s = s1 * s2 ^ s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.finite() == true );
+            REQUIRE(S.finite() == true);
         }
 
-        WHEN( "countable" ) {
-            auto s = s1*s2 ^ s1*s3;
+        WHEN("countable")
+        {
+            auto s = s1 * s2 ^ s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.countable() == true );
+            REQUIRE(S.countable() == true);
         }
 
-        WHEN( "empty" ) {
-            auto s = s1*s2 ^ s1*s3;
+        WHEN("empty")
+        {
+            auto s = s1 * s2 ^ s1 * s3;
             auto S = s.initialize();
-            REQUIRE( S.empty() == false );
+            REQUIRE(S.empty() == false);
         }
 
-        WHEN( "contains" ) {
-            auto s = s1*s2 ^ s1*s3;
+        WHEN("contains")
+        {
+            auto s = s1 * s2 ^ s1 * s3;
             auto S = s.initialize();
-            std::vector<int> RHS = {4,5,8,9};
+            std::vector<int> RHS = {4, 5, 8, 9};
             std::vector<coek::set_types> v(2);
-            for (size_t i=0; i<s1.size(); i++) {
+            for (size_t i = 0; i < s1.size(); i++) {
                 int arg1;
                 s1.value(i, arg1);
                 v[0] = arg1;
-                for (size_t j=0; j<2; j++) {
+                for (size_t j = 0; j < 2; j++) {
                     v[1] = RHS[j];
-                    REQUIRE( S.contains(v) == true );
+                    REQUIRE(S.contains(v) == true);
                 }
             }
         }
     }
 
-#ifdef DEBUG
-REQUIRE( coek::env.check_memory() == true );
-#endif
+#    ifdef DEBUG
+    REQUIRE(coek::env.check_memory() == true);
+#    endif
 }
 #endif

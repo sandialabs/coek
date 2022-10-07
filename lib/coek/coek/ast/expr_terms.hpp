@@ -3,8 +3,8 @@
 #include <cmath>
 #include <memory>
 #include <vector>
-#include "base_terms.hpp"
 
+#include "base_terms.hpp"
 
 namespace coek {
 
@@ -12,12 +12,9 @@ namespace coek {
 // ExpressionTerm
 //
 
-class ExpressionTerm : public BaseExpressionTerm
-{
-public:
-
-    bool is_expression() const
-        {return true;}
+class ExpressionTerm : public BaseExpressionTerm {
+   public:
+    bool is_expression() const { return true; }
 
     virtual size_t num_expressions() const = 0;
 
@@ -28,53 +25,41 @@ public:
 // UnaryTerm
 //
 
-class UnaryTerm : public ExpressionTerm
-{
-public:
-
+class UnaryTerm : public ExpressionTerm {
+   public:
     expr_pointer_t body;
 
-public:
-
+   public:
     UnaryTerm(const expr_pointer_t& repn);
     ~UnaryTerm();
 
-    size_t num_expressions() const
-        {return 1;}
-    expr_pointer_t expression(size_t)
-        {return body;}
+    size_t num_expressions() const { return 1; }
+    expr_pointer_t expression(size_t) { return body; }
 };
 
 //
 // BinaryTerm
 //
 
-class BinaryTerm : public ExpressionTerm
-{
-public:
-
+class BinaryTerm : public ExpressionTerm {
+   public:
     expr_pointer_t lhs;
     expr_pointer_t rhs;
 
-public:
-
+   public:
     BinaryTerm(const expr_pointer_t& _lhs, const expr_pointer_t& _rhs);
     ~BinaryTerm();
 
-    size_t num_expressions() const
-        {return 2;}
+    size_t num_expressions() const { return 2; }
     expr_pointer_t expression(size_t i)
-        {
-        if (i == 0)
-            return lhs;
+    {
+        if (i == 0) return lhs;
         return rhs;
-        }
+    }
 };
 
-class NAryPrefixTerm : public ExpressionTerm
-{
-public:
-
+class NAryPrefixTerm : public ExpressionTerm {
+   public:
     typedef std::vector<expr_pointer_t> shared_t;
     std::shared_ptr<shared_t> data;
     size_t n;
@@ -87,98 +72,72 @@ public:
 
     void push_back(const expr_pointer_t& rhs);
 
-    size_t num_expressions() const
-        {return n;}
+    size_t num_expressions() const { return n; }
 
-    expr_pointer_t expression(size_t i)
-        { return (*data)[i]; }
+    expr_pointer_t expression(size_t i) { return (*data)[i]; }
 };
 
 //
 // NegateTerm
 //
 
-class NegateTerm : public UnaryTerm
-{
-public:
+class NegateTerm : public UnaryTerm {
+   public:
+    NegateTerm(const expr_pointer_t& body) : UnaryTerm(body) {}
 
-    NegateTerm(const expr_pointer_t& body)
-        : UnaryTerm(body) {}
+    double eval() const { return -body->eval(); }
 
-    double eval() const
-        {return - body->eval(); }
-
-    void accept(Visitor& v)
-        { v.visit(*this); }
-    term_id id()
-        {return NegateTerm_id;}
+    void accept(Visitor& v) { v.visit(*this); }
+    term_id id() { return NegateTerm_id; }
 };
 
 //
 // PlusTerm
 //
 
-class PlusTerm : public NAryPrefixTerm
-{
-public:
-
+class PlusTerm : public NAryPrefixTerm {
+   public:
     PlusTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs);
     PlusTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs, bool dummy);
 
     double eval() const
-        {
+    {
         double ans = 0;
-        for (unsigned int i=0; i<n; i++)
-            ans += (*data)[i]->eval();
+        for (unsigned int i = 0; i < n; i++) ans += (*data)[i]->eval();
         return ans;
-        }
+    }
 
-    void accept(Visitor& v)
-        { v.visit(*this); }
-    term_id id()
-        {return PlusTerm_id;}
+    void accept(Visitor& v) { v.visit(*this); }
+    term_id id() { return PlusTerm_id; }
 };
 
 //
 // TimesTerm
 //
 
-class TimesTerm : public BinaryTerm
-{
-public:
+class TimesTerm : public BinaryTerm {
+   public:
+    TimesTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs) : BinaryTerm(lhs, rhs) {}
 
-    TimesTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs)
-        : BinaryTerm(lhs, rhs) {}
+    double eval() const { return lhs->eval() * rhs->eval(); }
 
-    double eval() const
-        {return lhs->eval() * rhs->eval(); }
-
-    void accept(Visitor& v)
-        { v.visit(*this); }
-    term_id id()
-        {return TimesTerm_id;}
+    void accept(Visitor& v) { v.visit(*this); }
+    term_id id() { return TimesTerm_id; }
 };
 
 //
 // DivideTerm
 //
 
-class DivideTerm : public BinaryTerm
-{
-public:
+class DivideTerm : public BinaryTerm {
+   public:
+    DivideTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs) : BinaryTerm(lhs, rhs) {}
 
-    DivideTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs)
-        : BinaryTerm(lhs, rhs) {}
+    double eval() const { return lhs->eval() / rhs->eval(); }
 
-    double eval() const
-        {return lhs->eval() / rhs->eval(); }
-
-    void accept(Visitor& v)
-        { v.visit(*this); }
-    term_id id()
-        {return DivideTerm_id;}
+    void accept(Visitor& v) { v.visit(*this); }
+    term_id id() { return DivideTerm_id; }
 };
-
 
 // TODO: Idea - Intrinsic functions
 
@@ -186,23 +145,16 @@ public:
 // Unary Terms
 //
 
-#define UNARY_CLASS(FN, TERM)\
-class TERM : public UnaryTerm\
-{\
-public:\
-\
-    TERM(const expr_pointer_t& body)\
-        : UnaryTerm(body) {}\
-\
-    double eval() const\
-        {return ::FN(body->eval()); }\
-\
-    void accept(Visitor& v)\
-        { v.visit(*this); }\
-    term_id id()\
-        {return TERM ## _id;}\
-};
-
+#define UNARY_CLASS(FN, TERM)                                 \
+    class TERM : public UnaryTerm {                           \
+       public:                                                \
+        TERM(const expr_pointer_t& body) : UnaryTerm(body) {} \
+                                                              \
+        double eval() const { return ::FN(body->eval()); }    \
+                                                              \
+        void accept(Visitor& v) { v.visit(*this); }           \
+        term_id id() { return TERM##_id; }                    \
+    };
 
 UNARY_CLASS(fabs, AbsTerm)
 UNARY_CLASS(ceil, CeilTerm)
@@ -224,42 +176,35 @@ UNARY_CLASS(asinh, ASinhTerm)
 UNARY_CLASS(acosh, ACoshTerm)
 UNARY_CLASS(atanh, ATanhTerm)
 
-//UNARY_CLASS(cot, CotTerm)
-//UNARY_CLASS(csc, CscTerm)
-//UNARY_CLASS(sec, SecTerm)
-//UNARY_CLASS(coth, CothTerm)
-//UNARY_CLASS(csch, CschTerm)
-//UNARY_CLASS(sech, SechTerm)
-//UNARY_CLASS(acot, ACotTerm)
-//UNARY_CLASS(acsc, ACscTerm)
-//UNARY_CLASS(asec, ASecTerm)
-//UNARY_CLASS(acoth, ACothTerm)
-//UNARY_CLASS(acsch, ACschTerm)
-//UNARY_CLASS(asech, ASechTerm)
-
+// UNARY_CLASS(cot, CotTerm)
+// UNARY_CLASS(csc, CscTerm)
+// UNARY_CLASS(sec, SecTerm)
+// UNARY_CLASS(coth, CothTerm)
+// UNARY_CLASS(csch, CschTerm)
+// UNARY_CLASS(sech, SechTerm)
+// UNARY_CLASS(acot, ACotTerm)
+// UNARY_CLASS(acsc, ACscTerm)
+// UNARY_CLASS(asec, ASecTerm)
+// UNARY_CLASS(acoth, ACothTerm)
+// UNARY_CLASS(acsch, ACschTerm)
+// UNARY_CLASS(asech, ASechTerm)
 
 //
 // Binary Terms
 //
 
-#define BINARY_CLASS(FN, TERM)\
-class TERM : public BinaryTerm\
-{\
-public:\
-\
-    TERM(const expr_pointer_t& lhs, const expr_pointer_t& rhs)\
-        : BinaryTerm(lhs,rhs) {}\
-\
-    double eval() const\
-        {return ::FN(lhs->eval(), rhs->eval()); }\
-\
-    void accept(Visitor& v)\
-        { v.visit(*this); }\
-    term_id id()\
-        {return TERM ## _id;}\
-};
+#define BINARY_CLASS(FN, TERM)                                                               \
+    class TERM : public BinaryTerm {                                                         \
+       public:                                                                               \
+        TERM(const expr_pointer_t& lhs, const expr_pointer_t& rhs) : BinaryTerm(lhs, rhs) {} \
+                                                                                             \
+        double eval() const { return ::FN(lhs->eval(), rhs->eval()); }                       \
+                                                                                             \
+        void accept(Visitor& v) { v.visit(*this); }                                          \
+        term_id id() { return TERM##_id; }                                                   \
+    };
 
 BINARY_CLASS(pow, PowTerm)
-//BINARY_CLASS(atan2, ATan2Term)
+// BINARY_CLASS(atan2, ATan2Term)
 
-}
+}  // namespace coek

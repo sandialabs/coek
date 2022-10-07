@@ -107,9 +107,7 @@ def pyomo_to_poek(pyomo_model, default_variable_value=None):
 
     poek_model = pk.model()
 
-    visitor = ToCoekExpression(
-        poek_model, default_variable_value=default_variable_value
-    )
+    visitor = ToCoekExpression(poek_model, default_variable_value=default_variable_value)
     for cdata in pyomo_model.component_data_objects(Objective, active=True):
         e = visitor.dfs_postorder_stack(cdata.expr)
         poek_model.add_objective(e)
@@ -119,9 +117,7 @@ def pyomo_to_poek(pyomo_model, default_variable_value=None):
             poek_model.add_constraint(e == value(cdata.lower))
         else:
             if cdata.has_lb() and cdata.has_ub():
-                poek_model.add_constraint(
-                    inequality(value(cdata.lower), e, value(cdata.upper))
-                )
+                poek_model.add_constraint(inequality(value(cdata.lower), e, value(cdata.upper)))
             elif cdata.has_lb():
                 poek_model.add_constraint(e >= value(cdata.lower))
             elif cdata.has_ub():

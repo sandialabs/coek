@@ -1,9 +1,8 @@
 #pragma once
 
 #include <iostream>
-#include <string>
 #include <list>
-
+#include <string>
 
 namespace coek {
 
@@ -12,18 +11,14 @@ typedef ObjectiveTerm* ObjectiveRepn;
 class Objective;
 class Expression;
 
-
 /**
-  * An object that represents a model objective.
-  */
-class Objective
-{
-public:
-
+ * An object that represents a model objective.
+ */
+class Objective {
+   public:
     ObjectiveRepn repn;
 
-public:
-
+   public:
     Objective();
     Objective(const ObjectiveRepn& _repn);
     Objective(const Objective& arg);
@@ -58,10 +53,9 @@ public:
     friend std::ostream& operator<<(std::ostream& ostr, const Objective& arg);
 };
 
-
 Objective objective();
 Objective objective(const std::string& name);
 Objective objective(const Expression& expr);
 Objective objective(const std::string& name, const Expression& expr);
 
-}
+}  // namespace coek

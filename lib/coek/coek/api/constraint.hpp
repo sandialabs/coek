@@ -1,11 +1,10 @@
 #pragma once
 
 #include <iostream>
-#include <string>
 #include <list>
-#include <vector>
 #include <memory>
-
+#include <string>
+#include <vector>
 
 namespace coek {
 
@@ -18,22 +17,18 @@ class Variable;
 class Expression;
 class Constraint;
 
-
 /**
-  * An object for constraint expressions that represent
-  * equality constraints or inequality constraints.
-  */
-class Constraint
-{
-public:
-
+ * An object for constraint expressions that represent
+ * equality constraints or inequality constraints.
+ */
+class Constraint {
+   public:
     ConstraintRepn repn;
 
-public:
-
+   public:
     /**
-      * Creates an empty constraint object.
-      */
+     * Creates an empty constraint object.
+     */
     Constraint();
     Constraint(const ConstraintRepn& _repn);
     Constraint(const Constraint& arg);
@@ -73,7 +68,6 @@ public:
 
     friend std::ostream& operator<<(std::ostream& ostr, const Constraint& arg);
 };
-
 
 //
 // logical operators
@@ -245,25 +239,26 @@ Constraint operator==(const Expression&, const Variable&);
 Constraint operator==(const Expression&, const Expression&);
 
 inline Constraint constraint()
-{ Constraint tmp; return tmp; }
+{
+    Constraint tmp;
+    return tmp;
+}
 
 inline Constraint constraint(const std::string& name)
 {
-Constraint tmp;
-tmp.name(name);
-return tmp;
+    Constraint tmp;
+    tmp.name(name);
+    return tmp;
 }
 
-inline Constraint constraint(const Constraint& con)
-{ return con; }
+inline Constraint constraint(const Constraint& con) { return con; }
 
-inline Constraint constraint(const std::string& name, Constraint& con)
-{ return con.name(name); }
+inline Constraint constraint(const std::string& name, Constraint& con) { return con.name(name); }
 
-inline Constraint constraint(const std::string& name, Constraint&& con)
-{ return con.name(name); }
+inline Constraint constraint(const std::string& name, Constraint&& con) { return con.name(name); }
 
-Constraint inequality(int lower, const Expression& body, int upper, bool strict=false);
-Constraint inequality(double lower, const Expression& body, double upper, bool strict=false);
-Constraint inequality(const Expression& lower, const Expression& body, const Expression& upper, bool strict=false);
-}
+Constraint inequality(int lower, const Expression& body, int upper, bool strict = false);
+Constraint inequality(double lower, const Expression& body, double upper, bool strict = false);
+Constraint inequality(const Expression& lower, const Expression& body, const Expression& upper,
+                      bool strict = false);
+}  // namespace coek
