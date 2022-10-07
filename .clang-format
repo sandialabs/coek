@@ -11,4 +11,8 @@
   IndentWidth: 4
   BreakBeforeBinaryOperators: All
   BreakBeforeTernaryOperators: 'true'
+  IncludeCategories:
+    - Regex:    '.*'
+    - Priority: 1
+  SortIncludes: Never
 ...
