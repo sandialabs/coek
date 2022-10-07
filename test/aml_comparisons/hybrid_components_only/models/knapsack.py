@@ -27,12 +27,8 @@ def knapsack(N):
 
     model.x = pe.Var(model.INDEX, bounds=(0.0, 1.0))
 
-    model.o = pe.Objective(
-        expr=pe.quicksum(model.v[i] * model.x[i] for i in model.INDEX)
-    )
+    model.o = pe.Objective(expr=pe.quicksum(model.v[i] * model.x[i] for i in model.INDEX))
 
-    model.c = pe.Constraint(
-        expr=pe.quicksum(model.w[i] * model.x[i] for i in model.INDEX) <= W
-    )
+    model.c = pe.Constraint(expr=pe.quicksum(model.w[i] * model.x[i] for i in model.INDEX) <= W)
 
     return model

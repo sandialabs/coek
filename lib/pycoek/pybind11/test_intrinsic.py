@@ -1,11 +1,10 @@
 import math
-import pyutilib.th as unittest 
+import pyutilib.th as unittest
 
 from poek import *
 
 
 class TestExpression_Intrinsic(unittest.TestCase):
-
     def setUp(self):
         self.model = model()
         self.v = variable()
@@ -78,7 +77,7 @@ class TestExpression_Intrinsic(unittest.TestCase):
         e = sin(v)
         v.value = 0
         self.assertAlmostEqual(e.value, 0.0)
-        v.value = math.pi/2.0
+        v.value = math.pi / 2.0
         self.assertAlmostEqual(e.value, 1.0)
 
     def test_cos(self):
@@ -86,7 +85,7 @@ class TestExpression_Intrinsic(unittest.TestCase):
         e = cos(v)
         v.value = 0
         self.assertAlmostEqual(e.value, 1.0)
-        v.value = math.pi/2.0
+        v.value = math.pi / 2.0
         self.assertAlmostEqual(e.value, 0.0)
 
     def test_tan(self):
@@ -94,7 +93,7 @@ class TestExpression_Intrinsic(unittest.TestCase):
         e = tan(v)
         v.value = 0
         self.assertAlmostEqual(e.value, 0.0)
-        v.value = math.pi/4.0
+        v.value = math.pi / 4.0
         self.assertAlmostEqual(e.value, 1.0)
 
     def test_asin(self):
@@ -103,7 +102,7 @@ class TestExpression_Intrinsic(unittest.TestCase):
         v.value = 0
         self.assertAlmostEqual(e.value, 0.0)
         v.value = 1.0
-        self.assertAlmostEqual(e.value, math.pi/2.0)
+        self.assertAlmostEqual(e.value, math.pi / 2.0)
 
     def test_acos(self):
         v = self.v
@@ -111,7 +110,7 @@ class TestExpression_Intrinsic(unittest.TestCase):
         v.value = 1.0
         self.assertAlmostEqual(e.value, 0.0)
         v.value = 0.0
-        self.assertAlmostEqual(e.value, math.pi/2.0)
+        self.assertAlmostEqual(e.value, math.pi / 2.0)
 
     def test_atan(self):
         v = self.v
@@ -119,7 +118,7 @@ class TestExpression_Intrinsic(unittest.TestCase):
         v.value = 0
         self.assertAlmostEqual(e.value, 0.0)
         v.value = 1.0
-        self.assertAlmostEqual(e.value, math.pi/4.0)
+        self.assertAlmostEqual(e.value, math.pi / 4.0)
 
     def test_sinh(self):
         v = self.v
@@ -127,7 +126,7 @@ class TestExpression_Intrinsic(unittest.TestCase):
         v.value = 0.0
         self.assertAlmostEqual(e.value, 0.0)
         v.value = 1.0
-        self.assertAlmostEqual(e.value, (math.e-1.0/math.e)/2.0)
+        self.assertAlmostEqual(e.value, (math.e - 1.0 / math.e) / 2.0)
 
     def test_cosh(self):
         v = self.v
@@ -135,7 +134,7 @@ class TestExpression_Intrinsic(unittest.TestCase):
         v.value = 0.0
         self.assertAlmostEqual(e.value, 1.0)
         v.value = 1.0
-        self.assertAlmostEqual(e.value, (math.e+1.0/math.e)/2.0)
+        self.assertAlmostEqual(e.value, (math.e + 1.0 / math.e) / 2.0)
 
     def test_tanh(self):
         v = self.v
@@ -143,14 +142,14 @@ class TestExpression_Intrinsic(unittest.TestCase):
         v.value = 0.0
         self.assertAlmostEqual(e.value, 0.0)
         v.value = 1.0
-        self.assertAlmostEqual(e.value, (math.e-1.0/math.e)/(math.e+1.0/math.e))
+        self.assertAlmostEqual(e.value, (math.e - 1.0 / math.e) / (math.e + 1.0 / math.e))
 
     def test_asinh(self):
         v = self.v
         e = asinh(v)
         v.value = 0.0
         self.assertAlmostEqual(e.value, 0.0)
-        v.value = (math.e-1.0/math.e)/2.0
+        v.value = (math.e - 1.0 / math.e) / 2.0
         self.assertAlmostEqual(e.value, 1.0)
 
     def test_acosh(self):
@@ -158,7 +157,7 @@ class TestExpression_Intrinsic(unittest.TestCase):
         e = acosh(v)
         v.value = 1.0
         self.assertAlmostEqual(e.value, 0.0)
-        v.value = (math.e+1.0/math.e)/2.0
+        v.value = (math.e + 1.0 / math.e) / 2.0
         self.assertAlmostEqual(e.value, 1.0)
 
     def test_atanh(self):
@@ -166,8 +165,9 @@ class TestExpression_Intrinsic(unittest.TestCase):
         e = atanh(v)
         v.value = 0.0
         self.assertAlmostEqual(e.value, 0.0)
-        v.value = (math.e-1.0/math.e)/(math.e+1.0/math.e)
+        v.value = (math.e - 1.0 / math.e) / (math.e + 1.0 / math.e)
         self.assertAlmostEqual(e.value, 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()

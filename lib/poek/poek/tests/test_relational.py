@@ -288,9 +288,7 @@ class Test_Expr(unittest.TestCase):
                 TypeError, "Constraint argument cannot be used in a boolean expression."
             ):
                 e == a
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 a == e
 
         if poek.__using_pybind11__:
@@ -303,9 +301,7 @@ class Test_Expr(unittest.TestCase):
             ):
                 x == a
         else:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 a == x
             with self.assertRaisesRegex(
                 TypeError,
@@ -332,24 +328,16 @@ class Test_Expr(unittest.TestCase):
                 e + a
             with self.assertRaisesRegex(TypeError, "unsupported operand type.*"):
                 E += e
-            with self.assertRaisesRegex(
-                TypeError, "unsupported operand type\\(s\\) .*"
-            ):
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
                 2 + e
-            with self.assertRaisesRegex(
-                TypeError, "unsupported operand type\\(s\\) .*"
-            ):
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
                 e += 2
         else:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 a + e
             with self.assertRaises(NotImplementedError):
                 e + a
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 E += e
             with self.assertRaises(NotImplementedError):
                 2 + e
@@ -369,24 +357,16 @@ class Test_Expr(unittest.TestCase):
                 TypeError, "__sub__\\(\\): incompatible function arguments.*"
             ):
                 E -= e
-            with self.assertRaisesRegex(
-                TypeError, "unsupported operand type\\(s\\) .*"
-            ):
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
                 2 - e
-            with self.assertRaisesRegex(
-                TypeError, "unsupported operand type\\(s\\) .*"
-            ):
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
                 e -= 2
         else:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 a - e
             with self.assertRaises(NotImplementedError):
                 e - a
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 E -= e
             with self.assertRaises(NotImplementedError):
                 2 - e
@@ -406,24 +386,16 @@ class Test_Expr(unittest.TestCase):
                 TypeError, "__mul__\\(\\): incompatible function arguments.*"
             ):
                 E *= e
-            with self.assertRaisesRegex(
-                TypeError, "unsupported operand type\\(s\\) .*"
-            ):
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
                 2 * e
-            with self.assertRaisesRegex(
-                TypeError, "unsupported operand type\\(s\\) .*"
-            ):
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
                 e *= 2
         else:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 a * e
             with self.assertRaises(NotImplementedError):
                 e * a
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 E *= e
             with self.assertRaises(NotImplementedError):
                 2 * e
@@ -443,24 +415,16 @@ class Test_Expr(unittest.TestCase):
                 TypeError, "__truediv__\\(\\): incompatible function arguments.*"
             ):
                 E /= e
-            with self.assertRaisesRegex(
-                TypeError, "unsupported operand type\\(s\\) .*"
-            ):
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
                 2 / e
-            with self.assertRaisesRegex(
-                TypeError, "unsupported operand type\\(s\\) .*"
-            ):
+            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
                 e /= 2
         else:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 a / e
             with self.assertRaises(NotImplementedError):
                 e / a
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 E /= e
             with self.assertRaises(NotImplementedError):
                 2 / e
@@ -481,17 +445,11 @@ class Test_Expr(unittest.TestCase):
             ):
                 E **= e
         else:
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 a**e
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 e**a
-            with self.assertRaisesRegex(
-                TypeError, "none of the .* overloaded methods succeeded.*"
-            ):
+            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
                 E **= e
         with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
             2**e

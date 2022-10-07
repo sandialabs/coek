@@ -2,7 +2,6 @@
 
 #include <vector>
 
-
 namespace coek {
 
 class Constraint;
@@ -11,11 +10,8 @@ class ConstraintSequenceRepn;
 class ConstraintSeqIteratorRepn;
 class SequenceContext;
 
-
-class ConstraintSeqIterator
-{
-public:
-
+class ConstraintSeqIterator {
+   public:
     std::shared_ptr<ConstraintSeqIteratorRepn> repn;
 
     typedef Constraint* pointer;
@@ -23,10 +19,9 @@ public:
     typedef Constraint& reference;
     typedef const Constraint& const_reference;
 
-public:
-
+   public:
     ConstraintSeqIterator();
-    ConstraintSeqIterator(ConstraintSequenceRepn* seq, bool end=false);
+    ConstraintSeqIterator(ConstraintSequenceRepn* seq, bool end = false);
 
     ConstraintSeqIterator& operator++();
 
@@ -39,18 +34,15 @@ public:
     const_pointer operator->() const;
 };
 
+class ConstraintSequence {
+   public:
+    std::shared_ptr<ConstraintSequenceRepn> repn;
 
-class ConstraintSequence
-{
-public:
-
-  std::shared_ptr<ConstraintSequenceRepn> repn;
-
-public:
-
+   public:
     ConstraintSequence(const std::shared_ptr<ConstraintSequenceRepn>& _repn);
     ConstraintSequence(const SequenceContext& context, const Constraint& con);
-    ConstraintSequence(const std::string& name, const SequenceContext& context, const Constraint& con);
+    ConstraintSequence(const std::string& name, const SequenceContext& context,
+                       const Constraint& con);
 
     ConstraintSeqIterator begin();
     ConstraintSeqIterator end();
@@ -58,17 +50,17 @@ public:
     const ConstraintSeqIterator end() const;
 };
 
-
 inline ConstraintSequence constraint(const Constraint& expr, const SequenceContext& context)
 {
-ConstraintSequence seq(context, expr);
-return seq;
+    ConstraintSequence seq(context, expr);
+    return seq;
 }
 
-inline ConstraintSequence constraint(const std::string& name, const Constraint& expr, const SequenceContext& context)
+inline ConstraintSequence constraint(const std::string& name, const Constraint& expr,
+                                     const SequenceContext& context)
 {
-ConstraintSequence seq(name, context, expr);
-return seq;
+    ConstraintSequence seq(name, context, expr);
+    return seq;
 }
 
-}
+}  // namespace coek

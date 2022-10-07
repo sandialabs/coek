@@ -36,10 +36,7 @@ model.add(
         + 2 * pk.Sum(((y[m, j] - yt(j, dx)) ** 2).Forall(j).In(pk.RangeSet(1, n - 1)))
         + (y[m, n] - yt(n, dx)) ** 2
     )
-    + 0.25
-    * a
-    * dt
-    * (2 * pk.Sum((u[i] ** 2).Forall(i).In(pk.RangeSet(1, m - 1))) + u[m] ** 2)
+    + 0.25 * a * dt * (2 * pk.Sum((u[i] ** 2).Forall(i).In(pk.RangeSet(1, m - 1))) + u[m] ** 2)
 )
 
 # pde

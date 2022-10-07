@@ -24,20 +24,14 @@ def pmedian_linear(N, P):
         within=pe.Reals,
     )
 
-    model.x = pe.Var(
-        model.Locations, model.Customers, bounds=(0.0, 1.0), initialize=0.0
-    )
+    model.x = pe.Var(model.Locations, model.Customers, bounds=(0.0, 1.0), initialize=0.0)
 
     model.y = pe.Var(model.Locations, bounds=(0.0, 1.0), initialize=0.0)
 
     def rule(model):
         return LinearExpression(
-            linear_coefs=[
-                model.d[n, m] for n in model.Locations for m in model.Customers
-            ],
-            linear_vars=[
-                model.x[n, m] for n in model.Locations for m in model.Customers
-            ],
+            linear_coefs=[model.d[n, m] for n in model.Locations for m in model.Customers],
+            linear_vars=[model.x[n, m] for n in model.Locations for m in model.Customers],
         )
 
     model.obj = pe.Objective(rule=rule)
@@ -55,9 +49,7 @@ def pmedian_linear(N, P):
     def rule(model, n, m):
         return (
             None,
-            LinearExpression(
-                linear_coefs=[1, -1], linear_vars=[model.x[n, m], model.y[n]]
-            ),
+            LinearExpression(linear_coefs=[1, -1], linear_vars=[model.x[n, m], model.y[n]]),
             0.0,
         )
 
@@ -65,9 +57,7 @@ def pmedian_linear(N, P):
 
     def rule(model):
         return (
-            LinearExpression(
-                linear_coefs=ones, linear_vars=[model.y[n] for n in model.Locations]
-            )
+            LinearExpression(linear_coefs=ones, linear_vars=[model.y[n] for n in model.Locations])
             - model.P,
             0.0,
         )

@@ -1,20 +1,19 @@
-#include <vector>
+#include <coek/coek.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <coek/coek.hpp>
 
 #define UNUSED(x) (void)(x)
 
 int main(int argc, char* argv[])
 {
-if (argc < 3) {
-    std::cout << "coek_micro <name> <size>" << std::endl;
-    return 1;
+    if (argc < 3) {
+        std::cout << "coek_micro <name> <size>" << std::endl;
+        return 1;
     }
 
-std::string name = argv[1];
-size_t size = std::strtoul(argv[2], NULL, 0);
+    std::string name = argv[1];
+    size_t size = std::strtoul(argv[2], NULL, 0);
 
 if (name == "forloop") {
     double value=0;
@@ -75,11 +74,10 @@ else if (name == "nested-sequence") {
     std::cout << "Value: " << value << " Size: " << size << std::endl;
     }
 
-else {
-    std::cout << "UNKNOWN TEST: " << name << std::endl;
-    return 1;
+    else {
+        std::cout << "UNKNOWN TEST: " << name << std::endl;
+        return 1;
     }
 
-return 0;
+    return 0;
 }
-

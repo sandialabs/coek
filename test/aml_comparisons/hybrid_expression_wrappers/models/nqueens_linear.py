@@ -23,9 +23,7 @@ def nqueens_linear(N):
     # one per row
     def row_rule(model, i):
         return (
-            pe.LinearExpression(
-                linear_coefs=onesN, linear_vars=[model.x[i, j] for j in range(N)]
-            )
+            pe.LinearExpression(linear_coefs=onesN, linear_vars=[model.x[i, j] for j in range(N)])
             == 1
         )
 
@@ -33,9 +31,7 @@ def nqueens_linear(N):
 
     def col_rule(model, j):
         return (
-            pe.LinearExpression(
-                linear_coefs=onesN, linear_vars=[model.x[i, j] for i in range(N)]
-            )
+            pe.LinearExpression(linear_coefs=onesN, linear_vars=[model.x[i, j] for i in range(N)])
             == 1
         )
 

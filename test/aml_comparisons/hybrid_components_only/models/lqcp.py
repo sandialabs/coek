@@ -25,10 +25,7 @@ def lqcp(n):
     def rule(model):
         return 0.25 * model.dx * (
             (model.y[model.m, 0] - yt(0, model.dx)) ** 2
-            + 2
-            * sum(
-                (model.y[model.m, j] - yt(j, model.dx)) ** 2 for j in range(1, model.n)
-            )
+            + 2 * sum((model.y[model.m, j] - yt(j, model.dx)) ** 2 for j in range(1, model.n))
             + (model.y[model.m, model.n] - yt(model.n, model.dx)) ** 2
         ) + 0.25 * model.a * model.dt * (
             2 * sum(model.u[i] ** 2 for i in range(1, model.m)) + model.u[model.m] ** 2
@@ -48,9 +45,7 @@ def lqcp(n):
             + model.y[i + 1, j + 1]
         )
 
-    model.pde = Constraint(
-        RangeSet(0, model.n - 1), RangeSet(1, model.n - 1), rule=pde_rule
-    )
+    model.pde = Constraint(RangeSet(0, model.n - 1), RangeSet(1, model.n - 1), rule=pde_rule)
 
     def ic_rule(model, j):
         return model.y[0, j] == 0

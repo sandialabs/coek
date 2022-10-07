@@ -11,27 +11,24 @@ class ConcreteSet;
 class Constraint;
 class SequenceContextRepn;
 
-
 /** Collect template arguments. */
-inline void collect_index_parameters(std::vector<IndexParameter>& indices, const IndexParameter& arg)
-    {
+inline void collect_index_parameters(std::vector<IndexParameter>& indices,
+                                     const IndexParameter& arg)
+{
     indices.emplace_back(arg);
-    }
-
+}
 
 /** Collect template arguments. */
 template <typename... TYPES>
-void collect_index_parameters(std::vector<IndexParameter>& indices, const IndexParameter& arg, const TYPES&... args)
-    {
+void collect_index_parameters(std::vector<IndexParameter>& indices, const IndexParameter& arg,
+                              const TYPES&... args)
+{
     indices.emplace_back(arg);
     collect_index_parameters(indices, args...);
-    }
+}
 
-
-class Context
-{
-public:
-
+class Context {
+   public:
     std::vector<IndexParameter> indices;
 
     ConcreteSet index_set;
@@ -39,20 +36,15 @@ public:
     std::list<Constraint> index_values;
     std::list<Constraint> index_constraints;
 
-public:
-
+   public:
     Context(const std::vector<IndexParameter>& _indices);
 };
 
-
-class SequenceContext
-{
-public:
-
+class SequenceContext {
+   public:
     std::shared_ptr<SequenceContextRepn> repn;
 
-public:
-
+   public:
     SequenceContext(const std::shared_ptr<SequenceContextRepn>& _repn);
     SequenceContext In(const ConcreteSet& _index_set);
     SequenceContext ST(const Constraint& con);
@@ -65,12 +57,11 @@ public:
     /** \returns a modifier to specify the indices used in this expression */
     template <typename... TYPES>
     SequenceContext Forall(const TYPES&... args)
-        {
+    {
         std::vector<IndexParameter> indices;
         collect_index_parameters(indices, args...);
         return Forall(indices);
-        }
-
+    }
 
     /** \returns a modifier to specify the indices used in this expression */
     SequenceContext Forall(const std::vector<IndexParameter>& indices);
@@ -78,17 +69,15 @@ public:
     ConcreteSet index_set() const;
 };
 
-
 /** \returns a modifier to specify the indices used in this expression */
 SequenceContext Forall(const std::vector<IndexParameter>& indices);
-
 
 /** \returns a modifier to specify the indices used in this expression */
 template <typename... TYPES>
 SequenceContext Forall(const TYPES&... args)
-    {
+{
     std::vector<IndexParameter> indices;
     collect_index_parameters(indices, args...);
     return Forall(indices);
-    }
 }
+}  // namespace coek

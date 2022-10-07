@@ -280,9 +280,7 @@ class TestConSequence(unittest.TestCase):
         #
         tmp = Sum(y[i], Forall(i).In(A)) == 0
         e = tmp.expand()
-        self.assertEqual(
-            e.to_list(), ["==", ["+", "y[1]", "y[2]", "y[3]", "y[4]"], to_string(0.0)]
-        )
+        self.assertEqual(e.to_list(), ["==", ["+", "y[1]", "y[2]", "y[3]", "y[4]"], to_string(0.0)])
 
     def test_compact5(self):
         m = compact_model()

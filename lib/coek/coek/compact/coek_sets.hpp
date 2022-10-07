@@ -1,14 +1,14 @@
 #pragma once
 
-#include <iostream>
-#include <memory>
-#include <vector>
-#include <set>
 #include <any>
-#include <string>
+#include <iostream>
 #include <map>
-#include "coek/api/expression.hpp"
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
+#include "coek/api/expression.hpp"
 
 namespace coek {
 
@@ -18,23 +18,19 @@ typedef std::shared_ptr<BaseSetExpression> SetRepn;
 class AbstractSet;
 class ConcreteSet;
 
-//typedef typename std::variant<int, double, std::string> set_types;
+// typedef typename std::variant<int, double, std::string> set_types;
 typedef int set_types;
 
 std::ostream& operator<<(std::ostream& ostr, const ConcreteSet& arg);
 
-
-class SetIterator
-{
-public:
-
+class SetIterator {
+   public:
     std::shared_ptr<SetIteratorRepn> repn;
 
     typedef std::vector<set_types>& reference;
     typedef const std::vector<set_types>& const_reference;
 
-public:
-
+   public:
     SetIterator();
     SetIterator(const std::shared_ptr<SetIteratorRepn>& _repn);
 
@@ -47,23 +43,18 @@ public:
     const_reference operator*() const;
 };
 
-class SetBase
-{
-public:
-
+class SetBase {
+   public:
     SetRepn repn;
 
-public:
-
+   public:
     SetBase();
     SetBase(const SetRepn& repn);
     virtual ~SetBase();
 };
 
-class SetCore  : public SetBase
-{
-public:
-
+class SetCore : public SetBase {
+   public:
     SetCore();
     SetCore(const SetRepn& repn);
     virtual ~SetCore();
@@ -72,10 +63,8 @@ public:
     ConcreteSet initialize();
 };
 
-class AbstractSet : public SetCore
-{
-public:
-
+class AbstractSet : public SetCore {
+   public:
     AbstractSet(size_t);
     AbstractSet(const SetRepn& repn);
     virtual ~AbstractSet();
@@ -109,10 +98,8 @@ public:
     AbstractSet operator*(const ConcreteSet& arg);
 };
 
-class ConcreteSet : public SetCore
-{
-public:
-
+class ConcreteSet : public SetCore {
+   public:
     ConcreteSet();
     ConcreteSet(const SetRepn& repn);
     ConcreteSet(const ConcreteSet& repn);
@@ -130,10 +117,10 @@ public:
 
     template <typename TYPE>
     bool contains(const TYPE& arg)
-        {
+    {
         std::any tmp = arg;
         return contains(tmp);
-        }
+    }
     bool contains(const std::any& arg);
 
     std::any operator[](size_t i);
@@ -141,13 +128,13 @@ public:
 
     template <typename TYPE>
     void value(size_t i, TYPE& arg)
-        {
+    {
         if (not countable())
             throw std::runtime_error("Cannot get the i-th element of an uncountable set.");
         auto ans = value(i);
         arg = std::any_cast<TYPE>(ans);
-        }
-    
+    }
+
     SetIterator begin();
     SetIterator begin(const std::initializer_list<IndexParameter>& indices);
     SetIterator begin(const std::vector<IndexParameter>& indices);
@@ -188,88 +175,101 @@ public:
 //
 // Inlined methods
 //
-inline AbstractSet AbstractSet::operator+(const AbstractSet& arg)
-{ return this->set_union(arg); }
-inline AbstractSet AbstractSet::operator|(const AbstractSet& arg)
-{ return this->set_union(arg); }
+inline AbstractSet AbstractSet::operator+(const AbstractSet& arg) { return this->set_union(arg); }
+inline AbstractSet AbstractSet::operator|(const AbstractSet& arg) { return this->set_union(arg); }
 inline AbstractSet AbstractSet::operator&(const AbstractSet& arg)
-{ return this->set_intersection(arg); }
+{
+    return this->set_intersection(arg);
+}
 inline AbstractSet AbstractSet::operator-(const AbstractSet& arg)
-{ return this->set_difference(arg); }
+{
+    return this->set_difference(arg);
+}
 inline AbstractSet AbstractSet::operator^(const AbstractSet& arg)
-{ return this->set_symmetric_difference(arg); }
-inline AbstractSet AbstractSet::operator*(const AbstractSet& arg)
-{ return this->set_product(arg); }
+{
+    return this->set_symmetric_difference(arg);
+}
+inline AbstractSet AbstractSet::operator*(const AbstractSet& arg) { return this->set_product(arg); }
 
-inline AbstractSet AbstractSet::operator+(const ConcreteSet& arg)
-{ return this->set_union(arg); }
-inline AbstractSet AbstractSet::operator|(const ConcreteSet& arg)
-{ return this->set_union(arg); }
+inline AbstractSet AbstractSet::operator+(const ConcreteSet& arg) { return this->set_union(arg); }
+inline AbstractSet AbstractSet::operator|(const ConcreteSet& arg) { return this->set_union(arg); }
 inline AbstractSet AbstractSet::operator&(const ConcreteSet& arg)
-{ return this->set_intersection(arg); }
+{
+    return this->set_intersection(arg);
+}
 inline AbstractSet AbstractSet::operator-(const ConcreteSet& arg)
-{ return this->set_difference(arg); }
+{
+    return this->set_difference(arg);
+}
 inline AbstractSet AbstractSet::operator^(const ConcreteSet& arg)
-{ return this->set_symmetric_difference(arg); }
-inline AbstractSet AbstractSet::operator*(const ConcreteSet& arg)
-{ return this->set_product(arg); }
+{
+    return this->set_symmetric_difference(arg);
+}
+inline AbstractSet AbstractSet::operator*(const ConcreteSet& arg) { return this->set_product(arg); }
 
-inline AbstractSet ConcreteSet::operator+(const AbstractSet& arg)
-{ return this->set_union(arg); }
-inline AbstractSet ConcreteSet::operator|(const AbstractSet& arg)
-{ return this->set_union(arg); }
+inline AbstractSet ConcreteSet::operator+(const AbstractSet& arg) { return this->set_union(arg); }
+inline AbstractSet ConcreteSet::operator|(const AbstractSet& arg) { return this->set_union(arg); }
 inline AbstractSet ConcreteSet::operator&(const AbstractSet& arg)
-{ return this->set_intersection(arg); }
+{
+    return this->set_intersection(arg);
+}
 inline AbstractSet ConcreteSet::operator-(const AbstractSet& arg)
-{ return this->set_difference(arg); }
+{
+    return this->set_difference(arg);
+}
 inline AbstractSet ConcreteSet::operator^(const AbstractSet& arg)
-{ return this->set_symmetric_difference(arg); }
-inline AbstractSet ConcreteSet::operator*(const AbstractSet& arg)
-{ return this->set_product(arg); }
+{
+    return this->set_symmetric_difference(arg);
+}
+inline AbstractSet ConcreteSet::operator*(const AbstractSet& arg) { return this->set_product(arg); }
 
-inline ConcreteSet ConcreteSet::operator+(const ConcreteSet& arg)
-{ return this->set_union(arg); }
-inline ConcreteSet ConcreteSet::operator|(const ConcreteSet& arg)
-{ return this->set_union(arg); }
+inline ConcreteSet ConcreteSet::operator+(const ConcreteSet& arg) { return this->set_union(arg); }
+inline ConcreteSet ConcreteSet::operator|(const ConcreteSet& arg) { return this->set_union(arg); }
 inline ConcreteSet ConcreteSet::operator&(const ConcreteSet& arg)
-{ return this->set_intersection(arg); }
+{
+    return this->set_intersection(arg);
+}
 inline ConcreteSet ConcreteSet::operator-(const ConcreteSet& arg)
-{ return this->set_difference(arg); }
+{
+    return this->set_difference(arg);
+}
 inline ConcreteSet ConcreteSet::operator^(const ConcreteSet& arg)
-{ return this->set_symmetric_difference(arg); }
-inline ConcreteSet ConcreteSet::operator*(const ConcreteSet& arg)
-{ return this->set_product(arg); }
+{
+    return this->set_symmetric_difference(arg);
+}
+inline ConcreteSet ConcreteSet::operator*(const ConcreteSet& arg) { return this->set_product(arg); }
 
 //
 // Logical set operations
 //
-inline bool operator<(const ConcreteSet& lhs, const ConcreteSet& rhs)
-    { return lhs.is_subset(rhs); }
-inline bool operator>(const ConcreteSet& lhs, const ConcreteSet& rhs)
-    { return rhs.is_subset(lhs); }
+inline bool operator<(const ConcreteSet& lhs, const ConcreteSet& rhs) { return lhs.is_subset(rhs); }
+inline bool operator>(const ConcreteSet& lhs, const ConcreteSet& rhs) { return rhs.is_subset(lhs); }
 inline bool operator<=(const ConcreteSet& lhs, const ConcreteSet& rhs)
-    { return rhs.is_superset(lhs); }
+{
+    return rhs.is_superset(lhs);
+}
 inline bool operator>=(const ConcreteSet& lhs, const ConcreteSet& rhs)
-    { return lhs.is_superset(rhs); }
+{
+    return lhs.is_superset(rhs);
+}
 
 bool operator==(const ConcreteSet& lhs, const ConcreteSet& rhs);
 bool operator!=(const ConcreteSet& lhs, const ConcreteSet& rhs);
-
 
 template <typename... Ts>
 AbstractSet SetOf();
 
 ConcreteSet SetOf(const std::vector<int>& arg);
-//ConcreteSet SetOf(const std::vector<double>& arg);
-//ConcreteSet SetOf(const std::vector<std::string>& arg);
+// ConcreteSet SetOf(const std::vector<double>& arg);
+// ConcreteSet SetOf(const std::vector<std::string>& arg);
 ConcreteSet SetOf(const std::set<int>& arg);
-//ConcreteSet SetOf(const std::set<double>& arg);
-//ConcreteSet SetOf(const std::set<std::string>& arg);
+// ConcreteSet SetOf(const std::set<double>& arg);
+// ConcreteSet SetOf(const std::set<std::string>& arg);
 ConcreteSet SetOf(const std::initializer_list<int>& arg);
-//ConcreteSet SetOf(const std::initializer_list<double>& arg);
-//ConcreteSet SetOf(const std::initializer_list<std::string>& arg);
+// ConcreteSet SetOf(const std::initializer_list<double>& arg);
+// ConcreteSet SetOf(const std::initializer_list<std::string>& arg);
 
-ConcreteSet RangeSet(int start, int stop, int step=1);
-//ConcreteSet RangeSet(double start, double stop, double step=1.0);
+ConcreteSet RangeSet(int start, int stop, int step = 1);
+// ConcreteSet RangeSet(double start, double stop, double step=1.0);
 
-}
+}  // namespace coek

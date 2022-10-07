@@ -71,10 +71,7 @@ class ModelDataFromJson(object):
             self._sets_[s] = ans
 
     def unpack(self, *args, table=None, index=None, default=None):
-        ans = tuple(
-            val
-            for val in self._unpack(*args, table=table, index=index, default=default)
-        )
+        ans = tuple(val for val in self._unpack(*args, table=table, index=index, default=default))
         if len(ans) == 1:
             return ans[0]
         else:

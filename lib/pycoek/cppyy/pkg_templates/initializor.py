@@ -14,6 +14,7 @@ import re
 import setuptools
 import subprocess
 import sys
+
 try:
     #
     # Python2.
@@ -35,6 +36,7 @@ except ImportError:
             sys.modules[module_name] = module
         return module
 
+
 import cppyy
 
 
@@ -50,27 +52,26 @@ PRIMITIVE_TYPES = re.compile(r"\b(bool|char|short|int|unsigned|long|float|double
 def add_pythonizations(py_files, noisy=False):
     for py_file in py_files:
         if noisy:
-            print('check', py_file, 'for pythonizors')
-        if not os.path.basename(py_file).startswith('pythonize'):
+            print("check", py_file, "for pythonizors")
+        if not os.path.basename(py_file).startswith("pythonize"):
             continue
         module_name = inspect.getmodulename(py_file)
-        module      = load_source(module_name, py_file)
-        funcs       = inspect.getmembers(module, predicate=inspect.isroutine)
+        module = load_source(module_name, py_file)
+        funcs = inspect.getmembers(module, predicate=inspect.isroutine)
 
         pythonizors = {}
         for name, func in funcs:
-            if not name.startswith('pythonize'):
+            if not name.startswith("pythonize"):
                 continue
-            tokens = name.split('_')
+            tokens = name.split("_")
             if len(tokens) > 1:
                 namespace = tokens[1]
                 if noisy:
-                    print('added pythonization', func, namespace)
-                if namespace == 'gbl':
+                    print("added pythonization", func, namespace)
+                if namespace == "gbl":
                     cppyy.py.add_pythonization(func)
                 else:
                     cppyy.py.add_pythonization(func, namespace)
-
 
 
 def initialise(pkg, lib_file, map_file, noisy=False):
@@ -84,13 +85,14 @@ def initialise(pkg, lib_file, map_file, noisy=False):
     :param cmake_shared_library_suffix:
                             ${cmake_shared_library_suffix}
     """
+
     def add_to_pkg(file, keyword, simplenames, children):
         def map_operator_name(name):
             """
             Map the given C++ operator name on the python equivalent.
             """
             CPPYY__idiv__ = "__idiv__"
-            CPPYY__div__  = "__div__"
+            CPPYY__div__ = "__div__"
             gC2POperatorMapping = {
                 "[]": "__getitem__",
                 "()": "__call__",
@@ -155,9 +157,9 @@ def initialise(pkg, lib_file, map_file, noisy=False):
         # Ignore some names based on heuristics.
         #
         simplename = simplenames[0]
-        if simplename in ('void', 'sizeof', 'const'):
+        if simplename in ("void", "sizeof", "const"):
             return
-        if simplename[0] in '0123456789':
+        if simplename[0] in "0123456789":
             #
             # Don't attempt to look up numbers (i.e. non-type template parameters).
             #
@@ -173,8 +175,12 @@ def initialise(pkg, lib_file, map_file, noisy=False):
             entity = getattr(cppyy.gbl, simplename)
         except AttributeError as e:
             if noisy:
-                print(_("Unable to lookup {}:{} cppyy.gbl.{} ({})").format(file, keyword, simplename, children))
-            #raise
+                print(
+                    _("Unable to lookup {}:{} cppyy.gbl.{} ({})").format(
+                        file, keyword, simplename, children
+                    )
+                )
+            # raise
         else:
             if getattr(entity, "__module__", None) == "cppyy.gbl":
                 setattr(entity, "__module__", pkg)
@@ -194,13 +200,13 @@ def initialise(pkg, lib_file, map_file, noisy=False):
     #
     # Load pythonizations
     #
-    pythonization_files = glob.glob(os.path.join(pkg_dir, '**/pythonize*.py'), recursive=True)
+    pythonization_files = glob.glob(os.path.join(pkg_dir, "**/pythonize*.py"), recursive=True)
     add_pythonizations(pythonization_files, noisy=noisy)
 
     #
     # Parse the map file.
     #
-    with open(os.path.join(pkg_dir, map_file), 'r') as map_file:
+    with open(os.path.join(pkg_dir, map_file), "r") as map_file:
         files = json.load(map_file)
 
     #
@@ -209,7 +215,7 @@ def initialise(pkg, lib_file, map_file, noisy=False):
     #
     for file in files:
         for child in file["children"]:
-            if not child["kind"] in ('class', 'var', 'namespace', 'typedef'):
+            if not child["kind"] in ("class", "var", "namespace", "typedef"):
                 continue
-            simplenames = child["name"].split('::')
+            simplenames = child["name"].split("::")
             add_to_pkg(file["name"], child["kind"], simplenames, child)
