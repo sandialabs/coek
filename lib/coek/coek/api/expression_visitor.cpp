@@ -1,11 +1,11 @@
-#include "expression_visitor.hpp"
-
 #include "../ast/constraint_terms.hpp"
 #include "../ast/value_terms.hpp"
 #include "../ast/visitor_fns.hpp"
 #include "constraint.hpp"
 #include "expression.hpp"
 #include "objective.hpp"
+
+#include "expression_visitor.hpp"
 
 namespace coek {
 

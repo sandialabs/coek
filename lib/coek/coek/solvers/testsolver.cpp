@@ -1,5 +1,3 @@
-#include "testsolver.hpp"
-
 #include <cassert>
 #include <iostream>
 
@@ -9,6 +7,7 @@
 #include "coek/model/compact_model.hpp"
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
+#include "testsolver.hpp"
 
 namespace coek {
 

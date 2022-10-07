@@ -1,12 +1,11 @@
 //#include <memory>
-#include "ipopt_solver.hpp"
-
 #include <chrono>
 
 #include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/autograd/autograd.hpp"
+#include "ipopt_solver.hpp"
 
 namespace coek {
 

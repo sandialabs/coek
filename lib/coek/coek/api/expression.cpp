@@ -1,10 +1,10 @@
 #include "coek/api/expression.hpp"
 
-#include "../ast/ast_operators.hpp"
 #include "../ast/constraint_terms.hpp"
 #include "../ast/expr_terms.hpp"
 #include "../ast/value_terms.hpp"
 #include "../ast/visitor_fns.hpp"
+#include "../ast/ast_operators.hpp"
 
 namespace coek {
 
