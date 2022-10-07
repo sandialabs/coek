@@ -12,13 +12,13 @@ inline double yt(size_t j, double dx) { return 0.5 * (1 - (j * dx) * (j * dx)); 
 
 void lqcp_array(coek::Model& model, size_t n)
 {
-    size_t m = n;
-    size_t n1 = n - 1;
-    double dx = 1.0 / n;
-    double T = 1.58;
-    double dt = T / m;
-    double h2 = dx * dx;
-    double a = 0.001;
+size_t m = n;
+size_t n1 = n-1;
+double dx = 1.0/n;
+double T = 1.58;
+double dt = T/m;
+//double h2 = dx*dx;
+double a = 0.001;
 
     auto y = model.add(coek::variable("y", {m + 1, n + 1})).bounds(0, 1).value(0);
     auto u = model.add(coek::variable("u", m + 1)).bounds(-1, 1).value(0);

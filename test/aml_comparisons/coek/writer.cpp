@@ -52,9 +52,11 @@ int main(int argc, char* argv[])
         }
     }
 
-    coek::Model model;
-    try {
-        create_instance(model, model_name, data);
+if (debug)
+    std::cout << "Filename: " << filename << " Model: " << model_name << " Data: " << data[0] << std::endl;
+coek::Model model;
+try {
+    create_instance(model, model_name, data);
     }
     catch (std::exception& e) {
         std::cout << "ERROR - " << e.what() << std::endl;
