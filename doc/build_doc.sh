@@ -11,7 +11,7 @@ if [[ $1 == "coek" ]]; then
     echo "Building documentation with cmake";
     mkdir _build
     cd _build
-    ../rtd/bin/cmake -Dwith_docs=ON ../lib/coek
+    ../rtd/bin/cmake -Dwith_docs=ON ..
     make sphinx
     #pwd
     #ls
