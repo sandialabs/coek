@@ -30,7 +30,7 @@ if [[ $1 == "poek" ]]; then
     cd _build
     conda run -p /home/docs/checkouts/readthedocs.org/user_builds/poek/checkouts/dev/rtd ../rtd/bin/cmake -Dwith_docs=ON -Dwith_python=ON ..
     make install_tpls
-    make
+    make VERBOSE=1
     make doc_poek
     mv lib/poek/doc/sphinx ../_readthedocs/html
 fi
