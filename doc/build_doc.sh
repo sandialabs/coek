@@ -8,23 +8,21 @@
 if [[ $1 == "coek" ]]; then
     echo "Creating conda environment";
     mamba env create -p rtd -f doc/environment.yml
-    echo "Building documentation with cmake";
+    echo "Building coek documentation with cmake";
     mkdir _build
     cd _build
     ../rtd/bin/cmake -Dwith_docs=ON ..
-    make sphinx
-    #pwd
-    #ls
-    #ls doc
-    #ls doc/sphinx
-    #echo "UP"
-    #ls ..
+    make doc_coek
     mv lib/coek/doc/sphinx ../_readthedocs/html
 fi
+
 if [[ $1 == "poek" ]]; then
-    pip install sphinx sphinx_rtd_theme
-    echo "Building documentation with sphinx";
-    cd lib/poek/doc
-    make html
-    mv _build/html ../../../_readthedocs
+    echo "Creating conda environment";
+    mamba env create -p rtd -f doc/environment.yml
+    echo "Building poek documentation with cmake";
+    mkdir _build
+    cd _build
+    ../rtd/bin/cmake -Dwith_docs=ON -Dwith_python=ON ..
+    make doc_poek
+    mv lib/poek/doc/sphinx ../_readthedocs/html
 fi

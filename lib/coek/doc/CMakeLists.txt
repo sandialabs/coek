@@ -53,7 +53,7 @@ add_custom_command(OUTPUT ${DOXYGEN_INDEX_FILE}
                    MAIN_DEPENDENCY ${DOXYFILE_OUT} ${DOXYFILE_IN}
                    COMMENT "Generating docs")
 
-add_custom_target(doxygen ALL DEPENDS ${DOXYGEN_INDEX_FILE})
+add_custom_target(coek_doxygen DEPENDS ${DOXYGEN_INDEX_FILE})
 
 
 # Regenerate Sphinx when:
@@ -96,10 +96,10 @@ else()
 endif()
 
 # Nice named target so we can run the job easily
-add_custom_target(sphinx ALL DEPENDS ${SPHINX_INDEX_FILE})
-add_custom_target(pdf ALL DEPENDS ${LATEX_BUILD}/coek.pdf)
+add_custom_target(coek_html DEPENDS ${SPHINX_INDEX_FILE})
+add_custom_target(coek_pdf DEPENDS ${LATEX_BUILD}/coek.pdf)
 
-add_custom_target(docs ALL DEPENDS doxygen sphinx pdf)
+add_custom_target(doc_coek DEPENDS coek_doxygen coek_html coek_pdf)
 
 # Add an install target to install the docs
 include(GNUInstallDirs)
