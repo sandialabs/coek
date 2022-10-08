@@ -8,4 +8,4 @@ dependencies:
   - doxygen
   - sphinx
   - sphinx_rtd_theme
-  - g++
+  - gxx
