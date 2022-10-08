@@ -26,7 +26,7 @@ fi
 if [[ $1 == "poek" ]]; then
     echo "Creating conda environment";
     mamba env create -p rtd -f doc/environment.yml
-    conda activate rtd
+    conda activate conda activate /home/docs/checkouts/readthedocs.org/user_builds/poek/checkouts/dev/rtd
     echo "Building poek documentation with cmake";
     mkdir _build
     cd _build
