@@ -169,10 +169,10 @@ endif()
 message("")
 
 message("Configuring Monorepo Packages")
+if(${with_docs})
+    find_package(Sphinx REQUIRED)
+endif()
 add_subdirectory(lib)
 add_subdirectory(test)
-if(${with_docs})
-    include(Sphinx)
-endif()
 
 message("")
