@@ -19,7 +19,7 @@ if [[ $1 == "coek" ]]; then
     #ls doc/sphinx
     #echo "UP"
     #ls ..
-    mv doc/sphinx ../_readthedocs/html
+    mv lib/coek/doc/sphinx ../_readthedocs/html
 fi
 if [[ $1 == "poek" ]]; then
     pip install sphinx sphinx_rtd_theme
