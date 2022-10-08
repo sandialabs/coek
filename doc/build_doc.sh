@@ -28,7 +28,7 @@ if [[ $1 == "poek" ]]; then
     echo "Building poek documentation with cmake";
     mkdir _build
     cd _build
-    conda run -n rtd ../rtd/bin/cmake -Dwith_docs=ON -Dwith_python=ON ..
+    conda run -p /home/docs/checkouts/readthedocs.org/user_builds/poek/checkouts/dev/rtd ../rtd/bin/cmake -Dwith_docs=ON -Dwith_python=ON ..
     make install_tpls
     make
     make doc_poek
