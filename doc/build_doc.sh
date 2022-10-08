@@ -29,8 +29,8 @@ if [[ $1 == "poek" ]]; then
     mkdir _build
     cd _build
     conda run -p /home/docs/checkouts/readthedocs.org/user_builds/poek/checkouts/dev/rtd ../rtd/bin/cmake -Dwith_docs=ON -Dwith_python=ON ..
-    make install_tpls
-    make VERBOSE=1
-    make doc_poek
+    conda run -p /home/docs/checkouts/readthedocs.org/user_builds/poek/checkouts/dev/rtd make install_tpls
+    conda run -p /home/docs/checkouts/readthedocs.org/user_builds/poek/checkouts/dev/rtd make VERBOSE=1
+    conda run -p /home/docs/checkouts/readthedocs.org/user_builds/poek/checkouts/dev/rtd make doc_poek
     mv lib/poek/doc/sphinx ../_readthedocs/html
 fi
