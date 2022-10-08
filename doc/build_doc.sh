@@ -29,6 +29,8 @@ if [[ $1 == "poek" ]]; then
     mkdir _build
     cd _build
     ../rtd/bin/cmake -Dwith_docs=ON -Dwith_python=ON ..
+    make install_tpls
+    make
     make doc_poek
     mv lib/poek/doc/sphinx ../_readthedocs/html
 fi
