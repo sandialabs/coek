@@ -171,5 +171,8 @@ message("")
 message("Configuring Monorepo Packages")
 add_subdirectory(lib)
 add_subdirectory(test)
+if(${with_docs})
+    include(Sphinx)
+endif()
 
 message("")
