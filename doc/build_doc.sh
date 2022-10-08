@@ -11,6 +11,7 @@
 if [[ $1 == "coek" ]]; then
     echo "Creating conda environment";
     mamba env create -p rtd -f doc/environment.yml
+    conda activate rtd
     echo "Building coek documentation with cmake";
     mkdir _build
     cd _build
@@ -25,6 +26,7 @@ fi
 if [[ $1 == "poek" ]]; then
     echo "Creating conda environment";
     mamba env create -p rtd -f doc/environment.yml
+    conda activate rtd
     echo "Building poek documentation with cmake";
     mkdir _build
     cd _build
