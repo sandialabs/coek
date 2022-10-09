@@ -14,6 +14,7 @@
 #    include <fmt/os.h>
 #endif
 
+#include "../ast/base_terms.hpp"
 #include "../ast/constraint_terms.hpp"
 #include "../ast/expr_terms.hpp"
 #include "../ast/value_terms.hpp"
