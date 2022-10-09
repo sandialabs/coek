@@ -159,8 +159,12 @@ else()
 endif()
 
 if(${with_tests})
-  #include(CTest)
-  add_custom_target(test DEPENDS test_lib)
+    add_custom_target(test DEPENDS test_lib)
+endif()
+
+if(${with_docs})
+    find_package(Sphinx REQUIRED)
+    add_custom_target(docs DEPENDS doc_lib)
 endif()
 
 

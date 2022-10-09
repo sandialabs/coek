@@ -1,4 +1,4 @@
-[![Github Actions Status](https://github.com/sandialabs/coek/workflows/Linux%20Build%20and%20Tests/badge.svg?event=push)](https://github.com/sandialabs/coek/actions?query=workflow%3A%22Linux+Build+and+Tests%22++) [![Documentation Status](https://readthedocs.org/projects/coek/badge/?version=latest)](http://coek.readthedocs.org/en/latest/)
+[![Github Actions Status](https://github.com/sandialabs/coek/workflows/Linux%20Build%20and%20Tests/badge.svg?event=push)](https://github.com/sandialabs/coek/actions?query=workflow%3A%22Linux+Build+and+Tests%22++) 
 
 # The Coek Project
 
@@ -19,10 +19,14 @@ optimization modeling.
 **Coek**: A fast C++ library that supports the definition of expressions used to formulate and solve optimization problems.
 
 * [Online Documentation](http://coek.readthedocs.org/en/latest/)
+[![Documentation Status](https://readthedocs.org/projects/coek/badge/?version=latest)](http://coek.readthedocs.org/en/latest/)
 
 **pycoek**: A library of Python bindings for Coek.
 
 **Poek**: A performant Python library that supports the definition of expressions used to formulate and solve optimization problems.
+
+* [Online Documentation](http://poek.readthedocs.org/en/latest/)
+[![Documentation Status](https://readthedocs.org/projects/poek/badge/?version=latest)](http://poek.readthedocs.org/en/latest/)
 
 
 ## Test Utilities

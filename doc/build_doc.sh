@@ -5,26 +5,32 @@
 
 [ -d _readthedocs/. ] || mkdir _readthedocs
 
+#
+# Build lib/coek documentation
+#
 if [[ $1 == "coek" ]]; then
     echo "Creating conda environment";
     mamba env create -p rtd -f doc/environment.yml
-    echo "Building documentation with cmake";
+    echo "Building coek documentation with cmake";
     mkdir _build
     cd _build
-    ../rtd/bin/cmake -Dwith_docs=ON ../lib/coek
-    make sphinx
-    #pwd
-    #ls
-    #ls doc
-    #ls doc/sphinx
-    #echo "UP"
-    #ls ..
-    mv doc/sphinx ../_readthedocs/html
+    ../rtd/bin/cmake -Dwith_docs=ON ..
+    make doc_coek
+    mv lib/coek/doc/sphinx ../_readthedocs/html
 fi
+
+#
+# Build lib/poek documentation
+#
 if [[ $1 == "poek" ]]; then
-    pip install sphinx sphinx_rtd_theme
-    echo "Building documentation with sphinx";
-    cd lib/poek/doc
-    make html
-    mv _build/html ../../../_readthedocs
+    echo "Creating conda environment";
+    mamba env create -p rtd -f doc/environment.yml
+    echo "Building poek documentation with cmake";
+    mkdir _build
+    cd _build
+    conda run -p /home/docs/checkouts/readthedocs.org/user_builds/poek/checkouts/dev/rtd ../rtd/bin/cmake -Dwith_docs=ON -Dwith_python=ON ..
+    conda run -p /home/docs/checkouts/readthedocs.org/user_builds/poek/checkouts/dev/rtd make install_tpls
+    conda run -p /home/docs/checkouts/readthedocs.org/user_builds/poek/checkouts/dev/rtd make VERBOSE=1
+    conda run -p /home/docs/checkouts/readthedocs.org/user_builds/poek/checkouts/dev/rtd make doc_poek
+    mv lib/poek/doc/sphinx ../_readthedocs/html
 fi
