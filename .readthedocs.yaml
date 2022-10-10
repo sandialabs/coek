@@ -10,6 +10,3 @@ build:
     commands:
         - ./doc/build_doc.sh ${SPHINX_PROJECT}
 
-#python:
-#    install:
-#        - requirements: doc/requirements.txt

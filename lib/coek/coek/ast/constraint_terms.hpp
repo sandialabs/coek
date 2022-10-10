@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-
 #include "base_terms.hpp"
 
 namespace coek {
