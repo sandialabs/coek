@@ -175,5 +175,6 @@ message("")
 message("Configuring Monorepo Packages")
 add_subdirectory(lib)
 add_subdirectory(test)
+add_subdirectory(app)
 
 message("")
