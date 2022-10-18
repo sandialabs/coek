@@ -7,7 +7,6 @@ build-job:
     - echo "Hello, $GITLAB_USER_LOGIN!"
     - pwd
     - ls
-    - source "$BASHRC_PATH"
     - which python
     - mkdir build
     - cd build
