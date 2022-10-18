@@ -1,6 +1,3 @@
-variables:
-  BASHRC_PATH: $BASHRC_PATH
-
 build-job:
   stage: build
   script:
