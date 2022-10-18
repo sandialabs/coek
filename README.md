@@ -35,6 +35,11 @@ optimization modeling.
 
 * [README](test/aml_comparisons/README.md)
 
+## Applications
+
+**demos**: Demonstrations that illustrate Coek capabilities.
+
+* [README](app/demos/README.md)
 
 ## Installation
 
