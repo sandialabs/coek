@@ -3,6 +3,7 @@ build-job:
   script:
     - echo "Hello, $GITLAB_USER_LOGIN!"
     - pwd
+    - echo "yay!"
     - which python
     - mkdir build
     - cd build
