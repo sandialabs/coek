@@ -9,4 +9,6 @@ build-job:
     - cd build
     - cmake -Dwith_pybind11=ON -Dwith_cppad=ON -Dwith_tests=ON -Dwith_python=ON -Dwith_gurobi=ON -DGUROBI_LIBRARY=$GUROBI_LIBRARY/libgurobi95.so -DGUROBI_INCLUDE_DIRS=$GUROBI_INCLUDE_DIRS -DGUROBI_CXX_LIBRARY=$GUROBI_LIBRARY/libgurobi_g++5.2.a -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE -Dwith_compact=OFF -Dwith_docs=OFF ..
     - make install_tpls
+    - make -j4
     - make install
+    - make test
