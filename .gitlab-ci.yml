@@ -36,3 +36,12 @@ unit-tests:
     - ls
     - make test
   allow_failure: false
+
+performance-tests:
+  stage: test
+  script:
+    - cd build
+    - make coek_solve0
+    - cd test/aml_comparisons/
+    - mkdir build
+    - cd build
