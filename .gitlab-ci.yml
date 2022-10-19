@@ -24,6 +24,10 @@ compile:
       -Dwith_docs=OFF ..
     - make install_tpls
     - make install
+  artifacts:
+    paths:
+      - build
+    expire_in: 1 hour
 
 unit-tests:
   stage: test
