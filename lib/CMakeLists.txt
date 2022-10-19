@@ -81,6 +81,7 @@ if(${with_python})
     add_custom_target(pip_install_pyomo_coek ALL
         COMMAND ${Python_EXECUTABLE} -m pip install -e ${CMAKE_CURRENT_SOURCE_DIR}/pyomo_coek
         )
+    add_dependencies(pip_install_pyomo_coek pip_install_poek)
 else()
     message("Ignoring lib/pyomo_coek")
 endif()
