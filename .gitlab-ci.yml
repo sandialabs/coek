@@ -1,7 +1,6 @@
 stages:
   - build
   - test
-  - performance
 
 compile:
   stage: build
@@ -36,4 +35,4 @@ unit-tests:
     - cd build
     - ls
     - make test
-  allow_failure: true
+  allow_failure: false
