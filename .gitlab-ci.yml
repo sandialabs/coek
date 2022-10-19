@@ -33,5 +33,6 @@ unit-tests:
   stage: test
   script:
     - pwd
+    - cd build
     - make test
   allow_failure: true
