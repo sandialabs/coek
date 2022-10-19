@@ -1,6 +1,12 @@
-build-job:
+stages:
+  - build
+  - test
+  - performance
+
+compile:
   stage: build
   script:
+    - pwd
     - which python
     - mkdir build
     - cd build
@@ -18,6 +24,10 @@ build-job:
       -Dwith_docs=OFF ..
     - make install_tpls
     - make install
+
+unit-tests:
   stage: test
   script:
+    - pwd
     - make test
+  allow_failure: true
