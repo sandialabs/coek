@@ -34,5 +34,6 @@ unit-tests:
   script:
     - pwd
     - cd build
+    - ls
     - make test
   allow_failure: true
