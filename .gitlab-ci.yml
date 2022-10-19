@@ -24,6 +24,7 @@ compile:
       -Dwith_docs=OFF ..
     - make install_tpls
     - make install
+    - make test
   artifacts:
     paths:
       - build
@@ -36,4 +37,4 @@ unit-tests:
     - cd build
     - ls
     - make test
-  allow_failure: true
+  allow_failure: false
