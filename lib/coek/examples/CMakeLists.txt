@@ -25,5 +25,4 @@ include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 ADD_LIBRARY(coekexamples ${sources})
 #TARGET_COMPILE_OPTIONS(coekexamples PRIVATE ${coek_compile_options})
 target_compile_options(coekexamples PUBLIC ${coek_compile_options})
-target_link_libraries(coekexamples PUBLIC ${coek_link_libraries})
-
+target_link_libraries(coekexamples PUBLIC coek)
