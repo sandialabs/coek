@@ -52,3 +52,4 @@ performance-tests:
     - ../scripts/collect
     - ../scripts/dog solve0
     - ../scripts/dog writer
+    - python ../scripts/to_csv.py
