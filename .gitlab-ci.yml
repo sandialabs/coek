@@ -3,6 +3,9 @@ stages:
   - test
   - process
 
+variables:
+  URL: $URL
+
 compile:
   stage: build
   script:
@@ -61,8 +64,10 @@ performance-tests:
     expire_in: 30 days
 
 combine-performance-results:
-  stage: process
+  stage: build
   script:
     - cd test/aml_comparisons/build
+    - 'curl --location --output artifacts.zip --header "JOB-TOKEN: $CI_JOB_TOEKN" "${URL}download?job=performance-tests"'
+    - ls
   rules:
     - if: $CI_COMMIT_BRANCH == "dev-private"
