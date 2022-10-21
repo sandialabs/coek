@@ -1,0 +1,59 @@
+stages:
+  - build
+  - test
+
+compile:
+  stage: build
+  script:
+    - pwd
+    - which python
+    - mkdir build
+    - cd build
+    - cmake
+      -Dwith_pybind11=ON
+      -Dwith_cppad=ON
+      -Dwith_tests=ON
+      -Dwith_python=ON
+      -Dwith_gurobi=ON
+      -DGUROBI_LIBRARY=$GUROBI_LIBRARY/libgurobi95.so
+      -DGUROBI_INCLUDE_DIRS=$GUROBI_INCLUDE_DIRS
+      -DGUROBI_CXX_LIBRARY=$GUROBI_LIBRARY/libgurobi_g++5.2.a
+      -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE
+      -Dwith_compact=OFF
+      -Dwith_docs=OFF ..
+    - make install_tpls
+    - make install
+  artifacts:
+    paths:
+      - build
+    expire_in: 1 hour
+
+unit-tests:
+  stage: test
+  script:
+    - pwd
+    - cd build
+    - ls
+    - make test
+  allow_failure: false
+
+performance-tests:
+  stage: test
+  script:
+    - cd build
+    - make coek_solve0
+    - make coek_writer
+    - make gurobi_solve0
+    - make gurobi_writer
+    - cd ../test/aml_comparisons/
+    - mkdir build
+    - cd build
+    - ../scripts/run bench_coek 3
+    - ../scripts/collect
+    - ../scripts/dog solve0
+    - ../scripts/dog writer
+    - python ../scripts/to_csv.py
+  artifacts:
+    paths:
+      - test/aml_comparisons/build/results/solve0/solve0_summary.csv
+      - test/aml_comparisons/build/results/writer/writer_summary.csv
