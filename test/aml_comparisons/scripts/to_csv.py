@@ -3,7 +3,7 @@ import os
 import csv
 
 
-def write_csv(dirname):
+def write_csv(dirname, test_type):
     f = open(os.path.join(dirname, 'summary.json'), 'r')
     res = json.load(f)
     f.close()
@@ -30,7 +30,7 @@ def write_csv(dirname):
         ratio = t / gt
         row[k] = ratio
 
-    f = open(os.path.join(dirname, 'summary.csv'), 'w')
+    f = open(os.path.join(dirname, f'{test_type}_summary.csv'), 'w')
     writer = csv.DictWriter(f, fieldnames=list(row.keys()))
     writer.writeheader()
     writer.writerow(row)
@@ -40,5 +40,5 @@ def write_csv(dirname):
 if __name__ == "__main__":
     directory = "results"
     
-    write_csv(os.path.join(directory, 'solve0'))
-    write_csv(os.path.join(directory, 'writer'))
+    write_csv(os.path.join(directory, 'solve0'), 'solve0')
+    write_csv(os.path.join(directory, 'writer'), 'writer')

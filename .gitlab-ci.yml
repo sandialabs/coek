@@ -53,3 +53,7 @@ performance-tests:
     - ../scripts/dog solve0
     - ../scripts/dog writer
     - python ../scripts/to_csv.py
+  artifacts:
+    paths:
+      - test/aml_comparisons/build/results/solve0/solve0_summary.csv
+      - test/aml_comparisons/build/results/writer/writer_summary.csv
