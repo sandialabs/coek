@@ -42,6 +42,13 @@ performance-tests:
   script:
     - cd build
     - make coek_solve0
-    - cd test/aml_comparisons/
+    - make coek_writer
+    - make gurobi_solve0
+    - make gurobi_writer
+    - cd ../test/aml_comparisons/
     - mkdir build
     - cd build
+    - ../scripts/run bench_coek 3
+    - ../scripts/collect
+    - ../scripts/dog solve0
+    - ../scripts/dog writer
