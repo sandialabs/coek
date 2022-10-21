@@ -57,3 +57,4 @@ performance-tests:
     paths:
       - test/aml_comparisons/build/results/solve0/solve0_summary.csv
       - test/aml_comparisons/build/results/writer/writer_summary.csv
+    expire_in: 30 days
