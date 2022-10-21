@@ -64,7 +64,7 @@ performance-tests:
     expire_in: 30 days
 
 combine-performance-results:
-  stage: build
+  stage: process
   script:
     - cd test/aml_comparisons/build
     - 'curl --location --output artifacts.zip --header "JOB-TOKEN: $CI_JOB_TOEKN" "${URL}download?job=performance-tests"'
