@@ -68,6 +68,8 @@ combine-performance-results:
   script:
     - cd test/aml_comparisons/build
     - 'curl -k --location --output artifacts.zip --header "JOB-TOKEN: $CI_JOB_TOEKN" "${URL}download?job=performance-tests"'
-    - ls
+    - mkdir tmp
+    - unzip artifacts.zip -d tmp
+    - ls tmp/
   rules:
     - if: $CI_COMMIT_BRANCH == "dev-private"
