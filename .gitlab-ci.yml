@@ -1,10 +1,13 @@
 stages:
+  - pre-check
   - build
   - test
   - process
 
-variables:
-  URL: $URL
+temporary:
+  stage: pre-check
+  script:
+    - echo $CI_COMMIT_BRANCH
 
 compile:
   stage: build
@@ -67,9 +70,5 @@ combine-performance-results:
   stage: process
   script:
     - cd test/aml_comparisons/build
-    - echo "${URL}"
-    - echo $CI_JOB_TOKEN
-    - 'curl -k --location --header "JOB-TOKEN: $CI_JOB_TOKEN" "${URL}/raw/test/aml_comparisons/build/results/solve0/solve0_summary.csv?job=performance-tests"'
-    - ls
   rules:
     - if: $CI_COMMIT_BRANCH == "dev-private"
