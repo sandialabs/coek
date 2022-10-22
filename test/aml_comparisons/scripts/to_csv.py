@@ -27,18 +27,6 @@ def write_csv(source_dir, test_type, increase_build_number):
         assert m not in gurobi_times
         gurobi_times[m] = (s, t)
 
-    row = dict()
-    for k, d in res['raw']['coek'].items():
-        if k.startswith('_'):
-            continue
-        m = d['model'].split('-')[0]
-        s = d['size']
-        t = d['data']['real']['mean']
-        gs, gt = gurobi_times[m]
-        assert s == gs
-        ratio = t / gt
-        row[k] = ratio
-
     bn_fname = os.path.join(args.dirname, 'build_number.txt')
     if not os.path.exists(args.dirname):
         os.makedirs(args.dirname)
@@ -52,6 +40,19 @@ def write_csv(source_dir, test_type, increase_build_number):
         f = open(bn_fname, 'w')
         f.write(str(build_number + 1))
         f.close()
+
+    row = {'build_number': build_number}
+    for k, d in res['raw']['coek'].items():
+        if k.startswith('_'):
+            continue
+        m = d['model'].split('-')[0]
+        s = d['size']
+        t = d['data']['real']['mean']
+        gs, gt = gurobi_times[m]
+        assert s == gs
+        ratio = t / gt
+        row[k] = ratio
+
     dest_dir = os.path.join(args.dirname, str(build_number))
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
