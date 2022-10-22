@@ -39,7 +39,7 @@ unit-tests:
     - cd build
     - ls
     - make test
-  allow_failure: false
+  allow_failure: true
 
 performance-tests:
   stage: test
