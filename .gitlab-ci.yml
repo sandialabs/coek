@@ -63,10 +63,9 @@ performance-tests:
     - ../scripts/dog solve0
     - ../scripts/dog writer
     - python ../scripts/to_csv.py --dirname ${ARTIFACTS_DIR}${CI_COMMIT_BRANCH}
-
-combine-performance-results:
-  stage: process
-  script:
-    - cd test/aml_comparisons/build
-  rules:
-    - if: $CI_COMMIT_BRANCH == "dev-private"
+    - python ../scripts/compare.py --artifact_dir=$ARTIFACTS_DIR --branch_name=$CI_COMMIT_BRANCH
+    artifacts:
+      paths:
+        - test/aml_comparisons/build/solve0_trend.pdf
+        - test/aml_comparisons/build/writer_trend.pdf
+      expire_in: 4 weeks
