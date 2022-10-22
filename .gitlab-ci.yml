@@ -52,7 +52,7 @@ performance-tests:
     - cd ../test/aml_comparisons/
     - mkdir build
     - cd build
-    - ../scripts/run bench_coek 3
+    - ../scripts/run bench_coek 1
     - ../scripts/collect
     - ../scripts/dog solve0
     - ../scripts/dog writer
@@ -67,9 +67,8 @@ combine-performance-results:
   stage: process
   script:
     - cd test/aml_comparisons/build
-    - 'curl -k --location --output artifacts.zip --header "JOB-TOKEN: $CI_JOB_TOEKN" "${URL}download?job=performance-tests"'
-    - mkdir tmp
-    - unzip artifacts.zip -d tmp
-    - ls tmp/
+    #- 'curl -k --location --output artifacts.zip --header "JOB-TOKEN: $CI_JOB_TOEKN" "${URL}download?job=performance-tests"'
+    - GET /or-fusion/coek/jobs/11372303/artifacts/test/aml_comparisons/build/results/solve0/solve0_summary.csv
+    - ls
   rules:
     - if: $CI_COMMIT_BRANCH == "dev-private"
