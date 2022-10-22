@@ -61,6 +61,10 @@ def write_csv(source_dir, test_type, increase_build_number):
     writer.writerow(row)
     f.close()
 
+    f = open(os.path.join(dest_dir, f'{test_type}_summary.json'), 'w')
+    json.dump(res, f)
+    f.close()
+
 
 if __name__ == "__main__":
     directory = "results"
