@@ -64,8 +64,8 @@ performance-tests:
     - ../scripts/dog writer
     - python ../scripts/to_csv.py --dirname ${ARTIFACTS_DIR}${CI_COMMIT_BRANCH}
     - python ../scripts/compare.py --artifact_dir=$ARTIFACTS_DIR --branch_name=$CI_COMMIT_BRANCH
-    artifacts:
-      paths:
-        - test/aml_comparisons/build/solve0_trend.pdf
-        - test/aml_comparisons/build/writer_trend.pdf
-      expire_in: 4 weeks
+  artifacts:
+    paths:
+      - test/aml_comparisons/build/solve0_trend.pdf
+      - test/aml_comparisons/build/writer_trend.pdf
+    expire_in: 4 weeks
