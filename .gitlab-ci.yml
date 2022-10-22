@@ -4,6 +4,9 @@ stages:
   - test
   - process
 
+variables:
+  ARTIFACTS_DIR: $ARTIFACTS_DIR
+
 temporary:
   stage: pre-check
   script:
@@ -59,12 +62,7 @@ performance-tests:
     - ../scripts/collect
     - ../scripts/dog solve0
     - ../scripts/dog writer
-    - python ../scripts/to_csv.py
-  artifacts:
-    paths:
-      - test/aml_comparisons/build/results/solve0/solve0_summary.csv
-      - test/aml_comparisons/build/results/writer/writer_summary.csv
-    expire_in: 30 days
+    - python ../scripts/to_csv.py --dirname ${ARTIFACTS_DIR}${CI_COMMIT_BRANCH}
 
 combine-performance-results:
   stage: process
