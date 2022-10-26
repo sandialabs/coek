@@ -67,6 +67,6 @@ performance-tests:
   artifacts:
     expose_as: 'performance-trend'
     paths:
-      - test/aml_comparisons/build/solve0_trend.pdf
-      - test/aml_comparisons/build/writer_trend.pdf
+      - test/aml_comparisons/build/solve0_trend.html
+      - test/aml_comparisons/build/writer_trend.html
     expire_in: 4 weeks

@@ -1,7 +1,7 @@
 import os
 import csv
 import argparse
-import matplotlib.pyplot as plt
+import plotly.express as px
 import math
 
 
@@ -50,12 +50,18 @@ def compare(source_dir, test_type):
 
     print(build_list)
     print(ratio_list)
-    plt.scatter(build_list, ratio_list)
-    plt.ylim(0, math.ceil(max(ratio_list)))
-    plt.xlabel('build number')
-    plt.ylabel('coek time / gurobi time')
-    plt.title(test_type)
-    plt.savefig(f'{test_type}_trend.pdf')
+    fig = px.scatter(
+        x=build_list,
+        y=ratio_list,
+        size=[10]*len(build_list),
+        range_y=[0, math.ceil(max(ratio_list))],
+    )
+    fig.update_layout(
+        xaxis_title='build number',
+        yaxis_title='coek time / gurobi time',
+        title=test_type,
+    )
+    fig.write_html(f'{test_type}_trend.html')
 
     if args.branch_name == 'dev-private':
         fwrite = open(running_fname, 'a')
