@@ -58,14 +58,15 @@ performance-tests:
     - cd ../test/aml_comparisons/
     - mkdir build
     - cd build
-    - ../scripts/run bench_coek 1
+    - ../scripts/run bench_coek 3
     - ../scripts/collect
     - ../scripts/dog solve0
     - ../scripts/dog writer
     - python ../scripts/to_csv.py --dirname ${ARTIFACTS_DIR}${CI_COMMIT_BRANCH}
     - python ../scripts/compare.py --artifact_dir=$ARTIFACTS_DIR --branch_name=$CI_COMMIT_BRANCH
   artifacts:
+    expose_as: 'performance-trend'
     paths:
-      - test/aml_comparisons/build/solve0_trend.pdf
-      - test/aml_comparisons/build/writer_trend.pdf
+      - test/aml_comparisons/build/solve0_trend.html
+      - test/aml_comparisons/build/writer_trend.html
     expire_in: 4 weeks
