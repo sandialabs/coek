@@ -13,7 +13,7 @@ std::vector<double> rosenbr_soln{1, 1};
 
 coek::Model simplelp1();
 std::vector<double> simplelp1_soln{375, 250};
-coek::Model simplelp1_solve();
+void simplelp1_solve();
 
 coek::Model invquad_vector(std::vector<coek::Parameter>& p);
 coek::Model invquad_array(std::vector<coek::Parameter>& p);
