@@ -60,9 +60,6 @@ class IndexedParameterTerm : public ParameterTerm {
     }
 
     std::string get_name();
-
-    // void accept(Visitor& v)
-    //     { v.visit(*this); }
 };
 
 //

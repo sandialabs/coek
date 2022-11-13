@@ -24,15 +24,7 @@ Parameter::Parameter(const std::string& name)
     repn->name = name;
 }
 
-Parameter::Parameter(const Parameter& expr) : repn(expr.repn) {}
-
 Parameter::Parameter(const ParameterRepn& _repn) : repn(_repn) {}
-
-Parameter& Parameter::operator=(const Parameter& expr)
-{
-    repn = expr.repn;
-    return *this;
-}
 
 Parameter& Parameter::value(double value)
 {
@@ -136,8 +128,6 @@ IndexParameter set_element(const std::string& name) { return IndexParameter(name
 
 Variable::Variable(const VariableRepn& _repn) : repn(_repn) {}
 
-Variable::Variable(const Variable& expr) : repn(expr.repn) {}
-
 Variable::Variable()
 {
     repn = CREATE_POINTER(VariableTerm, VariableTerm::negative_infinity,
@@ -149,12 +139,6 @@ Variable::Variable(const std::string& name)
     repn = CREATE_POINTER(VariableTerm, VariableTerm::negative_infinity,
                           VariableTerm::positive_infinity, VariableTerm::nan, false, false);
     repn->name = name;
-}
-
-Variable& Variable::operator=(const Variable& expr)
-{
-    repn = expr.repn;
-    return *this;
 }
 
 Variable& Variable::value(double value)
@@ -317,6 +301,8 @@ Expression::Expression() : repn(ZEROCONST) {}
 
 Expression::Expression(const ExpressionRepn& _repn) : repn(_repn) {}
 
+Expression::Expression(ExpressionRepn&& _repn) : repn(_repn) {}
+
 Expression::Expression(double value) { repn = CREATE_POINTER(ConstantTerm, value); }
 
 Expression::Expression(int value) { repn = CREATE_POINTER(ConstantTerm, value); }
@@ -327,13 +313,6 @@ Expression::Expression(const IndexParameter& param) : repn(param.repn) {}
 
 Expression::Expression(const Variable& var) : repn(var.repn) {}
 
-Expression::Expression(const Expression& expr) : repn(expr.repn) {}
-
-Expression& Expression::operator=(const Expression& expr)
-{
-    repn = expr.repn;
-    return *this;
-}
 
 bool Expression::is_constant() const { return repn->is_constant(); }
 

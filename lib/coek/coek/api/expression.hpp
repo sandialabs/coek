@@ -159,9 +159,7 @@ class Parameter {
      *
      * \param arg   a parameter whose value is shared
      */
-    Parameter(const Parameter& arg);
     Parameter(const ParameterRepn& _repn);
-    Parameter& operator=(const Parameter& arg);
 
     /** \returns the value of the parameter */
     double value() const;
@@ -244,9 +242,6 @@ class Variable {
     Variable();
     explicit Variable(const std::string& name);
     Variable(const VariableRepn& _repn);
-    Variable(const Variable& arg);
-
-    Variable& operator=(const Variable& arg);
 
     /** Set the initial variable value. \returns the variable object. */
     Variable& value(double value);
@@ -354,9 +349,7 @@ class Expression {
     Expression(const Variable& arg);
 
     Expression(const ExpressionRepn& _repn);
-    Expression(const Expression& arg);
-
-    Expression& operator=(const Expression& arg);
+    Expression(ExpressionRepn&& _repn);
 
     /** \returns \c true if this is a constant expression */
     bool is_constant() const;

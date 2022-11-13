@@ -20,7 +20,6 @@ typedef std::shared_ptr<BaseExpressionTerm> expr_pointer_t;
 
 class BaseExpressionTerm {
    public:
-    // int refcount;
     bool non_variable;
 
     BaseExpressionTerm() : non_variable(false) {}
