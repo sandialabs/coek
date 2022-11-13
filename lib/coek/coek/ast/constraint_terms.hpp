@@ -128,4 +128,6 @@ class EmptyConstraintTerm : public ConstraintTerm {
     term_id id() { return EmptyConstraintTerm_id; }
 };
 
+extern std::shared_ptr<EmptyConstraintTerm> EmptyConstraintRepn;
+
 }  // namespace coek
