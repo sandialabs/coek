@@ -299,9 +299,18 @@ Variable variable(const std::string& name)
 
 Expression::Expression() : repn(ZEROCONST) {}
 
+Expression::Expression(const ParameterRepn& _repn) : repn(_repn) {}
+Expression::Expression(const IndexParameterRepn& _repn) : repn(_repn) {}
+Expression::Expression(const VariableRepn& _repn) : repn(_repn) {}
 Expression::Expression(const ExpressionRepn& _repn) : repn(_repn) {}
 
 Expression::Expression(ExpressionRepn&& _repn) : repn(_repn) {}
+
+Expression::Expression(ParameterRepn&& _repn) : repn(_repn) {}
+
+Expression::Expression(IndexParameterRepn&& _repn) : repn(_repn) {}
+
+Expression::Expression(VariableRepn&& _repn) : repn(_repn) {}
 
 Expression::Expression(double value) { repn = CREATE_POINTER(ConstantTerm, value); }
 
@@ -428,9 +437,7 @@ Expression& Expression::operator-=(const Variable& arg)
 
 Expression& Expression::operator-=(const Expression& arg)
 {
-    expr_pointer_t tmp = CREATE_POINTER(NegateTerm, arg.repn);
-    // expr_pointer_t _repn = repn;
-    repn = CREATE_POINTER(PlusTerm, repn, tmp);
+    repn = CREATE_POINTER(PlusTerm, repn, CREATE_POINTER(NegateTerm, arg.repn));
     return *this;
 }
 
@@ -538,21 +545,15 @@ Expression expression(const Variable& arg) { return coek::Expression(arg); }
 //
 Expression operator+(const Parameter& param)
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(param.repn);
-    expr_pointer_t tmp = param.repn;
-    return tmp;
+    return param.repn;
 }
 Expression operator+(const IndexParameter& param)
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(param.repn);
-    expr_pointer_t tmp = param.repn;
-    return tmp;
+    return param.repn;
 }
 Expression operator+(const Variable& var)
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(var.repn);
-    expr_pointer_t tmp = var.repn;
-    return tmp;
+    return var.repn;
 }
 Expression operator+(const Expression& expr) { return expr; }
 
@@ -576,117 +577,72 @@ Expression Expression::operator+(double arg) const { return plus(repn, arg); }
 
 Expression Parameter::operator+(const Parameter& arg) const
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 Expression Parameter::operator+(const IndexParameter& arg) const
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 Expression Parameter::operator+(const Variable& arg) const
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 Expression Parameter::operator+(const Expression& arg) const
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 
 Expression IndexParameter::operator+(const Parameter& arg) const
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 Expression IndexParameter::operator+(const IndexParameter& arg) const
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 Expression IndexParameter::operator+(const Variable& arg) const
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 Expression IndexParameter::operator+(const Expression& arg) const
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 
 Expression Variable::operator+(const Parameter& arg) const
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 Expression Variable::operator+(const IndexParameter& arg) const
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 Expression Variable::operator+(const Variable& arg) const
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 Expression Variable::operator+(const Expression& arg) const
 {
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 
 Expression Expression::operator+(const Parameter& arg) const
 {
     // if (repn == ZeroConstant.repn)
     //     return arg.repn;
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 Expression Expression::operator+(const IndexParameter& arg) const
 {
     // if (repn == ZeroConstant.repn)
     //     return arg.repn;
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 Expression Expression::operator+(const Variable& arg) const
 {
     // if (repn == ZeroConstant.repn)
     //     return arg.repn;
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 Expression Expression::operator+(const Expression& arg) const
 {
@@ -694,10 +650,7 @@ Expression Expression::operator+(const Expression& arg) const
     //     return arg.repn;
     // if (arg.repn == ZeroConstant.repn)
     //     return repn;
-    // return std::dynamic_pointer_cast<BaseExpressionTerm>(CREATE_POINTER(PlusTerm, repn,
-    // arg.repn));
-    expr_pointer_t tmp = CREATE_POINTER(PlusTerm, repn, arg.repn);
-    return tmp;
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
 
 //
@@ -738,85 +691,70 @@ Expression Expression::operator-(double arg) const { return plus(repn, -arg); }
 
 Expression Parameter::operator-(const Parameter& arg) const
 {
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 Expression Parameter::operator-(const IndexParameter& arg) const
 {
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 Expression Parameter::operator-(const Variable& arg) const
 {
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 Expression Parameter::operator-(const Expression& arg) const
 {
     // if (rhs.repn == ZeroConstant.repn)
     //     return repn;
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 
 Expression IndexParameter::operator-(const Parameter& arg) const
 {
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 Expression IndexParameter::operator-(const IndexParameter& arg) const
 {
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 Expression IndexParameter::operator-(const Variable& arg) const
 {
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 Expression IndexParameter::operator-(const Expression& arg) const
 {
     // if (rhs.repn == ZeroConstant.repn)
     //     return repn;
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 
 Expression Variable::operator-(const Parameter& arg) const
 {
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 Expression Variable::operator-(const IndexParameter& arg) const
 {
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 Expression Variable::operator-(const Variable& arg) const
 {
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 Expression Variable::operator-(const Expression& arg) const
 {
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 
 Expression Expression::operator-(const Parameter& arg) const
 {
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 Expression Expression::operator-(const IndexParameter& arg) const
 {
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 Expression Expression::operator-(const Variable& arg) const
 {
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 Expression Expression::operator-(const Expression& arg) const
 {
@@ -825,8 +763,7 @@ Expression Expression::operator-(const Expression& arg) const
     // if (arg.repn == ZeroConstant.repn)
     //     return repn;
 
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(
-        CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
 
 //

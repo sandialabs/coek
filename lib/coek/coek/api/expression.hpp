@@ -348,7 +348,13 @@ class Expression {
     /** Implicit construction of an Expression from a Variable */
     Expression(const Variable& arg);
 
+    Expression(const ParameterRepn& _repn);
+    Expression(const IndexParameterRepn& _repn);
+    Expression(const VariableRepn& _repn);
     Expression(const ExpressionRepn& _repn);
+    Expression(ParameterRepn&& _repn);
+    Expression(IndexParameterRepn&& _repn);
+    Expression(VariableRepn&& _repn);
     Expression(ExpressionRepn&& _repn);
 
     /** \returns \c true if this is a constant expression */
