@@ -836,58 +836,74 @@ Expression operator*(int lhs, const Parameter& rhs) { return times(lhs, rhs.repn
 Expression operator*(int lhs, const IndexParameter& rhs) { return times(lhs, rhs.repn); }
 Expression operator*(int lhs, const Variable& rhs)
 {
-    if (lhs == 0) return std::dynamic_pointer_cast<BaseExpressionTerm>(ZEROCONST);
-    if (lhs == 1) return std::dynamic_pointer_cast<BaseExpressionTerm>(rhs.repn);
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(rhs.repn->const_mult(lhs, rhs.repn));
+    expr_pointer_t tmp;
+    if (lhs == 0) tmp = ZEROCONST;
+    else if (lhs == 1) tmp = rhs.repn;
+    else tmp = rhs.repn->const_mult(lhs, rhs.repn);
+    return tmp;
 }
 Expression operator*(int lhs, const Expression& rhs)
 {
-    if (lhs == 0) return std::dynamic_pointer_cast<BaseExpressionTerm>(ZEROCONST);
-    if (lhs == 1) return rhs.repn;
-    return times(lhs, rhs.repn);
+    expr_pointer_t tmp;
+    if (lhs == 0) tmp = ZEROCONST;
+    else if (lhs == 1) tmp = rhs.repn;
+    else tmp = times(lhs, rhs.repn);
+    return tmp;
 }
 Expression operator*(double lhs, const Parameter& rhs) { return times(lhs, rhs.repn); }
 Expression operator*(double lhs, const IndexParameter& rhs) { return times(lhs, rhs.repn); }
 Expression operator*(double lhs, const Variable& rhs)
 {
-    if (lhs == 0.0) return std::dynamic_pointer_cast<BaseExpressionTerm>(ZEROCONST);
-    if (lhs == 1.0) return std::dynamic_pointer_cast<BaseExpressionTerm>(rhs.repn);
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(rhs.repn->const_mult(lhs, rhs.repn));
+    expr_pointer_t tmp;
+    if (lhs == 0.0) tmp = ZEROCONST;
+    else if (lhs == 1.0) tmp = rhs.repn;
+    else tmp = rhs.repn->const_mult(lhs, rhs.repn);
+    return tmp;
 }
 Expression operator*(double lhs, const Expression& rhs)
 {
-    if (lhs == 0.0) return std::dynamic_pointer_cast<BaseExpressionTerm>(ZEROCONST);
-    if (lhs == 1.0) return rhs.repn;
-    return times(lhs, rhs.repn);
+    expr_pointer_t tmp;
+    if (lhs == 0.0) tmp = ZEROCONST;
+    else if (lhs == 1.0) tmp = rhs.repn;
+    else tmp = times(lhs, rhs.repn);
+    return tmp;
 }
 
 Expression Parameter::operator*(int arg) const { return times(repn, arg); }
 Expression IndexParameter::operator*(int arg) const { return times(repn, arg); }
 Expression Variable::operator*(int arg) const
 {
-    if (arg == 0) return std::dynamic_pointer_cast<BaseExpressionTerm>(ZEROCONST);
-    if (arg == 1) return std::dynamic_pointer_cast<BaseExpressionTerm>(repn);
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(repn->const_mult(arg, repn));
+    expr_pointer_t tmp;
+    if (arg == 0) tmp = ZEROCONST;
+    else if (arg == 1) tmp = repn;
+    else tmp = repn->const_mult(arg, repn);
+    return tmp;
 }
 Expression Expression::operator*(int arg) const
 {
-    if (arg == 0) return std::dynamic_pointer_cast<BaseExpressionTerm>(ZEROCONST);
-    if (arg == 1) return std::dynamic_pointer_cast<BaseExpressionTerm>(repn);
-    return times(repn, arg);
+    expr_pointer_t tmp;
+    if (arg == 0) tmp = ZEROCONST;
+    else if (arg == 1) tmp = repn;
+    else tmp = times(repn, arg);
+    return tmp;
 }
 Expression Parameter::operator*(double arg) const { return times(repn, arg); }
 Expression IndexParameter::operator*(double arg) const { return times(repn, arg); }
 Expression Variable::operator*(double arg) const
 {
-    if (arg == 0.0) return std::dynamic_pointer_cast<BaseExpressionTerm>(ZEROCONST);
-    if (arg == 1.0) return std::dynamic_pointer_cast<BaseExpressionTerm>(repn);
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(repn->const_mult(arg, repn));
+    expr_pointer_t tmp;
+    if (arg == 0.0) tmp = ZEROCONST;
+    else if (arg == 1.0) tmp = repn;
+    else tmp = repn->const_mult(arg, repn);
+    return tmp;
 }
 Expression Expression::operator*(double arg) const
 {
-    if (arg == 0.0) return std::dynamic_pointer_cast<BaseExpressionTerm>(ZEROCONST);
-    if (arg == 1.0) return repn;
-    return times(repn, arg);
+    expr_pointer_t tmp;
+    if (arg == 0.0) tmp = ZEROCONST;
+    else if (arg == 1.0) tmp = repn;
+    else tmp = times(repn, arg);
+    return tmp;
 }
 
 Expression Parameter::operator*(const Parameter& arg) const { return times(repn, arg.repn); }
@@ -929,18 +945,22 @@ Expression Parameter::operator/(int arg) const { return divide(repn, arg); }
 Expression IndexParameter::operator/(int arg) const { return divide(repn, arg); }
 Expression Variable::operator/(int arg) const
 {
-    if (arg == 1) return std::dynamic_pointer_cast<BaseExpressionTerm>(repn);
-    if (arg == 0) throw std::domain_error("Division by zero.");
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(repn->const_mult(1.0 / arg, repn));
+    expr_pointer_t tmp;
+    if (arg == 1) tmp = repn;
+    else if (arg == 0) throw std::domain_error("Division by zero.");
+    else tmp = repn->const_mult(1.0 / arg, repn);
+    return tmp;
 }
 Expression Expression::operator/(int arg) const { return divide(repn, arg); }
 Expression Parameter::operator/(double arg) const { return divide(repn, arg); }
 Expression IndexParameter::operator/(double arg) const { return divide(repn, arg); }
 Expression Variable::operator/(double arg) const
 {
-    if (arg == 1.0) return std::dynamic_pointer_cast<BaseExpressionTerm>(repn);
-    if (arg == 0.0) throw std::domain_error("Division by zero.");
-    return std::dynamic_pointer_cast<BaseExpressionTerm>(repn->const_mult(1.0 / arg, repn));
+    expr_pointer_t tmp;
+    if (arg == 1.0) tmp = repn;
+    else if (arg == 0.0) throw std::domain_error("Division by zero.");
+    else tmp = repn->const_mult(1.0 / arg, repn);
+    return tmp;
 }
 Expression Expression::operator/(double arg) const { return divide(repn, arg); }
 
