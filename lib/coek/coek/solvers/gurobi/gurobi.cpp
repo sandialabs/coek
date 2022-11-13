@@ -19,6 +19,28 @@ namespace coek {
 
 namespace {
 
+auto add_gurobi_variable(GRBModel* gmodel, double lb, double ub, const Variable& eval)
+{
+    if (eval.is_binary())
+        return gmodel->addVar(lb, ub, 0, GRB_BINARY);
+    else if (eval.is_integer())
+        return gmodel->addVar(lb, ub, 0, GRB_INTEGER);
+    else {
+        if (ub >= 1e19) {
+            if (lb <= -1e19)
+                return gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
+            else
+                return gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
+        }
+        else {
+            if (lb <= -1e19)
+                return gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
+            else
+                return gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
+        }
+    }
+}
+
 void add_gurobi_objective(GRBModel* gmodel, Expression& expr, bool sense,
                           std::unordered_map<int, GRBVar>& x, coek::QuadraticExpr& orepn)
 {
@@ -120,29 +142,9 @@ int GurobiSolver::solve(Model& model)
 
     // Add Gurobi variables
     for (auto& var : _model->variables) {
-        coek::VariableTerm* v = var.repn;
-        if (not v->fixed) {
-            double lb = v->lb->eval();
-            double ub = v->ub->eval();
-            if (v->binary)
-                x[v->index] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
-            else if (v->integer)
-                x[v->index] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
-            else {
-                if (ub >= 1e19) {
-                    if (lb <= -1e19)
-                        x[v->index]
-                            = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
-                    else
-                        x[v->index] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
-                }
-                else {
-                    if (lb <= -1e19)
-                        x[v->index] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
-                    else
-                        x[v->index] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
-                }
-            }
+        // coek::VariableTerm* v = var.repn;
+        if (not var.fixed()) {
+            x[var.id()] = add_gurobi_variable(gmodel, var.lower(), var.upper(), var);
         }
     }
 
@@ -221,38 +223,28 @@ int GurobiSolver::solve(Model& model)
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-int GurobiSolver::solve(CompactModel& model)
+int GurobiSolver::solve(CompactModel& compact_model)
 {
     std::cout << "STARTING GUROBI" << std::endl << std::flush;
 
     env = new GRBEnv();
     gmodel = new GRBModel(*env);
 
-    assert(model.objectives.size() == 1);
-
     std::cout << "BUILDING GUROBI MODEL" << std::endl << std::flush;
 
     // Add Gurobi variables
-    for (auto& var : model.variables) {
-        coek::VariableTerm* v = var->repn;
-        double lb = v->lb->eval();
-        double ub = v->ub->eval();
-        if (v->binary)
-            x[v->index] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
-        else if (v->integer)
-            x[v->index] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
+    for (auto& val : compact_model.repn->variables) {
+        if (auto eval = std::get_if<Variable>(&val)) {
+            Expression lb = eval->lower_expression().expand();
+            auto lb_ = lb.value();
+            Expression ub = eval->upper_expression().expand();
+            auto ub_ = ub.value();
+            x[eval->id()] = add_gurobi_variable(gmodel, lb_, ub_, *eval);
+        }
         else {
-            if (ub >= 1e19) {
-                if (lb <= -1e19)
-                    x[v->index] = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
-                else
-                    x[v->index] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
-            }
-            else {
-                if (lb <= -1e19)
-                    x[v->index] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
-                else
-                    x[v->index] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
+            auto& seq = std::get<VariableSequence>(val);
+            for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
+                x[jt->id()] = add_gurobi_variable(gmodel, jt->lower(), jt->upper(), *jt);
             }
         }
     }
@@ -263,17 +255,17 @@ int GurobiSolver::solve(CompactModel& model)
     int nobj = 0;
     try {
         coek::QuadraticExpr orepn;
-        for (auto& obj : model.objectives) {
-            if (auto eval = std::get_if<Objective>(&obj)) {
-                Expression tmp
-                    = eval->body().expand();  // TODO - revise API to avoid these tmp variables
+        for (auto& val : compact_model.repn->objectives) {
+            if (auto eval = std::get_if<Objective>(&val)) {
+                Expression tmp = eval->expr().expand();
                 add_gurobi_objective(gmodel, tmp, eval->sense(), x, orepn);
                 nobj++;
             }
             else {
-                auto& seq = std::get<ObjectiveSequence>(obj);
+                auto& seq = std::get<ObjectiveSequence>(val);
                 for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
-                    Expression tmp = jt->body();
+                    model.repn->objectives.push_back(*jt);
+                    Expression tmp = jt->expr();
                     add_gurobi_objective(gmodel, tmp, jt->sense(), x, orepn);
                     nobj++;
                 }
@@ -295,13 +287,13 @@ int GurobiSolver::solve(CompactModel& model)
     // Add Gurobi constraints
     try {
         coek::QuadraticExpr repn;
-        for (auto& con : model.constraints) {
-            if (auto cval = std::get_if<Constraint>(&con)) {
+        for (auto& val : compact_model.repn->constraints) {
+            if (auto cval = std::get_if<Constraint>(&val)) {
                 Constraint c = cval->expand();
                 add_gurobi_constraint(gmodel, c, x, repn);
             }
             else {
-                auto& seq = std::get<ConstraintSequence>(con);
+                auto& seq = std::get<ConstraintSequence>(val);
                 for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
                     add_gurobi_constraint(gmodel, *jt, x, repn);
                 }
@@ -327,11 +319,15 @@ int GurobiSolver::solve(CompactModel& model)
             // TODO: We need to cache the optimization status in COEK somewhere
             // TODO: Is there a string description of the solver status?
 
+#    if 0
+
+WEH - What is the 'results object' for compact models?  This is not defined yet.
+
             // Collect values of Gurobi variables
-            for (auto it = model.variables.begin(); it != model.variables.end(); ++it) {
-                coek::VariableTerm* v = it->repn;
-                v->set_value(x[v->index].get(GRB_DoubleAttr_X));
+            for (auto& var : model.variables) {
+                var.set_value(x[var.index].get(GRB_DoubleAttr_X));
             }
+#    endif
         }
     }
     catch (GRBException e) {

@@ -1,10 +1,11 @@
-#include "coek/compact/variable_map.hpp"
 
 #include <unordered_map>
 
 #include "coek/api/variable_assoc_array_repn.hpp"
 #include "coek/ast/compact_terms.hpp"
 #include "coek/model/model.hpp"
+#include "coek/compact/coek_sets.hpp"
+#include "coek/compact/variable_map.hpp"
 
 namespace coek {
 
@@ -48,8 +49,8 @@ std::string VariableMapRepn::get_name(size_t idx)
 
         auto name = variable_template.name();
         size_t _dim = dim();
-        int x_data[_dim];
-        IndexVector x(x_data, _dim);
+        std::vector<int> x_data(_dim);
+        IndexVector x(&(x_data[0]), _dim);
         for (auto& indices : concrete_set) {
             for (size_t j = 0; j < _dim; j++) x[j] = indices[j];
             if (indices.size() == 1) {

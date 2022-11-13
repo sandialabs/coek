@@ -4,19 +4,16 @@
 #include <unordered_map>
 #include <variant>
 #include <vector>
+#include "coek/api/expression.hpp"
+#include "coek/api/objective.hpp"
+#include "coek/api/constraint.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL
-#    include "coek/compact/constraint_sequence.hpp"
-#    include "coek/compact/objective_sequence.hpp"
 #    include "coek/compact/variable_sequence.hpp"
+#    include "coek/compact/objective_sequence.hpp"
+#    include "coek/compact/constraint_sequence.hpp"
 #endif
 
 namespace coek {
-class Objective;
-class Constraint;
-class Variable;
-class CompactVariableMap;
-class ObjectiveMap;
-class CompactConstraintMap;
 
 //
 // ModelRepn
@@ -38,10 +35,74 @@ class ModelRepn {
     std::map<std::string, double> msuffix;
 };
 
+#ifdef COEK_WITH_COMPACT_MODEL
+
+class CompactVariableMap {
+   public:
+    std::shared_ptr<ModelRepn> repn;
+
+   public:
+    /** \returns the i-th variable defined in this map */
+    Variable operator()(size_t i);
+
+    /** \returns the variable associated with the index parameters */
+    template <typename... TYPES>
+    Variable operator[](const TYPES&... args)
+    {
+        std::vector<IndexParameter> indices;
+        collect_index_parameters(indices, args...);
+        return operator[](indices);
+    }
+
+    /** \returns the variable associated with the index parameters */
+    Variable operator[](const std::vector<IndexParameter>& indices);
+};
+
+class ObjectiveMap {
+   public:
+    std::shared_ptr<ModelRepn> repn;
+
+   public:
+    /** \returns the i-th objective defined in this map */
+    Objective operator()(size_t i);
+
+    /** \returns the objective associated with the index parameters */
+    template <typename... TYPES>
+    Objective operator[](const TYPES&... args)
+    {
+        std::vector<IndexParameter> indices;
+        collect_index_parameters(indices, args...);
+        return operator[](indices);
+    }
+
+    /** \returns the objective associated with the index parameters */
+    Objective operator[](const std::vector<IndexParameter>& indices);
+};
+
+class CompactConstraintMap {
+   public:
+    std::shared_ptr<ModelRepn> repn;
+
+   public:
+    /** \returns the i-th constraint defined in this map */
+    Constraint operator()(size_t i);
+
+    /** \returns the constraint associated with the index parameters */
+    template <typename... TYPES>
+    Constraint operator[](const TYPES&... args)
+    {
+        std::vector<IndexParameter> indices;
+        collect_index_parameters(indices, args...);
+        return operator[](indices);
+    }
+
+    /** \returns the constraint associated with the index parameters */
+    Constraint operator[](const std::vector<IndexParameter>& indices);
+};
+
 //
 // CompactModelRepn
 //
-#ifdef COEK_WITH_COMPACT_MODEL
 class CompactModelRepn {
    public:
     std::vector<std::variant<Objective, ObjectiveSequence>> objectives;
@@ -53,6 +114,7 @@ class CompactModelRepn {
     std::map<std::string, std::variant<CompactVariableMap, ObjectiveMap, CompactConstraintMap>>
         mapped_data;
 };
+
 #endif
 
 }  // namespace coek

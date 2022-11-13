@@ -1,10 +1,10 @@
-#include "sequence_context.hpp"
 
 #include "ast_set.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
 #include "coek_exprterm.hpp"
 #include "coek_sets.hpp"
+#include "sequence_context.hpp"
 
 namespace coek {
 

@@ -1,10 +1,10 @@
-#include "objective_sequence.hpp"
 
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/compact/coek_exprterm.hpp"
 #include "coek_sets.hpp"
 #include "sequence_context.hpp"
+#include "objective_sequence.hpp"
 
 namespace coek {
 

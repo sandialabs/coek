@@ -38,8 +38,8 @@ std::string ParameterMapRepn::get_name(size_t idx)
 
         auto name = parameter_template.name();
         size_t _dim = dim();
-        int x_data[_dim];
-        IndexVector x(x_data, _dim);
+        std::vector<int> x_data(_dim);
+        IndexVector x(&(x_data[0]), _dim);
         for (auto& indices : concrete_set) {
             for (size_t j = 0; j < _dim; j++) x[j] = indices[j];
             if (indices.size() == 1) {
