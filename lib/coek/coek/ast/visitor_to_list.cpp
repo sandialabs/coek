@@ -219,17 +219,29 @@ void ToListVisitor::visit(DivideTerm& arg)
         repr.push_back("]");             \
     }
 
-ToListVisitor_FN(abs, AbsTerm) ToListVisitor_FN(ceil, CeilTerm) ToListVisitor_FN(floor, FloorTerm)
-    ToListVisitor_FN(exp, ExpTerm) ToListVisitor_FN(log, LogTerm) ToListVisitor_FN(log10, Log10Term)
-        ToListVisitor_FN(sqrt, SqrtTerm) ToListVisitor_FN(sin, SinTerm)
-            ToListVisitor_FN(cos, CosTerm) ToListVisitor_FN(tan, TanTerm)
-                ToListVisitor_FN(sinh, SinhTerm) ToListVisitor_FN(cosh, CoshTerm)
-                    ToListVisitor_FN(tanh, TanhTerm) ToListVisitor_FN(asin, ASinTerm)
-                        ToListVisitor_FN(acos, ACosTerm) ToListVisitor_FN(atan, ATanTerm)
-                            ToListVisitor_FN(asinh, ASinhTerm) ToListVisitor_FN(acosh, ACoshTerm)
-                                ToListVisitor_FN(atanh, ATanhTerm)
+// clang-format off
+ToListVisitor_FN(abs, AbsTerm)
+ToListVisitor_FN(ceil, CeilTerm)
+ToListVisitor_FN(floor, FloorTerm)
+ToListVisitor_FN(exp, ExpTerm)
+ToListVisitor_FN(log, LogTerm)
+ToListVisitor_FN(log10, Log10Term)
+ToListVisitor_FN(sqrt, SqrtTerm)
+ToListVisitor_FN(sin, SinTerm)
+ToListVisitor_FN(cos, CosTerm)
+ToListVisitor_FN(tan, TanTerm)
+ToListVisitor_FN(sinh, SinhTerm)
+ToListVisitor_FN(cosh, CoshTerm)
+ToListVisitor_FN(tanh, TanhTerm)
+ToListVisitor_FN(asin, ASinTerm)
+ToListVisitor_FN(acos, ACosTerm)
+ToListVisitor_FN(atan, ATanTerm)
+ToListVisitor_FN(asinh, ASinhTerm)
+ToListVisitor_FN(acosh, ACoshTerm)
+ToListVisitor_FN(atanh, ATanhTerm)
+    // clang-format on
 
-                                    void ToListVisitor::visit(PowTerm& arg)
+    void ToListVisitor::visit(PowTerm& arg)
 {
     repr.push_back("[");
     repr.push_back("pow");
@@ -247,7 +259,7 @@ void ToListVisitor::visit(SumExpressionTerm&)
 
 }  // namespace
 
-void expr_to_list(expr_pointer_t expr, std::list<std::string>& repr)
+void expr_to_list(BaseExpressionTerm* expr, std::list<std::string>& repr)
 {
     ToListVisitor visitor(repr);
     expr->accept(visitor);

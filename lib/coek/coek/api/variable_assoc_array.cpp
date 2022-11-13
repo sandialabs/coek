@@ -30,14 +30,15 @@ void VariableAssocArrayRepn::setup()
     auto vtype = variable_template.within();
     bool binary = (vtype == Boolean) or (vtype == Binary);
     bool integer = vtype == Integers;
-    auto lower = variable_template.lower_expression().expand().value();
-    auto upper = variable_template.upper_expression().expand().value();
-    auto value = variable_template.value_expression().expand().value();
+    auto lower
+        = std::make_shared<ConstantTerm>(variable_template.lower_expression().expand().value());
+    auto upper
+        = std::make_shared<ConstantTerm>(variable_template.upper_expression().expand().value());
+    auto value
+        = std::make_shared<ConstantTerm>(variable_template.value_expression().expand().value());
     for (size_t i = 0; i < size(); i++) {
-        values.emplace_back(CREATE_POINTER(IndexedVariableTerm, CREATE_POINTER(ConstantTerm, lower),
-                                           CREATE_POINTER(ConstantTerm, upper),
-                                           CREATE_POINTER(ConstantTerm, value), binary, integer, i,
-                                           this));
+        values.emplace_back(
+            CREATE_POINTER(IndexedVariableTerm, lower, upper, value, binary, integer, i, this));
     }
 }
 

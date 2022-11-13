@@ -25,8 +25,7 @@ class IndexParameterTerm;
 class MonomialTerm;
 class InequalityTerm;
 class EqualityTerm;
-class DummyConstraintTerm;
-// class DummyObjectiveTerm;
+class EmptyConstraintTerm;
 class NegateTerm;
 class PlusTerm;
 class TimesTerm;
@@ -70,8 +69,7 @@ class Visitor {
     virtual void visit(MonomialTerm& arg) = 0;
     virtual void visit(InequalityTerm& arg) = 0;
     virtual void visit(EqualityTerm& arg) = 0;
-    virtual void visit(DummyConstraintTerm&) {}
-    // virtual void visit(DummyObjectiveTerm& ) {}
+    virtual void visit(EmptyConstraintTerm&) {}
     virtual void visit(NegateTerm& arg) = 0;
     virtual void visit(PlusTerm& arg) = 0;
     virtual void visit(TimesTerm& arg) = 0;
@@ -114,8 +112,8 @@ enum term_id : unsigned int {
     MonomialTerm_id = 5,
     InequalityTerm_id = 6,
     EqualityTerm_id = 7,
-    DummyConstraintTerm_id = 104,
-    DummyObjectiveTerm_id = 105,
+    EmptyConstraintTerm_id = 104,
+    // EmptyObjectiveTerm_id = 105,
     NegateTerm_id = 8,
     PlusTerm_id = 9,
     TimesTerm_id = 10,

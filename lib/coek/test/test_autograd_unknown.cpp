@@ -50,7 +50,7 @@ TEST_CASE("unknown_ad", "[smoke]")
             REQUIRE_THROWS_WITH(nlp.compute_J(tmp1), "Error accessing uninitialized NLPModel");
         }
     }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }

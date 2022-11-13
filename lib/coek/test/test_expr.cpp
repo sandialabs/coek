@@ -64,7 +64,7 @@ TEST_CASE("elementary_expression", "[smoke]")
         REQUIRE(e.to_list() == baseline);
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -148,7 +148,7 @@ TEST_CASE("model_monomial", "[smoke]")
       }
     */
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -425,7 +425,7 @@ TEST_CASE("model_expression", "[smoke]")
         REQUIRE(sstr.str() == "Constant: 1\nLinear: \n1 v\nQuadratic: \n1 v v\n");
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -512,7 +512,7 @@ TEST_CASE("model_unary_expression", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -1138,7 +1138,7 @@ TEST_CASE("model_add_expression", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -1730,7 +1730,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
             }
         }
     }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -1790,7 +1790,7 @@ TEST_CASE("model_neg_expression", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -2569,7 +2569,7 @@ TEST_CASE("model_mul_expression", "[smoke]")
             }
         }
     }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -3121,7 +3121,7 @@ TEST_CASE("model_div_expression", "[smoke]")
             }
         }
     }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -3608,7 +3608,7 @@ TEST_CASE("intrinsics", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -3641,7 +3641,7 @@ TEST_CASE("expression_value", "[smoke]")
             }
         }
     }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }

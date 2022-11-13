@@ -65,7 +65,7 @@ TEST_CASE("elementary_param", "[smoke]")
         REQUIRE(sstr.str() == "q");
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -169,7 +169,7 @@ TEST_CASE("model_indexparam", "[smoke]")
         REQUIRE(q.name() == "q");
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -278,7 +278,7 @@ TEST_CASE("1D_param_map", "[smoke]")
         }
     }
 
-#    ifdef DEBUG
+#    ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #    endif
 }
@@ -382,7 +382,7 @@ TEST_CASE("1D_param_array", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -488,7 +488,7 @@ TEST_CASE("2D_param_map", "[smoke]")
         }
     }
 
-#    ifdef DEBUG
+#    ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #    endif
 }
@@ -591,7 +591,7 @@ TEST_CASE("2D_param_array", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -697,7 +697,7 @@ TEST_CASE("3D_param_array", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -814,7 +814,7 @@ TEST_CASE("3D_param_api", "[smoke]")
         }
     }
 
-#    ifdef DEBUG
+#    ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #    endif
 }

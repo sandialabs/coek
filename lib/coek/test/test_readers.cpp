@@ -105,7 +105,7 @@ TEST_CASE("jpof_reader_string", "[smoke]")
         REQUIRE(con.to_list() == con_expr);
     }
 
-#    ifdef DEBUG
+#    ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #    endif
 }
@@ -1838,7 +1838,7 @@ TEST_CASE("jpof_reader_file", "[smoke]")
                  "CON1");
     }
 
-#    ifdef DEBUG
+#    ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #    endif
 }

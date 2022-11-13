@@ -18,7 +18,7 @@ namespace coek {
 
 class BaseExpressionTerm;
 
-typedef BaseExpressionTerm* expr_pointer_t;
+typedef std::shared_ptr<BaseExpressionTerm> expr_pointer_t;
 typedef std::variant<int, expr_pointer_t> refarg_types;
 
 template <class TYPE>

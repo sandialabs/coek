@@ -48,7 +48,7 @@ class MutableValuesVisitor : public Visitor {
 
     void visit(MonomialTerm& arg)
     {
-        if (arg.var->fixed) fixed_vars.insert(arg.var);
+        if (arg.var->fixed) fixed_vars.insert(arg.var.get());
     }
 
     void visit(InequalityTerm& arg) { arg.body->accept(*this); }
@@ -105,7 +105,7 @@ class MutableValuesVisitor : public Visitor {
 
 }  // namespace
 
-void mutable_values(expr_pointer_t expr, std::unordered_set<VariableTerm*>& fixed_vars,
+void mutable_values(const expr_pointer_t& expr, std::unordered_set<VariableTerm*>& fixed_vars,
                     std::unordered_set<ParameterTerm*>& params)
 {
     // GCOVR_EXCL_START

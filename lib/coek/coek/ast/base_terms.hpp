@@ -1,12 +1,15 @@
 #pragma once
 
+#include <list>
+#include <string>
+#include <memory>
 #include <iostream>
 #include <unordered_map>
 
 #include "visitor.hpp"
-#if defined(DEBUG)
-#    define WITH_AST_ENV
-#endif
+//#if defined(DEBUG)
+//#    define WITH_AST_ENV
+//#endif
 
 namespace coek {
 
@@ -14,22 +17,29 @@ class Visitor;
 class BaseExpressionTerm;
 
 // SHARED_PTR
-// typedef std::shared_ptr<BaseExpressionTerm> expr_pointer_t;
+typedef std::shared_ptr<BaseExpressionTerm> expr_pointer_t;
 // typedef std::shared_ptr<VariableTerm> var_pointer_t;
-//#define CREATE_POINTER(PTR, ...) std::make_shared<PTR>(__VA_ARGS__)
-//#define OWN_POINTER(PTR)
-//#define DISOWN_POINTER(PTR)
-//#define STATIC_CAST(TYPE, ARG)   std::static_pointer_cast<TYPE>(ARG)
+#define CREATE_POINTER(PTR, ...) std::make_shared<PTR>(__VA_ARGS__)
+/*
+#define CACHE_POINTER(PTR)
+#define DISCARD_POINTER(PTR)
+#define OWN_POINTER(PTR)
+#define DISOWN_POINTER(PTR)
+#define STATIC_CAST(TYPE, ARG)   std::static_pointer_cast<TYPE>(ARG)
+#define FREE_POINTER(PTR)
+*/
 
-typedef BaseExpressionTerm* expr_pointer_t;
+// typedef BaseExpressionTerm* expr_pointer_t;
 
-#ifdef WITH_AST_ENV
-#    define CREATE_POINTER(PTR, ...) env.cache(new PTR(__VA_ARGS__))
-#    define CACHE_POINTER(PTR) env.cache(PTR)
-#    define DISCARD_POINTER(PTR) env.uncache(PTR)
-#    define OWN_POINTER(PTR) env.own(PTR)
-#    define DISOWN_POINTER(PTR) env.disown(PTR)
-#    define FREE_POINTER(PTR) env.free(PTR)
+#if 0
+#    ifdef WITH_AST_ENV
+#        define CREATE_POINTER(PTR, ...) env.cache(new PTR(__VA_ARGS__))
+#        define CACHE_POINTER(PTR) env.cache(PTR)
+#        define DISCARD_POINTER(PTR) env.uncache(PTR)
+#        define OWN_POINTER(PTR) env.own(PTR)
+#        define DISOWN_POINTER(PTR) env.disown(PTR)
+#        define FREE_POINTER(PTR) env.free(PTR)
+/*
 #else
 #    define CREATE_POINTER(PTR, ...) new PTR(__VA_ARGS__)
 #    define CACHE_POINTER(PTR)
@@ -44,16 +54,17 @@ typedef BaseExpressionTerm* expr_pointer_t;
             if ((PTR)->refcount == 0) delete PTR; \
         }
 #    define FREE_POINTER(PTR) (PTR)->refcount--
+*/
+#    endif
 #endif
-#define STATIC_CAST(TYPE, ARG) ARG
+//#define STATIC_CAST(TYPE, ARG) ARG
 
 class BaseExpressionTerm {
    public:
-    int refcount;
+    // int refcount;
     bool non_variable;
 
-    BaseExpressionTerm(int _refcount = 0) : refcount(_refcount), non_variable(false) {}
-
+    BaseExpressionTerm() : non_variable(false) {}
     virtual ~BaseExpressionTerm() {}
 
     virtual double eval() const = 0;
@@ -69,6 +80,7 @@ class BaseExpressionTerm {
     virtual expr_pointer_t negate(const expr_pointer_t& repn);
     virtual void accept(Visitor& v) = 0;
     virtual term_id id() = 0;
+    std::list<std::string> to_list();
 };
 
 //
@@ -79,10 +91,7 @@ class ConstantTerm : public BaseExpressionTerm {
    public:
     double value;
 
-    ConstantTerm(double _value, int refcount = 0) : BaseExpressionTerm(refcount), value(_value)
-    {
-        non_variable = true;
-    }
+    explicit ConstantTerm(double _value) : value(_value) { non_variable = true; }
 
     double eval() const { return value; }
 
@@ -95,8 +104,7 @@ class ConstantTerm : public BaseExpressionTerm {
     term_id id() { return ConstantTerm_id; }
 };
 
-class DummyConstraintTerm;
-class DummyObjectiveTerm;
+class EmptyConstraintTerm;
 #ifdef WITH_AST_ENV
 }
 #    include "constraint_terms.hpp"
@@ -116,8 +124,7 @@ class ASTEnvironment {
     ConstantTerm OneConstant;
     ConstantTerm ZeroConstant;
     ConstantTerm NegativeOneConstant;
-    DummyConstraintTerm DummyConstraint;
-    DummyObjectiveTerm DummyObjective;
+    EmptyConstraintTerm EmptyConstraint;
 
    public:
     ASTEnvironment()
@@ -125,8 +132,7 @@ class ASTEnvironment {
           OneConstant(1),
           ZeroConstant(0),
           NegativeOneConstant(-1),
-          DummyConstraint(),
-          DummyObjective()
+          EmptyConstraint()
     {
         reset();
     }
@@ -215,20 +221,15 @@ extern ASTEnvironment env;
 #    define ZEROCONST &(env.ZeroConstant)
 #    define ONECONST &(env.OneConstant)
 #    define NEGATIVEONECONST &(env.NegativeOneConstant)
-#    define DUMMYCONSTRAINT &(env.DummyConstraint)
-#    define DUMMYOBJECTIVE &(env.DummyObjective)
 
 #else
-extern ConstantTerm ZeroConstant;
-extern ConstantTerm OneConstant;
-extern ConstantTerm NegativeOneConstant;
-extern DummyConstraintTerm DummyConstraint;
-extern DummyObjectiveTerm DummyObjective;
-#    define ZEROCONST &(ZeroConstant)
-#    define ONECONST &(OneConstant)
-#    define NEGATIVEONECONST &(NegativeOneConstant)
-#    define DUMMYCONSTRAINT &(DummyConstraint)
-#    define DUMMYOBJECTIVE &(DummyObjective)
+extern std::shared_ptr<ConstantTerm> ZeroConstant;
+extern std::shared_ptr<ConstantTerm> OneConstant;
+extern std::shared_ptr<ConstantTerm> NegativeOneConstant;
+extern std::shared_ptr<EmptyConstraintTerm> EmptyConstraintRepn;
+#    define ZEROCONST ZeroConstant
+#    define ONECONST OneConstant
+#    define NEGATIVEONECONST NegativeOneConstant
 // GCOVR_EXCL_STOP
 #endif
 

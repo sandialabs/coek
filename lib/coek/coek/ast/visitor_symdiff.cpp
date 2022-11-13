@@ -139,7 +139,9 @@ void PartialVisitor::visit(CeilTerm&) { partial = 0; }
 void PartialVisitor::visit(FloorTerm&) { partial = 0; }
 // GCOVR_EXCL_STOP
 
-void PartialVisitor::visit(ExpTerm& arg) { partial = &arg; }
+// WEH - Is it possible to use the current expression, arg?  We don't know who owns it, so I think
+// not.
+void PartialVisitor::visit(ExpTerm& arg) { partial = CREATE_POINTER(ExpTerm, arg.body); }
 
 void PartialVisitor::visit(LogTerm& arg) { partial = divide(ONECONST, arg.body); }
 
@@ -234,29 +236,33 @@ void PartialVisitor::visit(PowTerm& arg)
         partial = times(exp, intrinsic_pow(base, plus(exp, NEGATIVEONECONST)));
     else
         // log(y) x^y
-        partial = times(intrinsic_log(base), &arg);
+        // partial = times(intrinsic_log(base), &arg);
+        // TODO - Can we use the reference to the current term?
+        partial = times(intrinsic_log(base), CREATE_POINTER(PowTerm, base, exp));
 }
 
 // d curr / d child_i
-expr_pointer_t compute_partial(expr_pointer_t curr, size_t i, PartialVisitor& visitor)
+expr_pointer_t compute_partial(const expr_pointer_t& curr, size_t i, PartialVisitor& visitor)
 {
     visitor.i = i;
     curr->accept(visitor);
     return visitor.partial;
 }
 
-bool variable_comparator(const VariableTerm* lhs, const VariableTerm* rhs)
+bool variable_comparator(const std::shared_ptr<VariableTerm>& lhs,
+                         const std::shared_ptr<VariableTerm>& rhs)
 {
     return lhs->index < rhs->index;
 }
 
-typedef std::set<VariableTerm*, bool (*)(const VariableTerm*, const VariableTerm*)>
+typedef std::set<std::shared_ptr<VariableTerm>, bool (*)(const std::shared_ptr<VariableTerm>&,
+                                                         const std::shared_ptr<VariableTerm>&)>
     ordered_variableset_t;
 typedef ordered_variableset_t::iterator ordered_variableset_iterator_t;
 
 }  // namespace
 
-void symbolic_diff_all(expr_pointer_t root, std::map<VariableTerm*, expr_pointer_t>& diff)
+void symbolic_diff_all(const expr_pointer_t& root, std::map<VariableTerm*, expr_pointer_t>& diff)
 {
     //
     // Default is zero, if the variable does not exist in this expression
@@ -265,14 +271,14 @@ void symbolic_diff_all(expr_pointer_t root, std::map<VariableTerm*, expr_pointer
         return;
 
     else if (root->is_variable()) {
-        VariableTerm* tmp = dynamic_cast<VariableTerm*>(root);
-        if (!tmp->fixed) diff[tmp] = ONECONST;
+        auto tmp = std::dynamic_pointer_cast<VariableTerm>(root);
+        if (!tmp->fixed) diff[tmp.get()] = ONECONST;
         return;
     }
 
     else if (root->is_monomial()) {
-        MonomialTerm* tmp = dynamic_cast<MonomialTerm*>(root);
-        if (!tmp->var->fixed) diff[tmp->var] = CREATE_POINTER(ConstantTerm, tmp->coef);
+        auto tmp = std::dynamic_pointer_cast<MonomialTerm>(root);
+        if (!tmp->var->fixed) diff[tmp->var.get()] = CREATE_POINTER(ConstantTerm, tmp->coef);
         return;
     }
 
@@ -286,24 +292,33 @@ void symbolic_diff_all(expr_pointer_t root, std::map<VariableTerm*, expr_pointer
     // Compute in-degree
     //
     std::map<expr_pointer_t, int> D;
-    std::list<ExpressionTerm*> queue;
     D[root] = 0;
-    queue.push_back(dynamic_cast<ExpressionTerm*>(root));
-    while (queue.size() > 0) {
-        ExpressionTerm* curr = queue.back();
-        queue.pop_back();
-        for (unsigned int i = 0; i < curr->num_expressions(); i++) {
-            expr_pointer_t child = curr->expression(i);
-            if (D.find(child) == D.end())
-                D[child] = 1;
-            else
-                D[child] += 1;
-            if (child->is_expression())
-                queue.push_back(dynamic_cast<ExpressionTerm*>(child));
-            else if (child->is_variable())
-                variables.insert(dynamic_cast<VariableTerm*>(child));
-            else if (child->is_monomial())
-                variables.insert(dynamic_cast<MonomialTerm*>(child)->var);
+    {
+        std::list<ExpressionTerm*> queue;
+        auto tmp = std::dynamic_pointer_cast<ExpressionTerm>(root);
+        queue.push_back(tmp.get());
+        while (queue.size() > 0) {
+            ExpressionTerm* curr = queue.back();
+            queue.pop_back();
+            for (unsigned int i = 0; i < curr->num_expressions(); i++) {
+                expr_pointer_t child = curr->expression(i);
+                if (D.find(child) == D.end())
+                    D[child] = 1;
+                else
+                    D[child] += 1;
+                if (child->is_expression()) {
+                    auto tmp = std::dynamic_pointer_cast<ExpressionTerm>(child);
+                    queue.push_back(tmp.get());
+                }
+                else if (child->is_variable()) {
+                    auto tmp = std::dynamic_pointer_cast<VariableTerm>(child);
+                    variables.insert(tmp);
+                }
+                else if (child->is_monomial()) {
+                    auto tmp = std::dynamic_pointer_cast<MonomialTerm>(child);
+                    variables.insert(tmp->var);
+                }
+            }
         }
     }
 
@@ -311,20 +326,19 @@ void symbolic_diff_all(expr_pointer_t root, std::map<VariableTerm*, expr_pointer
     // Process nodes, and add them to the queue when
     // they have been reached by all parents.
     //
+    std::list<std::shared_ptr<ExpressionTerm>> queue2;
     PartialVisitor visitor;
     std::map<expr_pointer_t, expr_pointer_t> partial;
     partial[root] = ONECONST;
-    queue.push_back(dynamic_cast<ExpressionTerm*>(root));
+    auto ttmp = std::dynamic_pointer_cast<ExpressionTerm>(root);
+    queue2.push_back(ttmp);
 
-    while (queue.size() > 0) {
-#ifdef DEBUG_DIFF
-        std::cout << "TODO " << queue.size() << std::endl;
-#endif
+    while (queue2.size() > 0) {
         //
-        // Get the front of the queue
+        // Get the front of the queue2
         //
-        ExpressionTerm* curr = queue.front();
-        queue.pop_front();
+        auto curr = queue2.front();
+        queue2.pop_front();
 
 #ifdef DEBUG_DIFF
         std::cout << "CURR " << curr << " ";
@@ -333,12 +347,11 @@ void symbolic_diff_all(expr_pointer_t root, std::map<VariableTerm*, expr_pointer
 #endif
         //
         // Iterate over children.  Create partial and add them to the
-        // queue
+        // queue2
         //
         for (size_t i = 0; i < curr->num_expressions(); i++) {
             expr_pointer_t _partial = compute_partial(curr, i, visitor);
             expr_pointer_t child = curr->expression(i);
-            // if (child->is_constant()) {
             if (false) {
                 partial[child] = ZEROCONST;
             }
@@ -359,8 +372,10 @@ void symbolic_diff_all(expr_pointer_t root, std::map<VariableTerm*, expr_pointer
 #ifdef DEBUG_DIFF
                     std::cout << "PUSH " << child->is_expression() << std::endl;
 #endif
-                    if (child->is_expression())
-                        queue.push_back(dynamic_cast<ExpressionTerm*>(child));
+                    if (child->is_expression()) {
+                        auto tmp = std::dynamic_pointer_cast<ExpressionTerm>(child);
+                        queue2.push_back(tmp);
+                    }
                 }
 #ifdef DEBUG_DIFF
                 std::cout << "HERE" << std::endl << std::flush;
@@ -374,7 +389,7 @@ void symbolic_diff_all(expr_pointer_t root, std::map<VariableTerm*, expr_pointer
                 // to explicitly insert the partial[] value.
                 //
                 if (child->is_monomial()) {
-                    MonomialTerm* tmp = dynamic_cast<MonomialTerm*>(child);
+                    auto tmp = std::dynamic_pointer_cast<MonomialTerm>(child);
                     bool varflag = (partial.find(tmp->var) == partial.end());
                     // if (partial[child] == ZEROCONST)
                     //     partial[tmp->var] = ZEROCONST;
@@ -386,7 +401,7 @@ void symbolic_diff_all(expr_pointer_t root, std::map<VariableTerm*, expr_pointer
                             partial[tmp->var] = plus_(partial[tmp->var], partial[child]);
                     }
                     else if (partial[child]->is_constant()) {
-                        auto _rhs = dynamic_cast<ConstantTerm*>(partial[child]);
+                        auto _rhs = std::dynamic_pointer_cast<ConstantTerm>(partial[child]);
                         if (varflag)
                             partial[tmp->var]
                                 = CREATE_POINTER(ConstantTerm, tmp->coef * _rhs->value);
@@ -421,30 +436,13 @@ void symbolic_diff_all(expr_pointer_t root, std::map<VariableTerm*, expr_pointer
     }
 
     for (ordered_variableset_iterator_t it = variables.begin(); it != variables.end(); it++) {
-        diff[*it] = partial[*it];
+        diff[it->get()] = partial[*it];
 
 #ifdef DEBUG_DIFF
         write_expr(*it, std::cout);
         std::cout << " :  ";
         write_expr(diff[*it], std::cout);
         std::cout << std::endl;
-#endif
-    }
-    //
-    // Discard all partial expressions that aren't w.r.t. a variable
-    //
-    for (std::map<expr_pointer_t, expr_pointer_t>::iterator it = partial.begin();
-         it != partial.end(); ++it) {
-        if (!it->first->is_variable()) {
-            DISCARD_POINTER(it->second);
-        }
-#if 0
-    WEH - This should not be called.
-    else {
-        auto tmp = dynamic_cast<VariableTerm*>(it->first);
-        if (variables.find(tmp) != variables.end())
-            DISCARD_POINTER(it->second);
-        }
 #endif
     }
 }

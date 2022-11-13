@@ -126,7 +126,7 @@ class CppAD_Repn : public NLPModelRepn {
    public:
     void build_expression(expr_pointer_t root, std::vector<CppAD::AD<double> >& ADvars,
                           CppAD::AD<double>& range,
-                          std::unordered_map<VariableTerm*, size_t>& _used_variables);
+                          std::unordered_map<VariableRepn, size_t>& _used_variables);
 };
 
 }  // namespace coek

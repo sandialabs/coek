@@ -1,43 +1,10 @@
 #pragma once
 
-//#include <variant>
 #include <string>
 
 #include "base_terms.hpp"
 
 namespace coek {
-
-#if 0
-//
-// ConstantTerm
-//
-
-class ConstantTerm : public BaseExpressionTerm
-{
-public:
-
-    double value;
-
-    ConstantTerm(double _value, int refcount=0)
-        : BaseExpressionTerm(refcount), value(_value)
-        {non_variable=true;}
-
-    double eval() const
-        { return value; }
-
-    bool is_constant() const
-        {return true;}
-    bool is_parameter() const
-        {return true;}
-
-    expr_pointer_t negate(const expr_pointer_t& repn);
-
-    void accept(Visitor& v)
-        { v.visit(*this); }
-    term_id id()
-        {return ConstantTerm_id;}
-};
-#endif
 
 //
 // BaseParameterTerm
@@ -57,8 +24,7 @@ class ParameterTerm : public BaseParameterTerm {
     std::string name;
 
     ParameterTerm();
-    ParameterTerm(const expr_pointer_t& _value, bool _indexed = false);
-    ~ParameterTerm();
+    explicit ParameterTerm(const expr_pointer_t& _value, bool _indexed = false);
 
     double eval() const { return value->eval(); }
 
@@ -111,11 +77,9 @@ class IndexParameterTerm : public BaseExpressionTerm {
     int int_value;
     std::string string_value;
 
-    IndexParameterTerm(const std::string& _name, int refcount = 0)
-        : BaseExpressionTerm(refcount), name(_name)
+    explicit IndexParameterTerm(const std::string& _name) : name(_name), type(0)
     {
         non_variable = true;
-        type = 0;
     }
 
     bool is_abstract_parameter() const { return true; }
@@ -148,26 +112,23 @@ class BaseVariableTerm : public BaseExpressionTerm {};
 class VariableTerm : public BaseVariableTerm {
    public:
     static unsigned int count;
+    static std::shared_ptr<ConstantTerm> negative_infinity;
+    static std::shared_ptr<ConstantTerm> positive_infinity;
+    static std::shared_ptr<ConstantTerm> nan;
 
    public:
     unsigned int index;
     expr_pointer_t value;
     expr_pointer_t lb;
     expr_pointer_t ub;
-    // double value;
-    // double lb;
-    // double ub;
     bool binary;
     bool integer;
     bool fixed;
     bool indexed;
     std::string name;
 
-    // VariableTerm(double _lb, double _ub, double _value, bool _binary, bool _integer, bool
-    // _indexed=false);
     VariableTerm(const expr_pointer_t& lb, const expr_pointer_t& ub, const expr_pointer_t& value,
                  bool _binary, bool _integer, bool _indexed = false);
-    ~VariableTerm();
 
     double eval() const { return value->eval(); }
 
@@ -200,6 +161,7 @@ class VariableTerm : public BaseVariableTerm {
 
 class IndexedVariableTerm : public VariableTerm {
    public:
+    // WEH - TODO: more explicit representation here with shared_ptr
     void* var;  // ConcreteIndexedVariableRepn
     size_t vindex;
     bool first = true;
@@ -224,10 +186,9 @@ class IndexedVariableTerm : public VariableTerm {
 class MonomialTerm : public BaseExpressionTerm {
    public:
     double coef;
-    VariableTerm* var;
+    std::shared_ptr<VariableTerm> var;
 
-    MonomialTerm(double lhs, VariableTerm* rhs);
-    ~MonomialTerm();
+    MonomialTerm(double lhs, const std::shared_ptr<VariableTerm>& rhs);
 
     double eval() const { return coef * var->value->eval(); }
 

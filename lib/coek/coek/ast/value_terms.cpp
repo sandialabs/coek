@@ -1,5 +1,5 @@
+#include "../api/constants.hpp"
 #include "value_terms.hpp"
-
 #include "expr_terms.hpp"
 
 namespace coek {
@@ -11,39 +11,23 @@ namespace coek {
 ParameterTerm::ParameterTerm() : indexed(false)
 {
     non_variable = true;
-    OWN_POINTER(value = CREATE_POINTER(ConstantTerm, 0.0));
+    value = std::make_shared<ConstantTerm>(0.0);
 }
 
 ParameterTerm::ParameterTerm(const expr_pointer_t& _value, bool _indexed)
     : value(_value), indexed(_indexed)
 {
     non_variable = true;
-    if (_value) OWN_POINTER(_value);
-}
-
-ParameterTerm::~ParameterTerm()
-{
-    if (value) DISOWN_POINTER(value);
 }
 
 expr_pointer_t ParameterTerm::negate(const expr_pointer_t& repn)
 {
-    // SHARED_PTR
-    // return std::static_pointer_cast<BaseExpressionTerm>( std::make_shared<NegateTerm>(repn) );
-    return CREATE_POINTER(NegateTerm, repn);
+    return std::make_shared<NegateTerm>(repn);
 }
 
-void ParameterTerm::set_value(double val)
-{
-    if (value) DISOWN_POINTER(value);
-    OWN_POINTER(value = CREATE_POINTER(ConstantTerm, val));
-}
+void ParameterTerm::set_value(double val) { value = std::make_shared<ConstantTerm>(val); }
 
-void ParameterTerm::set_value(const expr_pointer_t val)
-{
-    if (value) DISOWN_POINTER(value);
-    OWN_POINTER(value = val);
-}
+void ParameterTerm::set_value(const expr_pointer_t val) { value = val; }
 
 //
 // IndexParameterTerm
@@ -51,12 +35,12 @@ void ParameterTerm::set_value(const expr_pointer_t val)
 
 expr_pointer_t IndexParameterTerm::negate(const expr_pointer_t& repn)
 {
-    return CREATE_POINTER(NegateTerm, repn);
+    return std::make_shared<NegateTerm>(repn);
 }
 
 expr_pointer_t create_abstract_parameter(const std::string& name)
 {
-    return CREATE_POINTER(IndexParameterTerm, name);
+    return std::make_shared<IndexParameterTerm>(name);
 }
 
 double IndexParameterTerm::eval() const
@@ -112,6 +96,12 @@ bool IndexParameterTerm::get_value(std::string& value)
 // VariableTerm
 //
 
+std::shared_ptr<ConstantTerm> VariableTerm::negative_infinity
+    = std::make_shared<ConstantTerm>(-COEK_INFINITY);
+std::shared_ptr<ConstantTerm> VariableTerm::positive_infinity
+    = std::make_shared<ConstantTerm>(COEK_INFINITY);
+std::shared_ptr<ConstantTerm> VariableTerm::nan = std::make_shared<ConstantTerm>(COEK_NAN);
+
 unsigned int VariableTerm::count = 0;
 
 VariableTerm::VariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub,
@@ -125,87 +115,42 @@ VariableTerm::VariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub,
       indexed(_indexed)
 {
     index = count++;
-    if (_lb) OWN_POINTER(_lb);
-    if (_ub) OWN_POINTER(_ub);
-    if (_value) OWN_POINTER(_value);
-}
-
-VariableTerm::~VariableTerm()
-{
-    if (lb) DISOWN_POINTER(lb);
-    if (ub) DISOWN_POINTER(ub);
-    if (value) DISOWN_POINTER(value);
 }
 
 expr_pointer_t VariableTerm::const_mult(double coef, const expr_pointer_t& repn)
 {
-    VariableTerm* var = dynamic_cast<VariableTerm*>(repn);
-    return CREATE_POINTER(MonomialTerm, coef, var);
+    return std::make_shared<MonomialTerm>(coef, std::dynamic_pointer_cast<VariableTerm>(repn));
 }
 
 expr_pointer_t VariableTerm::negate(const expr_pointer_t& repn)
 {
-    // SHARED_PTR
-    // var_pointer_t var = std::dynamic_pointer_cast<VariableTerm>(repn);
-    // return std::static_pointer_cast<BaseExpressionTerm>( std::make_shared<MonomialTerm>(-1, var)
-    // );
-    VariableTerm* var = dynamic_cast<VariableTerm*>(repn);
-    return CREATE_POINTER(MonomialTerm, -1, var);
+    return std::make_shared<MonomialTerm>(-1, std::dynamic_pointer_cast<VariableTerm>(repn));
 }
 
-void VariableTerm::set_lb(double val)
-{
-    if (lb) DISOWN_POINTER(lb);
-    OWN_POINTER(lb = CREATE_POINTER(ConstantTerm, val));
-}
+void VariableTerm::set_lb(double val) { lb = std::make_shared<ConstantTerm>(val); }
 
-void VariableTerm::set_lb(const expr_pointer_t val)
-{
-    if (lb) DISOWN_POINTER(lb);
-    OWN_POINTER(lb = val);
-}
+void VariableTerm::set_lb(const expr_pointer_t val) { lb = val; }
 
-void VariableTerm::set_ub(double val)
-{
-    if (ub) DISOWN_POINTER(ub);
-    OWN_POINTER(ub = CREATE_POINTER(ConstantTerm, val));
-}
+void VariableTerm::set_ub(double val) { ub = std::make_shared<ConstantTerm>(val); }
 
-void VariableTerm::set_ub(const expr_pointer_t val)
-{
-    if (ub) DISOWN_POINTER(ub);
-    OWN_POINTER(ub = val);
-}
+void VariableTerm::set_ub(const expr_pointer_t val) { ub = val; }
 
-void VariableTerm::set_value(double val)
-{
-    if (value) DISOWN_POINTER(value);
-    OWN_POINTER(value = CREATE_POINTER(ConstantTerm, val));
-}
+void VariableTerm::set_value(double val) { value = std::make_shared<ConstantTerm>(val); }
 
-void VariableTerm::set_value(const expr_pointer_t val)
-{
-    if (value) DISOWN_POINTER(value);
-    OWN_POINTER(value = val);
-}
+void VariableTerm::set_value(const expr_pointer_t val) { value = val; }
 
 //
 // MonomialTerm
 //
 
-MonomialTerm::MonomialTerm(double lhs, VariableTerm* rhs) : coef(lhs), var(rhs)
+MonomialTerm::MonomialTerm(double lhs, const std::shared_ptr<VariableTerm>& rhs)
+    : coef(lhs), var(rhs)
 {
-    OWN_POINTER(var);
 }
-
-MonomialTerm::~MonomialTerm() { DISOWN_POINTER(var); }
 
 expr_pointer_t MonomialTerm::negate(const expr_pointer_t&)
 {
-    // SHARED_PTR
-    // return std::static_pointer_cast<BaseExpressionTerm>( std::make_shared<MonomialTerm>(-1*coef,
-    // var) );
-    return CREATE_POINTER(MonomialTerm, -1 * coef, var);
+    return std::make_shared<MonomialTerm>(-1 * coef, var);
 }
 
 }  // namespace coek

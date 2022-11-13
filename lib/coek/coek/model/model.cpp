@@ -403,32 +403,30 @@ void check_that_expression_variables_are_declared(Model& model,
 {
     std::unordered_set<size_t> model_ids;
 
-    auto end = model.repn->variables.end();
-    for (auto it = model.repn->variables.begin(); it != end; ++it) model_ids.insert((*it).id());
+    for (auto& it : model.repn->variables) model_ids.insert(it.id());
 
     // TODO - Make this faster because both sets are ordered
-    for (auto it = varobj.begin(); it != varobj.end(); it++) {
-        auto tmp = model_ids.find(it->first);
+    for (auto& it : varobj) {
+        auto tmp = model_ids.find(it.first);
         if (tmp == model_ids.end()) {
-            throw std::runtime_error("Model expressions contain variable '" + it->second.name()
+            throw std::runtime_error("Model expressions contain variable '" + it.second.name()
                                      + "' that is not declared in the model.");
         }
     }
 }
 
-void check_that_expression_variables_are_declared(Model& model,
-                                                  const std::unordered_set<VariableTerm*>& vars)
+void check_that_expression_variables_are_declared(
+    Model& model, const std::unordered_set<std::shared_ptr<VariableTerm>>& vars)
 {
     std::unordered_set<size_t> model_ids;
 
-    auto end = model.repn->variables.end();
-    for (auto it = model.repn->variables.begin(); it != end; ++it) model_ids.insert((*it).id());
+    for (auto& it : model.repn->variables) model_ids.insert(it.id());
 
     // TODO - Make this faster because both sets are ordered
-    for (auto it = vars.begin(); it != vars.end(); it++) {
-        auto tmp = model_ids.find((*it)->index);
+    for (auto& it : vars) {
+        auto tmp = model_ids.find(it->index);
         if (tmp == model_ids.end()) {
-            throw std::runtime_error("Model expressions contain variable '" + (*it)->name
+            throw std::runtime_error("Model expressions contain variable '" + it->name
                                      + "' that is not declared in the model.");
         }
     }

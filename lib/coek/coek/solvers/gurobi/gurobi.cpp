@@ -142,7 +142,6 @@ int GurobiSolver::solve(Model& model)
 
     // Add Gurobi variables
     for (auto& var : _model->variables) {
-        // coek::VariableTerm* v = var.repn;
         if (not var.fixed()) {
             x[var.id()] = add_gurobi_variable(gmodel, var.lower(), var.upper(), var);
         }
@@ -200,7 +199,7 @@ int GurobiSolver::solve(Model& model)
 
             // Collect values of Gurobi variables
             for (auto& var : _model->variables) {
-                coek::VariableTerm* v = var.repn;
+                std::shared_ptr<coek::VariableTerm> v = var.repn;
                 if (not v->fixed) {
                     v->set_value(x[v->index].get(GRB_DoubleAttr_X));
                 }
@@ -358,7 +357,7 @@ int GurobiSolver::resolve()
 
         // Add Gurobi variables
         for (auto& var : _model->variables) {
-            coek::VariableTerm* v = var.repn;
+            std::shared_ptr<coek::VariableTerm> v = var.repn;
             if (not v->fixed) {
                 double lb = v->lb->eval();
                 double ub = v->ub->eval();
@@ -442,18 +441,18 @@ int GurobiSolver::resolve()
             switch (where) {
                 case 0:  // Constant Value
                     if (i > 0)
-                        gmodel->getConstr(i - 1).set(GRB_DoubleAttr_RHS, -repn[i].constval.value());
+                        gmodel->getConstr(i - 1).set(GRB_DoubleAttr_RHS, -repn[i].constval->eval());
                     else
-                        gmodel->set(GRB_DoubleAttr_ObjCon, repn[0].constval.value());
+                        gmodel->set(GRB_DoubleAttr_ObjCon, repn[0].constval->eval());
                     break;
 
                 case 1:  // Linear Coef
                     if (i > 0)
                         gmodel->chgCoeff(gmodel->getConstr(i - 1), x[repn[i].linear_vars[j]->index],
-                                         repn[i].linear_coefs[j].value());
+                                         repn[i].linear_coefs[j]->eval());
                     else
                         x[repn[0].linear_vars[j]->index].set(GRB_DoubleAttr_Obj,
-                                                             repn[0].linear_coefs[j].value());
+                                                             repn[0].linear_coefs[j]->eval());
                     break;
 
                 case 2:  // Quadratic Coef
@@ -471,7 +470,7 @@ int GurobiSolver::resolve()
     // Collect values of Gurobi variables
     try {
         for (auto it = _model->variables.begin(); it != _model->variables.end(); ++it) {
-            coek::VariableTerm* v = it->repn;
+            std::shared_ptr<coek::VariableTerm> v = it->repn;
             if (!(v->fixed)) {
                 v->set_value(x[v->index].get(GRB_DoubleAttr_X));
             }

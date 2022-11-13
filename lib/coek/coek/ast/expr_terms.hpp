@@ -30,8 +30,7 @@ class UnaryTerm : public ExpressionTerm {
     expr_pointer_t body;
 
    public:
-    UnaryTerm(const expr_pointer_t& repn);
-    ~UnaryTerm();
+    explicit UnaryTerm(const expr_pointer_t& repn);
 
     size_t num_expressions() const { return 1; }
     expr_pointer_t expression(size_t) { return body; }
@@ -48,7 +47,6 @@ class BinaryTerm : public ExpressionTerm {
 
    public:
     BinaryTerm(const expr_pointer_t& _lhs, const expr_pointer_t& _rhs);
-    ~BinaryTerm();
 
     size_t num_expressions() const { return 2; }
     expr_pointer_t expression(size_t i)
@@ -83,7 +81,7 @@ class NAryPrefixTerm : public ExpressionTerm {
 
 class NegateTerm : public UnaryTerm {
    public:
-    NegateTerm(const expr_pointer_t& body) : UnaryTerm(body) {}
+    explicit NegateTerm(const expr_pointer_t& body) : UnaryTerm(body) {}
 
     double eval() const { return -body->eval(); }
 
@@ -139,21 +137,19 @@ class DivideTerm : public BinaryTerm {
     term_id id() { return DivideTerm_id; }
 };
 
-// TODO: Idea - Intrinsic functions
-
 //
 // Unary Terms
 //
 
-#define UNARY_CLASS(FN, TERM)                                 \
-    class TERM : public UnaryTerm {                           \
-       public:                                                \
-        TERM(const expr_pointer_t& body) : UnaryTerm(body) {} \
-                                                              \
-        double eval() const { return ::FN(body->eval()); }    \
-                                                              \
-        void accept(Visitor& v) { v.visit(*this); }           \
-        term_id id() { return TERM##_id; }                    \
+#define UNARY_CLASS(FN, TERM)                                          \
+    class TERM : public UnaryTerm {                                    \
+       public:                                                         \
+        explicit TERM(const expr_pointer_t& body) : UnaryTerm(body) {} \
+                                                                       \
+        double eval() const { return ::FN(body->eval()); }             \
+                                                                       \
+        void accept(Visitor& v) { v.visit(*this); }                    \
+        term_id id() { return TERM##_id; }                             \
     };
 
 UNARY_CLASS(fabs, AbsTerm)

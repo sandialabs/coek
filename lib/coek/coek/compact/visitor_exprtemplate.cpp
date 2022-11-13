@@ -70,7 +70,7 @@ expr_pointer_t visit(PlusTerm& arg)
     curr = CREATE_POINTER(PlusTerm, lhs, curr, false);
     if (arg.n == 2) return curr;
 
-    PlusTerm* _curr = dynamic_cast<PlusTerm*>(curr);
+    auto _curr = std::dynamic_pointer_cast<PlusTerm>(curr);
 
     for (size_t i = 2; i < arg.n; i++) {
         curr = visit_expression((*(arg.data))[i]);
@@ -129,7 +129,7 @@ expr_pointer_t visit(PowTerm& arg)
 
 #define VISIT_CASE(TERM) \
     case TERM##_id:      \
-        return visit(*dynamic_cast<TERM*>(expr));
+        return visit(*std::dynamic_pointer_cast<TERM>(expr));
 
 expr_pointer_t visit_expression(expr_pointer_t expr)
 {
@@ -186,7 +186,7 @@ expr_pointer_t convert_expr_template(expr_pointer_t expr)
     return visitors::visit_expression(expr);
 }
 
-ConstraintTerm* convert_con_template(ConstraintTerm* expr)
+std::shared_ptr<ConstraintTerm> convert_con_template(std::shared_ptr<ConstraintTerm> expr)
 {
     if (expr == 0) throw std::runtime_error("Unexpected null constraint");
 

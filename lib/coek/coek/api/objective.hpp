@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <iostream>
 #include <list>
 #include <string>
@@ -7,7 +8,7 @@
 namespace coek {
 
 class ObjectiveTerm;
-typedef ObjectiveTerm* ObjectiveRepn;
+typedef std::shared_ptr<ObjectiveTerm> ObjectiveRepn;
 class Objective;
 class Expression;
 
@@ -22,7 +23,6 @@ class Objective {
     Objective();
     Objective(const ObjectiveRepn& _repn);
     Objective(const Objective& arg);
-    ~Objective();
 
     Objective& operator=(const Objective& arg);
 

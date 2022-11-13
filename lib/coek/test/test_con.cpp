@@ -1703,7 +1703,7 @@ TEST_CASE("elementary_constraint", "[smoke]")
             }
         }
     }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -1949,7 +1949,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", coek::Model, coek::CompactMo
             }
         }
     }
-#    ifdef DEBUG
+#    ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #    endif
 }

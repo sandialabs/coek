@@ -67,16 +67,13 @@ void ASTEnvironment::reset()
     cache(&OneConstant, 1);
     cache(&ZeroConstant, 1);
     cache(&NegativeOneConstant, 1);
-    cache(&DummyConstraint, 1);
-    cache(&DummyObjective, 1);
+    cache(&EmptyConstraint, 1);
 }
 #else
 
-ConstantTerm ZeroConstant(0, 1);
-ConstantTerm OneConstant(1, 1);
-ConstantTerm NegativeOneConstant(-1, 1);
-DummyConstraintTerm DummyConstraint;
-DummyObjectiveTerm DummyObjective;
+std::shared_ptr<ConstantTerm> ZeroConstant = std::make_shared<ConstantTerm>(0);
+std::shared_ptr<ConstantTerm> OneConstant = std::make_shared<ConstantTerm>(1);
+std::shared_ptr<ConstantTerm> NegativeOneConstant = std::make_shared<ConstantTerm>(-1);
 #endif
 // GCOVR_EXCL_STOP
 
@@ -91,6 +88,15 @@ expr_pointer_t BaseExpressionTerm::negate(const expr_pointer_t& repn)
     // SHARED_PTR
     // return std::static_pointer_cast<BaseExpressionTerm>( std::make_shared<NegateTerm>(repn) );
     return CREATE_POINTER(NegateTerm, repn);
+}
+
+void expr_to_list(BaseExpressionTerm*, std::list<std::string>&);
+
+std::list<std::string> BaseExpressionTerm::to_list()
+{
+    std::list<std::string> tmp;
+    expr_to_list(this, tmp);
+    return tmp;
 }
 
 //

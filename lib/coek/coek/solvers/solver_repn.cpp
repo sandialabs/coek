@@ -124,7 +124,7 @@ void SolverRepn::load(Model& _model)
         std::unordered_set<VariableTerm*> fixed_vars;
         std::unordered_set<ParameterTerm*> params;
 
-        mutable_values(_repn.constval.repn, fixed_vars, params);
+        mutable_values(_repn.constval, fixed_vars, params);
         for (auto it = fixed_vars.begin(); it != fixed_vars.end(); ++it)
             GetWithDef(vconstvals, *it).insert(j);
         for (auto it = params.begin(); it != params.end(); ++it)
@@ -133,7 +133,7 @@ void SolverRepn::load(Model& _model)
         for (size_t i = 0; i < _repn.linear_coefs.size(); i++) {
             fixed_vars.clear();
             params.clear();
-            mutable_values(_repn.linear_coefs[i].repn, fixed_vars, params);
+            mutable_values(_repn.linear_coefs[i], fixed_vars, params);
             for (auto it = fixed_vars.begin(); it != fixed_vars.end(); ++it)
                 GetWithDef(vlinvals, *it).insert(std::pair<size_t, size_t>(j, i));
             for (auto it = params.begin(); it != params.end(); ++it)
@@ -143,7 +143,7 @@ void SolverRepn::load(Model& _model)
         for (size_t i = 0; i < _repn.quadratic_coefs.size(); i++) {
             fixed_vars.clear();
             params.clear();
-            mutable_values(_repn.quadratic_coefs[i].repn, fixed_vars, params);
+            mutable_values(_repn.quadratic_coefs[i], fixed_vars, params);
             for (auto it = fixed_vars.begin(); it != fixed_vars.end(); ++it)
                 GetWithDef(vquadvals, *it).insert(std::pair<size_t, size_t>(j, i));
             for (auto it = params.begin(); it != params.end(); ++it)
@@ -152,7 +152,7 @@ void SolverRepn::load(Model& _model)
 
         fixed_vars.clear();
         params.clear();
-        mutable_values(_repn.nonlinear.repn, fixed_vars, params);
+        mutable_values(_repn.nonlinear, fixed_vars, params);
         for (auto it = fixed_vars.begin(); it != fixed_vars.end(); ++it)
             GetWithDef(vnonlvals, *it).insert(j);
         for (auto it = params.begin(); it != params.end(); ++it)

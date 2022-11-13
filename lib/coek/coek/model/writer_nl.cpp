@@ -220,15 +220,29 @@ void PrintExpr::visit(DivideTerm& arg)
         arg.body->accept(*this);     \
     }
 
-PrintExpr_FN(o15, AbsTerm) PrintExpr_FN(o14, CeilTerm) PrintExpr_FN(o13, FloorTerm)
-    PrintExpr_FN(o44, ExpTerm) PrintExpr_FN(o43, LogTerm) PrintExpr_FN(o42, Log10Term)
-        PrintExpr_FN(o39, SqrtTerm) PrintExpr_FN(o41, SinTerm) PrintExpr_FN(o46, CosTerm)
-            PrintExpr_FN(o38, TanTerm) PrintExpr_FN(o40, SinhTerm) PrintExpr_FN(o45, CoshTerm)
-                PrintExpr_FN(o37, TanhTerm) PrintExpr_FN(o51, ASinTerm) PrintExpr_FN(o53, ACosTerm)
-                    PrintExpr_FN(o49, ATanTerm) PrintExpr_FN(o50, ASinhTerm)
-                        PrintExpr_FN(o52, ACoshTerm) PrintExpr_FN(o47, ATanhTerm)
+// clang-format off
+PrintExpr_FN(o15, AbsTerm)
+PrintExpr_FN(o14, CeilTerm)
+PrintExpr_FN(o13, FloorTerm)
+PrintExpr_FN(o44, ExpTerm)
+PrintExpr_FN(o43, LogTerm)
+PrintExpr_FN(o42, Log10Term)
+PrintExpr_FN(o39, SqrtTerm)
+PrintExpr_FN(o41, SinTerm)
+PrintExpr_FN(o46, CosTerm)
+PrintExpr_FN(o38, TanTerm)
+PrintExpr_FN(o40, SinhTerm)
+PrintExpr_FN(o45, CoshTerm)
+PrintExpr_FN(o37, TanhTerm)
+PrintExpr_FN(o51, ASinTerm)
+PrintExpr_FN(o53, ACosTerm)
+PrintExpr_FN(o49, ATanTerm)
+PrintExpr_FN(o50, ASinhTerm)
+PrintExpr_FN(o52, ACoshTerm)
+PrintExpr_FN(o47, ATanhTerm)
+    // clang-format on
 
-                            void PrintExpr::visit(PowTerm& arg)
+    void PrintExpr::visit(PowTerm& arg)
 {
     ostr << "o5\n";
     arg.lhs->accept(*this);
@@ -428,11 +442,11 @@ PrintExprFmt_FN(o15, AbsTerm) PrintExprFmt_FN(o14, CeilTerm) PrintExprFmt_FN(o13
 void print_expr(std::ostream& ostr, const MutableNLPExpr& repn,
                 const std::unordered_map<ITYPE, ITYPE>& varmap, bool objective = false)
 {
-    bool nonlinear = not repn.nonlinear.is_constant();
+    bool nonlinear = not repn.nonlinear->is_constant();
     bool quadratic = repn.quadratic_coefs.size() > 0;
 
-    double cval = repn.constval.value();
-    if (not nonlinear) cval += repn.nonlinear.value();
+    double cval = repn.constval->eval();
+    if (not nonlinear) cval += repn.nonlinear->eval();
 
     std::map<std::pair<size_t, size_t>, double> term;
     if (quadratic) {
@@ -443,9 +457,9 @@ void print_expr(std::ostream& ostr, const MutableNLPExpr& repn,
             auto key = std::pair<size_t, size_t>(lhs, rhs);
             auto it = term.find(key);
             if (it != term.end())
-                it->second += repn.quadratic_coefs[i].value();
+                it->second += repn.quadratic_coefs[i]->eval();
             else
-                term[key] = repn.quadratic_coefs[i].value();
+                term[key] = repn.quadratic_coefs[i]->eval();
         }
     }
 
@@ -480,7 +494,7 @@ void print_expr(std::ostream& ostr, const MutableNLPExpr& repn,
     }
     if (nonlinear) {
         PrintExpr visitor(ostr, varmap);
-        repn.nonlinear.repn->accept(visitor);
+        repn.nonlinear->accept(visitor);
     }
     if (objective and (fabs(cval) > EPSILON)) {
         ostr << "n";
@@ -493,11 +507,11 @@ void print_expr(std::ostream& ostr, const MutableNLPExpr& repn,
 void print_expr(fmt::ostream& ostr, const MutableNLPExpr& repn,
                 const std::unordered_map<ITYPE, ITYPE>& varmap, bool objective = false)
 {
-    bool nonlinear = not repn.nonlinear.is_constant();
+    bool nonlinear = not repn.nonlinear->is_constant();
     bool quadratic = repn.quadratic_coefs.size() > 0;
 
-    double cval = repn.constval.value();
-    if (not nonlinear) cval += repn.nonlinear.value();
+    double cval = repn.constval->eval();
+    if (not nonlinear) cval += repn.nonlinear->eval();
 
     std::map<std::pair<ITYPE, ITYPE>, double> term;
     if (quadratic) {
@@ -509,9 +523,9 @@ void print_expr(fmt::ostream& ostr, const MutableNLPExpr& repn,
 
             auto it = term.find(key);
             if (it != term.end())
-                it->second += repn.quadratic_coefs[i].value();
+                it->second += repn.quadratic_coefs[i]->eval();
             else
-                term[key] = repn.quadratic_coefs[i].value();
+                term[key] = repn.quadratic_coefs[i]->eval();
             /*
                     if (auto it{ term.find(key) };  it != term.end() )
                         it->second += repn.quadratic_coefs[i].value();
@@ -548,7 +562,7 @@ void print_expr(fmt::ostream& ostr, const MutableNLPExpr& repn,
     }
     if (nonlinear) {
         PrintExprFmtlib visitor(ostr, varmap);
-        repn.nonlinear.repn->accept(visitor);
+        repn.nonlinear->accept(visitor);
     }
     if (objective and (fabs(cval) > EPSILON)) {
         ostr.print(fmt::format(_fmtstr_n, cval));  // FORMAT
@@ -647,7 +661,7 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
                  ++it, ++ctr) {
                 o_expr[ctr].collect_terms(*it);
                 if ((o_expr[ctr].quadratic_coefs.size() > 0)
-                    or (not o_expr[ctr].nonlinear.is_constant()))
+                    or (not o_expr[ctr].nonlinear->is_constant()))
                     ++nonl_objectives;
                 for (auto it = o_expr[ctr].linear_vars.begin(); it != o_expr[ctr].linear_vars.end();
                      ++it) {
@@ -697,7 +711,7 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
 
                 Expr.collect_terms(Con);
 
-                double bodyconst = Expr.constval.value();
+                double bodyconst = Expr.constval->eval();
                 if (Con.is_inequality()) {
                     if (Con.repn->lower and Con.repn->upper) {
                         double lower = Con.repn->lower->eval() - bodyconst;
@@ -736,7 +750,7 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
                     r[ctr] = 4;
                     rval[2 * ctr] = Con.repn->lower->eval() - bodyconst;
                 }
-                if ((Expr.quadratic_coefs.size() > 0) or (not Expr.nonlinear.is_constant()))
+                if ((Expr.quadratic_coefs.size() > 0) or (not Expr.nonlinear->is_constant()))
                     ++nonl_constraints;
 
                 std::set<ITYPE> curr_vars;
@@ -850,9 +864,9 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
                 auto index = varmap[it->linear_vars[j]->index];
                 auto jt = G[ctr].find(index);
                 if (jt != G[ctr].end())
-                    jt->second += it->linear_coefs[j].value();
+                    jt->second += it->linear_coefs[j]->eval();
                 else
-                    G[ctr][index] = it->linear_coefs[j].value();
+                    G[ctr][index] = it->linear_coefs[j]->eval();
                 /*
                         if (auto jt{ G[ctr].find(index) };  jt != G[ctr].end() )
                             jt->second += it->linear_coefs[j].value();
@@ -884,10 +898,10 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
                 size_t index = varmap[it->linear_vars[j]->index];
                 auto jt = J[ctr].find(index);
                 if (jt != J[ctr].end())
-                    jt->second += it->linear_coefs[j].value();
+                    jt->second += it->linear_coefs[j]->eval();
                 else {
                     k_count[index].insert(ctr);
-                    J[ctr][index] = it->linear_coefs[j].value();
+                    J[ctr][index] = it->linear_coefs[j]->eval();
                 }
                 /*
                         if (auto jt{ J[ctr].find(index) };  jt != J[ctr].end() )
@@ -939,7 +953,7 @@ void NLWriter::write_ostream(Model& model, std::string& fname)
         //
         ctr = 0;
         for (auto it = c_expr.begin(); it != c_expr.end(); ++it, ++ctr) {
-            if ((not it->nonlinear.is_constant()) or (it->quadratic_coefs.size() > 0)) {
+            if ((not it->nonlinear->is_constant()) or (it->quadratic_coefs.size() > 0)) {
                 ostr << "C" << ctr << '\n';
                 print_expr(ostr, *it, varmap);
             }
@@ -959,11 +973,11 @@ void NLWriter::write_ostream(Model& model, std::string& fname)
                 ostr << "O" << ctr << " 0\n";
             else
                 ostr << "O" << ctr << " 1\n";
-            if ((not it->nonlinear.is_constant()) or (it->quadratic_coefs.size() > 0)) {
+            if ((not it->nonlinear->is_constant()) or (it->quadratic_coefs.size() > 0)) {
                 print_expr(ostr, *it, varmap, true);
             }
             else {
-                ostr << "n" << it->constval.value() << '\n';
+                ostr << "n" << it->constval->eval() << '\n';
             }
         }
 
@@ -1138,7 +1152,7 @@ void NLWriter::write_fmtlib(Model& model, std::string& fname)
         constexpr auto _fmtstr_C_n0 = FMT_COMPILE("C{}\nn0\n");
         int ctr = 0;
         for (auto it = c_expr.begin(); it != c_expr.end(); ++it, ++ctr) {
-            if ((not it->nonlinear.is_constant()) or (it->quadratic_coefs.size() > 0)) {
+            if ((not it->nonlinear->is_constant()) or (it->quadratic_coefs.size() > 0)) {
                 ostr.print(fmt::format(_fmtstr_C, ctr));
                 print_expr(ostr, *it, varmap);
             }
@@ -1163,11 +1177,11 @@ void NLWriter::write_fmtlib(Model& model, std::string& fname)
                 ostr.print(fmt::format(_fmtstr_O_0, ctr));
             else
                 ostr.print(fmt::format(_fmtstr_O_1, ctr));
-            if ((not it->nonlinear.is_constant()) or (it->quadratic_coefs.size() > 0)) {
+            if ((not it->nonlinear->is_constant()) or (it->quadratic_coefs.size() > 0)) {
                 print_expr(ostr, *it, varmap, true);
             }
             else {
-                ostr.print(fmt::format(_fmtstr_n, it->constval.value()));
+                ostr.print(fmt::format(_fmtstr_n, it->constval->eval()));
             }
         }
     }

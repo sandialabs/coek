@@ -10,30 +10,22 @@
 namespace coek {
 
 #ifdef COEK_WITH_COMPACT_MODEL
-ConstraintTerm* convert_con_template(ConstraintTerm* con);
+std::shared_ptr<ConstraintTerm> convert_con_template(std::shared_ptr<ConstraintTerm> con);
 #endif
 
 //
 // Constraint
 //
 
-Constraint::Constraint() : repn(DUMMYCONSTRAINT) { OWN_POINTER(repn); }
+Constraint::Constraint() : repn(EmptyConstraintRepn) {}
 
-Constraint::Constraint(const ConstraintRepn& _repn) : repn(_repn) { OWN_POINTER(repn); }
+Constraint::Constraint(const ConstraintRepn& _repn) : repn(_repn) {}
 
-Constraint::Constraint(const Constraint& expr)
-{
-    repn = expr.repn;
-    OWN_POINTER(repn);
-}
-
-Constraint::~Constraint() { DISOWN_POINTER(repn); }
+Constraint::Constraint(const Constraint& expr) : repn(expr.repn) {}
 
 Constraint& Constraint::operator=(const Constraint& expr)
 {
-    DISOWN_POINTER(repn);
     repn = expr.repn;
-    OWN_POINTER(repn);
     return *this;
 }
 
@@ -575,20 +567,26 @@ Constraint operator==(const Expression& lhs, const Expression& rhs)
 
 Constraint inequality(int lower, const Expression& body, int upper, bool strict)
 {
-    return CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lower), body.repn,
-                          CREATE_POINTER(ConstantTerm, upper), strict);
+    std::shared_ptr<ConstraintTerm> tmp
+        = CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lower), body.repn,
+                         CREATE_POINTER(ConstantTerm, upper), strict);
+    return tmp;
 }
 
 Constraint inequality(double lower, const Expression& body, double upper, bool strict)
 {
-    return CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lower), body.repn,
-                          CREATE_POINTER(ConstantTerm, upper), strict);
+    std::shared_ptr<ConstraintTerm> tmp
+        = CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lower), body.repn,
+                         CREATE_POINTER(ConstantTerm, upper), strict);
+    return tmp;
 }
 
 Constraint inequality(const Expression& lower, const Expression& body, const Expression& upper,
                       bool strict)
 {
-    return CREATE_POINTER(InequalityTerm, lower.repn, body.repn, upper.repn, strict);
+    std::shared_ptr<ConstraintTerm> tmp
+        = CREATE_POINTER(InequalityTerm, lower.repn, body.repn, upper.repn, strict);
+    return tmp;
 }
 
 }  // namespace coek

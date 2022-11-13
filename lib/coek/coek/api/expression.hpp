@@ -69,10 +69,10 @@ class IndexParameterTerm;
 class VariableTerm;
 class BaseExpressionTerm;
 
-typedef ParameterTerm* ParameterRepn;
-typedef IndexParameterTerm* IndexParameterRepn;
-typedef VariableTerm* VariableRepn;
-typedef BaseExpressionTerm* ExpressionRepn;
+typedef std::shared_ptr<ParameterTerm> ParameterRepn;
+typedef std::shared_ptr<IndexParameterTerm> IndexParameterRepn;
+typedef std::shared_ptr<VariableTerm> VariableRepn;
+typedef std::shared_ptr<BaseExpressionTerm> ExpressionRepn;
 
 class Parameter;
 class IndexParameter;
@@ -161,7 +161,6 @@ class Parameter {
      */
     Parameter(const Parameter& arg);
     Parameter(const ParameterRepn& _repn);
-    ~Parameter();
     Parameter& operator=(const Parameter& arg);
 
     /** \returns the value of the parameter */
@@ -206,7 +205,6 @@ class IndexParameter {
     IndexParameter();
     explicit IndexParameter(const std::string& name);
     IndexParameter(const IndexParameter& arg);
-    ~IndexParameter();
 
     IndexParameter& operator=(const IndexParameter& arg);
 
@@ -247,7 +245,6 @@ class Variable {
     explicit Variable(const std::string& name);
     Variable(const VariableRepn& _repn);
     Variable(const Variable& arg);
-    virtual ~Variable();
 
     Variable& operator=(const Variable& arg);
 
@@ -358,7 +355,6 @@ class Expression {
 
     Expression(const ExpressionRepn& _repn);
     Expression(const Expression& arg);
-    ~Expression();
 
     Expression& operator=(const Expression& arg);
 

@@ -97,7 +97,7 @@ TEST_CASE("elementary_objective", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }

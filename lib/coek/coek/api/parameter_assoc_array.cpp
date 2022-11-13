@@ -30,10 +30,10 @@ void ParameterAssocArrayRepn::setup()
 {
     call_setup = false;
 
-    auto value = parameter_template.value_expression().expand().value();
+    auto value
+        = std::make_shared<ConstantTerm>(parameter_template.value_expression().expand().value());
     for (size_t i = 0; i < size(); i++) {
-        values.emplace_back(
-            CREATE_POINTER(IndexedParameterTerm, CREATE_POINTER(ConstantTerm, value), i, this));
+        values.emplace_back(CREATE_POINTER(IndexedParameterTerm, value, i, this));
     }
 }
 

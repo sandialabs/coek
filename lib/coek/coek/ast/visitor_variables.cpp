@@ -12,130 +12,201 @@ namespace coek {
 
 namespace {
 
-class VariablesVisitor : public Visitor {
+class VariableData {
    public:
-    std::unordered_set<VariableTerm*>& vars;
-    std::set<VariableTerm*>& fixed_vars;
-    std::set<ParameterTerm*>& params;
+    std::unordered_set<std::shared_ptr<VariableTerm>>& vars;
+    std::set<std::shared_ptr<VariableTerm>>& fixed_vars;
+    std::set<std::shared_ptr<ParameterTerm>>& params;
 
-   public:
-    VariablesVisitor(std::unordered_set<VariableTerm*>& _vars, std::set<VariableTerm*>& _fixed_vars,
-                     std::set<ParameterTerm*>& _params)
+    VariableData(std::unordered_set<std::shared_ptr<VariableTerm>>& _vars,
+                 std::set<std::shared_ptr<VariableTerm>>& _fixed_vars,
+                 std::set<std::shared_ptr<ParameterTerm>>& _params)
         : vars(_vars), fixed_vars(_fixed_vars), params(_params)
     {
     }
+};
 
-    void visit(ConstantTerm&) {}
+void visit_expression(const expr_pointer_t& expr, VariableData& data);
 
-    void visit(ParameterTerm& arg) { params.insert(&arg); }
-
-    void visit(IndexParameterTerm&) {}
-
-    void visit(VariableTerm& arg)
-    {
-        if (arg.fixed)
-            fixed_vars.insert(&arg);
-        else
-            vars.insert(&arg);
+#define FROM_BODY(TERM)                                               \
+    void visit_##TERM(const expr_pointer_t& expr, VariableData& data) \
+    {                                                                 \
+        auto tmp = std::dynamic_pointer_cast<TERM>(expr);             \
+        visit_expression(tmp->body, data);                            \
     }
 
-#if __cpp_lib_variant
-    void visit(ParameterRefTerm&)
-    {
-        throw std::runtime_error("Attempting to find variables in an abstract expression!");
+#define FROM_LHS_RHS(TERM)                                            \
+    void visit_##TERM(const expr_pointer_t& expr, VariableData& data) \
+    {                                                                 \
+        auto tmp = std::dynamic_pointer_cast<TERM>(expr);             \
+        visit_expression(tmp->lhs, data);                             \
+        visit_expression(tmp->rhs, data);                             \
     }
 
-    void visit(VariableRefTerm&)
-    {
-        throw std::runtime_error("Attempting to find variables in an abstract expression!");
-    }
+void visit_ConstantTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/) {}
+
+void visit_ParameterTerm(const expr_pointer_t& expr, VariableData& data)
+{
+    auto tmp = std::dynamic_pointer_cast<ParameterTerm>(expr);
+    data.params.insert(tmp);
+}
+
+void visit_IndexParameterTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/) {}
+
+void visit_VariableTerm(const expr_pointer_t& expr, VariableData& data)
+{
+    auto tmp = std::dynamic_pointer_cast<VariableTerm>(expr);
+    if (tmp->fixed)
+        data.fixed_vars.insert(tmp);
+    else
+        data.vars.insert(tmp);
+}
+
+void visit_IndexedVariableTerm(const expr_pointer_t& expr, VariableData& data)
+{
+    auto tmp = std::dynamic_pointer_cast<IndexedVariableTerm>(expr);
+    if (tmp->fixed)
+        data.fixed_vars.insert(tmp);
+    else
+        data.vars.insert(tmp);
+}
+
+#ifdef COEK_WITH_COMPACT_MODEL
+void visit_ParameterRefTerm(const expr_pointer_t& expr, VariableData& data)
+{
+    throw std::runtime_error("Attempting to find variables in an abstract expression!");
+}
+
+void visit_VariableRefTerm(const expr_pointer_t& expr, VariableData& data)
+{
+    throw std::runtime_error("Attempting to find variables in an abstract expression!");
+}
 #endif
 
-    void visit(IndexedVariableTerm& arg)
-    {
-        if (arg.fixed)
-            fixed_vars.insert(&arg);
-        else
-            vars.insert(&arg);
-    }
+void visit_MonomialTerm(const expr_pointer_t& expr, VariableData& data)
+{
+    auto tmp = std::dynamic_pointer_cast<MonomialTerm>(expr);
+    if (tmp->var->fixed)
+        data.fixed_vars.insert(tmp->var);
+    else
+        data.vars.insert(tmp->var);
+}
 
-    void visit(MonomialTerm& arg)
-    {
-        if (arg.var->fixed)
-            fixed_vars.insert(arg.var);
-        else
-            vars.insert(arg.var);
-    }
+// clang-format off
+FROM_BODY(InequalityTerm)
+FROM_BODY(EqualityTerm)
+FROM_BODY(ObjectiveTerm)
+FROM_BODY(NegateTerm)
+// clang-format on
 
-    void visit(InequalityTerm& arg) { arg.body->accept(*this); }
+void visit_PlusTerm(const expr_pointer_t& expr, VariableData& data)
+{
+    auto tmp = std::dynamic_pointer_cast<PlusTerm>(expr);
+    for (auto& it : *(tmp->data)) visit_expression(it, data);
+}
 
-    void visit(EqualityTerm& arg) { arg.body->accept(*this); }
+// clang-format off
+FROM_LHS_RHS(TimesTerm)
+FROM_LHS_RHS(DivideTerm)
 
-    void visit(ObjectiveTerm& arg) { arg.body->accept(*this); }
+FROM_BODY(AbsTerm)
+FROM_BODY(CeilTerm)
+FROM_BODY(FloorTerm)
+FROM_BODY(ExpTerm)
+FROM_BODY(LogTerm)
+FROM_BODY(Log10Term)
+FROM_BODY(SqrtTerm)
+FROM_BODY(SinTerm)
+FROM_BODY(CosTerm)
+FROM_BODY(TanTerm)
+FROM_BODY(SinhTerm)
+FROM_BODY(CoshTerm)
+FROM_BODY(TanhTerm)
+FROM_BODY(ASinTerm)
+FROM_BODY(ACosTerm)
+FROM_BODY(ATanTerm)
+FROM_BODY(ASinhTerm)
+FROM_BODY(ACoshTerm)
+FROM_BODY(ATanhTerm)
 
-    void visit(NegateTerm& arg) { arg.body->accept(*this); }
+FROM_LHS_RHS(PowTerm)
+// clang-format on
 
-    void visit(PlusTerm& arg)
-    {
-        std::vector<expr_pointer_t>& vec = *(arg.data);
-        for (auto it = vec.begin(); it != vec.end(); ++it) (*it)->accept(*this);
-    }
+#define VISIT_CASE(TERM)          \
+    case TERM##_id:               \
+        visit_##TERM(expr, data); \
+        break
 
-    void visit(TimesTerm& arg)
-    {
-        arg.lhs->accept(*this);
-        arg.rhs->accept(*this);
-    }
+void visit_expression(const expr_pointer_t& expr, VariableData& data)
+{
+    switch (expr->id()) {
+        VISIT_CASE(ConstantTerm);
+        VISIT_CASE(ParameterTerm);
+        VISIT_CASE(IndexParameterTerm);
+        VISIT_CASE(VariableTerm);
+        VISIT_CASE(IndexedVariableTerm);
+#ifdef COEK_WITH_COMPACT_MODEL
+        VISIT_CASE(VariableRefTerm);
+        VISIT_CASE(ParameterRefTerm);
+#endif
+        VISIT_CASE(MonomialTerm);
+        VISIT_CASE(InequalityTerm);
+        VISIT_CASE(EqualityTerm);
+        VISIT_CASE(ObjectiveTerm);
+        VISIT_CASE(NegateTerm);
+        VISIT_CASE(PlusTerm);
+        VISIT_CASE(TimesTerm);
+        VISIT_CASE(DivideTerm);
+        VISIT_CASE(AbsTerm);
+        VISIT_CASE(CeilTerm);
+        VISIT_CASE(FloorTerm);
+        VISIT_CASE(ExpTerm);
+        VISIT_CASE(LogTerm);
+        VISIT_CASE(Log10Term);
+        VISIT_CASE(SqrtTerm);
+        VISIT_CASE(SinTerm);
+        VISIT_CASE(CosTerm);
+        VISIT_CASE(TanTerm);
+        VISIT_CASE(SinhTerm);
+        VISIT_CASE(CoshTerm);
+        VISIT_CASE(TanhTerm);
+        VISIT_CASE(ASinTerm);
+        VISIT_CASE(ACosTerm);
+        VISIT_CASE(ATanTerm);
+        VISIT_CASE(ASinhTerm);
+        VISIT_CASE(ACoshTerm);
+        VISIT_CASE(ATanhTerm);
+        VISIT_CASE(PowTerm);
 
-    void visit(DivideTerm& arg)
-    {
-        arg.lhs->accept(*this);
-        arg.rhs->accept(*this);
-    }
-
-    void visit(AbsTerm& arg) { arg.body->accept(*this); }
-    void visit(CeilTerm& arg) { arg.body->accept(*this); }
-    void visit(FloorTerm& arg) { arg.body->accept(*this); }
-    void visit(ExpTerm& arg) { arg.body->accept(*this); }
-    void visit(LogTerm& arg) { arg.body->accept(*this); }
-    void visit(Log10Term& arg) { arg.body->accept(*this); }
-    void visit(SqrtTerm& arg) { arg.body->accept(*this); }
-    void visit(SinTerm& arg) { arg.body->accept(*this); }
-    void visit(CosTerm& arg) { arg.body->accept(*this); }
-    void visit(TanTerm& arg) { arg.body->accept(*this); }
-    void visit(SinhTerm& arg) { arg.body->accept(*this); }
-    void visit(CoshTerm& arg) { arg.body->accept(*this); }
-    void visit(TanhTerm& arg) { arg.body->accept(*this); }
-    void visit(ASinTerm& arg) { arg.body->accept(*this); }
-    void visit(ACosTerm& arg) { arg.body->accept(*this); }
-    void visit(ATanTerm& arg) { arg.body->accept(*this); }
-    void visit(ASinhTerm& arg) { arg.body->accept(*this); }
-    void visit(ACoshTerm& arg) { arg.body->accept(*this); }
-    void visit(ATanhTerm& arg) { arg.body->accept(*this); }
-    void visit(PowTerm& arg)
-    {
-        arg.lhs->accept(*this);
-        arg.rhs->accept(*this);
-    }
-};
+        // GCOVR_EXCL_START
+        default:
+            throw std::runtime_error(
+                "Error in find_variables visitor!  Visiting unexpected expression term "
+                + std::to_string(expr->id()));
+            // GCOVR_EXCL_STOP
+    };
+}
 
 }  // namespace
 
-void find_vars_and_params(expr_pointer_t expr, std::unordered_set<VariableTerm*>& vars,
-                          std::set<VariableTerm*>& fixed_vars, std::set<ParameterTerm*>& params)
+void find_vars_and_params(const expr_pointer_t& expr,
+                          std::unordered_set<std::shared_ptr<VariableTerm>>& vars,
+                          std::set<std::shared_ptr<VariableTerm>>& fixed_vars,
+                          std::set<std::shared_ptr<ParameterTerm>>& params)
 {
     // GCOVR_EXCL_START
     if (expr == 0) return;
     // GCOVR_EXCL_STOP
 
-    VariablesVisitor visitor(vars, fixed_vars, params);
-    expr->accept(visitor);
+    VariableData data(vars, fixed_vars, params);
+    visit_expression(expr, data);
 }
 
-void find_variables(expr_pointer_t expr, std::unordered_set<VariableTerm*>& vars)
+void find_variables(const expr_pointer_t& expr,
+                    std::unordered_set<std::shared_ptr<VariableTerm>>& vars)
 {
-    std::set<VariableTerm*> fixed_vars;
-    std::set<ParameterTerm*> params;
+    std::set<std::shared_ptr<VariableTerm>> fixed_vars;
+    std::set<std::shared_ptr<ParameterTerm>> params;
     find_vars_and_params(expr, vars, fixed_vars, params);
 }
 

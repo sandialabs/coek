@@ -20,7 +20,6 @@ class ParameterRefTerm : public BaseParameterTerm {
    public:
     ParameterRefTerm(const std::vector<refarg_types>& _indices, const std::string& _name,
                      void* _param);
-    ~ParameterRefTerm();
 
     double eval() const { throw std::runtime_error("Cannot evaluate a ParameterRefTerm"); }
     void accept(Visitor& v) { v.visit(*this); }
@@ -36,7 +35,6 @@ class VariableRefTerm : public BaseVariableTerm {
    public:
     VariableRefTerm(const std::vector<refarg_types>& _indices, const std::string& _name,
                     void* _var);
-    ~VariableRefTerm();
 
     double eval() const { throw std::runtime_error("Cannot evaluate a VariableRefTerm"); }
     void accept(Visitor& v) { v.visit(*this); }
@@ -48,8 +46,7 @@ class SetRefTerm : public BaseExpressionTerm {
     expr_pointer_t body;
 
    public:
-    SetRefTerm(const expr_pointer_t& repn);
-    ~SetRefTerm();
+    explicit SetRefTerm(const expr_pointer_t& repn);
 };
 
 }  // namespace coek

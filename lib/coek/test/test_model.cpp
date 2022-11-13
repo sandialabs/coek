@@ -101,7 +101,7 @@ SECTION("constraints")
 #endif
 }
 }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
 REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -122,7 +122,7 @@ TEST_CASE("compact_model_add", "[smoke]")
             REQUIRE(M.num_constraints() == 4);
         }
     }
-#    ifdef DEBUG
+#    ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #    endif
 }
@@ -282,7 +282,7 @@ TEST_CASE("model_setup", "[smoke]")
             }
         }
     }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -383,7 +383,7 @@ TEST_CASE("compact_model", "[smoke]")
         }
     }
 
-#    ifdef DEBUG
+#    ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #    endif
 }

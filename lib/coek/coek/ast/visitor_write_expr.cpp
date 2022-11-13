@@ -57,8 +57,7 @@ class WriteExprVisitor : public Visitor {
     void visit(ATanhTerm& arg);
     void visit(PowTerm& arg);
     void visit(SumExpressionTerm& arg);
-    void visit(DummyConstraintTerm& arg);
-    // void visit(DummyObjectiveTerm& arg);
+    void visit(EmptyConstraintTerm& arg);
 };
 
 void WriteExprVisitor::visit(ConstantTerm& arg) { ostr << arg.value; }
@@ -222,19 +221,29 @@ void WriteExprVisitor::visit(DivideTerm& arg)
         ostr << ")";                        \
     }
 
-WriteExprVisitor_FN(abs, AbsTerm) WriteExprVisitor_FN(ceil, CeilTerm)
-    WriteExprVisitor_FN(floor, FloorTerm) WriteExprVisitor_FN(exp, ExpTerm)
-        WriteExprVisitor_FN(log, LogTerm) WriteExprVisitor_FN(log10, Log10Term)
-            WriteExprVisitor_FN(sqrt, SqrtTerm) WriteExprVisitor_FN(sin, SinTerm)
-                WriteExprVisitor_FN(cos, CosTerm) WriteExprVisitor_FN(tan, TanTerm)
-                    WriteExprVisitor_FN(sinh, SinhTerm) WriteExprVisitor_FN(cosh, CoshTerm)
-                        WriteExprVisitor_FN(tanh, TanhTerm) WriteExprVisitor_FN(asin, ASinTerm)
-                            WriteExprVisitor_FN(acos, ACosTerm) WriteExprVisitor_FN(atan, ATanTerm)
-                                WriteExprVisitor_FN(asinh, ASinhTerm)
-                                    WriteExprVisitor_FN(acosh, ACoshTerm)
-                                        WriteExprVisitor_FN(atanh, ATanhTerm)
+// clang-format off
+WriteExprVisitor_FN(abs, AbsTerm)
+WriteExprVisitor_FN(ceil, CeilTerm)
+WriteExprVisitor_FN(floor, FloorTerm)
+WriteExprVisitor_FN(exp, ExpTerm)
+WriteExprVisitor_FN(log, LogTerm)
+WriteExprVisitor_FN(log10, Log10Term)
+WriteExprVisitor_FN(sqrt, SqrtTerm)
+WriteExprVisitor_FN(sin, SinTerm)
+WriteExprVisitor_FN(cos, CosTerm)
+WriteExprVisitor_FN(tan, TanTerm)
+WriteExprVisitor_FN(sinh, SinhTerm)
+WriteExprVisitor_FN(cosh, CoshTerm)
+WriteExprVisitor_FN(tanh, TanhTerm)
+WriteExprVisitor_FN(asin, ASinTerm)
+WriteExprVisitor_FN(acos, ACosTerm)
+WriteExprVisitor_FN(atan, ATanTerm)
+WriteExprVisitor_FN(asinh, ASinhTerm)
+WriteExprVisitor_FN(acosh, ACoshTerm)
+WriteExprVisitor_FN(atanh, ATanhTerm)
+    // clang-format on
 
-                                            void WriteExprVisitor::visit(PowTerm& arg)
+    void WriteExprVisitor::visit(PowTerm& arg)
 {
     ostr << "pow(";
     arg.lhs->accept(*this);
@@ -245,14 +254,11 @@ WriteExprVisitor_FN(abs, AbsTerm) WriteExprVisitor_FN(ceil, CeilTerm)
 
 void WriteExprVisitor::visit(SumExpressionTerm&) { ostr << "Sum()"; }
 
-void WriteExprVisitor::visit(DummyConstraintTerm&) { ostr << "DummyConstraint()"; }
-
-// void WriteExprVisitor::visit(DummyObjectiveTerm& )
-//{ ostr << "DummyObjective()"; }
+void WriteExprVisitor::visit(EmptyConstraintTerm&) { ostr << "EmptyConstraint()"; }
 
 }  // namespace
 
-void write_expr(expr_pointer_t expr, std::ostream& ostr)
+void write_expr(BaseExpressionTerm* expr, std::ostream& ostr)
 {
     // GCOVR_EXCL_START
     if (expr == 0) {
