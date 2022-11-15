@@ -101,7 +101,8 @@ class PlusTerm : public NAryPrefixTerm {
     double eval() const
     {
         double ans = 0;
-        for (unsigned int i = 0; i < n; i++) ans += (*data)[i]->eval();
+        //for (unsigned int i = 0; i < n; i++) ans += (*data)[i]->eval();
+        for (auto& val : *data) ans += val->eval();
         return ans;
     }
 

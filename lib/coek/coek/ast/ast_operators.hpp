@@ -309,8 +309,10 @@ expr_pointer_t intrinsic_abs(const BODY& body)
     template <typename BODY>                                                              \
     expr_pointer_t intrinsic_##FN(const BODY& body)                                       \
     {                                                                                     \
-        if (body->is_constant()) return CREATE_POINTER(ConstantTerm, ::FN(body->eval())); \
-        else return CREATE_POINTER(TERM, body);                                                \
+        expr_pointer_t tmp; \
+        if (body->is_constant()) tmp = CREATE_POINTER(ConstantTerm, ::FN(body->eval())); \
+        else tmp = CREATE_POINTER(TERM, body);                                                \
+        return tmp; \
     }
 
 UNARY_TEMPLATE(ceil, CeilTerm)
@@ -339,33 +341,35 @@ UNARY_TEMPLATE(atanh, ATanhTerm)
     template <typename LHS, typename RHS>                                        \
     expr_pointer_t intrinsic_##FN(const LHS& lhs, const RHS& rhs)                \
     {                                                                            \
+        expr_pointer_t tmp; \
         if (lhs->is_constant() and rhs->is_constant())                           \
-            return CREATE_POINTER(ConstantTerm, ::FN(lhs->eval(), rhs->eval())); \
-        else return CREATE_POINTER(TERM, lhs, rhs);                                   \
+            tmp = CREATE_POINTER(ConstantTerm, ::FN(lhs->eval(), rhs->eval())); \
+        else tmp = CREATE_POINTER(TERM, lhs, rhs);                                   \
+        return tmp; \
     }
 
 template <typename LHS, typename RHS>
 expr_pointer_t intrinsic_pow(const LHS& lhs, const RHS& rhs)
 {
+    expr_pointer_t tmp;
     if (lhs->is_constant()) {
         double _lhs = lhs->eval();
         if (_lhs == 0)
-            return ZEROCONST;
+            tmp = ZEROCONST;
         else if (_lhs == 1)
-            return ONECONST;
-        /* WEH - Not seen
-        else if (rhs->is_constant())
-            return CREATE_POINTER(ConstantTerm, ::pow(_lhs, rhs->eval()));
-        */
+            tmp = ONECONST;
+        else tmp = CREATE_POINTER(PowTerm, lhs, rhs);
     }
     else if (rhs->is_constant()) {
         double _rhs = rhs->eval();
         if (_rhs == 0)
-            return ONECONST;
+            tmp = ONECONST;
         else if (_rhs == 1)
-            return lhs;
+            tmp = lhs;
+        else tmp = CREATE_POINTER(PowTerm, lhs, rhs);
     }
-    return CREATE_POINTER(PowTerm, lhs, rhs);
+    else tmp = CREATE_POINTER(PowTerm, lhs, rhs);
+    return tmp;
 }
 
 // BINARY_TEMPLATE(pow, PowTerm)
@@ -377,92 +381,110 @@ expr_pointer_t intrinsic_pow(const LHS& lhs, const RHS& rhs)
 inline std::shared_ptr<ConstraintTerm> less_than(const expr_pointer_t& lhs,
                                                  const expr_pointer_t& rhs, bool strict)
 {
+    std::shared_ptr<ConstraintTerm> tmp;
     if (lhs->non_variable)
         // lower=lhs, body=rhs
-        return CREATE_POINTER(InequalityTerm, lhs, rhs, 0, strict);
+        tmp = CREATE_POINTER(InequalityTerm, lhs, rhs, 0, strict);
     else if (rhs->non_variable)
         // body=lhs, upper=rhs
-        return CREATE_POINTER(InequalityTerm, 0, lhs, rhs, strict);
+        tmp = CREATE_POINTER(InequalityTerm, 0, lhs, rhs, strict);
     else {
         // body=lhs-rhs, upper=ZERO
-        return CREATE_POINTER(InequalityTerm, 0, minus(lhs, rhs), ZEROCONST, strict);
+        tmp = CREATE_POINTER(InequalityTerm, 0, minus(lhs, rhs), ZEROCONST, strict);
     }
+    return tmp;
 }
 
 inline std::shared_ptr<ConstraintTerm> less_than(const expr_pointer_t& lhs, int rhs, bool strict)
 {
+    std::shared_ptr<ConstraintTerm> tmp;
     if (rhs == 0)
-        return CREATE_POINTER(InequalityTerm, 0, lhs, ZEROCONST, strict);
+        tmp = CREATE_POINTER(InequalityTerm, 0, lhs, ZEROCONST, strict);
     else
-        return CREATE_POINTER(InequalityTerm, 0, lhs, CREATE_POINTER(ConstantTerm, rhs), strict);
+        tmp = CREATE_POINTER(InequalityTerm, 0, lhs, CREATE_POINTER(ConstantTerm, rhs), strict);
+    return tmp;
 }
 
 inline std::shared_ptr<ConstraintTerm> less_than(const expr_pointer_t& lhs, double rhs, bool strict)
 {
+    std::shared_ptr<ConstraintTerm> tmp;
     if (rhs == 0.0)
-        return CREATE_POINTER(InequalityTerm, 0, lhs, ZEROCONST, strict);
+        tmp = CREATE_POINTER(InequalityTerm, 0, lhs, ZEROCONST, strict);
     else
-        return CREATE_POINTER(InequalityTerm, 0, lhs, CREATE_POINTER(ConstantTerm, rhs), strict);
+        tmp = CREATE_POINTER(InequalityTerm, 0, lhs, CREATE_POINTER(ConstantTerm, rhs), strict);
+    return tmp;
 }
 
 inline std::shared_ptr<ConstraintTerm> less_than(int lhs, const expr_pointer_t& rhs, bool strict)
 {
+    std::shared_ptr<ConstraintTerm> tmp;
     if (lhs == 0)
-        return CREATE_POINTER(InequalityTerm, ZEROCONST, rhs, 0, strict);
+        tmp = CREATE_POINTER(InequalityTerm, ZEROCONST, rhs, 0, strict);
     else
-        return CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, 0, strict);
+        tmp = CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, 0, strict);
+    return tmp;
 }
 
 inline std::shared_ptr<ConstraintTerm> less_than(double lhs, const expr_pointer_t& rhs, bool strict)
 {
+    std::shared_ptr<ConstraintTerm> tmp;
     if (lhs == 0)
-        return CREATE_POINTER(InequalityTerm, ZEROCONST, rhs, 0, strict);
+        tmp = CREATE_POINTER(InequalityTerm, ZEROCONST, rhs, 0, strict);
     else
-        return CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, 0, strict);
+        tmp = CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, 0, strict);
+    return tmp;
 }
 
 inline std::shared_ptr<ConstraintTerm> equal(const expr_pointer_t& lhs, const expr_pointer_t& rhs)
 {
+    std::shared_ptr<ConstraintTerm> tmp;
     if (lhs->non_variable)
-        return CREATE_POINTER(EqualityTerm, rhs, lhs);
+        tmp = CREATE_POINTER(EqualityTerm, rhs, lhs);
     else if (rhs->non_variable)
-        return CREATE_POINTER(EqualityTerm, lhs, rhs);
-    else {
-        expr_pointer_t e = minus(lhs, rhs);
-        return CREATE_POINTER(EqualityTerm, e, ZEROCONST);
-    }
+        tmp = CREATE_POINTER(EqualityTerm, lhs, rhs);
+    else
+        tmp = CREATE_POINTER(EqualityTerm, minus(lhs, rhs), ZEROCONST);
+    return tmp;
 }
 
 inline std::shared_ptr<ConstraintTerm> equal(const expr_pointer_t& lhs, int rhs)
 {
+    std::shared_ptr<ConstraintTerm> tmp;
     if (rhs == 0)
-        return CREATE_POINTER(EqualityTerm, lhs, ZEROCONST);
+        tmp = CREATE_POINTER(EqualityTerm, lhs, ZEROCONST);
     else
-        return CREATE_POINTER(EqualityTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
+        tmp = CREATE_POINTER(EqualityTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
+    return tmp;
 }
 
 inline std::shared_ptr<ConstraintTerm> equal(const expr_pointer_t& lhs, double rhs)
 {
+    std::shared_ptr<ConstraintTerm> tmp;
     if (rhs == 0)
-        return CREATE_POINTER(EqualityTerm, lhs, ZEROCONST);
+        tmp = CREATE_POINTER(EqualityTerm, lhs, ZEROCONST);
     else
-        return CREATE_POINTER(EqualityTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
+        tmp = CREATE_POINTER(EqualityTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
+    return tmp;
 }
 
 inline std::shared_ptr<ConstraintTerm> equal(int lhs, const expr_pointer_t& rhs)
 {
+    std::shared_ptr<ConstraintTerm> tmp;
     if (lhs == 0)
-        return CREATE_POINTER(EqualityTerm, rhs, ZEROCONST);
+        tmp = CREATE_POINTER(EqualityTerm, rhs, ZEROCONST);
     else
-        return CREATE_POINTER(EqualityTerm, rhs, CREATE_POINTER(ConstantTerm, lhs));
+        tmp = CREATE_POINTER(EqualityTerm, rhs, CREATE_POINTER(ConstantTerm, lhs));
+    return tmp;
 }
 
 inline std::shared_ptr<ConstraintTerm> equal(double lhs, const expr_pointer_t& rhs)
 {
+    std::shared_ptr<ConstraintTerm> tmp;
     if (lhs == 0)
-        return CREATE_POINTER(EqualityTerm, rhs, ZEROCONST);
+        tmp = CREATE_POINTER(EqualityTerm, rhs, ZEROCONST);
     else
-        return CREATE_POINTER(EqualityTerm, rhs, CREATE_POINTER(ConstantTerm, lhs));
+        tmp = CREATE_POINTER(EqualityTerm, rhs, CREATE_POINTER(ConstantTerm, lhs));
+    return tmp;
 }
 
 }  // namespace coek
