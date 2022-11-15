@@ -274,9 +274,11 @@ void Model::generate_names()
     if (repn->name_generation_policy == Model::NameGeneration::lazy) {
         for (auto& parray : repn->parameter_arrays) parray.generate_names();
         for (auto& varray : repn->variable_arrays) varray.generate_names();
+#    ifdef COEK_WITH_COMPACT_MODEL
         for (auto& pmap : repn->parameter_maps) pmap.generate_names();
         for (auto& vmap : repn->variable_maps) vmap.generate_names();
         for (auto& cmap : repn->constraint_maps) cmap.generate_names();
+#endif
     }
 
     repn->variables_by_name.clear();
@@ -360,8 +362,10 @@ void Model::write(std::string fname, std::map<size_t, size_t>& varmap,
 {
     if (repn->name_generation_policy == Model::NameGeneration::lazy) {
         for (auto& varray : repn->variable_arrays) varray.generate_names();
+#ifdef COEK_WITH_COMPACT_MODEL
         for (auto& vmap : repn->variable_maps) vmap.generate_names();
         for (auto& cmap : repn->constraint_maps) cmap.generate_names();
+#    endif
     }
 
     if (endsWith(fname, ".lp")) {

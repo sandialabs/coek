@@ -21,8 +21,10 @@ void Model::add_constraint(ConstraintMap& cons)
 {
     if (repn->name_generation_policy == Model::NameGeneration::eager)
         cons.generate_names();
+#ifdef COEK_WITH_COMPACT_MODEL
     else if (repn->name_generation_policy == Model::NameGeneration::lazy)
         repn->constraint_maps.push_back(cons);
+#endif
     for (auto& con : cons.repn->value) add_constraint(con.second);
 }
 
