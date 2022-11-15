@@ -121,42 +121,42 @@ void SolverRepn::load(Model& _model)
         if (!_repn.is_mutable()) continue;
 
         nmutable++;
-        std::unordered_set<VariableTerm*> fixed_vars;
-        std::unordered_set<ParameterTerm*> params;
+        std::unordered_set<std::shared_ptr<VariableTerm>> fixed_vars;
+        std::unordered_set<std::shared_ptr<ParameterTerm>> params;
 
         mutable_values(_repn.constval, fixed_vars, params);
-        for (auto it = fixed_vars.begin(); it != fixed_vars.end(); ++it)
-            GetWithDef(vconstvals, *it).insert(j);
-        for (auto it = params.begin(); it != params.end(); ++it)
-            GetWithDef(pconstvals, *it).insert(j);
+        for (auto& it : fixed_vars) 
+            GetWithDef(vconstvals, it.get()).insert(j);
+        for (auto& it : params) 
+            GetWithDef(pconstvals, it.get()).insert(j);
 
         for (size_t i = 0; i < _repn.linear_coefs.size(); i++) {
             fixed_vars.clear();
             params.clear();
             mutable_values(_repn.linear_coefs[i], fixed_vars, params);
-            for (auto it = fixed_vars.begin(); it != fixed_vars.end(); ++it)
-                GetWithDef(vlinvals, *it).insert(std::pair<size_t, size_t>(j, i));
-            for (auto it = params.begin(); it != params.end(); ++it)
-                GetWithDef(plinvals, *it).insert(std::pair<size_t, size_t>(j, i));
+            for (auto& it : fixed_vars) 
+                GetWithDef(vlinvals, it.get()).insert(std::pair<size_t, size_t>(j, i));
+            for (auto& it : params) 
+                GetWithDef(plinvals, it.get()).insert(std::pair<size_t, size_t>(j, i));
         }
 
         for (size_t i = 0; i < _repn.quadratic_coefs.size(); i++) {
             fixed_vars.clear();
             params.clear();
             mutable_values(_repn.quadratic_coefs[i], fixed_vars, params);
-            for (auto it = fixed_vars.begin(); it != fixed_vars.end(); ++it)
-                GetWithDef(vquadvals, *it).insert(std::pair<size_t, size_t>(j, i));
-            for (auto it = params.begin(); it != params.end(); ++it)
-                GetWithDef(pquadvals, *it).insert(std::pair<size_t, size_t>(j, i));
+            for (auto& it : fixed_vars) 
+                GetWithDef(vquadvals, it.get()).insert(std::pair<size_t, size_t>(j, i));
+            for (auto& it : params) 
+                GetWithDef(pquadvals, it.get()).insert(std::pair<size_t, size_t>(j, i));
         }
 
         fixed_vars.clear();
         params.clear();
         mutable_values(_repn.nonlinear, fixed_vars, params);
-        for (auto it = fixed_vars.begin(); it != fixed_vars.end(); ++it)
-            GetWithDef(vnonlvals, *it).insert(j);
-        for (auto it = params.begin(); it != params.end(); ++it)
-            GetWithDef(pnonlvals, *it).insert(j);
+        for (auto& it : fixed_vars) 
+            GetWithDef(vnonlvals, it.get()).insert(j);
+        for (auto& it : params) 
+            GetWithDef(pnonlvals, it.get()).insert(j);
     }
 
 #ifdef DEBUG

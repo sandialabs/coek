@@ -8,7 +8,6 @@
 
 namespace coek {
 
-// typedef std::variant<int,double,std::string,expr_pointer_t> refarg_types;
 typedef std::variant<int, expr_pointer_t> refarg_types;
 
 class ParameterRefTerm : public BaseParameterTerm {

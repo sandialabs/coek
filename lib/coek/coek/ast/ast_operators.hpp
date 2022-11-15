@@ -2,6 +2,7 @@
 
 #include <cmath>
 
+#include "../util/cast_utils.hpp"
 #include "base_terms.hpp"
 
 namespace coek {
@@ -15,15 +16,12 @@ inline expr_pointer_t plus_(const expr_pointer_t& lhs, const expr_pointer_t& rhs
     if (lhs == ZeroConstant) tmp = rhs;
     /* WEH - Not seen in practice
     if (rhs == ZEROCONST)
-        return lhs;
     if (lhs->is_constant() and (lhs->eval() == 0))
-        return rhs;
     if (rhs->is_constant() and (rhs->eval() == 0))
-        return lhs;
     */
     else if (lhs->is_constant() and rhs->is_constant()) {
-        auto _lhs = std::dynamic_pointer_cast<ConstantTerm>(lhs);
-        auto _rhs = std::dynamic_pointer_cast<ConstantTerm>(rhs);
+        auto _lhs = safe_pointer_cast<ConstantTerm>(lhs);
+        auto _rhs = safe_pointer_cast<ConstantTerm>(rhs);
         tmp = CREATE_POINTER(ConstantTerm, _lhs->value + _rhs->value);
     }
     else tmp = CREATE_POINTER(PlusTerm, lhs, rhs);
@@ -130,25 +128,13 @@ inline expr_pointer_t times_(const expr_pointer_t& lhs, const expr_pointer_t& rh
     else if (rhs == ONECONST) tmp = lhs;
     /* WEH - Not seen in practice
     if (rhs == ZEROCONST)
-        return ZEROCONST;
     if (lhs == ZEROCONST)
-        return ZEROCONST;
     if (lhs->is_constant()) {
-        auto _lhs = dynamic_cast<ConstantTerm*>(lhs);
-        if (_lhs->value == 1) {
-            return rhs;
-            }
-        }
     if (rhs->is_constant()) {
-        auto _rhs = dynamic_cast<ConstantTerm*>(rhs);
-        if (_rhs->value == 1) {
-            return lhs;
-            }
-        }
     */
     else if (lhs->is_constant() and rhs->is_constant()) {
-        auto _lhs = std::dynamic_pointer_cast<ConstantTerm>(lhs);
-        auto _rhs = std::dynamic_pointer_cast<ConstantTerm>(rhs);
+        auto _lhs = safe_pointer_cast<ConstantTerm>(lhs);
+        auto _rhs = safe_pointer_cast<ConstantTerm>(rhs);
         tmp = CREATE_POINTER(ConstantTerm, _lhs->value * _rhs->value);
     }
     else tmp = CREATE_POINTER(TimesTerm, lhs, rhs);
@@ -221,27 +207,14 @@ inline expr_pointer_t divide_(const expr_pointer_t& lhs, const expr_pointer_t& r
 {
     expr_pointer_t tmp;
     if (lhs == ZEROCONST) tmp = ZEROCONST;
-    else if (lhs->is_constant() and (std::dynamic_pointer_cast<ConstantTerm>(lhs)->value == 0))
+    else if (lhs->is_constant() and (safe_pointer_cast<ConstantTerm>(lhs)->value == 0))
         tmp = ZEROCONST;
     /* WEH - Not used in practice
     if (rhs == ONECONST)
-        return lhs;
     if (rhs == NEGATIVEONECONST)
-        return lhs->negate(lhs);
     if (rhs == ZEROCONST)
-        throw std::domain_error("Division by zero");
     if (rhs->is_constant()) {
-        auto _rhs = dynamic_cast<ConstantTerm*>(rhs);
-        if (_rhs->value == 1) {
-            return lhs;
-            }
-        }
     if (lhs->is_constant() and rhs->is_constant()) {
-        auto _lhs = dynamic_cast<ConstantTerm*>(lhs);
-        auto _rhs = dynamic_cast<ConstantTerm*>(rhs);
-        auto ans = CREATE_POINTER(ConstantTerm, _lhs->value / _rhs->value);
-        return ans;
-        }
     */
     else tmp = CREATE_POINTER(DivideTerm, lhs, rhs);
     return tmp;
@@ -300,7 +273,6 @@ expr_pointer_t intrinsic_abs(const BODY& body)
 {
     /* WEH - Doesn't show up
     if (body->is_constant())
-       return CREATE_POINTER(ConstantTerm, ::fabs(body->eval()));
     */
     return CREATE_POINTER(AbsTerm, body);
 }

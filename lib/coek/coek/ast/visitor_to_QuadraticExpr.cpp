@@ -4,6 +4,7 @@
 #include "value_terms.hpp"
 #include "visitor.hpp"
 #include "visitor_fns.hpp"
+#include "../util/cast_utils.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL
 #    include "compact_terms.hpp"
 #endif
@@ -338,7 +339,7 @@ void visit(std::shared_ptr<PowTerm>& expr, QuadraticExpr& repn, double multiplie
 
 #define VISIT_CASE(TERM)                                  \
     case TERM##_id: {                                     \
-        auto tmp = std::dynamic_pointer_cast<TERM>(expr); \
+        auto tmp = safe_pointer_cast<TERM>(expr); \
         visit(tmp, repn, multiplier);                     \
     } break
 

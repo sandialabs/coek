@@ -336,10 +336,10 @@ std::list<std::string> Expression::to_list() const
 
 Expression Expression::diff(const Variable& var) const
 {
-    std::map<VariableTerm*, expr_pointer_t> ans;
+    std::map<std::shared_ptr<VariableTerm>, expr_pointer_t> ans;
     symbolic_diff_all(repn, ans);
     Expression e;
-    if (ans.find(var.repn.get()) != ans.end()) e = ans[var.repn.get()];
+    if (ans.find(var.repn) != ans.end()) e = ans[var.repn];
     return e;
 }
 

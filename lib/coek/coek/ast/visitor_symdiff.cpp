@@ -6,7 +6,8 @@
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
 #include "visitor.hpp"
-#include "visitor_fns.hpp"
+//#include "visitor_fns.hpp"
+#include "../util/cast_utils.hpp"
 #if __cpp_lib_variant
 #    include "compact_terms.hpp"
 #endif
@@ -25,230 +26,277 @@ namespace coek {
 
 namespace {
 
-class PartialVisitor : public Visitor {
+class PartialData {
    public:
     size_t i;
     expr_pointer_t partial;
-
-   public:
-    PartialVisitor() : partial(0) {}
-
-    void visit(ConstantTerm& arg);
-    void visit(ParameterTerm& arg);
-    void visit(IndexParameterTerm& arg);
-    void visit(VariableTerm& arg);
-#if __cpp_lib_variant
-    void visit(ParameterRefTerm& arg);
-    void visit(VariableRefTerm& arg);
-#endif
-    void visit(IndexedVariableTerm& arg);
-    void visit(MonomialTerm& arg);
-    void visit(InequalityTerm& arg);
-    void visit(EqualityTerm& arg);
-    void visit(ObjectiveTerm& arg);
-    void visit(NegateTerm& arg);
-    void visit(PlusTerm& arg);
-    void visit(TimesTerm& arg);
-    void visit(DivideTerm& arg);
-    void visit(AbsTerm& arg);
-    void visit(CeilTerm& arg);
-    void visit(FloorTerm& arg);
-    void visit(ExpTerm& arg);
-    void visit(LogTerm& arg);
-    void visit(Log10Term& arg);
-    void visit(SqrtTerm& arg);
-    void visit(SinTerm& arg);
-    void visit(CosTerm& arg);
-    void visit(TanTerm& arg);
-    void visit(SinhTerm& arg);
-    void visit(CoshTerm& arg);
-    void visit(TanhTerm& arg);
-    void visit(ASinTerm& arg);
-    void visit(ACosTerm& arg);
-    void visit(ATanTerm& arg);
-    void visit(ASinhTerm& arg);
-    void visit(ACoshTerm& arg);
-    void visit(ATanhTerm& arg);
-    void visit(PowTerm& arg);
 };
+
+// -----------------------------------------------------------------------------------------
 
 // Not executed when doing symbolic differentiation
 // GCOVR_EXCL_START
-void PartialVisitor::visit(ConstantTerm&) { partial = ZEROCONST; }
+void visit_ConstantTerm(const expr_pointer_t& /*expr*/, PartialData& data) {data.partial = ZEROCONST;}
 
-void PartialVisitor::visit(ParameterTerm&) { partial = ZEROCONST; }
+void visit_ParameterTerm(const expr_pointer_t& /*expr*/, PartialData& data) {data.partial = ZEROCONST;}
 
-void PartialVisitor::visit(IndexParameterTerm&)
+void visit_IndexParameterTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/)
 {
     throw std::runtime_error(
         "Cannot differentiate an expression using an abstract parameter term.");
 }
 
-void PartialVisitor::visit(VariableTerm&) { partial = ONECONST; }
+void visit_VariableTerm(const expr_pointer_t& /*expr*/, PartialData& data) {data.partial = ONECONST;}
 
 #if __cpp_lib_variant
-void PartialVisitor::visit(ParameterRefTerm&) { partial = ZEROCONST; }
+void visit_ParameterRefTerm(const expr_pointer_t& /*expr*/, PartialData& data) {data.partial = ZEROCONST;}
 
-void PartialVisitor::visit(VariableRefTerm&)
-{
-    //
-    // We assume for now that a user cannot differentiate with respect to an referenced
-    // variable.  It's not clear that we can infer whether two referenced variables are the same,
-    // given that they may be indexed by equations.
-    //
-    partial = ZEROCONST;
-}
+//
+// We assume for now that a user cannot differentiate with respect to an referenced
+// variable.  It's not clear that we can infer whether two referenced variables are the same,
+// given that they may be indexed by equations.
+//
+void visit_VariableRefTerm(const expr_pointer_t& /*expr*/, PartialData& data) {data.partial = ZEROCONST;}
 #endif
 
-void PartialVisitor::visit(IndexedVariableTerm&) { partial = ONECONST; }
+void visit_IndexedVariableTerm(const expr_pointer_t& /*expr*/, PartialData& data) {data.partial = ONECONST;}
 
-void PartialVisitor::visit(MonomialTerm& arg) { partial = CREATE_POINTER(ConstantTerm, arg.coef); }
-
-void PartialVisitor::visit(InequalityTerm&) { partial = 0; }
-
-void PartialVisitor::visit(EqualityTerm&) { partial = 0; }
-
-void PartialVisitor::visit(ObjectiveTerm&) { partial = 0; }
-// GCOVR_EXCL_STOP
-
-void PartialVisitor::visit(NegateTerm&) { partial = NEGATIVEONECONST; }
-
-void PartialVisitor::visit(PlusTerm&) { partial = ONECONST; }
-
-void PartialVisitor::visit(TimesTerm& arg)
+void visit_MonomialTerm(const expr_pointer_t& expr, PartialData& data)
 {
-    if (i == 0)
-        partial = arg.rhs;
-    else
-        partial = arg.lhs;
+auto tmp = safe_pointer_cast<MonomialTerm>(expr);
+data.partial = CREATE_POINTER(ConstantTerm, tmp->coef);
 }
 
-void PartialVisitor::visit(DivideTerm& arg)
+void visit_InequalityTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
+
+void visit_EqualityTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
+
+void visit_ObjectiveTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
+// GCOVR_EXCL_STOP
+
+void visit_NegateTerm(const expr_pointer_t& /*expr*/, PartialData& data) {data.partial = NEGATIVEONECONST;}
+
+void visit_PlusTerm(const expr_pointer_t& /*expr*/, PartialData& data) {data.partial = ONECONST;}
+
+void visit_TimesTerm(const expr_pointer_t& expr, PartialData& data)
 {
-    if (i == 0)
-        partial = divide(ONECONST, arg.rhs);
+auto tmp = safe_pointer_cast<TimesTerm>(expr);
+    if (data.i == 0)
+        data.partial = tmp->rhs;
     else
-        partial = divide(times(NEGATIVEONECONST, arg.lhs), times(arg.rhs, arg.rhs));
+        data.partial = tmp->lhs;
+}
+
+void visit_DivideTerm(const expr_pointer_t& expr, PartialData& data)
+{
+auto tmp = safe_pointer_cast<TimesTerm>(expr);
+    if (data.i == 0)
+        data.partial = divide(ONECONST, tmp->rhs);
+    else
+        data.partial = divide(times(NEGATIVEONECONST, tmp->lhs), times(tmp->rhs, tmp->rhs));
 }
 
 // GCOVR_EXCL_START
-void PartialVisitor::visit(AbsTerm&) { partial = 0; }
+void visit_AbsTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
 
-void PartialVisitor::visit(CeilTerm&) { partial = 0; }
+void visit_CeilTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
 
-void PartialVisitor::visit(FloorTerm&) { partial = 0; }
+void visit_FloorTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
 // GCOVR_EXCL_STOP
 
-// WEH - Is it possible to use the current expression, arg?  We don't know who owns it, so I think
-// not.
-void PartialVisitor::visit(ExpTerm& arg) { partial = CREATE_POINTER(ExpTerm, arg.body); }
-
-void PartialVisitor::visit(LogTerm& arg) { partial = divide(ONECONST, arg.body); }
-
-void PartialVisitor::visit(Log10Term& arg)
+void visit_ExpTerm(const expr_pointer_t& expr, PartialData& data)
 {
-    partial = divide(ONECONST, times(CREATE_POINTER(ConstantTerm, log(10.0)), arg.body));
+auto tmp = safe_pointer_cast<ExpTerm>(expr);
+data.partial = CREATE_POINTER(ExpTerm, tmp->body);
+//data.partial = tmp->body;
 }
 
-void PartialVisitor::visit(SqrtTerm& arg)
+void visit_LogTerm(const expr_pointer_t& expr, PartialData& data) 
 {
-    partial = intrinsic_pow(arg.body, CREATE_POINTER(ConstantTerm, -0.5));
+auto tmp = safe_pointer_cast<LogTerm>(expr);
+data.partial = divide(ONECONST, tmp->body);
 }
 
-void PartialVisitor::visit(SinTerm& arg) { partial = intrinsic_cos(arg.body); }
-
-void PartialVisitor::visit(CosTerm& arg)
+void visit_Log10Term(const expr_pointer_t& expr, PartialData& data) 
 {
-    partial = intrinsic_sin(arg.body);
-    partial = partial->negate(partial);
+auto tmp = safe_pointer_cast<Log10Term>(expr);
+    data.partial = divide(ONECONST, times(CREATE_POINTER(ConstantTerm, log(10.0)), tmp->body));
 }
 
-void PartialVisitor::visit(TanTerm& arg)
+void visit_SqrtTerm(const expr_pointer_t& expr, PartialData& data) 
 {
-    partial = divide(ONECONST,
-                     intrinsic_pow(intrinsic_cos(arg.body), CREATE_POINTER(ConstantTerm, 2.0)));
+auto tmp = safe_pointer_cast<SqrtTerm>(expr);
+    data.partial = intrinsic_pow(tmp->body, CREATE_POINTER(ConstantTerm, -0.5));
 }
 
-void PartialVisitor::visit(SinhTerm& arg)
+void visit_SinTerm(const expr_pointer_t& expr, PartialData& data) 
 {
-    // cosh(x)
-    partial = intrinsic_cosh(arg.body);
+auto tmp = safe_pointer_cast<SinTerm>(expr);
+data.partial = intrinsic_cos(tmp->body);
 }
 
-void PartialVisitor::visit(CoshTerm& arg)
+void visit_CosTerm(const expr_pointer_t& expr, PartialData& data) 
+{
+auto tmp = safe_pointer_cast<CosTerm>(expr);
+    data.partial = intrinsic_sin(tmp->body);
+    data.partial = data.partial->negate(data.partial);
+}
+
+void visit_TanTerm(const expr_pointer_t& expr, PartialData& data) 
+{
+auto tmp = safe_pointer_cast<TanTerm>(expr);
+    data.partial = divide(ONECONST,
+                     intrinsic_pow(intrinsic_cos(tmp->body), CREATE_POINTER(ConstantTerm, 2.0)));
+}
+
+void visit_SinhTerm(const expr_pointer_t& expr, PartialData& data) 
+{
+auto tmp = safe_pointer_cast<SinhTerm>(expr);
+    data.partial = intrinsic_cosh(tmp->body);
+}
+
+void visit_CoshTerm(const expr_pointer_t& expr, PartialData& data) 
 {
     // sinh(x)
-    partial = intrinsic_sinh(arg.body);
+auto tmp = safe_pointer_cast<CoshTerm>(expr);
+    data.partial = intrinsic_sinh(tmp->body);
 }
 
-void PartialVisitor::visit(TanhTerm& arg)
+void visit_TanhTerm(const expr_pointer_t& expr, PartialData& data) 
 {
+auto tmp = safe_pointer_cast<TanhTerm>(expr);
     // 1 - tan(x)^2
-    partial = plus(
+    data.partial = plus(
         ONECONST, times(NEGATIVEONECONST,
-                        intrinsic_pow(intrinsic_tan(arg.body), CREATE_POINTER(ConstantTerm, 2.0))));
+                        intrinsic_pow(intrinsic_tan(tmp->body), CREATE_POINTER(ConstantTerm, 2.0))));
 }
 
-void PartialVisitor::visit(ASinTerm& arg)
+void visit_ASinTerm(const expr_pointer_t& expr, PartialData& data) 
 {
+auto tmp = safe_pointer_cast<ASinTerm>(expr);
     // 1/sqrt(1-x^2)
-    partial = divide(ONECONST, intrinsic_sqrt(minus(ONECONST, times(arg.body, arg.body))));
+    data.partial = divide(ONECONST, intrinsic_sqrt(minus(ONECONST, times(tmp->body, tmp->body))));
 }
 
-void PartialVisitor::visit(ACosTerm& arg)
+void visit_ACosTerm(const expr_pointer_t& expr, PartialData& data) 
 {
+auto tmp = safe_pointer_cast<ACosTerm>(expr);
     // -1/sqrt(1-x^2)
-    partial = CREATE_POINTER(
-        NegateTerm, divide(ONECONST, intrinsic_sqrt(minus(ONECONST, times(arg.body, arg.body)))));
+    data.partial = CREATE_POINTER(
+        NegateTerm, divide(ONECONST, intrinsic_sqrt(minus(ONECONST, times(tmp->body, tmp->body)))));
 }
 
-void PartialVisitor::visit(ATanTerm& arg)
+void visit_ATanTerm(const expr_pointer_t& expr, PartialData& data) 
 {
+auto tmp = safe_pointer_cast<ATanTerm>(expr);
     // 1/(1+x^2)
-    partial = divide(ONECONST, plus(ONECONST, times(arg.body, arg.body)));
+    data.partial = divide(ONECONST, plus(ONECONST, times(tmp->body, tmp->body)));
 }
 
-void PartialVisitor::visit(ASinhTerm& arg)
+void visit_ASinhTerm(const expr_pointer_t& expr, PartialData& data) 
 {
+auto tmp = safe_pointer_cast<ASinhTerm>(expr);
     // 1/sqrt(1+x^2)
-    partial = divide(ONECONST, intrinsic_sqrt(plus(ONECONST, times(arg.body, arg.body))));
+    data.partial = divide(ONECONST, intrinsic_sqrt(plus(ONECONST, times(tmp->body, tmp->body))));
 }
 
-void PartialVisitor::visit(ACoshTerm& arg)
+void visit_ACoshTerm(const expr_pointer_t& expr, PartialData& data) 
 {
+auto tmp = safe_pointer_cast<ACoshTerm>(expr);
     // 1/sqrt(x^2-1)
-    partial = divide(ONECONST, intrinsic_sqrt(minus(times(arg.body, arg.body), ONECONST)));
+    data.partial = divide(ONECONST, intrinsic_sqrt(minus(times(tmp->body, tmp->body), ONECONST)));
 }
 
-void PartialVisitor::visit(ATanhTerm& arg)
+void visit_ATanhTerm(const expr_pointer_t& expr, PartialData& data) 
 {
+auto tmp = safe_pointer_cast<ATanhTerm>(expr);
     // 1/(1-x^2)
-    partial = divide(ONECONST, minus(times(arg.body, arg.body), ONECONST));
+    data.partial = divide(ONECONST, minus(times(tmp->body, tmp->body), ONECONST));
 }
 
-void PartialVisitor::visit(PowTerm& arg)
+void visit_PowTerm(const expr_pointer_t& expr, PartialData& data) 
 {
+auto tmp = safe_pointer_cast<PowTerm>(expr);
     // x^y
-    expr_pointer_t base = arg.lhs;
-    expr_pointer_t exp = arg.rhs;
-    if (i == 0)
+    expr_pointer_t base = tmp->lhs;
+    expr_pointer_t exp = tmp->rhs;
+    if (data.i == 0)
         // y x^(y-1)
-        partial = times(exp, intrinsic_pow(base, plus(exp, NEGATIVEONECONST)));
+        data.partial = times(exp, intrinsic_pow(base, plus(exp, NEGATIVEONECONST)));
     else
         // log(y) x^y
-        // partial = times(intrinsic_log(base), &arg);
-        // TODO - Can we use the reference to the current term?
-        partial = times(intrinsic_log(base), CREATE_POINTER(PowTerm, base, exp));
+        data.partial = times(intrinsic_log(base), expr);
 }
 
+/*
 // d curr / d child_i
-expr_pointer_t compute_partial(const expr_pointer_t& curr, size_t i, PartialVisitor& visitor)
+expr_pointer_t compute_partial(const expr_pointer_t& curr, size_t i, PartialData& visitor)
 {
     visitor.i = i;
     curr->accept(visitor);
     return visitor.partial;
 }
+*/
 
+#define VISIT_CASE(TERM)          \
+    case TERM##_id:               \
+        visit_##TERM(expr, data); \
+        break
+
+expr_pointer_t compute_partial(const expr_pointer_t& expr, size_t i, PartialData& data)
+{
+    data.i = i;
+
+    switch (expr->id()) {
+        VISIT_CASE(ConstantTerm);
+        VISIT_CASE(ParameterTerm);
+        VISIT_CASE(IndexParameterTerm);
+        VISIT_CASE(VariableTerm);
+        VISIT_CASE(IndexedVariableTerm);
+#ifdef COEK_WITH_COMPACT_MODEL
+        VISIT_CASE(VariableRefTerm);
+        VISIT_CASE(ParameterRefTerm);
+#endif
+        VISIT_CASE(MonomialTerm);
+        VISIT_CASE(InequalityTerm);
+        VISIT_CASE(EqualityTerm);
+        VISIT_CASE(ObjectiveTerm);
+        VISIT_CASE(NegateTerm);
+        VISIT_CASE(PlusTerm);
+        VISIT_CASE(TimesTerm);
+        VISIT_CASE(DivideTerm);
+        VISIT_CASE(AbsTerm);
+        VISIT_CASE(CeilTerm);
+        VISIT_CASE(FloorTerm);
+        VISIT_CASE(ExpTerm);
+        VISIT_CASE(LogTerm);
+        VISIT_CASE(Log10Term);
+        VISIT_CASE(SqrtTerm);
+        VISIT_CASE(SinTerm);
+        VISIT_CASE(CosTerm);
+        VISIT_CASE(TanTerm);
+        VISIT_CASE(SinhTerm);
+        VISIT_CASE(CoshTerm);
+        VISIT_CASE(TanhTerm);
+        VISIT_CASE(ASinTerm);
+        VISIT_CASE(ACosTerm);
+        VISIT_CASE(ATanTerm);
+        VISIT_CASE(ASinhTerm);
+        VISIT_CASE(ACoshTerm);
+        VISIT_CASE(ATanhTerm);
+        VISIT_CASE(PowTerm);
+
+        // GCOVR_EXCL_START
+        default:
+        throw std::runtime_error(
+        "Error in find_variables visitor!  Visiting unexpected expression term "
+        + std::to_string(expr->id()));
+        // GCOVR_EXCL_STOP
+        };
+
+    return data.partial;
+}
+        
 bool variable_comparator(const std::shared_ptr<VariableTerm>& lhs,
                          const std::shared_ptr<VariableTerm>& rhs)
 {
@@ -262,7 +310,7 @@ typedef ordered_variableset_t::iterator ordered_variableset_iterator_t;
 
 }  // namespace
 
-void symbolic_diff_all(const expr_pointer_t& root, std::map<VariableTerm*, expr_pointer_t>& diff)
+void symbolic_diff_all(const expr_pointer_t& root, std::map<std::shared_ptr<VariableTerm>, expr_pointer_t>& diff)
 {
     //
     // Default is zero, if the variable does not exist in this expression
@@ -272,13 +320,13 @@ void symbolic_diff_all(const expr_pointer_t& root, std::map<VariableTerm*, expr_
 
     else if (root->is_variable()) {
         auto tmp = std::dynamic_pointer_cast<VariableTerm>(root);
-        if (!tmp->fixed) diff[tmp.get()] = ONECONST;
+        if (!tmp->fixed) diff[tmp] = ONECONST;
         return;
     }
 
     else if (root->is_monomial()) {
         auto tmp = std::dynamic_pointer_cast<MonomialTerm>(root);
-        if (!tmp->var->fixed) diff[tmp->var.get()] = CREATE_POINTER(ConstantTerm, tmp->coef);
+        if (!tmp->var->fixed) diff[tmp->var] = CREATE_POINTER(ConstantTerm, tmp->coef);
         return;
     }
 
@@ -327,7 +375,7 @@ void symbolic_diff_all(const expr_pointer_t& root, std::map<VariableTerm*, expr_
     // they have been reached by all parents.
     //
     std::list<std::shared_ptr<ExpressionTerm>> queue2;
-    PartialVisitor visitor;
+    PartialData visitor;
     std::map<expr_pointer_t, expr_pointer_t> partial;
     partial[root] = ONECONST;
     auto ttmp = std::dynamic_pointer_cast<ExpressionTerm>(root);
@@ -436,7 +484,7 @@ void symbolic_diff_all(const expr_pointer_t& root, std::map<VariableTerm*, expr_
     }
 
     for (ordered_variableset_iterator_t it = variables.begin(); it != variables.end(); it++) {
-        diff[it->get()] = partial[*it];
+        diff[*it] = partial[*it];
 
 #ifdef DEBUG_DIFF
         write_expr(*it, std::cout);

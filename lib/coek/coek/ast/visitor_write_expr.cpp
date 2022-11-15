@@ -90,12 +90,11 @@ void WriteExprVisitor::visit(ParameterRefTerm& arg)
 {
     bool first = true;
     ostr << arg.name << "[";
-    for (auto it = arg.indices.begin(); it != arg.indices.end(); ++it) {
+    for (auto& val : arg.indices) {
         if (first)
             first = false;
         else
             ostr << ",";
-        auto val = *it;
         if (auto ival = std::get_if<int>(&val)) {
             ostr << *ival;
         }
@@ -110,12 +109,11 @@ void WriteExprVisitor::visit(VariableRefTerm& arg)
 {
     bool first = true;
     ostr << arg.name << "[";
-    for (auto it = arg.indices.begin(); it != arg.indices.end(); ++it) {
+    for (auto& val : arg.indices) {
         if (first)
             first = false;
         else
             ostr << ",";
-        auto val = *it;
         if (auto ival = std::get_if<int>(&val)) {
             ostr << *ival;
         }
@@ -222,6 +220,7 @@ void WriteExprVisitor::visit(DivideTerm& arg)
     }
 
 // clang-format off
+
 WriteExprVisitor_FN(abs, AbsTerm)
 WriteExprVisitor_FN(ceil, CeilTerm)
 WriteExprVisitor_FN(floor, FloorTerm)
@@ -241,9 +240,10 @@ WriteExprVisitor_FN(atan, ATanTerm)
 WriteExprVisitor_FN(asinh, ASinhTerm)
 WriteExprVisitor_FN(acosh, ACoshTerm)
 WriteExprVisitor_FN(atanh, ATanhTerm)
-    // clang-format on
 
-    void WriteExprVisitor::visit(PowTerm& arg)
+// clang-format on
+
+void WriteExprVisitor::visit(PowTerm& arg)
 {
     ostr << "pow(";
     arg.lhs->accept(*this);
@@ -258,6 +258,9 @@ void WriteExprVisitor::visit(EmptyConstraintTerm&) { ostr << "EmptyConstraint()"
 
 }  // namespace
 
+// NOTE: This function is defined with raw pointers to allow for the convenient
+// writing of raw AST term objects.  The pointer passed-in here is owned by a 
+// shared_ptr object.
 void write_expr(BaseExpressionTerm* expr, std::ostream& ostr)
 {
     // GCOVR_EXCL_START

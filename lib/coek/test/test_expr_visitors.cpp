@@ -141,8 +141,8 @@
         auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);    \
         coek::Expression e = FN(v + 1);                                         \
         mutable_values(e.repn, fixed_vars, params);                             \
-        static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn.get()}; \
-        static std::unordered_set<coek::ParameterTerm*> pbaseline{};            \
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn}; \
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};            \
         REQUIRE(fixed_vars == vbaseline);                                       \
         REQUIRE(params == pbaseline);                                           \
     }
@@ -154,8 +154,8 @@
         auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);    \
         coek::Expression e = FN(v + 1, v);                                      \
         mutable_values(e.repn, fixed_vars, params);                             \
-        static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn.get()}; \
-        static std::unordered_set<coek::ParameterTerm*> pbaseline{};            \
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn}; \
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};            \
         REQUIRE(fixed_vars == vbaseline);                                       \
         REQUIRE(params == pbaseline);                                           \
     }
@@ -2029,16 +2029,16 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
 TEST_CASE("mutable_values", "[smoke]")
 {
-    std::unordered_set<coek::VariableTerm*> fixed_vars;
-    std::unordered_set<coek::ParameterTerm*> params;
+    std::unordered_set<std::shared_ptr<coek::VariableTerm>> fixed_vars;
+    std::unordered_set<std::shared_ptr<coek::ParameterTerm>> params;
 
     SECTION("constant")
     {
         coek::Expression e(3);
         mutable_values(e.repn, fixed_vars, params);
 
-        static std::unordered_set<coek::VariableTerm*> vbaseline{};
-        static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
         REQUIRE(fixed_vars == vbaseline);
         REQUIRE(params == pbaseline);
     }
@@ -2049,8 +2049,8 @@ TEST_CASE("mutable_values", "[smoke]")
         coek::Expression e = p;
         mutable_values(e.repn, fixed_vars, params);
 
-        static std::unordered_set<coek::VariableTerm*> vbaseline{};
-        static std::unordered_set<coek::ParameterTerm*> pbaseline{p.repn.get()};
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
         REQUIRE(fixed_vars == vbaseline);
         REQUIRE(params == pbaseline);
     }
@@ -2061,8 +2061,8 @@ TEST_CASE("mutable_values", "[smoke]")
         coek::Expression e = p;
         mutable_values(e.repn, fixed_vars, params);
 
-        static std::unordered_set<coek::VariableTerm*> vbaseline{};
-        static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
         REQUIRE(fixed_vars == vbaseline);
         REQUIRE(params == pbaseline);
     }
@@ -2076,8 +2076,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = v;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2088,8 +2088,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = v;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2104,8 +2104,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = 2 * w;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2118,8 +2118,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = 2 * v;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2134,8 +2134,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = 2 * (v + v) + v;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2147,8 +2147,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = 3 * p + 2 * v;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{p.repn.get()};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2163,8 +2163,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = -(v + 1);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2180,8 +2180,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = p * v;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{p.repn.get()};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2193,8 +2193,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = v * w;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2210,8 +2210,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = p / w;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{w.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{p.repn.get()};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2223,8 +2223,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = w / p;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{w.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{p.repn.get()};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2235,8 +2235,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = w / (1 + w);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{w.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2254,8 +2254,8 @@ TEST_CASE("mutable_values", "[smoke]")
             w.fixed(true);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn.get(), w.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2267,8 +2267,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = v * (2 * w + 1);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn.get(), w.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2282,8 +2282,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = v * (2 * w + 1);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{w.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2295,8 +2295,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = -(-w) + (-(-w));
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{w.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2322,8 +2322,8 @@ TEST_CASE("mutable_values", "[smoke]")
         w.fixed(true);
         mutable_values(o.expr().repn, fixed_vars, params);
 
-        static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn.get(), w.repn.get()};
-        static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
         REQUIRE(fixed_vars == vbaseline);
         REQUIRE(params == pbaseline);
     }
@@ -2340,8 +2340,8 @@ TEST_CASE("mutable_values", "[smoke]")
             w.fixed(true);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn.get(), w.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2355,14 +2355,10 @@ TEST_CASE("mutable_values", "[smoke]")
             w.fixed(true);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn.get(), w.repn.get()};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
     }
-
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }

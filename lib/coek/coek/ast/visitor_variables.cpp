@@ -4,6 +4,7 @@
 #include "value_terms.hpp"
 #include "visitor.hpp"
 #include "visitor_fns.hpp"
+#include "../util/cast_utils.hpp"
 #if __cpp_lib_variant
 #    include "compact_terms.hpp"
 #endif
@@ -31,23 +32,25 @@ void visit_expression(const expr_pointer_t& expr, VariableData& data);
 #define FROM_BODY(TERM)                                               \
     void visit_##TERM(const expr_pointer_t& expr, VariableData& data) \
     {                                                                 \
-        auto tmp = std::dynamic_pointer_cast<TERM>(expr);             \
+        auto tmp = safe_pointer_cast<TERM>(expr);             \
         visit_expression(tmp->body, data);                            \
     }
 
 #define FROM_LHS_RHS(TERM)                                            \
     void visit_##TERM(const expr_pointer_t& expr, VariableData& data) \
     {                                                                 \
-        auto tmp = std::dynamic_pointer_cast<TERM>(expr);             \
+        auto tmp = safe_pointer_cast<TERM>(expr);             \
         visit_expression(tmp->lhs, data);                             \
         visit_expression(tmp->rhs, data);                             \
     }
+
+// -----------------------------------------------------------------------------------------
 
 void visit_ConstantTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/) {}
 
 void visit_ParameterTerm(const expr_pointer_t& expr, VariableData& data)
 {
-    auto tmp = std::dynamic_pointer_cast<ParameterTerm>(expr);
+    auto tmp = safe_pointer_cast<ParameterTerm>(expr);
     data.params.insert(tmp);
 }
 
@@ -55,7 +58,7 @@ void visit_IndexParameterTerm(const expr_pointer_t& /*expr*/, VariableData& /*da
 
 void visit_VariableTerm(const expr_pointer_t& expr, VariableData& data)
 {
-    auto tmp = std::dynamic_pointer_cast<VariableTerm>(expr);
+    auto tmp = safe_pointer_cast<VariableTerm>(expr);
     if (tmp->fixed)
         data.fixed_vars.insert(tmp);
     else
@@ -64,7 +67,7 @@ void visit_VariableTerm(const expr_pointer_t& expr, VariableData& data)
 
 void visit_IndexedVariableTerm(const expr_pointer_t& expr, VariableData& data)
 {
-    auto tmp = std::dynamic_pointer_cast<IndexedVariableTerm>(expr);
+    auto tmp = safe_pointer_cast<IndexedVariableTerm>(expr);
     if (tmp->fixed)
         data.fixed_vars.insert(tmp);
     else
@@ -72,12 +75,12 @@ void visit_IndexedVariableTerm(const expr_pointer_t& expr, VariableData& data)
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-void visit_ParameterRefTerm(const expr_pointer_t& expr, VariableData& data)
+void visit_ParameterRefTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/)
 {
     throw std::runtime_error("Attempting to find variables in an abstract expression!");
 }
 
-void visit_VariableRefTerm(const expr_pointer_t& expr, VariableData& data)
+void visit_VariableRefTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/)
 {
     throw std::runtime_error("Attempting to find variables in an abstract expression!");
 }
@@ -85,7 +88,7 @@ void visit_VariableRefTerm(const expr_pointer_t& expr, VariableData& data)
 
 void visit_MonomialTerm(const expr_pointer_t& expr, VariableData& data)
 {
-    auto tmp = std::dynamic_pointer_cast<MonomialTerm>(expr);
+    auto tmp = safe_pointer_cast<MonomialTerm>(expr);
     if (tmp->var->fixed)
         data.fixed_vars.insert(tmp->var);
     else
@@ -101,7 +104,7 @@ FROM_BODY(NegateTerm)
 
 void visit_PlusTerm(const expr_pointer_t& expr, VariableData& data)
 {
-    auto tmp = std::dynamic_pointer_cast<PlusTerm>(expr);
+    auto tmp = safe_pointer_cast<PlusTerm>(expr);
     for (auto& it : *(tmp->data)) visit_expression(it, data);
 }
 
@@ -195,7 +198,7 @@ void find_vars_and_params(const expr_pointer_t& expr,
                           std::set<std::shared_ptr<ParameterTerm>>& params)
 {
     // GCOVR_EXCL_START
-    if (expr == 0) return;
+    if (not expr) return;
     // GCOVR_EXCL_STOP
 
     VariableData data(vars, fixed_vars, params);
