@@ -1,6 +1,3 @@
-//#include <cstdio>
-#include "coek/model/model.hpp"
-
 #include <cmath>
 #include <iostream>
 #include <map>
@@ -14,6 +11,7 @@
 #include "../util/map_utils.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
+#include "coek/model/model.hpp"
 #include "model_repn.hpp"
 
 namespace coek {
@@ -53,7 +51,7 @@ void Model::print_equations(std::ostream& ostr) const
 
 void Model::print_values(std::ostream& ostr)
 {
-    if (repn->variables_by_name.size() < repn->variables.size()) initialize_names();
+    if (repn->variables_by_name.size() < repn->variables.size()) generate_names();
     ostr << "Model Variables: " << repn->variables_by_name.size() << "\n";
     ostr << "Nonzero Variables\n";
     for (auto const& var : repn->variables_by_name) {
@@ -65,16 +63,6 @@ void Model::print_values(std::ostream& ostr)
 }
 
 Model::Model() { repn = std::make_shared<ModelRepn>(); }
-
-Model::~Model() {}
-
-Model::Model(const Model& other) { repn = other.repn; }
-
-Model& Model::operator=(const Model& other)
-{
-    repn = other.repn;
-    return *this;
-}
 
 Variable Model::add_variable()
 {
@@ -94,16 +82,6 @@ Variable& Model::add_variable(Variable& var)
 {
     repn->variables.push_back(var);
     return var;
-}
-
-void Model::add_variable(PythonVariableArray& varray)
-{
-    repn->variables.insert(repn->variables.end(), varray.variables.begin(), varray.variables.end());
-    /*
-    for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
-        repn->variables.push_back(*it);
-        }
-    */
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -126,6 +104,17 @@ Variable& Model::add(Variable&& var)
 {
     repn->variables.push_back(var);
     return var;
+}
+
+void Model::add_variable(PythonVariableArray& varray)
+{
+    // TODO - confirm name generation here
+    repn->variables.insert(repn->variables.end(), varray.variables.begin(), varray.variables.end());
+    /*
+    for (auto it=varray.variables.begin(); it != varray.variables.end(); it++) {
+        repn->variables.push_back(*it);
+        }
+    */
 }
 
 Objective Model::add_objective(const Expression& expr)
@@ -219,7 +208,7 @@ Constraint Model::get_constraint(size_t i)
 
 Variable Model::get_variable(const std::string& name)
 {
-    if (repn->variables_by_name.size() < repn->variables.size()) initialize_names();
+    if (repn->variables_by_name.size() < repn->variables.size()) generate_names();
     auto it = repn->variables_by_name.find(name);
     if (it == repn->variables_by_name.end())
         throw std::runtime_error("Unknown variable name " + name);
@@ -228,7 +217,7 @@ Variable Model::get_variable(const std::string& name)
 
 Objective Model::get_objective(const std::string& name)
 {
-    if (repn->objectives_by_name.size() < repn->objectives.size()) initialize_names();
+    if (repn->objectives_by_name.size() < repn->objectives.size()) generate_names();
     auto it = repn->objectives_by_name.find(name);
     if (it == repn->objectives_by_name.end())
         throw std::runtime_error("Unknown objective name " + name);
@@ -237,7 +226,7 @@ Objective Model::get_objective(const std::string& name)
 
 Constraint Model::get_constraint(const std::string& name)
 {
-    if (repn->constraints_by_name.size() < repn->constraints.size()) initialize_names();
+    if (repn->constraints_by_name.size() < repn->constraints.size()) generate_names();
     auto it = repn->constraints_by_name.find(name);
     if (it == repn->constraints_by_name.end())
         throw std::runtime_error("Unknown constraint name " + name);
@@ -246,47 +235,55 @@ Constraint Model::get_constraint(const std::string& name)
 
 std::set<std::string> Model::variable_names()
 {
-    if (repn->variables_by_name.size() < repn->variables.size()) initialize_names();
+    if (repn->variables_by_name.size() < repn->variables.size()) generate_names();
     return map_keys(repn->variables_by_name);
 }
 
 std::set<std::string> Model::objective_names()
 {
-    if (repn->objectives_by_name.size() < repn->objectives.size()) initialize_names();
+    if (repn->objectives_by_name.size() < repn->objectives.size()) generate_names();
     return map_keys(repn->objectives_by_name);
 }
 
 std::set<std::string> Model::constraint_names()
 {
-    if (repn->constraints_by_name.size() < repn->constraints.size()) initialize_names();
+    if (repn->constraints_by_name.size() < repn->constraints.size()) generate_names();
     return map_keys(repn->constraints_by_name);
 }
 
 std::map<std::string, Variable>& Model::get_variables_by_name()
 {
-    if (repn->variables_by_name.size() < repn->variables.size()) initialize_names();
+    if (repn->variables_by_name.size() < repn->variables.size()) generate_names();
     return repn->variables_by_name;
 }
 
 std::map<std::string, Objective>& Model::get_objectives_by_name()
 {
-    if (repn->objectives_by_name.size() < repn->objectives.size()) initialize_names();
+    if (repn->objectives_by_name.size() < repn->objectives.size()) generate_names();
     return repn->objectives_by_name;
 }
 
 std::map<std::string, Constraint>& Model::get_constraints_by_name()
 {
-    if (repn->constraints_by_name.size() < repn->constraints.size()) initialize_names();
+    if (repn->constraints_by_name.size() < repn->constraints.size()) generate_names();
     return repn->constraints_by_name;
 }
 
-void Model::initialize_names()
+void Model::generate_names()
 {
+    if (repn->name_generation_policy == Model::NameGeneration::lazy) {
+        for (auto& parray : repn->parameter_arrays) parray.generate_names();
+        for (auto& varray : repn->variable_arrays) varray.generate_names();
+        for (auto& pmap : repn->parameter_maps) pmap.generate_names();
+        for (auto& vmap : repn->variable_maps) vmap.generate_names();
+        for (auto& cmap : repn->constraint_maps) cmap.generate_names();
+    }
+
     repn->variables_by_name.clear();
-    for (auto& v : repn->variables) repn->variables_by_name.emplace(v.name(), v);
     repn->objectives_by_name.clear();
-    for (auto& o : repn->objectives) repn->objectives_by_name.emplace(o.name(), o);
     repn->constraints_by_name.clear();
+    for (auto& v : repn->variables) repn->variables_by_name.emplace(v.name(), v);
+    for (auto& o : repn->objectives) repn->objectives_by_name.emplace(o.name(), o);
     for (auto& c : repn->constraints) repn->constraints_by_name.emplace(c.name(), c);
 }
 
@@ -361,6 +358,12 @@ void Model::write(std::string fname)
 void Model::write(std::string fname, std::map<size_t, size_t>& varmap,
                   std::map<size_t, size_t>& conmap)
 {
+    if (repn->name_generation_policy == Model::NameGeneration::lazy) {
+        for (auto& varray : repn->variable_arrays) varray.generate_names();
+        for (auto& vmap : repn->variable_maps) vmap.generate_names();
+        for (auto& cmap : repn->constraint_maps) cmap.generate_names();
+    }
+
     if (endsWith(fname, ".lp")) {
         write_lp_problem(*this, fname, varmap, conmap);
         return;

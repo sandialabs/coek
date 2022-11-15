@@ -240,7 +240,7 @@ TEST_CASE("1D_param_map", "[smoke]")
         auto s = coek::SetOf(v);
         auto r = coek::SetOf({0});
         auto S = s - r;
-        auto params = coek::parameter("params", S).value(0);
+        auto params = coek::parameter("params", S).value(0).generate_names();
 
         WHEN("typeof") { REQUIRE(typeid(params(1)).name() == typeid(coek::Parameter).name()); }
 
@@ -321,7 +321,7 @@ TEST_CASE("1D_param_array", "[smoke]")
 
         WHEN("name")
         {
-            auto params = coek::parameter(4).name("v");
+            auto params = coek::parameter(4).name("v").generate_names();
             for (int i = 0; i < 4; i++) REQUIRE(params(i).name() == "v[" + std::to_string(i) + "]");
         }
     }
@@ -350,7 +350,7 @@ TEST_CASE("1D_param_array", "[smoke]")
 
         WHEN("name")
         {
-            auto params = coek::parameter(dim).name("v");
+            auto params = coek::parameter(dim).name("v").generate_names();
             for (int i = 0; i < 4; i++) REQUIRE(params(i).name() == "v[" + std::to_string(i) + "]");
         }
     }
@@ -377,7 +377,7 @@ TEST_CASE("1D_param_array", "[smoke]")
 
         WHEN("name")
         {
-            auto params = coek::parameter({4}).name("v");
+            auto params = coek::parameter({4}).name("v").generate_names();
             for (int i = 0; i < 4; i++) REQUIRE(params(i).name() == "v[" + std::to_string(i) + "]");
         }
     }
@@ -448,7 +448,7 @@ TEST_CASE("2D_param_map", "[smoke]")
         auto W = coek::SetOf(w);
         auto r = coek::SetOf({0});
         auto S = V * W;
-        auto params = coek::parameter("params", S).value(0);
+        auto params = coek::parameter("params", S).value(0).generate_names();
 
         WHEN("typeof") { REQUIRE(typeid(params(1, 2)).name() == typeid(coek::Parameter).name()); }
 
@@ -544,7 +544,7 @@ TEST_CASE("2D_param_array", "[smoke]")
         WHEN("name")
         {
             std::vector<size_t> dim{4, 3};
-            auto params = coek::parameter(dim).name("v");
+            auto params = coek::parameter(dim).name("v").generate_names();
             for (int i = 0; i < 4; i++)
                 for (int j = 0; j < 3; j++)
                     REQUIRE(params(i, j).name()
@@ -583,7 +583,7 @@ TEST_CASE("2D_param_array", "[smoke]")
 
         WHEN("name")
         {
-            auto params = coek::parameter({4, 3}).name("v");
+            auto params = coek::parameter({4, 3}).name("v").generate_names();
             for (int i = 0; i < 4; i++)
                 for (int j = 0; j < 3; j++)
                     REQUIRE(params(i, j).name()
@@ -646,7 +646,7 @@ TEST_CASE("3D_param_array", "[smoke]")
         WHEN("name")
         {
             std::vector<size_t> dim{5, 4, 3};
-            auto params = coek::parameter(dim).name("v");
+            auto params = coek::parameter(dim).name("v").generate_names();
             for (int i = 0; i < 5; i++)
                 for (int j = 0; j < 4; j++)
                     for (int k = 0; k < 3; k++)
@@ -687,7 +687,7 @@ TEST_CASE("3D_param_array", "[smoke]")
 
         WHEN("name")
         {
-            auto params = coek::parameter({5, 4, 3}).name("v");
+            auto params = coek::parameter({5, 4, 3}).name("v").generate_names();
             for (int i = 0; i < 5; i++)
                 for (int j = 0; j < 4; j++)
                     for (int k = 0; k < 3; k++)

@@ -24,7 +24,8 @@ inline expr_pointer_t plus_(const expr_pointer_t& lhs, const expr_pointer_t& rhs
         auto _rhs = safe_pointer_cast<ConstantTerm>(rhs);
         tmp = CREATE_POINTER(ConstantTerm, _lhs->value + _rhs->value);
     }
-    else tmp = CREATE_POINTER(PlusTerm, lhs, rhs);
+    else
+        tmp = CREATE_POINTER(PlusTerm, lhs, rhs);
     return tmp;
 }
 
@@ -32,8 +33,10 @@ template <typename LHS, typename RHS>
 expr_pointer_t plus(const LHS& lhs, const RHS& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == ZEROCONST) tmp = rhs;
-    else tmp = CREATE_POINTER(PlusTerm, lhs, rhs);
+    if (lhs == ZEROCONST)
+        tmp = rhs;
+    else
+        tmp = CREATE_POINTER(PlusTerm, lhs, rhs);
     return tmp;
 }
 
@@ -41,8 +44,10 @@ template <typename LHS>
 expr_pointer_t plus(const LHS& lhs, double rhs)
 {
     expr_pointer_t tmp;
-    if (rhs == 0.0) tmp = lhs;
-    else tmp = CREATE_POINTER(PlusTerm, lhs,  CREATE_POINTER(ConstantTerm, rhs));
+    if (rhs == 0.0)
+        tmp = lhs;
+    else
+        tmp = CREATE_POINTER(PlusTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
     return tmp;
 }
 
@@ -50,8 +55,10 @@ template <typename RHS>
 expr_pointer_t plus(double lhs, const RHS& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == 0.0) tmp = rhs;
-    else tmp = CREATE_POINTER(PlusTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, false);
+    if (lhs == 0.0)
+        tmp = rhs;
+    else
+        tmp = CREATE_POINTER(PlusTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, false);
     return tmp;
 }
 
@@ -59,8 +66,10 @@ template <typename LHS>
 expr_pointer_t plus(const LHS& lhs, int rhs)
 {
     expr_pointer_t tmp;
-    if (rhs == 0) tmp = lhs;
-    else tmp = CREATE_POINTER(PlusTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
+    if (rhs == 0)
+        tmp = lhs;
+    else
+        tmp = CREATE_POINTER(PlusTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
     return tmp;
 }
 
@@ -68,8 +77,10 @@ template <typename RHS>
 expr_pointer_t plus(int lhs, const RHS& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == 0) tmp = rhs;
-    else tmp = CREATE_POINTER(PlusTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, false);
+    if (lhs == 0)
+        tmp = rhs;
+    else
+        tmp = CREATE_POINTER(PlusTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, false);
     return tmp;
 }
 
@@ -86,8 +97,10 @@ template <typename RHS>
 expr_pointer_t minus(double lhs, const RHS& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == 0.0) tmp = rhs->negate(rhs);
-    else tmp = CREATE_POINTER(PlusTerm,  CREATE_POINTER(ConstantTerm, lhs), rhs->negate(rhs), false);
+    if (lhs == 0.0)
+        tmp = rhs->negate(rhs);
+    else
+        tmp = CREATE_POINTER(PlusTerm, CREATE_POINTER(ConstantTerm, lhs), rhs->negate(rhs), false);
     return tmp;
 }
 
@@ -95,8 +108,10 @@ template <typename RHS>
 expr_pointer_t minus(int lhs, const RHS& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == 0) tmp = rhs->negate(rhs);
-    else tmp = CREATE_POINTER(PlusTerm, CREATE_POINTER(ConstantTerm, lhs), rhs->negate(rhs), false);
+    if (lhs == 0)
+        tmp = rhs->negate(rhs);
+    else
+        tmp = CREATE_POINTER(PlusTerm, CREATE_POINTER(ConstantTerm, lhs), rhs->negate(rhs), false);
     return tmp;
 }
 
@@ -124,8 +139,10 @@ expr_pointer_t minus(const LHS& lhs, int rhs)
 inline expr_pointer_t times_(const expr_pointer_t& lhs, const expr_pointer_t& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == ONECONST) tmp = rhs;
-    else if (rhs == ONECONST) tmp = lhs;
+    if (lhs == ONECONST)
+        tmp = rhs;
+    else if (rhs == ONECONST)
+        tmp = lhs;
     /* WEH - Not seen in practice
     if (rhs == ZEROCONST)
     if (lhs == ZEROCONST)
@@ -137,7 +154,8 @@ inline expr_pointer_t times_(const expr_pointer_t& lhs, const expr_pointer_t& rh
         auto _rhs = safe_pointer_cast<ConstantTerm>(rhs);
         tmp = CREATE_POINTER(ConstantTerm, _lhs->value * _rhs->value);
     }
-    else tmp = CREATE_POINTER(TimesTerm, lhs, rhs);
+    else
+        tmp = CREATE_POINTER(TimesTerm, lhs, rhs);
     return tmp;
 }
 
@@ -151,12 +169,15 @@ template <typename LHS>
 expr_pointer_t times(const LHS& lhs, double rhs)
 {
     expr_pointer_t tmp;
-    if (rhs == 0.0) tmp = ZEROCONST;
-    else if (rhs == 1.0) tmp = lhs;
+    if (rhs == 0.0)
+        tmp = ZEROCONST;
+    else if (rhs == 1.0)
+        tmp = lhs;
     // if (rhs == -1.0)
     //     return lhs->negate(lhs);
 
-    else tmp = CREATE_POINTER(TimesTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
+    else
+        tmp = CREATE_POINTER(TimesTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
     return tmp;
 }
 
@@ -164,12 +185,15 @@ template <typename RHS>
 expr_pointer_t times(double lhs, const RHS& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == 0.0) tmp = ZEROCONST;
-    else if (lhs == 1.0) tmp = rhs;
+    if (lhs == 0.0)
+        tmp = ZEROCONST;
+    else if (lhs == 1.0)
+        tmp = rhs;
     // if (lhs == -1.0)
     //     return rhs->negate(rhs);
 
-    else tmp = CREATE_POINTER(TimesTerm, CREATE_POINTER(ConstantTerm, lhs), rhs);
+    else
+        tmp = CREATE_POINTER(TimesTerm, CREATE_POINTER(ConstantTerm, lhs), rhs);
     return tmp;
 }
 
@@ -177,12 +201,15 @@ template <typename LHS>
 expr_pointer_t times(const LHS& lhs, int rhs)
 {
     expr_pointer_t tmp;
-    if (rhs == 0) tmp = ZEROCONST;
-    else if (rhs == 1) tmp = lhs;
+    if (rhs == 0)
+        tmp = ZEROCONST;
+    else if (rhs == 1)
+        tmp = lhs;
     // if (rhs == -1)
     //     return lhs->negate(lhs);
 
-    else tmp = CREATE_POINTER(TimesTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
+    else
+        tmp = CREATE_POINTER(TimesTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
     return tmp;
 }
 
@@ -190,12 +217,15 @@ template <typename RHS>
 expr_pointer_t times(int lhs, const RHS& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == 0) tmp = ZEROCONST;
-    else if (lhs == 1) tmp = rhs;
+    if (lhs == 0)
+        tmp = ZEROCONST;
+    else if (lhs == 1)
+        tmp = rhs;
     // if (lhs == -1)
     //     return rhs->negate(rhs);
 
-    else tmp = CREATE_POINTER(TimesTerm, CREATE_POINTER(ConstantTerm, lhs), rhs);
+    else
+        tmp = CREATE_POINTER(TimesTerm, CREATE_POINTER(ConstantTerm, lhs), rhs);
     return tmp;
 }
 
@@ -206,7 +236,8 @@ expr_pointer_t times(int lhs, const RHS& rhs)
 inline expr_pointer_t divide_(const expr_pointer_t& lhs, const expr_pointer_t& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == ZEROCONST) tmp = ZEROCONST;
+    if (lhs == ZEROCONST)
+        tmp = ZEROCONST;
     else if (lhs->is_constant() and (safe_pointer_cast<ConstantTerm>(lhs)->value == 0))
         tmp = ZEROCONST;
     /* WEH - Not used in practice
@@ -216,7 +247,8 @@ inline expr_pointer_t divide_(const expr_pointer_t& lhs, const expr_pointer_t& r
     if (rhs->is_constant()) {
     if (lhs->is_constant() and rhs->is_constant()) {
     */
-    else tmp = CREATE_POINTER(DivideTerm, lhs, rhs);
+    else
+        tmp = CREATE_POINTER(DivideTerm, lhs, rhs);
     return tmp;
 }
 
@@ -231,8 +263,10 @@ expr_pointer_t divide(const LHS& lhs, double rhs)
 {
     if (rhs == 0.0) throw std::domain_error("Division by zero.");
     expr_pointer_t tmp;
-    if (rhs == 1.0) tmp = lhs;
-    else tmp = CREATE_POINTER(DivideTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
+    if (rhs == 1.0)
+        tmp = lhs;
+    else
+        tmp = CREATE_POINTER(DivideTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
     return tmp;
 }
 
@@ -240,8 +274,10 @@ template <typename RHS>
 expr_pointer_t divide(double lhs, const RHS& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == 0.0) tmp = ZEROCONST;
-    else tmp = CREATE_POINTER(DivideTerm, CREATE_POINTER(ConstantTerm, lhs), rhs);
+    if (lhs == 0.0)
+        tmp = ZEROCONST;
+    else
+        tmp = CREATE_POINTER(DivideTerm, CREATE_POINTER(ConstantTerm, lhs), rhs);
     return tmp;
 }
 
@@ -251,8 +287,10 @@ expr_pointer_t divide(const LHS& lhs, int rhs)
     if (rhs == 0) throw std::domain_error("Division by zero.");
 
     expr_pointer_t tmp;
-    if (rhs == 1) tmp = lhs;
-    else tmp = CREATE_POINTER(DivideTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
+    if (rhs == 1)
+        tmp = lhs;
+    else
+        tmp = CREATE_POINTER(DivideTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
     return tmp;
 }
 
@@ -260,8 +298,10 @@ template <typename RHS>
 expr_pointer_t divide(int lhs, const RHS& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == 0) tmp = ZEROCONST;
-    else tmp = CREATE_POINTER(DivideTerm, CREATE_POINTER(ConstantTerm, lhs), rhs);
+    if (lhs == 0)
+        tmp = ZEROCONST;
+    else
+        tmp = CREATE_POINTER(DivideTerm, CREATE_POINTER(ConstantTerm, lhs), rhs);
     return tmp;
 }
 
@@ -277,14 +317,16 @@ expr_pointer_t intrinsic_abs(const BODY& body)
     return CREATE_POINTER(AbsTerm, body);
 }
 
-#define UNARY_TEMPLATE(FN, TERM)                                                          \
-    template <typename BODY>                                                              \
-    expr_pointer_t intrinsic_##FN(const BODY& body)                                       \
-    {                                                                                     \
-        expr_pointer_t tmp; \
-        if (body->is_constant()) tmp = CREATE_POINTER(ConstantTerm, ::FN(body->eval())); \
-        else tmp = CREATE_POINTER(TERM, body);                                                \
-        return tmp; \
+#define UNARY_TEMPLATE(FN, TERM)                                    \
+    template <typename BODY>                                        \
+    expr_pointer_t intrinsic_##FN(const BODY& body)                 \
+    {                                                               \
+        expr_pointer_t tmp;                                         \
+        if (body->is_constant())                                    \
+            tmp = CREATE_POINTER(ConstantTerm, ::FN(body->eval())); \
+        else                                                        \
+            tmp = CREATE_POINTER(TERM, body);                       \
+        return tmp;                                                 \
     }
 
 UNARY_TEMPLATE(ceil, CeilTerm)
@@ -309,15 +351,16 @@ UNARY_TEMPLATE(atanh, ATanhTerm)
 //
 // Binary Function Terms
 //
-#define BINARY_TEMPLATE(FN, TERM)                                                \
-    template <typename LHS, typename RHS>                                        \
-    expr_pointer_t intrinsic_##FN(const LHS& lhs, const RHS& rhs)                \
-    {                                                                            \
-        expr_pointer_t tmp; \
-        if (lhs->is_constant() and rhs->is_constant())                           \
+#define BINARY_TEMPLATE(FN, TERM)                                               \
+    template <typename LHS, typename RHS>                                       \
+    expr_pointer_t intrinsic_##FN(const LHS& lhs, const RHS& rhs)               \
+    {                                                                           \
+        expr_pointer_t tmp;                                                     \
+        if (lhs->is_constant() and rhs->is_constant())                          \
             tmp = CREATE_POINTER(ConstantTerm, ::FN(lhs->eval(), rhs->eval())); \
-        else tmp = CREATE_POINTER(TERM, lhs, rhs);                                   \
-        return tmp; \
+        else                                                                    \
+            tmp = CREATE_POINTER(TERM, lhs, rhs);                               \
+        return tmp;                                                             \
     }
 
 template <typename LHS, typename RHS>
@@ -330,7 +373,8 @@ expr_pointer_t intrinsic_pow(const LHS& lhs, const RHS& rhs)
             tmp = ZEROCONST;
         else if (_lhs == 1)
             tmp = ONECONST;
-        else tmp = CREATE_POINTER(PowTerm, lhs, rhs);
+        else
+            tmp = CREATE_POINTER(PowTerm, lhs, rhs);
     }
     else if (rhs->is_constant()) {
         double _rhs = rhs->eval();
@@ -338,9 +382,11 @@ expr_pointer_t intrinsic_pow(const LHS& lhs, const RHS& rhs)
             tmp = ONECONST;
         else if (_rhs == 1)
             tmp = lhs;
-        else tmp = CREATE_POINTER(PowTerm, lhs, rhs);
+        else
+            tmp = CREATE_POINTER(PowTerm, lhs, rhs);
     }
-    else tmp = CREATE_POINTER(PowTerm, lhs, rhs);
+    else
+        tmp = CREATE_POINTER(PowTerm, lhs, rhs);
     return tmp;
 }
 

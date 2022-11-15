@@ -38,7 +38,7 @@ class ParameterTerm : public BaseParameterTerm {
     void set_value(double val);
     void set_value(expr_pointer_t val);
 
-    virtual std::string get_simple_name() { return "x[" + std::to_string(index) + "]"; }
+    virtual std::string get_simple_name() { return "P[" + std::to_string(index) + "]"; }
     virtual std::string get_name()
     {
         if (name == "")
@@ -46,20 +46,6 @@ class ParameterTerm : public BaseParameterTerm {
         else
             return name;
     }
-};
-
-class IndexedParameterTerm : public ParameterTerm {
-   public:
-    void* param;  // ConcreteIndexedParameterRepn
-    size_t pindex;
-    bool first = true;
-
-    IndexedParameterTerm(const expr_pointer_t& _value, size_t _pindex, void* _param)
-        : ParameterTerm(_value), param(_param), pindex(_pindex)
-    {
-    }
-
-    std::string get_name();
 };
 
 //
@@ -137,7 +123,7 @@ class VariableTerm : public BaseVariableTerm {
     void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return VariableTerm_id; }
 
-    virtual std::string get_simple_name() { return "x[" + std::to_string(index) + "]"; }
+    virtual std::string get_simple_name() { return "X[" + std::to_string(index) + "]"; }
     virtual std::string get_name()
     {
         if (name == "")
@@ -154,26 +140,6 @@ class VariableTerm : public BaseVariableTerm {
 
     void set_value(double val);
     void set_value(expr_pointer_t val);
-};
-
-class IndexedVariableTerm : public VariableTerm {
-   public:
-    // WEH - TODO: more explicit representation here with shared_ptr
-    void* var;  // ConcreteIndexedVariableRepn
-    size_t vindex;
-    bool first = true;
-
-    IndexedVariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub,
-                        const expr_pointer_t& _value, bool _binary, bool _integer, size_t _vindex,
-                        void* _var)
-        : VariableTerm(_lb, _ub, _value, _binary, _integer), var(_var), vindex(_vindex)
-    {
-    }
-
-    std::string get_name();
-
-    // void accept(Visitor& v)
-    //     { v.visit(*this); }
 };
 
 //

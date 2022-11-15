@@ -20,19 +20,19 @@ class VariableAssocArrayRepn {
     IndexVectorCache cache;
     std::vector<Variable> values;
     Variable variable_template;
-    bool call_setup;
+
+    bool first_setup = true;
 
    public:
     VariableAssocArrayRepn();
 
     virtual void setup();
+    virtual void generate_names() = 0;
 
     virtual size_t dim() const = 0;
     virtual size_t size() const = 0;
 
     void resize_index_vectors(IndexVector& tmp, std::vector<refarg_types>& reftmp);
-
-    virtual std::string get_name(size_t index) = 0;
 
     /** Set the initial variable value. \returns the variable object. */
     void value(double value);

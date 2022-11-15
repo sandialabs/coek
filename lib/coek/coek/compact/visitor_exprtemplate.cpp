@@ -137,7 +137,6 @@ expr_pointer_t visit_expression(expr_pointer_t expr)
         case ConstantTerm_id:
         case ParameterTerm_id:
         case VariableTerm_id:
-        case IndexedVariableTerm_id:
         case MonomialTerm_id:
             return expr;
 

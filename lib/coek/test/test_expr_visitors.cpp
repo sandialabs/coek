@@ -134,30 +134,30 @@
         MEMCHECK;                                                                 \
     }
 
-#define MV_INTRINSIC_TEST1(FN)                                                  \
-    WHEN(#FN)                                                                   \
-    {                                                                           \
-        coek::Model m;                                                          \
-        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);    \
-        coek::Expression e = FN(v + 1);                                         \
-        mutable_values(e.repn, fixed_vars, params);                             \
+#define MV_INTRINSIC_TEST1(FN)                                                            \
+    WHEN(#FN)                                                                             \
+    {                                                                                     \
+        coek::Model m;                                                                    \
+        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);              \
+        coek::Expression e = FN(v + 1);                                                   \
+        mutable_values(e.repn, fixed_vars, params);                                       \
         static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn}; \
-        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};            \
-        REQUIRE(fixed_vars == vbaseline);                                       \
-        REQUIRE(params == pbaseline);                                           \
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};      \
+        REQUIRE(fixed_vars == vbaseline);                                                 \
+        REQUIRE(params == pbaseline);                                                     \
     }
 
-#define MV_INTRINSIC_TEST2(FN)                                                  \
-    WHEN(#FN)                                                                   \
-    {                                                                           \
-        coek::Model m;                                                          \
-        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);    \
-        coek::Expression e = FN(v + 1, v);                                      \
-        mutable_values(e.repn, fixed_vars, params);                             \
+#define MV_INTRINSIC_TEST2(FN)                                                            \
+    WHEN(#FN)                                                                             \
+    {                                                                                     \
+        coek::Model m;                                                                    \
+        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);              \
+        coek::Expression e = FN(v + 1, v);                                                \
+        mutable_values(e.repn, fixed_vars, params);                                       \
         static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn}; \
-        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};            \
-        REQUIRE(fixed_vars == vbaseline);                                       \
-        REQUIRE(params == pbaseline);                                           \
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};      \
+        REQUIRE(fixed_vars == vbaseline);                                                 \
+        REQUIRE(params == pbaseline);                                                     \
     }
 
 #ifdef WITH_AST_ENV
@@ -201,7 +201,7 @@ TEST_CASE("expr_writer", "[smoke]")
             auto v = coek::variable("");
             std::stringstream sstr;
             sstr << v;
-            REQUIRE(sstr.str()[0] == 'x');
+            REQUIRE(sstr.str()[0] == 'X');
         }
         WHEN("named ")
         {
@@ -2254,7 +2254,8 @@ TEST_CASE("mutable_values", "[smoke]")
             w.fixed(true);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn,
+                                                                                     w.repn};
             static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
@@ -2267,7 +2268,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = v * (2 * w + 1);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn,
+                                                                                     w.repn};
             static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
@@ -2340,7 +2342,8 @@ TEST_CASE("mutable_values", "[smoke]")
             w.fixed(true);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn,
+                                                                                     w.repn};
             static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
@@ -2355,7 +2358,8 @@ TEST_CASE("mutable_values", "[smoke]")
             w.fixed(true);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn,
+                                                                                     w.repn};
             static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);

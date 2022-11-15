@@ -5,6 +5,7 @@
 #include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
+#include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
 #include "coek/model/nlp_model.hpp"
 #include "coek/solvers/ipopt/ipopt_solver.hpp"
@@ -125,18 +126,16 @@ void SolverRepn::load(Model& _model)
         std::unordered_set<std::shared_ptr<ParameterTerm>> params;
 
         mutable_values(_repn.constval, fixed_vars, params);
-        for (auto& it : fixed_vars) 
-            GetWithDef(vconstvals, it.get()).insert(j);
-        for (auto& it : params) 
-            GetWithDef(pconstvals, it.get()).insert(j);
+        for (auto& it : fixed_vars) GetWithDef(vconstvals, it.get()).insert(j);
+        for (auto& it : params) GetWithDef(pconstvals, it.get()).insert(j);
 
         for (size_t i = 0; i < _repn.linear_coefs.size(); i++) {
             fixed_vars.clear();
             params.clear();
             mutable_values(_repn.linear_coefs[i], fixed_vars, params);
-            for (auto& it : fixed_vars) 
+            for (auto& it : fixed_vars)
                 GetWithDef(vlinvals, it.get()).insert(std::pair<size_t, size_t>(j, i));
-            for (auto& it : params) 
+            for (auto& it : params)
                 GetWithDef(plinvals, it.get()).insert(std::pair<size_t, size_t>(j, i));
         }
 
@@ -144,19 +143,17 @@ void SolverRepn::load(Model& _model)
             fixed_vars.clear();
             params.clear();
             mutable_values(_repn.quadratic_coefs[i], fixed_vars, params);
-            for (auto& it : fixed_vars) 
+            for (auto& it : fixed_vars)
                 GetWithDef(vquadvals, it.get()).insert(std::pair<size_t, size_t>(j, i));
-            for (auto& it : params) 
+            for (auto& it : params)
                 GetWithDef(pquadvals, it.get()).insert(std::pair<size_t, size_t>(j, i));
         }
 
         fixed_vars.clear();
         params.clear();
         mutable_values(_repn.nonlinear, fixed_vars, params);
-        for (auto& it : fixed_vars) 
-            GetWithDef(vnonlvals, it.get()).insert(j);
-        for (auto& it : params) 
-            GetWithDef(pnonlvals, it.get()).insert(j);
+        for (auto& it : fixed_vars) GetWithDef(vnonlvals, it.get()).insert(j);
+        for (auto& it : params) GetWithDef(pnonlvals, it.get()).insert(j);
     }
 
 #ifdef DEBUG
@@ -229,7 +226,7 @@ void SolverRepn::find_updated_coefs()
             // TODO
         }
         try {
-            std::set<std::tuple<size_t, size_t> >& expr = vlinvals[*it];
+            std::set<std::tuple<size_t, size_t>>& expr = vlinvals[*it];
             for (auto jt = expr.begin(); jt != expr.end(); ++jt)
                 updated_coefs.insert(
                     std::tuple<size_t, size_t, size_t>(std::get<0>(*jt), 1, std::get<1>(*jt)));
@@ -238,7 +235,7 @@ void SolverRepn::find_updated_coefs()
             // TODO
         }
         try {
-            std::set<std::tuple<size_t, size_t> >& expr = vquadvals[*it];
+            std::set<std::tuple<size_t, size_t>>& expr = vquadvals[*it];
             for (auto jt = expr.begin(); jt != expr.end(); ++jt)
                 updated_coefs.insert(
                     std::tuple<size_t, size_t, size_t>(std::get<0>(*jt), 2, std::get<1>(*jt)));
@@ -266,7 +263,7 @@ void SolverRepn::find_updated_coefs()
             // TODO
         }
         try {
-            std::set<std::tuple<size_t, size_t> >& expr = plinvals[*it];
+            std::set<std::tuple<size_t, size_t>>& expr = plinvals[*it];
             for (auto jt = expr.begin(); jt != expr.end(); ++jt)
                 updated_coefs.insert(
                     std::tuple<size_t, size_t, size_t>(std::get<0>(*jt), 1, std::get<1>(*jt)));
@@ -275,7 +272,7 @@ void SolverRepn::find_updated_coefs()
             // TODO
         }
         try {
-            std::set<std::tuple<size_t, size_t> >& expr = pquadvals[*it];
+            std::set<std::tuple<size_t, size_t>>& expr = pquadvals[*it];
             for (auto jt = expr.begin(); jt != expr.end(); ++jt)
                 updated_coefs.insert(
                     std::tuple<size_t, size_t, size_t>(std::get<0>(*jt), 2, std::get<1>(*jt)));

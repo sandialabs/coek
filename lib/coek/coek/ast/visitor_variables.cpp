@@ -32,14 +32,14 @@ void visit_expression(const expr_pointer_t& expr, VariableData& data);
 #define FROM_BODY(TERM)                                               \
     void visit_##TERM(const expr_pointer_t& expr, VariableData& data) \
     {                                                                 \
-        auto tmp = safe_pointer_cast<TERM>(expr);             \
+        auto tmp = safe_pointer_cast<TERM>(expr);                     \
         visit_expression(tmp->body, data);                            \
     }
 
 #define FROM_LHS_RHS(TERM)                                            \
     void visit_##TERM(const expr_pointer_t& expr, VariableData& data) \
     {                                                                 \
-        auto tmp = safe_pointer_cast<TERM>(expr);             \
+        auto tmp = safe_pointer_cast<TERM>(expr);                     \
         visit_expression(tmp->lhs, data);                             \
         visit_expression(tmp->rhs, data);                             \
     }
@@ -59,15 +59,6 @@ void visit_IndexParameterTerm(const expr_pointer_t& /*expr*/, VariableData& /*da
 void visit_VariableTerm(const expr_pointer_t& expr, VariableData& data)
 {
     auto tmp = safe_pointer_cast<VariableTerm>(expr);
-    if (tmp->fixed)
-        data.fixed_vars.insert(tmp);
-    else
-        data.vars.insert(tmp);
-}
-
-void visit_IndexedVariableTerm(const expr_pointer_t& expr, VariableData& data)
-{
-    auto tmp = safe_pointer_cast<IndexedVariableTerm>(expr);
     if (tmp->fixed)
         data.fixed_vars.insert(tmp);
     else
@@ -147,7 +138,6 @@ void visit_expression(const expr_pointer_t& expr, VariableData& data)
         VISIT_CASE(ParameterTerm);
         VISIT_CASE(IndexParameterTerm);
         VISIT_CASE(VariableTerm);
-        VISIT_CASE(IndexedVariableTerm);
 #ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(VariableRefTerm);
         VISIT_CASE(ParameterRefTerm);

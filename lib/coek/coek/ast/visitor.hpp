@@ -18,7 +18,6 @@ class VariableTerm;
 class ParameterRefTerm;
 class VariableRefTerm;
 #endif
-class IndexedVariableTerm;
 class ConstantTerm;
 class ParameterTerm;
 class IndexParameterTerm;
@@ -65,7 +64,6 @@ class Visitor {
     virtual void visit(ParameterRefTerm& arg) = 0;
     virtual void visit(VariableRefTerm& arg) = 0;
 #endif
-    virtual void visit(IndexedVariableTerm& arg) = 0;
     virtual void visit(MonomialTerm& arg) = 0;
     virtual void visit(InequalityTerm& arg) = 0;
     virtual void visit(EqualityTerm& arg) = 0;
@@ -108,7 +106,7 @@ enum term_id : unsigned int {
     IndexParameterTerm_id = 100,
     VariableTerm_id = 3,
     VariableRefTerm_id = 4,
-    IndexedVariableTerm_id = 101,
+    // IndexedVariableTerm_id = 101,
     MonomialTerm_id = 5,
     InequalityTerm_id = 6,
     EqualityTerm_id = 7,

@@ -29,12 +29,13 @@ class ParameterArrayRepn : public ParameterAssocArrayRepn {
 
     size_t size() { return _size; }
 
-    std::string get_name(size_t index);
+    std::string get_name(std::string name, size_t index);
+
+    void generate_names();
 };
 
-std::string ParameterArrayRepn::get_name(size_t index)
+std::string ParameterArrayRepn::get_name(std::string name, size_t index)
 {
-    std::string name(parameter_template.name());
     name += "[";
 
     if (shape.size() == 1) {
@@ -54,6 +55,16 @@ std::string ParameterArrayRepn::get_name(size_t index)
 
     name += "]";
     return name;
+}
+
+void ParameterArrayRepn::generate_names()
+{
+    setup();
+
+    std::string name = parameter_template.name();
+    if (name == "") name = "p";
+    size_t ctr = 0;
+    for (auto& param : values) param.name(get_name(name, ctr++));
 }
 
 //
@@ -86,7 +97,7 @@ Parameter ParameterArray::index(const IndexVector& args)
     auto& shape = _repn->shape;
     assert(args.size() == shape.size());
 
-    if (_repn->call_setup) _repn->setup();
+    _repn->setup();
 
     // We know that the args[i] values are nonnegative b.c. we have asserted that while
     // processing these arguments
@@ -113,6 +124,12 @@ void ParameterArray::index_error(size_t i)
                       + std::to_string(tmp.size()) + "-D parameter array but is being indexed with "
                       + std::to_string(i) + " indices.";
     throw std::runtime_error(err);
+}
+
+ParameterArray& ParameterArray::generate_names()
+{
+    repn->generate_names();
+    return *this;
 }
 
 ParameterArray& ParameterArray::value(double value)

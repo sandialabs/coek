@@ -11,6 +11,7 @@
 #include "coek/compact/constraint_sequence.hpp"
 #include "coek/compact/expression_sequence.hpp"
 #include "coek/compact/objective_sequence.hpp"
+#include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
 #include "coek_gurobi.hpp"
 #include "gurobi_c++.h"

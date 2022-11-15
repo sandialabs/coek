@@ -72,7 +72,6 @@ class PrintExpr : public Visitor {
     void visit(ParameterRefTerm& arg);
     void visit(VariableRefTerm& arg);
 #endif
-    void visit(IndexedVariableTerm& arg);
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
@@ -145,8 +144,6 @@ void PrintExpr::visit(VariableRefTerm&)
     throw std::runtime_error("Cannot write an NL file using an abstract expression!");
 }
 #endif
-
-void PrintExpr::visit(IndexedVariableTerm& arg) { ostr << "v" << varmap.at(arg.index) << '\n'; }
 
 void PrintExpr::visit(MonomialTerm& arg)
 {
@@ -276,7 +273,6 @@ class PrintExprFmtlib : public Visitor {
     void visit(ParameterRefTerm& arg);
     void visit(VariableRefTerm& arg);
 #    endif
-    void visit(IndexedVariableTerm& arg);
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
@@ -346,11 +342,6 @@ void PrintExprFmtlib::visit(VariableRefTerm&)
     throw std::runtime_error("Cannot write an NL file using an abstract expression!");
 }
 #    endif
-
-void PrintExprFmtlib::visit(IndexedVariableTerm& arg)
-{
-    ostr.print(fmt::format(_fmtstr_v, varmap.at(arg.index)));
-}
 
 void PrintExprFmtlib::visit(MonomialTerm& arg)
 {

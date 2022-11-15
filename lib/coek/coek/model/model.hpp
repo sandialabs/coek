@@ -54,17 +54,17 @@ class Model {
     /** A constant that indicates an infinite value */
     static double inf;
 
+    /** The different policies for name generation. */
+    enum NameGeneration { simple, lazy, eager };
+
     std::shared_ptr<ModelRepn> repn;
 
    public:
     /** Constructs an empty optimization model */
     Model();
-    Model(const Model& other);
-    ~Model();
-    Model& operator=(const Model&);
 
     //
-    // Variables
+    // Single Variables
     //
     /** \returns the number of variables in the model */
     size_t num_variables() const;
@@ -94,6 +94,10 @@ class Model {
     Variable& add_variable(Variable& var);
     Variable& add(Variable& var);
     Variable& add(Variable&& var);
+
+    //
+    // Variable arrays and maps
+    //
     void add_variable(PythonVariableArray& var);
 #if __cpp_lib_variant
     VariableArray& add_variable(VariableArray& var);
@@ -263,8 +267,7 @@ class Model {
 
     friend std::ostream& operator<<(std::ostream& ostr, const Model& arg);
 
-   protected:
-    void initialize_names();
+    void generate_names();
 };
 
 //

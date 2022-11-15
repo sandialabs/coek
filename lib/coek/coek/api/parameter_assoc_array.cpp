@@ -14,10 +14,7 @@ expr_pointer_t create_paramref(const std::vector<refarg_types>& indices, const s
 // ParameterAssocArrayRepn
 //
 
-ParameterAssocArrayRepn::ParameterAssocArrayRepn() : call_setup(true)
-{
-    parameter_template.name("p");
-}
+ParameterAssocArrayRepn::ParameterAssocArrayRepn() { parameter_template.name("p"); }
 
 void ParameterAssocArrayRepn::resize_index_vectors(IndexVector& tmp,
                                                    std::vector<refarg_types>& reftmp)
@@ -28,12 +25,13 @@ void ParameterAssocArrayRepn::resize_index_vectors(IndexVector& tmp,
 
 void ParameterAssocArrayRepn::setup()
 {
-    call_setup = false;
-
-    auto value
-        = std::make_shared<ConstantTerm>(parameter_template.value_expression().expand().value());
-    for (size_t i = 0; i < size(); i++) {
-        values.emplace_back(CREATE_POINTER(IndexedParameterTerm, value, i, this));
+    if (first_setup) {
+        auto value = std::make_shared<ConstantTerm>(
+            parameter_template.value_expression().expand().value());
+        for (size_t i = 0; i < size(); i++) {
+            values.emplace_back(CREATE_POINTER(ParameterTerm, value, i));
+        }
+        first_setup = false;
     }
 }
 
@@ -81,16 +79,6 @@ Expression ParameterAssocArray::create_paramref(const std::vector<refarg_types>&
 //
 // OTHER
 //
-
-std::string IndexedParameterTerm::get_name()
-{
-    if (first) {
-        first = false;
-        ParameterAssocArrayRepn* _param = static_cast<ParameterAssocArrayRepn*>(param);
-        name = _param->get_name(pindex);
-    }
-    return name;
-}
 
 expr_pointer_t get_concrete_param(ParameterRefTerm& paramref)
 {

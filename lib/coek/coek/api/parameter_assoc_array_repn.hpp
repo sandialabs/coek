@@ -20,19 +20,19 @@ class ParameterAssocArrayRepn {
     IndexVectorCache cache;
     std::vector<Parameter> values;
     Parameter parameter_template;
-    bool call_setup;
+
+    bool first_setup = true;
 
    public:
     ParameterAssocArrayRepn();
 
     virtual void setup();
+    virtual void generate_names() = 0;
 
     virtual size_t dim() = 0;
     virtual size_t size() = 0;
 
     void resize_index_vectors(IndexVector& tmp, std::vector<refarg_types>& reftmp);
-
-    virtual std::string get_name(size_t index) = 0;
 
     /** Set the initial variable value. \returns the variable object. */
     void value(double value);

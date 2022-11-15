@@ -27,7 +27,6 @@ class WriteExprVisitor : public Visitor {
     void visit(ParameterRefTerm& arg);
     void visit(VariableRefTerm& arg);
 #endif
-    void visit(IndexedVariableTerm& arg);
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
@@ -124,8 +123,6 @@ void WriteExprVisitor::visit(VariableRefTerm& arg)
     ostr << "]";
 }
 #endif
-
-void WriteExprVisitor::visit(IndexedVariableTerm& arg) { ostr << arg.get_name(); }
 
 void WriteExprVisitor::visit(MonomialTerm& arg)
 {
@@ -241,9 +238,9 @@ WriteExprVisitor_FN(asinh, ASinhTerm)
 WriteExprVisitor_FN(acosh, ACoshTerm)
 WriteExprVisitor_FN(atanh, ATanhTerm)
 
-// clang-format on
+    // clang-format on
 
-void WriteExprVisitor::visit(PowTerm& arg)
+    void WriteExprVisitor::visit(PowTerm& arg)
 {
     ostr << "pow(";
     arg.lhs->accept(*this);
@@ -259,7 +256,7 @@ void WriteExprVisitor::visit(EmptyConstraintTerm&) { ostr << "EmptyConstraint()"
 }  // namespace
 
 // NOTE: This function is defined with raw pointers to allow for the convenient
-// writing of raw AST term objects.  The pointer passed-in here is owned by a 
+// writing of raw AST term objects.  The pointer passed-in here is owned by a
 // shared_ptr object.
 void write_expr(BaseExpressionTerm* expr, std::ostream& ostr)
 {

@@ -71,30 +71,6 @@ void visit(std::shared_ptr<VariableTerm>& expr, MutableNLPExpr& repn, double mul
     }
 }
 
-void visit(std::shared_ptr<IndexedVariableTerm>& expr, MutableNLPExpr& repn, double multiplier)
-{
-    // if (! expr->index)
-    //     throw std::runtime_error("Unexpected variable not owned by a model.");
-
-    if (expr->fixed) {
-        if (multiplier == 1)
-            repn.constval = plus_(repn.constval, expr);
-        else
-            repn.constval
-                = plus_(repn.constval, times(CREATE_POINTER(ConstantTerm, multiplier), expr));
-        repn.mutable_values = true;
-    }
-    else {
-        repn.linear_vars.push_back(expr);
-        if (multiplier == 1) {
-            repn.linear_coefs.push_back(ONECONST);
-        }
-        else {
-            repn.linear_coefs.push_back(CREATE_POINTER(ConstantTerm, multiplier));
-        }
-    }
-}
-
 #ifdef COEK_WITH_COMPACT_MODEL
 void visit(std::shared_ptr<VariableRefTerm>& /*expr*/, MutableNLPExpr& /*repn*/,
            double /*multiplier*/)
@@ -373,10 +349,10 @@ UNARY_VISITOR(ATanhTerm, atanh)
 
 BINARY_VISITOR(PowTerm, pow)
 
-#define VISIT_CASE(TERM)                                  \
-    case TERM##_id: {                                     \
+#define VISIT_CASE(TERM)                          \
+    case TERM##_id: {                             \
         auto tmp = safe_pointer_cast<TERM>(expr); \
-        visit(tmp, repn, multiplier);                     \
+        visit(tmp, repn, multiplier);             \
     } break
 
 void visit_expression(const expr_pointer_t& expr, MutableNLPExpr& repn, double multiplier)
@@ -386,7 +362,6 @@ void visit_expression(const expr_pointer_t& expr, MutableNLPExpr& repn, double m
         VISIT_CASE(ParameterTerm);
         VISIT_CASE(IndexParameterTerm);
         VISIT_CASE(VariableTerm);
-        VISIT_CASE(IndexedVariableTerm);
 #ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(VariableRefTerm);
 #endif

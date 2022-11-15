@@ -76,20 +76,6 @@ void visit(std::shared_ptr<VariableRefTerm>& /*expr*/, QuadraticExpr& /*repn*/,
 }
 #endif
 
-void visit(std::shared_ptr<IndexedVariableTerm>& expr, QuadraticExpr& repn, double multiplier)
-{
-    // if (! expr.index)
-    //     throw std::runtime_error("Unexpected variable not owned by a model.");
-
-    if (expr->fixed) {
-        repn.constval += multiplier * expr->value->eval();
-    }
-    else {
-        repn.linear_vars.push_back(expr);
-        repn.linear_coefs.push_back(multiplier);
-    }
-}
-
 void visit(std::shared_ptr<MonomialTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
     // if (! expr.var->index)
@@ -337,10 +323,10 @@ void visit(std::shared_ptr<PowTerm>& expr, QuadraticExpr& repn, double multiplie
 
 // BINARY_VISITOR(PowTerm, pow)
 
-#define VISIT_CASE(TERM)                                  \
-    case TERM##_id: {                                     \
+#define VISIT_CASE(TERM)                          \
+    case TERM##_id: {                             \
         auto tmp = safe_pointer_cast<TERM>(expr); \
-        visit(tmp, repn, multiplier);                     \
+        visit(tmp, repn, multiplier);             \
     } break
 
 void visit_expression(const expr_pointer_t& expr, QuadraticExpr& repn, double multiplier)
@@ -353,7 +339,6 @@ void visit_expression(const expr_pointer_t& expr, QuadraticExpr& repn, double mu
 #ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(VariableRefTerm);
 #endif
-        VISIT_CASE(IndexedVariableTerm);
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
         VISIT_CASE(EqualityTerm);

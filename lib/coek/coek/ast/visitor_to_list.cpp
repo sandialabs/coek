@@ -29,7 +29,6 @@ class ToListVisitor : public Visitor {
     void visit(ParameterRefTerm& arg);
     void visit(VariableRefTerm& arg);
 #endif
-    void visit(IndexedVariableTerm& arg);
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
@@ -105,13 +104,6 @@ void ToListVisitor::visit(VariableRefTerm& arg)
     repr.push_back(sstr.str());
 }
 #endif
-
-void ToListVisitor::visit(IndexedVariableTerm& arg)
-{
-    std::stringstream sstr;
-    write_expr(&arg, sstr);
-    repr.push_back(sstr.str());
-}
 
 void ToListVisitor::visit(MonomialTerm& arg)
 {

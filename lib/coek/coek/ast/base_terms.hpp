@@ -17,7 +17,6 @@ class BaseExpressionTerm;
 typedef std::shared_ptr<BaseExpressionTerm> expr_pointer_t;
 #define CREATE_POINTER(PTR, ...) std::make_shared<PTR>(__VA_ARGS__)
 
-
 class BaseExpressionTerm {
    public:
     bool non_variable;
@@ -62,12 +61,11 @@ class ConstantTerm : public BaseExpressionTerm {
     term_id id() { return ConstantTerm_id; }
 };
 
-
 extern std::shared_ptr<ConstantTerm> ZeroConstant;
 extern std::shared_ptr<ConstantTerm> OneConstant;
 extern std::shared_ptr<ConstantTerm> NegativeOneConstant;
-#    define ZEROCONST ZeroConstant
-#    define ONECONST OneConstant
-#    define NEGATIVEONECONST NegativeOneConstant
+#define ZEROCONST ZeroConstant
+#define ONECONST OneConstant
+#define NEGATIVEONECONST NegativeOneConstant
 
 }  // namespace coek

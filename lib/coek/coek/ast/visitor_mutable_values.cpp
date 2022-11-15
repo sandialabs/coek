@@ -20,7 +20,7 @@ class MutableValuesData {
 
    public:
     MutableValuesData(std::unordered_set<std::shared_ptr<VariableTerm>>& _fixed_vars,
-                         std::unordered_set<std::shared_ptr<ParameterTerm>>& _params)
+                      std::unordered_set<std::shared_ptr<ParameterTerm>>& _params)
         : fixed_vars(_fixed_vars), params(_params)
     {
     }
@@ -28,19 +28,19 @@ class MutableValuesData {
 
 void visit_expression(const expr_pointer_t& expr, MutableValuesData& data);
 
-#define FROM_BODY(TERM)                                               \
+#define FROM_BODY(TERM)                                                    \
     void visit_##TERM(const expr_pointer_t& expr, MutableValuesData& data) \
-    {                                                                 \
-        auto tmp = safe_pointer_cast<TERM>(expr);             \
-        visit_expression(tmp->body, data);                            \
+    {                                                                      \
+        auto tmp = safe_pointer_cast<TERM>(expr);                          \
+        visit_expression(tmp->body, data);                                 \
     }
 
-#define FROM_LHS_RHS(TERM)                                            \
+#define FROM_LHS_RHS(TERM)                                                 \
     void visit_##TERM(const expr_pointer_t& expr, MutableValuesData& data) \
-    {                                                                 \
-        auto tmp = safe_pointer_cast<TERM>(expr);             \
-        visit_expression(tmp->lhs, data);                             \
-        visit_expression(tmp->rhs, data);                             \
+    {                                                                      \
+        auto tmp = safe_pointer_cast<TERM>(expr);                          \
+        visit_expression(tmp->lhs, data);                                  \
+        visit_expression(tmp->rhs, data);                                  \
     }
 
 // -----------------------------------------------------------------------------------------
@@ -66,12 +66,6 @@ void visit_ParameterRefTerm(const expr_pointer_t& /*expr*/, MutableValuesData& /
 
 void visit_VariableRefTerm(const expr_pointer_t& /*expr*/, MutableValuesData& /*data*/) {}
 #endif
-
-void visit_IndexedVariableTerm(const expr_pointer_t& expr, MutableValuesData& data)
-{
-    auto tmp = safe_pointer_cast<IndexedVariableTerm>(expr);
-    if (tmp->fixed) data.fixed_vars.insert(tmp);
-}
 
 void visit_MonomialTerm(const expr_pointer_t& expr, MutableValuesData& data)
 {
@@ -131,7 +125,6 @@ void visit_expression(const expr_pointer_t& expr, MutableValuesData& data)
         VISIT_CASE(ParameterTerm);
         VISIT_CASE(IndexParameterTerm);
         VISIT_CASE(VariableTerm);
-        VISIT_CASE(IndexedVariableTerm);
 #ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(VariableRefTerm);
         VISIT_CASE(ParameterRefTerm);
@@ -167,16 +160,17 @@ void visit_expression(const expr_pointer_t& expr, MutableValuesData& data)
 
         // GCOVR_EXCL_START
         default:
-        throw std::runtime_error(
-        "Error in mutable_values visitor!  Visiting unexpected expression term "
-        + std::to_string(expr->id()));
-        // GCOVR_EXCL_STOP
-        };
-        }
-        
+            throw std::runtime_error(
+                "Error in mutable_values visitor!  Visiting unexpected expression term "
+                + std::to_string(expr->id()));
+            // GCOVR_EXCL_STOP
+    };
+}
+
 }  // namespace
 
-void mutable_values(const expr_pointer_t& expr, std::unordered_set<std::shared_ptr<VariableTerm>>& fixed_vars,
+void mutable_values(const expr_pointer_t& expr,
+                    std::unordered_set<std::shared_ptr<VariableTerm>>& fixed_vars,
                     std::unordered_set<std::shared_ptr<ParameterTerm>>& params)
 {
     // GCOVR_EXCL_START

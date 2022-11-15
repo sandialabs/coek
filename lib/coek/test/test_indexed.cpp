@@ -112,8 +112,8 @@ TEST_CASE("expr_sequence", "[smoke]")
     {
         std::vector<int> v = {1, 5, 3, 7};
         auto s = coek::SetOf(v);
-        auto y = coek::variable("y", s);
-        auto x = coek::variable("x", s * s);
+        auto y = coek::variable("y", s).generate_names();
+        auto x = coek::variable("x", s * s).generate_names();
         auto i = coek::set_element("i");
         auto j = coek::set_element("j");
 
@@ -254,8 +254,8 @@ TEST_CASE("expr_sequence", "[smoke]")
     {
         std::vector<int> v = {1, 5, 3, 7};
         auto s = coek::SetOf(v);
-        auto y = coek::variable("y", s);
-        auto x = coek::variable("x", s * s);
+        auto y = coek::variable("y", s).generate_names();
+        auto x = coek::variable("x", s * s).generate_names();
         auto i = coek::set_element("i");
 
         WHEN("y[i] == 0")

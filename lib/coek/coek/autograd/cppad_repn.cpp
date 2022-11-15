@@ -6,6 +6,7 @@
 #include "../ast/value_terms.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
+#include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
 #include "cppad_repn.hpp"
 

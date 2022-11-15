@@ -16,6 +16,8 @@ class ParameterMap : public ParameterAssocArray {
     Parameter index(const IndexVector& args);
     void index_error(size_t i);
 
+    ParameterMap& generate_names();
+
    public:
     /// Collect arguments with references
 

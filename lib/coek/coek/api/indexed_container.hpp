@@ -71,6 +71,8 @@ class IndexedComponent_Map : public IndexedComponent<TYPE> {
     TYPE& index(const IndexVector& args);
     void index_error(size_t i);
 
+    // void generate_names() {repn->generate_names();}
+
    public:
     /// Collect arguments with int, size_t or parameter indices
 

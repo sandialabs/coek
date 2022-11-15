@@ -322,7 +322,6 @@ Expression::Expression(const IndexParameter& param) : repn(param.repn) {}
 
 Expression::Expression(const Variable& var) : repn(var.repn) {}
 
-
 bool Expression::is_constant() const { return repn->is_constant(); }
 
 double Expression::value() const { return repn->eval(); }
@@ -543,18 +542,9 @@ Expression expression(const Variable& arg) { return coek::Expression(arg); }
 //
 // operator+
 //
-Expression operator+(const Parameter& param)
-{
-    return param.repn;
-}
-Expression operator+(const IndexParameter& param)
-{
-    return param.repn;
-}
-Expression operator+(const Variable& var)
-{
-    return var.repn;
-}
+Expression operator+(const Parameter& param) { return param.repn; }
+Expression operator+(const IndexParameter& param) { return param.repn; }
+Expression operator+(const Variable& var) { return var.repn; }
 Expression operator+(const Expression& expr) { return expr; }
 
 Expression operator+(int lhs, const Parameter& rhs) { return plus(lhs, rhs.repn); }
@@ -774,17 +764,23 @@ Expression operator*(int lhs, const IndexParameter& rhs) { return times(lhs, rhs
 Expression operator*(int lhs, const Variable& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == 0) tmp = ZEROCONST;
-    else if (lhs == 1) tmp = rhs.repn;
-    else tmp = rhs.repn->const_mult(lhs, rhs.repn);
+    if (lhs == 0)
+        tmp = ZEROCONST;
+    else if (lhs == 1)
+        tmp = rhs.repn;
+    else
+        tmp = rhs.repn->const_mult(lhs, rhs.repn);
     return tmp;
 }
 Expression operator*(int lhs, const Expression& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == 0) tmp = ZEROCONST;
-    else if (lhs == 1) tmp = rhs.repn;
-    else tmp = times(lhs, rhs.repn);
+    if (lhs == 0)
+        tmp = ZEROCONST;
+    else if (lhs == 1)
+        tmp = rhs.repn;
+    else
+        tmp = times(lhs, rhs.repn);
     return tmp;
 }
 Expression operator*(double lhs, const Parameter& rhs) { return times(lhs, rhs.repn); }
@@ -792,17 +788,23 @@ Expression operator*(double lhs, const IndexParameter& rhs) { return times(lhs, 
 Expression operator*(double lhs, const Variable& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == 0.0) tmp = ZEROCONST;
-    else if (lhs == 1.0) tmp = rhs.repn;
-    else tmp = rhs.repn->const_mult(lhs, rhs.repn);
+    if (lhs == 0.0)
+        tmp = ZEROCONST;
+    else if (lhs == 1.0)
+        tmp = rhs.repn;
+    else
+        tmp = rhs.repn->const_mult(lhs, rhs.repn);
     return tmp;
 }
 Expression operator*(double lhs, const Expression& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == 0.0) tmp = ZEROCONST;
-    else if (lhs == 1.0) tmp = rhs.repn;
-    else tmp = times(lhs, rhs.repn);
+    if (lhs == 0.0)
+        tmp = ZEROCONST;
+    else if (lhs == 1.0)
+        tmp = rhs.repn;
+    else
+        tmp = times(lhs, rhs.repn);
     return tmp;
 }
 
@@ -811,17 +813,23 @@ Expression IndexParameter::operator*(int arg) const { return times(repn, arg); }
 Expression Variable::operator*(int arg) const
 {
     expr_pointer_t tmp;
-    if (arg == 0) tmp = ZEROCONST;
-    else if (arg == 1) tmp = repn;
-    else tmp = repn->const_mult(arg, repn);
+    if (arg == 0)
+        tmp = ZEROCONST;
+    else if (arg == 1)
+        tmp = repn;
+    else
+        tmp = repn->const_mult(arg, repn);
     return tmp;
 }
 Expression Expression::operator*(int arg) const
 {
     expr_pointer_t tmp;
-    if (arg == 0) tmp = ZEROCONST;
-    else if (arg == 1) tmp = repn;
-    else tmp = times(repn, arg);
+    if (arg == 0)
+        tmp = ZEROCONST;
+    else if (arg == 1)
+        tmp = repn;
+    else
+        tmp = times(repn, arg);
     return tmp;
 }
 Expression Parameter::operator*(double arg) const { return times(repn, arg); }
@@ -829,17 +837,23 @@ Expression IndexParameter::operator*(double arg) const { return times(repn, arg)
 Expression Variable::operator*(double arg) const
 {
     expr_pointer_t tmp;
-    if (arg == 0.0) tmp = ZEROCONST;
-    else if (arg == 1.0) tmp = repn;
-    else tmp = repn->const_mult(arg, repn);
+    if (arg == 0.0)
+        tmp = ZEROCONST;
+    else if (arg == 1.0)
+        tmp = repn;
+    else
+        tmp = repn->const_mult(arg, repn);
     return tmp;
 }
 Expression Expression::operator*(double arg) const
 {
     expr_pointer_t tmp;
-    if (arg == 0.0) tmp = ZEROCONST;
-    else if (arg == 1.0) tmp = repn;
-    else tmp = times(repn, arg);
+    if (arg == 0.0)
+        tmp = ZEROCONST;
+    else if (arg == 1.0)
+        tmp = repn;
+    else
+        tmp = times(repn, arg);
     return tmp;
 }
 
@@ -883,9 +897,12 @@ Expression IndexParameter::operator/(int arg) const { return divide(repn, arg); 
 Expression Variable::operator/(int arg) const
 {
     expr_pointer_t tmp;
-    if (arg == 1) tmp = repn;
-    else if (arg == 0) throw std::domain_error("Division by zero.");
-    else tmp = repn->const_mult(1.0 / arg, repn);
+    if (arg == 1)
+        tmp = repn;
+    else if (arg == 0)
+        throw std::domain_error("Division by zero.");
+    else
+        tmp = repn->const_mult(1.0 / arg, repn);
     return tmp;
 }
 Expression Expression::operator/(int arg) const { return divide(repn, arg); }
@@ -894,9 +911,12 @@ Expression IndexParameter::operator/(double arg) const { return divide(repn, arg
 Expression Variable::operator/(double arg) const
 {
     expr_pointer_t tmp;
-    if (arg == 1.0) tmp = repn;
-    else if (arg == 0.0) throw std::domain_error("Division by zero.");
-    else tmp = repn->const_mult(1.0 / arg, repn);
+    if (arg == 1.0)
+        tmp = repn;
+    else if (arg == 0.0)
+        throw std::domain_error("Division by zero.");
+    else
+        tmp = repn->const_mult(1.0 / arg, repn);
     return tmp;
 }
 Expression Expression::operator/(double arg) const { return divide(repn, arg); }
