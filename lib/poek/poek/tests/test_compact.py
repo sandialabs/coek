@@ -22,7 +22,7 @@ class TestExprSequence(unittest.TestCase):
     def test_compact1(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        y = variable(A, name="y")
+        y = variable(A, name="y").generate_names()
         i = index("i")
         #
         tmp = ExpressionSequence(Forall(i).In(A), y[i])
@@ -34,7 +34,7 @@ class TestExprSequence(unittest.TestCase):
     def test_compact2(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        y = variable(A, name="y")
+        y = variable(A, name="y").generate_names()
         i = index("i")
         #
         tmp = ExpressionSequence(Forall(i).In(A), y[i] + 1)
@@ -46,7 +46,7 @@ class TestExprSequence(unittest.TestCase):
     def test_compact3(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        y = variable(A, name="y")
+        y = variable(A, name="y").generate_names()
         i = index("i")
         #
         tmp = ExpressionSequence(Forall(i).In(A), y[i] + i)
@@ -59,7 +59,7 @@ class TestExprSequence(unittest.TestCase):
         m = compact_model()
         A = RangeSet(1, 4)
         B = RangeSet(1, 6)
-        y = variable(B, name="y")
+        y = variable(B, name="y").generate_names()
         i = index("i")
         #
         tmp = ExpressionSequence(Forall(i).In(A), y[i] + i * y[i + 2])
@@ -82,7 +82,7 @@ class TestExprSequence(unittest.TestCase):
     def test_compact4(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        y = variable(A, name="y")
+        y = variable(A, name="y").generate_names()
         i = index("i")
         #
         tmp = Sum(y[i], Forall(i).In(A))
@@ -92,7 +92,7 @@ class TestExprSequence(unittest.TestCase):
     def test_compact5(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        x = variable(A * A, name="x")
+        x = variable(A * A, name="x").generate_names()
         i = index("i")
         #
         tmp = Sum(x[i, i], Forall(i).In(A))
@@ -102,7 +102,7 @@ class TestExprSequence(unittest.TestCase):
     def test_compact6(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        x = variable(A * A, name="x")
+        x = variable(A * A, name="x").generate_names()
         i = index("i")
         j = index("j")
         #
@@ -134,7 +134,7 @@ class TestExprSequence(unittest.TestCase):
     def test_compact7(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        x = variable(A * A, name="x")
+        x = variable(A * A, name="x").generate_names()
         i = index("i")
         j = index("j")
         #
@@ -166,8 +166,8 @@ class TestExprSequence(unittest.TestCase):
     def test_compact8(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        y = variable(A, name="y")
-        x = variable(A * A, name="x")
+        y = variable(A, name="y").generate_names()
+        x = variable(A * A, name="x").generate_names()
         i = index("i")
         j = index("j")
         #
@@ -187,8 +187,8 @@ class TestExprSequence(unittest.TestCase):
     def test_compact9(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        y = variable(A, name="y")
-        x = variable(A * A, name="x")
+        y = variable(A, name="y").generate_names()          # TODO - push this logic into the model
+        x = variable(A * A, name="x").generate_names()      # TODO - push this logic into the model
         i = index("i")
         j = index("j")
         #
@@ -214,7 +214,7 @@ class TestConSequence(unittest.TestCase):
     def test_compact1(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        y = variable(A, name="y")
+        y = variable(A, name="y").generate_names()
         i = index("i")
         #
         tmp = ConstraintSequence(Forall(i).In(A), y[i] == 0)
@@ -226,7 +226,7 @@ class TestConSequence(unittest.TestCase):
     def test_compact2(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        y = variable(A, name="y")
+        y = variable(A, name="y").generate_names()
         i = index("i")
         #
         tmp = ConstraintSequence(Forall(i).In(A), y[i] + 1 == 0)
@@ -240,7 +240,7 @@ class TestConSequence(unittest.TestCase):
     def test_compact3(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        y = variable(A, name="y")
+        y = variable(A, name="y").generate_names()
         i = index("i")
         #
         tmp = ConstraintSequence(Forall(i).In(A), y[i] + i == 0)
@@ -256,7 +256,7 @@ class TestConSequence(unittest.TestCase):
         m = compact_model()
         A = RangeSet(1, 4)
         B = RangeSet(1, 6)
-        y = variable(B, name="y")
+        y = variable(B, name="y").generate_names()
         i = index("i")
         #
         tmp = ConstraintSequence(Forall(i).In(A), y[i] + i * y[i + 2] == 0)
@@ -275,7 +275,7 @@ class TestConSequence(unittest.TestCase):
     def test_compact4(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        y = variable(A, name="y")
+        y = variable(A, name="y").generate_names()
         i = index("i")
         #
         tmp = Sum(y[i], Forall(i).In(A)) == 0
@@ -285,7 +285,7 @@ class TestConSequence(unittest.TestCase):
     def test_compact5(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        x = variable(A * A, name="x")
+        x = variable(A * A, name="x").generate_names()
         i = index("i")
         #
         tmp = Sum(x[i, i], Forall(i).In(A)) == 0
@@ -298,7 +298,7 @@ class TestConSequence(unittest.TestCase):
     def test_compact6(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        x = variable(A * A, name="x")
+        x = variable(A * A, name="x").generate_names()
         i = index("i")
         j = index("j")
         #
@@ -334,7 +334,7 @@ class TestConSequence(unittest.TestCase):
     def test_compact7(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        x = variable(A * A, name="x")
+        x = variable(A * A, name="x").generate_names()
         i = index("i")
         j = index("j")
         #
@@ -370,8 +370,8 @@ class TestConSequence(unittest.TestCase):
     def test_compact8(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        y = variable(A, name="y")
-        x = variable(A * A, name="x")
+        y = variable(A, name="y").generate_names()
+        x = variable(A * A, name="x").generate_names()
         i = index("i")
         j = index("j")
         #
@@ -395,8 +395,8 @@ class TestConSequence(unittest.TestCase):
     def test_compact9(self):
         m = compact_model()
         A = RangeSet(1, 4)
-        y = variable(A, name="y")
-        x = variable(A * A, name="x")
+        y = variable(A, name="y").generate_names()
+        x = variable(A * A, name="x").generate_names()
         i = index("i")
         j = index("j")
         #

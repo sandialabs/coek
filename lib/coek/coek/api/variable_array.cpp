@@ -1,8 +1,9 @@
-#include "coek/api/variable_array.hpp"
 
+#include "coek/ast/value_terms.hpp"
 #include "coek/api/variable_assoc_array_repn.hpp"
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
+#include "coek/api/variable_array.hpp"
 
 namespace coek {
 
@@ -234,7 +235,7 @@ VariableArray& VariableArray::name(const std::string& name)
     return *this;
 }
 
-std::string VariableArray::name() const { return repn->variable_template.name(); }
+std::string VariableArray::name() const { return repn->variable_template.repn->name; }
 
 VariableArray& VariableArray::within(VariableTypes vtype)
 {

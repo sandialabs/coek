@@ -1477,20 +1477,20 @@ class TestVariables(unittest.TestCase):
         self.assertEqual(v1.name, v2.name)
 
     def test_name1(self):
-        v = variable(3, name="v", value=3)
+        v = variable(3, name="v", value=3).generate_names()
         self.assertEqual(v.name, "v")
         self.assertEqual(v[0].name, "v[0]")
 
     def test_name2(self):
         v = variable(3, value=3)
-        self.assertEqual(v.name, "x")
-        self.assertEqual(v[0].name[0], "x")
+        self.assertEqual(v.name, "X")
+        self.assertEqual(v[0].name[0], "X")
 
     def test_name_single(self):
         v = variable(value=3, name="y")
         self.assertEqual(v.name, "y")
         v = variable(value=3)
-        self.assertEqual(v.name[0], "x")
+        self.assertEqual(v.name[0], "X")
 
 
 @unittest.skipIf(
@@ -1528,15 +1528,15 @@ class TestNDVariables(unittest.TestCase):
         self.assertEqual(v1.name, v2.name)
 
     def test_name1(self):
-        v = variable((3, 2, 4), name="v", value=3)
+        v = variable((3, 2, 4), name="v", value=3).generate_names()
         self.assertEqual(v.name, "v")
         self.assertEqual(v[2, 1, 3].name, "v[2,1,3]")
         self.assertEqual(v[0, 0, 0].name, "v[0,0,0]")
 
     def test_name2(self):
         v = variable((3, 2, 4), value=3)
-        self.assertEqual(v.name, "x")
-        self.assertEqual(v[2, 1, 3].name[0], "x")
+        self.assertEqual(v.name, "X")
+        self.assertEqual(v[2, 1, 3].name[0], "X")
 
 
 if __name__ == "__main__":
