@@ -7,7 +7,7 @@
 
 namespace coek {
 
-ConstraintTerm* convert_con_template(ConstraintTerm* expr);
+std::shared_ptr<ConstraintTerm> convert_con_template(std::shared_ptr<ConstraintTerm> expr);
 
 //
 // ConstraintSequenceRepn

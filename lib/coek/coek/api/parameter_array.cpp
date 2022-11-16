@@ -2,6 +2,7 @@
 
 #include "coek/api/parameter_assoc_array_repn.hpp"
 #include "coek/model/model.hpp"
+#include "coek/model/model_repn.hpp"
 
 namespace coek {
 
@@ -29,12 +30,13 @@ class ParameterArrayRepn : public ParameterAssocArrayRepn {
 
     size_t size() { return _size; }
 
-    std::string get_name(size_t index);
+    std::string get_name(std::string name, size_t index);
+
+    void generate_names();
 };
 
-std::string ParameterArrayRepn::get_name(size_t index)
+std::string ParameterArrayRepn::get_name(std::string name, size_t index)
 {
-    std::string name(parameter_template.name());
     name += "[";
 
     if (shape.size() == 1) {
@@ -54,6 +56,20 @@ std::string ParameterArrayRepn::get_name(size_t index)
 
     name += "]";
     return name;
+}
+
+void ParameterArrayRepn::generate_names()
+{
+    // If no name has been provided to this array object,
+    // then we do not try to generate names.  The default/simple
+    // parameter names will be used.
+    std::string name = parameter_template.name();
+    if (name == "") return;
+
+    setup();
+
+    size_t ctr = 0;
+    for (auto& param : values) param.name(get_name(name, ctr++));
 }
 
 //
@@ -86,7 +102,7 @@ Parameter ParameterArray::index(const IndexVector& args)
     auto& shape = _repn->shape;
     assert(args.size() == shape.size());
 
-    if (_repn->call_setup) _repn->setup();
+    _repn->setup();
 
     // We know that the args[i] values are nonnegative b.c. we have asserted that while
     // processing these arguments
@@ -113,6 +129,12 @@ void ParameterArray::index_error(size_t i)
                       + std::to_string(tmp.size()) + "-D parameter array but is being indexed with "
                       + std::to_string(i) + " indices.";
     throw std::runtime_error(err);
+}
+
+ParameterArray& ParameterArray::generate_names()
+{
+    repn->generate_names();
+    return *this;
 }
 
 ParameterArray& ParameterArray::value(double value)
@@ -144,6 +166,16 @@ ParameterArray parameter(const std::vector<size_t>& shape) { return ParameterArr
 ParameterArray parameter(const std::initializer_list<size_t>& shape)
 {
     return ParameterArray(shape);
+}
+
+ParameterArray& Model::add_parameter(ParameterArray& params)
+{
+    params.repn->setup();
+    if (repn->name_generation_policy == Model::NameGeneration::eager)
+        params.generate_names();
+    else if (repn->name_generation_policy == Model::NameGeneration::lazy)
+        repn->parameter_arrays.push_back(params);
+    return params;
 }
 
 }  // namespace coek

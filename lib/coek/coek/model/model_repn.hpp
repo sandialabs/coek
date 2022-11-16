@@ -7,10 +7,16 @@
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
+#include "coek/api/parameter_array.hpp"
+#include "coek/api/variable_array.hpp"
+#include "coek/api/component_map.hpp"
+#include "coek/model/model.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL
 #    include "coek/compact/variable_sequence.hpp"
 #    include "coek/compact/objective_sequence.hpp"
 #    include "coek/compact/constraint_sequence.hpp"
+#    include "coek/compact/parameter_map.hpp"
+#    include "coek/compact/variable_map.hpp"
 #endif
 
 namespace coek {
@@ -25,6 +31,16 @@ class ModelRepn {
     std::vector<Constraint> constraints;
     std::vector<Variable> variables;
 
+    std::vector<ParameterArray> parameter_arrays;
+    std::vector<VariableArray> variable_arrays;
+#if __cpp_lib_variant
+#    ifdef COEK_WITH_COMPACT_MODEL
+    std::vector<ParameterMap> parameter_maps;
+    std::vector<VariableMap> variable_maps;
+#    endif
+    std::vector<ConstraintMap> constraint_maps;
+#endif
+
     std::map<std::string, Objective> objectives_by_name;
     std::map<std::string, Constraint> constraints_by_name;
     std::map<std::string, Variable> variables_by_name;
@@ -33,6 +49,8 @@ class ModelRepn {
     std::map<std::string, std::unordered_map<unsigned int, double>> csuffix;
     std::map<std::string, std::unordered_map<unsigned int, double>> osuffix;
     std::map<std::string, double> msuffix;
+
+    Model::NameGeneration name_generation_policy = Model::NameGeneration::simple;
 };
 
 #ifdef COEK_WITH_COMPACT_MODEL

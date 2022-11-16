@@ -19,6 +19,8 @@ class ParameterArray : public ParameterAssocArray {
     Parameter index(const IndexVector& args);
     void index_error(size_t i);
 
+    ParameterArray& generate_names();
+
    public:
     /// Collect arguments with references
 

@@ -44,6 +44,7 @@ inline ConstraintMap constraint(const std::initializer_list<size_t>& shape)
 }
 #ifdef COEK_WITH_COMPACT_MODEL
 inline ConstraintMap constraint(ConcreteSet& shape) { return ConstraintMap(shape); }
+inline ConstraintMap constraint(ConcreteSet&& shape) { return ConstraintMap(shape); }
 #endif
 
 inline ConstraintMap constraint(const std::string& name, size_t n)
@@ -60,6 +61,10 @@ inline ConstraintMap constraint(const std::string& name, const std::initializer_
 }
 #ifdef COEK_WITH_COMPACT_MODEL
 inline ConstraintMap constraint(const std::string& name, ConcreteSet& shape)
+{
+    return ConstraintMap(shape).name(name);
+}
+inline ConstraintMap constraint(const std::string& name, ConcreteSet&& shape)
 {
     return ConstraintMap(shape).name(name);
 }

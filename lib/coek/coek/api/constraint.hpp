@@ -9,7 +9,7 @@
 namespace coek {
 
 class ConstraintTerm;
-typedef ConstraintTerm* ConstraintRepn;
+typedef std::shared_ptr<ConstraintTerm> ConstraintRepn;
 
 class Parameter;
 class IndexParameter;
@@ -32,7 +32,6 @@ class Constraint {
     Constraint();
     Constraint(const ConstraintRepn& _repn);
     Constraint(const Constraint& arg);
-    ~Constraint();
 
     Constraint& operator=(const Constraint& arg);
 

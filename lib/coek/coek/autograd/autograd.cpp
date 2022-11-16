@@ -18,8 +18,8 @@
 
 namespace coek {
 
-void check_that_expression_variables_are_declared(Model& model,
-                                                  const std::unordered_set<VariableTerm*>& vars);
+void check_that_expression_variables_are_declared(
+    Model& model, const std::unordered_set<std::shared_ptr<VariableTerm>>& vars);
 
 NLPModelRepn* create_NLPModelRepn(Model& model, const std::string& name)
 {
@@ -34,34 +34,33 @@ NLPModelRepn* create_NLPModelRepn(const std::string& name) { return new UnknownA
 
 void NLPModelRepn::find_used_variables()
 {
-    std::unordered_set<VariableTerm*> vars;
-    std::set<VariableTerm*> fixed_vars;
-    std::set<ParameterTerm*> params;
+    std::unordered_set<VariableRepn> vars;
+    std::set<VariableRepn> fixed_vars;
+    std::set<ParameterRepn> params;
 
-    for (auto it = model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it)
-        find_vars_and_params(it->repn, vars, fixed_vars, params);
-    for (auto it = model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it)
-        find_vars_and_params(it->repn, vars, fixed_vars, params);
+    for (auto& it : model.repn->objectives) find_vars_and_params(it.repn, vars, fixed_vars, params);
+    for (auto& it : model.repn->constraints)
+        find_vars_and_params(it.repn, vars, fixed_vars, params);
 
     check_that_expression_variables_are_declared(model, vars);
 
-    std::map<size_t, VariableTerm*> tmp;
-    for (auto it = vars.begin(); it != vars.end(); ++it) tmp[(*it)->index] = *it;
+    std::map<size_t, std::shared_ptr<VariableTerm>> tmp;
+    for (auto& it : vars) tmp[it->index] = it;
 
     used_variables.clear();
     size_t i = 0;
-    for (auto it = tmp.begin(); it != tmp.end(); ++it) used_variables[i++] = it->second;
+    for (auto& it : tmp) used_variables[i++] = it.second;
 
     i = 0;
     fixed_variables.clear();
-    for (auto it = fixed_vars.begin(); it != fixed_vars.end(); ++it) fixed_variables[*it] = i++;
     parameters.clear();
-    for (auto it = params.begin(); it != params.end(); ++it) parameters[*it] = i++;
+    for (auto& it : fixed_vars) fixed_variables[it] = i++;
+    for (auto& it : params) parameters[it] = i++;
 }
 
-VariableTerm* NLPModelRepn::get_variable(size_t i) { return used_variables[i]; }
+VariableRepn NLPModelRepn::get_variable(size_t i) { return used_variables[i]; }
 
-void NLPModelRepn::set_variable(size_t i, const VariableTerm* _v)
+void NLPModelRepn::set_variable(size_t i, const VariableRepn _v)
 {
     auto v = used_variables[i];
 

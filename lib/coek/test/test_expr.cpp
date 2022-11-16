@@ -17,17 +17,17 @@ TEST_CASE("elementary_expression", "[smoke]")
     SECTION("empty")
     {
         auto e = coek::expression();
-        auto x = coek::variable("x", 3);
+        auto x = coek::variable("z", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline
-            = {"[", "+", std::to_string(0.0), "x[0]", "x[1]", "x[2]", "]"};
+            = {"[", "+", std::to_string(0.0), "z[0]", "z[1]", "z[2]", "]"};
         REQUIRE(e.to_list() == baseline);
     }
 
     SECTION("constant integer")
     {
         auto e = coek::expression(1);
-        auto x = coek::variable("x", 3);
+        auto x = coek::variable("x", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline
             = {"[", "+", std::to_string(1.0), "x[0]", "x[1]", "x[2]", "]"};
@@ -37,7 +37,7 @@ TEST_CASE("elementary_expression", "[smoke]")
     SECTION("constant double")
     {
         auto e = coek::expression(1.3);
-        auto x = coek::variable("x", 3);
+        auto x = coek::variable("x", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline
             = {"[", "+", std::to_string(1.300), "x[0]", "x[1]", "x[2]", "]"};
@@ -48,7 +48,7 @@ TEST_CASE("elementary_expression", "[smoke]")
     {
         auto p = coek::parameter("p");
         auto e = coek::expression(p);
-        auto x = coek::variable("x", 3);
+        auto x = coek::variable("x", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline = {"[", "+", "p", "x[0]", "x[1]", "x[2]", "]"};
         REQUIRE(e.to_list() == baseline);
@@ -58,13 +58,13 @@ TEST_CASE("elementary_expression", "[smoke]")
     {
         auto y = coek::variable("y");
         auto e = coek::expression(y);
-        auto x = coek::variable("x", 3);
+        auto x = coek::variable("x", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline = {"[", "+", "y", "x[0]", "x[1]", "x[2]", "]"};
         REQUIRE(e.to_list() == baseline);
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -148,7 +148,7 @@ TEST_CASE("model_monomial", "[smoke]")
       }
     */
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -425,7 +425,7 @@ TEST_CASE("model_expression", "[smoke]")
         REQUIRE(sstr.str() == "Constant: 1\nLinear: \n1 v\nQuadratic: \n1 v v\n");
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -512,7 +512,7 @@ TEST_CASE("model_unary_expression", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -1138,7 +1138,7 @@ TEST_CASE("model_add_expression", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -1730,7 +1730,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
             }
         }
     }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -1790,7 +1790,7 @@ TEST_CASE("model_neg_expression", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -2569,7 +2569,7 @@ TEST_CASE("model_mul_expression", "[smoke]")
             }
         }
     }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -3121,7 +3121,7 @@ TEST_CASE("model_div_expression", "[smoke]")
             }
         }
     }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -3608,7 +3608,7 @@ TEST_CASE("intrinsics", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -3641,7 +3641,7 @@ TEST_CASE("expression_value", "[smoke]")
             }
         }
     }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }

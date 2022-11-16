@@ -24,9 +24,11 @@ class Expression;
 class Objective;
 class Constraint;
 #ifdef COEK_WITH_COMPACT_MODEL
+class ParameterMap;
 class VariableMap;
 #endif
 #if __cpp_lib_variant
+class ParameterArray;
 class VariableArray;
 class ConstraintMap;
 #endif
@@ -54,17 +56,28 @@ class Model {
     /** A constant that indicates an infinite value */
     static double inf;
 
+    /** The different policies for name generation. */
+    enum NameGeneration { simple, lazy, eager };
+
     std::shared_ptr<ModelRepn> repn;
 
    public:
     /** Constructs an empty optimization model */
     Model();
-    Model(const Model& other);
-    ~Model();
-    Model& operator=(const Model&);
+
+#if __cpp_lib_variant
+    ParameterArray& add_parameter(ParameterArray& param);
+    ParameterArray& add(ParameterArray& param);
+    ParameterArray& add(ParameterArray&& param);
+#endif
+#ifdef COEK_WITH_COMPACT_MODEL
+    ParameterMap& add_parameter(ParameterMap& param);
+    ParameterMap& add(ParameterMap& param);
+    ParameterMap& add(ParameterMap&& param);
+#endif
 
     //
-    // Variables
+    // Single Variables
     //
     /** \returns the number of variables in the model */
     size_t num_variables() const;
@@ -94,6 +107,10 @@ class Model {
     Variable& add_variable(Variable& var);
     Variable& add(Variable& var);
     Variable& add(Variable&& var);
+
+    //
+    // Variable arrays and maps
+    //
     void add_variable(PythonVariableArray& var);
 #if __cpp_lib_variant
     VariableArray& add_variable(VariableArray& var);
@@ -263,8 +280,9 @@ class Model {
 
     friend std::ostream& operator<<(std::ostream& ostr, const Model& arg);
 
-   protected:
-    void initialize_names();
+    void generate_names();
+    void name_generation(Model::NameGeneration value);
+    Model::NameGeneration name_generation();
 };
 
 //

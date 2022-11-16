@@ -4,6 +4,7 @@
 #include "value_terms.hpp"
 #include "visitor.hpp"
 #include "visitor_fns.hpp"
+#include "../util/cast_utils.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL
 #    include "compact_terms.hpp"
 #endif
@@ -12,8 +13,6 @@
 #include "coek/api/expression_visitor.hpp"
 
 namespace coek {
-
-void write_expr(expr_pointer_t, std::ostream&);
 
 std::ostream& operator<<(std::ostream& ostr, const QuadraticExpr& arg)
 {
@@ -37,104 +36,92 @@ std::ostream& operator<<(std::ostream& ostr, const QuadraticExpr& arg)
 
 namespace {
 
-void visit_expression(expr_pointer_t expr, QuadraticExpr& repn, double multiplier);
+void visit_expression(const expr_pointer_t& expr, QuadraticExpr& repn, double multiplier);
 
-void visit(ConstantTerm& expr, QuadraticExpr& repn, double multiplier)
+void visit(std::shared_ptr<ConstantTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
-    repn.constval += multiplier * expr.value;
+    repn.constval += multiplier * expr->value;
 }
 
-void visit(ParameterTerm& expr, QuadraticExpr& repn, double multiplier)
+void visit(std::shared_ptr<ParameterTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
-    repn.constval += multiplier * expr.value->eval();
+    repn.constval += multiplier * expr->value->eval();
 }
 
-void visit(IndexParameterTerm& /*expr*/, QuadraticExpr& /*repn*/, double /*multiplier*/)
+void visit(std::shared_ptr<IndexParameterTerm>& /*expr*/, QuadraticExpr& /*repn*/,
+           double /*multiplier*/)
 {
     throw std::runtime_error("Unexpected index parameter.");
 }
 
-void visit(VariableTerm& expr, QuadraticExpr& repn, double multiplier)
+void visit(std::shared_ptr<VariableTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
     // if (! expr.index)
     //     throw std::runtime_error("Unexpected variable not owned by a model.");
 
-    if (expr.fixed) {
-        repn.constval += multiplier * expr.value->eval();
+    if (expr->fixed) {
+        repn.constval += multiplier * expr->value->eval();
     }
     else {
-        repn.linear_vars.push_back(&expr);
+        repn.linear_vars.push_back(expr);
         repn.linear_coefs.push_back(multiplier);
     }
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-void visit(VariableRefTerm& /*expr*/, QuadraticExpr& /*repn*/, double /*multiplier*/)
+void visit(std::shared_ptr<VariableRefTerm>& /*expr*/, QuadraticExpr& /*repn*/,
+           double /*multiplier*/)
 {
     throw std::runtime_error("Unexpected variable reference.");
 }
 #endif
 
-void visit(IndexedVariableTerm& expr, QuadraticExpr& repn, double multiplier)
-{
-    // if (! expr.index)
-    //     throw std::runtime_error("Unexpected variable not owned by a model.");
-
-    if (expr.fixed) {
-        repn.constval += multiplier * expr.value->eval();
-    }
-    else {
-        repn.linear_vars.push_back(&expr);
-        repn.linear_coefs.push_back(multiplier);
-    }
-}
-
-void visit(MonomialTerm& expr, QuadraticExpr& repn, double multiplier)
+void visit(std::shared_ptr<MonomialTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
     // if (! expr.var->index)
     //     throw std::runtime_error("Unexpected variable not owned by a model.");
 
-    if (expr.var->fixed) {
-        repn.constval += multiplier * expr.coef * expr.var->value->eval();
+    if (expr->var->fixed) {
+        repn.constval += multiplier * expr->coef * expr->var->value->eval();
     }
     else {
-        repn.linear_vars.push_back(expr.var);
-        repn.linear_coefs.push_back(multiplier * expr.coef);
+        repn.linear_vars.push_back(expr->var);
+        repn.linear_coefs.push_back(multiplier * expr->coef);
     }
 }
 
-void visit(InequalityTerm& expr, QuadraticExpr& repn, double multiplier)
+void visit(std::shared_ptr<InequalityTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
-    visit_expression(expr.body, repn, multiplier);
+    visit_expression(expr->body, repn, multiplier);
 }
 
-void visit(EqualityTerm& expr, QuadraticExpr& repn, double multiplier)
+void visit(std::shared_ptr<EqualityTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
-    visit_expression(expr.body, repn, multiplier);
+    visit_expression(expr->body, repn, multiplier);
 }
 
-void visit(ObjectiveTerm& expr, QuadraticExpr& repn, double multiplier)
+void visit(std::shared_ptr<ObjectiveTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
-    visit_expression(expr.body, repn, multiplier);
+    visit_expression(expr->body, repn, multiplier);
 }
 
-void visit(NegateTerm& expr, QuadraticExpr& repn, double multiplier)
+void visit(std::shared_ptr<NegateTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
-    visit_expression(expr.body, repn, -multiplier);
+    visit_expression(expr->body, repn, -multiplier);
 }
 
-void visit(PlusTerm& expr, QuadraticExpr& repn, double multiplier)
+void visit(std::shared_ptr<PlusTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
-    NAryPrefixTerm::shared_t::iterator it = expr.data.get()->begin();
-    NAryPrefixTerm::shared_t::iterator end = expr.data.get()->end();
+    NAryPrefixTerm::shared_t::iterator it = expr->data.get()->begin();
+    NAryPrefixTerm::shared_t::iterator end = expr->data.get()->end();
 
     for (; it != end; ++it) visit_expression(*it, repn, multiplier);
 }
 
-void visit(TimesTerm& expr, QuadraticExpr& repn, double multiplier)
+void visit(std::shared_ptr<TimesTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
     QuadraticExpr lhs_repn;
-    visit_expression(expr.lhs, lhs_repn, 1.0);
+    visit_expression(expr->lhs, lhs_repn, 1.0);
 
     if (lhs_repn.linear_coefs.size() + lhs_repn.quadratic_coefs.size() == 0) {
         //
@@ -142,12 +129,12 @@ void visit(TimesTerm& expr, QuadraticExpr& repn, double multiplier)
         //
         if (lhs_repn.constval == 0.0) return;
 
-        visit_expression(expr.rhs, repn, lhs_repn.constval * multiplier);
+        visit_expression(expr->rhs, repn, lhs_repn.constval * multiplier);
         return;
     }
 
     QuadraticExpr rhs_repn;
-    visit_expression(expr.rhs, rhs_repn, 1.0);
+    visit_expression(expr->rhs, rhs_repn, 1.0);
 
     if (rhs_repn.linear_coefs.size() + rhs_repn.quadratic_coefs.size() == 0) {
         //
@@ -206,16 +193,16 @@ void visit(TimesTerm& expr, QuadraticExpr& repn, double multiplier)
             "Non-quadratic expressions cannot be expressed in a QuadraticExpr object.");
 }
 
-void visit(DivideTerm& expr, QuadraticExpr& repn, double multiplier)
+void visit(std::shared_ptr<DivideTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
-    visit_expression(expr.lhs, repn, multiplier);
+    visit_expression(expr->lhs, repn, multiplier);
 
     // LHS is zero, so we ignore the RHS
     if ((repn.constval == 0.0) and ((repn.linear_coefs.size() + repn.quadratic_coefs.size()) == 0))
         return;
 
     QuadraticExpr rhs_repn;
-    visit_expression(expr.rhs, rhs_repn, 1.0);
+    visit_expression(expr->rhs, rhs_repn, 1.0);
 
     if ((rhs_repn.linear_coefs.size() + rhs_repn.quadratic_coefs.size()) > 0)
         throw std::runtime_error(
@@ -230,10 +217,10 @@ void visit(DivideTerm& expr, QuadraticExpr& repn, double multiplier)
 }
 
 #define UNARY_VISITOR(TERM, FN)                                                                    \
-    void visit(TERM& expr, QuadraticExpr& repn, double multiplier)                                 \
+    void visit(std::shared_ptr<TERM>& expr, QuadraticExpr& repn, double multiplier)                \
     {                                                                                              \
         QuadraticExpr body_repn;                                                                   \
-        visit_expression(expr.body, body_repn, 1.0);                                               \
+        visit_expression(expr->body, body_repn, 1.0);                                              \
                                                                                                    \
         if ((body_repn.linear_coefs.size() + body_repn.quadratic_coefs.size()) > 0)                \
             throw std::runtime_error("Nonlinear expressions are not supported for QuadraticExpr: " \
@@ -242,6 +229,7 @@ void visit(DivideTerm& expr, QuadraticExpr& repn, double multiplier)
         repn.constval += multiplier * ::FN(body_repn.constval);                                    \
     }
 
+// clang-format off
 UNARY_VISITOR(AbsTerm, fabs)
 UNARY_VISITOR(CeilTerm, ceil)
 UNARY_VISITOR(FloorTerm, floor)
@@ -261,9 +249,10 @@ UNARY_VISITOR(ATanTerm, atan)
 UNARY_VISITOR(ASinhTerm, asinh)
 UNARY_VISITOR(ACoshTerm, acosh)
 UNARY_VISITOR(ATanhTerm, atanh)
+// clang-format on
 
 #define BINARY_VISITOR(TERM, FN)                                                                   \
-    void visit(TERM& expr, QuadraticExpr& repn, double multiplier)                                 \
+    void visit(std::shared_ptr<TERM>& expr, QuadraticExpr& repn, double multiplier)                \
     {                                                                                              \
         QuadraticExpr lhs_repn;                                                                    \
         visit_expression(expr.lhs, lhs_repn, 1.0);                                                 \
@@ -280,10 +269,10 @@ UNARY_VISITOR(ATanhTerm, atanh)
         repn.constval += multiplier * ::FN(lhs_repn.constval, rhs_repn.constval);                  \
     }
 
-void visit(PowTerm& expr, QuadraticExpr& repn, double multiplier)
+void visit(std::shared_ptr<PowTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
     QuadraticExpr rhs_repn;
-    visit_expression(expr.rhs, rhs_repn, 1.0);
+    visit_expression(expr->rhs, rhs_repn, 1.0);
     if (not rhs_repn.is_constant())
         throw std::runtime_error(
             "Nonlinear expressions are not supported for QuadraticExpr: pow term with non-constant "
@@ -294,12 +283,12 @@ void visit(PowTerm& expr, QuadraticExpr& repn, double multiplier)
     }
 
     else if (rhs_repn.constval == 1) {
-        visit_expression(expr.lhs, repn, multiplier);
+        visit_expression(expr->lhs, repn, multiplier);
     }
 
     else {
         QuadraticExpr lhs_repn;
-        visit_expression(expr.lhs, lhs_repn, 1.0);
+        visit_expression(expr->lhs, lhs_repn, 1.0);
         if (lhs_repn.is_constant())
             // A**B - A and B constant
             repn.constval += multiplier * ::pow(lhs_repn.constval, rhs_repn.constval);
@@ -334,12 +323,13 @@ void visit(PowTerm& expr, QuadraticExpr& repn, double multiplier)
 
 // BINARY_VISITOR(PowTerm, pow)
 
-#define VISIT_CASE(TERM)                                     \
-    case TERM##_id:                                          \
-        visit(*dynamic_cast<TERM*>(expr), repn, multiplier); \
-        break
+#define VISIT_CASE(TERM)                          \
+    case TERM##_id: {                             \
+        auto tmp = safe_pointer_cast<TERM>(expr); \
+        visit(tmp, repn, multiplier);             \
+    } break
 
-void visit_expression(expr_pointer_t expr, QuadraticExpr& repn, double multiplier)
+void visit_expression(const expr_pointer_t& expr, QuadraticExpr& repn, double multiplier)
 {
     switch (expr->id()) {
         VISIT_CASE(ConstantTerm);
@@ -349,7 +339,6 @@ void visit_expression(expr_pointer_t expr, QuadraticExpr& repn, double multiplie
 #ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(VariableRefTerm);
 #endif
-        VISIT_CASE(IndexedVariableTerm);
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
         VISIT_CASE(EqualityTerm);
@@ -390,7 +379,7 @@ void visit_expression(expr_pointer_t expr, QuadraticExpr& repn, double multiplie
 
 }  // namespace
 
-void to_QuadraticExpr(expr_pointer_t expr, QuadraticExpr& repn)
+void to_QuadraticExpr(const expr_pointer_t& expr, QuadraticExpr& repn)
 {
     visit_expression(expr, repn, 1.0);
 }

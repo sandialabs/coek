@@ -69,10 +69,10 @@ class IndexParameterTerm;
 class VariableTerm;
 class BaseExpressionTerm;
 
-typedef ParameterTerm* ParameterRepn;
-typedef IndexParameterTerm* IndexParameterRepn;
-typedef VariableTerm* VariableRepn;
-typedef BaseExpressionTerm* ExpressionRepn;
+typedef std::shared_ptr<ParameterTerm> ParameterRepn;
+typedef std::shared_ptr<IndexParameterTerm> IndexParameterRepn;
+typedef std::shared_ptr<VariableTerm> VariableRepn;
+typedef std::shared_ptr<BaseExpressionTerm> ExpressionRepn;
 
 class Parameter;
 class IndexParameter;
@@ -159,10 +159,7 @@ class Parameter {
      *
      * \param arg   a parameter whose value is shared
      */
-    Parameter(const Parameter& arg);
     Parameter(const ParameterRepn& _repn);
-    ~Parameter();
-    Parameter& operator=(const Parameter& arg);
 
     /** \returns the value of the parameter */
     double value() const;
@@ -206,7 +203,6 @@ class IndexParameter {
     IndexParameter();
     explicit IndexParameter(const std::string& name);
     IndexParameter(const IndexParameter& arg);
-    ~IndexParameter();
 
     IndexParameter& operator=(const IndexParameter& arg);
 
@@ -246,10 +242,6 @@ class Variable {
     Variable();
     explicit Variable(const std::string& name);
     Variable(const VariableRepn& _repn);
-    Variable(const Variable& arg);
-    virtual ~Variable();
-
-    Variable& operator=(const Variable& arg);
 
     /** Set the initial variable value. \returns the variable object. */
     Variable& value(double value);
@@ -356,11 +348,14 @@ class Expression {
     /** Implicit construction of an Expression from a Variable */
     Expression(const Variable& arg);
 
+    Expression(const ParameterRepn& _repn);
+    Expression(const IndexParameterRepn& _repn);
+    Expression(const VariableRepn& _repn);
     Expression(const ExpressionRepn& _repn);
-    Expression(const Expression& arg);
-    ~Expression();
-
-    Expression& operator=(const Expression& arg);
+    Expression(ParameterRepn&& _repn);
+    Expression(IndexParameterRepn&& _repn);
+    Expression(VariableRepn&& _repn);
+    Expression(ExpressionRepn&& _repn);
 
     /** \returns \c true if this is a constant expression */
     bool is_constant() const;

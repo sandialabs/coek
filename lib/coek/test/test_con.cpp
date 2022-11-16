@@ -1703,7 +1703,7 @@ TEST_CASE("elementary_constraint", "[smoke]")
             }
         }
     }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -1742,6 +1742,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", coek::Model, coek::CompactMo
             WHEN("operator () - size_t")
             {
                 auto v = coek::variable("v", 10);
+                v.generate_names();
                 auto c = coek::constraint(10);
                 for (size_t i = 0; i < 10; ++i) {
                     c(i) = v(i) == 1.0 * i;
@@ -1949,7 +1950,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", coek::Model, coek::CompactMo
             }
         }
     }
-#    ifdef DEBUG
+#    ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #    endif
 }

@@ -192,7 +192,7 @@ TEST_CASE("ipopt", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -213,7 +213,7 @@ TEST_CASE("gurobi", "[smoke]")
     }
     SECTION("simplelp1_solve") { simplelp1_solve(); }
 
-#    ifdef DEBUG
+#    ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #    endif
 }
