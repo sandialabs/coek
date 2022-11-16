@@ -11,7 +11,7 @@ const std::string currdir = COEK_TEST_DIR;
 int main(int argc, char** argv)
 {
     if (argc == 1) {
-        std::cout << "demo1 <jpof-file> <n-solves>" << std::endl;
+        std::cout << "jpof_demo <jpof-file> <n-solves>" << std::endl;
         return 0;
     }
 

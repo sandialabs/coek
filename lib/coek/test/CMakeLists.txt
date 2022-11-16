@@ -52,11 +52,11 @@ include(CTest)
 include(Catch)
 catch_discover_tests(runner)
 
-# demo1
-add_executable(demo1 demo1.cpp)
-TARGET_LINK_LIBRARIES(demo1 PUBLIC coek ${coek_link_libraries})
-TARGET_COMPILE_OPTIONS(demo1 PUBLIC ${coek_compile_options})
-target_compile_definitions(demo1 PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
+# jpof_demo
+add_executable(jpof_demo jpof_demo.cpp)
+TARGET_LINK_LIBRARIES(jpof_demo PUBLIC coek ${coek_link_libraries})
+TARGET_COMPILE_OPTIONS(jpof_demo PUBLIC ${coek_compile_options})
+target_compile_definitions(jpof_demo PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 
 
 # testing
