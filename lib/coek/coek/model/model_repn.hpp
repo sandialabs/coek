@@ -37,8 +37,8 @@ class ModelRepn {
 #    ifdef COEK_WITH_COMPACT_MODEL
     std::vector<ParameterMap> parameter_maps;
     std::vector<VariableMap> variable_maps;
-    std::vector<ConstraintMap> constraint_maps;
 #    endif
+    std::vector<ConstraintMap> constraint_maps;
 #endif
 
     std::map<std::string, Objective> objectives_by_name;

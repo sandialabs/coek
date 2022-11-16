@@ -1,7 +1,7 @@
 #include "coek/model/compact_model.hpp"
 
 #include "../ast/varray.hpp"
-#include "../util/endswith.hpp"
+#include "../util/string_utils.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 //#ifdef COEK_WITH_COMPACT_MODEL
@@ -258,18 +258,18 @@ void CompactModel::write(std::string fname)
 void CompactModel::write(std::string fname, std::map<size_t, size_t>& varmap,
                          std::map<size_t, size_t>& conmap)
 {
-    if (endsWith(fname, ".lp")) {
+    if (ends_with(fname, ".lp")) {
         write_lp_problem(*this, fname, varmap, conmap);
         return;
     }
 
-    else if (endsWith(fname, ".ostrlp")) {
+    else if (ends_with(fname, ".ostrlp")) {
         write_lp_problem_ostream(*this, fname, varmap, conmap);
         return;
     }
 
 #    ifdef WITH_FMTLIB
-    else if (endsWith(fname, ".fmtlp")) {
+    else if (ends_with(fname, ".fmtlp")) {
         write_lp_problem_fmtlib(*this, fname, varmap, conmap);
         return;
     }

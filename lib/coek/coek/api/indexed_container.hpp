@@ -25,7 +25,6 @@ template <class TYPE>
 class IndexedComponentRepn {
    public:
     IndexVectorCache cache;
-    std::map<IndexVector, std::string> names;
     std::map<IndexVector, TYPE> value;
     size_t _dim;
     std::string _name;
@@ -44,6 +43,8 @@ class IndexedComponentRepn {
     }
 
     virtual bool valid_index(const IndexVector& args) = 0;
+
+    virtual void generate_names() = 0;
 };
 
 template <class TYPE>
@@ -61,8 +62,6 @@ class IndexedComponent {
     size_t dim() { return repn->dim(); }
 
     virtual TYPE& index(const IndexVector& args) = 0;
-
-    // Expression create_varref(const std::vector<refarg_types>& indices);
 };
 
 template <class TYPE>
@@ -71,7 +70,7 @@ class IndexedComponent_Map : public IndexedComponent<TYPE> {
     TYPE& index(const IndexVector& args);
     void index_error(size_t i);
 
-    // void generate_names() {repn->generate_names();}
+    void generate_names() { this->repn->generate_names(); }
 
    public:
     /// Collect arguments with int, size_t or parameter indices

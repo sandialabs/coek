@@ -65,7 +65,7 @@ Constraint& Constraint::name(const std::string& name)
     return *this;
 }
 
-std::string Constraint::name() const { return repn->name; }
+std::string Constraint::name() const { return repn->get_name(); }
 
 Constraint Constraint::expand()
 {

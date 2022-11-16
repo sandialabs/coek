@@ -45,7 +45,7 @@ Objective& Objective::name(const std::string& name)
     return *this;
 }
 
-std::string Objective::name() const { return repn->name; }
+std::string Objective::name() const { return repn->get_name(); }
 
 std::list<std::string> Objective::to_list() const
 {

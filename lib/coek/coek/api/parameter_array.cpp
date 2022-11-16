@@ -2,6 +2,7 @@
 
 #include "coek/api/parameter_assoc_array_repn.hpp"
 #include "coek/model/model.hpp"
+#include "coek/model/model_repn.hpp"
 
 namespace coek {
 
@@ -59,10 +60,14 @@ std::string ParameterArrayRepn::get_name(std::string name, size_t index)
 
 void ParameterArrayRepn::generate_names()
 {
+    // If no name has been provided to this array object,
+    // then we do not try to generate names.  The default/simple
+    // parameter names will be used.
+    std::string name = parameter_template.name();
+    if (name == "") return;
+
     setup();
 
-    std::string name = parameter_template.name();
-    if (name == "") name = "p";
     size_t ctr = 0;
     for (auto& param : values) param.name(get_name(name, ctr++));
 }
@@ -161,6 +166,16 @@ ParameterArray parameter(const std::vector<size_t>& shape) { return ParameterArr
 ParameterArray parameter(const std::initializer_list<size_t>& shape)
 {
     return ParameterArray(shape);
+}
+
+ParameterArray& Model::add_parameter(ParameterArray& params)
+{
+    params.repn->setup();
+    if (repn->name_generation_policy == Model::NameGeneration::eager)
+        params.generate_names();
+    else if (repn->name_generation_policy == Model::NameGeneration::lazy)
+        repn->parameter_arrays.push_back(params);
+    return params;
 }
 
 }  // namespace coek

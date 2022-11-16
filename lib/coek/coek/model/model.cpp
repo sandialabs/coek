@@ -7,7 +7,7 @@
 
 #include "../ast/value_terms.hpp"
 #include "../ast/varray.hpp"
-#include "../util/endswith.hpp"
+#include "../util/string_utils.hpp"
 #include "../util/map_utils.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
@@ -64,6 +64,16 @@ void Model::print_values(std::ostream& ostr)
 
 Model::Model() { repn = std::make_shared<ModelRepn>(); }
 
+#if __cpp_lib_variant
+ParameterArray& Model::add(ParameterArray& param) { return add_parameter(param); }
+ParameterArray& Model::add(ParameterArray&& param) { return add_parameter(param); }
+#endif
+
+#ifdef COEK_WITH_COMPACT_MODEL
+ParameterMap& Model::add(ParameterMap& param) { return add_parameter(param); }
+ParameterMap& Model::add(ParameterMap&& param) { return add_parameter(param); }
+#endif
+
 Variable Model::add_variable()
 {
     Variable tmp;
@@ -83,16 +93,6 @@ Variable& Model::add_variable(Variable& var)
     repn->variables.push_back(var);
     return var;
 }
-
-#ifdef COEK_WITH_COMPACT_MODEL
-VariableMap& Model::add(VariableMap& vars) { return add_variable(vars); }
-VariableMap& Model::add(VariableMap&& vars) { return add_variable(vars); }
-#endif
-
-#if __cpp_lib_variant
-VariableArray& Model::add(VariableArray& vars) { return add_variable(vars); }
-VariableArray& Model::add(VariableArray&& vars) { return add_variable(vars); }
-#endif
 
 Variable& Model::add(Variable& var)
 {
@@ -116,6 +116,16 @@ void Model::add_variable(PythonVariableArray& varray)
         }
     */
 }
+
+#if __cpp_lib_variant
+VariableArray& Model::add(VariableArray& vars) { return add_variable(vars); }
+VariableArray& Model::add(VariableArray&& vars) { return add_variable(vars); }
+#endif
+
+#ifdef COEK_WITH_COMPACT_MODEL
+VariableMap& Model::add(VariableMap& vars) { return add_variable(vars); }
+VariableMap& Model::add(VariableMap&& vars) { return add_variable(vars); }
+#endif
 
 Objective Model::add_objective(const Expression& expr)
 {
@@ -274,11 +284,11 @@ void Model::generate_names()
     if (repn->name_generation_policy == Model::NameGeneration::lazy) {
         for (auto& parray : repn->parameter_arrays) parray.generate_names();
         for (auto& varray : repn->variable_arrays) varray.generate_names();
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         for (auto& pmap : repn->parameter_maps) pmap.generate_names();
         for (auto& vmap : repn->variable_maps) vmap.generate_names();
-        for (auto& cmap : repn->constraint_maps) cmap.generate_names();
 #endif
+        for (auto& cmap : repn->constraint_maps) cmap.generate_names();
     }
 
     repn->variables_by_name.clear();
@@ -288,6 +298,10 @@ void Model::generate_names()
     for (auto& o : repn->objectives) repn->objectives_by_name.emplace(o.name(), o);
     for (auto& c : repn->constraints) repn->constraints_by_name.emplace(c.name(), c);
 }
+
+void Model::name_generation(Model::NameGeneration value) { repn->name_generation_policy = value; }
+
+Model::NameGeneration Model::name_generation() { return repn->name_generation_policy; }
 
 void Model::set_suffix(const std::string& name, Variable& var, double value)
 {
@@ -364,39 +378,39 @@ void Model::write(std::string fname, std::map<size_t, size_t>& varmap,
         for (auto& varray : repn->variable_arrays) varray.generate_names();
 #ifdef COEK_WITH_COMPACT_MODEL
         for (auto& vmap : repn->variable_maps) vmap.generate_names();
+#endif
         for (auto& cmap : repn->constraint_maps) cmap.generate_names();
-#    endif
     }
 
-    if (endsWith(fname, ".lp")) {
+    if (ends_with(fname, ".lp")) {
         write_lp_problem(*this, fname, varmap, conmap);
         return;
     }
 
-    else if (endsWith(fname, ".ostrlp")) {
+    else if (ends_with(fname, ".ostrlp")) {
         write_lp_problem_ostream(*this, fname, varmap, conmap);
         return;
     }
 
 #ifdef WITH_FMTLIB
-    else if (endsWith(fname, ".fmtlp")) {
+    else if (ends_with(fname, ".fmtlp")) {
         write_lp_problem_fmtlib(*this, fname, varmap, conmap);
         return;
     }
 #endif
 
-    else if (endsWith(fname, ".nl")) {
+    else if (ends_with(fname, ".nl")) {
         write_nl_problem(*this, fname, varmap, conmap);
         return;
     }
 
-    else if (endsWith(fname, ".ostrnl")) {
+    else if (ends_with(fname, ".ostrnl")) {
         write_nl_problem_ostream(*this, fname, varmap, conmap);
         return;
     }
 
 #ifdef WITH_FMTLIB
-    else if (endsWith(fname, ".fmtnl")) {
+    else if (ends_with(fname, ".fmtnl")) {
         write_nl_problem_fmtlib(*this, fname, varmap, conmap);
         return;
     }

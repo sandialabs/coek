@@ -24,9 +24,11 @@ class Expression;
 class Objective;
 class Constraint;
 #ifdef COEK_WITH_COMPACT_MODEL
+class ParameterMap;
 class VariableMap;
 #endif
 #if __cpp_lib_variant
+class ParameterArray;
 class VariableArray;
 class ConstraintMap;
 #endif
@@ -62,6 +64,17 @@ class Model {
    public:
     /** Constructs an empty optimization model */
     Model();
+
+#if __cpp_lib_variant
+    ParameterArray& add_parameter(ParameterArray& param);
+    ParameterArray& add(ParameterArray& param);
+    ParameterArray& add(ParameterArray&& param);
+#endif
+#ifdef COEK_WITH_COMPACT_MODEL
+    ParameterMap& add_parameter(ParameterMap& param);
+    ParameterMap& add(ParameterMap& param);
+    ParameterMap& add(ParameterMap&& param);
+#endif
 
     //
     // Single Variables
@@ -268,6 +281,8 @@ class Model {
     friend std::ostream& operator<<(std::ostream& ostr, const Model& arg);
 
     void generate_names();
+    void name_generation(Model::NameGeneration value);
+    Model::NameGeneration name_generation();
 };
 
 //

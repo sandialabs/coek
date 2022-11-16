@@ -63,12 +63,18 @@ void WriteExprVisitor::visit(ConstantTerm& arg) { ostr << arg.value; }
 
 void WriteExprVisitor::visit(ParameterTerm& arg)
 {
-    auto name = arg.get_name();
-    if (name.size() == 0) {
-        ostr << std::to_string(arg.eval());
-    }
+#if 0
+    // TODO - consider this format for param outputs
+    
+    if (arg.name.size() > 0)
+        ostr << arg.name;
+    ostr << "{" << std::to_string(arg.eval()) << "}";
+#else
+    if (arg.name.size() > 0)
+        ostr << arg.name;
     else
-        ostr << name;
+        ostr << std::to_string(arg.eval());
+#endif
 }
 
 void WriteExprVisitor::visit(IndexParameterTerm& arg) { ostr << arg.name; }

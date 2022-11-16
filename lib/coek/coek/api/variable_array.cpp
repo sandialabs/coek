@@ -68,10 +68,14 @@ std::string VariableArrayRepn::get_name(std::string name, size_t index)
 
 void VariableArrayRepn::generate_names()
 {
+    // If no name has been provided to this array object,
+    // then we do not try to generate names.  The default/simple
+    // variable names will be used.
+    std::string name = variable_template.name();
+    if (name == "") return;
+
     setup();
 
-    std::string name = variable_template.name();
-    if (name == "") name = "x";
     size_t ctr = 0;
     for (auto& var : values) var.name(get_name(name, ctr++));
 }

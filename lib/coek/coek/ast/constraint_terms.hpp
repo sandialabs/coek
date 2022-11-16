@@ -27,6 +27,15 @@ class ObjectiveTerm : public BaseExpressionTerm {
 
     void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return ObjectiveTerm_id; }
+
+    virtual std::string get_simple_name() { return "O[" + std::to_string(index) + "]"; }
+    virtual std::string get_name()
+    {
+        if (name == "")
+            return get_simple_name();
+        else
+            return name;
+    }
 };
 
 //
@@ -60,6 +69,15 @@ class ConstraintTerm : public BaseExpressionTerm {
     virtual bool is_trivial() const
         {return false;}
     */
+
+    virtual std::string get_simple_name() { return "C[" + std::to_string(index) + "]"; }
+    virtual std::string get_name()
+    {
+        if (name == "")
+            return get_simple_name();
+        else
+            return name;
+    }
 };
 
 class InequalityTerm : public ConstraintTerm {

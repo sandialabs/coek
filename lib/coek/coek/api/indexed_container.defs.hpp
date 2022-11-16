@@ -37,7 +37,33 @@ class IndexedComponentRepn_multiarray : public IndexedComponentRepn<TYPE> {
         }
         return true;
     }
+
+    void generate_names();
 };
+
+template <class TYPE>
+void IndexedComponentRepn_multiarray<TYPE>::generate_names()
+{
+    // If no name has been provided to this array object,
+    // then we do not try to generate names.  The default/simple
+    // constraint names will be used.
+    auto name = this->_name;
+    if (name == "") return;
+
+    for (auto& con : this->value) {
+        name += "[";
+
+        if (shape.size() >= 1) name += std::to_string(con.first[0]);
+
+        if (shape.size() > 1) {
+            for (size_t i = 1; i < shape.size(); ++i) name += "," + std::to_string(con.first[i]);
+        }
+
+        name += "]";
+
+        con.second.name(name);
+    }
+}
 
 #ifdef COEK_WITH_COMPACT_MODEL
 template <class TYPE>
@@ -63,7 +89,15 @@ class IndexedComponentRepn_setindex : public IndexedComponentRepn<TYPE> {
         for (size_t i = 0; i < tmp.size(); i++) tmp[i] = args[i];
         return this->concrete_set.contains(tmp);
     }
+
+    void generate_names();
 };
+
+template <class TYPE>
+void IndexedComponentRepn_setindex<TYPE>::generate_names()
+{
+    std::cout << "setindex generate_names" << std::endl;
+}
 #endif
 
 template <class TYPE>

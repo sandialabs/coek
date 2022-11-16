@@ -34,8 +34,6 @@ class ConstraintMap : public IndexedComponent_Map<Constraint> {
         repn->_name = str;
         return *this;
     }
-
-    void generate_names();
 };
 
 inline ConstraintMap constraint(size_t n) { return ConstraintMap(n); }

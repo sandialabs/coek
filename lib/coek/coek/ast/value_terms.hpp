@@ -42,7 +42,7 @@ class ParameterTerm : public BaseParameterTerm {
     virtual std::string get_name()
     {
         if (name == "")
-            return std::to_string(eval());
+            return get_simple_name();
         else
             return name;
     }

@@ -42,9 +42,14 @@ class VariableMapRepn : public VariableAssocArrayRepn {
 
 void VariableMapRepn::generate_names()
 {
+    // If no name has been provided to this map object,
+    // then we do not try to generate names.  The default/simple
+    // variable names will be used.
+    auto name = variable_template.name();
+    if (name == "") return;
+
     setup();
 
-    auto name = variable_template.name();
     size_t _dim = dim();
     std::vector<int> x_data(_dim);
     IndexVector x(&(x_data[0]), _dim);
