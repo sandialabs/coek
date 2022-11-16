@@ -46,7 +46,7 @@ void IndexedComponentRepn_multiarray<TYPE>::generate_names()
 {
     // If no name has been provided to this array object,
     // then we do not try to generate names.  The default/simple
-    // constraint names will be used.
+    // names will be used.
     auto name = this->_name;
     if (name == "") return;
 
@@ -65,6 +65,8 @@ void IndexedComponentRepn_multiarray<TYPE>::generate_names()
     }
 }
 
+void zzz();
+
 #ifdef COEK_WITH_COMPACT_MODEL
 template <class TYPE>
 class IndexedComponentRepn_setindex : public IndexedComponentRepn<TYPE> {
@@ -82,12 +84,13 @@ class IndexedComponentRepn_setindex : public IndexedComponentRepn<TYPE> {
 
     bool valid_index(const IndexVector& args)
     {
-        /*
-        auto it = this->value.find(args);
-        return !(it == this->value.end());
-        */
-        for (size_t i = 0; i < tmp.size(); i++) tmp[i] = args[i];
-        return this->concrete_set.contains(tmp);
+        if (tmp.size() == 1)
+            return this->concrete_set.contains(args[0]);
+        else {
+            for (size_t i = 0; i < tmp.size(); i++) tmp[i] = args[i];
+            //zzz();
+            return this->concrete_set.contains(tmp);
+            }
     }
 
     void generate_names();
@@ -96,7 +99,32 @@ class IndexedComponentRepn_setindex : public IndexedComponentRepn<TYPE> {
 template <class TYPE>
 void IndexedComponentRepn_setindex<TYPE>::generate_names()
 {
-    std::cout << "setindex generate_names" << std::endl;
+    // If no name has been provided to this map object,
+    // then we do not try to generate names.  The default/simple
+    // names will be used.
+    auto name = this->_name;
+    if (name == "") return;
+
+    size_t _dim = this->dim();
+    std::vector<int> x_data(_dim);
+    IndexVector x(&(x_data[0]), _dim);
+    for (auto& indices : concrete_set) {
+        for (size_t j = 0; j < _dim; j++) x[j] = indices[j];
+        if (indices.size() == 1) {
+            auto tmp = indices[0];
+            this->value[x].name(name + "[" + std::to_string(tmp) + "]");
+        }
+        else {
+            std::string _name = name + "[";
+            auto tmp = indices[0];
+            _name += std::to_string(tmp);
+            for (size_t j = 1; j < indices.size(); j++) {
+                auto tmp = indices[j];
+                _name += "," + std::to_string(tmp);
+            }
+            this->value[x].name(_name + "]");
+        }
+    }
 }
 #endif
 
@@ -147,10 +175,13 @@ IndexedComponent_Map<TYPE>::IndexedComponent_Map(ConcreteSet& arg)
 }
 #endif
 
+void zzz();
+
 template <class TYPE>
 TYPE& IndexedComponent_Map<TYPE>::index(const IndexVector& args)
 {
     assert(this->dim() == args.size());
+    //zzz();
 
     if (!(this->repn->valid_index(this->tmp))) {
         std::string err = "Unexpected index value: " + this->repn->_name + "(";

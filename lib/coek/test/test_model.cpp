@@ -130,7 +130,6 @@ TEST_CASE("model_names", "[smoke]")
     auto q = coek::parameter("q", 10);
     auto r = coek::parameter("r", {10, 10});
 #ifdef COEK_WITH_COMPACT_MODEL
-    auto pp = coek::parameter("pp", I);
     auto qq = coek::parameter("qq", I);
     auto rr = coek::parameter("rr", I * I);
 #endif
@@ -139,7 +138,6 @@ TEST_CASE("model_names", "[smoke]")
     auto y = coek::variable("y", 10);
     auto z = coek::variable("z", {10, 10});
 #ifdef COEK_WITH_COMPACT_MODEL
-    auto xx = coek::variable("xx", I);
     auto yy = coek::variable("yy", I);
     auto zz = coek::variable("zz", I * I);
 #endif
@@ -150,10 +148,9 @@ TEST_CASE("model_names", "[smoke]")
     auto e = coek::constraint("e", {10, 10});
     e(0, 0) = x == 1;
 #ifdef COEK_WITH_COMPACT_MODEL
-    auto cc = coek::constraint("cc", x == 1);
-    auto dd = coek::constraint("dd", 10);
+    auto dd = coek::constraint("dd", I);
     dd(0) = x == 1;
-    auto ee = coek::constraint("ee", {10, 10});
+    auto ee = coek::constraint("ee", I*I);
     ee(0, 0) = x == 1;
 #endif
 
@@ -163,7 +160,6 @@ TEST_CASE("model_names", "[smoke]")
         m.add(q);
         m.add(r);
 #ifdef COEK_WITH_COMPACT_MODEL
-        // m.add(pp);
         m.add(qq);
         m.add(rr);
 #endif
@@ -171,7 +167,6 @@ TEST_CASE("model_names", "[smoke]")
         m.add(y);
         m.add(z);
 #ifdef COEK_WITH_COMPACT_MODEL
-        m.add(xx);
         m.add(yy);
         m.add(zz);
 #endif
@@ -179,7 +174,6 @@ TEST_CASE("model_names", "[smoke]")
         m.add(d);
         m.add(e);
 #ifdef COEK_WITH_COMPACT_MODEL
-        m.add(cc);
         m.add(dd);
         m.add(ee);
 #endif
@@ -197,7 +191,6 @@ TEST_CASE("model_names", "[smoke]")
         REQUIRE(coek::starts_with(q(0).name(), "P"));
         REQUIRE(coek::starts_with(r(0, 0).name(), "P"));
 #ifdef COEK_WITH_COMPACT_MODEL
-        REQUIRE(coek::starts_with(pp.name(), "pp"));
         REQUIRE(coek::starts_with(qq(0).name(), "P"));
         REQUIRE(coek::starts_with(rr(0, 0).name(), "P"));
 #endif
@@ -205,7 +198,6 @@ TEST_CASE("model_names", "[smoke]")
         REQUIRE(coek::starts_with(y(0).name(), "X"));
         REQUIRE(coek::starts_with(z(0, 0).name(), "X"));
 #ifdef COEK_WITH_COMPACT_MODEL
-        REQUIRE(coek::starts_with(xx.name(), "xx"));
         REQUIRE(coek::starts_with(yy(0).name(), "X"));
         REQUIRE(coek::starts_with(zz(0, 0).name(), "X"));
 #endif
@@ -213,7 +205,6 @@ TEST_CASE("model_names", "[smoke]")
         REQUIRE(coek::starts_with(d(0).name(), "C"));
         REQUIRE(coek::starts_with(e(0, 0).name(), "C"));
 #ifdef COEK_WITH_COMPACT_MODEL
-        REQUIRE(coek::starts_with(cc.name(), "cc"));
         REQUIRE(coek::starts_with(dd(0).name(), "C"));
         REQUIRE(coek::starts_with(ee(0, 0).name(), "C"));
 #endif
@@ -226,7 +217,6 @@ TEST_CASE("model_names", "[smoke]")
         m.add(q);
         m.add(r);
 #ifdef COEK_WITH_COMPACT_MODEL
-        // m.add(pp);
         m.add(qq);
         m.add(rr);
 #endif
@@ -234,7 +224,6 @@ TEST_CASE("model_names", "[smoke]")
         m.add(y);
         m.add(z);
 #ifdef COEK_WITH_COMPACT_MODEL
-        m.add(xx);
         m.add(yy);
         m.add(zz);
 #endif
@@ -242,7 +231,6 @@ TEST_CASE("model_names", "[smoke]")
         m.add(d);
         m.add(e);
 #ifdef COEK_WITH_COMPACT_MODEL
-        m.add(cc);
         m.add(dd);
         m.add(ee);
 #endif
@@ -254,13 +242,16 @@ TEST_CASE("model_names", "[smoke]")
         REQUIRE(m.repn->parameter_maps.size() == 2);
         REQUIRE(m.repn->variable_maps.size() == 2);
 #endif
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(m.repn->constraint_maps.size() == 4);
+#else
         REQUIRE(m.repn->constraint_maps.size() == 2);
+#endif
 
         REQUIRE(coek::starts_with(p.name(), "p"));
         REQUIRE(coek::starts_with(q(0).name(), "P"));
         REQUIRE(coek::starts_with(r(0, 0).name(), "P"));
 #ifdef COEK_WITH_COMPACT_MODEL
-        REQUIRE(coek::starts_with(pp.name(), "pp"));
         REQUIRE(coek::starts_with(qq(0).name(), "P"));
         REQUIRE(coek::starts_with(rr(0, 0).name(), "P"));
 #endif
@@ -268,7 +259,6 @@ TEST_CASE("model_names", "[smoke]")
         REQUIRE(coek::starts_with(y(0).name(), "X"));
         REQUIRE(coek::starts_with(z(0, 0).name(), "X"));
 #ifdef COEK_WITH_COMPACT_MODEL
-        REQUIRE(coek::starts_with(xx.name(), "xx"));
         REQUIRE(coek::starts_with(yy(0).name(), "X"));
         REQUIRE(coek::starts_with(zz(0, 0).name(), "X"));
 #endif
@@ -276,7 +266,6 @@ TEST_CASE("model_names", "[smoke]")
         REQUIRE(coek::starts_with(d(0).name(), "C"));
         REQUIRE(coek::starts_with(e(0, 0).name(), "C"));
 #ifdef COEK_WITH_COMPACT_MODEL
-        REQUIRE(coek::starts_with(cc.name(), "cc"));
         REQUIRE(coek::starts_with(dd(0).name(), "C"));
         REQUIRE(coek::starts_with(ee(0, 0).name(), "C"));
 #endif
@@ -287,7 +276,6 @@ TEST_CASE("model_names", "[smoke]")
         REQUIRE(q(0).name() == "q[0]");
         REQUIRE(r(0, 0).name() == "r[0,0]");
 #ifdef COEK_WITH_COMPACT_MODEL
-        REQUIRE(pp.name() == "pp");
         REQUIRE(qq(0).name() == "qq[0]");
         REQUIRE(rr(0, 0).name() == "rr[0,0]");
 #endif
@@ -295,7 +283,6 @@ TEST_CASE("model_names", "[smoke]")
         REQUIRE(y(0).name() == "y[0]");
         REQUIRE(z(0, 0).name() == "z[0,0]");
 #ifdef COEK_WITH_COMPACT_MODEL
-        REQUIRE(xx.name() == "xx");
         REQUIRE(yy(0).name() == "yy[0]");
         REQUIRE(zz(0, 0).name() == "zz[0,0]");
 #endif
@@ -303,8 +290,7 @@ TEST_CASE("model_names", "[smoke]")
         REQUIRE(d(0).name() == "d[0]");
         REQUIRE(e(0, 0).name() == "e[0,0]");
 #ifdef COEK_WITH_COMPACT_MODEL
-        REQUIRE(cc.name() == "cc");
-        REQUIRE(ed(0).name() == "dd[0]");
+        REQUIRE(dd(0).name() == "dd[0]");
         REQUIRE(ee(0, 0).name() == "ee[0,0]");
 #endif
     }
@@ -316,7 +302,6 @@ TEST_CASE("model_names", "[smoke]")
         m.add(q);
         m.add(r);
 #ifdef COEK_WITH_COMPACT_MODEL
-        // m.add(pp);
         m.add(qq);
         m.add(rr);
 #endif
@@ -324,7 +309,6 @@ TEST_CASE("model_names", "[smoke]")
         m.add(y);
         m.add(z);
 #ifdef COEK_WITH_COMPACT_MODEL
-        m.add(xx);
         m.add(yy);
         m.add(zz);
 #endif
@@ -332,7 +316,6 @@ TEST_CASE("model_names", "[smoke]")
         m.add(d);
         m.add(e);
 #ifdef COEK_WITH_COMPACT_MODEL
-        m.add(cc);
         m.add(dd);
         m.add(ee);
 #endif
@@ -350,7 +333,6 @@ TEST_CASE("model_names", "[smoke]")
         REQUIRE(q(0).name() == "q[0]");
         REQUIRE(r(0, 0).name() == "r[0,0]");
 #ifdef COEK_WITH_COMPACT_MODEL
-        REQUIRE(pp.name() == "pp");
         REQUIRE(qq(0).name() == "qq[0]");
         REQUIRE(rr(0, 0).name() == "rr[0,0]");
 #endif
@@ -358,7 +340,6 @@ TEST_CASE("model_names", "[smoke]")
         REQUIRE(y(0).name() == "y[0]");
         REQUIRE(z(0, 0).name() == "z[0,0]");
 #ifdef COEK_WITH_COMPACT_MODEL
-        REQUIRE(xx.name() == "xx");
         REQUIRE(yy(0).name() == "yy[0]");
         REQUIRE(zz(0, 0).name() == "zz[0,0]");
 #endif
@@ -366,8 +347,7 @@ TEST_CASE("model_names", "[smoke]")
         REQUIRE(d(0).name() == "d[0]");
         REQUIRE(e(0, 0).name() == "e[0,0]");
 #ifdef COEK_WITH_COMPACT_MODEL
-        REQUIRE(cc.name() == "cc");
-        REQUIRE(ed(0).name() == "dd[0]");
+        REQUIRE(dd(0).name() == "dd[0]");
         REQUIRE(ee(0, 0).name() == "ee[0,0]");
 #endif
     }

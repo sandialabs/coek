@@ -5,6 +5,7 @@
 #include "coek/api/parameter_assoc_array_repn.hpp"
 #include "coek/ast/compact_terms.hpp"
 #include "coek/model/model.hpp"
+#include "coek/model/model_repn.hpp"
 
 namespace coek {
 
@@ -148,5 +149,15 @@ ParameterMap& ParameterMap::name(const std::string& name)
 //
 
 ParameterMap parameter(const ConcreteSet& arg) { return ParameterMap(arg); }
+
+ParameterMap& Model::add_parameter(ParameterMap& params)
+{
+    params.repn->setup();
+    if (repn->name_generation_policy == Model::NameGeneration::eager)
+        params.generate_names();
+    else if (repn->name_generation_policy == Model::NameGeneration::lazy)
+        repn->parameter_maps.push_back(params);
+    return params;
+}
 
 }  // namespace coek
