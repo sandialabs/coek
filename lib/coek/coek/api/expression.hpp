@@ -83,70 +83,50 @@ class Expression;
 // numerical operators
 //
 
-/*
 Expression operator+(const Parameter&);
 Expression operator+(const IndexParameter&);
 Expression operator+(const Variable&);
-*/
 Expression operator+(const Expression&);
 
-/*
 Expression operator-(const Parameter&);
 Expression operator-(const IndexParameter&);
 Expression operator-(const Variable&);
-*/
 Expression operator-(const Expression&);
 
-/*
 Expression operator+(int, const Parameter&);
 Expression operator+(int, const IndexParameter&);
 Expression operator+(int, const Variable&);
-*/
 Expression operator+(int, const Expression&);
-/*
 Expression operator+(double, const Parameter&);
 Expression operator+(double, const IndexParameter&);
 Expression operator+(double, const Variable&);
-*/
 Expression operator+(double, const Expression&);
 
-/*
 Expression operator-(int, const Parameter&);
 Expression operator-(int, const IndexParameter&);
 Expression operator-(int, const Variable&);
-*/
 Expression operator-(int, const Expression&);
-/*
 Expression operator-(double, const Parameter&);
 Expression operator-(double, const IndexParameter&);
 Expression operator-(double, const Variable&);
-*/
 Expression operator-(double, const Expression&);
 
-/*
 Expression operator*(int, const Parameter&);
 Expression operator*(int, const IndexParameter&);
-*/
 Expression operator*(int, const Variable&);
 Expression operator*(int, const Expression&);
-/*
 Expression operator*(double, const Parameter&);
 Expression operator*(double, const IndexParameter&);
-*/
 Expression operator*(double, const Variable&);
 Expression operator*(double, const Expression&);
 
-/*
 Expression operator/(int, const Parameter&);
 Expression operator/(int, const IndexParameter&);
 Expression operator/(int, const Variable&);
-*/
 Expression operator/(int, const Expression&);
-/*
 Expression operator/(double, const Parameter&);
 Expression operator/(double, const IndexParameter&);
 Expression operator/(double, const Variable&);
-*/
 Expression operator/(double, const Expression&);
 
 Expression affine_expression(const std::vector<double>& coef, const std::vector<Variable>& var,
