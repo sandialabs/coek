@@ -101,6 +101,11 @@ Expression operator+(int, const Expression&);
 //Expression operator+(double, const IndexParameter&);
 Expression operator+(double, const Variable&);
 Expression operator+(double, const Expression&);
+Expression operator+(const Variable&, int);
+Expression operator+(const Expression&, int);
+Expression operator+(const Variable&, double);
+Expression operator+(const Expression&, double);
+Expression operator+(const Expression&, const Expression&);
 
 //Expression operator-(int, const Parameter&);
 //Expression operator-(int, const IndexParameter&);
@@ -110,6 +115,11 @@ Expression operator-(int, const Expression&);
 //Expression operator-(double, const IndexParameter&);
 Expression operator-(double, const Variable&);
 Expression operator-(double, const Expression&);
+Expression operator-(const Variable&, int);
+Expression operator-(const Expression&, int);
+Expression operator-(const Variable&, double);
+Expression operator-(const Expression&, double);
+Expression operator-(const Expression&, const Expression&);
 
 //Expression operator*(int, const Parameter&);
 //Expression operator*(int, const IndexParameter&);
@@ -119,6 +129,11 @@ Expression operator*(int, const Expression&);
 //Expression operator*(double, const IndexParameter&);
 Expression operator*(double, const Variable&);
 Expression operator*(double, const Expression&);
+Expression operator*(const Variable&, int);
+Expression operator*(const Variable&, double);
+Expression operator*(const Expression&, int);
+Expression operator*(const Expression&, double);
+Expression operator*(const Expression&, const Expression&);
 
 //Expression operator/(int, const Parameter&);
 //Expression operator/(int, const IndexParameter&);
@@ -128,6 +143,11 @@ Expression operator/(int, const Expression&);
 //Expression operator/(double, const IndexParameter&);
 Expression operator/(double, const Variable&);
 Expression operator/(double, const Expression&);
+Expression operator/(const Variable&, int);
+Expression operator/(const Expression&, int);
+Expression operator/(const Variable&, double);
+Expression operator/(const Expression&, double);
+Expression operator/(const Expression&, const Expression&);
 
 Expression affine_expression(const std::vector<double>& coef, const std::vector<Variable>& var,
                              double offset);
@@ -178,7 +198,7 @@ class Parameter {
     /** \returns \c false because this is not a contant */
     bool is_constant() const { return false; }
 
-    COEK_API_OPERATORS
+    //COEK_API_OPERATORS
 
     /**
      * \name Stream operator
@@ -217,7 +237,7 @@ class IndexParameter {
     std::string name() const;
     IndexParameter& name(const std::string& name);
 
-    COEK_API_OPERATORS
+    //COEK_API_OPERATORS
 
     friend std::ostream& operator<<(std::ostream& ostr, const IndexParameter& arg);
 };
@@ -308,7 +328,7 @@ class Variable {
     /** \returns \c false because this is not a constant expression */
     bool is_constant() const { return false; }
 
-    COEK_API_OPERATORS
+    //COEK_API_OPERATORS
 
     /**
      * \name Stream operator
@@ -430,7 +450,7 @@ class Expression {
     /** Divide the expression by an Expression */
     Expression& operator/=(const Expression& arg);
 
-    COEK_API_OPERATORS
+    //COEK_API_OPERATORS
 
     friend std::ostream& operator<<(std::ostream& ostr, const Expression& arg);
 

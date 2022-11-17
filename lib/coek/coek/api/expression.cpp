@@ -556,15 +556,21 @@ Expression operator+(int lhs, const Expression& rhs) { return plus(lhs, rhs.repn
 Expression operator+(double lhs, const Variable& rhs) { return plus(lhs, rhs.repn); }
 Expression operator+(double lhs, const Expression& rhs) { return plus(lhs, rhs.repn); }
 
-Expression Parameter::operator+(int arg) const { return plus(repn, arg); }
-Expression IndexParameter::operator+(int arg) const { return plus(repn, arg); }
-Expression Variable::operator+(int arg) const { return plus(repn, arg); }
-Expression Expression::operator+(int arg) const { return plus(repn, arg); }
-Expression Parameter::operator+(double arg) const { return plus(repn, arg); }
-Expression IndexParameter::operator+(double arg) const { return plus(repn, arg); }
-Expression Variable::operator+(double arg) const { return plus(repn, arg); }
-Expression Expression::operator+(double arg) const { return plus(repn, arg); }
+//Expression Parameter::operator+(int arg) const { return plus(repn, arg); }
+//Expression IndexParameter::operator+(int arg) const { return plus(repn, arg); }
+//Expression Variable::operator+(int arg) const { return plus(repn, arg); }
+//Expression Expression::operator+(int arg) const { return plus(repn, arg); }
+Expression operator+(const Variable& lhs, int arg) { return plus(lhs.repn, arg); }
+Expression operator+(const Expression& lhs, int arg) { return plus(lhs.repn, arg); }
 
+//Expression Parameter::operator+(double arg) const { return plus(repn, arg); }
+//Expression IndexParameter::operator+(double arg) const { return plus(repn, arg); }
+//Expression Variable::operator+(double arg) const { return plus(repn, arg); }
+//Expression Expression::operator+(double arg) const { return plus(repn, arg); }
+Expression operator+(const Variable& lhs, double arg) { return plus(lhs.repn, arg); }
+Expression operator+(const Expression& lhs, double arg) { return plus(lhs.repn, arg); }
+
+/*
 Expression Parameter::operator+(const Parameter& arg) const
 {
     return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
@@ -632,6 +638,11 @@ Expression Expression::operator+(const Expression& arg) const
 {
     return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn));
 }
+*/
+Expression operator+(const Expression& lhs, const Expression& rhs)
+{
+    return Expression(CREATE_POINTER(PlusTerm, lhs.repn, rhs.repn));
+}
 
 //
 // operator-
@@ -644,27 +655,27 @@ Expression operator-(const Expression& expr) { return expr.repn->negate(expr.rep
 //Expression operator-(int lhs, const Parameter& rhs) { return minus(lhs, rhs.repn); }
 //Expression operator-(int lhs, const IndexParameter& rhs) { return minus(lhs, rhs.repn); }
 Expression operator-(int lhs, const Variable& rhs) { return minus(lhs, rhs.repn); }
-Expression operator-(int lhs, const Expression& rhs)
-{
-    return minus(lhs, rhs.repn);
-}
+Expression operator-(int lhs, const Expression& rhs) { return minus(lhs, rhs.repn); }
 //Expression operator-(double lhs, const Parameter& rhs) { return minus(lhs, rhs.repn); }
 //Expression operator-(double lhs, const IndexParameter& rhs) { return minus(lhs, rhs.repn); }
 Expression operator-(double lhs, const Variable& rhs) { return minus(lhs, rhs.repn); }
-Expression operator-(double lhs, const Expression& rhs)
-{
-    return minus(lhs, rhs.repn);
-}
+Expression operator-(double lhs, const Expression& rhs) { return minus(lhs, rhs.repn); }
 
-Expression Parameter::operator-(int arg) const { return plus(repn, -arg); }
-Expression IndexParameter::operator-(int arg) const { return plus(repn, -arg); }
-Expression Variable::operator-(int arg) const { return plus(repn, -arg); }
-Expression Expression::operator-(int arg) const { return plus(repn, -arg); }
-Expression Parameter::operator-(double arg) const { return plus(repn, -arg); }
-Expression IndexParameter::operator-(double arg) const { return plus(repn, -arg); }
-Expression Variable::operator-(double arg) const { return plus(repn, -arg); }
-Expression Expression::operator-(double arg) const { return plus(repn, -arg); }
+//Expression Parameter::operator-(int arg) const { return plus(repn, -arg); }
+//Expression IndexParameter::operator-(int arg) const { return plus(repn, -arg); }
+//Expression Variable::operator-(int arg) const { return plus(repn, -arg); }
+//Expression Expression::operator-(int arg) const { return plus(repn, -arg); }
+//Expression Parameter::operator-(double arg) const { return plus(repn, -arg); }
+//Expression IndexParameter::operator-(double arg) const { return plus(repn, -arg); }
+//Expression Variable::operator-(double arg) const { return plus(repn, -arg); }
+//Expression Expression::operator-(double arg) const { return plus(repn, -arg); }
 
+Expression operator-(const Variable& lhs, int arg) { return plus(lhs.repn, -arg); }
+Expression operator-(const Expression& lhs, int arg) { return plus(lhs.repn, -arg); }
+Expression operator-(const Variable& lhs, double arg) { return plus(lhs.repn, -arg); }
+Expression operator-(const Expression& lhs, double arg) { return plus(lhs.repn, -arg); }
+
+/*
 Expression Parameter::operator-(const Parameter& arg) const
 {
     return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
@@ -732,6 +743,11 @@ Expression Expression::operator-(const Expression& arg) const
 {
     return Expression(CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
 }
+*/
+Expression operator-(const Expression& lhs, const Expression& rhs)
+{
+    return Expression(CREATE_POINTER(PlusTerm, lhs.repn, rhs.repn->negate(rhs.repn)));
+}
 
 //
 // operator*
@@ -785,55 +801,56 @@ Expression operator*(double lhs, const Expression& rhs)
     return tmp;
 }
 
-Expression Parameter::operator*(int arg) const { return times(repn, arg); }
-Expression IndexParameter::operator*(int arg) const { return times(repn, arg); }
-Expression Variable::operator*(int arg) const
+//Expression Parameter::operator*(int arg) const { return times(repn, arg); }
+//Expression IndexParameter::operator*(int arg) const { return times(repn, arg); }
+Expression operator*(const Variable& lhs, int arg)
 {
     expr_pointer_t tmp;
     if (arg == 0)
         tmp = ZEROCONST;
     else if (arg == 1)
-        tmp = repn;
+        tmp = lhs.repn;
     else
-        tmp = repn->const_mult(arg, repn);
+        tmp = lhs.repn->const_mult(arg, lhs.repn);
     return tmp;
 }
-Expression Expression::operator*(int arg) const
+Expression operator*(const Expression& lhs, int arg)
 {
     expr_pointer_t tmp;
     if (arg == 0)
         tmp = ZEROCONST;
     else if (arg == 1)
-        tmp = repn;
+        tmp = lhs.repn;
     else
-        tmp = times(repn, arg);
+        tmp = times(lhs.repn, arg);
     return tmp;
 }
-Expression Parameter::operator*(double arg) const { return times(repn, arg); }
-Expression IndexParameter::operator*(double arg) const { return times(repn, arg); }
-Expression Variable::operator*(double arg) const
+//Expression Parameter::operator*(double arg) const { return times(repn, arg); }
+//Expression IndexParameter::operator*(double arg) const { return times(repn, arg); }
+Expression operator*(const Variable& lhs, double arg)
 {
     expr_pointer_t tmp;
     if (arg == 0.0)
         tmp = ZEROCONST;
     else if (arg == 1.0)
-        tmp = repn;
+        tmp = lhs.repn;
     else
-        tmp = repn->const_mult(arg, repn);
+        tmp = lhs.repn->const_mult(arg, lhs.repn);
     return tmp;
 }
-Expression Expression::operator*(double arg) const
+Expression operator*(const Expression& lhs, double arg)
 {
     expr_pointer_t tmp;
     if (arg == 0.0)
         tmp = ZEROCONST;
     else if (arg == 1.0)
-        tmp = repn;
+        tmp = lhs.repn;
     else
-        tmp = times(repn, arg);
+        tmp = times(lhs.repn, arg);
     return tmp;
 }
 
+/*
 Expression Parameter::operator*(const Parameter& arg) const { return times(repn, arg.repn); }
 Expression Parameter::operator*(const IndexParameter& arg) const { return times(repn, arg.repn); }
 Expression Parameter::operator*(const Variable& arg) const { return times(repn, arg.repn); }
@@ -853,6 +870,8 @@ Expression Expression::operator*(const Parameter& arg) const { return times(repn
 Expression Expression::operator*(const IndexParameter& arg) const { return times(repn, arg.repn); }
 Expression Expression::operator*(const Variable& arg) const { return times(repn, arg.repn); }
 Expression Expression::operator*(const Expression& arg) const { return times(repn, arg.repn); }
+*/
+Expression operator*(const Expression& lhs, const Expression& rhs) { return times(lhs.repn, rhs.repn); }
 
 //
 // operator/
@@ -866,35 +885,36 @@ Expression operator/(int lhs, const Expression& rhs) { return divide(lhs, rhs.re
 Expression operator/(double lhs, const Variable& rhs) { return divide(lhs, rhs.repn); }
 Expression operator/(double lhs, const Expression& rhs) { return divide(lhs, rhs.repn); }
 
-Expression Parameter::operator/(int arg) const { return divide(repn, arg); }
-Expression IndexParameter::operator/(int arg) const { return divide(repn, arg); }
-Expression Variable::operator/(int arg) const
+//Expression Parameter::operator/(int arg) const { return divide(repn, arg); }
+//Expression IndexParameter::operator/(int arg) const { return divide(repn, arg); }
+Expression operator/(const Variable& lhs, int arg)
 {
     expr_pointer_t tmp;
     if (arg == 1)
-        tmp = repn;
+        tmp = lhs.repn;
     else if (arg == 0)
         throw std::domain_error("Division by zero.");
     else
-        tmp = repn->const_mult(1.0 / arg, repn);
+        tmp = lhs.repn->const_mult(1.0 / arg, lhs.repn);
     return tmp;
 }
-Expression Expression::operator/(int arg) const { return divide(repn, arg); }
-Expression Parameter::operator/(double arg) const { return divide(repn, arg); }
-Expression IndexParameter::operator/(double arg) const { return divide(repn, arg); }
-Expression Variable::operator/(double arg) const
+Expression operator/(const Expression& lhs, int arg) { return divide(lhs.repn, arg); }
+//Expression Parameter::operator/(double arg) const { return divide(repn, arg); }
+//Expression IndexParameter::operator/(double arg) const { return divide(repn, arg); }
+Expression operator/(const Variable& lhs, double arg)
 {
     expr_pointer_t tmp;
     if (arg == 1.0)
-        tmp = repn;
+        tmp = lhs.repn;
     else if (arg == 0.0)
         throw std::domain_error("Division by zero.");
     else
-        tmp = repn->const_mult(1.0 / arg, repn);
+        tmp = lhs.repn->const_mult(1.0 / arg, lhs.repn);
     return tmp;
 }
-Expression Expression::operator/(double arg) const { return divide(repn, arg); }
+Expression operator/(const Expression& lhs, double arg) { return divide(lhs.repn, arg); }
 
+/*
 Expression Parameter::operator/(const Parameter& arg) const { return divide(repn, arg.repn); }
 Expression Parameter::operator/(const IndexParameter& arg) const { return divide(repn, arg.repn); }
 Expression Parameter::operator/(const Variable& arg) const { return divide(repn, arg.repn); }
@@ -917,6 +937,8 @@ Expression Expression::operator/(const Parameter& arg) const { return divide(rep
 Expression Expression::operator/(const IndexParameter& arg) const { return divide(repn, arg.repn); }
 Expression Expression::operator/(const Variable& arg) const { return divide(repn, arg.repn); }
 Expression Expression::operator/(const Expression& arg) const { return divide(repn, arg.repn); }
+*/
+Expression operator/(const Expression& lhs, const Expression& rhs) { return divide(lhs.repn, rhs.repn); }
 
 //
 // TODO - Maybe we should have an expression term for affine expressions.  But for now, we'll
