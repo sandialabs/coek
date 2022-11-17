@@ -347,6 +347,8 @@ class Expression {
     Expression(const IndexParameter& arg);
     /** Implicit construction of an Expression from a Variable */
     Expression(const Variable& arg);
+    /** Implicit construction of an Expression from a NamedExpression */
+    Expression(const NamedExpression& arg);
 
     Expression(const ParameterRepn& _repn);
     Expression(const IndexParameterRepn& _repn);
@@ -373,7 +375,7 @@ class Expression {
     /**
      * Create an expression that computes the partial derivative relative to a specified variable.
      *
-     * \param var - The variable that will be used to cmopute the partial derivative
+     * \param var - The variable that will be used to compute the partial derivative
      * \returns an expression that computes the partial derivative
      */
     Expression diff(const Variable& var) const;
@@ -443,6 +445,114 @@ Expression expression(double arg);
 Expression expression(int arg);
 Expression expression(const Parameter& arg);
 Expression expression(const Variable& arg);
+
+/**
+ * \class NamedExpression
+ * \brief Container for named expressions in equations.
+ *
+ * This class is the container used to defined shared sub-expressions.
+ */
+class NamedExpression {
+   public:
+    NamedExpressionRepn repn;
+
+   public:
+    /** Constructs a NamedExpression without defining its value */
+    NamedExpression();
+
+    /** \returns \c true if this is a constant expression */
+    bool is_constant() const;
+
+    /** \returns the value of the expression
+     *
+     * \note The expression value is computed from the
+     * expression tree using values for the associated
+     * Parameter and Variable objects.
+     */
+    double value() const;
+
+    /** \returns a list representation of the expression */
+    std::list<std::string> to_list() const;
+    /**
+     * Create an expression that computes the partial derivative relative to a specified variable.
+     *
+     * \param var - The variable that will be used to compute the partial derivative
+     * \returns an expression that computes the partial derivative
+     */
+    Expression diff(const Variable& var) const;
+
+    /** Add an integer to the expression */
+    NamedExpression& operator+=(int arg);
+    /** Add a double to the expression */
+    NamedExpression& operator+=(double arg);
+    /** Add a Parameter to the expression */
+    NamedExpression& operator+=(const Parameter& arg);
+    /** Add an IndexParameter to the expression */
+    NamedExpression& operator+=(const IndexParameter& arg);
+    /** Add a Variable to the expression */
+    NamedExpression& operator+=(const Variable& arg);
+    /** Add an Expression to the expression */
+    NamedExpression& operator+=(const Expression& arg);
+    /** Add a NamedExpression to the expression */
+    NamedExpression& operator+=(const NamedExpression& arg);
+
+    /** Subtract an integer from the expression */
+    NamedExpression& operator-=(int arg);
+    /** Subtract a double from the expression */
+    NamedExpression& operator-=(double arg);
+    /** Subtract a Parameter from the expression */
+    NamedExpression& operator-=(const Parameter& arg);
+    /** Subtract an IndexParameter from the expression */
+    NamedExpression& operator-=(const IndexParameter& arg);
+    /** Subtract a Variable from the expression */
+    NamedExpression& operator-=(const Variable& arg);
+    /** Subtract an Expression from the expression */
+    NamedExpression& operator-=(const Expression& arg);
+    /** Subtract a NamedExpression from the expression */
+    NamedExpression& operator-=(const NamedExpression& arg);
+
+    /** Multiply the expression by an integer */
+    NamedExpression& operator*=(int arg);
+    /** Multiply the expression by a double */
+    NamedExpression& operator*=(double arg);
+    /** Multiply the expression by a Parameter */
+    NamedExpression& operator*=(const Parameter& arg);
+    /** Multiply the expression by an IndexParameter */
+    NamedExpression& operator*=(const IndexParameter& arg);
+    /** Multiply the expression by a Variable */
+    NamedExpression& operator*=(const Variable& arg);
+    /** Multiply the expression by an Expression */
+    NamedExpression& operator*=(const Expression& arg);
+    /** Multiply the expression by a NamedExpression */
+    NamedExpression& operator*=(const NamedExpression& arg);
+
+    /** Divide the expression by an integer */
+    NamedExpression& operator/=(int arg);
+    /** Divide the expression by a double */
+    NamedExpression& operator/=(double arg);
+    /** Divide the expression by a Parameter */
+    NamedExpression& operator/=(const Parameter& arg);
+    /** Divide the expression by an IndexParameter */
+    NamedExpression& operator/=(const IndexParameter& arg);
+    /** Divide the expression by a Variable */
+    NamedExpression& operator/=(const Variable& arg);
+    /** Divide the expression by an Expression */
+    NamedExpression& operator/=(const Expression& arg);
+    /** Divide the expression by a NamedExpression */
+    NamedExpression& operator/=(const NamedExpression& arg);
+
+    //COEK_API_OPERATORS
+
+    //friend std::ostream& operator<<(std::ostream& ostr, const Expression& arg);
+
+    /** \returns an expanded Expression */
+    Expression expand();
+};
+
+NamedExpression expression();
+NamedExpression expression(const std::string& name);
+NamedExpression expression(const Expression& arg);
+NamedExpression expression(const std::string& name, const Expression& arg);
 
 //
 // operator<<

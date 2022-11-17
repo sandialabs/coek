@@ -33,6 +33,7 @@ class ToListVisitor : public Visitor {
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
     void visit(ObjectiveTerm& arg);
+    void visit(NamedExpressionTerm& arg);
     void visit(NegateTerm& arg);
     void visit(PlusTerm& arg);
     void visit(TimesTerm& arg);
@@ -163,6 +164,13 @@ void ToListVisitor::visit(ObjectiveTerm& arg)
         repr.push_back("min");
     else
         repr.push_back("max");
+    arg.body->accept(*this);
+    repr.push_back("]");
+}
+
+void ToListVisitor::visit(NamedExpressionTerm& arg)
+{
+    repr.push_back("[");
     arg.body->accept(*this);
     repr.push_back("]");
 }

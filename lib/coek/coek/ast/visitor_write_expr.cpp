@@ -31,6 +31,7 @@ class WriteExprVisitor : public Visitor {
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
     void visit(ObjectiveTerm& arg);
+    void visit(NamedExpressionTerm& arg);
     void visit(NegateTerm& arg);
     void visit(PlusTerm& arg);
     void visit(TimesTerm& arg);
@@ -170,6 +171,11 @@ void WriteExprVisitor::visit(ObjectiveTerm& arg)
         ostr << "max( ";
     arg.body->accept(*this);
     ostr << " )";
+}
+
+void WriteExprVisitor::visit(NamedExpressionTerm& arg)
+{
+    arg.body->accept(*this);
 }
 
 void WriteExprVisitor::visit(NegateTerm& arg)

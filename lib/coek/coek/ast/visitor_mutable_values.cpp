@@ -77,6 +77,7 @@ void visit_MonomialTerm(const expr_pointer_t& expr, MutableValuesData& data)
 FROM_BODY(InequalityTerm)
 FROM_BODY(EqualityTerm)
 FROM_BODY(ObjectiveTerm)
+FROM_BODY(NamedExpressionTerm)
 FROM_BODY(NegateTerm)
 // clang-format on
 
@@ -133,6 +134,7 @@ void visit_expression(const expr_pointer_t& expr, MutableValuesData& data)
         VISIT_CASE(InequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
+        VISIT_CASE(NamedExpressionTerm);
         VISIT_CASE(NegateTerm);
         VISIT_CASE(PlusTerm);
         VISIT_CASE(TimesTerm);

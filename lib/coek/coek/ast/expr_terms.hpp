@@ -76,6 +76,20 @@ class NAryPrefixTerm : public ExpressionTerm {
 };
 
 //
+// NamedExpressionTerm
+//
+
+class NamedExpressionTerm : public UnaryTerm {
+   public:
+    explicit NamedExpressionTerm(const expr_pointer_t& body) : UnaryTerm(body) {}
+
+    double eval() const { return body->eval(); }
+
+    void accept(Visitor& v) { v.visit(*this); }
+    term_id id() { return NamedExpressionTerm_id; }
+};
+
+//
 // NegateTerm
 //
 

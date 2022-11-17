@@ -110,6 +110,11 @@ void visit(std::shared_ptr<ObjectiveTerm>& expr, MutableNLPExpr& repn, double mu
     visit_expression(expr->body, repn, multiplier);
 }
 
+void visit(std::shared_ptr<NamedExpressionTerm>& expr, MutableNLPExpr& repn, double multiplier)
+{
+    visit_expression(expr->body, repn, multiplier);
+}
+
 void visit(std::shared_ptr<NegateTerm>& expr, MutableNLPExpr& repn, double multiplier)
 {
     visit_expression(expr->body, repn, -multiplier);
@@ -369,6 +374,7 @@ void visit_expression(const expr_pointer_t& expr, MutableNLPExpr& repn, double m
         VISIT_CASE(InequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
+        VISIT_CASE(NamedExpressionTerm);
         VISIT_CASE(NegateTerm);
         VISIT_CASE(PlusTerm);
         VISIT_CASE(TimesTerm);
