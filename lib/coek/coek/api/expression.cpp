@@ -542,17 +542,17 @@ Expression expression(const Variable& arg) { return coek::Expression(arg); }
 //
 // operator+
 //
-Expression operator+(const Parameter& param) { return param.repn; }
-Expression operator+(const IndexParameter& param) { return param.repn; }
+//Expression operator+(const Parameter& param) { return param.repn; }
+//Expression operator+(const IndexParameter& param) { return param.repn; }
 Expression operator+(const Variable& var) { return var.repn; }
 Expression operator+(const Expression& expr) { return expr; }
 
-Expression operator+(int lhs, const Parameter& rhs) { return plus(lhs, rhs.repn); }
-Expression operator+(int lhs, const IndexParameter& rhs) { return plus(lhs, rhs.repn); }
+//Expression operator+(int lhs, const Parameter& rhs) { return plus(lhs, rhs.repn); }
+//Expression operator+(int lhs, const IndexParameter& rhs) { return plus(lhs, rhs.repn); }
 Expression operator+(int lhs, const Variable& rhs) { return plus(lhs, rhs.repn); }
 Expression operator+(int lhs, const Expression& rhs) { return plus(lhs, rhs.repn); }
-Expression operator+(double lhs, const Parameter& rhs) { return plus(lhs, rhs.repn); }
-Expression operator+(double lhs, const IndexParameter& rhs) { return plus(lhs, rhs.repn); }
+//Expression operator+(double lhs, const Parameter& rhs) { return plus(lhs, rhs.repn); }
+//Expression operator+(double lhs, const IndexParameter& rhs) { return plus(lhs, rhs.repn); }
 Expression operator+(double lhs, const Variable& rhs) { return plus(lhs, rhs.repn); }
 Expression operator+(double lhs, const Expression& rhs) { return plus(lhs, rhs.repn); }
 
@@ -636,20 +636,20 @@ Expression Expression::operator+(const Expression& arg) const
 //
 // operator-
 //
-Expression operator-(const Parameter& param) { return param.repn->negate(param.repn); }
-Expression operator-(const IndexParameter& param) { return param.repn->negate(param.repn); }
+//Expression operator-(const Parameter& param) { return param.repn->negate(param.repn); }
+//Expression operator-(const IndexParameter& param) { return param.repn->negate(param.repn); }
 Expression operator-(const Variable& var) { return var.repn->negate(var.repn); }
 Expression operator-(const Expression& expr) { return expr.repn->negate(expr.repn); }
 
-Expression operator-(int lhs, const Parameter& rhs) { return minus(lhs, rhs.repn); }
-Expression operator-(int lhs, const IndexParameter& rhs) { return minus(lhs, rhs.repn); }
+//Expression operator-(int lhs, const Parameter& rhs) { return minus(lhs, rhs.repn); }
+//Expression operator-(int lhs, const IndexParameter& rhs) { return minus(lhs, rhs.repn); }
 Expression operator-(int lhs, const Variable& rhs) { return minus(lhs, rhs.repn); }
 Expression operator-(int lhs, const Expression& rhs)
 {
     return minus(lhs, rhs.repn);
 }
-Expression operator-(double lhs, const Parameter& rhs) { return minus(lhs, rhs.repn); }
-Expression operator-(double lhs, const IndexParameter& rhs) { return minus(lhs, rhs.repn); }
+//Expression operator-(double lhs, const Parameter& rhs) { return minus(lhs, rhs.repn); }
+//Expression operator-(double lhs, const IndexParameter& rhs) { return minus(lhs, rhs.repn); }
 Expression operator-(double lhs, const Variable& rhs) { return minus(lhs, rhs.repn); }
 Expression operator-(double lhs, const Expression& rhs)
 {
@@ -736,8 +736,8 @@ Expression Expression::operator-(const Expression& arg) const
 //
 // operator*
 //
-Expression operator*(int lhs, const Parameter& rhs) { return times(lhs, rhs.repn); }
-Expression operator*(int lhs, const IndexParameter& rhs) { return times(lhs, rhs.repn); }
+//Expression operator*(int lhs, const Parameter& rhs) { return times(lhs, rhs.repn); }
+//Expression operator*(int lhs, const IndexParameter& rhs) { return times(lhs, rhs.repn); }
 Expression operator*(int lhs, const Variable& rhs)
 {
     expr_pointer_t tmp;
@@ -760,8 +760,8 @@ Expression operator*(int lhs, const Expression& rhs)
         tmp = times(lhs, rhs.repn);
     return tmp;
 }
-Expression operator*(double lhs, const Parameter& rhs) { return times(lhs, rhs.repn); }
-Expression operator*(double lhs, const IndexParameter& rhs) { return times(lhs, rhs.repn); }
+//Expression operator*(double lhs, const Parameter& rhs) { return times(lhs, rhs.repn); }
+//Expression operator*(double lhs, const IndexParameter& rhs) { return times(lhs, rhs.repn); }
 Expression operator*(double lhs, const Variable& rhs)
 {
     expr_pointer_t tmp;
@@ -857,12 +857,12 @@ Expression Expression::operator*(const Expression& arg) const { return times(rep
 //
 // operator/
 //
-Expression operator/(int lhs, const Parameter& rhs) { return divide(lhs, rhs.repn); }
-Expression operator/(int lhs, const IndexParameter& rhs) { return divide(lhs, rhs.repn); }
+//Expression operator/(int lhs, const Parameter& rhs) { return divide(lhs, rhs.repn); }
+//Expression operator/(int lhs, const IndexParameter& rhs) { return divide(lhs, rhs.repn); }
 Expression operator/(int lhs, const Variable& rhs) { return divide(lhs, rhs.repn); }
 Expression operator/(int lhs, const Expression& rhs) { return divide(lhs, rhs.repn); }
-Expression operator/(double lhs, const Parameter& rhs) { return divide(lhs, rhs.repn); }
-Expression operator/(double lhs, const IndexParameter& rhs) { return divide(lhs, rhs.repn); }
+//Expression operator/(double lhs, const Parameter& rhs) { return divide(lhs, rhs.repn); }
+//Expression operator/(double lhs, const IndexParameter& rhs) { return divide(lhs, rhs.repn); }
 Expression operator/(double lhs, const Variable& rhs) { return divide(lhs, rhs.repn); }
 Expression operator/(double lhs, const Expression& rhs) { return divide(lhs, rhs.repn); }
 
