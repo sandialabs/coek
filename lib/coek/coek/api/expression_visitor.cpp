@@ -1,20 +1,19 @@
 #include "../ast/base_terms.hpp"
 #include "../ast/constraint_terms.hpp"
 #include "../ast/value_terms.hpp"
-#include "../ast/visitor_fns.hpp"
 #include "constraint.hpp"
 #include "expression.hpp"
 #include "objective.hpp"
-
 #include "expression_visitor.hpp"
 
 namespace coek {
 
+void to_QuadraticExpr(const expr_pointer_t& expr, QuadraticExpr& repn);
+void to_MutableNLPExpr(const expr_pointer_t& expr, MutableNLPExpr& repn);
+
 //
 // QuadraticExpr
 //
-
-void to_QuadraticExpr(expr_pointer_t expr, QuadraticExpr& repn);
 
 void QuadraticExpr::reset()
 {
@@ -36,13 +35,11 @@ void QuadraticExpr::collect_terms(const Constraint& expr) { to_QuadraticExpr(exp
 // MutableNLPExpr
 //
 
-bool MutableNLPExpr::varterm_compare::operator()(const VariableTerm* lhs,
-                                                 const VariableTerm* rhs) const
+bool MutableNLPExpr::varterm_compare::operator()(const VariableRepn& lhs,
+                                                 const VariableRepn& rhs) const
 {
     return lhs->index < rhs->index;
 }
-
-void to_MutableNLPExpr(expr_pointer_t expr, MutableNLPExpr& repn);
 
 void MutableNLPExpr::collect_terms(Expression& expr) { to_MutableNLPExpr(expr.repn, *this); }
 

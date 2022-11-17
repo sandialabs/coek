@@ -598,7 +598,7 @@ TEST_CASE("model_writer", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -674,7 +674,7 @@ SECTION( "compact1" ) {
 #    endif
 }
 
-#    ifdef DEBUG
+#    ifdef WITH_AST_ENV
 REQUIRE( coek::env.check_memory() == true );
 #    endif
 }
@@ -773,7 +773,7 @@ Nonzero Variables\n\
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }

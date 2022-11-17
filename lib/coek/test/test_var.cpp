@@ -23,7 +23,7 @@ TEST_CASE("elementary_variable", "[smoke]")
             REQUIRE(a.value() == 2);
             REQUIRE(a.lower() == 0);
             REQUIRE(a.upper() == 1);
-            REQUIRE(a.name()[0] == 'x');
+            REQUIRE(a.name()[0] == 'X');
         }
 
         WHEN("named")
@@ -203,12 +203,12 @@ TEST_CASE("elementary_variable", "[smoke]")
         REQUIRE(sstr.str() == "q");
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
 
-//#ifdef DEBUG
+//#ifdef WITH_AST_ENV
 //#define ENV_MEMCHECK REQUIRE( coek::env.check_memory() == true )
 //#else
 //#define ENV_MEMCHECK
@@ -280,7 +280,7 @@ TEST_CASE("1D_var_map", "[smoke]")
         auto s = coek::SetOf(v);
         auto r = coek::SetOf({0});
         auto S = s - r;
-        auto vars = coek::variable("vars", S).lower(0).upper(1).value(0);
+        auto vars = coek::variable("vars", S).lower(0).upper(1).value(0).generate_names();
 
         WHEN("typeof") { REQUIRE(typeid(vars(1)).name() == typeid(coek::Variable).name()); }
 
@@ -318,7 +318,7 @@ TEST_CASE("1D_var_map", "[smoke]")
         }
     }
 
-#    ifdef DEBUG
+#    ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #    endif
 }
@@ -361,7 +361,7 @@ TEST_CASE("1D_var_array", "[smoke]")
 
         WHEN("name")
         {
-            auto vars = coek::variable(4).name("v");
+            auto vars = coek::variable(4).name("v").generate_names();
             for (int i = 0; i < 4; i++) REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
         }
     }
@@ -390,7 +390,7 @@ TEST_CASE("1D_var_array", "[smoke]")
 
         WHEN("name")
         {
-            auto vars = coek::variable(dim).name("v");
+            auto vars = coek::variable(dim).name("v").generate_names();
             for (int i = 0; i < 4; i++) REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
         }
     }
@@ -417,12 +417,12 @@ TEST_CASE("1D_var_array", "[smoke]")
 
         WHEN("name")
         {
-            auto vars = coek::variable({4}).name("v");
+            auto vars = coek::variable({4}).name("v").generate_names();
             for (int i = 0; i < 4; i++) REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -507,7 +507,7 @@ TEST_CASE("2D_var_map", "[smoke]")
         auto W = coek::SetOf(w);
         auto r = coek::SetOf({0});
         auto S = V * W;
-        auto vars = coek::variable("vars", S).lower(0).upper(1).value(0);
+        auto vars = coek::variable("vars", S).lower(0).upper(1).value(0).generate_names();
 
         WHEN("typeof") { REQUIRE(typeid(vars(1, 2)).name() == typeid(coek::Variable).name()); }
 
@@ -547,7 +547,7 @@ TEST_CASE("2D_var_map", "[smoke]")
         }
     }
 
-#    ifdef DEBUG
+#    ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #    endif
 }
@@ -603,7 +603,7 @@ TEST_CASE("2D_var_array", "[smoke]")
         WHEN("name")
         {
             std::vector<size_t> dim{4, 3};
-            auto vars = coek::variable(dim).name("v");
+            auto vars = coek::variable(dim).name("v").generate_names();
             for (int i = 0; i < 4; i++)
                 for (int j = 0; j < 3; j++)
                     REQUIRE(vars(i, j).name()
@@ -642,7 +642,7 @@ TEST_CASE("2D_var_array", "[smoke]")
 
         WHEN("name")
         {
-            auto vars = coek::variable({4, 3}).name("v");
+            auto vars = coek::variable({4, 3}).name("v").generate_names();
             for (int i = 0; i < 4; i++)
                 for (int j = 0; j < 3; j++)
                     REQUIRE(vars(i, j).name()
@@ -650,7 +650,7 @@ TEST_CASE("2D_var_array", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -705,7 +705,7 @@ TEST_CASE("3D_var_array", "[smoke]")
         WHEN("name")
         {
             std::vector<size_t> dim{5, 4, 3};
-            auto vars = coek::variable(dim).name("v");
+            auto vars = coek::variable(dim).name("v").generate_names();
             for (int i = 0; i < 5; i++)
                 for (int j = 0; j < 4; j++)
                     for (int k = 0; k < 3; k++)
@@ -746,7 +746,7 @@ TEST_CASE("3D_var_array", "[smoke]")
 
         WHEN("name")
         {
-            auto vars = coek::variable({5, 4, 3}).name("v");
+            auto vars = coek::variable({5, 4, 3}).name("v").generate_names();
             for (int i = 0; i < 5; i++)
                 for (int j = 0; j < 4; j++)
                     for (int k = 0; k < 3; k++)
@@ -756,7 +756,7 @@ TEST_CASE("3D_var_array", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -1004,7 +1004,7 @@ TEST_CASE("3D_var_api", "[smoke]")
         }
     }
 
-#    ifdef DEBUG
+#    ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #    endif
 }

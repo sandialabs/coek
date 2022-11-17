@@ -83,7 +83,7 @@
             static std::list<std::string> constval = {std::to_string(0.0)};       \
             static std::list<std::string> nonlinear                               \
                 = {"[", #FN, "[", "+", "v", std::to_string(1.0), "]", "]"};       \
-            REQUIRE(repn.constval.to_list() == constval);                         \
+            REQUIRE(repn.constval->to_list() == constval);                        \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
         }                                                                         \
         MEMCHECK;                                                                 \
@@ -98,7 +98,7 @@
             repn.collect_terms(e);                                                \
             static std::list<std::string> nonlinear = {std::to_string(0.0)};      \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
-            REQUIRE(repn.nonlinear.to_list() == nonlinear);                       \
+            REQUIRE(repn.nonlinear->to_list() == nonlinear);                      \
         }                                                                         \
         MEMCHECK;                                                                 \
     }
@@ -114,7 +114,7 @@
             static std::list<std::string> constval = {std::to_string(0.0)};       \
             static std::list<std::string> nonlinear                               \
                 = {"[", #FN, "[", "+", "v", std::to_string(1.0), "]", "v", "]"};  \
-            REQUIRE(repn.constval.to_list() == constval);                         \
+            REQUIRE(repn.constval->to_list() == constval);                        \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
         }                                                                         \
         MEMCHECK;                                                                 \
@@ -129,38 +129,38 @@
             repn.collect_terms(e);                                                \
             static std::list<std::string> nonlinear = {std::to_string(0.0)};      \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
-            REQUIRE(repn.nonlinear.to_list() == nonlinear);                       \
+            REQUIRE(repn.nonlinear->to_list() == nonlinear);                      \
         }                                                                         \
         MEMCHECK;                                                                 \
     }
 
-#define MV_INTRINSIC_TEST1(FN)                                               \
-    WHEN(#FN)                                                                \
-    {                                                                        \
-        coek::Model m;                                                       \
-        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true); \
-        coek::Expression e = FN(v + 1);                                      \
-        mutable_values(e.repn, fixed_vars, params);                          \
-        static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn};    \
-        static std::unordered_set<coek::ParameterTerm*> pbaseline{};         \
-        REQUIRE(fixed_vars == vbaseline);                                    \
-        REQUIRE(params == pbaseline);                                        \
+#define MV_INTRINSIC_TEST1(FN)                                                            \
+    WHEN(#FN)                                                                             \
+    {                                                                                     \
+        coek::Model m;                                                                    \
+        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);              \
+        coek::Expression e = FN(v + 1);                                                   \
+        mutable_values(e.repn, fixed_vars, params);                                       \
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn}; \
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};      \
+        REQUIRE(fixed_vars == vbaseline);                                                 \
+        REQUIRE(params == pbaseline);                                                     \
     }
 
-#define MV_INTRINSIC_TEST2(FN)                                               \
-    WHEN(#FN)                                                                \
-    {                                                                        \
-        coek::Model m;                                                       \
-        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true); \
-        coek::Expression e = FN(v + 1, v);                                   \
-        mutable_values(e.repn, fixed_vars, params);                          \
-        static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn};    \
-        static std::unordered_set<coek::ParameterTerm*> pbaseline{};         \
-        REQUIRE(fixed_vars == vbaseline);                                    \
-        REQUIRE(params == pbaseline);                                        \
+#define MV_INTRINSIC_TEST2(FN)                                                            \
+    WHEN(#FN)                                                                             \
+    {                                                                                     \
+        coek::Model m;                                                                    \
+        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);              \
+        coek::Expression e = FN(v + 1, v);                                                \
+        mutable_values(e.repn, fixed_vars, params);                                       \
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn}; \
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};      \
+        REQUIRE(fixed_vars == vbaseline);                                                 \
+        REQUIRE(params == pbaseline);                                                     \
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
 #    define ENV_MEMCHECK REQUIRE(coek::env.check_memory() == true)
 #else
 #    define ENV_MEMCHECK
@@ -201,7 +201,7 @@ TEST_CASE("expr_writer", "[smoke]")
             auto v = coek::variable("");
             std::stringstream sstr;
             sstr << v;
-            REQUIRE(sstr.str()[0] == 'x');
+            REQUIRE(sstr.str()[0] == 'X');
         }
         WHEN("named ")
         {
@@ -354,7 +354,7 @@ TEST_CASE("expr_writer", "[smoke]")
         REQUIRE(sstr.str() == "5 + v[0] + v[1] + v[2] + v[3]");
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -428,7 +428,7 @@ TEST_CASE("expr_to_QuadraticExpr", "[smoke]")
             REQUIRE(repn.constval == 0);
             REQUIRE(repn.linear_coefs.size() == 1);
             REQUIRE(repn.linear_coefs[0] == 2);
-            coek::MonomialTerm* tmp = dynamic_cast<coek::MonomialTerm*>(e.repn);
+            auto tmp = std::dynamic_pointer_cast<coek::MonomialTerm>(e.repn);
             REQUIRE(repn.linear_vars[0]->index == tmp->var->index);
             REQUIRE(repn.quadratic_coefs.size() == 0);
         }
@@ -682,7 +682,7 @@ TEST_CASE("expr_to_QuadraticExpr", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -1375,7 +1375,7 @@ TEST_CASE("symbolic_diff", "[smoke]")
         }
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
@@ -1391,11 +1391,11 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
             static std::list<std::string> constval = {std::to_string(3.0)};
             REQUIRE(repn.mutable_values == false);
-            REQUIRE(repn.constval.to_list() == constval);
+            REQUIRE(repn.constval->to_list() == constval);
             REQUIRE(repn.linear_coefs.size() == 0);
             REQUIRE(repn.quadratic_coefs.size() == 0);
         }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
         REQUIRE(coek::env.check_memory() == true);
 #endif
     }
@@ -1412,11 +1412,11 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
                 static std::list<std::string> constval = {"p"};
                 REQUIRE(repn.mutable_values == true);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1431,11 +1431,11 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 static std::list<std::string> constval
                     = {"[", "*", std::to_string(0.500), "p", "]"};
                 REQUIRE(repn.mutable_values == true);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1455,13 +1455,13 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> coefval = {std::to_string(1.0)};
                 REQUIRE(repn.mutable_values == false);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
                 REQUIRE(repn.linear_vars[0] == e.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1477,11 +1477,11 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
                 static std::list<std::string> constval = {"v"};
                 REQUIRE(repn.mutable_values == true);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1499,11 +1499,11 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 static std::list<std::string> constval
                     = {"[", "*", std::to_string(0.500), "v", "]"};
                 REQUIRE(repn.mutable_values == true);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1523,14 +1523,14 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> coefval = {std::to_string(2.0)};
                 REQUIRE(repn.mutable_values == false);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval);
-                coek::MonomialTerm* tmp = dynamic_cast<coek::MonomialTerm*>(e.repn);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
+                auto tmp = std::dynamic_pointer_cast<coek::MonomialTerm>(e.repn);
                 REQUIRE(repn.linear_vars[0]->index == tmp->var->index);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1546,11 +1546,11 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
                 static std::list<std::string> constval = {"[", "*", std::to_string(2.0), "v", "]"};
                 REQUIRE(repn.mutable_values == true);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1568,13 +1568,13 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
             static std::list<std::string> constval = {std::to_string(-1.0)};
             static std::list<std::string> coefval = {std::to_string(-1.0)};
             REQUIRE(repn.mutable_values == false);
-            REQUIRE(repn.constval.to_list() == constval);
+            REQUIRE(repn.constval->to_list() == constval);
             REQUIRE(repn.linear_coefs.size() == 1);
-            REQUIRE(repn.linear_coefs[0].to_list() == coefval);
+            REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
             REQUIRE(repn.linear_vars[0] == v.repn);
             REQUIRE(repn.quadratic_coefs.size() == 0);
         }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
         REQUIRE(coek::env.check_memory() == true);
 #endif
     }
@@ -1593,13 +1593,13 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 static std::list<std::string> constval = {std::to_string(1.0)};
                 static std::list<std::string> coefval = {std::to_string(1.0)};
                 REQUIRE(repn.mutable_values == false);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
                 REQUIRE(repn.linear_vars[0] == v.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1616,15 +1616,15 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 static std::list<std::string> coefval0 = {std::to_string(1.0)};
                 static std::list<std::string> coefval1 = {std::to_string(-1.0)};
                 REQUIRE(repn.mutable_values == false);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 2);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval0);
-                REQUIRE(repn.linear_coefs[1].to_list() == coefval1);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval0);
+                REQUIRE(repn.linear_coefs[1]->to_list() == coefval1);
                 REQUIRE(repn.linear_vars[0] == v.repn);
                 REQUIRE(repn.linear_vars[1] == v.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1644,13 +1644,13 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> coefval = {"p"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
                 REQUIRE(repn.linear_vars[0] == w.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1666,13 +1666,13 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> coefval = {"p"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
                 REQUIRE(repn.linear_vars[0] == w.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1687,14 +1687,14 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> qcoefval = {std::to_string(1.0)};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 1);
-                REQUIRE(repn.quadratic_coefs[0].to_list() == qcoefval);
+                REQUIRE(repn.quadratic_coefs[0]->to_list() == qcoefval);
                 REQUIRE(repn.quadratic_lvars[0] == w.repn);
                 REQUIRE(repn.quadratic_rvars[0] == w.repn);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1710,11 +1710,11 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 repn.collect_terms(e);
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1732,14 +1732,14 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 static std::list<std::string> lcoef0 = {std::to_string(12.000)};
                 static std::list<std::string> qcoef0 = {std::to_string(15.000)};
                 static std::list<std::string> qcoef1 = {std::to_string(3.000)};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == lcoef0);
+                REQUIRE(repn.linear_coefs[0]->to_list() == lcoef0);
                 REQUIRE(repn.quadratic_coefs.size() == 2);
-                REQUIRE(repn.quadratic_coefs[0].to_list() == qcoef0);
-                REQUIRE(repn.quadratic_coefs[1].to_list() == qcoef1);
+                REQUIRE(repn.quadratic_coefs[0]->to_list() == qcoef0);
+                REQUIRE(repn.quadratic_coefs[1]->to_list() == qcoef1);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1754,14 +1754,14 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(6.000)};
                 static std::list<std::string> qcoefval = {std::to_string(3.000)};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 1);
-                REQUIRE(repn.quadratic_coefs[0].to_list() == qcoefval);
+                REQUIRE(repn.quadratic_coefs[0]->to_list() == qcoefval);
                 REQUIRE(repn.quadratic_lvars[0] == w.repn);
                 REQUIRE(repn.quadratic_rvars[0] == w.repn);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1776,14 +1776,14 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(6.0)};
                 static std::list<std::string> qcoefval = {std::to_string(3.0)};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 1);
-                REQUIRE(repn.quadratic_coefs[0].to_list() == qcoefval);
+                REQUIRE(repn.quadratic_coefs[0]->to_list() == qcoefval);
                 REQUIRE(repn.quadratic_lvars[0] == w.repn);
                 REQUIRE(repn.quadratic_rvars[0] == w.repn);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1803,9 +1803,9 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.quadratic_coefs.size() == 1);
                 static std::list<std::string> baseline
                     = {"[", "*", "[", "ceil", "w", "]", "[", "floor", "w", "]", "]"};
-                REQUIRE(repn.nonlinear.to_list() == baseline);
+                REQUIRE(repn.nonlinear->to_list() == baseline);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1825,12 +1825,12 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> nonlinear = {"[", "/", "p", "w", "]"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
-                REQUIRE(repn.nonlinear.to_list() == nonlinear);
+                REQUIRE(repn.nonlinear->to_list() == nonlinear);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1846,13 +1846,13 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> lcoef0 = {"[", "/", std::to_string(1.0), "p", "]"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == lcoef0);
+                REQUIRE(repn.linear_coefs[0]->to_list() == lcoef0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
-                REQUIRE(repn.nonlinear.to_list() == constval);
+                REQUIRE(repn.nonlinear->to_list() == constval);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1867,12 +1867,12 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 repn.collect_terms(e);
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
-                REQUIRE(repn.nonlinear.to_list() == constval);
+                REQUIRE(repn.nonlinear->to_list() == constval);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1887,12 +1887,12 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 repn.collect_terms(e);
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
-                REQUIRE(repn.nonlinear.to_list() == constval);
+                REQUIRE(repn.nonlinear->to_list() == constval);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1906,7 +1906,7 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 coek::MutableNLPExpr repn;
                 REQUIRE_THROWS_WITH(repn.collect_terms(e), "Division by zero error.");
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1922,12 +1922,12 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> nonlinear
                     = {"[", "/", "w", "[", "+", std::to_string(1.0), "w", "]", "]"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
-                REQUIRE(repn.nonlinear.to_list() == nonlinear);
+                REQUIRE(repn.nonlinear->to_list() == nonlinear);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1942,13 +1942,13 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 repn.collect_terms(e);
 
                 static std::list<std::string> constval = {"[", "/", std::to_string(1.0), "p", "]"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == constval);
+                REQUIRE(repn.linear_coefs[0]->to_list() == constval);
                 REQUIRE(repn.quadratic_coefs.size() == 1);
-                REQUIRE(repn.quadratic_coefs[0].to_list() == constval);
+                REQUIRE(repn.quadratic_coefs[0]->to_list() == constval);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1968,13 +1968,13 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(1.0)};
                 static std::list<std::string> coefval = {"p"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
                 REQUIRE(repn.linear_vars[0] == w.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -1990,13 +1990,13 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(-1.0)};
                 static std::list<std::string> coefval = {"p"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
                 REQUIRE(repn.linear_vars[0] == w.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
             REQUIRE(coek::env.check_memory() == true);
 #endif
         }
@@ -2029,16 +2029,16 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
 TEST_CASE("mutable_values", "[smoke]")
 {
-    std::unordered_set<coek::VariableTerm*> fixed_vars;
-    std::unordered_set<coek::ParameterTerm*> params;
+    std::unordered_set<std::shared_ptr<coek::VariableTerm>> fixed_vars;
+    std::unordered_set<std::shared_ptr<coek::ParameterTerm>> params;
 
     SECTION("constant")
     {
         coek::Expression e(3);
         mutable_values(e.repn, fixed_vars, params);
 
-        static std::unordered_set<coek::VariableTerm*> vbaseline{};
-        static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
         REQUIRE(fixed_vars == vbaseline);
         REQUIRE(params == pbaseline);
     }
@@ -2049,8 +2049,8 @@ TEST_CASE("mutable_values", "[smoke]")
         coek::Expression e = p;
         mutable_values(e.repn, fixed_vars, params);
 
-        static std::unordered_set<coek::VariableTerm*> vbaseline{};
-        static std::unordered_set<coek::ParameterTerm*> pbaseline{p.repn};
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
         REQUIRE(fixed_vars == vbaseline);
         REQUIRE(params == pbaseline);
     }
@@ -2061,8 +2061,8 @@ TEST_CASE("mutable_values", "[smoke]")
         coek::Expression e = p;
         mutable_values(e.repn, fixed_vars, params);
 
-        static std::unordered_set<coek::VariableTerm*> vbaseline{};
-        static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
         REQUIRE(fixed_vars == vbaseline);
         REQUIRE(params == pbaseline);
     }
@@ -2076,8 +2076,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = v;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2088,8 +2088,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = v;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2104,8 +2104,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = 2 * w;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2118,8 +2118,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = 2 * v;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2134,8 +2134,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = 2 * (v + v) + v;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2147,8 +2147,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = 3 * p + 2 * v;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{p.repn};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2163,8 +2163,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = -(v + 1);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2180,8 +2180,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = p * v;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{p.repn};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2193,8 +2193,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = v * w;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2210,8 +2210,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = p / w;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{w.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{p.repn};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2223,8 +2223,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = w / p;
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{w.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{p.repn};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2235,8 +2235,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = w / (1 + w);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{w.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2254,8 +2254,9 @@ TEST_CASE("mutable_values", "[smoke]")
             w.fixed(true);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn, w.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn,
+                                                                                     w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2267,8 +2268,9 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = v * (2 * w + 1);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn, w.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn,
+                                                                                     w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2282,8 +2284,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = v * (2 * w + 1);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{w.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2295,8 +2297,8 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Expression e = -(-w) + (-(-w));
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{w.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2322,8 +2324,8 @@ TEST_CASE("mutable_values", "[smoke]")
         w.fixed(true);
         mutable_values(o.expr().repn, fixed_vars, params);
 
-        static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn, w.repn};
-        static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
         REQUIRE(fixed_vars == vbaseline);
         REQUIRE(params == pbaseline);
     }
@@ -2340,8 +2342,9 @@ TEST_CASE("mutable_values", "[smoke]")
             w.fixed(true);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn, w.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn,
+                                                                                     w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
@@ -2355,14 +2358,11 @@ TEST_CASE("mutable_values", "[smoke]")
             w.fixed(true);
             mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<coek::VariableTerm*> vbaseline{v.repn, w.repn};
-            static std::unordered_set<coek::ParameterTerm*> pbaseline{};
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn,
+                                                                                     w.repn};
+            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
             REQUIRE(fixed_vars == vbaseline);
             REQUIRE(params == pbaseline);
         }
     }
-
-#ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }

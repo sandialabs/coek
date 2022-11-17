@@ -13,20 +13,20 @@ namespace coek {
 Expression abs(const Expression& body)
 {
     if (body.repn->is_constant()) {
-        ConstantTerm* _body = dynamic_cast<ConstantTerm*>(body.repn);
+        auto _body = std::dynamic_pointer_cast<ConstantTerm>(body.repn);
         return Expression(::fabs(_body->value));
     }
     return intrinsic_abs(body.repn);
 }
 
-#define INTRINSIC_DEF1(FN)                                                \
-    Expression FN(const Expression& body)                                 \
-    {                                                                     \
-        if (body.repn->is_constant()) {                                   \
-            ConstantTerm* _body = dynamic_cast<ConstantTerm*>(body.repn); \
-            return Expression(::FN(_body->value));                        \
-        }                                                                 \
-        return intrinsic_##FN(body.repn);                                 \
+#define INTRINSIC_DEF1(FN)                                                   \
+    Expression FN(const Expression& body)                                    \
+    {                                                                        \
+        if (body.repn->is_constant()) {                                      \
+            auto _body = std::dynamic_pointer_cast<ConstantTerm>(body.repn); \
+            return Expression(::FN(_body->value));                           \
+        }                                                                    \
+        return intrinsic_##FN(body.repn);                                    \
     }
 
 INTRINSIC_DEF1(ceil)

@@ -18,6 +18,8 @@ class VariableMap : public VariableAssocArray {
     Variable index(const IndexVector& args);
     void index_error(size_t i);
 
+    VariableMap& generate_names();
+
    public:
     /// Collect arguments with references
 

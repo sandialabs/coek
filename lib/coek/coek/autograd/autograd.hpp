@@ -13,9 +13,9 @@ class Model;
 class NLPModelRepn {
    public:
     Model model;
-    std::map<size_t, VariableTerm*> used_variables;
-    std::map<VariableTerm*, size_t> fixed_variables;
-    std::map<ParameterTerm*, size_t> parameters;
+    std::map<size_t, VariableRepn> used_variables;
+    std::map<VariableRepn, size_t> fixed_variables;
+    std::map<ParameterRepn, size_t> parameters;
 
    public:
     NLPModelRepn() {}
@@ -31,8 +31,8 @@ class NLPModelRepn {
     virtual size_t num_nonzeros_Jacobian() const = 0;
     virtual size_t num_nonzeros_Hessian_Lagrangian() const = 0;
 
-    virtual VariableTerm* get_variable(size_t i);
-    virtual void set_variable(size_t i, const VariableTerm* v);
+    virtual VariableRepn get_variable(size_t i);
+    virtual void set_variable(size_t i, const VariableRepn v);
 
     virtual void set_variables(std::vector<double>& x) = 0;
     virtual void set_variables(const double* x, size_t n) = 0;

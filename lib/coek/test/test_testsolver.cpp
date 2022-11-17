@@ -137,7 +137,7 @@ TEST_CASE("solver_test", "[smoke]")
         solver.solve(model);
     }
 
-#ifdef DEBUG
+#ifdef WITH_AST_ENV
     REQUIRE(coek::env.check_memory() == true);
 #endif
 }
