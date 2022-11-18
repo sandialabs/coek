@@ -171,6 +171,7 @@ void ToListVisitor::visit(ObjectiveTerm& arg)
 void ToListVisitor::visit(NamedExpressionTerm& arg)
 {
     repr.push_back("[");
+    repr.push_back("_");
     arg.body->accept(*this);
     repr.push_back("]");
 }

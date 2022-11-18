@@ -173,10 +173,7 @@ void WriteExprVisitor::visit(ObjectiveTerm& arg)
     ostr << " )";
 }
 
-void WriteExprVisitor::visit(NamedExpressionTerm& arg)
-{
-    arg.body->accept(*this);
-}
+void WriteExprVisitor::visit(NamedExpressionTerm& arg) { arg.body->accept(*this); }
 
 void WriteExprVisitor::visit(NegateTerm& arg)
 {

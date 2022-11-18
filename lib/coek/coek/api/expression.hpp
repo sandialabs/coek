@@ -413,8 +413,18 @@ class NamedExpression {
    public:
     /** Constructs a NamedExpression without defining its value */
     NamedExpression();
-    /** Constructs a NamedExpression from another expression */
-    explicit NamedExpression(const Expression& arg);
+    /** Explict construction of a NamedExpression from a double */
+    explicit NamedExpression(double value);
+    /** Explict construction of a NamedExpression from an integer */
+    explicit NamedExpression(int value);
+    /** Implicit construction of a NamedExpression from a Parameter */
+    NamedExpression(const Parameter& arg);
+    /** Implicit construction of a NamedExpression from an IndexParameter */
+    NamedExpression(const IndexParameter& arg);
+    /** Implicit construction of a NamedExpression from a Variable */
+    NamedExpression(const Variable& arg);
+    /** Implicit construction of a NamedExpression from an Expression */
+    NamedExpression(const Expression& arg);
 
     /** Set the name of the expression. \returns the expression object */
     NamedExpression& name(const std::string& name);
@@ -507,8 +517,13 @@ class NamedExpression {
 };
 
 NamedExpression named_expression();
-NamedExpression named_expression(const std::string& name);
+NamedExpression named_expression(int arg);
+NamedExpression named_expression(double arg);
 NamedExpression named_expression(const Expression& arg);
+
+NamedExpression named_expression(const std::string& name);
+NamedExpression named_expression(const std::string& name, int arg);
+NamedExpression named_expression(const std::string& name, double arg);
 NamedExpression named_expression(const std::string& name, const Expression& arg);
 
 //

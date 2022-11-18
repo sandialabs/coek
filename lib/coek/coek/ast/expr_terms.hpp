@@ -30,7 +30,10 @@ class UnaryTerm : public ExpressionTerm {
     expr_pointer_t body;
 
    public:
-    explicit UnaryTerm(const expr_pointer_t& repn) : body(repn) { non_variable = repn->non_variable; }
+    explicit UnaryTerm(const expr_pointer_t& repn) : body(repn)
+    {
+        non_variable = repn->non_variable;
+    }
 
     size_t num_expressions() const { return 1; }
     expr_pointer_t expression(size_t) { return body; }
@@ -88,7 +91,7 @@ class NamedExpressionTerm : public UnaryTerm {
     std::string name;
 
    public:
-    explicit NamedExpressionTerm(const expr_pointer_t& body) : UnaryTerm(body) { index=count++; }
+    explicit NamedExpressionTerm(const expr_pointer_t& body) : UnaryTerm(body) { index = count++; }
 
     double eval() const { return body->eval(); }
 

@@ -5,7 +5,7 @@
 #include "coek/ast/value_terms.hpp"
 #include "coek/coek.hpp"
 
-#define NLP_INTRINSIC_TEST1(FN, MEMCHECK)                                         \
+#define NLP_INTRINSIC_TEST1(FN)                                         \
     WHEN(#FN " 1")                                                                \
     {                                                                             \
         {                                                                         \
@@ -19,7 +19,6 @@
             REQUIRE(repn.constval->to_list() == constval);                        \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
         }                                                                         \
-        MEMCHECK;                                                                 \
     }                                                                             \
     WHEN(#FN " 2")                                                                \
     {                                                                             \
@@ -35,10 +34,9 @@
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
             REQUIRE(repn.nonlinear->to_list() == nonlinear);                      \
         }                                                                         \
-        MEMCHECK;                                                                 \
     }
 
-#define NLP_INTRINSIC_TEST2(FN, MEMCHECK)                                         \
+#define NLP_INTRINSIC_TEST2(FN)                                         \
     WHEN(#FN " 1")                                                                \
     {                                                                             \
         {                                                                         \
@@ -52,7 +50,6 @@
             REQUIRE(repn.constval->to_list() == constval);                        \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
         }                                                                         \
-        MEMCHECK;                                                                 \
     }                                                                             \
     WHEN(#FN " 2")                                                                \
     {                                                                             \
@@ -68,7 +65,6 @@
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
             REQUIRE(repn.nonlinear->to_list() == nonlinear);                      \
         }                                                                         \
-        MEMCHECK;                                                                 \
     }
 
 #define MV_INTRINSIC_TEST1(FN)                                            \
@@ -98,12 +94,6 @@
         REQUIRE(fixed_vars == vbaseline);                                 \
         REQUIRE(params == pbaseline);                                     \
     }
-
-#ifdef WITH_AST_ENV
-#    define ENV_MEMCHECK REQUIRE(coek::env.check_memory() == true)
-#else
-#    define ENV_MEMCHECK
-#endif
 
 #ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE("expr_sequence", "[smoke]")
@@ -377,11 +367,6 @@ TEST_CASE("expr_sequence", "[smoke]")
             REQUIRE(e.to_list() == baseline);
         }
     }
-
-#    ifdef WITH_AST_ENV
-    // coek::env.debug = false;
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 
 TEST_CASE("expr_expand", "[smoke]")
@@ -934,22 +919,30 @@ TEST_CASE("expr_expand", "[smoke]")
         }
     }
 
-    SECTION("intrinsic funcs"){
-        NLP_INTRINSIC_TEST1(abs, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(ceil, ENV_MEMCHECK)
-            NLP_INTRINSIC_TEST1(floor, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(exp, ENV_MEMCHECK)
-                NLP_INTRINSIC_TEST1(log, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(log10, ENV_MEMCHECK)
-                    NLP_INTRINSIC_TEST1(sqrt, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(sin, ENV_MEMCHECK)
-                        NLP_INTRINSIC_TEST1(cos, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(
-                            tan, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(sinh, ENV_MEMCHECK)
-                            NLP_INTRINSIC_TEST1(cosh, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(
-                                tanh, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(asin, ENV_MEMCHECK)
-                                NLP_INTRINSIC_TEST1(acos, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(
-                                    atan, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(asinh, ENV_MEMCHECK)
-                                    NLP_INTRINSIC_TEST1(acosh, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(
-                                        atanh, ENV_MEMCHECK) NLP_INTRINSIC_TEST2(pow, ENV_MEMCHECK)}
-
-#    ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
+    SECTION("intrinsic funcs")
+    {
+        // clang-format off
+        NLP_INTRINSIC_TEST1(abs) 
+        NLP_INTRINSIC_TEST1(ceil)
+        NLP_INTRINSIC_TEST1(floor) 
+        NLP_INTRINSIC_TEST1(exp)
+        NLP_INTRINSIC_TEST1(log) 
+        NLP_INTRINSIC_TEST1(log10)
+        NLP_INTRINSIC_TEST1(sqrt) 
+        NLP_INTRINSIC_TEST1(sin)
+        NLP_INTRINSIC_TEST1(cos) 
+        NLP_INTRINSIC_TEST1(tan) 
+        NLP_INTRINSIC_TEST1(sinh)
+        NLP_INTRINSIC_TEST1(cosh) 
+        NLP_INTRINSIC_TEST1(tanh) 
+        NLP_INTRINSIC_TEST1(asin)
+        NLP_INTRINSIC_TEST1(acos) 
+        NLP_INTRINSIC_TEST1(atan) 
+        NLP_INTRINSIC_TEST1(asinh)
+        NLP_INTRINSIC_TEST1(acosh) 
+        NLP_INTRINSIC_TEST1(atanh) 
+        NLP_INTRINSIC_TEST2(pow)
+        // clang-format on
+    }
 }
 #endif

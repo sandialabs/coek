@@ -535,17 +535,40 @@ Expression expression(const Parameter& arg) { return coek::Expression(arg); }
 
 Expression expression(const Variable& arg) { return coek::Expression(arg); }
 
-
 //
 // NamedExpression
 //
 
-NamedExpression::NamedExpression() {
-repn = CREATE_POINTER(NamedExpressionTerm, ZEROCONST);
+NamedExpression::NamedExpression() { repn = CREATE_POINTER(NamedExpressionTerm, ZEROCONST); }
+
+NamedExpression::NamedExpression(double value)
+{
+    repn = CREATE_POINTER(NamedExpressionTerm, CREATE_POINTER(ConstantTerm, value));
 }
 
-NamedExpression::NamedExpression(const Expression& arg) {
-repn = CREATE_POINTER(NamedExpressionTerm, arg.repn);
+NamedExpression::NamedExpression(int value)
+{
+    repn = CREATE_POINTER(NamedExpressionTerm, CREATE_POINTER(ConstantTerm, value));
+}
+
+NamedExpression::NamedExpression(const Parameter& arg)
+{
+    repn = CREATE_POINTER(NamedExpressionTerm, arg.repn);
+}
+
+NamedExpression::NamedExpression(const IndexParameter& arg)
+{
+    repn = CREATE_POINTER(NamedExpressionTerm, arg.repn);
+}
+
+NamedExpression::NamedExpression(const Variable& arg)
+{
+    repn = CREATE_POINTER(NamedExpressionTerm, arg.repn);
+}
+
+NamedExpression::NamedExpression(const Expression& arg)
+{
+    repn = CREATE_POINTER(NamedExpressionTerm, arg.repn);
 }
 
 NamedExpression& NamedExpression::name(const std::string& name)
@@ -750,16 +773,22 @@ NamedExpression& NamedExpression::operator/=(const Expression& arg)
 }
 
 NamedExpression named_expression() { return coek::NamedExpression(); }
-NamedExpression named_expression(const std::string& name) 
-{ return NamedExpression().name(name); }
+NamedExpression named_expression(int arg) { return NamedExpression(arg); }
+NamedExpression named_expression(double arg) { return NamedExpression(arg); }
 NamedExpression named_expression(const Expression& arg) { return NamedExpression(arg); }
-NamedExpression named_expression(const std::string& name, const Expression& arg) 
-{ 
-return NamedExpression(arg).name(name);
-/*
-NamedExpression e = arg;
-return e.name(name);
-*/
+
+NamedExpression named_expression(const std::string& name) { return NamedExpression().name(name); }
+NamedExpression named_expression(const std::string& name, int arg)
+{
+    return NamedExpression(arg).name(name);
+}
+NamedExpression named_expression(const std::string& name, double arg)
+{
+    return NamedExpression(arg).name(name);
+}
+NamedExpression named_expression(const std::string& name, const Expression& arg)
+{
+    return NamedExpression(arg).name(name);
 }
 
 //

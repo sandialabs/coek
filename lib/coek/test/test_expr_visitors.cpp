@@ -318,15 +318,31 @@ TEST_CASE("expr_writer", "[smoke]")
     }
 
     SECTION("intrinsic funcs"){
-        WRITER_INTRINSIC_TEST1(abs) WRITER_INTRINSIC_TEST1(ceil) WRITER_INTRINSIC_TEST1(floor)
-            WRITER_INTRINSIC_TEST1(exp) WRITER_INTRINSIC_TEST1(log) WRITER_INTRINSIC_TEST1(log10)
-                WRITER_INTRINSIC_TEST1(sqrt) WRITER_INTRINSIC_TEST1(sin) WRITER_INTRINSIC_TEST1(cos)
-                    WRITER_INTRINSIC_TEST1(tan) WRITER_INTRINSIC_TEST1(sinh)
-                        WRITER_INTRINSIC_TEST1(cosh) WRITER_INTRINSIC_TEST1(tanh)
-                            WRITER_INTRINSIC_TEST1(asin) WRITER_INTRINSIC_TEST1(acos)
-                                WRITER_INTRINSIC_TEST1(atan) WRITER_INTRINSIC_TEST1(asinh)
-                                    WRITER_INTRINSIC_TEST1(acosh) WRITER_INTRINSIC_TEST1(atanh)
-                                        WRITER_INTRINSIC_TEST2(pow)}
+
+        // clang-format off
+
+        WRITER_INTRINSIC_TEST1(abs)
+        WRITER_INTRINSIC_TEST1(ceil)
+        WRITER_INTRINSIC_TEST1(floor)
+        WRITER_INTRINSIC_TEST1(exp)
+        WRITER_INTRINSIC_TEST1(log)
+        WRITER_INTRINSIC_TEST1(log10)
+        WRITER_INTRINSIC_TEST1(sqrt)
+        WRITER_INTRINSIC_TEST1(sin)
+        WRITER_INTRINSIC_TEST1(cos)
+        WRITER_INTRINSIC_TEST1(tan)
+        WRITER_INTRINSIC_TEST1(sinh)
+        WRITER_INTRINSIC_TEST1(cosh)
+        WRITER_INTRINSIC_TEST1(tanh)
+        WRITER_INTRINSIC_TEST1(asin)
+        WRITER_INTRINSIC_TEST1(acos)
+        WRITER_INTRINSIC_TEST1(atan)
+        WRITER_INTRINSIC_TEST1(asinh)
+        WRITER_INTRINSIC_TEST1(acosh)
+        WRITER_INTRINSIC_TEST1(atanh)
+        WRITER_INTRINSIC_TEST2(pow)}
+
+    // clang-format on
 
     SECTION("affine_expression1")
     {
@@ -353,10 +369,6 @@ TEST_CASE("expr_writer", "[smoke]")
         sstr << e;
         REQUIRE(sstr.str() == "5 + v[0] + v[1] + v[2] + v[3]");
     }
-
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 TEST_CASE("expr_to_QuadraticExpr", "[smoke]")
@@ -1374,10 +1386,6 @@ TEST_CASE("symbolic_diff", "[smoke]")
             REQUIRE(e.to_list() == baseline);
         }
     }
-
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
@@ -1395,9 +1403,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
             REQUIRE(repn.linear_coefs.size() == 0);
             REQUIRE(repn.quadratic_coefs.size() == 0);
         }
-#ifdef WITH_AST_ENV
-        REQUIRE(coek::env.check_memory() == true);
-#endif
     }
 
     SECTION("param")
@@ -1416,9 +1421,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("nontrivial multiplier")
         {
@@ -1435,9 +1437,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
     }
 
@@ -1461,9 +1460,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_vars[0] == e.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("fixed")
         {
@@ -1481,9 +1477,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("fixed - nontrivial multiplier")
         {
@@ -1503,9 +1496,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
     }
 
@@ -1530,9 +1520,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_vars[0]->index == tmp->var->index);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("fixed")
         {
@@ -1550,9 +1537,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
     }
 
@@ -1574,9 +1558,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
             REQUIRE(repn.linear_vars[0] == v.repn);
             REQUIRE(repn.quadratic_coefs.size() == 0);
         }
-#ifdef WITH_AST_ENV
-        REQUIRE(coek::env.check_memory() == true);
-#endif
     }
 
     SECTION("plus")
@@ -1599,9 +1580,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_vars[0] == v.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("combine sums")
         {
@@ -1624,9 +1602,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_vars[1] == v.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
     }
 
@@ -1650,9 +1625,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_vars[0] == w.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("rhs constant")
         {
@@ -1672,9 +1644,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_vars[0] == w.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("simple quadratic")
         {
@@ -1694,9 +1663,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.quadratic_lvars[0] == w.repn);
                 REQUIRE(repn.quadratic_rvars[0] == w.repn);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("complex quadratic 1a")
         {
@@ -1714,9 +1680,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("complex quadratic 1b")
         {
@@ -1739,9 +1702,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.quadratic_coefs[0]->to_list() == qcoef0);
                 REQUIRE(repn.quadratic_coefs[1]->to_list() == qcoef1);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("complex quadratic 2")
         {
@@ -1761,9 +1721,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.quadratic_lvars[0] == w.repn);
                 REQUIRE(repn.quadratic_rvars[0] == w.repn);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("complex quadratic 3")
         {
@@ -1783,9 +1740,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.quadratic_lvars[0] == w.repn);
                 REQUIRE(repn.quadratic_rvars[0] == w.repn);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("complex nonlinear")
         {
@@ -1805,9 +1759,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                     = {"[", "*", "[", "ceil", "w", "]", "[", "floor", "w", "]", "]"};
                 REQUIRE(repn.nonlinear->to_list() == baseline);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
     }
 
@@ -1830,9 +1781,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.quadratic_coefs.size() == 0);
                 REQUIRE(repn.nonlinear->to_list() == nonlinear);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("rhs parameter - zero")
         {
@@ -1852,9 +1800,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.quadratic_coefs.size() == 0);
                 REQUIRE(repn.nonlinear->to_list() == constval);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("lhs constant - zero")
         {
@@ -1872,9 +1817,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.quadratic_coefs.size() == 0);
                 REQUIRE(repn.nonlinear->to_list() == constval);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("lhs constant - zero AND rhs constant")
         {
@@ -1892,9 +1834,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.quadratic_coefs.size() == 0);
                 REQUIRE(repn.nonlinear->to_list() == constval);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("rhs constant - zero")
         {
@@ -1906,9 +1845,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 coek::MutableNLPExpr repn;
                 REQUIRE_THROWS_WITH(repn.collect_terms(e), "Division by zero error.");
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("rhs polynomial")
         {
@@ -1927,9 +1863,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.quadratic_coefs.size() == 0);
                 REQUIRE(repn.nonlinear->to_list() == nonlinear);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("rhs nonzero")
         {
@@ -1948,9 +1881,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.quadratic_coefs.size() == 1);
                 REQUIRE(repn.quadratic_coefs[0]->to_list() == constval);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
     }
 
@@ -1974,9 +1904,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_vars[0] == w.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
         WHEN("equality")
         {
@@ -1996,9 +1923,6 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_vars[0] == w.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
-#ifdef WITH_AST_ENV
-            REQUIRE(coek::env.check_memory() == true);
-#endif
         }
     }
 
@@ -2305,14 +2229,28 @@ TEST_CASE("mutable_values", "[smoke]")
     }
 
     SECTION("intrinsic funcs"){
-        MV_INTRINSIC_TEST1(abs) MV_INTRINSIC_TEST1(ceil) MV_INTRINSIC_TEST1(floor)
-            MV_INTRINSIC_TEST1(exp) MV_INTRINSIC_TEST1(log) MV_INTRINSIC_TEST1(log10)
-                MV_INTRINSIC_TEST1(sqrt) MV_INTRINSIC_TEST1(sin) MV_INTRINSIC_TEST1(cos)
-                    MV_INTRINSIC_TEST1(tan) MV_INTRINSIC_TEST1(sinh) MV_INTRINSIC_TEST1(cosh)
-                        MV_INTRINSIC_TEST1(tanh) MV_INTRINSIC_TEST1(asin) MV_INTRINSIC_TEST1(acos)
-                            MV_INTRINSIC_TEST1(atan) MV_INTRINSIC_TEST1(asinh)
-                                MV_INTRINSIC_TEST1(acosh) MV_INTRINSIC_TEST1(atanh)
-                                    MV_INTRINSIC_TEST2(pow)}
+
+        // clang-format off
+        MV_INTRINSIC_TEST1(abs)
+        MV_INTRINSIC_TEST1(ceil)
+        MV_INTRINSIC_TEST1(floor)
+        MV_INTRINSIC_TEST1(exp)
+        MV_INTRINSIC_TEST1(log)
+        MV_INTRINSIC_TEST1(log10)
+        MV_INTRINSIC_TEST1(sqrt)
+        MV_INTRINSIC_TEST1(sin)
+        MV_INTRINSIC_TEST1(cos)
+        MV_INTRINSIC_TEST1(tan)
+        MV_INTRINSIC_TEST1(sinh)
+        MV_INTRINSIC_TEST1(cosh)
+        MV_INTRINSIC_TEST1(tanh)
+        MV_INTRINSIC_TEST1(asin)
+        MV_INTRINSIC_TEST1(acos)
+        MV_INTRINSIC_TEST1(atan)
+        MV_INTRINSIC_TEST1(asinh)
+        MV_INTRINSIC_TEST1(acosh)
+        MV_INTRINSIC_TEST1(atanh)
+        MV_INTRINSIC_TEST2(pow)}  // clang-format on
 
     SECTION("objective")
     {

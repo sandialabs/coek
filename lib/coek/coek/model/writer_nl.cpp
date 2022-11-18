@@ -181,10 +181,7 @@ void PrintExpr::visit(ObjectiveTerm&)
 }
 // GCOVR_EXCL_STOP
 
-void PrintExpr::visit(NamedExpressionTerm& arg)
-{
-    arg.body->accept(*this);
-}
+void PrintExpr::visit(NamedExpressionTerm& arg) { arg.body->accept(*this); }
 
 void PrintExpr::visit(NegateTerm& arg)
 {
@@ -383,10 +380,7 @@ void PrintExprFmtlib::visit(ObjectiveTerm&)
 }
 // GCOVR_EXCL_STOP
 
-void PrintExprFmtlib::visit(NamedExpressionTerm& arg)
-{
-    arg.body->accept(*this);
-}
+void PrintExprFmtlib::visit(NamedExpressionTerm& arg) { arg.body->accept(*this); }
 
 void PrintExprFmtlib::visit(NegateTerm& arg)
 {

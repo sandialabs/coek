@@ -10,7 +10,6 @@ namespace coek {
 
 unsigned int NamedExpressionTerm::count = 0;
 
-
 BinaryTerm::BinaryTerm(const expr_pointer_t& _lhs, const expr_pointer_t& _rhs)
     : lhs(_lhs), rhs(_rhs)
 {

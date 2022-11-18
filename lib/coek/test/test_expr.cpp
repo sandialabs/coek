@@ -7,6 +7,7 @@
 #include "catch2/catch.hpp"
 #include "coek/ast/base_terms.hpp"
 #include "coek/ast/value_terms.hpp"
+#include "coek/ast/expr_terms.hpp"
 #include "coek/coek.hpp"
 
 const double PI = 3.141592653589793238463;
@@ -63,10 +64,61 @@ TEST_CASE("elementary_expression", "[smoke]")
         static std::list<std::string> baseline = {"[", "+", "y", "x[0]", "x[1]", "x[2]", "]"};
         REQUIRE(e.to_list() == baseline);
     }
+}
 
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
+TEST_CASE("elementary_named_expression", "[smoke]")
+{
+    SECTION("empty")
+    {
+        auto e = coek::named_expression();
+        auto x = coek::variable("z", 3).generate_names();
+        for (size_t i = 0; i < 3; i++) e += x(i);
+        static std::list<std::string> baseline
+            = {"[", "_", "[", "+", std::to_string(0.0), "z[0]", "z[1]", "z[2]", "]", "]"};
+        REQUIRE(e.to_list() == baseline);
+    }
+
+    SECTION("constant integer")
+    {
+        auto e = coek::named_expression(1);
+        auto x = coek::variable("x", 3).generate_names();
+        for (size_t i = 0; i < 3; i++) e += x(i);
+        static std::list<std::string> baseline
+            = {"[", "_", "[", "+", std::to_string(1.0), "x[0]", "x[1]", "x[2]", "]", "]"};
+        REQUIRE(e.to_list() == baseline);
+    }
+
+    SECTION("constant double")
+    {
+        auto e = coek::named_expression(1.3);
+        auto x = coek::variable("x", 3).generate_names();
+        for (size_t i = 0; i < 3; i++) e += x(i);
+        static std::list<std::string> baseline
+            = {"[", "_", "[", "+", std::to_string(1.300), "x[0]", "x[1]", "x[2]", "]", "]"};
+        REQUIRE(e.to_list() == baseline);
+    }
+
+    SECTION("param")
+    {
+        auto p = coek::parameter("p");
+        auto e = coek::named_expression(p);
+        auto x = coek::variable("x", 3).generate_names();
+        for (size_t i = 0; i < 3; i++) e += x(i);
+        static std::list<std::string> baseline
+            = {"[", "_", "[", "+", "p", "x[0]", "x[1]", "x[2]", "]", "]"};
+        REQUIRE(e.to_list() == baseline);
+    }
+
+    SECTION("var")
+    {
+        auto y = coek::variable("y");
+        auto e = coek::named_expression(y);
+        auto x = coek::variable("x", 3).generate_names();
+        for (size_t i = 0; i < 3; i++) e += x(i);
+        static std::list<std::string> baseline
+            = {"[", "_", "[", "+", "y", "x[0]", "x[1]", "x[2]", "]", "]"};
+        REQUIRE(e.to_list() == baseline);
+    }
 }
 
 TEST_CASE("model_monomial", "[smoke]")
@@ -147,10 +199,6 @@ TEST_CASE("model_monomial", "[smoke]")
         REQUIRE( e.to_list() == baseline );
       }
     */
-
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 TEST_CASE("model_expression", "[smoke]")
@@ -424,10 +472,289 @@ TEST_CASE("model_expression", "[smoke]")
         sstr << repn;
         REQUIRE(sstr.str() == "Constant: 1\nLinear: \n1 v\nQuadratic: \n1 v v\n");
     }
+}
 
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
+TEST_CASE("model_named_expression", "[smoke]")
+{
+    SECTION("constructors")
+    {
+        WHEN("simple")
+        {
+            coek::NamedExpression a;
+            static std::list<std::string> baseline = {"[", "_", std::to_string(0.0), "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+
+        WHEN("double")
+        {
+            coek::NamedExpression a(1.0);
+            static std::list<std::string> baseline = {"[", "_", std::to_string(1.0), "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+
+        WHEN("equal")
+        {
+            coek::NamedExpression a(1.0);
+            coek::NamedExpression b;
+            b = a;
+            static std::list<std::string> baseline = {"[", "_", std::to_string(1.0), "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+    }
+
+    SECTION("is_constant")
+    {
+        WHEN("constant")
+        {
+            coek::NamedExpression a(1.0);
+            REQUIRE(a.is_constant() == false);
+            REQUIRE(a.repn->body->is_constant() == true);
+        }
+
+        WHEN("parameter")
+        {
+            auto p = coek::parameter().value(1);
+            coek::NamedExpression a;
+            a = p;
+            REQUIRE(a.is_constant() == false);
+        }
+
+        WHEN("index_parameter")
+        {
+            auto p = coek::set_element("p");
+            coek::NamedExpression a;
+            a = p;
+            REQUIRE(a.is_constant() == false);
+        }
+
+        WHEN("variable")
+        {
+            auto p = coek::variable().lower(0).upper(0).value(0);
+            coek::NamedExpression a;
+            a = p;
+            REQUIRE(a.is_constant() == false);
+        }
+    }
+
+    SECTION("plus-equal")
+    {
+        WHEN("variable")
+        {
+            auto v = coek::variable("v");
+            auto p = coek::variable("p").lower(0).upper(0).value(0);
+            coek::NamedExpression a = v;
+            a += p;
+            static std::list<std::string> baseline = {"[", "_", "[", "+", "v", "p", "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("double")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            double p = 1;
+            a += p;
+            static std::list<std::string> baseline
+                = {"[", "_", "[", "+", "v", std::to_string(1.0), "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("int")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            int p = 1;
+            a += p;
+            static std::list<std::string> baseline
+                = {"[", "_", "[", "+", "v", std::to_string(1.0), "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("parameter")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            auto p = coek::parameter("p");
+            a += p;
+            static std::list<std::string> baseline = {"[", "_", "[", "+", "v", "p", "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("index parameter")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            auto p = coek::set_element("p");
+            a += p;
+            static std::list<std::string> baseline = {"[", "_", "[", "+", "v", "p", "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+    }
+
+    SECTION("minus-equal")
+    {
+        WHEN("variable")
+        {
+            auto v = coek::variable("v");
+            auto p = coek::variable("p").lower(0).upper(1).lower(0);
+            coek::NamedExpression a = v;
+            a -= p;
+            static std::list<std::string> baseline
+                = {"[", "_", "[", "+", "v", "[", "-", "p", "]", "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("double")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            double p = 1;
+            a -= p;
+            static std::list<std::string> baseline
+                = {"[", "_", "[", "+", "v", "[", "-", std::to_string(1.0), "]", "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("int")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            int p = 1;
+            a -= p;
+            static std::list<std::string> baseline
+                = {"[", "_", "[", "+", "v", "[", "-", std::to_string(1.0), "]", "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("parameter")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            auto p = coek::parameter("p");
+            a -= p;
+            static std::list<std::string> baseline
+                = {"[", "_", "[", "+", "v", "[", "-", "p", "]", "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("index parameter")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            auto p = coek::set_element("p");
+            a -= p;
+            static std::list<std::string> baseline
+                = {"[", "_", "[", "+", "v", "[", "-", "p", "]", "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+    }
+
+    SECTION("times-equal")
+    {
+        WHEN("variable")
+        {
+            auto v = coek::variable("v");
+            auto p = coek::variable("p").lower(0).upper(1).value(0);
+            coek::NamedExpression a = v;
+            a *= p;
+            static std::list<std::string> baseline = {"[", "_", "[", "*", "v", "p", "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("double")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            double p = 1;
+            a *= p;
+            static std::list<std::string> baseline
+                = {"[", "_", "[", "*", "v", std::to_string(1.0), "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("int")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            int p = 1;
+            a *= p;
+            static std::list<std::string> baseline
+                = {"[", "_", "[", "*", "v", std::to_string(1.0), "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("parameter")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            auto p = coek::parameter("p");
+            a *= p;
+            static std::list<std::string> baseline = {"[", "_", "[", "*", "v", "p", "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("index parameter")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            auto p = coek::set_element("p");
+            a *= p;
+            static std::list<std::string> baseline = {"[", "_", "[", "*", "v", "p", "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+    }
+
+    SECTION("divide-equal")
+    {
+        WHEN("variable")
+        {
+            auto v = coek::variable("v");
+            auto p = coek::variable("p").lower(0).upper(1).value(0);
+            coek::NamedExpression a = v;
+            a /= p;
+            static std::list<std::string> baseline = {"[", "_", "[", "/", "v", "p", "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("double")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            double p = 1;
+            a /= p;
+            static std::list<std::string> baseline
+                = {"[", "_", "[", "/", "v", std::to_string(1.0), "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("int")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            int p = 1;
+            a /= p;
+            static std::list<std::string> baseline
+                = {"[", "_", "[", "/", "v", std::to_string(1.0), "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("parameter")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            auto p = coek::parameter("p");
+            a /= p;
+            static std::list<std::string> baseline = {"[", "_", "[", "/", "v", "p", "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+        WHEN("index parameter")
+        {
+            auto v = coek::variable("v");
+            coek::NamedExpression a = v;
+            auto p = coek::set_element("p");
+            a /= p;
+            static std::list<std::string> baseline = {"[", "_", "[", "/", "v", "p", "]", "]"};
+            REQUIRE(a.to_list() == baseline);
+        }
+    }
+
+    SECTION("collect_terms")
+    {
+        coek::QuadraticExpr repn;
+        coek::Model m;
+        auto v = coek::variable("v").lower(0).upper(0).value(0);
+        coek::NamedExpression a = 1 + v + v * v;
+
+        repn.collect_terms(a);
+        std::stringstream sstr;
+        sstr << repn;
+        REQUIRE(sstr.str() == "Constant: 1\nLinear: \n1 v\nQuadratic: \n1 v v\n");
+    }
 }
 
 TEST_CASE("model_unary_expression", "[smoke]")
@@ -511,10 +838,6 @@ TEST_CASE("model_unary_expression", "[smoke]")
             REQUIRE(e.to_list() == baseline);
         }
     }
-
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 TEST_CASE("model_add_expression", "[smoke]")
@@ -1137,10 +1460,6 @@ TEST_CASE("model_add_expression", "[smoke]")
             }
         }
     }
-
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 TEST_CASE("model_minus_expression", "[smoke]")
@@ -1730,9 +2049,6 @@ TEST_CASE("model_minus_expression", "[smoke]")
             }
         }
     }
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 TEST_CASE("model_neg_expression", "[smoke]")
@@ -1789,10 +2105,6 @@ TEST_CASE("model_neg_expression", "[smoke]")
             REQUIRE(e.to_list() == baseline);
         }
     }
-
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 TEST_CASE("model_mul_expression", "[smoke]")
@@ -2569,9 +2881,6 @@ TEST_CASE("model_mul_expression", "[smoke]")
             }
         }
     }
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 TEST_CASE("model_div_expression", "[smoke]")
@@ -3121,9 +3430,6 @@ TEST_CASE("model_div_expression", "[smoke]")
             }
         }
     }
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 TEST_CASE("intrinsics", "[smoke]")
@@ -3607,41 +3913,53 @@ TEST_CASE("intrinsics", "[smoke]")
             REQUIRE(e.to_list() == baseline);
         }
     }
-
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 TEST_CASE("expression_value", "[smoke]")
 {
+    auto a = coek::variable("a").lower(0.0).upper(1.0).value(0.0);
+    auto b = coek::variable("b").lower(0.0).upper(1.0).value(1.0);
+    auto q = coek::parameter("q").value(2);
+
+    SECTION("expression")
     {
-        auto a = coek::variable("a").lower(0.0).upper(1.0).value(0.0);
-        auto b = coek::variable("b").lower(0.0).upper(1.0).value(1.0);
-        auto q = coek::parameter("q").value(2);
-
-        SECTION("expression")
+        WHEN("e = q")
         {
-            WHEN("e = q")
-            {
-                coek::Expression e = q;
-                REQUIRE(e.value() == 2);
-            }
+            coek::Expression e = q;
+            REQUIRE(e.value() == 2);
+        }
 
-            WHEN("e = a")
-            {
-                coek::Expression e = a;
-                REQUIRE(e.value() == 0);
-            }
+        WHEN("e = a")
+        {
+            coek::Expression e = a;
+            REQUIRE(e.value() == 0);
+        }
 
-            WHEN("e = 3*b + q")
-            {
-                coek::Expression e = 3 * b + q;
-                REQUIRE(e.value() == 5.0);
-            }
+        WHEN("e = 3*b + q")
+        {
+            coek::Expression e = 3 * b + q;
+            REQUIRE(e.value() == 5.0);
         }
     }
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
+
+    SECTION("named_expression")
+    {
+        WHEN("e = q")
+        {
+            coek::NamedExpression e = q;
+            REQUIRE(e.value() == 2);
+        }
+
+        WHEN("e = a")
+        {
+            coek::NamedExpression e = a;
+            REQUIRE(e.value() == 0);
+        }
+
+        WHEN("e = 3*b + q")
+        {
+            coek::NamedExpression e = 3 * b + q;
+            REQUIRE(e.value() == 5.0);
+        }
+    }
 }
