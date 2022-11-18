@@ -37,7 +37,7 @@ void VariableAssocArrayRepn::setup()
             = std::make_shared<ConstantTerm>(variable_template.value_expression().expand().value());
         for (size_t i = 0; i < size(); i++) {
             values.emplace_back(
-                CREATE_POINTER(VariableTerm, lower, upper, value, binary, integer, i));
+                CREATE_POINTER(VariableTerm, lower, upper, value, binary, integer));
         }
         first_setup = false;
     }

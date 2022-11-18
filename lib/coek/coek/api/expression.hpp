@@ -9,59 +9,6 @@
 #include <string>
 #include <vector>
 
-#define COEK_API_OPERATORS                                 \
-    /** \returns a new expression: (*this) + arg */        \
-    Expression operator+(int arg) const;                   \
-    /** \returns a new expression: (*this) + arg */        \
-    Expression operator+(double arg) const;                \
-    /** \returns a new expression: (*this) + arg */        \
-    Expression operator+(const Parameter& arg) const;      \
-    /** \returns a new expression: (*this) + arg */        \
-    Expression operator+(const IndexParameter& arg) const; \
-    /** \returns a new expression: (*this) + arg */        \
-    Expression operator+(const Variable& arg) const;       \
-    /** \returns a new expression: (*this) + arg */        \
-    Expression operator+(const Expression& arg) const;     \
-                                                           \
-    /** \returns a new expression: (*this) - arg */        \
-    Expression operator-(int arg) const;                   \
-    /** \returns a new expression: (*this) - arg */        \
-    Expression operator-(double arg) const;                \
-    /** \returns a new expression: (*this) - arg */        \
-    Expression operator-(const Parameter& arg) const;      \
-    /** \returns a new expression: (*this) - arg */        \
-    Expression operator-(const IndexParameter& arg) const; \
-    /** \returns a new expression: (*this) - arg */        \
-    Expression operator-(const Variable& arg) const;       \
-    /** \returns a new expression: (*this) - arg */        \
-    Expression operator-(const Expression& arg) const;     \
-                                                           \
-    /** \returns a new expression: (*this) * arg */        \
-    Expression operator*(int arg) const;                   \
-    /** \returns a new expression: (*this) * arg */        \
-    Expression operator*(double arg) const;                \
-    /** \returns a new expression: (*this) * arg */        \
-    Expression operator*(const Parameter& arg) const;      \
-    /** \returns a new expression: (*this) * arg */        \
-    Expression operator*(const IndexParameter& arg) const; \
-    /** \returns a new expression: (*this) * arg */        \
-    Expression operator*(const Variable& arg) const;       \
-    /** \returns a new expression: (*this) * arg */        \
-    Expression operator*(const Expression& arg) const;     \
-                                                           \
-    /** \returns a new expression: (*this) / arg */        \
-    Expression operator/(int arg) const;                   \
-    /** \returns a new expression: (*this) / arg */        \
-    Expression operator/(double arg) const;                \
-    /** \returns a new expression: (*this) / arg */        \
-    Expression operator/(const Parameter& arg) const;      \
-    /** \returns a new expression: (*this) / arg */        \
-    Expression operator/(const IndexParameter& arg) const; \
-    /** \returns a new expression: (*this) / arg */        \
-    Expression operator/(const Variable& arg) const;       \
-    /** \returns a new expression: (*this) / arg */        \
-    Expression operator/(const Expression& arg) const;
-
 namespace coek {
 
 class ParameterTerm;
@@ -83,22 +30,14 @@ class Expression;
 // numerical operators
 //
 
-//Expression operator+(const Parameter&);
-//Expression operator+(const IndexParameter&);
 Expression operator+(const Variable&);
 Expression operator+(const Expression&);
 
-//Expression operator-(const Parameter&);
-//Expression operator-(const IndexParameter&);
 Expression operator-(const Variable&);
 Expression operator-(const Expression&);
 
-//Expression operator+(int, const Parameter&);
-//Expression operator+(int, const IndexParameter&);
 Expression operator+(int, const Variable&);
 Expression operator+(int, const Expression&);
-//Expression operator+(double, const Parameter&);
-//Expression operator+(double, const IndexParameter&);
 Expression operator+(double, const Variable&);
 Expression operator+(double, const Expression&);
 Expression operator+(const Variable&, int);
@@ -107,12 +46,8 @@ Expression operator+(const Variable&, double);
 Expression operator+(const Expression&, double);
 Expression operator+(const Expression&, const Expression&);
 
-//Expression operator-(int, const Parameter&);
-//Expression operator-(int, const IndexParameter&);
 Expression operator-(int, const Variable&);
 Expression operator-(int, const Expression&);
-//Expression operator-(double, const Parameter&);
-//Expression operator-(double, const IndexParameter&);
 Expression operator-(double, const Variable&);
 Expression operator-(double, const Expression&);
 Expression operator-(const Variable&, int);
@@ -121,12 +56,8 @@ Expression operator-(const Variable&, double);
 Expression operator-(const Expression&, double);
 Expression operator-(const Expression&, const Expression&);
 
-//Expression operator*(int, const Parameter&);
-//Expression operator*(int, const IndexParameter&);
 Expression operator*(int, const Variable&);
 Expression operator*(int, const Expression&);
-//Expression operator*(double, const Parameter&);
-//Expression operator*(double, const IndexParameter&);
 Expression operator*(double, const Variable&);
 Expression operator*(double, const Expression&);
 Expression operator*(const Variable&, int);
@@ -135,12 +66,8 @@ Expression operator*(const Expression&, int);
 Expression operator*(const Expression&, double);
 Expression operator*(const Expression&, const Expression&);
 
-//Expression operator/(int, const Parameter&);
-//Expression operator/(int, const IndexParameter&);
 Expression operator/(int, const Variable&);
 Expression operator/(int, const Expression&);
-//Expression operator/(double, const Parameter&);
-//Expression operator/(double, const IndexParameter&);
 Expression operator/(double, const Variable&);
 Expression operator/(double, const Expression&);
 Expression operator/(const Variable&, int);
@@ -198,8 +125,6 @@ class Parameter {
     /** \returns \c false because this is not a contant */
     bool is_constant() const { return false; }
 
-    //COEK_API_OPERATORS
-
     /**
      * \name Stream operator
      *
@@ -236,8 +161,6 @@ class IndexParameter {
 
     std::string name() const;
     IndexParameter& name(const std::string& name);
-
-    //COEK_API_OPERATORS
 
     friend std::ostream& operator<<(std::ostream& ostr, const IndexParameter& arg);
 };
@@ -327,8 +250,6 @@ class Variable {
 
     /** \returns \c false because this is not a constant expression */
     bool is_constant() const { return false; }
-
-    //COEK_API_OPERATORS
 
     /**
      * \name Stream operator
@@ -449,8 +370,6 @@ class Expression {
     Expression& operator/=(const Variable& arg);
     /** Divide the expression by an Expression */
     Expression& operator/=(const Expression& arg);
-
-    //COEK_API_OPERATORS
 
     friend std::ostream& operator<<(std::ostream& ostr, const Expression& arg);
 
