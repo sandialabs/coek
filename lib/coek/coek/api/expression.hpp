@@ -44,6 +44,9 @@ Expression operator+(const Variable&, int);
 Expression operator+(const Expression&, int);
 Expression operator+(const Variable&, double);
 Expression operator+(const Expression&, double);
+Expression operator+(const Variable&, const Variable&);
+Expression operator+(const Variable&, const Expression&);
+Expression operator+(const Expression&, const Variable&);
 Expression operator+(const Expression&, const Expression&);
 
 Expression operator-(int, const Variable&);
@@ -54,6 +57,9 @@ Expression operator-(const Variable&, int);
 Expression operator-(const Expression&, int);
 Expression operator-(const Variable&, double);
 Expression operator-(const Expression&, double);
+Expression operator-(const Variable&, const Variable&);
+Expression operator-(const Variable&, const Expression&);
+Expression operator-(const Expression&, const Variable&);
 Expression operator-(const Expression&, const Expression&);
 
 Expression operator*(int, const Variable&);
@@ -64,6 +70,9 @@ Expression operator*(const Variable&, int);
 Expression operator*(const Variable&, double);
 Expression operator*(const Expression&, int);
 Expression operator*(const Expression&, double);
+Expression operator*(const Variable&, const Variable&);
+Expression operator*(const Variable&, const Expression&);
+Expression operator*(const Expression&, const Variable&);
 Expression operator*(const Expression&, const Expression&);
 
 Expression operator/(int, const Variable&);
@@ -74,6 +83,9 @@ Expression operator/(const Variable&, int);
 Expression operator/(const Expression&, int);
 Expression operator/(const Variable&, double);
 Expression operator/(const Expression&, double);
+Expression operator/(const Variable&, const Variable&);
+Expression operator/(const Variable&, const Expression&);
+Expression operator/(const Expression&, const Variable&);
 Expression operator/(const Expression&, const Expression&);
 
 Expression affine_expression(const std::vector<double>& coef, const std::vector<Variable>& var,
