@@ -8,16 +8,19 @@ namespace coek {
 // ParameterTerm
 //
 
-ParameterTerm::ParameterTerm() : indexed(false)
+unsigned int ParameterTerm::count = 0;
+
+ParameterTerm::ParameterTerm()
 {
     non_variable = true;
     value = std::make_shared<ConstantTerm>(0.0);
+    index = count++;
 }
 
-ParameterTerm::ParameterTerm(const expr_pointer_t& _value, bool _indexed)
-    : value(_value), indexed(_indexed)
+ParameterTerm::ParameterTerm(const expr_pointer_t& _value) : value(_value)
 {
     non_variable = true;
+    index = count++;
 }
 
 expr_pointer_t ParameterTerm::negate(const expr_pointer_t& repn)
@@ -105,14 +108,8 @@ std::shared_ptr<ConstantTerm> VariableTerm::nan = std::make_shared<ConstantTerm>
 unsigned int VariableTerm::count = 0;
 
 VariableTerm::VariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub,
-                           const expr_pointer_t& _value, bool _binary, bool _integer, bool _indexed)
-    : value(_value),
-      lb(_lb),
-      ub(_ub),
-      binary(_binary),
-      integer(_integer),
-      fixed(false),
-      indexed(_indexed)
+                           const expr_pointer_t& _value, bool _binary, bool _integer)
+    : value(_value), lb(_lb), ub(_ub), binary(_binary), integer(_integer), fixed(false)
 {
     index = count++;
 }
