@@ -29,20 +29,6 @@ struct has_size {
     static constexpr bool value = type::value;
 };
 
-template <typename Iter>
-class Subrange {
-   private:
-    Iter d_begin, d_end;
-
-   public:
-    using iterator = Iter;
-
-    Subrange(Iter b, Iter e) : d_begin(b), d_end(e) {}
-
-    iterator begin() const { return d_begin; }
-    iterator end() const { return d_end; }
-};
-
 template <typename T>
 class SequentialValueGenerator {
    private:
@@ -68,6 +54,20 @@ class SequentialValueGenerator {
     {
         return not (a == b);
     }
+};
+
+template <typename T>
+class Subrange {
+   private:
+    SequentialValueGenerator<T> d_begin, d_end;
+
+   public:
+    using iterator = SequentialValueGenerator<T>;
+
+    Subrange(T b, T e) : d_begin(b), d_end(e) {}
+
+    iterator begin() const { return d_begin; }
+    iterator end() const { return d_end; }
 };
 
 template <typename T>
@@ -99,60 +99,74 @@ class ValueGenerator {
     }
 };
 
+template <typename T>
+class StepSubrange {
+   private:
+    ValueGenerator<T> d_begin, d_end;
+
+   public:
+    using iterator = ValueGenerator<T>;
+
+    StepSubrange(T b, T e, T s) : d_begin(b,s), d_end(e,0) {}
+
+    iterator begin() const { return d_begin; }
+    iterator end() const { return d_end; }
+};
+
 }  // namespace seq
 
 // 0, 1, ..., stop-1
 template <class T>
-seq::Subrange<seq::SequentialValueGenerator<T>> range(T stop)
+seq::Subrange<T> range(T stop)
 {
-    return {seq::SequentialValueGenerator<T>(0), seq::SequentialValueGenerator<T>(stop)};
+    return {0, stop};
 }
 
 // start, start+1, ..., stop-1
 template <class T>
-seq::Subrange<seq::SequentialValueGenerator<T>> range(T start, T stop)
+seq::Subrange<T> range(T start, T stop)
 {
-    return {seq::SequentialValueGenerator<T>(start), seq::SequentialValueGenerator<T>(stop)};
+    return {start, stop};
 }
 
 // start, start+step, ..., stop-1
 template <class T>
-seq::Subrange<seq::ValueGenerator<T>> range(T start, T stop, T step)
+seq::StepSubrange<T> range(T start, T stop, T step)
 {
-    return {seq::ValueGenerator<T>(start, step), seq::ValueGenerator<T>(stop, 0)};
+    return {start, stop, step};
 }
 
 // 1, 2, ..., stop
 template <class T>
-seq::Subrange<seq::SequentialValueGenerator<T>> sequence(T stop)
+seq::Subrange<T> sequence(T stop)
 {
-    return {seq::SequentialValueGenerator<T>(1), seq::SequentialValueGenerator<T>(stop + 1)};
+    return {1, stop + 1};
 }
 
 // start, start+1, ..., stop
 template <class T>
-seq::Subrange<seq::SequentialValueGenerator<T>> sequence(T start, T stop)
+seq::Subrange<T> sequence(T start, T stop)
 {
-    return {seq::SequentialValueGenerator<T>(start), seq::SequentialValueGenerator<T>(stop + 1)};
+    return {start, stop + 1};
 }
 
 // start, start+step, ..., stop
 template <class T>
-seq::Subrange<seq::ValueGenerator<T>> sequence(T start, T stop, T step)
+seq::StepSubrange<T> sequence(T start, T stop, T step)
 {
-    return {seq::ValueGenerator<T>(start, step), seq::ValueGenerator<T>(stop + 1, 0)};
+    return {start, stop + 1, step};
 }
 
 template <typename T, typename = typename std::enable_if<seq::has_size<T>::value>>
-auto indices(const T& obj) -> seq::Subrange<seq::SequentialValueGenerator<decltype(obj.size())>>
+auto indices(const T& obj) -> seq::Subrange<decltype(obj.size())>
 {
-    return {seq::SequentialValueGenerator<decltype(obj.size())>(0), seq::SequentialValueGenerator<decltype(obj.size())>(obj.size())};
+    return {0, obj.size()};
 }
 
 template <class T>
-seq::Subrange<seq::SequentialValueGenerator<T>> indices(std::initializer_list<T>&& obj)
+seq::Subrange<T> indices(std::initializer_list<T>&& obj)
 { 
-    return {seq::SequentialValueGenerator<T>(0), seq::SequentialValueGenerator<T>(obj.size())};
+    return {0, obj.size()};
 }
 
 }  // namespace coek
