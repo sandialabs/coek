@@ -538,7 +538,21 @@ Expression expression(const Variable& arg) { return coek::Expression(arg); }
 // NamedExpression
 //
 
-NamedExpression::NamedExpression() : repn(ZEROCONST) {}
+NamedExpression::NamedExpression() {
+repn = CREATE_POINTER(NamedExpressionTerm, ZEROCONST);
+}
+
+NamedExpression::NamedExpression(const Expression& arg) {
+repn = CREATE_POINTER(NamedExpressionTerm, arg.repn);
+}
+
+NamedExpression& NamedExpression::name(const std::string& name)
+{
+    repn->name = name;
+    return *this;
+}
+
+std::string NamedExpression::name() const { return repn->get_name(); }
 
 bool NamedExpression::is_constant() const { return repn->is_constant(); }
 
@@ -551,7 +565,7 @@ std::list<std::string> NamedExpression::to_list() const
     return tmp;
 }
 
-NamedExpression NamedExpression::diff(const Variable& var) const
+Expression NamedExpression::diff(const Variable& var) const
 {
     std::map<std::shared_ptr<VariableTerm>, expr_pointer_t> ans;
     symbolic_diff_all(repn, ans);
@@ -560,7 +574,7 @@ NamedExpression NamedExpression::diff(const Variable& var) const
     return e;
 }
 
-NamedExpression NamedExpression::expand()
+Expression NamedExpression::expand()
 {
 #ifdef COEK_WITH_COMPACT_MODEL
     return convert_expr_template(repn);
@@ -604,9 +618,9 @@ NamedExpression& NamedExpression::operator+=(const Variable& arg)
     return *this;
 }
 
-NamedExpression& Expression::operator+=(const Expression& arg)
+NamedExpression& NamedExpression::operator+=(const Expression& arg)
 {
-    repn = CREATE_POINTER(PlusTerm, repn, arg.repn);
+    repn->body = CREATE_POINTER(PlusTerm, repn->body, arg.repn);
     return *this;
 }
 
@@ -647,7 +661,7 @@ NamedExpression& NamedExpression::operator-=(const Variable& arg)
 
 NamedExpression& NamedExpression::operator-=(const Expression& arg)
 {
-    repn = CREATE_POINTER(PlusTerm, repn, CREATE_POINTER(NegateTerm, arg.repn));
+    repn->body = CREATE_POINTER(PlusTerm, repn->body, CREATE_POINTER(NegateTerm, arg.repn));
     return *this;
 }
 
@@ -688,7 +702,7 @@ NamedExpression& NamedExpression::operator*=(const Variable& arg)
 
 NamedExpression& NamedExpression::operator*=(const Expression& arg)
 {
-    repn = times(repn, arg.repn);
+    repn->body = times(repn->body, arg.repn);
     return *this;
 }
 
@@ -727,19 +741,24 @@ NamedExpression& NamedExpression::operator/=(const Variable& arg)
     return *this;
 }
 
-NamedExpression& NamedNamedExpression::operator/=(const Expression& arg)
+NamedExpression& NamedExpression::operator/=(const Expression& arg)
 {
-    repn = CREATE_POINTER(DivideTerm, repn, arg.repn);
+    repn->body = CREATE_POINTER(DivideTerm, repn->body, arg.repn);
     return *this;
 }
 
-NamedExpression expression() { return coek::NamedExpression(); }
-NamedExpression expression(const std::string& name) 
-{ coek::NamedExpression() e.name(name); return e; }
-NamedExpression expression(const Expression& arg) { return coek::NamedExpression(arg); }
-NamedExpression expression(const std::string& name, const Expression& arg) 
-{
-coek::NamedExpression e(arg).name(name); return e; }
+NamedExpression named_expression() { return coek::NamedExpression(); }
+NamedExpression named_expression(const std::string& name) 
+{ return NamedExpression().name(name); }
+NamedExpression named_expression(const Expression& arg) { return NamedExpression(arg); }
+NamedExpression named_expression(const std::string& name, const Expression& arg) 
+{ 
+return NamedExpression(arg).name(name);
+/*
+NamedExpression e = arg;
+return e.name(name);
+*/
+}
 
 //
 // -------------------------------------------------------------------------------------

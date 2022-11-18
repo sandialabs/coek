@@ -30,7 +30,7 @@ class UnaryTerm : public ExpressionTerm {
     expr_pointer_t body;
 
    public:
-    explicit UnaryTerm(const expr_pointer_t& repn);
+    explicit UnaryTerm(const expr_pointer_t& repn) : body(repn) { non_variable = repn->non_variable; }
 
     size_t num_expressions() const { return 1; }
     expr_pointer_t expression(size_t) { return body; }
@@ -81,9 +81,25 @@ class NAryPrefixTerm : public ExpressionTerm {
 
 class NamedExpressionTerm : public UnaryTerm {
    public:
-    explicit NamedExpressionTerm(const expr_pointer_t& body) : UnaryTerm(body) {}
+    static unsigned int count;
+
+   public:
+    unsigned int index;
+    std::string name;
+
+   public:
+    explicit NamedExpressionTerm(const expr_pointer_t& body) : UnaryTerm(body) { index=count++; }
 
     double eval() const { return body->eval(); }
+
+    virtual std::string get_simple_name() { return "E[" + std::to_string(index) + "]"; }
+    virtual std::string get_name()
+    {
+        if (name == "")
+            return get_simple_name();
+        else
+            return name;
+    }
 
     void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return NamedExpressionTerm_id; }

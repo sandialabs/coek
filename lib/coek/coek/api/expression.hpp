@@ -15,16 +15,19 @@ class ParameterTerm;
 class IndexParameterTerm;
 class VariableTerm;
 class BaseExpressionTerm;
+class NamedExpressionTerm;
 
 typedef std::shared_ptr<ParameterTerm> ParameterRepn;
 typedef std::shared_ptr<IndexParameterTerm> IndexParameterRepn;
 typedef std::shared_ptr<VariableTerm> VariableRepn;
 typedef std::shared_ptr<BaseExpressionTerm> ExpressionRepn;
+typedef std::shared_ptr<NamedExpressionTerm> NamedExpressionRepn;
 
 class Parameter;
 class IndexParameter;
 class Variable;
 class Expression;
+class NamedExpression;
 
 //
 // numerical operators
@@ -410,6 +413,13 @@ class NamedExpression {
    public:
     /** Constructs a NamedExpression without defining its value */
     NamedExpression();
+    /** Constructs a NamedExpression from another expression */
+    explicit NamedExpression(const Expression& arg);
+
+    /** Set the name of the expression. \returns the expression object */
+    NamedExpression& name(const std::string& name);
+    /** \returns the name of the expression.  */
+    std::string name() const;
 
     /** \returns \c true if this is a constant expression */
     bool is_constant() const;
@@ -492,18 +502,14 @@ class NamedExpression {
     /** Divide the expression by a NamedExpression */
     NamedExpression& operator/=(const NamedExpression& arg);
 
-    //COEK_API_OPERATORS
-
-    //friend std::ostream& operator<<(std::ostream& ostr, const Expression& arg);
-
     /** \returns an expanded Expression */
     Expression expand();
 };
 
-NamedExpression expression();
-NamedExpression expression(const std::string& name);
-NamedExpression expression(const Expression& arg);
-NamedExpression expression(const std::string& name, const Expression& arg);
+NamedExpression named_expression();
+NamedExpression named_expression(const std::string& name);
+NamedExpression named_expression(const Expression& arg);
+NamedExpression named_expression(const std::string& name, const Expression& arg);
 
 //
 // operator<<
