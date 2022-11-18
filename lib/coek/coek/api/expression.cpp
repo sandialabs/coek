@@ -322,6 +322,8 @@ Expression::Expression(const IndexParameter& param) : repn(param.repn) {}
 
 Expression::Expression(const Variable& var) : repn(var.repn) {}
 
+Expression::Expression(const NamedExpression& arg) : repn(arg.repn) {}
+
 bool Expression::is_constant() const { return repn->is_constant(); }
 
 double Expression::value() const { return repn->eval(); }
