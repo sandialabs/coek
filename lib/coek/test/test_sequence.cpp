@@ -111,3 +111,33 @@ TEST_CASE("sequence_size_t", "[smoke]")
         REQUIRE(test == ans);
     }
 }
+
+TEST_CASE("containers", "[smoke]")
+{
+    SECTION("vector")
+    {
+        std::vector<size_t> test;
+        std::vector<size_t> obj{1, 2, 3, 4};
+        for (auto i : coek::indices(obj)) test.push_back(i);
+        std::vector<size_t> ans{0, 1, 2, 3};
+        REQUIRE(test == ans);
+    }
+
+    SECTION("list")
+    {
+        std::vector<size_t> test;
+        std::list<size_t> obj{1, 2, 3, 4};
+        for (auto i : coek::indices(obj)) test.push_back(i);
+        std::vector<size_t> ans{0, 1, 2, 3};
+        REQUIRE(test == ans);
+    }
+
+    SECTION("initializer_list")
+    {
+        std::vector<size_t> test;
+        for (auto i : coek::indices({0,3})) test.push_back(i);
+        std::vector<size_t> ans{0, 1};
+        REQUIRE(test == ans);
+    }
+}
+
