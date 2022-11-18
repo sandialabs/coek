@@ -88,9 +88,9 @@ class IndexedComponentRepn_setindex : public IndexedComponentRepn<TYPE> {
             return this->concrete_set.contains(args[0]);
         else {
             for (size_t i = 0; i < tmp.size(); i++) tmp[i] = args[i];
-            //zzz();
+            // zzz();
             return this->concrete_set.contains(tmp);
-            }
+        }
     }
 
     void generate_names();
@@ -181,7 +181,7 @@ template <class TYPE>
 TYPE& IndexedComponent_Map<TYPE>::index(const IndexVector& args)
 {
     assert(this->dim() == args.size());
-    //zzz();
+    // zzz();
 
     if (!(this->repn->valid_index(this->tmp))) {
         std::string err = "Unexpected index value: " + this->repn->_name + "(";

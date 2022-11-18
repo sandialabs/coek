@@ -20,7 +20,8 @@ namespace seq {
 template <typename C>
 struct has_size {
     template <typename T>
-    static auto check(T*) -> typename std::is_integral<decltype(std::declval<T const>().size())>::type;
+    static auto check(T*) ->
+        typename std::is_integral<decltype(std::declval<T const>().size())>::type;
 
     template <typename>
     static auto check(...) -> std::false_type;
@@ -49,10 +50,10 @@ class SequentialValueGenerator {
     {
         return a.value == b.value;
     }
-    
+
     friend bool operator!=(const SequentialValueGenerator& a, const SequentialValueGenerator& b)
     {
-        return not (a == b);
+        return not(a == b);
     }
 };
 
@@ -89,14 +90,10 @@ class ValueGenerator {
 
     bool operator==(const ValueGenerator& b) const
     {
-        return step > 0 ? value >= b.value
-                        : value < b.value;
+        return step > 0 ? value >= b.value : value < b.value;
     }
 
-    bool operator!=(const ValueGenerator& b) const
-    {
-        return not (*this == b);
-    }
+    bool operator!=(const ValueGenerator& b) const { return not(*this == b); }
 };
 
 template <typename T>
@@ -107,7 +104,7 @@ class StepSubrange {
    public:
     using iterator = ValueGenerator<T>;
 
-    StepSubrange(T b, T e, T s) : d_begin(b,s), d_end(e,0) {}
+    StepSubrange(T b, T e, T s) : d_begin(b, s), d_end(e, 0) {}
 
     iterator begin() const { return d_begin; }
     iterator end() const { return d_end; }
@@ -167,7 +164,7 @@ auto indices(const T& obj) -> seq::Subrange<decltype(obj.size())>
 // 0, ..., obj.size()-1
 template <class T>
 seq::Subrange<T> indices(std::initializer_list<T>&& obj)
-{ 
+{
     return {0, obj.size()};
 }
 

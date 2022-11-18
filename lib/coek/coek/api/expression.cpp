@@ -698,9 +698,18 @@ Expression operator*(const Expression& lhs, double arg)
 }
 
 Expression operator*(const Variable& lhs, const Variable& rhs) { return times(lhs.repn, rhs.repn); }
-Expression operator*(const Variable& lhs, const Expression& rhs) { return times(lhs.repn, rhs.repn); }
-Expression operator*(const Expression& lhs, const Variable& rhs) { return times(lhs.repn, rhs.repn); }
-Expression operator*(const Expression& lhs, const Expression& rhs) { return times(lhs.repn, rhs.repn); }
+Expression operator*(const Variable& lhs, const Expression& rhs)
+{
+    return times(lhs.repn, rhs.repn);
+}
+Expression operator*(const Expression& lhs, const Variable& rhs)
+{
+    return times(lhs.repn, rhs.repn);
+}
+Expression operator*(const Expression& lhs, const Expression& rhs)
+{
+    return times(lhs.repn, rhs.repn);
+}
 
 //
 // operator/
@@ -735,10 +744,22 @@ Expression operator/(const Variable& lhs, double arg)
 }
 Expression operator/(const Expression& lhs, double arg) { return divide(lhs.repn, arg); }
 
-Expression operator/(const Variable& lhs, const Variable& rhs) { return divide(lhs.repn, rhs.repn); }
-Expression operator/(const Variable& lhs, const Expression& rhs) { return divide(lhs.repn, rhs.repn); }
-Expression operator/(const Expression& lhs, const Variable& rhs) { return divide(lhs.repn, rhs.repn); }
-Expression operator/(const Expression& lhs, const Expression& rhs) { return divide(lhs.repn, rhs.repn); }
+Expression operator/(const Variable& lhs, const Variable& rhs)
+{
+    return divide(lhs.repn, rhs.repn);
+}
+Expression operator/(const Variable& lhs, const Expression& rhs)
+{
+    return divide(lhs.repn, rhs.repn);
+}
+Expression operator/(const Expression& lhs, const Variable& rhs)
+{
+    return divide(lhs.repn, rhs.repn);
+}
+Expression operator/(const Expression& lhs, const Expression& rhs)
+{
+    return divide(lhs.repn, rhs.repn);
+}
 
 //
 // TODO - Maybe we should have an expression term for affine expressions.  But for now, we'll

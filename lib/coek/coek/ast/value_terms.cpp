@@ -17,8 +17,7 @@ ParameterTerm::ParameterTerm()
     index = count++;
 }
 
-ParameterTerm::ParameterTerm(const expr_pointer_t& _value)
-    : value(_value)
+ParameterTerm::ParameterTerm(const expr_pointer_t& _value) : value(_value)
 {
     non_variable = true;
     index = count++;
@@ -110,12 +109,7 @@ unsigned int VariableTerm::count = 0;
 
 VariableTerm::VariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub,
                            const expr_pointer_t& _value, bool _binary, bool _integer)
-    : value(_value),
-      lb(_lb),
-      ub(_ub),
-      binary(_binary),
-      integer(_integer),
-      fixed(false)
+    : value(_value), lb(_lb), ub(_ub), binary(_binary), integer(_integer), fixed(false)
 {
     index = count++;
 }

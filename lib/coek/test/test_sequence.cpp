@@ -135,9 +135,8 @@ TEST_CASE("containers", "[smoke]")
     SECTION("initializer_list")
     {
         std::vector<size_t> test;
-        for (auto i : coek::indices({0,3})) test.push_back(i);
+        for (auto i : coek::indices({0, 3})) test.push_back(i);
         std::vector<size_t> ans{0, 1};
         REQUIRE(test == ans);
     }
 }
-
