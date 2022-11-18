@@ -29,7 +29,7 @@ void ParameterAssocArrayRepn::setup()
         auto value = std::make_shared<ConstantTerm>(
             parameter_template.value_expression().expand().value());
         for (size_t i = 0; i < size(); i++) {
-            values.emplace_back(CREATE_POINTER(ParameterTerm, value, i));
+            values.emplace_back(CREATE_POINTER(ParameterTerm, value));
         }
         first_setup = false;
     }

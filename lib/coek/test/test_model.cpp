@@ -150,7 +150,7 @@ TEST_CASE("model_names", "[smoke]")
 #ifdef COEK_WITH_COMPACT_MODEL
     auto dd = coek::constraint("dd", I);
     dd(0) = x == 1;
-    auto ee = coek::constraint("ee", I*I);
+    auto ee = coek::constraint("ee", I * I);
     ee(0, 0) = x == 1;
 #endif
 

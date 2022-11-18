@@ -130,4 +130,3 @@ inline std::ostream& operator<<(std::ostream& ostr, const coek::IndexVector& vec
 }
 
 }  // namespace std
-
