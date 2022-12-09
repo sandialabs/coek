@@ -70,7 +70,7 @@ TEST_CASE("elementary_named_expression", "[smoke]")
 {
     SECTION("empty")
     {
-        auto e = coek::named_expression();
+        auto e = coek::named_expression("e");
         auto x = coek::variable("z", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline
@@ -80,7 +80,7 @@ TEST_CASE("elementary_named_expression", "[smoke]")
 
     SECTION("constant integer")
     {
-        auto e = coek::named_expression(1);
+        auto e = coek::named_expression("e").value(1);
         auto x = coek::variable("x", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline
@@ -90,7 +90,7 @@ TEST_CASE("elementary_named_expression", "[smoke]")
 
     SECTION("constant double")
     {
-        auto e = coek::named_expression(1.3);
+        auto e = coek::named_expression("e").value(1.3);
         auto x = coek::variable("x", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline
@@ -101,7 +101,7 @@ TEST_CASE("elementary_named_expression", "[smoke]")
     SECTION("param")
     {
         auto p = coek::parameter("p");
-        auto e = coek::named_expression(p);
+        auto e = coek::named_expression("e").value(p);
         auto x = coek::variable("x", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline
@@ -112,7 +112,7 @@ TEST_CASE("elementary_named_expression", "[smoke]")
     SECTION("var")
     {
         auto y = coek::variable("y");
-        auto e = coek::named_expression(y);
+        auto e = coek::named_expression("e").value(y);
         auto x = coek::variable("x", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline

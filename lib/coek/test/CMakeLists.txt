@@ -23,6 +23,7 @@ SET(sources
     test_expr.cpp
     test_obj.cpp
     test_con.cpp
+    test_named_expression.cpp
     test_autograd_unknown.cpp
     test_sequence.cpp
    )

@@ -14,7 +14,7 @@ std::ostream& operator<<(std::ostream& ostr, const std::vector<TYPE>& vec)
     return ostr;
 }
 
-std::ostream& operator<<(std::ostream& ostr, const std::list<std::string>& vals)
+inline std::ostream& operator<<(std::ostream& ostr, const std::list<std::string>& vals)
 {
     auto it = vals.begin();
     auto end = vals.end();

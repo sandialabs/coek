@@ -571,6 +571,18 @@ NamedExpression::NamedExpression(const Expression& arg)
     repn = CREATE_POINTER(NamedExpressionTerm, arg.repn);
 }
 
+NamedExpression& NamedExpression::value(double value)
+{
+    repn = CREATE_POINTER(NamedExpressionTerm, CREATE_POINTER(ConstantTerm, value));
+    return *this;
+}
+
+NamedExpression& NamedExpression::value(const Expression& arg)
+{
+    repn = CREATE_POINTER(NamedExpressionTerm, arg.repn);
+    return *this;
+}
+
 NamedExpression& NamedExpression::name(const std::string& name)
 {
     repn->name = name;
@@ -772,24 +784,7 @@ NamedExpression& NamedExpression::operator/=(const Expression& arg)
     return *this;
 }
 
-NamedExpression named_expression() { return coek::NamedExpression(); }
-NamedExpression named_expression(int arg) { return NamedExpression(arg); }
-NamedExpression named_expression(double arg) { return NamedExpression(arg); }
-NamedExpression named_expression(const Expression& arg) { return NamedExpression(arg); }
-
 NamedExpression named_expression(const std::string& name) { return NamedExpression().name(name); }
-NamedExpression named_expression(const std::string& name, int arg)
-{
-    return NamedExpression(arg).name(name);
-}
-NamedExpression named_expression(const std::string& name, double arg)
-{
-    return NamedExpression(arg).name(name);
-}
-NamedExpression named_expression(const std::string& name, const Expression& arg)
-{
-    return NamedExpression(arg).name(name);
-}
 
 //
 // -------------------------------------------------------------------------------------

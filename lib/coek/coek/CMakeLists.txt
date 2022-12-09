@@ -41,6 +41,7 @@ if (CMAKE_CXX_STANDARD GREATER_EQUAL 14)
         api/variable_assoc_array.cpp
         api/variable_array.cpp
         api/constraint_map.cpp
+        api/named_expression_map.cpp
         )
 endif()
 
@@ -228,6 +229,7 @@ install(FILES
         )
 install(FILES
         api/constraint_map.hpp
+        api/named_expression_map.hpp
         api/constants.hpp
         api/constraint.hpp
         api/expression.hpp

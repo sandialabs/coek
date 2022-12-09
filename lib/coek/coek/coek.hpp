@@ -15,9 +15,10 @@
 #include "coek/api/intrinsic_fn.hpp"
 #include "coek/api/objective.hpp"
 #if __cpp_lib_variant >= 201606
-#    include "coek/api/constraint_map.hpp"
 #    include "coek/api/parameter_array.hpp"
 #    include "coek/api/variable_array.hpp"
+#    include "coek/api/constraint_map.hpp"
+#    include "coek/api/named_expression_map.hpp"
 #endif
 
 #include "coek/model/model.hpp"

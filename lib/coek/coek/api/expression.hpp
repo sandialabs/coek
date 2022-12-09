@@ -426,6 +426,11 @@ class NamedExpression {
     /** Implicit construction of a NamedExpression from an Expression */
     NamedExpression(const Expression& arg);
 
+    /** Set the named_expression value. \returns the named_expression object. */
+    NamedExpression& value(const Expression& value);
+    /** Set the named_expression value. \returns the named_expression object. */
+    NamedExpression& value(double value);
+
     /** Set the name of the expression. \returns the expression object */
     NamedExpression& name(const std::string& name);
     /** \returns the name of the expression.  */
@@ -516,15 +521,7 @@ class NamedExpression {
     Expression expand();
 };
 
-NamedExpression named_expression();
-NamedExpression named_expression(int arg);
-NamedExpression named_expression(double arg);
-NamedExpression named_expression(const Expression& arg);
-
 NamedExpression named_expression(const std::string& name);
-NamedExpression named_expression(const std::string& name, int arg);
-NamedExpression named_expression(const std::string& name, double arg);
-NamedExpression named_expression(const std::string& name, const Expression& arg);
 
 //
 // operator<<
