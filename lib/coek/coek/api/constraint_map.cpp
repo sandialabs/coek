@@ -4,7 +4,7 @@
 #    include "coek/model/compact_model.hpp"
 #endif
 #include "coek/util/io_utils.hpp"
-#include "coek/api/component_map.hpp"
+#include "coek/api/constraint_map.hpp"
 #include "coek/api/indexed_container.defs.hpp"
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
