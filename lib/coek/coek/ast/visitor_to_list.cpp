@@ -33,7 +33,7 @@ class ToListVisitor : public Visitor {
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
     void visit(ObjectiveTerm& arg);
-    void visit(NamedExpressionTerm& arg);
+    void visit(SubExpressionTerm& arg);
     void visit(NegateTerm& arg);
     void visit(PlusTerm& arg);
     void visit(TimesTerm& arg);
@@ -168,7 +168,7 @@ void ToListVisitor::visit(ObjectiveTerm& arg)
     repr.push_back("]");
 }
 
-void ToListVisitor::visit(NamedExpressionTerm& arg)
+void ToListVisitor::visit(SubExpressionTerm& arg)
 {
     repr.push_back("[");
     repr.push_back("_");

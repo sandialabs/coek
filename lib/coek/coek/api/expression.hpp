@@ -15,19 +15,19 @@ class ParameterTerm;
 class IndexParameterTerm;
 class VariableTerm;
 class BaseExpressionTerm;
-class NamedExpressionTerm;
+class SubExpressionTerm;
 
 typedef std::shared_ptr<ParameterTerm> ParameterRepn;
 typedef std::shared_ptr<IndexParameterTerm> IndexParameterRepn;
 typedef std::shared_ptr<VariableTerm> VariableRepn;
 typedef std::shared_ptr<BaseExpressionTerm> ExpressionRepn;
-typedef std::shared_ptr<NamedExpressionTerm> NamedExpressionRepn;
+typedef std::shared_ptr<SubExpressionTerm> SubExpressionRepn;
 
 class Parameter;
 class IndexParameter;
 class Variable;
 class Expression;
-class NamedExpression;
+class SubExpression;
 
 //
 // numerical operators
@@ -303,8 +303,8 @@ class Expression {
     Expression(const IndexParameter& arg);
     /** Implicit construction of an Expression from a Variable */
     Expression(const Variable& arg);
-    /** Implicit construction of an Expression from a NamedExpression */
-    Expression(const NamedExpression& arg);
+    /** Implicit construction of an Expression from a SubExpression */
+    Expression(const SubExpression& arg);
 
     Expression(const ParameterRepn& _repn);
     Expression(const IndexParameterRepn& _repn);
@@ -401,38 +401,38 @@ Expression expression(const Parameter& arg);
 Expression expression(const Variable& arg);
 
 /**
- * \class NamedExpression
+ * \class SubExpression
  * \brief Container for named expressions in equations.
  *
  * This class is the container used to defined shared sub-expressions.
  */
-class NamedExpression {
+class SubExpression {
    public:
-    NamedExpressionRepn repn;
+    SubExpressionRepn repn;
 
    public:
-    /** Constructs a NamedExpression without defining its value */
-    NamedExpression();
-    /** Explict construction of a NamedExpression from a double */
-    explicit NamedExpression(double value);
-    /** Explict construction of a NamedExpression from an integer */
-    explicit NamedExpression(int value);
-    /** Implicit construction of a NamedExpression from a Parameter */
-    NamedExpression(const Parameter& arg);
-    /** Implicit construction of a NamedExpression from an IndexParameter */
-    NamedExpression(const IndexParameter& arg);
-    /** Implicit construction of a NamedExpression from a Variable */
-    NamedExpression(const Variable& arg);
-    /** Implicit construction of a NamedExpression from an Expression */
-    NamedExpression(const Expression& arg);
+    /** Constructs a SubExpression without defining its value */
+    SubExpression();
+    /** Explict construction of a SubExpression from a double */
+    explicit SubExpression(double value);
+    /** Explict construction of a SubExpression from an integer */
+    explicit SubExpression(int value);
+    /** Implicit construction of a SubExpression from a Parameter */
+    SubExpression(const Parameter& arg);
+    /** Implicit construction of a SubExpression from an IndexParameter */
+    SubExpression(const IndexParameter& arg);
+    /** Implicit construction of a SubExpression from a Variable */
+    SubExpression(const Variable& arg);
+    /** Implicit construction of a SubExpression from an Expression */
+    SubExpression(const Expression& arg);
 
-    /** Set the named_expression value. \returns the named_expression object. */
-    NamedExpression& value(const Expression& value);
-    /** Set the named_expression value. \returns the named_expression object. */
-    NamedExpression& value(double value);
+    /** Set the subexpression value. \returns the subexpression object. */
+    SubExpression& value(const Expression& value);
+    /** Set the subexpression value. \returns the subexpression object. */
+    SubExpression& value(double value);
 
     /** Set the name of the expression. \returns the expression object */
-    NamedExpression& name(const std::string& name);
+    SubExpression& name(const std::string& name);
     /** \returns the name of the expression.  */
     std::string name() const;
 
@@ -458,70 +458,70 @@ class NamedExpression {
     Expression diff(const Variable& var) const;
 
     /** Add an integer to the expression */
-    NamedExpression& operator+=(int arg);
+    SubExpression& operator+=(int arg);
     /** Add a double to the expression */
-    NamedExpression& operator+=(double arg);
+    SubExpression& operator+=(double arg);
     /** Add a Parameter to the expression */
-    NamedExpression& operator+=(const Parameter& arg);
+    SubExpression& operator+=(const Parameter& arg);
     /** Add an IndexParameter to the expression */
-    NamedExpression& operator+=(const IndexParameter& arg);
+    SubExpression& operator+=(const IndexParameter& arg);
     /** Add a Variable to the expression */
-    NamedExpression& operator+=(const Variable& arg);
+    SubExpression& operator+=(const Variable& arg);
     /** Add an Expression to the expression */
-    NamedExpression& operator+=(const Expression& arg);
-    /** Add a NamedExpression to the expression */
-    NamedExpression& operator+=(const NamedExpression& arg);
+    SubExpression& operator+=(const Expression& arg);
+    /** Add a SubExpression to the expression */
+    SubExpression& operator+=(const SubExpression& arg);
 
     /** Subtract an integer from the expression */
-    NamedExpression& operator-=(int arg);
+    SubExpression& operator-=(int arg);
     /** Subtract a double from the expression */
-    NamedExpression& operator-=(double arg);
+    SubExpression& operator-=(double arg);
     /** Subtract a Parameter from the expression */
-    NamedExpression& operator-=(const Parameter& arg);
+    SubExpression& operator-=(const Parameter& arg);
     /** Subtract an IndexParameter from the expression */
-    NamedExpression& operator-=(const IndexParameter& arg);
+    SubExpression& operator-=(const IndexParameter& arg);
     /** Subtract a Variable from the expression */
-    NamedExpression& operator-=(const Variable& arg);
+    SubExpression& operator-=(const Variable& arg);
     /** Subtract an Expression from the expression */
-    NamedExpression& operator-=(const Expression& arg);
-    /** Subtract a NamedExpression from the expression */
-    NamedExpression& operator-=(const NamedExpression& arg);
+    SubExpression& operator-=(const Expression& arg);
+    /** Subtract a SubExpression from the expression */
+    SubExpression& operator-=(const SubExpression& arg);
 
     /** Multiply the expression by an integer */
-    NamedExpression& operator*=(int arg);
+    SubExpression& operator*=(int arg);
     /** Multiply the expression by a double */
-    NamedExpression& operator*=(double arg);
+    SubExpression& operator*=(double arg);
     /** Multiply the expression by a Parameter */
-    NamedExpression& operator*=(const Parameter& arg);
+    SubExpression& operator*=(const Parameter& arg);
     /** Multiply the expression by an IndexParameter */
-    NamedExpression& operator*=(const IndexParameter& arg);
+    SubExpression& operator*=(const IndexParameter& arg);
     /** Multiply the expression by a Variable */
-    NamedExpression& operator*=(const Variable& arg);
+    SubExpression& operator*=(const Variable& arg);
     /** Multiply the expression by an Expression */
-    NamedExpression& operator*=(const Expression& arg);
-    /** Multiply the expression by a NamedExpression */
-    NamedExpression& operator*=(const NamedExpression& arg);
+    SubExpression& operator*=(const Expression& arg);
+    /** Multiply the expression by a SubExpression */
+    SubExpression& operator*=(const SubExpression& arg);
 
     /** Divide the expression by an integer */
-    NamedExpression& operator/=(int arg);
+    SubExpression& operator/=(int arg);
     /** Divide the expression by a double */
-    NamedExpression& operator/=(double arg);
+    SubExpression& operator/=(double arg);
     /** Divide the expression by a Parameter */
-    NamedExpression& operator/=(const Parameter& arg);
+    SubExpression& operator/=(const Parameter& arg);
     /** Divide the expression by an IndexParameter */
-    NamedExpression& operator/=(const IndexParameter& arg);
+    SubExpression& operator/=(const IndexParameter& arg);
     /** Divide the expression by a Variable */
-    NamedExpression& operator/=(const Variable& arg);
+    SubExpression& operator/=(const Variable& arg);
     /** Divide the expression by an Expression */
-    NamedExpression& operator/=(const Expression& arg);
-    /** Divide the expression by a NamedExpression */
-    NamedExpression& operator/=(const NamedExpression& arg);
+    SubExpression& operator/=(const Expression& arg);
+    /** Divide the expression by a SubExpression */
+    SubExpression& operator/=(const SubExpression& arg);
 
     /** \returns an expanded Expression */
     Expression expand();
 };
 
-NamedExpression named_expression(const std::string& name);
+SubExpression subexpression(const std::string& name);
 
 //
 // operator<<

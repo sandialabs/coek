@@ -18,7 +18,7 @@
 #    include "coek/api/parameter_array.hpp"
 #    include "coek/api/variable_array.hpp"
 #    include "coek/api/constraint_map.hpp"
-#    include "coek/api/named_expression_map.hpp"
+#    include "coek/api/subexpression_map.hpp"
 #endif
 
 #include "coek/model/model.hpp"

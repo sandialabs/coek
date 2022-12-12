@@ -79,10 +79,10 @@ class NAryPrefixTerm : public ExpressionTerm {
 };
 
 //
-// NamedExpressionTerm
+// SubExpressionTerm
 //
 
-class NamedExpressionTerm : public UnaryTerm {
+class SubExpressionTerm : public UnaryTerm {
    public:
     static unsigned int count;
 
@@ -91,7 +91,7 @@ class NamedExpressionTerm : public UnaryTerm {
     std::string name;
 
    public:
-    explicit NamedExpressionTerm(const expr_pointer_t& body) : UnaryTerm(body) { index = count++; }
+    explicit SubExpressionTerm(const expr_pointer_t& body) : UnaryTerm(body) { index = count++; }
 
     double eval() const { return body->eval(); }
 
@@ -105,7 +105,7 @@ class NamedExpressionTerm : public UnaryTerm {
     }
 
     void accept(Visitor& v) { v.visit(*this); }
-    term_id id() { return NamedExpressionTerm_id; }
+    term_id id() { return SubExpressionTerm_id; }
 };
 
 //

@@ -87,7 +87,7 @@ void visit_EqualityTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {
 void visit_ObjectiveTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
 // GCOVR_EXCL_STOP
 
-void visit_NamedExpressionTerm(const expr_pointer_t& /*expr*/, PartialData& data)
+void visit_SubExpressionTerm(const expr_pointer_t& /*expr*/, PartialData& data)
 {
     data.partial = NEGATIVEONECONST;
 }
@@ -281,7 +281,7 @@ expr_pointer_t compute_partial(const expr_pointer_t& expr, size_t i, PartialData
         VISIT_CASE(InequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
-        VISIT_CASE(NamedExpressionTerm);
+        VISIT_CASE(SubExpressionTerm);
         VISIT_CASE(NegateTerm);
         VISIT_CASE(PlusTerm);
         VISIT_CASE(TimesTerm);

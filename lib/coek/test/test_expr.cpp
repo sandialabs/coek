@@ -66,11 +66,11 @@ TEST_CASE("elementary_expression", "[smoke]")
     }
 }
 
-TEST_CASE("elementary_named_expression", "[smoke]")
+TEST_CASE("elementary_subexpression", "[smoke]")
 {
     SECTION("empty")
     {
-        auto e = coek::named_expression("e");
+        auto e = coek::subexpression("e");
         auto x = coek::variable("z", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline
@@ -80,7 +80,7 @@ TEST_CASE("elementary_named_expression", "[smoke]")
 
     SECTION("constant integer")
     {
-        auto e = coek::named_expression("e").value(1);
+        auto e = coek::subexpression("e").value(1);
         auto x = coek::variable("x", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline
@@ -90,7 +90,7 @@ TEST_CASE("elementary_named_expression", "[smoke]")
 
     SECTION("constant double")
     {
-        auto e = coek::named_expression("e").value(1.3);
+        auto e = coek::subexpression("e").value(1.3);
         auto x = coek::variable("x", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline
@@ -101,7 +101,7 @@ TEST_CASE("elementary_named_expression", "[smoke]")
     SECTION("param")
     {
         auto p = coek::parameter("p");
-        auto e = coek::named_expression("e").value(p);
+        auto e = coek::subexpression("e").value(p);
         auto x = coek::variable("x", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline
@@ -112,7 +112,7 @@ TEST_CASE("elementary_named_expression", "[smoke]")
     SECTION("var")
     {
         auto y = coek::variable("y");
-        auto e = coek::named_expression("e").value(y);
+        auto e = coek::subexpression("e").value(y);
         auto x = coek::variable("x", 3).generate_names();
         for (size_t i = 0; i < 3; i++) e += x(i);
         static std::list<std::string> baseline
@@ -474,28 +474,28 @@ TEST_CASE("model_expression", "[smoke]")
     }
 }
 
-TEST_CASE("model_named_expression", "[smoke]")
+TEST_CASE("model_subexpression", "[smoke]")
 {
     SECTION("constructors")
     {
         WHEN("simple")
         {
-            coek::NamedExpression a;
+            coek::SubExpression a;
             static std::list<std::string> baseline = {"[", "_", std::to_string(0.0), "]"};
             REQUIRE(a.to_list() == baseline);
         }
 
         WHEN("double")
         {
-            coek::NamedExpression a(1.0);
+            coek::SubExpression a(1.0);
             static std::list<std::string> baseline = {"[", "_", std::to_string(1.0), "]"};
             REQUIRE(a.to_list() == baseline);
         }
 
         WHEN("equal")
         {
-            coek::NamedExpression a(1.0);
-            coek::NamedExpression b;
+            coek::SubExpression a(1.0);
+            coek::SubExpression b;
             b = a;
             static std::list<std::string> baseline = {"[", "_", std::to_string(1.0), "]"};
             REQUIRE(a.to_list() == baseline);
@@ -506,7 +506,7 @@ TEST_CASE("model_named_expression", "[smoke]")
     {
         WHEN("constant")
         {
-            coek::NamedExpression a(1.0);
+            coek::SubExpression a(1.0);
             REQUIRE(a.is_constant() == false);
             REQUIRE(a.repn->body->is_constant() == true);
         }
@@ -514,7 +514,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("parameter")
         {
             auto p = coek::parameter().value(1);
-            coek::NamedExpression a;
+            coek::SubExpression a;
             a = p;
             REQUIRE(a.is_constant() == false);
         }
@@ -522,7 +522,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("index_parameter")
         {
             auto p = coek::set_element("p");
-            coek::NamedExpression a;
+            coek::SubExpression a;
             a = p;
             REQUIRE(a.is_constant() == false);
         }
@@ -530,7 +530,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("variable")
         {
             auto p = coek::variable().lower(0).upper(0).value(0);
-            coek::NamedExpression a;
+            coek::SubExpression a;
             a = p;
             REQUIRE(a.is_constant() == false);
         }
@@ -542,7 +542,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         {
             auto v = coek::variable("v");
             auto p = coek::variable("p").lower(0).upper(0).value(0);
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             a += p;
             static std::list<std::string> baseline = {"[", "_", "[", "+", "v", "p", "]", "]"};
             REQUIRE(a.to_list() == baseline);
@@ -550,7 +550,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("double")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             double p = 1;
             a += p;
             static std::list<std::string> baseline
@@ -560,7 +560,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("int")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             int p = 1;
             a += p;
             static std::list<std::string> baseline
@@ -570,7 +570,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("parameter")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             auto p = coek::parameter("p");
             a += p;
             static std::list<std::string> baseline = {"[", "_", "[", "+", "v", "p", "]", "]"};
@@ -579,7 +579,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("index parameter")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             auto p = coek::set_element("p");
             a += p;
             static std::list<std::string> baseline = {"[", "_", "[", "+", "v", "p", "]", "]"};
@@ -593,7 +593,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         {
             auto v = coek::variable("v");
             auto p = coek::variable("p").lower(0).upper(1).lower(0);
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             a -= p;
             static std::list<std::string> baseline
                 = {"[", "_", "[", "+", "v", "[", "-", "p", "]", "]", "]"};
@@ -602,7 +602,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("double")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             double p = 1;
             a -= p;
             static std::list<std::string> baseline
@@ -612,7 +612,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("int")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             int p = 1;
             a -= p;
             static std::list<std::string> baseline
@@ -622,7 +622,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("parameter")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             auto p = coek::parameter("p");
             a -= p;
             static std::list<std::string> baseline
@@ -632,7 +632,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("index parameter")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             auto p = coek::set_element("p");
             a -= p;
             static std::list<std::string> baseline
@@ -647,7 +647,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         {
             auto v = coek::variable("v");
             auto p = coek::variable("p").lower(0).upper(1).value(0);
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             a *= p;
             static std::list<std::string> baseline = {"[", "_", "[", "*", "v", "p", "]", "]"};
             REQUIRE(a.to_list() == baseline);
@@ -655,7 +655,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("double")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             double p = 1;
             a *= p;
             static std::list<std::string> baseline
@@ -665,7 +665,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("int")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             int p = 1;
             a *= p;
             static std::list<std::string> baseline
@@ -675,7 +675,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("parameter")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             auto p = coek::parameter("p");
             a *= p;
             static std::list<std::string> baseline = {"[", "_", "[", "*", "v", "p", "]", "]"};
@@ -684,7 +684,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("index parameter")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             auto p = coek::set_element("p");
             a *= p;
             static std::list<std::string> baseline = {"[", "_", "[", "*", "v", "p", "]", "]"};
@@ -698,7 +698,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         {
             auto v = coek::variable("v");
             auto p = coek::variable("p").lower(0).upper(1).value(0);
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             a /= p;
             static std::list<std::string> baseline = {"[", "_", "[", "/", "v", "p", "]", "]"};
             REQUIRE(a.to_list() == baseline);
@@ -706,7 +706,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("double")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             double p = 1;
             a /= p;
             static std::list<std::string> baseline
@@ -716,7 +716,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("int")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             int p = 1;
             a /= p;
             static std::list<std::string> baseline
@@ -726,7 +726,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("parameter")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             auto p = coek::parameter("p");
             a /= p;
             static std::list<std::string> baseline = {"[", "_", "[", "/", "v", "p", "]", "]"};
@@ -735,7 +735,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         WHEN("index parameter")
         {
             auto v = coek::variable("v");
-            coek::NamedExpression a = v;
+            coek::SubExpression a = v;
             auto p = coek::set_element("p");
             a /= p;
             static std::list<std::string> baseline = {"[", "_", "[", "/", "v", "p", "]", "]"};
@@ -748,7 +748,7 @@ TEST_CASE("model_named_expression", "[smoke]")
         coek::QuadraticExpr repn;
         coek::Model m;
         auto v = coek::variable("v").lower(0).upper(0).value(0);
-        coek::NamedExpression a = 1 + v + v * v;
+        coek::SubExpression a = 1 + v + v * v;
 
         repn.collect_terms(a);
         std::stringstream sstr;
@@ -3942,23 +3942,23 @@ TEST_CASE("expression_value", "[smoke]")
         }
     }
 
-    SECTION("named_expression")
+    SECTION("subexpression")
     {
         WHEN("e = q")
         {
-            coek::NamedExpression e = q;
+            coek::SubExpression e = q;
             REQUIRE(e.value() == 2);
         }
 
         WHEN("e = a")
         {
-            coek::NamedExpression e = a;
+            coek::SubExpression e = a;
             REQUIRE(e.value() == 0);
         }
 
         WHEN("e = 3*b + q")
         {
-            coek::NamedExpression e = 3 * b + q;
+            coek::SubExpression e = 3 * b + q;
             REQUIRE(e.value() == 5.0);
         }
     }

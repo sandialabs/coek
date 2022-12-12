@@ -25,7 +25,7 @@ class MonomialTerm;
 class InequalityTerm;
 class EqualityTerm;
 class EmptyConstraintTerm;
-class NamedExpressionTerm;
+class SubExpressionTerm;
 class NegateTerm;
 class PlusTerm;
 class TimesTerm;
@@ -69,7 +69,7 @@ class Visitor {
     virtual void visit(InequalityTerm& arg) = 0;
     virtual void visit(EqualityTerm& arg) = 0;
     virtual void visit(EmptyConstraintTerm&) {}
-    virtual void visit(NamedExpressionTerm& arg) = 0;
+    virtual void visit(SubExpressionTerm& arg) = 0;
     virtual void visit(NegateTerm& arg) = 0;
     virtual void visit(PlusTerm& arg) = 0;
     virtual void visit(TimesTerm& arg) = 0;
@@ -114,7 +114,7 @@ enum term_id : unsigned int {
     EqualityTerm_id = 7,
     EmptyConstraintTerm_id = 104,
     // EmptyObjectiveTerm_id = 105,
-    NamedExpressionTerm_id = 107,
+    SubExpressionTerm_id = 107,
     NegateTerm_id = 8,
     PlusTerm_id = 9,
     TimesTerm_id = 10,

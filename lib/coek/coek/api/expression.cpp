@@ -322,7 +322,7 @@ Expression::Expression(const IndexParameter& param) : repn(param.repn) {}
 
 Expression::Expression(const Variable& var) : repn(var.repn) {}
 
-Expression::Expression(const NamedExpression& arg) : repn(arg.repn) {}
+Expression::Expression(const SubExpression& arg) : repn(arg.repn) {}
 
 bool Expression::is_constant() const { return repn->is_constant(); }
 
@@ -536,73 +536,73 @@ Expression expression(const Parameter& arg) { return coek::Expression(arg); }
 Expression expression(const Variable& arg) { return coek::Expression(arg); }
 
 //
-// NamedExpression
+// SubExpression
 //
 
-NamedExpression::NamedExpression() { repn = CREATE_POINTER(NamedExpressionTerm, ZEROCONST); }
+SubExpression::SubExpression() { repn = CREATE_POINTER(SubExpressionTerm, ZEROCONST); }
 
-NamedExpression::NamedExpression(double value)
+SubExpression::SubExpression(double value)
 {
-    repn = CREATE_POINTER(NamedExpressionTerm, CREATE_POINTER(ConstantTerm, value));
+    repn = CREATE_POINTER(SubExpressionTerm, CREATE_POINTER(ConstantTerm, value));
 }
 
-NamedExpression::NamedExpression(int value)
+SubExpression::SubExpression(int value)
 {
-    repn = CREATE_POINTER(NamedExpressionTerm, CREATE_POINTER(ConstantTerm, value));
+    repn = CREATE_POINTER(SubExpressionTerm, CREATE_POINTER(ConstantTerm, value));
 }
 
-NamedExpression::NamedExpression(const Parameter& arg)
+SubExpression::SubExpression(const Parameter& arg)
 {
-    repn = CREATE_POINTER(NamedExpressionTerm, arg.repn);
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
 }
 
-NamedExpression::NamedExpression(const IndexParameter& arg)
+SubExpression::SubExpression(const IndexParameter& arg)
 {
-    repn = CREATE_POINTER(NamedExpressionTerm, arg.repn);
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
 }
 
-NamedExpression::NamedExpression(const Variable& arg)
+SubExpression::SubExpression(const Variable& arg)
 {
-    repn = CREATE_POINTER(NamedExpressionTerm, arg.repn);
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
 }
 
-NamedExpression::NamedExpression(const Expression& arg)
+SubExpression::SubExpression(const Expression& arg)
 {
-    repn = CREATE_POINTER(NamedExpressionTerm, arg.repn);
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
 }
 
-NamedExpression& NamedExpression::value(double value)
+SubExpression& SubExpression::value(double value)
 {
-    repn = CREATE_POINTER(NamedExpressionTerm, CREATE_POINTER(ConstantTerm, value));
+    repn = CREATE_POINTER(SubExpressionTerm, CREATE_POINTER(ConstantTerm, value));
     return *this;
 }
 
-NamedExpression& NamedExpression::value(const Expression& arg)
+SubExpression& SubExpression::value(const Expression& arg)
 {
-    repn = CREATE_POINTER(NamedExpressionTerm, arg.repn);
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
     return *this;
 }
 
-NamedExpression& NamedExpression::name(const std::string& name)
+SubExpression& SubExpression::name(const std::string& name)
 {
     repn->name = name;
     return *this;
 }
 
-std::string NamedExpression::name() const { return repn->get_name(); }
+std::string SubExpression::name() const { return repn->get_name(); }
 
-bool NamedExpression::is_constant() const { return repn->is_constant(); }
+bool SubExpression::is_constant() const { return repn->is_constant(); }
 
-double NamedExpression::value() const { return repn->eval(); }
+double SubExpression::value() const { return repn->eval(); }
 
-std::list<std::string> NamedExpression::to_list() const
+std::list<std::string> SubExpression::to_list() const
 {
     std::list<std::string> tmp;
     expr_to_list(repn, tmp);
     return tmp;
 }
 
-Expression NamedExpression::diff(const Variable& var) const
+Expression SubExpression::diff(const Variable& var) const
 {
     std::map<std::shared_ptr<VariableTerm>, expr_pointer_t> ans;
     symbolic_diff_all(repn, ans);
@@ -611,7 +611,7 @@ Expression NamedExpression::diff(const Variable& var) const
     return e;
 }
 
-Expression NamedExpression::expand()
+Expression SubExpression::expand()
 {
 #ifdef COEK_WITH_COMPACT_MODEL
     return convert_expr_template(repn);
@@ -620,171 +620,171 @@ Expression NamedExpression::expand()
 #endif
 }
 
-NamedExpression& NamedExpression::operator+=(int arg)
+SubExpression& SubExpression::operator+=(int arg)
 {
     Expression e(arg);
     *this += e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator+=(double arg)
+SubExpression& SubExpression::operator+=(double arg)
 {
     Expression e(arg);
     *this += e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator+=(const Parameter& arg)
+SubExpression& SubExpression::operator+=(const Parameter& arg)
 {
     Expression e(arg);
     *this += e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator+=(const IndexParameter& arg)
+SubExpression& SubExpression::operator+=(const IndexParameter& arg)
 {
     Expression e(arg);
     *this += e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator+=(const Variable& arg)
+SubExpression& SubExpression::operator+=(const Variable& arg)
 {
     Expression e(arg);
     *this += e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator+=(const Expression& arg)
+SubExpression& SubExpression::operator+=(const Expression& arg)
 {
     repn->body = CREATE_POINTER(PlusTerm, repn->body, arg.repn);
     return *this;
 }
 
-NamedExpression& NamedExpression::operator-=(int arg)
+SubExpression& SubExpression::operator-=(int arg)
 {
     Expression e(arg);
     *this -= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator-=(double arg)
+SubExpression& SubExpression::operator-=(double arg)
 {
     Expression e(arg);
     *this -= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator-=(const Parameter& arg)
+SubExpression& SubExpression::operator-=(const Parameter& arg)
 {
     Expression e(arg);
     *this -= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator-=(const IndexParameter& arg)
+SubExpression& SubExpression::operator-=(const IndexParameter& arg)
 {
     Expression e(arg);
     *this -= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator-=(const Variable& arg)
+SubExpression& SubExpression::operator-=(const Variable& arg)
 {
     Expression e(arg);
     *this -= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator-=(const Expression& arg)
+SubExpression& SubExpression::operator-=(const Expression& arg)
 {
     repn->body = CREATE_POINTER(PlusTerm, repn->body, CREATE_POINTER(NegateTerm, arg.repn));
     return *this;
 }
 
-NamedExpression& NamedExpression::operator*=(int arg)
+SubExpression& SubExpression::operator*=(int arg)
 {
     Expression e(arg);
     *this *= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator*=(double arg)
+SubExpression& SubExpression::operator*=(double arg)
 {
     Expression e(arg);
     *this *= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator*=(const Parameter& arg)
+SubExpression& SubExpression::operator*=(const Parameter& arg)
 {
     Expression e(arg);
     *this *= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator*=(const IndexParameter& arg)
+SubExpression& SubExpression::operator*=(const IndexParameter& arg)
 {
     Expression e(arg);
     *this *= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator*=(const Variable& arg)
+SubExpression& SubExpression::operator*=(const Variable& arg)
 {
     Expression e(arg);
     *this *= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator*=(const Expression& arg)
+SubExpression& SubExpression::operator*=(const Expression& arg)
 {
     repn->body = times(repn->body, arg.repn);
     return *this;
 }
 
-NamedExpression& NamedExpression::operator/=(int arg)
+SubExpression& SubExpression::operator/=(int arg)
 {
     Expression e(arg);
     *this /= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator/=(double arg)
+SubExpression& SubExpression::operator/=(double arg)
 {
     Expression e(arg);
     *this /= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator/=(const Parameter& arg)
+SubExpression& SubExpression::operator/=(const Parameter& arg)
 {
     Expression e(arg);
     *this /= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator/=(const IndexParameter& arg)
+SubExpression& SubExpression::operator/=(const IndexParameter& arg)
 {
     Expression e(arg);
     *this /= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator/=(const Variable& arg)
+SubExpression& SubExpression::operator/=(const Variable& arg)
 {
     Expression e(arg);
     *this /= e;
     return *this;
 }
 
-NamedExpression& NamedExpression::operator/=(const Expression& arg)
+SubExpression& SubExpression::operator/=(const Expression& arg)
 {
     repn->body = CREATE_POINTER(DivideTerm, repn->body, arg.repn);
     return *this;
 }
 
-NamedExpression named_expression(const std::string& name) { return NamedExpression().name(name); }
+SubExpression subexpression(const std::string& name) { return SubExpression().name(name); }
 
 //
 // -------------------------------------------------------------------------------------

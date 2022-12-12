@@ -76,7 +76,7 @@ class PrintExpr : public Visitor {
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
     void visit(ObjectiveTerm& arg);
-    void visit(NamedExpressionTerm& arg);
+    void visit(SubExpressionTerm& arg);
     void visit(NegateTerm& arg);
     void visit(PlusTerm& arg);
     void visit(TimesTerm& arg);
@@ -181,7 +181,7 @@ void PrintExpr::visit(ObjectiveTerm&)
 }
 // GCOVR_EXCL_STOP
 
-void PrintExpr::visit(NamedExpressionTerm& arg) { arg.body->accept(*this); }
+void PrintExpr::visit(SubExpressionTerm& arg) { arg.body->accept(*this); }
 
 void PrintExpr::visit(NegateTerm& arg)
 {
@@ -280,7 +280,7 @@ class PrintExprFmtlib : public Visitor {
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
     void visit(ObjectiveTerm& arg);
-    void visit(NamedExpressionTerm& arg);
+    void visit(SubExpressionTerm& arg);
     void visit(NegateTerm& arg);
     void visit(PlusTerm& arg);
     void visit(TimesTerm& arg);
@@ -380,7 +380,7 @@ void PrintExprFmtlib::visit(ObjectiveTerm&)
 }
 // GCOVR_EXCL_STOP
 
-void PrintExprFmtlib::visit(NamedExpressionTerm& arg) { arg.body->accept(*this); }
+void PrintExprFmtlib::visit(SubExpressionTerm& arg) { arg.body->accept(*this); }
 
 void PrintExprFmtlib::visit(NegateTerm& arg)
 {

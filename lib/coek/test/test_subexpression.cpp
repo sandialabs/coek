@@ -14,28 +14,28 @@ const double E = exp(1.0);
 
 
 #ifdef COEK_WITH_COMPACT_MODEL
-TEST_CASE("indexed_named_expression", "[smoke]")
+TEST_CASE("indexed_subexpression", "[smoke]")
 {
     SECTION("simple array")
     {
         WHEN("constructor")
         {
-            auto e = coek::named_expression("e", 10);
+            auto e = coek::subexpression("e", 10);
             REQUIRE(e.dim() == 1);
-            auto E = coek::named_expression("e", {10});
+            auto E = coek::subexpression("e", {10});
             REQUIRE(E.dim() == 1);
         }
 
         WHEN("name")
         {
-            auto e = coek::named_expression("e", 10);
+            auto e = coek::subexpression("e", 10);
             REQUIRE(e.name() == "e");
         }
 
         WHEN("size")
         {
             auto v = coek::variable();
-            auto e = coek::named_expression("e", 10);
+            auto e = coek::subexpression("e", 10);
             REQUIRE(e.size() == 0);
             e(0) = v+1;
             REQUIRE(e.size() == 1);
@@ -45,7 +45,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
         {
             auto v = coek::variable("v", 10);
             v.generate_names();
-            auto e = coek::named_expression("e", 10);
+            auto e = coek::subexpression("e", 10);
             for (size_t i = 0; i < 10; ++i) {
                 e(i) = v(i) + 1.0 * i;
             }
@@ -59,7 +59,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
         WHEN("operator () - int")
         {
             auto v = coek::variable(10);
-            auto e = coek::named_expression("e", 10);
+            auto e = coek::subexpression("e", 10);
             for (int i = 0; i < 10; ++i) {
                 e(i) = v(i) + 1.0 * i;
             }
@@ -69,7 +69,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
         {
             auto p = coek::parameter();
             auto v = coek::variable(10);
-            auto e = coek::named_expression("e", 10);
+            auto e = coek::subexpression("e", 10);
             for (int i = 0; i < 10; ++i) {
                 p.value(i);
                 e(p) = v(p) + 1.0 * i;
@@ -93,7 +93,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
 
         WHEN("operator() - error1")
         {
-            auto e = coek::named_expression("e", 10);
+            auto e = coek::subexpression("e", 10);
             REQUIRE_THROWS_WITH(e(0, 0, 0),
                                 "Unexpected index value: e is an 1-D variable map but is being "
                                 "indexed with 3 indices.");
@@ -101,7 +101,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
 
         WHEN("operator() - error2")
         {
-            auto e = coek::named_expression("e", 10);
+            auto e = coek::subexpression("e", 10);
             REQUIRE_THROWS_WITH(e(0, 0),
                                 "Unexpected index value: e is an 1-D variable map but is being "
                                 "indexed with 2 indices.");
@@ -109,7 +109,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
 
         WHEN("operator() - error3")
         {
-            auto e = coek::named_expression("e", 10);
+            auto e = coek::subexpression("e", 10);
             REQUIRE_THROWS_WITH(e(-1), "Unexpected index value: e(-1)");
         }
     }
@@ -118,7 +118,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
     {
         WHEN("constructor")
         {
-            auto e = coek::named_expression("e", {10, 10});
+            auto e = coek::subexpression("e", {10, 10});
             REQUIRE(e.dim() == 2);
             std::vector<size_t> dim = {10, 10};
             auto E = coek::constraint("E", dim);
@@ -127,14 +127,14 @@ TEST_CASE("indexed_named_expression", "[smoke]")
 
         WHEN("name")
         {
-            auto e = coek::named_expression("e", {10, 10});
+            auto e = coek::subexpression("e", {10, 10});
             REQUIRE(e.name() == "e");
         }
 
         WHEN("size")
         {
             auto v = coek::variable();
-            auto e = coek::named_expression("e", {10, 10});
+            auto e = coek::subexpression("e", {10, 10});
             REQUIRE(e.size() == 0);
             e(0, 0) = v + 1;
             REQUIRE(e.size() == 1);
@@ -143,7 +143,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
         WHEN("operator () - size_t")
         {
             auto v = coek::variable({10, 10});
-            auto e = coek::named_expression("e", {10, 10});
+            auto e = coek::subexpression("e", {10, 10});
             for (size_t i = 0; i < 10; ++i) {
                 e(i, i) = v(i, i) + 1.0 * i;
             }
@@ -153,7 +153,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
         WHEN("operator () - int")
         {
             auto v = coek::variable({10, 10, 10});
-            auto e = coek::named_expression("e", {10, 10, 10});
+            auto e = coek::subexpression("e", {10, 10, 10});
             for (int i = 0; i < 10; ++i) {
                 e(i, i, i) = v(i, i, i) + 1.0 * i;
             }
@@ -162,7 +162,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
 
         WHEN("operator() - error1")
         {
-            auto e = coek::named_expression("e", {10, 10});
+            auto e = coek::subexpression("e", {10, 10});
             REQUIRE_THROWS_WITH(e(0),
                                 "Unexpected index value: e is an 2-D variable map but is being "
                                 "indexed with 1 indices.");
@@ -170,7 +170,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
 
         WHEN("operator() - error2")
         {
-            auto e = coek::named_expression("e", {10, 10});
+            auto e = coek::subexpression("e", {10, 10});
             REQUIRE_THROWS_WITH(e(-1, -1), "Unexpected index value: e(-1,-1)");
         }
     }
@@ -180,14 +180,14 @@ TEST_CASE("indexed_named_expression", "[smoke]")
         WHEN("constructor")
         {
             auto A = coek::RangeSet(0, 9) * coek::RangeSet(0, 9);
-            auto e = coek::named_expression("e", A);
+            auto e = coek::subexpression("e", A);
             REQUIRE(e.dim() == 2);
         }
 
         WHEN("name")
         {
             auto A = coek::RangeSet(0, 9) * coek::RangeSet(0, 9);
-            auto e = coek::named_expression("e", A);
+            auto e = coek::subexpression("e", A);
             REQUIRE(e.name() == "e");
         }
 
@@ -195,7 +195,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
         {
             auto A = coek::RangeSet(0, 9) * coek::RangeSet(0, 9);
             auto v = coek::variable();
-            auto e = coek::named_expression("e", A);
+            auto e = coek::subexpression("e", A);
             REQUIRE(e.size() == 0);
             e(0, 0) = v + 1;
             REQUIRE(e.size() == 1);
@@ -205,7 +205,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
         {
             auto A = coek::RangeSet(0, 9) * coek::RangeSet(0, 9);
             auto v = coek::variable(A);
-            auto e = coek::named_expression("e", A);
+            auto e = coek::subexpression("e", A);
             for (size_t i = 0; i < 10; ++i) {
                 e(i, i) = v(i, i) + 1.0 * i;
             }
@@ -216,7 +216,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
         {
             auto A = coek::RangeSet(0, 9) * coek::RangeSet(0, 9) * coek::RangeSet(0, 9);
             auto v = coek::variable(A);
-            auto e = coek::named_expression("e", A);
+            auto e = coek::subexpression("e", A);
             for (int i = 0; i < 10; ++i) {
                 e(i, i, i) = v(i, i, i) + 1.0 * i;
             }
@@ -226,7 +226,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
         WHEN("operator() - error1")
         {
             auto A = coek::RangeSet(0, 9) * coek::RangeSet(0, 9);
-            auto e = coek::named_expression("e", A);
+            auto e = coek::subexpression("e", A);
             REQUIRE_THROWS_WITH(e(0),
                                 "Unexpected index value: e is an 2-D variable map but is being "
                                 "indexed with 1 indices.");
@@ -235,7 +235,7 @@ TEST_CASE("indexed_named_expression", "[smoke]")
         WHEN("operator() - error2")
         {
             auto A = coek::RangeSet(0, 9) * coek::RangeSet(0, 9);
-            auto e = coek::named_expression("e", A);
+            auto e = coek::subexpression("e", A);
             REQUIRE_THROWS_WITH(e(-1, -1), "Unexpected index value: e(-1,-1)");
         }
     }
