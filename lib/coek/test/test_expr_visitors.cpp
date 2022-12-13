@@ -8,6 +8,7 @@
 #include "coek/ast/value_terms.hpp"
 #include "coek/ast/visitor_fns.hpp"
 #include "coek/coek.hpp"
+#include "coek/util/io_utils.hpp"
 
 #define WRITER_INTRINSIC_TEST1(FN)                               \
     WHEN(#FN)                                                    \
@@ -451,6 +452,29 @@ TEST_CASE("expr_to_QuadraticExpr", "[smoke]")
 
             REQUIRE(repn.constval == 6);
             REQUIRE(repn.linear_coefs.size() == 0);
+            REQUIRE(repn.quadratic_coefs.size() == 0);
+        }
+    }
+
+    SECTION("subexpression")
+    {
+        {
+            coek::Model m;
+            auto v = m.add_variable("v").lower(0).upper(1).value(3);
+            //auto E = v+1;
+            auto E = coek::subexpression().value(v+1);
+            coek::Expression e = E + 2*(E+1);
+            REQUIRE(e.value() == 14);
+
+            coek::QuadraticExpr repn;
+            repn.collect_terms(e);
+
+            REQUIRE(repn.constval == 5);
+            REQUIRE(repn.linear_coefs.size() == 2);
+            REQUIRE(repn.linear_coefs[0] == 1);
+            REQUIRE(repn.linear_coefs[1] == 2);
+            REQUIRE(repn.linear_vars[0] == v.repn);
+            REQUIRE(repn.linear_vars[1] == v.repn);
             REQUIRE(repn.quadratic_coefs.size() == 0);
         }
     }
@@ -1548,6 +1572,33 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
             REQUIRE(repn.linear_coefs.size() == 1);
             REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
             REQUIRE(repn.linear_vars[0] == v.repn);
+            REQUIRE(repn.quadratic_coefs.size() == 0);
+        }
+    }
+
+    SECTION("subexpression")
+    {
+        {
+            coek::Model m;
+            auto v = m.add_variable("v").lower(0).upper(1).value(3);
+            //auto E = v+1;
+            auto E = coek::subexpression().value(v+1);
+            coek::Expression e = E + 2*(E+1);
+            REQUIRE(e.value() == 14);
+
+            coek::MutableNLPExpr repn;
+            repn.collect_terms(e);
+
+            static std::list<std::string> constval = {std::to_string(5.0)};
+            static std::list<std::string> coefval0 = {std::to_string(1.0)};
+            static std::list<std::string> coefval1 = {std::to_string(2.0)};
+            REQUIRE(repn.mutable_values == false);
+            REQUIRE(repn.constval->to_list() == constval);
+            REQUIRE(repn.linear_coefs.size() == 2);
+            REQUIRE(repn.linear_coefs[0]->to_list() == coefval0);
+            REQUIRE(repn.linear_coefs[1]->to_list() == coefval1);
+            REQUIRE(repn.linear_vars[0] == v.repn);
+            REQUIRE(repn.linear_vars[1] == v.repn);
             REQUIRE(repn.quadratic_coefs.size() == 0);
         }
     }
