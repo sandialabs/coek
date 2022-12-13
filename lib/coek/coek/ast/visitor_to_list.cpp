@@ -33,6 +33,7 @@ class ToListVisitor : public Visitor {
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
     void visit(ObjectiveTerm& arg);
+    void visit(SubExpressionTerm& arg);
     void visit(NegateTerm& arg);
     void visit(PlusTerm& arg);
     void visit(TimesTerm& arg);
@@ -167,6 +168,14 @@ void ToListVisitor::visit(ObjectiveTerm& arg)
     repr.push_back("]");
 }
 
+void ToListVisitor::visit(SubExpressionTerm& arg)
+{
+    repr.push_back("[");
+    repr.push_back("_");
+    arg.body->accept(*this);
+    repr.push_back("]");
+}
+
 void ToListVisitor::visit(NegateTerm& arg)
 {
     repr.push_back("[");
@@ -180,7 +189,7 @@ void ToListVisitor::visit(PlusTerm& arg)
     repr.push_back("[");
     repr.push_back("+");
     std::vector<expr_pointer_t>& vec = *(arg.data);
-    for (size_t i = 0; i < arg.n; i++) vec[i]->accept(*this);
+    for (size_t i = 0; i < arg.num_expressions(); i++) vec[i]->accept(*this);
     repr.push_back("]");
 }
 

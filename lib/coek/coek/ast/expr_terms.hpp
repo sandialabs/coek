@@ -30,7 +30,10 @@ class UnaryTerm : public ExpressionTerm {
     expr_pointer_t body;
 
    public:
-    explicit UnaryTerm(const expr_pointer_t& repn);
+    explicit UnaryTerm(const expr_pointer_t& repn) : body(repn)
+    {
+        non_variable = repn->non_variable;
+    }
 
     size_t num_expressions() const { return 1; }
     expr_pointer_t expression(size_t) { return body; }
@@ -76,6 +79,36 @@ class NAryPrefixTerm : public ExpressionTerm {
 };
 
 //
+// SubExpressionTerm
+//
+
+class SubExpressionTerm : public UnaryTerm {
+   public:
+    static unsigned int count;
+
+   public:
+    unsigned int index;
+    std::string name;
+
+   public:
+    explicit SubExpressionTerm(const expr_pointer_t& body) : UnaryTerm(body) { index = count++; }
+
+    double eval() const { return body->eval(); }
+
+    virtual std::string get_simple_name() { return "S[" + std::to_string(index) + "]"; }
+    virtual std::string get_name()
+    {
+        if (name == "")
+            return get_simple_name();
+        else
+            return name;
+    }
+
+    void accept(Visitor& v) { v.visit(*this); }
+    term_id id() { return SubExpressionTerm_id; }
+};
+
+//
 // NegateTerm
 //
 
@@ -100,9 +133,10 @@ class PlusTerm : public NAryPrefixTerm {
 
     double eval() const
     {
+        // NOTE: Must limit this loop to 0..n-1.  The value 'n' defines the
+        //      number of terms in the shared prefix term that are used here.
         double ans = 0;
-        // for (unsigned int i = 0; i < n; i++) ans += (*data)[i]->eval();
-        for (auto& val : *data) ans += val->eval();
+        for (size_t i = 0; i < n; i++) ans += (*data)[i]->eval();
         return ans;
     }
 
@@ -142,15 +176,26 @@ class DivideTerm : public BinaryTerm {
 // Unary Terms
 //
 
-#define UNARY_CLASS(FN, TERM)                                          \
-    class TERM : public UnaryTerm {                                    \
-       public:                                                         \
-        explicit TERM(const expr_pointer_t& body) : UnaryTerm(body) {} \
-                                                                       \
-        double eval() const { return ::FN(body->eval()); }             \
-                                                                       \
-        void accept(Visitor& v) { v.visit(*this); }                    \
-        term_id id() { return TERM##_id; }                             \
+#define UNARY_CLASS(FN, TERM)                                       \
+    class TERM : public UnaryTerm {                                 \
+       public:                                                      \
+        explicit TERM(const expr_pointer_t& body) : UnaryTerm(body) \
+        {                                                           \
+        }                                                           \
+                                                                    \
+        double eval() const                                         \
+        {                                                           \
+            return ::FN(body->eval());                              \
+        }                                                           \
+                                                                    \
+        void accept(Visitor& v)                                     \
+        {                                                           \
+            v.visit(*this);                                         \
+        }                                                           \
+        term_id id()                                                \
+        {                                                           \
+            return TERM##_id;                                       \
+        }                                                           \
     };
 
 UNARY_CLASS(fabs, AbsTerm)
@@ -190,15 +235,26 @@ UNARY_CLASS(atanh, ATanhTerm)
 // Binary Terms
 //
 
-#define BINARY_CLASS(FN, TERM)                                                               \
-    class TERM : public BinaryTerm {                                                         \
-       public:                                                                               \
-        TERM(const expr_pointer_t& lhs, const expr_pointer_t& rhs) : BinaryTerm(lhs, rhs) {} \
-                                                                                             \
-        double eval() const { return ::FN(lhs->eval(), rhs->eval()); }                       \
-                                                                                             \
-        void accept(Visitor& v) { v.visit(*this); }                                          \
-        term_id id() { return TERM##_id; }                                                   \
+#define BINARY_CLASS(FN, TERM)                                                            \
+    class TERM : public BinaryTerm {                                                      \
+       public:                                                                            \
+        TERM(const expr_pointer_t& lhs, const expr_pointer_t& rhs) : BinaryTerm(lhs, rhs) \
+        {                                                                                 \
+        }                                                                                 \
+                                                                                          \
+        double eval() const                                                               \
+        {                                                                                 \
+            return ::FN(lhs->eval(), rhs->eval());                                        \
+        }                                                                                 \
+                                                                                          \
+        void accept(Visitor& v)                                                           \
+        {                                                                                 \
+            v.visit(*this);                                                               \
+        }                                                                                 \
+        term_id id()                                                                      \
+        {                                                                                 \
+            return TERM##_id;                                                             \
+        }                                                                                 \
     };
 
 BINARY_CLASS(pow, PowTerm)

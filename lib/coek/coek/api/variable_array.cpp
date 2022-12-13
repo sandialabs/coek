@@ -24,7 +24,7 @@ class VariableArrayRepn : public VariableAssocArrayRepn {
     VariableArrayRepn(const std::vector<int>& _shape) : _size(1)
     {
         shape.resize(_shape.size());
-        for (size_t i = 0; i < shape.size(); ++i) shape[i] = _shape[i];
+        for (size_t i = 0; i < shape.size(); ++i) shape[i] = static_cast<size_t>(_shape[i]);
         for (auto n : shape) _size *= n;
         cache.resize((size() + 1) * (dim() + 1));
     }
@@ -124,7 +124,7 @@ Variable VariableArray::index(const IndexVector& args)
     // We know that the args[i] values are nonnegative b.c. we have asserted that while
     // processing these arguments
     size_t ndx = static_cast<size_t>(args[0]);
-    for (size_t i = 1; i < args.size(); i++) ndx = ndx * shape[i] + args[i];
+    for (size_t i = 1; i < args.size(); i++) ndx = ndx * shape[i] + static_cast<size_t>(args[i]);
 
     if (ndx > size()) {
         std::string err = "Unknown index value: " + _repn->variable_template.name() + "[";

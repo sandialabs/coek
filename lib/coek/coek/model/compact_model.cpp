@@ -4,9 +4,9 @@
 #include "../util/string_utils.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
-//#ifdef COEK_WITH_COMPACT_MODEL
-//#include "coek/compact/coek_exprterm.hpp"
-//#endif
+// #ifdef COEK_WITH_COMPACT_MODEL
+// #include "coek/compact/coek_exprterm.hpp"
+// #endif
 #include "model_repn.hpp"
 
 namespace coek {

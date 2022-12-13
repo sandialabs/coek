@@ -202,17 +202,7 @@ TEST_CASE("elementary_variable", "[smoke]")
         sstr << q;
         REQUIRE(sstr.str() == "q");
     }
-
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
-
-//#ifdef WITH_AST_ENV
-//#define ENV_MEMCHECK REQUIRE( coek::env.check_memory() == true )
-//#else
-//#define ENV_MEMCHECK
-//#endif
 
 #ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE("1D_var_map", "[smoke]")
@@ -317,10 +307,6 @@ TEST_CASE("1D_var_map", "[smoke]")
             REQUIRE(e.to_list() == baseline);
         }
     }
-
-#    ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 #endif
 
@@ -421,10 +407,6 @@ TEST_CASE("1D_var_array", "[smoke]")
             for (int i = 0; i < 4; i++) REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
         }
     }
-
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -546,10 +528,6 @@ TEST_CASE("2D_var_map", "[smoke]")
             REQUIRE(e.to_list() == baseline);
         }
     }
-
-#    ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 #endif
 
@@ -649,10 +627,6 @@ TEST_CASE("2D_var_array", "[smoke]")
                             == "v[" + std::to_string(i) + "," + std::to_string(j) + "]");
         }
     }
-
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 TEST_CASE("3D_var_array", "[smoke]")
@@ -755,10 +729,6 @@ TEST_CASE("3D_var_array", "[smoke]")
                                        + std::to_string(k) + "]");
         }
     }
-
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -1003,10 +973,6 @@ TEST_CASE("3D_var_api", "[smoke]")
             REQUIRE(v(1).within() == coek::Integers);
         }
     }
-
-#    ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 
 #endif

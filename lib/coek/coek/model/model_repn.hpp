@@ -9,7 +9,7 @@
 #include "coek/api/constraint.hpp"
 #include "coek/api/parameter_array.hpp"
 #include "coek/api/variable_array.hpp"
-#include "coek/api/component_map.hpp"
+#include "coek/api/constraint_map.hpp"
 #include "coek/model/model.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL
 #    include "coek/compact/variable_sequence.hpp"

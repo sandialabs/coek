@@ -322,6 +322,8 @@ Expression::Expression(const IndexParameter& param) : repn(param.repn) {}
 
 Expression::Expression(const Variable& var) : repn(var.repn) {}
 
+Expression::Expression(const SubExpression& arg) : repn(arg.repn) {}
+
 bool Expression::is_constant() const { return repn->is_constant(); }
 
 double Expression::value() const { return repn->eval(); }
@@ -532,6 +534,258 @@ Expression expression(int arg) { return coek::Expression(arg); }
 Expression expression(const Parameter& arg) { return coek::Expression(arg); }
 
 Expression expression(const Variable& arg) { return coek::Expression(arg); }
+
+//
+// SubExpression
+//
+
+SubExpression::SubExpression() { repn = CREATE_POINTER(SubExpressionTerm, ZEROCONST); }
+
+SubExpression::SubExpression(double value)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, CREATE_POINTER(ConstantTerm, value));
+}
+
+SubExpression::SubExpression(int value)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, CREATE_POINTER(ConstantTerm, value));
+}
+
+SubExpression::SubExpression(const Parameter& arg)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
+}
+
+SubExpression::SubExpression(const IndexParameter& arg)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
+}
+
+SubExpression::SubExpression(const Variable& arg)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
+}
+
+SubExpression::SubExpression(const Expression& arg)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
+}
+
+SubExpression& SubExpression::value(double value)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, CREATE_POINTER(ConstantTerm, value));
+    return *this;
+}
+
+SubExpression& SubExpression::value(const Expression& arg)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
+    return *this;
+}
+
+SubExpression& SubExpression::name(const std::string& name)
+{
+    repn->name = name;
+    return *this;
+}
+
+std::string SubExpression::name() const { return repn->get_name(); }
+
+bool SubExpression::is_constant() const { return repn->is_constant(); }
+
+double SubExpression::value() const { return repn->eval(); }
+
+std::list<std::string> SubExpression::to_list() const
+{
+    std::list<std::string> tmp;
+    expr_to_list(repn, tmp);
+    return tmp;
+}
+
+Expression SubExpression::diff(const Variable& var) const
+{
+    std::map<std::shared_ptr<VariableTerm>, expr_pointer_t> ans;
+    symbolic_diff_all(repn, ans);
+    Expression e;
+    if (ans.find(var.repn) != ans.end()) e = ans[var.repn];
+    return e;
+}
+
+Expression SubExpression::expand()
+{
+#ifdef COEK_WITH_COMPACT_MODEL
+    return convert_expr_template(repn);
+#else
+    return *this;
+#endif
+}
+
+SubExpression& SubExpression::operator+=(int arg)
+{
+    Expression e(arg);
+    *this += e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator+=(double arg)
+{
+    Expression e(arg);
+    *this += e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator+=(const Parameter& arg)
+{
+    Expression e(arg);
+    *this += e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator+=(const IndexParameter& arg)
+{
+    Expression e(arg);
+    *this += e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator+=(const Variable& arg)
+{
+    Expression e(arg);
+    *this += e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator+=(const Expression& arg)
+{
+    repn->body = CREATE_POINTER(PlusTerm, repn->body, arg.repn);
+    return *this;
+}
+
+SubExpression& SubExpression::operator-=(int arg)
+{
+    Expression e(arg);
+    *this -= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator-=(double arg)
+{
+    Expression e(arg);
+    *this -= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator-=(const Parameter& arg)
+{
+    Expression e(arg);
+    *this -= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator-=(const IndexParameter& arg)
+{
+    Expression e(arg);
+    *this -= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator-=(const Variable& arg)
+{
+    Expression e(arg);
+    *this -= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator-=(const Expression& arg)
+{
+    repn->body = CREATE_POINTER(PlusTerm, repn->body, CREATE_POINTER(NegateTerm, arg.repn));
+    return *this;
+}
+
+SubExpression& SubExpression::operator*=(int arg)
+{
+    Expression e(arg);
+    *this *= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator*=(double arg)
+{
+    Expression e(arg);
+    *this *= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator*=(const Parameter& arg)
+{
+    Expression e(arg);
+    *this *= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator*=(const IndexParameter& arg)
+{
+    Expression e(arg);
+    *this *= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator*=(const Variable& arg)
+{
+    Expression e(arg);
+    *this *= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator*=(const Expression& arg)
+{
+    repn->body = times(repn->body, arg.repn);
+    return *this;
+}
+
+SubExpression& SubExpression::operator/=(int arg)
+{
+    Expression e(arg);
+    *this /= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator/=(double arg)
+{
+    Expression e(arg);
+    *this /= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator/=(const Parameter& arg)
+{
+    Expression e(arg);
+    *this /= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator/=(const IndexParameter& arg)
+{
+    Expression e(arg);
+    *this /= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator/=(const Variable& arg)
+{
+    Expression e(arg);
+    *this /= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator/=(const Expression& arg)
+{
+    repn->body = CREATE_POINTER(DivideTerm, repn->body, arg.repn);
+    return *this;
+}
+
+SubExpression subexpression() { return SubExpression(); }
+SubExpression subexpression(const std::string& name) { return SubExpression().name(name); }
 
 //
 // -------------------------------------------------------------------------------------

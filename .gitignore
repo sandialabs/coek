@@ -13,3 +13,4 @@ _build
 /out/build
 __pycache__
 *egg-info
+*.gcov

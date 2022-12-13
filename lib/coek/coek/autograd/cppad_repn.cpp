@@ -625,6 +625,14 @@ FROM_BODY(InequalityTerm)
 FROM_BODY(EqualityTerm)
 FROM_BODY(ObjectiveTerm)
 
+void visit_SubExpressionTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
+{
+    auto tmp = std::dynamic_pointer_cast<SubExpressionTerm>(expr);
+    CppAD::AD<double> body;
+    visit_expression(tmp->body, data, body);
+    ans += body;
+}
+
 void visit_NegateTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
 {
     auto tmp = std::dynamic_pointer_cast<NegateTerm>(expr);
@@ -636,10 +644,11 @@ void visit_NegateTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
 void visit_PlusTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
 {
     auto tmp = std::dynamic_pointer_cast<PlusTerm>(expr);
-
-    for (auto& it : *(tmp->data)) {
+    std::vector<expr_pointer_t>& vec = *(tmp->data);
+    auto n = tmp->num_expressions();
+    for (size_t i = 0; i < n; i++) {
         CppAD::AD<double> next;
-        visit_expression(it, data, next);
+        visit_expression(vec[i], data, next);
         ans += next;
     }
 }
@@ -734,6 +743,7 @@ void visit_expression(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(NegateTerm);
+        VISIT_CASE(SubExpressionTerm);
         VISIT_CASE(PlusTerm);
         VISIT_CASE(TimesTerm);
         VISIT_CASE(DivideTerm);

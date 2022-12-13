@@ -76,6 +76,7 @@ class PrintExpr : public Visitor {
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
     void visit(ObjectiveTerm& arg);
+    void visit(SubExpressionTerm& arg);
     void visit(NegateTerm& arg);
     void visit(PlusTerm& arg);
     void visit(TimesTerm& arg);
@@ -180,6 +181,8 @@ void PrintExpr::visit(ObjectiveTerm&)
 }
 // GCOVR_EXCL_STOP
 
+void PrintExpr::visit(SubExpressionTerm& arg) { arg.body->accept(*this); }
+
 void PrintExpr::visit(NegateTerm& arg)
 {
     ostr << "o16\n";
@@ -193,7 +196,7 @@ void PrintExpr::visit(PlusTerm& arg)
     else
         ostr << "o54\n" << arg.n << '\n';
     std::vector<expr_pointer_t>& vec = *(arg.data);
-    for (size_t i = 0; i < arg.n; ++i) vec[i]->accept(*this);
+    for (size_t i = 0; i < arg.num_expressions(); ++i) vec[i]->accept(*this);
 }
 
 void PrintExpr::visit(TimesTerm& arg)
@@ -277,6 +280,7 @@ class PrintExprFmtlib : public Visitor {
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
     void visit(ObjectiveTerm& arg);
+    void visit(SubExpressionTerm& arg);
     void visit(NegateTerm& arg);
     void visit(PlusTerm& arg);
     void visit(TimesTerm& arg);
@@ -376,6 +380,8 @@ void PrintExprFmtlib::visit(ObjectiveTerm&)
 }
 // GCOVR_EXCL_STOP
 
+void PrintExprFmtlib::visit(SubExpressionTerm& arg) { arg.body->accept(*this); }
+
 void PrintExprFmtlib::visit(NegateTerm& arg)
 {
     ostr.print("o16\n");
@@ -389,7 +395,7 @@ void PrintExprFmtlib::visit(PlusTerm& arg)
     else
         ostr.print(fmt::format(_fmtstr_o54, arg.n));
     std::vector<expr_pointer_t>& vec = *(arg.data);
-    for (size_t i = 0; i < arg.n; ++i) vec[i]->accept(*this);
+    for (size_t i = 0; i < arg.num_expressions(); ++i) vec[i]->accept(*this);
 }
 
 void PrintExprFmtlib::visit(TimesTerm& arg)
@@ -413,16 +419,31 @@ void PrintExprFmtlib::visit(DivideTerm& arg)
             arg.body->accept(*this);           \
         }
 
-PrintExprFmt_FN(o15, AbsTerm) PrintExprFmt_FN(o14, CeilTerm) PrintExprFmt_FN(o13, FloorTerm)
-    PrintExprFmt_FN(o44, ExpTerm) PrintExprFmt_FN(o43, LogTerm) PrintExprFmt_FN(o42, Log10Term)
-        PrintExprFmt_FN(o39, SqrtTerm) PrintExprFmt_FN(o41, SinTerm) PrintExprFmt_FN(o46, CosTerm)
-            PrintExprFmt_FN(o38, TanTerm) PrintExprFmt_FN(o40, SinhTerm)
-                PrintExprFmt_FN(o45, CoshTerm) PrintExprFmt_FN(o37, TanhTerm)
-                    PrintExprFmt_FN(o51, ASinTerm) PrintExprFmt_FN(o53, ACosTerm)
-                        PrintExprFmt_FN(o49, ATanTerm) PrintExprFmt_FN(o50, ASinhTerm)
-                            PrintExprFmt_FN(o52, ACoshTerm) PrintExprFmt_FN(o47, ATanhTerm)
+// clang-format off
 
-                                void PrintExprFmtlib::visit(PowTerm& arg)
+PrintExprFmt_FN(o15, AbsTerm)
+PrintExprFmt_FN(o14, CeilTerm)
+PrintExprFmt_FN(o13, FloorTerm)
+PrintExprFmt_FN(o44, ExpTerm)
+PrintExprFmt_FN(o43, LogTerm)
+PrintExprFmt_FN(o42, Log10Term)
+PrintExprFmt_FN(o39, SqrtTerm)
+PrintExprFmt_FN(o41, SinTerm)
+PrintExprFmt_FN(o46, CosTerm)
+PrintExprFmt_FN(o38, TanTerm)
+PrintExprFmt_FN(o40, SinhTerm)
+PrintExprFmt_FN(o45, CoshTerm)
+PrintExprFmt_FN(o37, TanhTerm)
+PrintExprFmt_FN(o51, ASinTerm)
+PrintExprFmt_FN(o53, ACosTerm)
+PrintExprFmt_FN(o49, ATanTerm)
+PrintExprFmt_FN(o50, ASinhTerm)
+PrintExprFmt_FN(o52, ACoshTerm)
+PrintExprFmt_FN(o47, ATanhTerm)
+
+    // clang-format on
+
+    void PrintExprFmtlib::visit(PowTerm& arg)
 {
     ostr.print("o5\n");
     arg.lhs->accept(*this);

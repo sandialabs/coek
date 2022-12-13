@@ -40,7 +40,8 @@ if (CMAKE_CXX_STANDARD GREATER_EQUAL 14)
         api/parameter_array.cpp
         api/variable_assoc_array.cpp
         api/variable_array.cpp
-        api/component_map.cpp
+        api/constraint_map.cpp
+        api/subexpression_map.cpp
         )
 endif()
 
@@ -227,7 +228,8 @@ install(FILES
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/util
         )
 install(FILES
-        api/component_map.hpp
+        api/constraint_map.hpp
+        api/subexpression_map.hpp
         api/constants.hpp
         api/constraint.hpp
         api/expression.hpp
