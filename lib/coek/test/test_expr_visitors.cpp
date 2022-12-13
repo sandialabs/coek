@@ -270,8 +270,8 @@ TEST_CASE("expr_writer", "[smoke]")
     SECTION("subexpression")
     {
         auto v = coek::variable("v");
-        auto E = coek::subexpression().value(v+1);
-        coek::Expression e = E + 2*(E+1);
+        auto E = coek::subexpression().value(v + 1);
+        coek::Expression e = E + 2 * (E + 1);
         std::stringstream sstr;
         sstr << e;
         REQUIRE(sstr.str() == "v + 1 + (2)*(v + 1 + 1)");
@@ -472,8 +472,8 @@ TEST_CASE("expr_to_QuadraticExpr", "[smoke]")
         {
             coek::Model m;
             auto v = m.add_variable("v").lower(0).upper(1).value(3);
-            auto E = coek::subexpression().value(v+1);
-            coek::Expression e = E + 2*(E+1);
+            auto E = coek::subexpression().value(v + 1);
+            coek::Expression e = E + 2 * (E + 1);
             REQUIRE(e.value() == 14);
 
             coek::QuadraticExpr repn;
@@ -816,8 +816,8 @@ TEST_CASE("symbolic_diff", "[smoke]")
     SECTION("subexpression")
     {
         auto v = coek::variable("v");
-        auto E = coek::subexpression().value(v+1);
-        coek::Expression e = E + 2*(E+v);
+        auto E = coek::subexpression().value(v + 1);
+        coek::Expression e = E + 2 * (E + v);
         auto ans = e.diff(v);
         static std::list<std::string> baseline = {std::to_string(5.0)};
         REQUIRE(ans.to_list() == baseline);
@@ -1601,8 +1601,8 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
         {
             coek::Model m;
             auto v = m.add_variable("v").lower(0).upper(1).value(3);
-            auto E = coek::subexpression().value(v+1);
-            coek::Expression e = E + 2*(E+1);
+            auto E = coek::subexpression().value(v + 1);
+            coek::Expression e = E + 2 * (E + 1);
             REQUIRE(e.value() == 14);
 
             coek::MutableNLPExpr repn;
@@ -2113,16 +2113,16 @@ TEST_CASE("mutable_values", "[smoke]")
 
     SECTION("subexpression")
     {
-            auto v = coek::variable("v");
-            v.fixed(true);
-            auto E = coek::subexpression().value(v+1);
-            coek::Expression e = E + 2*(E+1);
-            mutable_values(e.repn, fixed_vars, params);
+        auto v = coek::variable("v");
+        v.fixed(true);
+        auto E = coek::subexpression().value(v + 1);
+        coek::Expression e = E + 2 * (E + 1);
+        mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
-            REQUIRE(fixed_vars == vbaseline);
-            REQUIRE(params == pbaseline);
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
     }
 
     SECTION("plus")

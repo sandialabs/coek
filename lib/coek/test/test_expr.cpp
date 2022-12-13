@@ -3965,14 +3965,14 @@ TEST_CASE("expression_value", "[smoke]")
         WHEN("e = E + 2*(E+1)")
         {
             coek::Expression E = b + 1;
-            coek::Expression e = E + 2*(E+1);
+            coek::Expression e = E + 2 * (E + 1);
             REQUIRE(e.value() == 8.0);
         }
 
         WHEN("e = E + 2*(E+1) - subexpression")
         {
             coek::SubExpression E = b + 1;
-            coek::Expression e = E + 2*(E+1);
+            coek::Expression e = E + 2 * (E + 1);
             REQUIRE(e.value() == 8.0);
         }
     }
