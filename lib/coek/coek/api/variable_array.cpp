@@ -24,7 +24,7 @@ class VariableArrayRepn : public VariableAssocArrayRepn {
     VariableArrayRepn(const std::vector<int>& _shape) : _size(1)
     {
         shape.resize(_shape.size());
-        for (size_t i = 0; i < shape.size(); ++i) shape[i] = _shape[i];
+        for (size_t i = 0; i < shape.size(); ++i) shape[i] = static_cast<size_t>(_shape[i]);
         for (auto n : shape) _size *= n;
         cache.resize((size() + 1) * (dim() + 1));
     }
