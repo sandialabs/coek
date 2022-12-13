@@ -427,17 +427,9 @@ class SubExpression {
     SubExpression(const Expression& arg);
 
     /** Set the subexpression value. \returns the subexpression object. */
-    SubExpression& value(const Expression& value);
+    SubExpression& value(const Expression& expr);
     /** Set the subexpression value. \returns the subexpression object. */
-    SubExpression& value(double value);
-
-    /** Set the name of the expression. \returns the expression object */
-    SubExpression& name(const std::string& name);
-    /** \returns the name of the expression.  */
-    std::string name() const;
-
-    /** \returns \c true if this is a constant expression */
-    bool is_constant() const;
+    SubExpression& value(double expr);
 
     /** \returns the value of the expression
      *
@@ -446,6 +438,14 @@ class SubExpression {
      * Parameter and Variable objects.
      */
     double value() const;
+
+    /** Set the name of the expression. \returns the expression object */
+    SubExpression& name(const std::string& name);
+    /** \returns the name of the expression.  */
+    std::string name() const;
+
+    /** \returns \c true if this is a constant expression */
+    bool is_constant() const;
 
     /** \returns a list representation of the expression */
     std::list<std::string> to_list() const;

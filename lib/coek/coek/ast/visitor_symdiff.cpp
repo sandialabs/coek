@@ -6,7 +6,7 @@
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
 #include "visitor.hpp"
-//#include "visitor_fns.hpp"
+// #include "visitor_fns.hpp"
 #include "../util/cast_utils.hpp"
 #if __cpp_lib_variant
 #    include "compact_terms.hpp"
@@ -20,7 +20,7 @@
 //        were optimizations that should not impact the logical correctness
 //        of the code.
 
-//#define DEBUG_DIFF
+// #define DEBUG_DIFF
 
 namespace coek {
 

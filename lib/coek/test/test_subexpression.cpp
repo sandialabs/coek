@@ -12,7 +12,6 @@
 const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
-
 #ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE("indexed_subexpression", "[smoke]")
 {
@@ -37,7 +36,7 @@ TEST_CASE("indexed_subexpression", "[smoke]")
             auto v = coek::variable();
             auto e = coek::subexpression("e", 10);
             REQUIRE(e.size() == 0);
-            e(0) = v+1;
+            e(0) = v + 1;
             REQUIRE(e.size() == 1);
         }
 
@@ -50,7 +49,8 @@ TEST_CASE("indexed_subexpression", "[smoke]")
                 e(i) = v(i) + 1.0 * i;
             }
 
-            static std::list<std::string> baseline = {"[", "_", "[", "+", "v[1]", std::to_string(1.0), "]", "]"};
+            static std::list<std::string> baseline
+                = {"[", "_", "[", "+", "v[1]", std::to_string(1.0), "]", "]"};
             REQUIRE(e.size() == 10);
             auto& expr = e(1);
             REQUIRE(expr.to_list() == baseline);

@@ -5,7 +5,7 @@
 #include "coek/ast/value_terms.hpp"
 #include "coek/coek.hpp"
 
-#define NLP_INTRINSIC_TEST1(FN)                                         \
+#define NLP_INTRINSIC_TEST1(FN)                                                   \
     WHEN(#FN " 1")                                                                \
     {                                                                             \
         {                                                                         \
@@ -36,7 +36,7 @@
         }                                                                         \
     }
 
-#define NLP_INTRINSIC_TEST2(FN)                                         \
+#define NLP_INTRINSIC_TEST2(FN)                                                   \
     WHEN(#FN " 1")                                                                \
     {                                                                             \
         {                                                                         \

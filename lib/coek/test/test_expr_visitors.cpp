@@ -160,11 +160,7 @@
         REQUIRE(params == pbaseline);                                                     \
     }
 
-#ifdef WITH_AST_ENV
-#    define ENV_MEMCHECK REQUIRE(coek::env.check_memory() == true)
-#else
-#    define ENV_MEMCHECK
-#endif
+#define ENV_MEMCHECK
 
 TEST_CASE("expr_writer", "[smoke]")
 {
@@ -693,10 +689,6 @@ TEST_CASE("expr_to_QuadraticExpr", "[smoke]")
             REQUIRE_THROWS(repn.collect_terms(e));
         }
     }
-
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 TEST_CASE("symbolic_diff", "[smoke]")

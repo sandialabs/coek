@@ -175,15 +175,26 @@ class DivideTerm : public BinaryTerm {
 // Unary Terms
 //
 
-#define UNARY_CLASS(FN, TERM)                                          \
-    class TERM : public UnaryTerm {                                    \
-       public:                                                         \
-        explicit TERM(const expr_pointer_t& body) : UnaryTerm(body) {} \
-                                                                       \
-        double eval() const { return ::FN(body->eval()); }             \
-                                                                       \
-        void accept(Visitor& v) { v.visit(*this); }                    \
-        term_id id() { return TERM##_id; }                             \
+#define UNARY_CLASS(FN, TERM)                                       \
+    class TERM : public UnaryTerm {                                 \
+       public:                                                      \
+        explicit TERM(const expr_pointer_t& body) : UnaryTerm(body) \
+        {                                                           \
+        }                                                           \
+                                                                    \
+        double eval() const                                         \
+        {                                                           \
+            return ::FN(body->eval());                              \
+        }                                                           \
+                                                                    \
+        void accept(Visitor& v)                                     \
+        {                                                           \
+            v.visit(*this);                                         \
+        }                                                           \
+        term_id id()                                                \
+        {                                                           \
+            return TERM##_id;                                       \
+        }                                                           \
     };
 
 UNARY_CLASS(fabs, AbsTerm)
@@ -223,15 +234,26 @@ UNARY_CLASS(atanh, ATanhTerm)
 // Binary Terms
 //
 
-#define BINARY_CLASS(FN, TERM)                                                               \
-    class TERM : public BinaryTerm {                                                         \
-       public:                                                                               \
-        TERM(const expr_pointer_t& lhs, const expr_pointer_t& rhs) : BinaryTerm(lhs, rhs) {} \
-                                                                                             \
-        double eval() const { return ::FN(lhs->eval(), rhs->eval()); }                       \
-                                                                                             \
-        void accept(Visitor& v) { v.visit(*this); }                                          \
-        term_id id() { return TERM##_id; }                                                   \
+#define BINARY_CLASS(FN, TERM)                                                            \
+    class TERM : public BinaryTerm {                                                      \
+       public:                                                                            \
+        TERM(const expr_pointer_t& lhs, const expr_pointer_t& rhs) : BinaryTerm(lhs, rhs) \
+        {                                                                                 \
+        }                                                                                 \
+                                                                                          \
+        double eval() const                                                               \
+        {                                                                                 \
+            return ::FN(lhs->eval(), rhs->eval());                                        \
+        }                                                                                 \
+                                                                                          \
+        void accept(Visitor& v)                                                           \
+        {                                                                                 \
+            v.visit(*this);                                                               \
+        }                                                                                 \
+        term_id id()                                                                      \
+        {                                                                                 \
+            return TERM##_id;                                                             \
+        }                                                                                 \
     };
 
 BINARY_CLASS(pow, PowTerm)

@@ -664,10 +664,6 @@ SECTION( "compact1" ) {
 #        endif
 #    endif
 }
-
-#    ifdef WITH_AST_ENV
-REQUIRE( coek::env.check_memory() == true );
-#    endif
 }
 #endif
 

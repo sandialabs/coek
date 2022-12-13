@@ -37,7 +37,10 @@ class SubExpressionMap : public IndexedComponent_Map<SubExpression> {
 };
 
 inline SubExpressionMap subexpression(size_t n) { return SubExpressionMap(n); }
-inline SubExpressionMap subexpression(const std::vector<size_t>& shape) { return SubExpressionMap(shape); }
+inline SubExpressionMap subexpression(const std::vector<size_t>& shape)
+{
+    return SubExpressionMap(shape);
+}
 inline SubExpressionMap subexpression(const std::initializer_list<size_t>& shape)
 {
     return SubExpressionMap(shape);
@@ -55,7 +58,8 @@ inline SubExpressionMap subexpression(const std::string& name, const std::vector
 {
     return subexpression(shape).name(name);
 }
-inline SubExpressionMap subexpression(const std::string& name, const std::initializer_list<size_t>& shape)
+inline SubExpressionMap subexpression(const std::string& name,
+                                      const std::initializer_list<size_t>& shape)
 {
     return subexpression(shape).name(name);
 }

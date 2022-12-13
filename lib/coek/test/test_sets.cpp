@@ -693,10 +693,6 @@ TEST_CASE("simple_finite", "[smoke]")
         }
   }
 #    endif
-
-#    ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 
 TEST_CASE("finite_operations_int", "[smoke]")
