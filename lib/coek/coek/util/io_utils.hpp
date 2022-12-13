@@ -5,16 +5,17 @@
 #include <vector>
 #include <string>
 
-namespace coek {
+namespace std {
 
 template <typename TYPE>
-std::ostream& operator<<(std::ostream& ostr, const std::vector<TYPE>& vec)
+inline std::ostream& operator<<(std::ostream& ostr, const std::vector<TYPE>& vals)
 {
-    for (size_t i = 0; i < vec.size(); i++) ostr << vec[i] << " ";
+    for (auto& v : vals) ostr << v << " ";
     return ostr;
 }
 
-inline std::ostream& operator<<(std::ostream& ostr, const std::list<std::string>& vals)
+template <typename TYPE>
+inline std::ostream& operator<<(std::ostream& ostr, const std::list<TYPE>& vals)
 {
     auto it = vals.begin();
     auto end = vals.end();
@@ -28,4 +29,4 @@ inline std::ostream& operator<<(std::ostream& ostr, const std::list<std::string>
     return ostr;
 }
 
-}  // namespace coek
+}  // namespace std
