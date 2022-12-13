@@ -133,9 +133,10 @@ class PlusTerm : public NAryPrefixTerm {
 
     double eval() const
     {
+        // NOTE: Must limit this loop to 0..n-1.  The value 'n' defines the
+        //      number of terms in the shared prefix term that are used here.
         double ans = 0;
-        // for (unsigned int i = 0; i < n; i++) ans += (*data)[i]->eval();
-        for (auto& val : *data) ans += val->eval();
+        for (size_t i = 0; i < n; i++) ans += (*data)[i]->eval();
         return ans;
     }
 
