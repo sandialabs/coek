@@ -193,7 +193,7 @@ void WriteExprVisitor::visit(PlusTerm& arg)
     // GCOVR_EXCL_STOP
     vec[0]->accept(*this);
 
-    for (size_t i = 1; i < arg.n; i++) {
+    for (size_t i = 1; i < arg.num_expressions(); i++) {
         ostr << " + ";
         vec[i]->accept(*this);
     }

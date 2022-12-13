@@ -19,6 +19,8 @@ class VariableData {
     std::set<std::shared_ptr<VariableTerm>>& fixed_vars;
     std::set<std::shared_ptr<ParameterTerm>>& params;
 
+    std::unordered_set<SubExpressionTerm*> visited_subexpressions;
+
     VariableData(std::unordered_set<std::shared_ptr<VariableTerm>>& _vars,
                  std::set<std::shared_ptr<VariableTerm>>& _fixed_vars,
                  std::set<std::shared_ptr<ParameterTerm>>& _params)
@@ -90,17 +92,25 @@ void visit_MonomialTerm(const expr_pointer_t& expr, VariableData& data)
 FROM_BODY(InequalityTerm)
 FROM_BODY(EqualityTerm)
 FROM_BODY(ObjectiveTerm)
-FROM_BODY(SubExpressionTerm)
 FROM_BODY(NegateTerm)
 // clang-format on
+
+void visit_SubExpressionTerm(const expr_pointer_t& expr, VariableData& data)
+{
+    auto tmp = safe_pointer_cast<SubExpressionTerm>(expr);
+    SubExpressionTerm* ptr = tmp.get();
+    if (data.visited_subexpressions.find(ptr) == data.visited_subexpressions.end()) {
+        data.visited_subexpressions.insert(ptr);
+        visit_expression(tmp->body, data);
+    }
+}
 
 void visit_PlusTerm(const expr_pointer_t& expr, VariableData& data)
 {
     auto tmp = safe_pointer_cast<PlusTerm>(expr);
     auto& vec = *(tmp->data);
-    auto n = tmp->n;
-    for (size_t i = 0; i < n; i++)
-        visit_expression(vec[i], data);
+    auto n = tmp->num_expressions();
+    for (size_t i = 0; i < n; i++) visit_expression(vec[i], data);
 }
 
 // clang-format off

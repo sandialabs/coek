@@ -45,8 +45,7 @@ std::ostream& operator<<(std::ostream& ostr, const coek::MutableNLPExpr& arg)
     return ostr;
 }
 
-} // namespace std
-
+}  // namespace std
 
 namespace coek {
 
@@ -155,9 +154,8 @@ void visit(std::shared_ptr<NegateTerm>& expr, MutableNLPExpr& repn, double multi
 void visit(std::shared_ptr<PlusTerm>& expr, MutableNLPExpr& repn, double multiplier)
 {
     std::vector<expr_pointer_t>& vec = *(expr->data.get());
-    auto n = expr->n;
-    for (size_t i = 0; i < n; i++)
-        visit_expression(vec[i], repn, multiplier);
+    auto n = expr->num_expressions();
+    for (size_t i = 0; i < n; i++) visit_expression(vec[i], repn, multiplier);
 }
 
 void visit(std::shared_ptr<TimesTerm>& expr, MutableNLPExpr& repn, double multiplier)

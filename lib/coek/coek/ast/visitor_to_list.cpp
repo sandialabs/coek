@@ -189,7 +189,7 @@ void ToListVisitor::visit(PlusTerm& arg)
     repr.push_back("[");
     repr.push_back("+");
     std::vector<expr_pointer_t>& vec = *(arg.data);
-    for (size_t i = 0; i < arg.n; i++) vec[i]->accept(*this);
+    for (size_t i = 0; i < arg.num_expressions(); i++) vec[i]->accept(*this);
     repr.push_back("]");
 }
 

@@ -196,7 +196,7 @@ void PrintExpr::visit(PlusTerm& arg)
     else
         ostr << "o54\n" << arg.n << '\n';
     std::vector<expr_pointer_t>& vec = *(arg.data);
-    for (size_t i = 0; i < arg.n; ++i) vec[i]->accept(*this);
+    for (size_t i = 0; i < arg.num_expressions(); ++i) vec[i]->accept(*this);
 }
 
 void PrintExpr::visit(TimesTerm& arg)
@@ -395,7 +395,7 @@ void PrintExprFmtlib::visit(PlusTerm& arg)
     else
         ostr.print(fmt::format(_fmtstr_o54, arg.n));
     std::vector<expr_pointer_t>& vec = *(arg.data);
-    for (size_t i = 0; i < arg.n; ++i) vec[i]->accept(*this);
+    for (size_t i = 0; i < arg.num_expressions(); ++i) vec[i]->accept(*this);
 }
 
 void PrintExprFmtlib::visit(TimesTerm& arg)
@@ -420,6 +420,7 @@ void PrintExprFmtlib::visit(DivideTerm& arg)
         }
 
 // clang-format off
+
 PrintExprFmt_FN(o15, AbsTerm)
 PrintExprFmt_FN(o14, CeilTerm)
 PrintExprFmt_FN(o13, FloorTerm)
@@ -439,9 +440,10 @@ PrintExprFmt_FN(o49, ATanTerm)
 PrintExprFmt_FN(o50, ASinhTerm)
 PrintExprFmt_FN(o52, ACoshTerm)
 PrintExprFmt_FN(o47, ATanhTerm)
-// clang-format on
 
-void PrintExprFmtlib::visit(PowTerm& arg)
+    // clang-format on
+
+    void PrintExprFmtlib::visit(PowTerm& arg)
 {
     ostr.print("o5\n");
     arg.lhs->accept(*this);

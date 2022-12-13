@@ -74,7 +74,7 @@ expr_pointer_t visit(PlusTerm& arg)
 
     auto _curr = std::dynamic_pointer_cast<PlusTerm>(curr);
 
-    for (size_t i = 2; i < arg.n; i++) {
+    for (size_t i = 2; i < arg.num_expressions(); i++) {
         curr = visit_expression((*(arg.data))[i]);
         _curr->push_back(curr);
     }

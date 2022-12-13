@@ -34,8 +34,7 @@ std::ostream& operator<<(std::ostream& ostr, const coek::QuadraticExpr& arg)
     return ostr;
 }
 
-} // namespace std
-
+}  // namespace std
 
 namespace coek {
 
@@ -123,9 +122,8 @@ void visit(std::shared_ptr<NegateTerm>& expr, QuadraticExpr& repn, double multip
 void visit(std::shared_ptr<PlusTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
     std::vector<expr_pointer_t>& vec = *(expr->data.get());
-    auto n = expr->n;
-    for (size_t i = 0; i < n; i++)
-        visit_expression(vec[i], repn, multiplier);
+    auto n = expr->num_expressions();
+    for (size_t i = 0; i < n; i++) visit_expression(vec[i], repn, multiplier);
 }
 
 void visit(std::shared_ptr<TimesTerm>& expr, QuadraticExpr& repn, double multiplier)

@@ -95,7 +95,7 @@ class SubExpressionTerm : public UnaryTerm {
 
     double eval() const { return body->eval(); }
 
-    virtual std::string get_simple_name() { return "E[" + std::to_string(index) + "]"; }
+    virtual std::string get_simple_name() { return "S[" + std::to_string(index) + "]"; }
     virtual std::string get_name()
     {
         if (name == "")

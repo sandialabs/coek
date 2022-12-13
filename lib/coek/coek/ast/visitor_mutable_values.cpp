@@ -89,16 +89,15 @@ void visit_SubExpressionTerm(const expr_pointer_t& expr, MutableValuesData& data
     if (data.visited_subexpressions.find(ptr) == data.visited_subexpressions.end()) {
         data.visited_subexpressions.insert(ptr);
         visit_expression(tmp->body, data);
-        }
+    }
 }
 
 void visit_PlusTerm(const expr_pointer_t& expr, MutableValuesData& data)
 {
     auto tmp = safe_pointer_cast<PlusTerm>(expr);
     auto& vec = *(tmp->data);
-    auto n = tmp->n;
-    for (size_t i = 0; i < n; i++)
-        visit_expression(vec[i], data);
+    auto n = tmp->num_expressions();
+    for (size_t i = 0; i < n; i++) visit_expression(vec[i], data);
 }
 
 // clang-format off
