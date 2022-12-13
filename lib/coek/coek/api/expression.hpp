@@ -521,6 +521,7 @@ class SubExpression {
     Expression expand();
 };
 
+SubExpression subexpression();
 SubExpression subexpression(const std::string& name);
 
 //

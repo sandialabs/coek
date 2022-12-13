@@ -784,6 +784,7 @@ SubExpression& SubExpression::operator/=(const Expression& arg)
     return *this;
 }
 
+SubExpression subexpression() { return SubExpression(); }
 SubExpression subexpression(const std::string& name) { return SubExpression().name(name); }
 
 //
