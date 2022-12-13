@@ -97,7 +97,10 @@ FROM_BODY(NegateTerm)
 void visit_PlusTerm(const expr_pointer_t& expr, VariableData& data)
 {
     auto tmp = safe_pointer_cast<PlusTerm>(expr);
-    for (auto& it : *(tmp->data)) visit_expression(it, data);
+    auto& vec = *(tmp->data);
+    auto n = tmp->n;
+    for (size_t i = 0; i < n; i++)
+        visit_expression(vec[i], data);
 }
 
 // clang-format off

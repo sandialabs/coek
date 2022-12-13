@@ -12,9 +12,9 @@
 #include "coek/api/expression.hpp"
 #include "coek/api/expression_visitor.hpp"
 
-namespace coek {
+namespace std {
 
-std::ostream& operator<<(std::ostream& ostr, const QuadraticExpr& arg)
+std::ostream& operator<<(std::ostream& ostr, const coek::QuadraticExpr& arg)
 {
     ostr << "Constant: " << arg.constval << std::endl;
     ostr << "Linear: " << std::endl;
@@ -33,6 +33,11 @@ std::ostream& operator<<(std::ostream& ostr, const QuadraticExpr& arg)
     }
     return ostr;
 }
+
+} // namespace std
+
+
+namespace coek {
 
 namespace {
 
@@ -117,10 +122,10 @@ void visit(std::shared_ptr<NegateTerm>& expr, QuadraticExpr& repn, double multip
 
 void visit(std::shared_ptr<PlusTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
-    NAryPrefixTerm::shared_t::iterator it = expr->data.get()->begin();
-    NAryPrefixTerm::shared_t::iterator end = expr->data.get()->end();
-
-    for (; it != end; ++it) visit_expression(*it, repn, multiplier);
+    std::vector<expr_pointer_t>& vec = *(expr->data.get());
+    auto n = expr->n;
+    for (size_t i = 0; i < n; i++)
+        visit_expression(vec[i], repn, multiplier);
 }
 
 void visit(std::shared_ptr<TimesTerm>& expr, QuadraticExpr& repn, double multiplier)
