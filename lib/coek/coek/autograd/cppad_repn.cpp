@@ -636,10 +636,11 @@ void visit_NegateTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
 void visit_PlusTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
 {
     auto tmp = std::dynamic_pointer_cast<PlusTerm>(expr);
-
-    for (auto& it : *(tmp->data)) {
+    std::vector<expr_pointer_t>& vec = *(tmp->data);
+    auto n = tmp->n;
+    for (size_t i=0; i<n; i++) {
         CppAD::AD<double> next;
-        visit_expression(it, data, next);
+        visit_expression(vec[i], data, next);
         ans += next;
     }
 }
