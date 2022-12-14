@@ -57,20 +57,30 @@ jobs:
           activate-environment: test
           python-version: 3.8
           auto-activate-base: false
+      - name: install python packages
+        run: |
+            conda activate test
+            python -c 'import sys;print(sys.executable)'
+            conda install -y pytest numpy pyutilib
+            cmake --version
+            python -c 'import sys; print("PYTHON_EXE=%s" % (sys.executable,))' >> $GITHUB_ENV
       - name: run cmake
         run: |
           conda activate test
-          conda install -y pytest pyutilib
           mkdir build
           cd build
+          cmake --version
+          which python
           cmake -Dwith_tests=ON ..
       - name: build
         run: |
+          conda activate test
           cd build
           make install_tpls
           make
       - name: test
         run: |
+          conda activate test
           cd build
           make test
         

@@ -31,6 +31,7 @@ class WriteExprVisitor : public Visitor {
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
     void visit(ObjectiveTerm& arg);
+    void visit(SubExpressionTerm& arg);
     void visit(NegateTerm& arg);
     void visit(PlusTerm& arg);
     void visit(TimesTerm& arg);
@@ -172,6 +173,8 @@ void WriteExprVisitor::visit(ObjectiveTerm& arg)
     ostr << " )";
 }
 
+void WriteExprVisitor::visit(SubExpressionTerm& arg) { arg.body->accept(*this); }
+
 void WriteExprVisitor::visit(NegateTerm& arg)
 {
     ostr << "- (";
@@ -190,7 +193,7 @@ void WriteExprVisitor::visit(PlusTerm& arg)
     // GCOVR_EXCL_STOP
     vec[0]->accept(*this);
 
-    for (size_t i = 1; i < arg.n; i++) {
+    for (size_t i = 1; i < arg.num_expressions(); i++) {
         ostr << " + ";
         vec[i]->accept(*this);
     }

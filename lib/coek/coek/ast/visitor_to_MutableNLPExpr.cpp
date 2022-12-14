@@ -8,6 +8,7 @@
 #include "visitor.hpp"
 #include "visitor_fns.hpp"
 #include "../util/cast_utils.hpp"
+#include "../util/io_utils.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL
 #    include "compact_terms.hpp"
 #endif
@@ -15,6 +16,36 @@
 #include "ast_operators.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/expression_visitor.hpp"
+
+namespace std {
+
+std::ostream& operator<<(std::ostream& ostr, const coek::MutableNLPExpr& arg)
+{
+    ostr << "Constant: ";
+    write_expr(arg.constval, ostr);
+    ostr << std::endl;
+    ostr << "Linear: " << std::endl;
+    for (size_t i = 0; i < arg.linear_coefs.size(); i++) {
+        write_expr(arg.linear_coefs[i], ostr);
+        ostr << " ";
+        write_expr(arg.linear_vars[i], ostr);
+        ostr << std::endl;
+    }
+    ostr << "Quadratic: " << std::endl;
+    for (size_t i = 0; i < arg.quadratic_coefs.size(); i++) {
+        write_expr(arg.quadratic_coefs[i], ostr);
+        ostr << " ";
+        write_expr(arg.quadratic_lvars[i], ostr);
+        ostr << " ";
+        write_expr(arg.quadratic_rvars[i], ostr);
+        ostr << std::endl;
+    }
+    ostr << "Nonlinear: " << std::endl;
+    ostr << arg.nonlinear->to_list() << std::endl;
+    return ostr;
+}
+
+}  // namespace std
 
 namespace coek {
 
@@ -110,6 +141,11 @@ void visit(std::shared_ptr<ObjectiveTerm>& expr, MutableNLPExpr& repn, double mu
     visit_expression(expr->body, repn, multiplier);
 }
 
+void visit(std::shared_ptr<SubExpressionTerm>& expr, MutableNLPExpr& repn, double multiplier)
+{
+    visit_expression(expr->body, repn, multiplier);
+}
+
 void visit(std::shared_ptr<NegateTerm>& expr, MutableNLPExpr& repn, double multiplier)
 {
     visit_expression(expr->body, repn, -multiplier);
@@ -117,10 +153,9 @@ void visit(std::shared_ptr<NegateTerm>& expr, MutableNLPExpr& repn, double multi
 
 void visit(std::shared_ptr<PlusTerm>& expr, MutableNLPExpr& repn, double multiplier)
 {
-    NAryPrefixTerm::shared_t::iterator it = expr->data.get()->begin();
-    NAryPrefixTerm::shared_t::iterator end = expr->data.get()->end();
-
-    for (; it != end; ++it) visit_expression(*it, repn, multiplier);
+    std::vector<expr_pointer_t>& vec = *(expr->data.get());
+    auto n = expr->num_expressions();
+    for (size_t i = 0; i < n; i++) visit_expression(vec[i], repn, multiplier);
 }
 
 void visit(std::shared_ptr<TimesTerm>& expr, MutableNLPExpr& repn, double multiplier)
@@ -369,6 +404,7 @@ void visit_expression(const expr_pointer_t& expr, MutableNLPExpr& repn, double m
         VISIT_CASE(InequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
+        VISIT_CASE(SubExpressionTerm);
         VISIT_CASE(NegateTerm);
         VISIT_CASE(PlusTerm);
         VISIT_CASE(TimesTerm);

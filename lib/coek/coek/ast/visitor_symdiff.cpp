@@ -6,7 +6,7 @@
 #include "expr_terms.hpp"
 #include "value_terms.hpp"
 #include "visitor.hpp"
-//#include "visitor_fns.hpp"
+#include "visitor_fns.hpp"
 #include "../util/cast_utils.hpp"
 #if __cpp_lib_variant
 #    include "compact_terms.hpp"
@@ -20,7 +20,7 @@
 //        were optimizations that should not impact the logical correctness
 //        of the code.
 
-//#define DEBUG_DIFF
+// #define DEBUG_DIFF
 
 namespace coek {
 
@@ -86,6 +86,11 @@ void visit_EqualityTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {
 
 void visit_ObjectiveTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
 // GCOVR_EXCL_STOP
+
+void visit_SubExpressionTerm(const expr_pointer_t& /*expr*/, PartialData& data)
+{
+    data.partial = ONECONST;
+}
 
 void visit_NegateTerm(const expr_pointer_t& /*expr*/, PartialData& data)
 {
@@ -276,6 +281,7 @@ expr_pointer_t compute_partial(const expr_pointer_t& expr, size_t i, PartialData
         VISIT_CASE(InequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
+        VISIT_CASE(SubExpressionTerm);
         VISIT_CASE(NegateTerm);
         VISIT_CASE(PlusTerm);
         VISIT_CASE(TimesTerm);
@@ -356,6 +362,7 @@ void symbolic_diff_all(const expr_pointer_t& root,
     // Compute in-degree
     //
     std::map<expr_pointer_t, int> D;
+    std::set<ExpressionTerm*> seen;
     D[root] = 0;
     {
         std::list<ExpressionTerm*> queue;
@@ -371,8 +378,11 @@ void symbolic_diff_all(const expr_pointer_t& root,
                 else
                     D[child] += 1;
                 if (child->is_expression()) {
-                    auto tmp = std::dynamic_pointer_cast<ExpressionTerm>(child);
-                    queue.push_back(tmp.get());
+                    auto tmp = std::dynamic_pointer_cast<ExpressionTerm>(child).get();
+                    if (seen.find(tmp) == seen.end()) {
+                        seen.insert(tmp);
+                        queue.push_back(tmp);
+                    }
                 }
                 else if (child->is_variable()) {
                     auto tmp = std::dynamic_pointer_cast<VariableTerm>(child);
@@ -385,6 +395,13 @@ void symbolic_diff_all(const expr_pointer_t& root,
             }
         }
     }
+
+#ifdef DEBUG_DIFF
+    for (auto& v : D) {
+        write_expr(v.first, std::cout);
+        std::cout << " : " << v.second << " " << v.first.get() << std::endl;
+    }
+#endif
 
     //
     // Process nodes, and add them to the queue when

@@ -10,8 +10,6 @@
 #include <iostream>
 #include <typeinfo>
 
-//#include "coek/ast/base_terms.hpp"
-//#include "coek/ast/value_terms.hpp"
 #include "coek/coek.hpp"
 
 namespace py = pybind11;

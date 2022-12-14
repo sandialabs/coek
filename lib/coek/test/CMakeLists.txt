@@ -23,6 +23,7 @@ SET(sources
     test_expr.cpp
     test_obj.cpp
     test_con.cpp
+    test_subexpression.cpp
     test_autograd_unknown.cpp
     test_sequence.cpp
    )
@@ -70,6 +71,7 @@ COMMAND cat "${CMAKE_BINARY_DIR}/Testing/Temporary/MemoryChecker.*.log")
 
 if (gcovr_FOUND)
 add_custom_target(gcovr_coek
-  COMMAND ${GCOVR_EXECUTABLE} -d -r ${CMAKE_CURRENT_SOURCE_DIR} -e ../third_party/ -e ../test/ -e install/ )
+  COMMAND ${GCOVR_EXECUTABLE} -d -r ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_BINARY_DIR}/..)
+  #COMMAND ${GCOVR_EXECUTABLE} -d -r ${CMAKE_CURRENT_SOURCE_DIR} -e ../third_party/ -e ../test/ -e install/ )
 endif()
 

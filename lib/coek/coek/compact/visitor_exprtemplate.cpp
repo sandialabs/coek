@@ -57,6 +57,8 @@ expr_pointer_t visit(ObjectiveTerm& arg)
     return CREATE_POINTER(ObjectiveTerm, body, arg.sense);
 }
 
+expr_pointer_t visit(SubExpressionTerm& arg) { return visit_expression(arg.body); }
+
 expr_pointer_t visit(NegateTerm& arg)
 {
     auto curr = visit_expression(arg.body);
@@ -72,7 +74,7 @@ expr_pointer_t visit(PlusTerm& arg)
 
     auto _curr = std::dynamic_pointer_cast<PlusTerm>(curr);
 
-    for (size_t i = 2; i < arg.n; i++) {
+    for (size_t i = 2; i < arg.num_expressions(); i++) {
         curr = visit_expression((*(arg.data))[i]);
         _curr->push_back(curr);
     }
@@ -146,6 +148,7 @@ expr_pointer_t visit_expression(expr_pointer_t expr)
             VISIT_CASE(InequalityTerm);
             VISIT_CASE(EqualityTerm);
             VISIT_CASE(ObjectiveTerm);
+            VISIT_CASE(SubExpressionTerm);
             VISIT_CASE(NegateTerm);
             VISIT_CASE(PlusTerm);
             VISIT_CASE(TimesTerm);

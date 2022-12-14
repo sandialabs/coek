@@ -158,14 +158,14 @@ seq::StepSubrange<T> sequence(T start, T stop, T step)
 template <typename T, typename = typename std::enable_if<seq::has_size<T>::value>>
 auto indices(const T& obj) -> seq::Subrange<decltype(obj.size())>
 {
-    return {0, obj.size()};
+    return {static_cast<decltype(obj.size())>(0), obj.size()};
 }
 
 // 0, ..., obj.size()-1
 template <class T>
-seq::Subrange<T> indices(std::initializer_list<T>&& obj)
+seq::Subrange<size_t> indices(std::initializer_list<T>&& obj)
 {
-    return {0, obj.size()};
+    return {static_cast<decltype(obj.size())>(0), obj.size()};
 }
 
 }  // namespace coek

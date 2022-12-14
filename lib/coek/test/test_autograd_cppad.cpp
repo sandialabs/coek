@@ -1244,8 +1244,4 @@ TEST_CASE("diff_tests", "[smoke]")
             // "pow", "3.000", "[", "*", "2", "w", "]", "]", "]", "]" };
         }
     }
-
-#ifdef WITH_AST_ENV
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }

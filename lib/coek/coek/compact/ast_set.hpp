@@ -61,23 +61,28 @@ class BaseSetExpression {
 
     virtual std::shared_ptr<BaseSetExpression> set_union(
         const std::shared_ptr<BaseSetExpression>& lhs,
-        const std::shared_ptr<BaseSetExpression>& rhs) const = 0;
+        const std::shared_ptr<BaseSetExpression>& rhs) const
+        = 0;
 
     virtual std::shared_ptr<BaseSetExpression> set_intersection(
         const std::shared_ptr<BaseSetExpression>& lhs,
-        const std::shared_ptr<BaseSetExpression>& rhs) const = 0;
+        const std::shared_ptr<BaseSetExpression>& rhs) const
+        = 0;
 
     virtual std::shared_ptr<BaseSetExpression> set_difference(
         const std::shared_ptr<BaseSetExpression>& lhs,
-        const std::shared_ptr<BaseSetExpression>& rhs) const = 0;
+        const std::shared_ptr<BaseSetExpression>& rhs) const
+        = 0;
 
     virtual std::shared_ptr<BaseSetExpression> set_symmetric_difference(
         const std::shared_ptr<BaseSetExpression>& lhs,
-        const std::shared_ptr<BaseSetExpression>& rhs) const = 0;
+        const std::shared_ptr<BaseSetExpression>& rhs) const
+        = 0;
 
     virtual std::shared_ptr<BaseSetExpression> set_product(
         const std::shared_ptr<BaseSetExpression>& lhs,
-        const std::shared_ptr<BaseSetExpression>& rhs) const = 0;
+        const std::shared_ptr<BaseSetExpression>& rhs) const
+        = 0;
 
     virtual bool contains_any(const std::any& arg) = 0;
     virtual std::any value(size_t i) = 0;

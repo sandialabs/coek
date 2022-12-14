@@ -64,6 +64,11 @@ class MutableNLPExpr {
     bool is_mutable() { return mutable_values; }
 };
 
-std::ostream& operator<<(std::ostream& ostr, const QuadraticExpr& arg);
-
 }  // namespace coek
+
+namespace std {
+
+std::ostream& operator<<(std::ostream& ostr, const coek::QuadraticExpr& arg);
+std::ostream& operator<<(std::ostream& ostr, const coek::MutableNLPExpr& arg);
+
+}  // namespace std

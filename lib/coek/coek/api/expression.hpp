@@ -15,16 +15,19 @@ class ParameterTerm;
 class IndexParameterTerm;
 class VariableTerm;
 class BaseExpressionTerm;
+class SubExpressionTerm;
 
 typedef std::shared_ptr<ParameterTerm> ParameterRepn;
 typedef std::shared_ptr<IndexParameterTerm> IndexParameterRepn;
 typedef std::shared_ptr<VariableTerm> VariableRepn;
 typedef std::shared_ptr<BaseExpressionTerm> ExpressionRepn;
+typedef std::shared_ptr<SubExpressionTerm> SubExpressionRepn;
 
 class Parameter;
 class IndexParameter;
 class Variable;
 class Expression;
+class SubExpression;
 
 //
 // numerical operators
@@ -300,6 +303,8 @@ class Expression {
     Expression(const IndexParameter& arg);
     /** Implicit construction of an Expression from a Variable */
     Expression(const Variable& arg);
+    /** Implicit construction of an Expression from a SubExpression */
+    Expression(const SubExpression& arg);
 
     Expression(const ParameterRepn& _repn);
     Expression(const IndexParameterRepn& _repn);
@@ -326,7 +331,7 @@ class Expression {
     /**
      * Create an expression that computes the partial derivative relative to a specified variable.
      *
-     * \param var - The variable that will be used to cmopute the partial derivative
+     * \param var - The variable that will be used to compute the partial derivative
      * \returns an expression that computes the partial derivative
      */
     Expression diff(const Variable& var) const;
@@ -394,6 +399,130 @@ Expression expression(double arg);
 Expression expression(int arg);
 Expression expression(const Parameter& arg);
 Expression expression(const Variable& arg);
+
+/**
+ * \class SubExpression
+ * \brief Container for named expressions in equations.
+ *
+ * This class is the container used to defined shared sub-expressions.
+ */
+class SubExpression {
+   public:
+    SubExpressionRepn repn;
+
+   public:
+    /** Constructs a SubExpression without defining its value */
+    SubExpression();
+    /** Explict construction of a SubExpression from a double */
+    explicit SubExpression(double value);
+    /** Explict construction of a SubExpression from an integer */
+    explicit SubExpression(int value);
+    /** Implicit construction of a SubExpression from a Parameter */
+    SubExpression(const Parameter& arg);
+    /** Implicit construction of a SubExpression from an IndexParameter */
+    SubExpression(const IndexParameter& arg);
+    /** Implicit construction of a SubExpression from a Variable */
+    SubExpression(const Variable& arg);
+    /** Implicit construction of a SubExpression from an Expression */
+    SubExpression(const Expression& arg);
+
+    /** Set the subexpression value. \returns the subexpression object. */
+    SubExpression& value(const Expression& expr);
+    /** Set the subexpression value. \returns the subexpression object. */
+    SubExpression& value(double expr);
+
+    /** \returns the value of the expression
+     *
+     * \note The expression value is computed from the
+     * expression tree using values for the associated
+     * Parameter and Variable objects.
+     */
+    double value() const;
+
+    /** Set the name of the expression. \returns the expression object */
+    SubExpression& name(const std::string& name);
+    /** \returns the name of the expression.  */
+    std::string name() const;
+
+    /** \returns \c true if this is a constant expression */
+    bool is_constant() const;
+
+    /** \returns a list representation of the expression */
+    std::list<std::string> to_list() const;
+    /**
+     * Create an expression that computes the partial derivative relative to a specified variable.
+     *
+     * \param var - The variable that will be used to compute the partial derivative
+     * \returns an expression that computes the partial derivative
+     */
+    Expression diff(const Variable& var) const;
+
+    /** Add an integer to the expression */
+    SubExpression& operator+=(int arg);
+    /** Add a double to the expression */
+    SubExpression& operator+=(double arg);
+    /** Add a Parameter to the expression */
+    SubExpression& operator+=(const Parameter& arg);
+    /** Add an IndexParameter to the expression */
+    SubExpression& operator+=(const IndexParameter& arg);
+    /** Add a Variable to the expression */
+    SubExpression& operator+=(const Variable& arg);
+    /** Add an Expression to the expression */
+    SubExpression& operator+=(const Expression& arg);
+    /** Add a SubExpression to the expression */
+    SubExpression& operator+=(const SubExpression& arg);
+
+    /** Subtract an integer from the expression */
+    SubExpression& operator-=(int arg);
+    /** Subtract a double from the expression */
+    SubExpression& operator-=(double arg);
+    /** Subtract a Parameter from the expression */
+    SubExpression& operator-=(const Parameter& arg);
+    /** Subtract an IndexParameter from the expression */
+    SubExpression& operator-=(const IndexParameter& arg);
+    /** Subtract a Variable from the expression */
+    SubExpression& operator-=(const Variable& arg);
+    /** Subtract an Expression from the expression */
+    SubExpression& operator-=(const Expression& arg);
+    /** Subtract a SubExpression from the expression */
+    SubExpression& operator-=(const SubExpression& arg);
+
+    /** Multiply the expression by an integer */
+    SubExpression& operator*=(int arg);
+    /** Multiply the expression by a double */
+    SubExpression& operator*=(double arg);
+    /** Multiply the expression by a Parameter */
+    SubExpression& operator*=(const Parameter& arg);
+    /** Multiply the expression by an IndexParameter */
+    SubExpression& operator*=(const IndexParameter& arg);
+    /** Multiply the expression by a Variable */
+    SubExpression& operator*=(const Variable& arg);
+    /** Multiply the expression by an Expression */
+    SubExpression& operator*=(const Expression& arg);
+    /** Multiply the expression by a SubExpression */
+    SubExpression& operator*=(const SubExpression& arg);
+
+    /** Divide the expression by an integer */
+    SubExpression& operator/=(int arg);
+    /** Divide the expression by a double */
+    SubExpression& operator/=(double arg);
+    /** Divide the expression by a Parameter */
+    SubExpression& operator/=(const Parameter& arg);
+    /** Divide the expression by an IndexParameter */
+    SubExpression& operator/=(const IndexParameter& arg);
+    /** Divide the expression by a Variable */
+    SubExpression& operator/=(const Variable& arg);
+    /** Divide the expression by an Expression */
+    SubExpression& operator/=(const Expression& arg);
+    /** Divide the expression by a SubExpression */
+    SubExpression& operator/=(const SubExpression& arg);
+
+    /** \returns an expanded Expression */
+    Expression expand();
+};
+
+SubExpression subexpression();
+SubExpression subexpression(const std::string& name);
 
 //
 // operator<<
