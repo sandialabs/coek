@@ -59,9 +59,11 @@ jobs:
           auto-activate-base: false
       - name: install python packages
         run: |
+            cmake --version
             conda activate test
             python -c 'import sys;print(sys.executable)'
-            conda install -y pytest numpy pyutilib
+            conda install -y cmake pytest numpy pyutilib
+            cmake --version
             python -c 'import sys; print("PYTHON_EXE=%s" % (sys.executable,))' >> $GITHUB_ENV
       - name: run cmake
         run: |
