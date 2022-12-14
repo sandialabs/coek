@@ -59,11 +59,16 @@ jobs:
           auto-activate-base: false
       - name: install python packages
         run: |
-            conda install -y pytest numpy
+            python -c 'import sys;print(sys.executable)'
+            python -m pip install --cache-dir cache/pip --upgrade pip
+            python -m pip install --cache-dir cache/pip pytest numpy pyutilib
+            python -c 'import sys; print("PYTHON_EXE=%s" % (sys.executable,))' >> $GITHUB_ENV
+            echo ""
+            echo "Final pip environment:"
+            python -m pip list | sed 's/^/    /'
       - name: run cmake
         run: |
           conda activate test
-          conda install -y pytest pyutilib
           mkdir build
           cd build
           cmake -Dwith_tests=ON ..
