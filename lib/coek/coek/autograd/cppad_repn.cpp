@@ -587,7 +587,7 @@ void visit_expression(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
 void visit_ConstantTerm(expr_pointer_t& expr, VisitorData& /*data*/, CppAD::AD<double>& ans)
 {
     auto tmp = std::dynamic_pointer_cast<ConstantTerm>(expr);
-    ans += tmp->value;
+    if (tmp->value != 0) ans += tmp->value;
 }
 
 void visit_ParameterTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
@@ -670,6 +670,7 @@ void visit_DivideTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
     visit_expression(tmp->lhs, data, lhs);
     CppAD::AD<double> rhs;
     visit_expression(tmp->rhs, data, rhs);
+
     ans += lhs / rhs;
 }
 
@@ -721,10 +722,9 @@ void visit_PowTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& a
 }
 
 #define VISIT_CASE(TERM)               \
-    case TERM##_id: {                  \
+    case TERM##_id:                    \
         visit_##TERM(expr, data, ans); \
-        data.cache[expr] = ans;        \
-    } break
+        break
 
 void visit_expression(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
 {
@@ -773,6 +773,8 @@ void visit_expression(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
                 "Error in CppAD_Repn visitor!  Visiting unexpected expression term "
                 + std::to_string(expr->id()));
     };
+
+    data.cache[expr] = ans;
 }
 
 }  // namespace
