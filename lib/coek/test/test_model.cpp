@@ -490,10 +490,10 @@ TEST_CASE("model_setup", "[smoke]")
             std::string tmp = os.str();
             REQUIRE( tmp == "MODEL\n\
   Objectives\n\
-    min( 3*a + q )\n\
+    0:  min( 3*a + q )\n\
   Constraints\n\
-    3*b + q <= 0\n\
-    3*b + q == 0\n\
+    0:  3*b + q <= 0\n\
+    1:  3*b + q == 0\n\
 ");
         }
 
