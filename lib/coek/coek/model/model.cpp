@@ -39,13 +39,15 @@ void Model::print_values() { print_values(std::cout); }
 void Model::print_equations(std::ostream& ostr) const
 {
     ostr << "MODEL" << std::endl;
+    size_t ctr = 0;
     ostr << "  Objectives" << std::endl;
     for (auto it = repn->objectives.begin(); it != repn->objectives.end(); ++it) {
-        ostr << "    " << *it << std::endl;
+        ostr << "    " << ctr++ << ":  " << *it << std::endl;
     }
+    ctr = 0;
     ostr << "  Constraints" << std::endl;
     for (auto it = repn->constraints.begin(); it != repn->constraints.end(); ++it) {
-        ostr << "    " << *it << std::endl;
+        ostr << "    " << ctr++ << ":  " << *it << std::endl;
     }
 }
 
@@ -53,11 +55,14 @@ void Model::print_values(std::ostream& ostr)
 {
     if (repn->variables_by_name.size() < repn->variables.size()) generate_names();
     ostr << "Model Variables: " << repn->variables_by_name.size() << "\n";
-    ostr << "Nonzero Variables\n";
+    ostr << "Nonzero Variables (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n";
+    size_t ctr = 0;
     for (auto const& var : repn->variables_by_name) {
         double val = var.second.value();
         if (::fabs(val) > 1e-7) {
-            ostr << "   " << var.first << " " << val << " " << var.second.fixed() << "\n";
+            ostr << "   " << ctr << ":  " << var.first << " " << val << " " << var.second.lower()
+                 << " " << var.second.upper() << " " << var.second.fixed() << "\n";
+            ctr++;
         }
     }
 }
