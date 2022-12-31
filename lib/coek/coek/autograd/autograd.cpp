@@ -95,16 +95,14 @@ void NLPModelRepn::print_equations(std::ostream& ostr) const
 void NLPModelRepn::print_values(std::ostream& ostr) const
 {
     ostr << "Model Variables: " << num_variables() << "\n";
-    ostr << "Nonzero Variables (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n";
+    ostr << "   (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n";
     size_t ctr = 0;
     for (auto const& var : used_variables) {
         double val = var.second->eval();
-        if (::fabs(val) > 1e-7) {
-            ostr << "   " << ctr << ": " << var.second->get_name() << " " << val << " "
+        ostr << "   " << ctr << ": " << var.second->get_name() << " " << val << " "
                  << var.second->lb->eval() << " " << var.second->ub->eval() << " "
                  << var.second->fixed << "\n";
-            ctr++;
-        }
+        ctr++;
     }
 }
 

@@ -55,15 +55,13 @@ void Model::print_values(std::ostream& ostr)
 {
     if (repn->variables_by_name.size() < repn->variables.size()) generate_names();
     ostr << "Model Variables: " << repn->variables_by_name.size() << "\n";
-    ostr << "Nonzero Variables (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n";
+    ostr << "   (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n";
     size_t ctr = 0;
     for (auto const& var : repn->variables_by_name) {
         double val = var.second.value();
-        if (::fabs(val) > 1e-7) {
-            ostr << "   " << ctr << ":  " << var.first << " " << val << " " << var.second.lower()
+        ostr << "   " << ctr << ":  " << var.first << " " << val << " " << var.second.lower()
                  << " " << var.second.upper() << " " << var.second.fixed() << "\n";
-            ctr++;
-        }
+        ctr++;
     }
 }
 

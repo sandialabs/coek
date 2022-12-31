@@ -742,8 +742,9 @@ MODEL\n\
             model.print_values(os);
             std::string tmp = os.str();
             REQUIRE( tmp == "Model Variables: 2\n\
-Nonzero Variables (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n\
-   0:  b 0.5 0 1 0\n");
+   (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n\
+   0:  a 0 0 1 0\n\
+   1:  b 0.5 0 1 0\n");
         }
 
         WHEN("nlp - cppad")
@@ -753,8 +754,9 @@ Nonzero Variables (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n\
             nlp.print_values(os);
             std::string tmp = os.str();
             REQUIRE( tmp == "Model Variables: 2\n\
-Nonzero Variables (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n\
-   0: b 0.5 0 1 0\n");
+   (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n\
+   0: a 0 0 1 0\n\
+   1: b 0.5 0 1 0\n");
         }
     }
 }
