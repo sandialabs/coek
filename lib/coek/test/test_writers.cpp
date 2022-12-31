@@ -689,12 +689,12 @@ TEST_CASE("model_io", "[smoke]")
             std::string tmp = os.str();
             REQUIRE( tmp == "MODEL\n\
   Objectives\n\
-    max( 3*a + q )\n\
+    0:  max( 3*a + q )\n\
   Constraints\n\
-    3*b + q <= 0\n\
-    3*b + q == 0\n\
-    0 <= 3*b + q <= 1\n\
-    2 < 3*b + q < 3\n\
+    0:  3*b + q <= 0\n\
+    1:  3*b + q == 0\n\
+    2:  0 <= 3*b + q <= 1\n\
+    3:  2 < 3*b + q < 3\n\
 ");
         }
 
@@ -716,12 +716,12 @@ TEST_CASE("model_io", "[smoke]")
 \n\
 MODEL\n\
   Objectives\n\
-    max( 3*a + q )\n\
+    0:  max( 3*a + q )\n\
   Constraints\n\
-    3*b + q <= 0\n\
-    3*b + q == 0\n\
-    0 <= 3*b + q <= 1\n\
-    2 < 3*b + q < 3\n\n");
+    0:  3*b + q <= 0\n\
+    1:  3*b + q == 0\n\
+    2:  0 <= 3*b + q <= 1\n\
+    3:  2 < 3*b + q < 3\n\n");
         }
     }
 
@@ -742,8 +742,8 @@ MODEL\n\
             model.print_values(os);
             std::string tmp = os.str();
             REQUIRE( tmp == "Model Variables: 2\n\
-Nonzero Variables\n\
-   b 0.5 0\n");
+Nonzero Variables (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n\
+   0:  b 0.5 0 1 0\n");
         }
 
         WHEN("nlp - cppad")
@@ -753,8 +753,8 @@ Nonzero Variables\n\
             nlp.print_values(os);
             std::string tmp = os.str();
             REQUIRE( tmp == "Model Variables: 2\n\
-Nonzero Variables\n\
-   1 0.5 0\n");
+Nonzero Variables (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n\
+   0: b 0.5 0 1 0\n");
         }
     }
 }
