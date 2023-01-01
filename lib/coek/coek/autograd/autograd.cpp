@@ -100,8 +100,8 @@ void NLPModelRepn::print_values(std::ostream& ostr) const
     for (auto const& var : used_variables) {
         double val = var.second->eval();
         ostr << "   " << ctr << ": " << var.second->get_name() << " " << val << " "
-                 << var.second->lb->eval() << " " << var.second->ub->eval() << " "
-                 << var.second->fixed << "\n";
+             << var.second->lb->eval() << " " << var.second->ub->eval() << " " << var.second->fixed
+             << "\n";
         ctr++;
     }
 }

@@ -824,7 +824,7 @@ TEST_CASE("diff_tests", "[smoke]")
             m.add_objective(f);
             coek::NLPModel nlp(m, "cppad");
 
-            std::vector<double> x{2};           // TODO - Check if this should work when x==0
+            std::vector<double> x{2};  // TODO - Check if this should work when x==0
             std::vector<double> baseline{0};
             std::vector<double> ans{999.0};
             nlp.compute_df(x, ans);
@@ -839,7 +839,7 @@ TEST_CASE("diff_tests", "[smoke]")
             m.add_objective(f);
             coek::NLPModel nlp(m, "cppad");
 
-            std::vector<double> x{2};           // TODO - Check if this should work when x==0
+            std::vector<double> x{2};  // TODO - Check if this should work when x==0
             std::vector<double> baseline{0};
             std::vector<double> ans{999.0};
             nlp.compute_df(x, ans);
