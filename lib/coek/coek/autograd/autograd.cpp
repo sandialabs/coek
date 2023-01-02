@@ -37,10 +37,12 @@ void NLPModelRepn::find_used_variables()
     std::unordered_set<VariableRepn> vars;
     std::set<VariableRepn> fixed_vars;
     std::set<ParameterRepn> params;
+    std::set<std::shared_ptr<SubExpressionTerm>> visited_subexpressions;
 
-    for (auto& it : model.repn->objectives) find_vars_and_params(it.repn, vars, fixed_vars, params);
+    for (auto& it : model.repn->objectives)
+        find_vars_and_params(it.repn, vars, fixed_vars, params, visited_subexpressions);
     for (auto& it : model.repn->constraints)
-        find_vars_and_params(it.repn, vars, fixed_vars, params);
+        find_vars_and_params(it.repn, vars, fixed_vars, params, visited_subexpressions);
 
     check_that_expression_variables_are_declared(model, vars);
 
