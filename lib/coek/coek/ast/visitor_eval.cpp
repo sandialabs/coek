@@ -21,32 +21,31 @@ class VariableData {
     size_t num_visits = 0;
 #endif
 
-    VariableData(std::set<std::shared_ptr<SubExpressionTerm>>& _subexpr_value)
-        : visited_subexpr_value(_visited_subexpr_value)
+    VariableData(std::map<std::shared_ptr<SubExpressionTerm>, double>& _subexpr_value)
+        : subexpr_value(_subexpr_value)
     {
     }
 };
 
 double visit_expression(const expr_pointer_t& expr, VariableData& data);
 
-#define FROM_BODY(TERM, FN)                                               \
+#define FROM_BODY(TERM)                                                 \
     double visit_##TERM(const expr_pointer_t& expr, VariableData& data) \
-    {                                                                 \
-        auto tmp = safe_pointer_cast<TERM>(expr);                     \
-        return visit_expression(tmp->body, data);                            \
+    {                                                                   \
+        auto tmp = safe_pointer_cast<TERM>(expr);                       \
+        return visit_expression(tmp->body, data);                       \
     }
 
-#define FROM_LHS_RHS(TERM, FN)                                            \
+#define FROM_BODY_FN(TERM, FN)                                          \
     double visit_##TERM(const expr_pointer_t& expr, VariableData& data) \
-    {                                                                 \
-        auto tmp = safe_pointer_cast<TERM>(expr);                     \
-        return FN( visit_expression(tmp->lhs, data),                             \
-                   visit_expression(tmp->rhs, data) );                             \
+    {                                                                   \
+        auto tmp = safe_pointer_cast<TERM>(expr);                       \
+        return FN(visit_expression(tmp->body, data));                   \
     }
 
 // -----------------------------------------------------------------------------------------
 
-double visit_ConstantTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/)
+double visit_ConstantTerm(const expr_pointer_t& expr, VariableData& /*data*/)
 {
     auto tmp = safe_pointer_cast<ConstantTerm>(expr);
     return tmp->value;
@@ -58,10 +57,10 @@ double visit_ParameterTerm(const expr_pointer_t& expr, VariableData& data)
     return visit_expression(tmp->value, data);
 }
 
-double visit_IndexParameterTerm(const expr_pointer_t& expr, VariableData& /*data*/) {}
+double visit_IndexParameterTerm(const expr_pointer_t& expr, VariableData& /*data*/)
 {
     auto tmp = safe_pointer_cast<IndexParameterTerm>(expr);
-    return tmp->eval();
+    return tmp->as_double_value();
 }
 
 double visit_VariableTerm(const expr_pointer_t& expr, VariableData& data)
@@ -73,12 +72,16 @@ double visit_VariableTerm(const expr_pointer_t& expr, VariableData& data)
 #ifdef COEK_WITH_COMPACT_MODEL
 double visit_ParameterRefTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/)
 {
-    throw std::runtime_error("Attempting to evaluate an abstract expression!");
+    throw std::runtime_error(
+        "Cannot evaluate an expression that contains a ParameterRefTerm. This is an abstract "
+        "expression!");
 }
 
 double visit_VariableRefTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/)
 {
-    throw std::runtime_error("Attempting to evaluate an abstract expression!");
+    throw std::runtime_error(
+        "Cannot evaluate an expression that contains a VariableRefTerm. This is an abstract "
+        "expression!");
 }
 #endif
 
@@ -97,7 +100,7 @@ FROM_BODY(ObjectiveTerm)
 double visit_NegateTerm(const expr_pointer_t& expr, VariableData& data)
 {
     auto tmp = safe_pointer_cast<NegateTerm>(expr);
-    return - visit_expression(tmp->body, data);
+    return -visit_expression(tmp->body, data);
 }
 
 double visit_SubExpressionTerm(const expr_pointer_t& expr, VariableData& data)
@@ -110,7 +113,7 @@ double visit_SubExpressionTerm(const expr_pointer_t& expr, VariableData& data)
         return value;
     }
     else
-        return it.second;
+        return it->second;
 }
 
 double visit_PlusTerm(const expr_pointer_t& expr, VariableData& data)
@@ -118,7 +121,7 @@ double visit_PlusTerm(const expr_pointer_t& expr, VariableData& data)
     auto tmp = safe_pointer_cast<PlusTerm>(expr);
     auto& vec = *(tmp->data);
     auto n = tmp->num_expressions();
-    double value=0.0;
+    double value = 0.0;
     for (size_t i = 0; i < n; i++) value += visit_expression(vec[i], data);
     return value;
 }
@@ -127,8 +130,7 @@ double visit_TimesTerm(const expr_pointer_t& expr, VariableData& data)
 {
     auto tmp = safe_pointer_cast<TimesTerm>(expr);
     double lhs = visit_expression(tmp->lhs, data);
-    if (lhs == 0.0)
-        return 0.0;
+    if (lhs == 0.0) return 0.0;
     return lhs * visit_expression(tmp->rhs, data);
 }
 
@@ -136,31 +138,30 @@ double visit_DivideTerm(const expr_pointer_t& expr, VariableData& data)
 {
     auto tmp = safe_pointer_cast<DivideTerm>(expr);
     double lhs = visit_expression(tmp->lhs, data);
-    if (lhs == 0.0)
-        return 0.0;
-    return lhs * visit_expression(tmp->rhs, data);
+    if (lhs == 0.0) return 0.0;
+    return lhs / visit_expression(tmp->rhs, data);
 }
 
 // clang-format off
-FROM_BODY(AbsTerm, std::fabs)
-FROM_BODY(CeilTerm, std::ceil)
-FROM_BODY(FloorTerm, std::floor)
-FROM_BODY(ExpTerm, std::exp)
-FROM_BODY(LogTerm, std::log)
-FROM_BODY(Log10Term, std::log10)
-FROM_BODY(SqrtTerm, std::sqrt)
-FROM_BODY(SinTerm, std::sin)
-FROM_BODY(CosTerm, std::cos)
-FROM_BODY(TanTerm, std::tan)
-FROM_BODY(SinhTerm, std::sinh)
-FROM_BODY(CoshTerm, std::cosh)
-FROM_BODY(TanhTerm, std::tanh)
-FROM_BODY(ASinTerm, std::asin)
-FROM_BODY(ACosTerm, std::acos)
-FROM_BODY(ATanTerm, std::atan)
-FROM_BODY(ASinhTerm, std::asinh)
-FROM_BODY(ACoshTerm, std::asoch)
-FROM_BODY(ATanhTerm, std::atanh)
+FROM_BODY_FN(AbsTerm, std::fabs)
+FROM_BODY_FN(CeilTerm, std::ceil)
+FROM_BODY_FN(FloorTerm, std::floor)
+FROM_BODY_FN(ExpTerm, std::exp)
+FROM_BODY_FN(LogTerm, std::log)
+FROM_BODY_FN(Log10Term, std::log10)
+FROM_BODY_FN(SqrtTerm, std::sqrt)
+FROM_BODY_FN(SinTerm, std::sin)
+FROM_BODY_FN(CosTerm, std::cos)
+FROM_BODY_FN(TanTerm, std::tan)
+FROM_BODY_FN(SinhTerm, std::sinh)
+FROM_BODY_FN(CoshTerm, std::cosh)
+FROM_BODY_FN(TanhTerm, std::tanh)
+FROM_BODY_FN(ASinTerm, std::asin)
+FROM_BODY_FN(ACosTerm, std::acos)
+FROM_BODY_FN(ATanTerm, std::atan)
+FROM_BODY_FN(ASinhTerm, std::asinh)
+FROM_BODY_FN(ACoshTerm, std::acosh)
+FROM_BODY_FN(ATanhTerm, std::atanh)
 // clang-format on
 
 double visit_PowTerm(const expr_pointer_t& expr, VariableData& data)
@@ -174,8 +175,8 @@ double visit_PowTerm(const expr_pointer_t& expr, VariableData& data)
     return std::pow(lhs, visit_expression(tmp->rhs, data));
 }
 
-#define VISIT_CASE(TERM)          \
-    case TERM##_id:               \
+#define VISIT_CASE(TERM) \
+    case TERM##_id:      \
         return visit_##TERM(expr, data);
 
 double visit_expression(const expr_pointer_t& expr, VariableData& data)
@@ -234,16 +235,16 @@ double visit_expression(const expr_pointer_t& expr, VariableData& data)
 }  // namespace
 
 #ifdef DEBUG
-double evaluate_expr(
-    const expr_pointer_t& expr,
-    std::set<std::shared_ptr<SubExpressionTerm>>& visited_subexpressions, size_t& num_visits)
+double evaluate_expr_debug(const expr_pointer_t& expr,
+                           std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value,
+                           size_t& num_visits)
 {
     num_visits = 0;
     // GCOVR_EXCL_START
     if (not expr) return 0.0;
     // GCOVR_EXCL_STOP
 
-    VariableData data(visited_subexpressions);
+    VariableData data(subexpr_value);
     auto tmp = visit_expression(expr, data);
     num_visits = data.num_visits;
     return tmp;
@@ -251,14 +252,30 @@ double evaluate_expr(
 #endif
 
 double evaluate_expr(const expr_pointer_t& expr,
-                          std::set<std::shared_ptr<SubExpressionTerm>>& visited_subexpressions)
+                     std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value)
 {
     // GCOVR_EXCL_START
     if (not expr) return 0.0;
     // GCOVR_EXCL_STOP
 
-    VariableData data(visited_subexpressions);
+    VariableData data(subexpr_value);
     return visit_expression(expr, data);
+}
+
+double evaluate_expr(const BaseExpressionTerm* expr,
+                     std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value)
+{
+    // GCOVR_EXCL_START
+    if (not expr) return 0.0;
+    // GCOVR_EXCL_STOP
+
+    struct DeleterFunc {
+        void operator()(BaseExpressionTerm*) {}
+    } deleter;
+    std::shared_ptr<BaseExpressionTerm> wrapper(const_cast<BaseExpressionTerm*>(expr), deleter);
+
+    VariableData data(subexpr_value);
+    return visit_expression(wrapper, data);
 }
 
 }  // namespace coek

@@ -7,7 +7,9 @@
 #include "catch2/catch.hpp"
 #include "coek/ast/base_terms.hpp"
 #include "coek/ast/value_terms.hpp"
+#include "coek/ast/constraint_terms.hpp"
 #include "coek/ast/expr_terms.hpp"
+#include "coek/ast/visitor_fns.hpp"
 #include "coek/coek.hpp"
 
 const double PI = 3.141592653589793238463;
@@ -3942,38 +3944,91 @@ TEST_CASE("expression_value", "[smoke]")
         }
     }
 
+    SECTION("constraint")
+    {
+        WHEN("2*x + 1 == 0")
+        {
+            auto x = coek::variable().value(1.0);
+            auto c = 2*x + 1 == 0;
+            std::map<std::shared_ptr<coek::SubExpressionTerm>, double> subexpr_value;
+            REQUIRE(evaluate_expr(c.repn, subexpr_value) == 3.0);
+        }
+
+        WHEN("2*x + 1 <= 0")
+        {
+            auto x = coek::variable().value(1.0);
+            auto c = 2*x + 1 <= 0;
+            std::map<std::shared_ptr<coek::SubExpressionTerm>, double> subexpr_value;
+            REQUIRE(evaluate_expr(c.repn, subexpr_value) == 3.0);
+        }
+    }
+
     SECTION("subexpression")
     {
-        WHEN("e = q")
+        WHEN("e = q - subexpression")
         {
             coek::SubExpression e = q;
             REQUIRE(e.value() == 2);
         }
 
-        WHEN("e = a")
+        WHEN("e = a - subexpression")
         {
             coek::SubExpression e = a;
             REQUIRE(e.value() == 0);
         }
 
-        WHEN("e = 3*b + q")
+        WHEN("e = 3*b + q - subexpression")
         {
             coek::SubExpression e = 3 * b + q;
             REQUIRE(e.value() == 5.0);
         }
 
-        WHEN("e = E + 2*(E+1)")
+        WHEN("e = E + 2*(E+1) - expression")
         {
-            coek::Expression E = b + 1;
+            coek::Expression E = -(2 * b + 1);
             coek::Expression e = E + 2 * (E + 1);
-            REQUIRE(e.value() == 8.0);
+            std::map<std::shared_ptr<coek::SubExpressionTerm>, double> _subexpr_value;
+            REQUIRE(evaluate_expr(e.repn, _subexpr_value) == -7.0);
+
+#ifdef DEBUG
+            size_t num_visits = 0;
+            std::map<std::shared_ptr<coek::SubExpressionTerm>, double> subexpr_value;
+            REQUIRE(evaluate_expr_debug(e.repn, subexpr_value, num_visits) == -7.0);
+            REQUIRE(num_visits == 15);
+#endif
         }
 
         WHEN("e = E + 2*(E+1) - subexpression")
         {
-            coek::SubExpression E = b + 1;
+            coek::SubExpression E = -(2 * b + 1);
             coek::Expression e = E + 2 * (E + 1);
-            REQUIRE(e.value() == 8.0);
+            std::map<std::shared_ptr<coek::SubExpressionTerm>, double> _subexpr_value;
+            REQUIRE(evaluate_expr(e.repn, _subexpr_value) == -7.0);
+
+#ifdef DEBUG
+            size_t num_visits = 0;
+            std::map<std::shared_ptr<coek::SubExpressionTerm>, double> subexpr_value;
+            REQUIRE(evaluate_expr_debug(e.repn, subexpr_value, num_visits) == -7.0);
+            REQUIRE(num_visits == 12);
+#endif
         }
+
+#ifdef DEBUG
+        WHEN("Shared subexpressions")
+        {
+            auto E = coek::subexpression().value(-(2 * b + 1));
+            coek::Expression e1 = E + 2 * (E + 1);
+            coek::Expression e2 = E + 2 * (E + 1);
+
+            size_t num_visits = 0;
+            std::map<std::shared_ptr<coek::SubExpressionTerm>, double> subexpr_value;
+
+            REQUIRE(evaluate_expr_debug(e1.repn, subexpr_value, num_visits) == -7.0);
+            REQUIRE(num_visits == 12);
+
+            REQUIRE(evaluate_expr_debug(e2.repn, subexpr_value, num_visits) == -7.0);
+            REQUIRE(num_visits == 7);
+        }
+#endif
     }
 }

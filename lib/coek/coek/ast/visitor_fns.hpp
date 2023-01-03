@@ -27,6 +27,16 @@ void symbolic_diff_all(const expr_pointer_t& expr,
                        std::map<std::shared_ptr<VariableTerm>, expr_pointer_t>& diff);
 
 #ifdef DEBUG
+double evaluate_expr_debug(const expr_pointer_t& expr,
+                           std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value,
+                           size_t& num_visits);
+#endif
+double evaluate_expr(const expr_pointer_t& expr,
+                     std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value);
+double evaluate_expr(const BaseExpressionTerm* expr,
+                     std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value);
+
+#ifdef DEBUG
 void mutable_values_debug(
     const expr_pointer_t& expr, std::unordered_set<std::shared_ptr<VariableTerm>>& fixed_vars,
     std::unordered_set<std::shared_ptr<ParameterTerm>>& params,

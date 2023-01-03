@@ -29,7 +29,7 @@ class ParameterTerm : public BaseParameterTerm {
     ParameterTerm();
     explicit ParameterTerm(const expr_pointer_t& _value);
 
-    double eval() const { return value->eval(); }
+    double _eval() const { return value->_eval(); }
 
     bool is_parameter() const { return true; }
 
@@ -71,7 +71,8 @@ class IndexParameterTerm : public BaseExpressionTerm {
 
     bool is_abstract_parameter() const { return true; }
 
-    double eval() const;
+    double _eval() const { return as_double_value(); }
+    double as_double_value() const;
 
     void set_value(double value);
     void set_value(int value);
@@ -117,7 +118,7 @@ class VariableTerm : public BaseVariableTerm {
     VariableTerm(const expr_pointer_t& lb, const expr_pointer_t& ub, const expr_pointer_t& value,
                  bool _binary, bool _integer);
 
-    double eval() const { return value->eval(); }
+    double _eval() const { return value->_eval(); }
 
     bool is_variable() const { return true; }
 
@@ -158,7 +159,7 @@ class MonomialTerm : public BaseExpressionTerm {
    public:
     MonomialTerm(double lhs, const std::shared_ptr<VariableTerm>& rhs);
 
-    double eval() const { return coef * var->value->eval(); }
+    double _eval() const { return coef * var->value->_eval(); }
 
     bool is_monomial() const { return true; }
 

@@ -14,6 +14,7 @@ SET(sources
     ast/visitor_symdiff.cpp
     ast/visitor_mutable_values.cpp
     ast/visitor_variables.cpp
+    ast/visitor_eval.cpp
     ast/varray.cpp
     api/constants.cpp
     api/expression.cpp

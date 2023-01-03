@@ -24,7 +24,8 @@ class BaseExpressionTerm {
     BaseExpressionTerm() : non_variable(false) {}
     virtual ~BaseExpressionTerm() {}
 
-    virtual double eval() const = 0;
+    virtual double _eval() const = 0;
+    double eval() const;
 
     virtual bool is_constant() const { return false; }
     virtual bool is_parameter() const { return false; }
@@ -50,7 +51,7 @@ class ConstantTerm : public BaseExpressionTerm {
 
     explicit ConstantTerm(double _value) : value(_value) { non_variable = true; }
 
-    double eval() const { return value; }
+    double _eval() const { return value; }
 
     bool is_constant() const { return true; }
     bool is_parameter() const { return false; }
