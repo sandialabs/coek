@@ -93,7 +93,7 @@ class SubExpressionTerm : public UnaryTerm {
    public:
     explicit SubExpressionTerm(const expr_pointer_t& body) : UnaryTerm(body) { index = count++; }
 
-    double eval() const { return body->eval(); }
+    double _eval() const { return body->_eval(); }
 
     virtual std::string get_simple_name() { return "S[" + std::to_string(index) + "]"; }
     virtual std::string get_name()
@@ -116,7 +116,7 @@ class NegateTerm : public UnaryTerm {
    public:
     explicit NegateTerm(const expr_pointer_t& body) : UnaryTerm(body) {}
 
-    double eval() const { return -body->eval(); }
+    double _eval() const { return -body->_eval(); }
 
     void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return NegateTerm_id; }
@@ -131,12 +131,12 @@ class PlusTerm : public NAryPrefixTerm {
     PlusTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs);
     PlusTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs, bool dummy);
 
-    double eval() const
+    double _eval() const
     {
         // NOTE: Must limit this loop to 0..n-1.  The value 'n' defines the
         //      number of terms in the shared prefix term that are used here.
         double ans = 0;
-        for (size_t i = 0; i < n; i++) ans += (*data)[i]->eval();
+        for (size_t i = 0; i < n; i++) ans += (*data)[i]->_eval();
         return ans;
     }
 
@@ -152,7 +152,7 @@ class TimesTerm : public BinaryTerm {
    public:
     TimesTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs) : BinaryTerm(lhs, rhs) {}
 
-    double eval() const { return lhs->eval() * rhs->eval(); }
+    double _eval() const { return lhs->_eval() * rhs->_eval(); }
 
     void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return TimesTerm_id; }
@@ -166,7 +166,7 @@ class DivideTerm : public BinaryTerm {
    public:
     DivideTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs) : BinaryTerm(lhs, rhs) {}
 
-    double eval() const { return lhs->eval() / rhs->eval(); }
+    double _eval() const { return lhs->_eval() / rhs->_eval(); }
 
     void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return DivideTerm_id; }
@@ -183,9 +183,9 @@ class DivideTerm : public BinaryTerm {
         {                                                           \
         }                                                           \
                                                                     \
-        double eval() const                                         \
+        double _eval() const                                        \
         {                                                           \
-            return ::FN(body->eval());                              \
+            return ::FN(body->_eval());                             \
         }                                                           \
                                                                     \
         void accept(Visitor& v)                                     \
@@ -242,9 +242,9 @@ UNARY_CLASS(atanh, ATanhTerm)
         {                                                                                 \
         }                                                                                 \
                                                                                           \
-        double eval() const                                                               \
+        double _eval() const                                                              \
         {                                                                                 \
-            return ::FN(lhs->eval(), rhs->eval());                                        \
+            return ::FN(lhs->_eval(), rhs->_eval());                                      \
         }                                                                                 \
                                                                                           \
         void accept(Visitor& v)                                                           \

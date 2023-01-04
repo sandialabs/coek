@@ -33,7 +33,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -Dwith_python=OFF -Dwith_tests=ON ..
+          cmake -Dwith_python=OFF -Dwith_tests=ON -Dwith_debug=ON ..
       - name: build
         run: |
           cd build

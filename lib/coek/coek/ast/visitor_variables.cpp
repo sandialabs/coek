@@ -18,13 +18,20 @@ class VariableData {
     std::unordered_set<std::shared_ptr<VariableTerm>>& vars;
     std::set<std::shared_ptr<VariableTerm>>& fixed_vars;
     std::set<std::shared_ptr<ParameterTerm>>& params;
+    std::set<std::shared_ptr<SubExpressionTerm>>& visited_subexpressions;
 
-    std::unordered_set<SubExpressionTerm*> visited_subexpressions;
+#ifdef DEBUG
+    size_t num_visits = 0;
+#endif
 
     VariableData(std::unordered_set<std::shared_ptr<VariableTerm>>& _vars,
                  std::set<std::shared_ptr<VariableTerm>>& _fixed_vars,
-                 std::set<std::shared_ptr<ParameterTerm>>& _params)
-        : vars(_vars), fixed_vars(_fixed_vars), params(_params)
+                 std::set<std::shared_ptr<ParameterTerm>>& _params,
+                 std::set<std::shared_ptr<SubExpressionTerm>>& _visited_subexpressions)
+        : vars(_vars),
+          fixed_vars(_fixed_vars),
+          params(_params),
+          visited_subexpressions(_visited_subexpressions)
     {
     }
 };
@@ -98,9 +105,8 @@ FROM_BODY(NegateTerm)
 void visit_SubExpressionTerm(const expr_pointer_t& expr, VariableData& data)
 {
     auto tmp = safe_pointer_cast<SubExpressionTerm>(expr);
-    SubExpressionTerm* ptr = tmp.get();
-    if (data.visited_subexpressions.find(ptr) == data.visited_subexpressions.end()) {
-        data.visited_subexpressions.insert(ptr);
+    if (data.visited_subexpressions.find(tmp) == data.visited_subexpressions.end()) {
+        data.visited_subexpressions.insert(tmp);
         visit_expression(tmp->body, data);
     }
 }
@@ -193,20 +199,43 @@ void visit_expression(const expr_pointer_t& expr, VariableData& data)
                 + std::to_string(expr->id()));
             // GCOVR_EXCL_STOP
     };
+
+#ifdef DEBUG
+    data.num_visits++;
+#endif
 }
 
 }  // namespace
 
+#ifdef DEBUG
+void find_vars_and_params_debug(
+    const expr_pointer_t& expr, std::unordered_set<std::shared_ptr<VariableTerm>>& vars,
+    std::set<std::shared_ptr<VariableTerm>>& fixed_vars,
+    std::set<std::shared_ptr<ParameterTerm>>& params,
+    std::set<std::shared_ptr<SubExpressionTerm>>& visited_subexpressions, size_t& num_visits)
+{
+    num_visits = 0;
+    // GCOVR_EXCL_START
+    if (not expr) return;
+    // GCOVR_EXCL_STOP
+
+    VariableData data(vars, fixed_vars, params, visited_subexpressions);
+    visit_expression(expr, data);
+    num_visits = data.num_visits;
+}
+#endif
+
 void find_vars_and_params(const expr_pointer_t& expr,
                           std::unordered_set<std::shared_ptr<VariableTerm>>& vars,
                           std::set<std::shared_ptr<VariableTerm>>& fixed_vars,
-                          std::set<std::shared_ptr<ParameterTerm>>& params)
+                          std::set<std::shared_ptr<ParameterTerm>>& params,
+                          std::set<std::shared_ptr<SubExpressionTerm>>& visited_subexpressions)
 {
     // GCOVR_EXCL_START
     if (not expr) return;
     // GCOVR_EXCL_STOP
 
-    VariableData data(vars, fixed_vars, params);
+    VariableData data(vars, fixed_vars, params, visited_subexpressions);
     visit_expression(expr, data);
 }
 
@@ -215,7 +244,8 @@ void find_variables(const expr_pointer_t& expr,
 {
     std::set<std::shared_ptr<VariableTerm>> fixed_vars;
     std::set<std::shared_ptr<ParameterTerm>> params;
-    find_vars_and_params(expr, vars, fixed_vars, params);
+    std::set<std::shared_ptr<SubExpressionTerm>> visited_subexpressions;
+    find_vars_and_params(expr, vars, fixed_vars, params, visited_subexpressions);
 }
 
 }  // namespace coek

@@ -59,8 +59,8 @@ void Model::print_values(std::ostream& ostr)
     size_t ctr = 0;
     for (auto const& var : repn->variables_by_name) {
         double val = var.second.value();
-        ostr << "   " << ctr << ":  " << var.first << " " << val << " " << var.second.lower()
-                 << " " << var.second.upper() << " " << var.second.fixed() << "\n";
+        ostr << "   " << ctr << ":  " << var.first << " " << val << " " << var.second.lower() << " "
+             << var.second.upper() << " " << var.second.fixed() << "\n";
         ctr++;
     }
 }

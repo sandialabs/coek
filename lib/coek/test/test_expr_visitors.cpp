@@ -142,7 +142,7 @@
         coek::Model m;                                                                    \
         auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);              \
         coek::Expression e = FN(v + 1);                                                   \
-        mutable_values(e.repn, fixed_vars, params);                                       \
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);               \
         static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn}; \
         static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};      \
         REQUIRE(fixed_vars == vbaseline);                                                 \
@@ -155,10 +155,41 @@
         coek::Model m;                                                                    \
         auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);              \
         coek::Expression e = FN(v + 1, v);                                                \
-        mutable_values(e.repn, fixed_vars, params);                                       \
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);               \
         static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn}; \
         static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};      \
         REQUIRE(fixed_vars == vbaseline);                                                 \
+        REQUIRE(params == pbaseline);                                                     \
+    }
+
+#define FVP_INTRINSIC_TEST1(FN)                                                         \
+    WHEN(#FN)                                                                           \
+    {                                                                                   \
+        coek::Model m;                                                                  \
+        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);            \
+        coek::Expression e = FN(v + 1);                                                 \
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions); \
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};     \
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{v.repn};        \
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};              \
+        REQUIRE(vars == vbaseline);                                                     \
+        REQUIRE(fixed_vars == fvbaseline);                                              \
+        REQUIRE(params == pbaseline);                                                   \
+    }
+
+#define FVP_INTRINSIC_TEST2(FN)                                                           \
+    WHEN(#FN)                                                                             \
+    {                                                                                     \
+        coek::Model m;                                                                    \
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);                          \
+        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);              \
+        coek::Expression e = FN(v + 1, w);                                                \
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);   \
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn}; \
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{v.repn};          \
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};                \
+        REQUIRE(vars == vbaseline);                                                       \
+        REQUIRE(fixed_vars == fvbaseline);                                                \
         REQUIRE(params == pbaseline);                                                     \
     }
 
@@ -2017,11 +2048,12 @@ TEST_CASE("mutable_values", "[smoke]")
 {
     std::unordered_set<std::shared_ptr<coek::VariableTerm>> fixed_vars;
     std::unordered_set<std::shared_ptr<coek::ParameterTerm>> params;
+    std::unordered_set<std::shared_ptr<coek::SubExpressionTerm>> visited_subexpressions;
 
     SECTION("constant")
     {
         coek::Expression e(3);
-        mutable_values(e.repn, fixed_vars, params);
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
         static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
         static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
@@ -2033,7 +2065,7 @@ TEST_CASE("mutable_values", "[smoke]")
     {
         auto p = coek::parameter().value(3);
         coek::Expression e = p;
-        mutable_values(e.repn, fixed_vars, params);
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
         static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
         static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
@@ -2045,7 +2077,7 @@ TEST_CASE("mutable_values", "[smoke]")
     {
         auto p = coek::set_element("p");
         coek::Expression e = p;
-        mutable_values(e.repn, fixed_vars, params);
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
         static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
         static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
@@ -2060,7 +2092,7 @@ TEST_CASE("mutable_values", "[smoke]")
             auto v = coek::variable();
             v.fixed(true);
             coek::Expression e = v;
-            mutable_values(e.repn, fixed_vars, params);
+            mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
             static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
             static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
@@ -2072,7 +2104,7 @@ TEST_CASE("mutable_values", "[smoke]")
         {
             auto v = coek::variable();
             coek::Expression e = v;
-            mutable_values(e.repn, fixed_vars, params);
+            mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
             static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
             static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
@@ -2088,7 +2120,7 @@ TEST_CASE("mutable_values", "[smoke]")
             coek::Model m;
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression e = 2 * w;
-            mutable_values(e.repn, fixed_vars, params);
+            mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
             static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
             static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
@@ -2102,7 +2134,7 @@ TEST_CASE("mutable_values", "[smoke]")
             auto v = m.add_variable("v").lower(0).upper(1).value(0);
             v.fixed(true);
             coek::Expression e = 2 * v;
-            mutable_values(e.repn, fixed_vars, params);
+            mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
             static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
             static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
@@ -2111,202 +2143,257 @@ TEST_CASE("mutable_values", "[smoke]")
         }
     }
 
-    SECTION("subexpression")
+    SECTION("subexpression"){WHEN("shared expression"){auto v = coek::variable("v");
+    v.fixed(true);
+    auto E = coek::subexpression().value(v + 1);
+    coek::Expression e = E + 2 * (E + 1);
+    mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
+
+    static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+    static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+    REQUIRE(fixed_vars == vbaseline);
+    REQUIRE(params == pbaseline);
+}
+
+#ifdef DEBUG
+WHEN("debug walker0")
+{
+    auto v = coek::variable("v");
+    v.fixed(true);
+    auto E = v + 1;
+    coek::Expression e = E + 2 * (E + 1);
+    size_t num_visits = 0;
+    mutable_values_debug(e.repn, fixed_vars, params, visited_subexpressions, num_visits);
+
+    static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+    static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+    REQUIRE(fixed_vars == vbaseline);
+    REQUIRE(params == pbaseline);
+    REQUIRE(num_visits == 10);
+}
+
+WHEN("debug walker1")
+{
+    auto v = coek::variable("v");
+    v.fixed(true);
+    auto E = coek::subexpression().value(v + 1);
+    coek::Expression e = E + 2 * (E + 1);
+    size_t num_visits = 0;
+
+    mutable_values_debug(e.repn, fixed_vars, params, visited_subexpressions, num_visits);
+    REQUIRE(num_visits == 10);
+
+    static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+    static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+    REQUIRE(fixed_vars == vbaseline);
+    REQUIRE(params == pbaseline);
+}
+
+WHEN("debug walker2")
+{
+    auto v = coek::variable("v");
+    v.fixed(true);
+    auto E = coek::subexpression().value(v + 1);
+    coek::Expression e1 = E + 2 * (E + 1);
+    coek::Expression e2 = E + 2 * (E + 1);
+
+    size_t num_visits = 0;
+    static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+    static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+
+    mutable_values_debug(e1.repn, fixed_vars, params, visited_subexpressions, num_visits);
+    REQUIRE(fixed_vars == vbaseline);
+    REQUIRE(params == pbaseline);
+    REQUIRE(num_visits == 10);
+
+    mutable_values_debug(e2.repn, fixed_vars, params, visited_subexpressions, num_visits);
+    REQUIRE(fixed_vars == vbaseline);
+    REQUIRE(params == pbaseline);
+    REQUIRE(num_visits == 7);
+}
+#endif
+}
+
+SECTION("plus")
+{
+    WHEN("linear")
     {
-        auto v = coek::variable("v");
+        auto v = coek::variable("v").lower(0).upper(1).value(0);
         v.fixed(true);
-        auto E = coek::subexpression().value(v + 1);
-        coek::Expression e = E + 2 * (E + 1);
-        mutable_values(e.repn, fixed_vars, params);
+        coek::Expression e = 2 * (v + v) + v;
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
         static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
         static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
         REQUIRE(fixed_vars == vbaseline);
         REQUIRE(params == pbaseline);
     }
-
-    SECTION("plus")
+    WHEN("simple")
     {
-        WHEN("linear")
-        {
-            auto v = coek::variable("v").lower(0).upper(1).value(0);
-            v.fixed(true);
-            coek::Expression e = 2 * (v + v) + v;
-            mutable_values(e.repn, fixed_vars, params);
+        auto p = coek::parameter();
+        auto v = coek::variable("v").lower(0).upper(1).value(0);
+        v.fixed(true);
+        coek::Expression e = 3 * p + 2 * v;
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
-            REQUIRE(fixed_vars == vbaseline);
-            REQUIRE(params == pbaseline);
-        }
-        WHEN("simple")
-        {
-            auto p = coek::parameter();
-            auto v = coek::variable("v").lower(0).upper(1).value(0);
-            v.fixed(true);
-            coek::Expression e = 3 * p + 2 * v;
-            mutable_values(e.repn, fixed_vars, params);
-
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
-            REQUIRE(fixed_vars == vbaseline);
-            REQUIRE(params == pbaseline);
-        }
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
     }
+}
 
-    SECTION("negate")
+SECTION("negate")
+{
+    WHEN("linear")
     {
-        WHEN("linear")
-        {
-            auto p = coek::parameter();
-            auto v = coek::variable("v").lower(0).upper(1).value(0).fixed(true);
-            coek::Expression e = -(v + 1);
-            mutable_values(e.repn, fixed_vars, params);
+        auto p = coek::parameter();
+        auto v = coek::variable("v").lower(0).upper(1).value(0).fixed(true);
+        coek::Expression e = -(v + 1);
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
-            REQUIRE(fixed_vars == vbaseline);
-            REQUIRE(params == pbaseline);
-        }
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
     }
+}
 
-    SECTION("times")
+SECTION("times")
+{
+    WHEN("lhs constant")
     {
-        WHEN("lhs constant")
-        {
-            coek::Model m;
-            auto p = coek::parameter().value(2);
-            auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);
-            coek::Expression e = p * v;
-            mutable_values(e.repn, fixed_vars, params);
+        coek::Model m;
+        auto p = coek::parameter().value(2);
+        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);
+        coek::Expression e = p * v;
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
-            REQUIRE(fixed_vars == vbaseline);
-            REQUIRE(params == pbaseline);
-        }
-        WHEN("simple quadratic LHS")
-        {
-            coek::Model m;
-            auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);
-            auto w = m.add_variable("w").lower(0).upper(1).value(0);
-            coek::Expression e = v * w;
-            mutable_values(e.repn, fixed_vars, params);
-
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
-            REQUIRE(fixed_vars == vbaseline);
-            REQUIRE(params == pbaseline);
-        }
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
     }
-
-    SECTION("divide")
+    WHEN("simple quadratic LHS")
     {
-        WHEN("lhs zero")
-        {
-            coek::Model m;
-            auto p = coek::parameter();
-            auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
-            coek::Expression e = p / w;
-            mutable_values(e.repn, fixed_vars, params);
+        coek::Model m;
+        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
+        coek::Expression e = v * w;
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
-            REQUIRE(fixed_vars == vbaseline);
-            REQUIRE(params == pbaseline);
-        }
-        WHEN("rhs nonzero")
-        {
-            coek::Model m;
-            auto p = coek::parameter().value(2);
-            auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
-            coek::Expression e = w / p;
-            mutable_values(e.repn, fixed_vars, params);
-
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
-            REQUIRE(fixed_vars == vbaseline);
-            REQUIRE(params == pbaseline);
-        }
-        WHEN("rhs polynomial")
-        {
-            coek::Model m;
-            auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
-            coek::Expression e = w / (1 + w);
-            mutable_values(e.repn, fixed_vars, params);
-
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
-            REQUIRE(fixed_vars == vbaseline);
-            REQUIRE(params == pbaseline);
-        }
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
     }
+}
 
-    SECTION("coverage")
+SECTION("divide")
+{
+    WHEN("lhs zero")
     {
-        WHEN("variable partial plus monomial - 1")
-        {
-            coek::Model m;
-            auto v = m.add_variable("v").lower(0).upper(1).value(0);
-            auto w = m.add_variable("w").lower(0).upper(1).value(0);
-            coek::Expression e = w * v + v * (2 * w + 1);
-            v.fixed(true);
-            w.fixed(true);
-            mutable_values(e.repn, fixed_vars, params);
+        coek::Model m;
+        auto p = coek::parameter();
+        auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
+        coek::Expression e = p / w;
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn,
-                                                                                     w.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
-            REQUIRE(fixed_vars == vbaseline);
-            REQUIRE(params == pbaseline);
-        }
-        WHEN("variable partial plus monomial - 2")
-        {
-            coek::Model m;
-            auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);
-            auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
-            coek::Expression e = v * (2 * w + 1);
-            mutable_values(e.repn, fixed_vars, params);
-
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn,
-                                                                                     w.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
-            REQUIRE(fixed_vars == vbaseline);
-            REQUIRE(params == pbaseline);
-        }
-        WHEN("constant partial plus monomial")
-        {
-            coek::Model m;
-            auto v = m.add_variable("v").lower(0).upper(1).value(0);
-            auto w = m.add_variable("w").lower(0).upper(1).value(0);
-            coek::Expression f = 3 * w + 2 * w;
-            w.fixed(true);
-            coek::Expression e = v * (2 * w + 1);
-            mutable_values(e.repn, fixed_vars, params);
-
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
-            REQUIRE(fixed_vars == vbaseline);
-            REQUIRE(params == pbaseline);
-        }
-        WHEN("negative monomial")
-        {
-            coek::Model m;
-            auto w = m.add_variable("w").lower(0).upper(1).value(0);
-            w.fixed(true);
-            coek::Expression e = -(-w) + (-(-w));
-            mutable_values(e.repn, fixed_vars, params);
-
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
-            REQUIRE(fixed_vars == vbaseline);
-            REQUIRE(params == pbaseline);
-        }
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
     }
+    WHEN("rhs nonzero")
+    {
+        coek::Model m;
+        auto p = coek::parameter().value(2);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
+        coek::Expression e = w / p;
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
-    SECTION("intrinsic funcs"){
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
+    }
+    WHEN("rhs polynomial")
+    {
+        coek::Model m;
+        auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
+        coek::Expression e = w / (1 + w);
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
-        // clang-format off
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
+    }
+}
+
+SECTION("coverage")
+{
+    WHEN("variable partial plus monomial - 1")
+    {
+        coek::Model m;
+        auto v = m.add_variable("v").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
+        coek::Expression e = w * v + v * (2 * w + 1);
+        v.fixed(true);
+        w.fixed(true);
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
+    }
+    WHEN("variable partial plus monomial - 2")
+    {
+        coek::Model m;
+        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
+        coek::Expression e = v * (2 * w + 1);
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
+    }
+    WHEN("constant partial plus monomial")
+    {
+        coek::Model m;
+        auto v = m.add_variable("v").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
+        coek::Expression f = 3 * w + 2 * w;
+        w.fixed(true);
+        coek::Expression e = v * (2 * w + 1);
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
+    }
+    WHEN("negative monomial")
+    {
+        coek::Model m;
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
+        w.fixed(true);
+        coek::Expression e = -(-w) + (-(-w));
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
+    }
+}
+
+SECTION("intrinsic funcs"){
+
+    // clang-format off
         MV_INTRINSIC_TEST1(abs)
         MV_INTRINSIC_TEST1(ceil)
         MV_INTRINSIC_TEST1(floor)
@@ -2328,55 +2415,527 @@ TEST_CASE("mutable_values", "[smoke]")
         MV_INTRINSIC_TEST1(atanh)
         MV_INTRINSIC_TEST2(pow)}  // clang-format on
 
-    SECTION("objective")
+SECTION("objective")
+{
+    coek::Model m;
+    auto w = m.add_variable("w").lower(0).upper(1).value(0);
+    auto v = m.add_variable("v").lower(0).upper(1).value(0);
+    auto o = m.add_objective(w * v + v * (2 * w + 1));
+    v.fixed(true);
+    w.fixed(true);
+    mutable_values(o.expr().repn, fixed_vars, params, visited_subexpressions);
+
+    static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+    static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+    REQUIRE(fixed_vars == vbaseline);
+    REQUIRE(params == pbaseline);
+}
+
+SECTION("constraint")
+{
+    WHEN("inequality")
     {
         coek::Model m;
         auto w = m.add_variable("w").lower(0).upper(1).value(0);
         auto v = m.add_variable("v").lower(0).upper(1).value(0);
-        auto o = m.add_objective(w * v + v * (2 * w + 1));
+        auto e = w * v + v * (2 * w + 1) <= 0;
         v.fixed(true);
         w.fixed(true);
-        mutable_values(o.expr().repn, fixed_vars, params);
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
         static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
         static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
         REQUIRE(fixed_vars == vbaseline);
         REQUIRE(params == pbaseline);
     }
-
-    SECTION("constraint")
+    WHEN("equality")
     {
-        WHEN("inequality")
-        {
-            coek::Model m;
-            auto w = m.add_variable("w").lower(0).upper(1).value(0);
-            auto v = m.add_variable("v").lower(0).upper(1).value(0);
-            auto e = w * v + v * (2 * w + 1) <= 0;
-            v.fixed(true);
-            w.fixed(true);
-            mutable_values(e.repn, fixed_vars, params);
+        coek::Model m;
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto v = m.add_variable("v").lower(0).upper(1).value(0);
+        auto e = w * v + v * (2 * w + 1) == 0;
+        v.fixed(true);
+        w.fixed(true);
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
 
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn,
-                                                                                     w.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
-            REQUIRE(fixed_vars == vbaseline);
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
+    }
+}
+}
+
+TEST_CASE("find_vars_and_params", "[smoke]")
+{
+    std::unordered_set<std::shared_ptr<coek::VariableTerm>> vars;
+    std::set<std::shared_ptr<coek::VariableTerm>> fixed_vars;
+    std::set<std::shared_ptr<coek::ParameterTerm>> params;
+    std::set<std::shared_ptr<coek::SubExpressionTerm>> visited_subexpressions;
+
+    SECTION("constant")
+    {
+        coek::Expression e(3);
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+
+    SECTION("param")
+    {
+        auto p = coek::parameter().value(3);
+        coek::Expression e = p;
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+
+    SECTION("indexparam")
+    {
+        auto p = coek::set_element("p");
+        coek::Expression e = p;
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+
+    SECTION("var")
+    {
+        WHEN("fixed")
+        {
+            auto v = coek::variable();
+            v.fixed(true);
+            coek::Expression e = v;
+            find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+            static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{v.repn};
+            static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+            REQUIRE(vars == vbaseline);
+            REQUIRE(fixed_vars == fvbaseline);
             REQUIRE(params == pbaseline);
         }
-        WHEN("equality")
-        {
-            coek::Model m;
-            auto w = m.add_variable("w").lower(0).upper(1).value(0);
-            auto v = m.add_variable("v").lower(0).upper(1).value(0);
-            auto e = w * v + v * (2 * w + 1) == 0;
-            v.fixed(true);
-            w.fixed(true);
-            mutable_values(e.repn, fixed_vars, params);
 
-            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn,
-                                                                                     w.repn};
-            static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
-            REQUIRE(fixed_vars == vbaseline);
+        WHEN("same")
+        {
+            auto v = coek::variable();
+            coek::Expression e = v;
+            find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+            static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{};
+            static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+            REQUIRE(vars == vbaseline);
+            REQUIRE(fixed_vars == fvbaseline);
             REQUIRE(params == pbaseline);
         }
     }
+
+    SECTION("monomial")
+    {
+        WHEN("other")
+        {
+            coek::Model m;
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression e = 2 * w;
+            find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+            static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{};
+            static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+            REQUIRE(vars == vbaseline);
+            REQUIRE(fixed_vars == fvbaseline);
+            REQUIRE(params == pbaseline);
+        }
+
+        WHEN("fixed")
+        {
+            coek::Model m;
+            auto v = m.add_variable("v").lower(0).upper(1).value(0);
+            v.fixed(true);
+            coek::Expression e = 2 * v;
+            find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+            static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{v.repn};
+            static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+            REQUIRE(vars == vbaseline);
+            REQUIRE(fixed_vars == fvbaseline);
+            REQUIRE(params == pbaseline);
+        }
+    }
+
+    SECTION("subexpression"){WHEN("shared expression"){auto v = coek::variable("v");
+    v.fixed(true);
+    auto E = coek::subexpression().value(v + 1);
+    coek::Expression e = E + 2 * (E + 1);
+    find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+    static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+    static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{v.repn};
+    static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+    REQUIRE(vars == vbaseline);
+    REQUIRE(fixed_vars == fvbaseline);
+    REQUIRE(params == pbaseline);
+}
+
+#ifdef DEBUG
+WHEN("debug walker0")
+{
+    auto v = coek::variable("v");
+    auto E = v + 1;
+    coek::Expression e = E + 2 * (E + 1);
+    size_t num_visits = 0;
+    find_vars_and_params_debug(e.repn, vars, fixed_vars, params, visited_subexpressions,
+                               num_visits);
+
+    static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+    static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{};
+    static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+    REQUIRE(vars == vbaseline);
+    REQUIRE(fixed_vars == fvbaseline);
+    REQUIRE(params == pbaseline);
+    REQUIRE(num_visits == 10);
+}
+
+WHEN("debug walker1")
+{
+    auto v = coek::variable("v");
+    v.fixed(true);
+    auto E = coek::subexpression().value(v + 1);
+    coek::Expression e = E + 2 * (E + 1);
+    size_t num_visits = 0;
+
+    find_vars_and_params_debug(e.repn, vars, fixed_vars, params, visited_subexpressions,
+                               num_visits);
+    REQUIRE(num_visits == 10);
+
+    static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+    static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{v.repn};
+    static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+    REQUIRE(vars == vbaseline);
+    REQUIRE(fixed_vars == fvbaseline);
+    REQUIRE(params == pbaseline);
+}
+
+WHEN("debug walker2")
+{
+    auto v = coek::variable("v");
+    v.fixed(true);
+    auto E = coek::subexpression().value(v + 1);
+    coek::Expression e1 = E + 2 * (E + 1);
+    coek::Expression e2 = E + 2 * (E + 1);
+
+    size_t num_visits = 0;
+    static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+    static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{v.repn};
+    static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+
+    find_vars_and_params_debug(e1.repn, vars, fixed_vars, params, visited_subexpressions,
+                               num_visits);
+    REQUIRE(vars == vbaseline);
+    REQUIRE(fixed_vars == fvbaseline);
+    REQUIRE(params == pbaseline);
+    REQUIRE(num_visits == 10);
+
+    find_vars_and_params_debug(e2.repn, vars, fixed_vars, params, visited_subexpressions,
+                               num_visits);
+    REQUIRE(vars == vbaseline);
+    REQUIRE(fixed_vars == fvbaseline);
+    REQUIRE(params == pbaseline);
+    REQUIRE(num_visits == 7);
+}
+#endif
+}
+
+SECTION("plus")
+{
+    WHEN("linear")
+    {
+        auto v = coek::variable("v").lower(0).upper(1).value(0);
+        v.fixed(true);
+        coek::Expression e = 2 * (v + v) + v;
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{v.repn};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+    WHEN("simple")
+    {
+        auto p = coek::parameter();
+        auto v = coek::variable("v").lower(0).upper(1).value(0);
+        v.fixed(true);
+        coek::Expression e = 3 * p + 2 * v;
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{v.repn};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+}
+
+SECTION("negate")
+{
+    WHEN("linear")
+    {
+        auto p = coek::parameter();
+        auto v = coek::variable("v").lower(0).upper(1).value(0).fixed(true);
+        coek::Expression e = -(v + 1);
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{v.repn};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+}
+
+SECTION("times")
+{
+    WHEN("lhs constant")
+    {
+        coek::Model m;
+        auto p = coek::parameter().value(2);
+        auto v = m.add_variable("v").lower(0).upper(1).value(0);
+        coek::Expression e = p * v;
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+    WHEN("simple quadratic LHS")
+    {
+        coek::Model m;
+        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
+        coek::Expression e = v * w;
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{v.repn};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+}
+
+SECTION("divide")
+{
+    WHEN("lhs zero")
+    {
+        coek::Model m;
+        auto p = coek::parameter();
+        auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
+        coek::Expression e = p / w;
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{w.repn};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+    WHEN("rhs nonzero")
+    {
+        coek::Model m;
+        auto p = coek::parameter().value(2);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
+        coek::Expression e = w / p;
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{w.repn};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+    WHEN("rhs polynomial")
+    {
+        coek::Model m;
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
+        coek::Expression e = w / (1 + w);
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+}
+
+SECTION("coverage")
+{
+    WHEN("variable partial plus monomial - 1")
+    {
+        coek::Model m;
+        auto v = m.add_variable("v").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
+        coek::Expression e = w * v + v * (2 * w + 1);
+        w.fixed(true);
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{w.repn};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+    WHEN("variable partial plus monomial - 2")
+    {
+        coek::Model m;
+        auto v = m.add_variable("v").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
+        coek::Expression e = v * (2 * w + 1);
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{w.repn};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+    WHEN("constant partial plus monomial")
+    {
+        coek::Model m;
+        auto v = m.add_variable("v").lower(0).upper(1).value(0);
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
+        coek::Expression f = 3 * w + 2 * w;
+        w.fixed(true);
+        coek::Expression e = v * (2 * w + 1);
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{w.repn};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+    WHEN("negative monomial")
+    {
+        coek::Model m;
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
+        w.fixed(true);
+        coek::Expression e = -(-w) + (-(-w));
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{w.repn};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+}
+
+SECTION("intrinsic funcs"){
+
+    // clang-format off
+        FVP_INTRINSIC_TEST1(abs)
+        FVP_INTRINSIC_TEST1(ceil)
+        FVP_INTRINSIC_TEST1(floor)
+        FVP_INTRINSIC_TEST1(exp)
+        FVP_INTRINSIC_TEST1(log)
+        FVP_INTRINSIC_TEST1(log10)
+        FVP_INTRINSIC_TEST1(sqrt)
+        FVP_INTRINSIC_TEST1(sin)
+        FVP_INTRINSIC_TEST1(cos)
+        FVP_INTRINSIC_TEST1(tan)
+        FVP_INTRINSIC_TEST1(sinh)
+        FVP_INTRINSIC_TEST1(cosh)
+        FVP_INTRINSIC_TEST1(tanh)
+        FVP_INTRINSIC_TEST1(asin)
+        FVP_INTRINSIC_TEST1(acos)
+        FVP_INTRINSIC_TEST1(atan)
+        FVP_INTRINSIC_TEST1(asinh)
+        FVP_INTRINSIC_TEST1(acosh)
+        FVP_INTRINSIC_TEST1(atanh)
+        FVP_INTRINSIC_TEST2(pow)}  // clang-format on
+
+SECTION("objective")
+{
+    coek::Model m;
+    auto w = m.add_variable("w").lower(0).upper(1).value(0);
+    auto v = m.add_variable("v").lower(0).upper(1).value(0);
+    auto o = m.add_objective(w * v + v * (2 * w + 1));
+    find_vars_and_params(o.expr().repn, vars, fixed_vars, params, visited_subexpressions);
+
+    static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn, w.repn};
+    static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{};
+    static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+    REQUIRE(vars == vbaseline);
+    REQUIRE(fixed_vars == fvbaseline);
+    REQUIRE(params == pbaseline);
+}
+
+SECTION("constraint")
+{
+    WHEN("inequality")
+    {
+        coek::Model m;
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto v = m.add_variable("v").lower(0).upper(1).value(0);
+        auto e = w * v + v * (2 * w + 1) <= 0;
+        w.fixed(true);
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{w.repn};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+    WHEN("equality")
+    {
+        coek::Model m;
+        auto w = m.add_variable("w").lower(0).upper(1).value(0);
+        auto v = m.add_variable("v").lower(0).upper(1).value(0);
+        auto e = w * v + v * (2 * w + 1) == 0;
+        w.fixed(true);
+        find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{v.repn};
+        static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{w.repn};
+        static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{};
+        REQUIRE(vars == vbaseline);
+        REQUIRE(fixed_vars == fvbaseline);
+        REQUIRE(params == pbaseline);
+    }
+}
 }

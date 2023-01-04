@@ -124,15 +124,16 @@ void SolverRepn::load(Model& _model)
         nmutable++;
         std::unordered_set<std::shared_ptr<VariableTerm>> fixed_vars;
         std::unordered_set<std::shared_ptr<ParameterTerm>> params;
+        std::unordered_set<std::shared_ptr<SubExpressionTerm>> visited_subexpressions;
 
-        mutable_values(_repn.constval, fixed_vars, params);
+        mutable_values(_repn.constval, fixed_vars, params, visited_subexpressions);
         for (auto& it : fixed_vars) GetWithDef(vconstvals, it.get()).insert(j);
         for (auto& it : params) GetWithDef(pconstvals, it.get()).insert(j);
 
         for (size_t i = 0; i < _repn.linear_coefs.size(); i++) {
             fixed_vars.clear();
             params.clear();
-            mutable_values(_repn.linear_coefs[i], fixed_vars, params);
+            mutable_values(_repn.linear_coefs[i], fixed_vars, params, visited_subexpressions);
             for (auto& it : fixed_vars)
                 GetWithDef(vlinvals, it.get()).insert(std::pair<size_t, size_t>(j, i));
             for (auto& it : params)
@@ -142,7 +143,7 @@ void SolverRepn::load(Model& _model)
         for (size_t i = 0; i < _repn.quadratic_coefs.size(); i++) {
             fixed_vars.clear();
             params.clear();
-            mutable_values(_repn.quadratic_coefs[i], fixed_vars, params);
+            mutable_values(_repn.quadratic_coefs[i], fixed_vars, params, visited_subexpressions);
             for (auto& it : fixed_vars)
                 GetWithDef(vquadvals, it.get()).insert(std::pair<size_t, size_t>(j, i));
             for (auto& it : params)
@@ -151,7 +152,7 @@ void SolverRepn::load(Model& _model)
 
         fixed_vars.clear();
         params.clear();
-        mutable_values(_repn.nonlinear, fixed_vars, params);
+        mutable_values(_repn.nonlinear, fixed_vars, params, visited_subexpressions);
         for (auto& it : fixed_vars) GetWithDef(vnonlvals, it.get()).insert(j);
         for (auto& it : params) GetWithDef(pnonlvals, it.get()).insert(j);
     }

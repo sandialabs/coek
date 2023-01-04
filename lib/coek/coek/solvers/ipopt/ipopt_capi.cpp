@@ -188,7 +188,7 @@ bool IpoptModel::get_bounds_info(Index /*n*/, Number* x_l, Number* x_u, Index /*
 
         x_l[i] = v.lower();
         x_u[i] = v.upper();
-        //std::cout << "x " << i << " " << x_l[i] << " " << x_u[i] << std::endl << std::flush;
+        // std::cout << "x " << i << " " << x_l[i] << " " << x_u[i] << std::endl << std::flush;
     }
 
     // std::cout << "  num constraints: " << model.num_constraints() << std::endl;
@@ -203,11 +203,11 @@ bool IpoptModel::get_bounds_info(Index /*n*/, Number* x_l, Number* x_u, Index /*
                 g_u[j] = con.upper().value();
             else
                 g_u[j] = COEK_INFINITY;
-            //std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl << std::flush;
+            // std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl << std::flush;
         }
         else {
             g_l[j] = g_u[j] = con.lower().value();
-            //std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl << std::flush;
+            // std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl << std::flush;
         }
     }
 

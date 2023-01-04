@@ -62,16 +62,17 @@ target_compile_definitions(jpof_demo PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURC
 
 # testing
 add_custom_target(test_coek
-COMMAND ${CMAKE_CTEST_COMMAND})
+    COMMAND ${CMAKE_CTEST_COMMAND})
 add_custom_target(test_coek_verbose
-COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
+    COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
 add_custom_target(test_coek_memcheck
-COMMAND ${CMAKE_CTEST_COMMAND} --force-new-ctest-process --test-action memcheck
-COMMAND cat "${CMAKE_BINARY_DIR}/Testing/Temporary/MemoryChecker.*.log")
+    COMMAND ${CMAKE_CTEST_COMMAND} --force-new-ctest-process --test-action memcheck
+    COMMAND cat "${CMAKE_BINARY_DIR}/Testing/Temporary/MemoryChecker.*.log")
 
 if (gcovr_FOUND)
 add_custom_target(gcovr_coek
-  COMMAND ${GCOVR_EXECUTABLE} -d -r ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_BINARY_DIR}/..)
-  #COMMAND ${GCOVR_EXECUTABLE} -d -r ${CMAKE_CURRENT_SOURCE_DIR} -e ../third_party/ -e ../test/ -e install/ )
+    COMMAND ${GCOVR_EXECUTABLE} -d -r ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_BINARY_DIR}/.. )
+add_custom_target(gcovr_coek_verbose
+    COMMAND ${GCOVR_EXECUTABLE} -v -d -r ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_BINARY_DIR}/.. )
 endif()
 
