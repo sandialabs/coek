@@ -18,7 +18,7 @@ double BaseExpressionTerm::eval() const
 // for expressions without SubExpression terms.  For expressions with SubExpression terms that are repeated, 
 // this has the potential to significantly minimize total cost of the evaluation.
 // 
-#if 1
+#if 0
     std::map<std::shared_ptr<SubExpressionTerm>, double> cache;
     return evaluate_expr(this, cache);
 #else
