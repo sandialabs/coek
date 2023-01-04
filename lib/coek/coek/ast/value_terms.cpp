@@ -18,6 +18,13 @@ double BaseExpressionTerm::eval() const
 // for expressions without SubExpression terms.  For expressions with SubExpression terms that are repeated, 
 // this has the potential to significantly minimize total cost of the evaluation.
 // 
+// WEH - Testing indicates that this may have a small, but noticable performance degredation, even in cases
+// where subexpressions aren't used.  I think this relates to frequent calls to evaluate_expr(), where we
+// setup temporary data structures.  These aren't used in the _eval() logic.
+//
+// WEH - For now, I'm leaving the default behavior as not recognizing subexpressions.  We can judiciously use the
+// evaluate_expr() function in cases where we evaluate many expressions.
+//
 #if 0
     std::map<std::shared_ptr<SubExpressionTerm>, double> cache;
     return evaluate_expr(this, cache);
