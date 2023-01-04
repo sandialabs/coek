@@ -1,8 +1,30 @@
+#include <map>
 #include "../api/constants.hpp"
 #include "value_terms.hpp"
 #include "expr_terms.hpp"
 
 namespace coek {
+
+//
+// BaseExpressionTerm
+//
+double evaluate_expr(const BaseExpressionTerm* expr,
+                     std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value);
+
+double BaseExpressionTerm::eval() const
+{
+//
+// The default behavior here is to use the new evaluate_expr() function.  This should have minimal overhead
+// for expressions without SubExpression terms.  For expressions with SubExpression terms that are repeated, 
+// this has the potential to significantly minimize total cost of the evaluation.
+// 
+#if 1
+    std::map<std::shared_ptr<SubExpressionTerm>, double> cache;
+    return evaluate_expr(this, cache);
+#else
+    return this->_eval();
+#endif
+}
 
 //
 // ParameterTerm
@@ -46,7 +68,7 @@ expr_pointer_t create_abstract_parameter(const std::string& name)
     return std::make_shared<IndexParameterTerm>(name);
 }
 
-double IndexParameterTerm::eval() const
+double IndexParameterTerm::as_double_value() const
 {
     if (type == 0)
         throw std::runtime_error("Accessing the value of an uninitialized abstract parameter");

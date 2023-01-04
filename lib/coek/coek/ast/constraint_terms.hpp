@@ -23,7 +23,7 @@ class ObjectiveTerm : public BaseExpressionTerm {
     ObjectiveTerm();
     ObjectiveTerm(const expr_pointer_t& body, bool sense);
 
-    double eval() const { return body->eval(); }
+    double _eval() const { return body->_eval(); }
 
     void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return ObjectiveTerm_id; }
@@ -60,7 +60,8 @@ class ConstraintTerm : public BaseExpressionTerm {
     ConstraintTerm(const expr_pointer_t& lower, const expr_pointer_t& body, int upper);
     ConstraintTerm(int lower, const expr_pointer_t& body, const expr_pointer_t& upper);
 
-    double eval() const { return body->eval(); }
+    double _eval() const { return body->_eval(); }
+
     bool is_constraint() const { return true; }
     virtual bool is_inequality() const { return false; }
     virtual bool is_equality() const { return false; }

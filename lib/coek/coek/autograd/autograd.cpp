@@ -37,10 +37,12 @@ void NLPModelRepn::find_used_variables()
     std::unordered_set<VariableRepn> vars;
     std::set<VariableRepn> fixed_vars;
     std::set<ParameterRepn> params;
+    std::set<std::shared_ptr<SubExpressionTerm>> visited_subexpressions;
 
-    for (auto& it : model.repn->objectives) find_vars_and_params(it.repn, vars, fixed_vars, params);
+    for (auto& it : model.repn->objectives)
+        find_vars_and_params(it.repn, vars, fixed_vars, params, visited_subexpressions);
     for (auto& it : model.repn->constraints)
-        find_vars_and_params(it.repn, vars, fixed_vars, params);
+        find_vars_and_params(it.repn, vars, fixed_vars, params, visited_subexpressions);
 
     check_that_expression_variables_are_declared(model, vars);
 
@@ -51,11 +53,11 @@ void NLPModelRepn::find_used_variables()
     size_t i = 0;
     for (auto& it : tmp) used_variables[i++] = it.second;
 
-    i = 0;
     fixed_variables.clear();
     parameters.clear();
-    for (auto& it : fixed_vars) fixed_variables[it] = i++;
-    for (auto& it : params) parameters[it] = i++;
+    size_t j = 0;
+    for (auto& it : fixed_vars) fixed_variables[it] = j++;
+    for (auto& it : params) parameters[it] = j++;
 }
 
 VariableRepn NLPModelRepn::get_variable(size_t i) { return used_variables[i]; }
@@ -95,12 +97,14 @@ void NLPModelRepn::print_equations(std::ostream& ostr) const
 void NLPModelRepn::print_values(std::ostream& ostr) const
 {
     ostr << "Model Variables: " << num_variables() << "\n";
-    ostr << "Nonzero Variables\n";
+    ostr << "   (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n";
+    size_t ctr = 0;
     for (auto const& var : used_variables) {
         double val = var.second->eval();
-        if (::fabs(val) > 1e-7) {
-            ostr << "   " << var.first << " " << val << " " << var.second->fixed << "\n";
-        }
+        ostr << "   " << ctr << ": " << var.second->get_name() << " " << val << " "
+             << var.second->lb->eval() << " " << var.second->ub->eval() << " " << var.second->fixed
+             << "\n";
+        ctr++;
     }
 }
 

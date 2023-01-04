@@ -815,18 +815,48 @@ TEST_CASE("diff_tests", "[smoke]")
 
     SECTION("divide")
     {
-        WHEN("lhs zero")
+        WHEN("lhs zero parameter")
         {
             coek::Model m;
             auto p = coek::parameter("p");
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
-            coek::Expression f = p / w;
+            coek::Expression f = (2 * p) / w;
             m.add_objective(f);
             coek::NLPModel nlp(m, "cppad");
 
-            std::vector<double> x{1};
+            std::vector<double> x{2};  // TODO - Check if this should work when x==0
             std::vector<double> baseline{0};
-            std::vector<double> ans(1);
+            std::vector<double> ans{999.0};
+            nlp.compute_df(x, ans);
+            REQUIRE(ans == baseline);
+        }
+        WHEN("lhs zero fixed-variable")
+        {
+            coek::Model m;
+            auto p = m.add_variable("p").lower(0).upper(1).value(0).fixed(true);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression f = (2 * p) / w;
+            m.add_objective(f);
+            coek::NLPModel nlp(m, "cppad");
+
+            std::vector<double> x{2};  // TODO - Check if this should work when x==0
+            std::vector<double> baseline{0};
+            std::vector<double> ans{999.0};
+            nlp.compute_df(x, ans);
+            REQUIRE(ans == baseline);
+        }
+        WHEN("lhs zero subexpression")
+        {
+            coek::Model m;
+            auto p = coek::subexpression();
+            auto w = m.add_variable("W").lower(0).upper(1).value(0);
+            coek::Expression f = (2 * p) / w;
+            m.add_objective(f);
+            coek::NLPModel nlp(m, "cppad");
+
+            std::vector<double> x{0};
+            std::vector<double> baseline{0};
+            std::vector<double> ans{999.0};
             nlp.compute_df(x, ans);
             REQUIRE(ans == baseline);
         }
@@ -841,7 +871,7 @@ TEST_CASE("diff_tests", "[smoke]")
 
             std::vector<double> x{1};
             std::vector<double> baseline{0.5};
-            std::vector<double> ans(1);
+            std::vector<double> ans{999.0};
             nlp.compute_df(x, ans);
             REQUIRE(ans == baseline);
         }
@@ -855,7 +885,7 @@ TEST_CASE("diff_tests", "[smoke]")
 
             std::vector<double> x{1};
             std::vector<double> baseline{0.25};
-            std::vector<double> ans(1);
+            std::vector<double> ans{999.0};
             nlp.compute_df(x, ans);
             REQUIRE(ans == baseline);
         }

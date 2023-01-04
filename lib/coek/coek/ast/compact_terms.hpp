@@ -20,7 +20,7 @@ class ParameterRefTerm : public BaseParameterTerm {
     ParameterRefTerm(const std::vector<refarg_types>& _indices, const std::string& _name,
                      void* _param);
 
-    double eval() const { throw std::runtime_error("Cannot evaluate a ParameterRefTerm"); }
+    double _eval() const { throw std::runtime_error("Cannot evaluate a ParameterRefTerm"); }
     void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return ParameterRefTerm_id; }
 };
@@ -35,7 +35,7 @@ class VariableRefTerm : public BaseVariableTerm {
     VariableRefTerm(const std::vector<refarg_types>& _indices, const std::string& _name,
                     void* _var);
 
-    double eval() const { throw std::runtime_error("Cannot evaluate a VariableRefTerm"); }
+    double _eval() const { throw std::runtime_error("Cannot evaluate a VariableRefTerm"); }
     void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return VariableRefTerm_id; }
 };

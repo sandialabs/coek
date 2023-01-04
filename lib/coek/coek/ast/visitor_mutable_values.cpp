@@ -18,12 +18,18 @@ class MutableValuesData {
     std::unordered_set<std::shared_ptr<VariableTerm>>& fixed_vars;
     std::unordered_set<std::shared_ptr<ParameterTerm>>& params;
 
-    std::unordered_set<SubExpressionTerm*> visited_subexpressions;
+    std::unordered_set<std::shared_ptr<SubExpressionTerm>>& visited_subexpressions;
+
+#ifdef DEBUG
+    size_t num_visits = 0;
+#endif
 
    public:
-    MutableValuesData(std::unordered_set<std::shared_ptr<VariableTerm>>& _fixed_vars,
-                      std::unordered_set<std::shared_ptr<ParameterTerm>>& _params)
-        : fixed_vars(_fixed_vars), params(_params)
+    MutableValuesData(
+        std::unordered_set<std::shared_ptr<VariableTerm>>& _fixed_vars,
+        std::unordered_set<std::shared_ptr<ParameterTerm>>& _params,
+        std::unordered_set<std::shared_ptr<SubExpressionTerm>>& _visited_subexpressions)
+        : fixed_vars(_fixed_vars), params(_params), visited_subexpressions(_visited_subexpressions)
     {
     }
 };
@@ -85,9 +91,8 @@ FROM_BODY(NegateTerm)
 void visit_SubExpressionTerm(const expr_pointer_t& expr, MutableValuesData& data)
 {
     auto tmp = safe_pointer_cast<SubExpressionTerm>(expr);
-    SubExpressionTerm* ptr = tmp.get();
-    if (data.visited_subexpressions.find(ptr) == data.visited_subexpressions.end()) {
-        data.visited_subexpressions.insert(ptr);
+    if (data.visited_subexpressions.find(tmp) == data.visited_subexpressions.end()) {
+        data.visited_subexpressions.insert(tmp);
         visit_expression(tmp->body, data);
     }
 }
@@ -180,19 +185,44 @@ void visit_expression(const expr_pointer_t& expr, MutableValuesData& data)
                 + std::to_string(expr->id()));
             // GCOVR_EXCL_STOP
     };
+
+#ifdef DEBUG
+    data.num_visits++;
+#endif
 }
 
 }  // namespace
 
+#ifdef DEBUG
+void mutable_values_debug(
+    const expr_pointer_t& expr, std::unordered_set<std::shared_ptr<VariableTerm>>& fixed_vars,
+    std::unordered_set<std::shared_ptr<ParameterTerm>>& params,
+    std::unordered_set<std::shared_ptr<SubExpressionTerm>>& visited_subexpressions,
+    size_t& num_visits)
+{
+    num_visits = 0;
+
+    // GCOVR_EXCL_START
+    if (not expr) return;
+    // GCOVR_EXCL_STOP
+
+    MutableValuesData data(fixed_vars, params, visited_subexpressions);
+    visit_expression(expr, data);
+
+    num_visits = data.num_visits;
+}
+#endif
+
 void mutable_values(const expr_pointer_t& expr,
                     std::unordered_set<std::shared_ptr<VariableTerm>>& fixed_vars,
-                    std::unordered_set<std::shared_ptr<ParameterTerm>>& params)
+                    std::unordered_set<std::shared_ptr<ParameterTerm>>& params,
+                    std::unordered_set<std::shared_ptr<SubExpressionTerm>>& visited_subexpressions)
 {
     // GCOVR_EXCL_START
     if (not expr) return;
     // GCOVR_EXCL_STOP
 
-    MutableValuesData data(fixed_vars, params);
+    MutableValuesData data(fixed_vars, params, visited_subexpressions);
     visit_expression(expr, data);
 }
 
