@@ -3,7 +3,7 @@
 Here we list changes of Coek.  More detailed information about incremental changes can be found in the
 [commit history](https://github.com/sandialabs/coek/commits).
 
-## 1.2.dev
+## 1.2
 
 * Added the SubExpression object, which is used to denote 
 * Revised the mutable_values() and find_vars_and_params() functions to avoid re-evaluating SubExpression objects.
