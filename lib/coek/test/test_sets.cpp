@@ -693,10 +693,6 @@ TEST_CASE("simple_finite", "[smoke]")
         }
   }
 #    endif
-
-#    ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 
 TEST_CASE("finite_operations_int", "[smoke]")
@@ -1294,10 +1290,6 @@ TEST_CASE("finite_operations_int", "[smoke]")
             }
         }
     }
-
-#    ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 
 TEST_CASE("logical_operations_int", "[smoke]")
@@ -1335,10 +1327,6 @@ TEST_CASE("logical_operations_int", "[smoke]")
         REQUIRE(s3.is_superset(s1) == true);
         REQUIRE(s3.is_superset(s2) == true);
     }
-
-#    ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 
 TEST_CASE("product_finite", "[smoke]")
@@ -1626,10 +1614,6 @@ TEST_CASE("product_finite", "[smoke]")
         }
     }
 #    endif
-
-#    ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 
 TEST_CASE("product_finite_operations", "[smoke]")
@@ -1865,9 +1849,5 @@ TEST_CASE("product_finite_operations", "[smoke]")
             }
         }
     }
-
-#    ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 #endif

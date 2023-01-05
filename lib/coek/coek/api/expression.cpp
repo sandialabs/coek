@@ -16,40 +16,15 @@ expr_pointer_t convert_expr_template(expr_pointer_t expr);
 // Parameter
 //
 
-Parameter::Parameter()
-{
-    repn = CREATE_POINTER(ParameterTerm);
-    OWN_POINTER(repn);
-}
+Parameter::Parameter() { repn = CREATE_POINTER(ParameterTerm); }
 
 Parameter::Parameter(const std::string& name)
 {
     repn = CREATE_POINTER(ParameterTerm);
-    OWN_POINTER(repn);
     repn->name = name;
 }
 
-Parameter::Parameter(const Parameter& expr)
-{
-    repn = expr.repn;
-    OWN_POINTER(repn);
-}
-
-Parameter::Parameter(const ParameterRepn& _repn)
-{
-    repn = _repn;
-    OWN_POINTER(repn);
-}
-
-Parameter::~Parameter() { DISOWN_POINTER(repn); }
-
-Parameter& Parameter::operator=(const Parameter& expr)
-{
-    DISOWN_POINTER(repn);
-    repn = expr.repn;
-    OWN_POINTER(repn);
-    return *this;
-}
+Parameter::Parameter(const ParameterRepn& _repn) : repn(_repn) {}
 
 Parameter& Parameter::value(double value)
 {
@@ -90,31 +65,18 @@ Parameter parameter(const std::string& name) { return Parameter(name); }
 //
 
 // TODO - Does it make sense to allow an empty IndexParameter?
-IndexParameter::IndexParameter()
-{
-    repn = CREATE_POINTER(IndexParameterTerm, "unknown");
-    OWN_POINTER(repn);
-}
+IndexParameter::IndexParameter() { repn = CREATE_POINTER(IndexParameterTerm, "unknown"); }
 
 IndexParameter::IndexParameter(const std::string& name)
 {
     repn = CREATE_POINTER(IndexParameterTerm, name);
-    OWN_POINTER(repn);
 }
 
-IndexParameter::IndexParameter(const IndexParameter& expr)
-{
-    repn = expr.repn;
-    OWN_POINTER(repn);
-}
-
-IndexParameter::~IndexParameter() { DISOWN_POINTER(repn); }
+IndexParameter::IndexParameter(const IndexParameter& expr) : repn(expr.repn) {}
 
 IndexParameter& IndexParameter::operator=(const IndexParameter& expr)
 {
-    DISOWN_POINTER(repn);
     repn = expr.repn;
-    OWN_POINTER(repn);
     return *this;
 }
 
@@ -164,46 +126,19 @@ IndexParameter set_element(const std::string& name) { return IndexParameter(name
 // Variable
 //
 
-Variable::Variable(const VariableRepn& _repn)
-{
-    repn = _repn;
-    OWN_POINTER(repn);
-}
-
-Variable::Variable(const Variable& expr)
-{
-    repn = expr.repn;
-    OWN_POINTER(repn);
-}
+Variable::Variable(const VariableRepn& _repn) : repn(_repn) {}
 
 Variable::Variable()
 {
-    repn = CREATE_POINTER(VariableTerm, CREATE_POINTER(ConstantTerm, -COEK_INFINITY),
-                          CREATE_POINTER(ConstantTerm, COEK_INFINITY),
-                          CREATE_POINTER(ConstantTerm, COEK_NAN), false, false);
-    OWN_POINTER(repn);
+    repn = CREATE_POINTER(VariableTerm, VariableTerm::negative_infinity,
+                          VariableTerm::positive_infinity, VariableTerm::nan, false, false);
 }
 
 Variable::Variable(const std::string& name)
 {
-    repn = CREATE_POINTER(VariableTerm, CREATE_POINTER(ConstantTerm, -COEK_INFINITY),
-                          CREATE_POINTER(ConstantTerm, COEK_INFINITY),
-                          CREATE_POINTER(ConstantTerm, COEK_NAN), false, false);
-    OWN_POINTER(repn);
+    repn = CREATE_POINTER(VariableTerm, VariableTerm::negative_infinity,
+                          VariableTerm::positive_infinity, VariableTerm::nan, false, false);
     repn->name = name;
-}
-
-Variable::~Variable()
-{
-    if (repn) DISOWN_POINTER(repn);
-}
-
-Variable& Variable::operator=(const Variable& expr)
-{
-    DISOWN_POINTER(repn);
-    repn = expr.repn;
-    OWN_POINTER(repn);
-    return *this;
 }
 
 Variable& Variable::value(double value)
@@ -362,61 +297,32 @@ Variable variable(const std::string& name)
 // Expression
 //
 
-Expression::Expression() : repn(ZEROCONST) { OWN_POINTER(repn); }
+Expression::Expression() : repn(ZEROCONST) {}
 
-Expression::Expression(const ExpressionRepn& _repn) : repn(_repn)
-{
-    if (repn) OWN_POINTER(repn);
-}
+Expression::Expression(const ParameterRepn& _repn) : repn(_repn) {}
+Expression::Expression(const IndexParameterRepn& _repn) : repn(_repn) {}
+Expression::Expression(const VariableRepn& _repn) : repn(_repn) {}
+Expression::Expression(const ExpressionRepn& _repn) : repn(_repn) {}
 
-Expression::Expression(double value)
-{
-    repn = STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(ConstantTerm, value));
-    OWN_POINTER(repn);
-}
+Expression::Expression(ExpressionRepn&& _repn) : repn(_repn) {}
 
-Expression::Expression(int value)
-{
-    repn = STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(ConstantTerm, value));
-    OWN_POINTER(repn);
-}
+Expression::Expression(ParameterRepn&& _repn) : repn(_repn) {}
 
-Expression::Expression(const Parameter& param)
-{
-    repn = STATIC_CAST(BaseExpressionTerm, param.repn);
-    OWN_POINTER(repn);
-}
+Expression::Expression(IndexParameterRepn&& _repn) : repn(_repn) {}
 
-Expression::Expression(const IndexParameter& param)
-{
-    repn = STATIC_CAST(BaseExpressionTerm, param.repn);
-    OWN_POINTER(repn);
-}
+Expression::Expression(VariableRepn&& _repn) : repn(_repn) {}
 
-Expression::Expression(const Variable& var)
-{
-    repn = STATIC_CAST(BaseExpressionTerm, var.repn);
-    OWN_POINTER(repn);
-}
+Expression::Expression(double value) { repn = CREATE_POINTER(ConstantTerm, value); }
 
-Expression::~Expression()
-{
-    if (repn) DISOWN_POINTER(repn);
-}
+Expression::Expression(int value) { repn = CREATE_POINTER(ConstantTerm, value); }
 
-Expression::Expression(const Expression& expr)
-{
-    repn = expr.repn;
-    OWN_POINTER(repn);
-}
+Expression::Expression(const Parameter& param) : repn(param.repn) {}
 
-Expression& Expression::operator=(const Expression& expr)
-{
-    DISOWN_POINTER(repn);
-    repn = expr.repn;
-    OWN_POINTER(repn);
-    return *this;
-}
+Expression::Expression(const IndexParameter& param) : repn(param.repn) {}
+
+Expression::Expression(const Variable& var) : repn(var.repn) {}
+
+Expression::Expression(const SubExpression& arg) : repn(arg.repn) {}
 
 bool Expression::is_constant() const { return repn->is_constant(); }
 
@@ -431,13 +337,10 @@ std::list<std::string> Expression::to_list() const
 
 Expression Expression::diff(const Variable& var) const
 {
-    std::map<VariableTerm*, expr_pointer_t> ans;
+    std::map<std::shared_ptr<VariableTerm>, expr_pointer_t> ans;
     symbolic_diff_all(repn, ans);
     Expression e;
     if (ans.find(var.repn) != ans.end()) e = ans[var.repn];
-    // Discarding all pointers that are not owned
-    for (std::map<VariableTerm*, expr_pointer_t>::iterator it = ans.begin(); it != ans.end(); ++it)
-        DISCARD_POINTER(it->second);
     return e;
 }
 
@@ -493,10 +396,8 @@ Expression& Expression::operator+=(const Variable& arg)
 
 Expression& Expression::operator+=(const Expression& arg)
 {
-    expr_pointer_t _repn = repn;
-    repn = CREATE_POINTER(PlusTerm, _repn, arg.repn);
-    DISOWN_POINTER(_repn);
-    OWN_POINTER(repn);
+    // expr_pointer_t _repn = repn;
+    repn = CREATE_POINTER(PlusTerm, repn, arg.repn);
     return *this;
 }
 
@@ -537,11 +438,7 @@ Expression& Expression::operator-=(const Variable& arg)
 
 Expression& Expression::operator-=(const Expression& arg)
 {
-    expr_pointer_t tmp = CREATE_POINTER(NegateTerm, arg.repn);
-    expr_pointer_t _repn = repn;
-    repn = STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, _repn, tmp));
-    DISOWN_POINTER(_repn);
-    OWN_POINTER(repn);
+    repn = CREATE_POINTER(PlusTerm, repn, CREATE_POINTER(NegateTerm, arg.repn));
     return *this;
 }
 
@@ -582,10 +479,8 @@ Expression& Expression::operator*=(const Variable& arg)
 
 Expression& Expression::operator*=(const Expression& arg)
 {
-    expr_pointer_t _repn = repn;
-    repn = STATIC_CAST(BaseExpressionTerm, times(_repn, arg.repn));
-    DISOWN_POINTER(_repn);
-    OWN_POINTER(repn);
+    // expr_pointer_t _repn = repn;
+    repn = times(repn, arg.repn);
     return *this;
 }
 
@@ -626,10 +521,7 @@ Expression& Expression::operator/=(const Variable& arg)
 
 Expression& Expression::operator/=(const Expression& arg)
 {
-    expr_pointer_t _repn = repn;
-    repn = STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(DivideTerm, _repn, arg.repn));
-    DISOWN_POINTER(_repn);
-    OWN_POINTER(repn);
+    repn = CREATE_POINTER(DivideTerm, repn, arg.repn);
     return *this;
 }
 
@@ -644,6 +536,258 @@ Expression expression(const Parameter& arg) { return coek::Expression(arg); }
 Expression expression(const Variable& arg) { return coek::Expression(arg); }
 
 //
+// SubExpression
+//
+
+SubExpression::SubExpression() { repn = CREATE_POINTER(SubExpressionTerm, ZEROCONST); }
+
+SubExpression::SubExpression(double value)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, CREATE_POINTER(ConstantTerm, value));
+}
+
+SubExpression::SubExpression(int value)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, CREATE_POINTER(ConstantTerm, value));
+}
+
+SubExpression::SubExpression(const Parameter& arg)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
+}
+
+SubExpression::SubExpression(const IndexParameter& arg)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
+}
+
+SubExpression::SubExpression(const Variable& arg)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
+}
+
+SubExpression::SubExpression(const Expression& arg)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
+}
+
+SubExpression& SubExpression::value(double value)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, CREATE_POINTER(ConstantTerm, value));
+    return *this;
+}
+
+SubExpression& SubExpression::value(const Expression& arg)
+{
+    repn = CREATE_POINTER(SubExpressionTerm, arg.repn);
+    return *this;
+}
+
+SubExpression& SubExpression::name(const std::string& name)
+{
+    repn->name = name;
+    return *this;
+}
+
+std::string SubExpression::name() const { return repn->get_name(); }
+
+bool SubExpression::is_constant() const { return repn->is_constant(); }
+
+double SubExpression::value() const { return repn->eval(); }
+
+std::list<std::string> SubExpression::to_list() const
+{
+    std::list<std::string> tmp;
+    expr_to_list(repn, tmp);
+    return tmp;
+}
+
+Expression SubExpression::diff(const Variable& var) const
+{
+    std::map<std::shared_ptr<VariableTerm>, expr_pointer_t> ans;
+    symbolic_diff_all(repn, ans);
+    Expression e;
+    if (ans.find(var.repn) != ans.end()) e = ans[var.repn];
+    return e;
+}
+
+Expression SubExpression::expand()
+{
+#ifdef COEK_WITH_COMPACT_MODEL
+    return convert_expr_template(repn);
+#else
+    return *this;
+#endif
+}
+
+SubExpression& SubExpression::operator+=(int arg)
+{
+    Expression e(arg);
+    *this += e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator+=(double arg)
+{
+    Expression e(arg);
+    *this += e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator+=(const Parameter& arg)
+{
+    Expression e(arg);
+    *this += e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator+=(const IndexParameter& arg)
+{
+    Expression e(arg);
+    *this += e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator+=(const Variable& arg)
+{
+    Expression e(arg);
+    *this += e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator+=(const Expression& arg)
+{
+    repn->body = CREATE_POINTER(PlusTerm, repn->body, arg.repn);
+    return *this;
+}
+
+SubExpression& SubExpression::operator-=(int arg)
+{
+    Expression e(arg);
+    *this -= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator-=(double arg)
+{
+    Expression e(arg);
+    *this -= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator-=(const Parameter& arg)
+{
+    Expression e(arg);
+    *this -= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator-=(const IndexParameter& arg)
+{
+    Expression e(arg);
+    *this -= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator-=(const Variable& arg)
+{
+    Expression e(arg);
+    *this -= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator-=(const Expression& arg)
+{
+    repn->body = CREATE_POINTER(PlusTerm, repn->body, CREATE_POINTER(NegateTerm, arg.repn));
+    return *this;
+}
+
+SubExpression& SubExpression::operator*=(int arg)
+{
+    Expression e(arg);
+    *this *= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator*=(double arg)
+{
+    Expression e(arg);
+    *this *= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator*=(const Parameter& arg)
+{
+    Expression e(arg);
+    *this *= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator*=(const IndexParameter& arg)
+{
+    Expression e(arg);
+    *this *= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator*=(const Variable& arg)
+{
+    Expression e(arg);
+    *this *= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator*=(const Expression& arg)
+{
+    repn->body = times(repn->body, arg.repn);
+    return *this;
+}
+
+SubExpression& SubExpression::operator/=(int arg)
+{
+    Expression e(arg);
+    *this /= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator/=(double arg)
+{
+    Expression e(arg);
+    *this /= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator/=(const Parameter& arg)
+{
+    Expression e(arg);
+    *this /= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator/=(const IndexParameter& arg)
+{
+    Expression e(arg);
+    *this /= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator/=(const Variable& arg)
+{
+    Expression e(arg);
+    *this /= e;
+    return *this;
+}
+
+SubExpression& SubExpression::operator/=(const Expression& arg)
+{
+    repn->body = CREATE_POINTER(DivideTerm, repn->body, arg.repn);
+    return *this;
+}
+
+SubExpression subexpression() { return SubExpression(); }
+SubExpression subexpression(const std::string& name) { return SubExpression().name(name); }
+
+//
 // -------------------------------------------------------------------------------------
 // OPERATORS
 // -------------------------------------------------------------------------------------
@@ -651,376 +795,225 @@ Expression expression(const Variable& arg) { return coek::Expression(arg); }
 //
 // operator+
 //
-Expression operator+(const Parameter& param) { return STATIC_CAST(BaseExpressionTerm, param.repn); }
-Expression operator+(const IndexParameter& param)
-{
-    return STATIC_CAST(BaseExpressionTerm, param.repn);
-}
-Expression operator+(const Variable& var) { return STATIC_CAST(BaseExpressionTerm, var.repn); }
+Expression operator+(const Variable& var) { return var.repn; }
 Expression operator+(const Expression& expr) { return expr; }
 
-Expression operator+(int lhs, const Parameter& rhs) { return plus(lhs, rhs.repn); }
-Expression operator+(int lhs, const IndexParameter& rhs) { return plus(lhs, rhs.repn); }
 Expression operator+(int lhs, const Variable& rhs) { return plus(lhs, rhs.repn); }
 Expression operator+(int lhs, const Expression& rhs) { return plus(lhs, rhs.repn); }
-Expression operator+(double lhs, const Parameter& rhs) { return plus(lhs, rhs.repn); }
-Expression operator+(double lhs, const IndexParameter& rhs) { return plus(lhs, rhs.repn); }
 Expression operator+(double lhs, const Variable& rhs) { return plus(lhs, rhs.repn); }
 Expression operator+(double lhs, const Expression& rhs) { return plus(lhs, rhs.repn); }
 
-Expression Parameter::operator+(int arg) const { return plus(repn, arg); }
-Expression IndexParameter::operator+(int arg) const { return plus(repn, arg); }
-Expression Variable::operator+(int arg) const { return plus(repn, arg); }
-Expression Expression::operator+(int arg) const { return plus(repn, arg); }
-Expression Parameter::operator+(double arg) const { return plus(repn, arg); }
-Expression IndexParameter::operator+(double arg) const { return plus(repn, arg); }
-Expression Variable::operator+(double arg) const { return plus(repn, arg); }
-Expression Expression::operator+(double arg) const { return plus(repn, arg); }
+Expression operator+(const Variable& lhs, int arg) { return plus(lhs.repn, arg); }
+Expression operator+(const Expression& lhs, int arg) { return plus(lhs.repn, arg); }
+Expression operator+(const Variable& lhs, double arg) { return plus(lhs.repn, arg); }
+Expression operator+(const Expression& lhs, double arg) { return plus(lhs.repn, arg); }
 
-Expression Parameter::operator+(const Parameter& arg) const
+Expression operator+(const Variable& lhs, const Variable& rhs)
 {
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
+    return Expression(CREATE_POINTER(PlusTerm, lhs.repn, rhs.repn));
 }
-Expression Parameter::operator+(const IndexParameter& arg) const
+Expression operator+(const Variable& lhs, const Expression& rhs)
 {
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
+    return Expression(CREATE_POINTER(PlusTerm, lhs.repn, rhs.repn));
 }
-Expression Parameter::operator+(const Variable& arg) const
+Expression operator+(const Expression& lhs, const Variable& rhs)
 {
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
+    return Expression(CREATE_POINTER(PlusTerm, lhs.repn, rhs.repn));
 }
-Expression Parameter::operator+(const Expression& arg) const
+Expression operator+(const Expression& lhs, const Expression& rhs)
 {
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
-}
-
-Expression IndexParameter::operator+(const Parameter& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
-}
-Expression IndexParameter::operator+(const IndexParameter& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
-}
-Expression IndexParameter::operator+(const Variable& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
-}
-Expression IndexParameter::operator+(const Expression& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
-}
-
-Expression Variable::operator+(const Parameter& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
-}
-Expression Variable::operator+(const IndexParameter& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
-}
-Expression Variable::operator+(const Variable& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
-}
-Expression Variable::operator+(const Expression& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
-}
-
-Expression Expression::operator+(const Parameter& arg) const
-{
-    // if (repn == ZeroConstant.repn)
-    //     return arg.repn;
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
-}
-Expression Expression::operator+(const IndexParameter& arg) const
-{
-    // if (repn == ZeroConstant.repn)
-    //     return arg.repn;
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
-}
-Expression Expression::operator+(const Variable& arg) const
-{
-    // if (repn == ZeroConstant.repn)
-    //     return arg.repn;
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
-}
-Expression Expression::operator+(const Expression& arg) const
-{
-    // if (repn == ZeroConstant.repn)
-    //     return arg.repn;
-    // if (arg.repn == ZeroConstant.repn)
-    //     return repn;
-    return STATIC_CAST(BaseExpressionTerm, CREATE_POINTER(PlusTerm, repn, arg.repn));
+    return Expression(CREATE_POINTER(PlusTerm, lhs.repn, rhs.repn));
 }
 
 //
 // operator-
 //
-Expression operator-(const Parameter& param) { return param.repn->negate(param.repn); }
-Expression operator-(const IndexParameter& param) { return param.repn->negate(param.repn); }
 Expression operator-(const Variable& var) { return var.repn->negate(var.repn); }
 Expression operator-(const Expression& expr) { return expr.repn->negate(expr.repn); }
 
-Expression operator-(int lhs, const Parameter& rhs) { return minus(lhs, rhs.repn); }
-Expression operator-(int lhs, const IndexParameter& rhs) { return minus(lhs, rhs.repn); }
 Expression operator-(int lhs, const Variable& rhs) { return minus(lhs, rhs.repn); }
-Expression operator-(int lhs, const Expression& rhs)
-{
-    // if (rhs.repn == ZeroConstant.repn)
-    //     return repn;
-    return minus(lhs, rhs.repn);
-}
-Expression operator-(double lhs, const Parameter& rhs) { return minus(lhs, rhs.repn); }
-Expression operator-(double lhs, const IndexParameter& rhs) { return minus(lhs, rhs.repn); }
+Expression operator-(int lhs, const Expression& rhs) { return minus(lhs, rhs.repn); }
 Expression operator-(double lhs, const Variable& rhs) { return minus(lhs, rhs.repn); }
-Expression operator-(double lhs, const Expression& rhs)
-{
-    // if (rhs.repn == ZeroConstant.repn)
-    //     return repn;
-    return minus(lhs, rhs.repn);
-}
+Expression operator-(double lhs, const Expression& rhs) { return minus(lhs, rhs.repn); }
 
-Expression Parameter::operator-(int arg) const { return plus(repn, -arg); }
-Expression IndexParameter::operator-(int arg) const { return plus(repn, -arg); }
-Expression Variable::operator-(int arg) const { return plus(repn, -arg); }
-Expression Expression::operator-(int arg) const { return plus(repn, -arg); }
-Expression Parameter::operator-(double arg) const { return plus(repn, -arg); }
-Expression IndexParameter::operator-(double arg) const { return plus(repn, -arg); }
-Expression Variable::operator-(double arg) const { return plus(repn, -arg); }
-Expression Expression::operator-(double arg) const { return plus(repn, -arg); }
+Expression operator-(const Variable& lhs, int arg) { return plus(lhs.repn, -arg); }
+Expression operator-(const Expression& lhs, int arg) { return plus(lhs.repn, -arg); }
+Expression operator-(const Variable& lhs, double arg) { return plus(lhs.repn, -arg); }
+Expression operator-(const Expression& lhs, double arg) { return plus(lhs.repn, -arg); }
 
-Expression Parameter::operator-(const Parameter& arg) const
+Expression operator-(const Variable& lhs, const Variable& rhs)
 {
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, lhs.repn, rhs.repn->negate(rhs.repn)));
 }
-Expression Parameter::operator-(const IndexParameter& arg) const
+Expression operator-(const Variable& lhs, const Expression& rhs)
 {
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, lhs.repn, rhs.repn->negate(rhs.repn)));
 }
-Expression Parameter::operator-(const Variable& arg) const
+Expression operator-(const Expression& lhs, const Variable& rhs)
 {
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, lhs.repn, rhs.repn->negate(rhs.repn)));
 }
-Expression Parameter::operator-(const Expression& arg) const
+Expression operator-(const Expression& lhs, const Expression& rhs)
 {
-    // if (rhs.repn == ZeroConstant.repn)
-    //     return repn;
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
-}
-
-Expression IndexParameter::operator-(const Parameter& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
-}
-Expression IndexParameter::operator-(const IndexParameter& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
-}
-Expression IndexParameter::operator-(const Variable& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
-}
-Expression IndexParameter::operator-(const Expression& arg) const
-{
-    // if (rhs.repn == ZeroConstant.repn)
-    //     return repn;
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
-}
-
-Expression Variable::operator-(const Parameter& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
-}
-Expression Variable::operator-(const IndexParameter& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
-}
-Expression Variable::operator-(const Variable& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
-}
-Expression Variable::operator-(const Expression& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
-}
-
-Expression Expression::operator-(const Parameter& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
-}
-Expression Expression::operator-(const IndexParameter& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
-}
-Expression Expression::operator-(const Variable& arg) const
-{
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
-}
-Expression Expression::operator-(const Expression& arg) const
-{
-    // if (rhs.repn == ZeroConstant.repn)
-    //     return repn;
-    // if (arg.repn == ZeroConstant.repn)
-    //     return repn;
-
-    return STATIC_CAST(BaseExpressionTerm,
-                       CREATE_POINTER(PlusTerm, repn, arg.repn->negate(arg.repn)));
+    return Expression(CREATE_POINTER(PlusTerm, lhs.repn, rhs.repn->negate(rhs.repn)));
 }
 
 //
 // operator*
 //
-Expression operator*(int lhs, const Parameter& rhs) { return times(lhs, rhs.repn); }
-Expression operator*(int lhs, const IndexParameter& rhs) { return times(lhs, rhs.repn); }
 Expression operator*(int lhs, const Variable& rhs)
 {
-    if (lhs == 0) return ZEROCONST;
-    if (lhs == 1) return rhs.repn;
-    return STATIC_CAST(BaseExpressionTerm, rhs.repn->const_mult(lhs, rhs.repn));
+    expr_pointer_t tmp;
+    if (lhs == 0)
+        tmp = ZEROCONST;
+    else if (lhs == 1)
+        tmp = rhs.repn;
+    else
+        tmp = rhs.repn->const_mult(lhs, rhs.repn);
+    return tmp;
 }
 Expression operator*(int lhs, const Expression& rhs)
 {
-    if (lhs == 0) return ZEROCONST;
-    if (lhs == 1) return rhs.repn;
-    return times(lhs, rhs.repn);
+    expr_pointer_t tmp;
+    if (lhs == 0)
+        tmp = ZEROCONST;
+    else if (lhs == 1)
+        tmp = rhs.repn;
+    else
+        tmp = times(lhs, rhs.repn);
+    return tmp;
 }
-Expression operator*(double lhs, const Parameter& rhs) { return times(lhs, rhs.repn); }
-Expression operator*(double lhs, const IndexParameter& rhs) { return times(lhs, rhs.repn); }
 Expression operator*(double lhs, const Variable& rhs)
 {
-    if (lhs == 0.0) return ZEROCONST;
-    if (lhs == 1.0) return rhs.repn;
-    return STATIC_CAST(BaseExpressionTerm, rhs.repn->const_mult(lhs, rhs.repn));
+    expr_pointer_t tmp;
+    if (lhs == 0.0)
+        tmp = ZEROCONST;
+    else if (lhs == 1.0)
+        tmp = rhs.repn;
+    else
+        tmp = rhs.repn->const_mult(lhs, rhs.repn);
+    return tmp;
 }
 Expression operator*(double lhs, const Expression& rhs)
 {
-    if (lhs == 0.0) return ZEROCONST;
-    if (lhs == 1.0) return rhs.repn;
-    return times(lhs, rhs.repn);
+    expr_pointer_t tmp;
+    if (lhs == 0.0)
+        tmp = ZEROCONST;
+    else if (lhs == 1.0)
+        tmp = rhs.repn;
+    else
+        tmp = times(lhs, rhs.repn);
+    return tmp;
 }
 
-Expression Parameter::operator*(int arg) const { return times(repn, arg); }
-Expression IndexParameter::operator*(int arg) const { return times(repn, arg); }
-Expression Variable::operator*(int arg) const
+Expression operator*(const Variable& lhs, int arg)
 {
-    if (arg == 0) return ZEROCONST;
-    if (arg == 1) return repn;
-    return STATIC_CAST(BaseExpressionTerm, repn->const_mult(arg, repn));
+    expr_pointer_t tmp;
+    if (arg == 0)
+        tmp = ZEROCONST;
+    else if (arg == 1)
+        tmp = lhs.repn;
+    else
+        tmp = lhs.repn->const_mult(arg, lhs.repn);
+    return tmp;
 }
-Expression Expression::operator*(int arg) const
+Expression operator*(const Expression& lhs, int arg)
 {
-    if (arg == 0) return ZEROCONST;
-    if (arg == 1) return repn;
-    return times(repn, arg);
+    expr_pointer_t tmp;
+    if (arg == 0)
+        tmp = ZEROCONST;
+    else if (arg == 1)
+        tmp = lhs.repn;
+    else
+        tmp = times(lhs.repn, arg);
+    return tmp;
 }
-Expression Parameter::operator*(double arg) const { return times(repn, arg); }
-Expression IndexParameter::operator*(double arg) const { return times(repn, arg); }
-Expression Variable::operator*(double arg) const
+Expression operator*(const Variable& lhs, double arg)
 {
-    if (arg == 0.0) return ZEROCONST;
-    if (arg == 1.0) return repn;
-    return STATIC_CAST(BaseExpressionTerm, repn->const_mult(arg, repn));
+    expr_pointer_t tmp;
+    if (arg == 0.0)
+        tmp = ZEROCONST;
+    else if (arg == 1.0)
+        tmp = lhs.repn;
+    else
+        tmp = lhs.repn->const_mult(arg, lhs.repn);
+    return tmp;
 }
-Expression Expression::operator*(double arg) const
+Expression operator*(const Expression& lhs, double arg)
 {
-    if (arg == 0.0) return ZEROCONST;
-    if (arg == 1.0) return repn;
-    return times(repn, arg);
+    expr_pointer_t tmp;
+    if (arg == 0.0)
+        tmp = ZEROCONST;
+    else if (arg == 1.0)
+        tmp = lhs.repn;
+    else
+        tmp = times(lhs.repn, arg);
+    return tmp;
 }
 
-Expression Parameter::operator*(const Parameter& arg) const { return times(repn, arg.repn); }
-Expression Parameter::operator*(const IndexParameter& arg) const { return times(repn, arg.repn); }
-Expression Parameter::operator*(const Variable& arg) const { return times(repn, arg.repn); }
-Expression Parameter::operator*(const Expression& arg) const { return times(repn, arg.repn); }
-
-Expression IndexParameter::operator*(const Parameter& arg) const { return times(repn, arg.repn); }
-Expression IndexParameter::operator*(const IndexParameter& arg) const
+Expression operator*(const Variable& lhs, const Variable& rhs) { return times(lhs.repn, rhs.repn); }
+Expression operator*(const Variable& lhs, const Expression& rhs)
 {
-    return times(repn, arg.repn);
+    return times(lhs.repn, rhs.repn);
 }
-Expression IndexParameter::operator*(const Variable& arg) const { return times(repn, arg.repn); }
-Expression IndexParameter::operator*(const Expression& arg) const { return times(repn, arg.repn); }
-
-Expression Variable::operator*(const Parameter& arg) const { return times(repn, arg.repn); }
-Expression Variable::operator*(const IndexParameter& arg) const { return times(repn, arg.repn); }
-Expression Variable::operator*(const Variable& arg) const { return times(repn, arg.repn); }
-Expression Variable::operator*(const Expression& arg) const { return times(repn, arg.repn); }
-
-Expression Expression::operator*(const Parameter& arg) const { return times(repn, arg.repn); }
-Expression Expression::operator*(const IndexParameter& arg) const { return times(repn, arg.repn); }
-Expression Expression::operator*(const Variable& arg) const { return times(repn, arg.repn); }
-Expression Expression::operator*(const Expression& arg) const { return times(repn, arg.repn); }
+Expression operator*(const Expression& lhs, const Variable& rhs)
+{
+    return times(lhs.repn, rhs.repn);
+}
+Expression operator*(const Expression& lhs, const Expression& rhs)
+{
+    return times(lhs.repn, rhs.repn);
+}
 
 //
 // operator/
 //
-Expression operator/(int lhs, const Parameter& rhs) { return divide(lhs, rhs.repn); }
-Expression operator/(int lhs, const IndexParameter& rhs) { return divide(lhs, rhs.repn); }
 Expression operator/(int lhs, const Variable& rhs) { return divide(lhs, rhs.repn); }
 Expression operator/(int lhs, const Expression& rhs) { return divide(lhs, rhs.repn); }
-Expression operator/(double lhs, const Parameter& rhs) { return divide(lhs, rhs.repn); }
-Expression operator/(double lhs, const IndexParameter& rhs) { return divide(lhs, rhs.repn); }
 Expression operator/(double lhs, const Variable& rhs) { return divide(lhs, rhs.repn); }
 Expression operator/(double lhs, const Expression& rhs) { return divide(lhs, rhs.repn); }
 
-Expression Parameter::operator/(int arg) const { return divide(repn, arg); }
-Expression IndexParameter::operator/(int arg) const { return divide(repn, arg); }
-Expression Variable::operator/(int arg) const
+Expression operator/(const Variable& lhs, int arg)
 {
-    if (arg == 1) return repn;
-    if (arg == 0) throw std::domain_error("Division by zero.");
-    return STATIC_CAST(BaseExpressionTerm, repn->const_mult(1.0 / arg, repn));
+    expr_pointer_t tmp;
+    if (arg == 1)
+        tmp = lhs.repn;
+    else if (arg == 0)
+        throw std::domain_error("Division by zero.");
+    else
+        tmp = lhs.repn->const_mult(1.0 / arg, lhs.repn);
+    return tmp;
 }
-Expression Expression::operator/(int arg) const { return divide(repn, arg); }
-Expression Parameter::operator/(double arg) const { return divide(repn, arg); }
-Expression IndexParameter::operator/(double arg) const { return divide(repn, arg); }
-Expression Variable::operator/(double arg) const
+Expression operator/(const Expression& lhs, int arg) { return divide(lhs.repn, arg); }
+Expression operator/(const Variable& lhs, double arg)
 {
-    if (arg == 1.0) return repn;
-    if (arg == 0.0) throw std::domain_error("Division by zero.");
-    return STATIC_CAST(BaseExpressionTerm, repn->const_mult(1.0 / arg, repn));
+    expr_pointer_t tmp;
+    if (arg == 1.0)
+        tmp = lhs.repn;
+    else if (arg == 0.0)
+        throw std::domain_error("Division by zero.");
+    else
+        tmp = lhs.repn->const_mult(1.0 / arg, lhs.repn);
+    return tmp;
 }
-Expression Expression::operator/(double arg) const { return divide(repn, arg); }
+Expression operator/(const Expression& lhs, double arg) { return divide(lhs.repn, arg); }
 
-Expression Parameter::operator/(const Parameter& arg) const { return divide(repn, arg.repn); }
-Expression Parameter::operator/(const IndexParameter& arg) const { return divide(repn, arg.repn); }
-Expression Parameter::operator/(const Variable& arg) const { return divide(repn, arg.repn); }
-Expression Parameter::operator/(const Expression& arg) const { return divide(repn, arg.repn); }
-
-Expression IndexParameter::operator/(const Parameter& arg) const { return divide(repn, arg.repn); }
-Expression IndexParameter::operator/(const IndexParameter& arg) const
+Expression operator/(const Variable& lhs, const Variable& rhs)
 {
-    return divide(repn, arg.repn);
+    return divide(lhs.repn, rhs.repn);
 }
-Expression IndexParameter::operator/(const Variable& arg) const { return divide(repn, arg.repn); }
-Expression IndexParameter::operator/(const Expression& arg) const { return divide(repn, arg.repn); }
-
-Expression Variable::operator/(const Parameter& arg) const { return divide(repn, arg.repn); }
-Expression Variable::operator/(const IndexParameter& arg) const { return divide(repn, arg.repn); }
-Expression Variable::operator/(const Variable& arg) const { return divide(repn, arg.repn); }
-Expression Variable::operator/(const Expression& arg) const { return divide(repn, arg.repn); }
-
-Expression Expression::operator/(const Parameter& arg) const { return divide(repn, arg.repn); }
-Expression Expression::operator/(const IndexParameter& arg) const { return divide(repn, arg.repn); }
-Expression Expression::operator/(const Variable& arg) const { return divide(repn, arg.repn); }
-Expression Expression::operator/(const Expression& arg) const { return divide(repn, arg.repn); }
+Expression operator/(const Variable& lhs, const Expression& rhs)
+{
+    return divide(lhs.repn, rhs.repn);
+}
+Expression operator/(const Expression& lhs, const Variable& rhs)
+{
+    return divide(lhs.repn, rhs.repn);
+}
+Expression operator/(const Expression& lhs, const Expression& rhs)
+{
+    return divide(lhs.repn, rhs.repn);
+}
 
 //
 // TODO - Maybe we should have an expression term for affine expressions.  But for now, we'll
@@ -1039,7 +1032,7 @@ Expression affine_expression(const std::vector<double>& coef, const std::vector<
 Expression affine_expression(const std::vector<Variable>& var, double offset)
 {
     Expression e(offset);
-    for (auto it = var.begin(); it != var.end(); ++it) e += *it;
+    for (auto& v : var) e += v;
     return e;
 }
 

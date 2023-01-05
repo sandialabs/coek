@@ -10,8 +10,6 @@
 #include <iostream>
 #include <typeinfo>
 
-//#include "coek/ast/base_terms.hpp"
-//#include "coek/ast/value_terms.hpp"
 #include "coek/coek.hpp"
 
 namespace py = pybind11;
@@ -1261,11 +1259,12 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def_property_readonly("name",
                                [](coek::VariableArray& x) -> py::object {
                                    if (x.name().size() == 0)
-                                       return py::cast<std::string>("x");
+                                       return py::cast<std::string>("X");
                                    else
                                        return py::cast<std::string>(x.name());
                                })
         .def("is_constraint", [](const coek::VariableArray&) { return false; })
+        .def("generate_names", [](coek::VariableArray& x) { return x.generate_names(); })
         .def(
             "__iter__",
             [](const coek::VariableArray& va) {
@@ -1290,6 +1289,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
              [](coek::VariableMap& x, py::args args) {
                  return coek::Array_getitem<coek::VariableMap>(x, args);
              })
+        .def("generate_names", [](coek::VariableMap& x) { return x.generate_names(); })
         //.def_property_readonly("name", [](coek::VariableMap& x) -> py::object {
         //        return py::cast<std::string>(x.name());
         //        })
@@ -1645,7 +1645,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def_property_readonly("value", [](coek::Objective& c) { return c.value(); })
         .def_property_readonly("id", &coek::Objective::id)
         .def_property_readonly(
-            "name", [](coek::Objective& c) { return std::string("o") + std::to_string(c.id()); })
+            "name", [](coek::Objective& c) { return std::string("O") + std::to_string(c.id()); })
 
         .def("to_list", [](coek::Objective& x) {
             auto tmp = x.to_list();
@@ -1678,7 +1678,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def("is_equality", &coek::Constraint::is_equality)
         .def_property_readonly("id", &coek::Constraint::id)
         .def_property_readonly(
-            "name", [](coek::Constraint& c) { return std::string("c") + std::to_string(c.id()); })
+            "name", [](coek::Constraint& c) { return std::string("C") + std::to_string(c.id()); })
         .def("is_feasible", &coek::Constraint::is_feasible)
         .def("is_constraint", [](const coek::Constraint&) { return true; })
         .def("__eq__",

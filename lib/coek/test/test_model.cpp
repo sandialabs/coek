@@ -7,6 +7,8 @@
 #include "catch2/catch.hpp"
 #include "coek/ast/base_terms.hpp"
 #include "coek/ast/value_terms.hpp"
+#include "coek/util/string_utils.hpp"
+#include "coek/model/model_repn.hpp"
 #include "coek/coek.hpp"
 
 const double PI = 3.141592653589793238463;
@@ -14,50 +16,48 @@ const double E = exp(1.0);
 
 #ifdef COEK_WITH_COMPACT_MODEL
 TEMPLATE_TEST_CASE("model_add", "[smoke]", coek::Model, coek::CompactModel)
-{
 #else
 TEMPLATE_TEST_CASE("model_add", "[smoke]", coek::Model)
-{
 #endif
-    {
-        TestType model;
+{
+    TestType model;
 
-        SECTION("variables"){WHEN("elementary"){auto w = model.add(coek::variable());
-        auto x = model.add(coek::variable().value(1));
-        auto y = model.add(coek::variable()).value(1);
-    }
+    SECTION("variables"){WHEN("elementary"){auto w = model.add(coek::variable());
+    auto x = model.add(coek::variable().value(1));
+    auto y = model.add(coek::variable()).value(1);
+}
 
-    WHEN("array")
-    {
-        auto w = model.add(coek::variable(3));
-        auto x = model.add(coek::variable(3).value(1));
-        auto y = model.add(coek::variable(3)).value(1);
-        REQUIRE(w.size() == 3);
-        REQUIRE(x.size() == 3);
-        REQUIRE(y.size() == 3);
-    }
+WHEN("array")
+{
+    auto w = model.add(coek::variable(3));
+    auto x = model.add(coek::variable(3).value(1));
+    auto y = model.add(coek::variable(3)).value(1);
+    REQUIRE(w.size() == 3);
+    REQUIRE(x.size() == 3);
+    REQUIRE(y.size() == 3);
+}
 
-    WHEN("multi-dimensional array")
-    {
-        auto w = model.add(coek::variable({3, 3}));
-        auto x = model.add(coek::variable({3, 3}).value(1));
-        auto y = model.add(coek::variable({3, 3})).value(1);
-        REQUIRE(w.size() == 9);
-        REQUIRE(x.size() == 9);
-        REQUIRE(y.size() == 9);
-    }
+WHEN("multi-dimensional array")
+{
+    auto w = model.add(coek::variable({3, 3}));
+    auto x = model.add(coek::variable({3, 3}).value(1));
+    auto y = model.add(coek::variable({3, 3})).value(1);
+    REQUIRE(w.size() == 9);
+    REQUIRE(x.size() == 9);
+    REQUIRE(y.size() == 9);
+}
 
 #ifdef COEK_WITH_COMPACT_MODEL
-    WHEN("map")
-    {
-        auto A = coek::RangeSet(0, 2) * coek::RangeSet(0, 2);
-        auto w = model.add(coek::variable(A));
-        auto x = model.add(coek::variable(A).value(1));
-        auto y = model.add(coek::variable(A)).value(1);
-        REQUIRE(w.size() == 9);
-        REQUIRE(x.size() == 9);
-        REQUIRE(y.size() == 9);
-    }
+WHEN("map")
+{
+    auto A = coek::RangeSet(0, 2) * coek::RangeSet(0, 2);
+    auto w = model.add(coek::variable(A));
+    auto x = model.add(coek::variable(A).value(1));
+    auto y = model.add(coek::variable(A)).value(1);
+    REQUIRE(w.size() == 9);
+    REQUIRE(x.size() == 9);
+    REQUIRE(y.size() == 9);
+}
 #endif
 }
 
@@ -101,190 +101,410 @@ SECTION("constraints")
 #endif
 }
 }
-#ifdef DEBUG
-REQUIRE(coek::env.check_memory() == true);
-#endif
-}
 
 #ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE("compact_model_add", "[smoke]")
 {
-    {
-        coek::CompactModel model;
+    coek::CompactModel model;
 
-        SECTION("simple")
-        {
-            auto I = coek::RangeSet(0, 3);
-            auto i = coek::set_element("i");
-            auto x = model.add(coek::variable());
-            model.add(coek::constraint(i * x == 0, Forall(i).In(I)));
-            auto M = model.expand();
-            REQUIRE(M.num_constraints() == 4);
-        }
+    SECTION("simple")
+    {
+        auto I = coek::RangeSet(0, 3);
+        auto i = coek::set_element("i");
+        auto x = model.add(coek::variable());
+        model.add(coek::constraint(i * x == 0, Forall(i).In(I)));
+        auto M = model.expand();
+        REQUIRE(M.num_constraints() == 4);
     }
-#    ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 #endif
 
+TEST_CASE("model_names", "[smoke]")
+{
+    coek::Model m;
+#ifdef COEK_WITH_COMPACT_MODEL
+    auto I = coek::RangeSet(0, 3);
+#endif
+
+    auto p = coek::parameter("p");
+    auto q = coek::parameter("q", 10);
+    auto r = coek::parameter("r", {10, 10});
+#ifdef COEK_WITH_COMPACT_MODEL
+    auto qq = coek::parameter("qq", I);
+    auto rr = coek::parameter("rr", I * I);
+#endif
+
+    auto x = coek::variable("x");
+    auto y = coek::variable("y", 10);
+    auto z = coek::variable("z", {10, 10});
+#ifdef COEK_WITH_COMPACT_MODEL
+    auto yy = coek::variable("yy", I);
+    auto zz = coek::variable("zz", I * I);
+#endif
+
+    auto c = coek::constraint("c", x == 1);
+    auto d = coek::constraint("d", 10);
+    d(0) = x == 1;
+    auto e = coek::constraint("e", {10, 10});
+    e(0, 0) = x == 1;
+#ifdef COEK_WITH_COMPACT_MODEL
+    auto dd = coek::constraint("dd", I);
+    dd(0) = x == 1;
+    auto ee = coek::constraint("ee", I * I);
+    ee(0, 0) = x == 1;
+#endif
+
+    SECTION("simple")
+    {
+        // m.add(p);
+        m.add(q);
+        m.add(r);
+#ifdef COEK_WITH_COMPACT_MODEL
+        m.add(qq);
+        m.add(rr);
+#endif
+        m.add(x);
+        m.add(y);
+        m.add(z);
+#ifdef COEK_WITH_COMPACT_MODEL
+        m.add(yy);
+        m.add(zz);
+#endif
+        m.add(c);
+        m.add(d);
+        m.add(e);
+#ifdef COEK_WITH_COMPACT_MODEL
+        m.add(dd);
+        m.add(ee);
+#endif
+
+        REQUIRE(m.name_generation() == coek::Model::NameGeneration::simple);
+        REQUIRE(m.repn->parameter_arrays.size() == 0);
+        REQUIRE(m.repn->variable_arrays.size() == 0);
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(m.repn->parameter_maps.size() == 0);
+        REQUIRE(m.repn->variable_maps.size() == 0);
+#endif
+        REQUIRE(m.repn->constraint_maps.size() == 0);
+
+        REQUIRE(coek::starts_with(p.name(), "p"));
+        REQUIRE(coek::starts_with(q(0).name(), "P"));
+        REQUIRE(coek::starts_with(r(0, 0).name(), "P"));
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(coek::starts_with(qq(0).name(), "P"));
+        REQUIRE(coek::starts_with(rr(0, 0).name(), "P"));
+#endif
+        REQUIRE(coek::starts_with(x.name(), "x"));
+        REQUIRE(coek::starts_with(y(0).name(), "X"));
+        REQUIRE(coek::starts_with(z(0, 0).name(), "X"));
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(coek::starts_with(yy(0).name(), "X"));
+        REQUIRE(coek::starts_with(zz(0, 0).name(), "X"));
+#endif
+        REQUIRE(coek::starts_with(c.name(), "c"));
+        REQUIRE(coek::starts_with(d(0).name(), "C"));
+        REQUIRE(coek::starts_with(e(0, 0).name(), "C"));
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(coek::starts_with(dd(0).name(), "C"));
+        REQUIRE(coek::starts_with(ee(0, 0).name(), "C"));
+#endif
+    }
+
+    SECTION("lazy")
+    {
+        m.name_generation(coek::Model::NameGeneration::lazy);
+        // m.add(p);
+        m.add(q);
+        m.add(r);
+#ifdef COEK_WITH_COMPACT_MODEL
+        m.add(qq);
+        m.add(rr);
+#endif
+        m.add(x);
+        m.add(y);
+        m.add(z);
+#ifdef COEK_WITH_COMPACT_MODEL
+        m.add(yy);
+        m.add(zz);
+#endif
+        m.add(c);
+        m.add(d);
+        m.add(e);
+#ifdef COEK_WITH_COMPACT_MODEL
+        m.add(dd);
+        m.add(ee);
+#endif
+
+        REQUIRE(m.name_generation() == coek::Model::NameGeneration::lazy);
+        REQUIRE(m.repn->parameter_arrays.size() == 2);
+        REQUIRE(m.repn->variable_arrays.size() == 2);
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(m.repn->parameter_maps.size() == 2);
+        REQUIRE(m.repn->variable_maps.size() == 2);
+#endif
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(m.repn->constraint_maps.size() == 4);
+#else
+        REQUIRE(m.repn->constraint_maps.size() == 2);
+#endif
+
+        REQUIRE(coek::starts_with(p.name(), "p"));
+        REQUIRE(coek::starts_with(q(0).name(), "P"));
+        REQUIRE(coek::starts_with(r(0, 0).name(), "P"));
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(coek::starts_with(qq(0).name(), "P"));
+        REQUIRE(coek::starts_with(rr(0, 0).name(), "P"));
+#endif
+        REQUIRE(coek::starts_with(x.name(), "x"));
+        REQUIRE(coek::starts_with(y(0).name(), "X"));
+        REQUIRE(coek::starts_with(z(0, 0).name(), "X"));
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(coek::starts_with(yy(0).name(), "X"));
+        REQUIRE(coek::starts_with(zz(0, 0).name(), "X"));
+#endif
+        REQUIRE(coek::starts_with(c.name(), "c"));
+        REQUIRE(coek::starts_with(d(0).name(), "C"));
+        REQUIRE(coek::starts_with(e(0, 0).name(), "C"));
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(coek::starts_with(dd(0).name(), "C"));
+        REQUIRE(coek::starts_with(ee(0, 0).name(), "C"));
+#endif
+
+        m.generate_names();
+
+        REQUIRE(p.name() == "p");
+        REQUIRE(q(0).name() == "q[0]");
+        REQUIRE(r(0, 0).name() == "r[0,0]");
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(qq(0).name() == "qq[0]");
+        REQUIRE(rr(0, 0).name() == "rr[0,0]");
+#endif
+        REQUIRE(x.name() == "x");
+        REQUIRE(y(0).name() == "y[0]");
+        REQUIRE(z(0, 0).name() == "z[0,0]");
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(yy(0).name() == "yy[0]");
+        REQUIRE(zz(0, 0).name() == "zz[0,0]");
+#endif
+        REQUIRE(c.name() == "c");
+        REQUIRE(d(0).name() == "d[0]");
+        REQUIRE(e(0, 0).name() == "e[0,0]");
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(dd(0).name() == "dd[0]");
+        REQUIRE(ee(0, 0).name() == "ee[0,0]");
+#endif
+    }
+
+    SECTION("eager")
+    {
+        m.name_generation(coek::Model::NameGeneration::eager);
+        // m.add(p);
+        m.add(q);
+        m.add(r);
+#ifdef COEK_WITH_COMPACT_MODEL
+        m.add(qq);
+        m.add(rr);
+#endif
+        m.add(x);
+        m.add(y);
+        m.add(z);
+#ifdef COEK_WITH_COMPACT_MODEL
+        m.add(yy);
+        m.add(zz);
+#endif
+        m.add(c);
+        m.add(d);
+        m.add(e);
+#ifdef COEK_WITH_COMPACT_MODEL
+        m.add(dd);
+        m.add(ee);
+#endif
+
+        REQUIRE(m.name_generation() == coek::Model::NameGeneration::eager);
+        REQUIRE(m.repn->parameter_arrays.size() == 0);
+        REQUIRE(m.repn->variable_arrays.size() == 0);
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(m.repn->parameter_maps.size() == 0);
+        REQUIRE(m.repn->variable_maps.size() == 0);
+#endif
+        REQUIRE(m.repn->constraint_maps.size() == 0);
+
+        REQUIRE(p.name() == "p");
+        REQUIRE(q(0).name() == "q[0]");
+        REQUIRE(r(0, 0).name() == "r[0,0]");
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(qq(0).name() == "qq[0]");
+        REQUIRE(rr(0, 0).name() == "rr[0,0]");
+#endif
+        REQUIRE(x.name() == "x");
+        REQUIRE(y(0).name() == "y[0]");
+        REQUIRE(z(0, 0).name() == "z[0,0]");
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(yy(0).name() == "yy[0]");
+        REQUIRE(zz(0, 0).name() == "zz[0,0]");
+#endif
+        REQUIRE(c.name() == "c");
+        REQUIRE(d(0).name() == "d[0]");
+        REQUIRE(e(0, 0).name() == "e[0,0]");
+#ifdef COEK_WITH_COMPACT_MODEL
+        REQUIRE(dd(0).name() == "dd[0]");
+        REQUIRE(ee(0, 0).name() == "ee[0,0]");
+#endif
+    }
+}
+
 TEST_CASE("model_setup", "[smoke]")
 {
+    auto q = coek::parameter("q").value(2);
+    coek::Model model;
+    auto a = model.add_variable("a").lower(0).upper(1).value(0).within(coek::Integers);
+    auto b = coek::variable("b").lower(0).upper(1).value(0).within(coek::Boolean);
+    model.add_variable(b);
+    auto c = model.add_variable().lower(0).upper(1).value(3 * q).within(coek::Boolean);
+    auto d = model.add_variable("d").lower(0).upper(1).value(4 * q).within(coek::Boolean);
+
+    SECTION("variables")
     {
-        auto q = coek::parameter("q").value(2);
-        coek::Model model;
-        auto a = model.add_variable("a").lower(0).upper(1).value(0).within(coek::Integers);
-        auto b = coek::variable("b").lower(0).upper(1).value(0).within(coek::Boolean);
-        model.add_variable(b);
-        auto c = model.add_variable().lower(0).upper(1).value(3 * q).within(coek::Boolean);
-        auto d = model.add_variable("d").lower(0).upper(1).value(4 * q).within(coek::Boolean);
-
-        SECTION("variables")
+        WHEN("mutable initial values")
         {
-            WHEN("mutable initial values")
-            {
-                REQUIRE(c.value() == 6);
-                REQUIRE(d.value() == 8);
-                q.value(3);
-                REQUIRE(c.value() == 9);
-                REQUIRE(d.value() == 12);
-            }
-
-            WHEN("error1")
-            {
-                REQUIRE(model.get_variable(0).name() == "a");
-                REQUIRE_THROWS_WITH(model.get_variable(4),
-                                    "Variable index 4 is too large: 4 variables available.");
-            }
-
-            WHEN("error2")
-            {
-                REQUIRE(model.get_variable("d").name() == "d");
-                REQUIRE_THROWS_WITH(model.get_variable("e"), "Unknown variable name e");
-            }
-
-            WHEN("suffix")
-            {
-                model.set_suffix("varval", c, 2.0);
-                REQUIRE(model.get_suffix("varval", c) == 2.0);
-                static std::set<std::string> names = {"varval"};
-                REQUIRE(model.variable_suffix_names() == names);
-            }
+            REQUIRE(c.value() == 6);
+            REQUIRE(d.value() == 8);
+            q.value(3);
+            REQUIRE(c.value() == 9);
+            REQUIRE(d.value() == 12);
         }
 
-        SECTION("objectives")
+        WHEN("error1")
         {
-            WHEN("add")
-            {
-                coek::Expression e = 3 * b + q;
-                REQUIRE(model.num_objectives() == 0);
-                model.add_objective(e);
-                REQUIRE(model.num_objectives() == 1);
-            }
-
-            WHEN("error1")
-            {
-                model.add_objective(3 * b + q);
-                REQUIRE_THROWS_WITH(model.get_objective(1),
-                                    "Objective index 1 is too large: 1 objectives available.");
-            }
-
-            WHEN("error2")
-            {
-                model.add_objective("obj", 3 * b + q);
-                REQUIRE(model.get_objective("obj").name() == "obj");
-                REQUIRE_THROWS_WITH(model.get_objective("OBJ"), "Unknown objective name OBJ");
-            }
-
-            WHEN("suffix")
-            {
-                auto o = model.add_objective("obj", 3 * b + q);
-                model.set_suffix("objval", o, 2.0);
-                REQUIRE(model.get_suffix("objval", o) == 2.0);
-                static std::set<std::string> names = {"objval"};
-                REQUIRE(model.objective_suffix_names() == names);
-            }
+            REQUIRE(model.get_variable(0).name() == "a");
+            REQUIRE_THROWS_WITH(model.get_variable(4),
+                                "Variable index 4 is too large: 4 variables available.");
         }
 
-        SECTION("constraints")
+        WHEN("error2")
         {
-            WHEN("inequality")
-            {
-                auto c = 3 * b + q <= 0;
-                REQUIRE(model.num_constraints() == 0);
-                model.add_constraint(c);
-                REQUIRE(model.num_constraints() == 1);
-            }
-
-            WHEN("equality")
-            {
-                auto c = 3 * b + q == 0;
-                REQUIRE(model.num_constraints() == 0);
-                model.add_constraint(c);
-                REQUIRE(model.num_constraints() == 1);
-            }
-
-            WHEN("error1")
-            {
-                model.add_constraint(3 * b + q == 0);
-                REQUIRE_THROWS_WITH(model.get_constraint(1),
-                                    "Constraint index 1 is too large: 1 constraints available.");
-            }
-
-            WHEN("error2")
-            {
-                model.add_constraint("c", 3 * b + q == 0);
-                REQUIRE(model.get_constraint("c").name() == "c");
-                REQUIRE_THROWS_WITH(model.get_constraint("C"), "Unknown constraint name C");
-            }
-
-            WHEN("suffix")
-            {
-                auto c = model.add_constraint("c", 3 * b + q == 0);
-                model.set_suffix("conval", c, 2.0);
-                REQUIRE(model.get_suffix("conval", c) == 2.0);
-                static std::set<std::string> names = {"conval"};
-                REQUIRE(model.constraint_suffix_names() == names);
-            }
+            REQUIRE(model.get_variable("d").name() == "d");
+            REQUIRE_THROWS_WITH(model.get_variable("e"), "Unknown variable name e");
         }
 
-        SECTION("model")
+        WHEN("suffix")
         {
-            coek::Expression e0 = 3 * a + q;
-            model.add_objective(e0);
-
-            auto e2 = 3 * b + q <= 0;
-            model.add_constraint(e2);
-
-            auto e3 = 3 * b + q == 0;
-            model.add_constraint(e3);
-
-            WHEN("print (df == 0)")
-            {
-                std::stringstream os;
-                os << model;
-                std::string tmp = os.str();
-                REQUIRE( tmp == "MODEL\n\
-  Objectives\n\
-    min( 3*a + q )\n\
-  Constraints\n\
-    3*b + q <= 0\n\
-    3*b + q == 0\n\
-");
-            }
-
-            WHEN("suffix")
-            {
-                model.set_suffix("mval", 2.0);
-                REQUIRE(model.get_suffix("mval") == 2.0);
-                static std::set<std::string> names = {"mval"};
-                REQUIRE(model.model_suffix_names() == names);
-            }
+            model.set_suffix("varval", c, 2.0);
+            REQUIRE(model.get_suffix("varval", c) == 2.0);
+            static std::set<std::string> names = {"varval"};
+            REQUIRE(model.variable_suffix_names() == names);
         }
     }
-#ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#endif
+
+    SECTION("objectives")
+    {
+        WHEN("add")
+        {
+            coek::Expression e = 3 * b + q;
+            REQUIRE(model.num_objectives() == 0);
+            model.add_objective(e);
+            REQUIRE(model.num_objectives() == 1);
+        }
+
+        WHEN("error1")
+        {
+            model.add_objective(3 * b + q);
+            REQUIRE_THROWS_WITH(model.get_objective(1),
+                                "Objective index 1 is too large: 1 objectives available.");
+        }
+
+        WHEN("error2")
+        {
+            model.add_objective("obj", 3 * b + q);
+            REQUIRE(model.get_objective("obj").name() == "obj");
+            REQUIRE_THROWS_WITH(model.get_objective("OBJ"), "Unknown objective name OBJ");
+        }
+
+        WHEN("suffix")
+        {
+            auto o = model.add_objective("obj", 3 * b + q);
+            model.set_suffix("objval", o, 2.0);
+            REQUIRE(model.get_suffix("objval", o) == 2.0);
+            static std::set<std::string> names = {"objval"};
+            REQUIRE(model.objective_suffix_names() == names);
+        }
+    }
+
+    SECTION("constraints")
+    {
+        WHEN("inequality")
+        {
+            auto c = 3 * b + q <= 0;
+            REQUIRE(model.num_constraints() == 0);
+            model.add_constraint(c);
+            REQUIRE(model.num_constraints() == 1);
+        }
+
+        WHEN("equality")
+        {
+            auto c = 3 * b + q == 0;
+            REQUIRE(model.num_constraints() == 0);
+            model.add_constraint(c);
+            REQUIRE(model.num_constraints() == 1);
+        }
+
+        WHEN("error1")
+        {
+            model.add_constraint(3 * b + q == 0);
+            REQUIRE_THROWS_WITH(model.get_constraint(1),
+                                "Constraint index 1 is too large: 1 constraints available.");
+        }
+
+        WHEN("error2")
+        {
+            model.add_constraint("c", 3 * b + q == 0);
+            REQUIRE(model.get_constraint("c").name() == "c");
+            REQUIRE_THROWS_WITH(model.get_constraint("C"), "Unknown constraint name C");
+        }
+
+        WHEN("suffix")
+        {
+            auto c = model.add_constraint("c", 3 * b + q == 0);
+            model.set_suffix("conval", c, 2.0);
+            REQUIRE(model.get_suffix("conval", c) == 2.0);
+            static std::set<std::string> names = {"conval"};
+            REQUIRE(model.constraint_suffix_names() == names);
+        }
+    }
+
+    SECTION("model")
+    {
+        coek::Expression e0 = 3 * a + q;
+        model.add_objective(e0);
+
+        auto e2 = 3 * b + q <= 0;
+        model.add_constraint(e2);
+
+        auto e3 = 3 * b + q == 0;
+        model.add_constraint(e3);
+
+        WHEN("print (df == 0)")
+        {
+            std::stringstream os;
+            os << model;
+            std::string tmp = os.str();
+            REQUIRE( tmp == "MODEL\n\
+  Objectives\n\
+    0:  min( 3*a + q )\n\
+  Constraints\n\
+    0:  3*b + q <= 0\n\
+    1:  3*b + q == 0\n\
+");
+        }
+
+        WHEN("suffix")
+        {
+            model.set_suffix("mval", 2.0);
+            REQUIRE(model.get_suffix("mval") == 2.0);
+            static std::set<std::string> names = {"mval"};
+            REQUIRE(model.model_suffix_names() == names);
+        }
+    }
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -382,9 +602,5 @@ TEST_CASE("compact_model", "[smoke]")
             REQUIRE(model.get_constraint(3).to_list() == baseline);
         }
     }
-
-#    ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 #endif

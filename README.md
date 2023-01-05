@@ -28,6 +28,8 @@ optimization modeling.
 * [Online Documentation](http://poek.readthedocs.org/en/latest/)
 [![Documentation Status](https://readthedocs.org/projects/poek/badge/?version=latest)](http://poek.readthedocs.org/en/latest/)
 
+**pyomo_coek**: Pyomo hybrids that leverage Coek to accelerate common operations.
+
 
 ## Test Utilities
 
@@ -35,6 +37,11 @@ optimization modeling.
 
 * [README](test/aml_comparisons/README.md)
 
+## Applications
+
+**demos**: Demonstrations that illustrate Coek capabilities.
+
+* [README](app/demos/README.md)
 
 ## Installation
 

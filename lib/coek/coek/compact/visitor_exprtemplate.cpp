@@ -57,6 +57,8 @@ expr_pointer_t visit(ObjectiveTerm& arg)
     return CREATE_POINTER(ObjectiveTerm, body, arg.sense);
 }
 
+expr_pointer_t visit(SubExpressionTerm& arg) { return visit_expression(arg.body); }
+
 expr_pointer_t visit(NegateTerm& arg)
 {
     auto curr = visit_expression(arg.body);
@@ -70,9 +72,9 @@ expr_pointer_t visit(PlusTerm& arg)
     curr = CREATE_POINTER(PlusTerm, lhs, curr, false);
     if (arg.n == 2) return curr;
 
-    PlusTerm* _curr = dynamic_cast<PlusTerm*>(curr);
+    auto _curr = std::dynamic_pointer_cast<PlusTerm>(curr);
 
-    for (size_t i = 2; i < arg.n; i++) {
+    for (size_t i = 2; i < arg.num_expressions(); i++) {
         curr = visit_expression((*(arg.data))[i]);
         _curr->push_back(curr);
     }
@@ -129,7 +131,7 @@ expr_pointer_t visit(PowTerm& arg)
 
 #define VISIT_CASE(TERM) \
     case TERM##_id:      \
-        return visit(*dynamic_cast<TERM*>(expr));
+        return visit(*std::dynamic_pointer_cast<TERM>(expr));
 
 expr_pointer_t visit_expression(expr_pointer_t expr)
 {
@@ -137,7 +139,6 @@ expr_pointer_t visit_expression(expr_pointer_t expr)
         case ConstantTerm_id:
         case ParameterTerm_id:
         case VariableTerm_id:
-        case IndexedVariableTerm_id:
         case MonomialTerm_id:
             return expr;
 
@@ -147,6 +148,7 @@ expr_pointer_t visit_expression(expr_pointer_t expr)
             VISIT_CASE(InequalityTerm);
             VISIT_CASE(EqualityTerm);
             VISIT_CASE(ObjectiveTerm);
+            VISIT_CASE(SubExpressionTerm);
             VISIT_CASE(NegateTerm);
             VISIT_CASE(PlusTerm);
             VISIT_CASE(TimesTerm);
@@ -186,7 +188,7 @@ expr_pointer_t convert_expr_template(expr_pointer_t expr)
     return visitors::visit_expression(expr);
 }
 
-ConstraintTerm* convert_con_template(ConstraintTerm* expr)
+std::shared_ptr<ConstraintTerm> convert_con_template(std::shared_ptr<ConstraintTerm> expr)
 {
     if (expr == 0) throw std::runtime_error("Unexpected null constraint");
 

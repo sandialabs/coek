@@ -104,10 +104,6 @@ TEST_CASE("jpof_reader_string", "[smoke]")
             = {"[", "==", "[", "pow", "y", std::to_string(2.000), "]", std::to_string(4.000), "]"};
         REQUIRE(con.to_list() == con_expr);
     }
-
-#    ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 
 void test_var(coek::Model& model, unsigned int i, const std::string& name, double value, double lb,
@@ -1837,9 +1833,5 @@ TEST_CASE("jpof_reader_file", "[smoke]")
                  {"[", "==", "[", "pow", "b.y", std::to_string(2.0), "]", std::to_string(4.0), "]"},
                  "CON1");
     }
-
-#    ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 #endif

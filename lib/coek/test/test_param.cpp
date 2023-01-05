@@ -64,10 +64,6 @@ TEST_CASE("elementary_param", "[smoke]")
         sstr << q;
         REQUIRE(sstr.str() == "q");
     }
-
-#ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 TEST_CASE("model_indexparam", "[smoke]")
@@ -168,10 +164,6 @@ TEST_CASE("model_indexparam", "[smoke]")
         REQUIRE(p.name() == "P");
         REQUIRE(q.name() == "q");
     }
-
-#ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -240,7 +232,7 @@ TEST_CASE("1D_param_map", "[smoke]")
         auto s = coek::SetOf(v);
         auto r = coek::SetOf({0});
         auto S = s - r;
-        auto params = coek::parameter("params", S).value(0);
+        auto params = coek::parameter("params", S).value(0).generate_names();
 
         WHEN("typeof") { REQUIRE(typeid(params(1)).name() == typeid(coek::Parameter).name()); }
 
@@ -277,10 +269,6 @@ TEST_CASE("1D_param_map", "[smoke]")
             REQUIRE(e.to_list() == baseline);
         }
     }
-
-#    ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 #endif
 
@@ -321,7 +309,7 @@ TEST_CASE("1D_param_array", "[smoke]")
 
         WHEN("name")
         {
-            auto params = coek::parameter(4).name("v");
+            auto params = coek::parameter(4).name("v").generate_names();
             for (int i = 0; i < 4; i++) REQUIRE(params(i).name() == "v[" + std::to_string(i) + "]");
         }
     }
@@ -350,7 +338,7 @@ TEST_CASE("1D_param_array", "[smoke]")
 
         WHEN("name")
         {
-            auto params = coek::parameter(dim).name("v");
+            auto params = coek::parameter(dim).name("v").generate_names();
             for (int i = 0; i < 4; i++) REQUIRE(params(i).name() == "v[" + std::to_string(i) + "]");
         }
     }
@@ -377,14 +365,10 @@ TEST_CASE("1D_param_array", "[smoke]")
 
         WHEN("name")
         {
-            auto params = coek::parameter({4}).name("v");
+            auto params = coek::parameter({4}).name("v").generate_names();
             for (int i = 0; i < 4; i++) REQUIRE(params(i).name() == "v[" + std::to_string(i) + "]");
         }
     }
-
-#ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -448,7 +432,7 @@ TEST_CASE("2D_param_map", "[smoke]")
         auto W = coek::SetOf(w);
         auto r = coek::SetOf({0});
         auto S = V * W;
-        auto params = coek::parameter("params", S).value(0);
+        auto params = coek::parameter("params", S).value(0).generate_names();
 
         WHEN("typeof") { REQUIRE(typeid(params(1, 2)).name() == typeid(coek::Parameter).name()); }
 
@@ -487,10 +471,6 @@ TEST_CASE("2D_param_map", "[smoke]")
             REQUIRE(e.to_list() == baseline);
         }
     }
-
-#    ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 #endif
 
@@ -544,7 +524,7 @@ TEST_CASE("2D_param_array", "[smoke]")
         WHEN("name")
         {
             std::vector<size_t> dim{4, 3};
-            auto params = coek::parameter(dim).name("v");
+            auto params = coek::parameter(dim).name("v").generate_names();
             for (int i = 0; i < 4; i++)
                 for (int j = 0; j < 3; j++)
                     REQUIRE(params(i, j).name()
@@ -583,17 +563,13 @@ TEST_CASE("2D_param_array", "[smoke]")
 
         WHEN("name")
         {
-            auto params = coek::parameter({4, 3}).name("v");
+            auto params = coek::parameter({4, 3}).name("v").generate_names();
             for (int i = 0; i < 4; i++)
                 for (int j = 0; j < 3; j++)
                     REQUIRE(params(i, j).name()
                             == "v[" + std::to_string(i) + "," + std::to_string(j) + "]");
         }
     }
-
-#ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 TEST_CASE("3D_param_array", "[smoke]")
@@ -646,7 +622,7 @@ TEST_CASE("3D_param_array", "[smoke]")
         WHEN("name")
         {
             std::vector<size_t> dim{5, 4, 3};
-            auto params = coek::parameter(dim).name("v");
+            auto params = coek::parameter(dim).name("v").generate_names();
             for (int i = 0; i < 5; i++)
                 for (int j = 0; j < 4; j++)
                     for (int k = 0; k < 3; k++)
@@ -687,7 +663,7 @@ TEST_CASE("3D_param_array", "[smoke]")
 
         WHEN("name")
         {
-            auto params = coek::parameter({5, 4, 3}).name("v");
+            auto params = coek::parameter({5, 4, 3}).name("v").generate_names();
             for (int i = 0; i < 5; i++)
                 for (int j = 0; j < 4; j++)
                     for (int k = 0; k < 3; k++)
@@ -696,10 +672,6 @@ TEST_CASE("3D_param_array", "[smoke]")
                                        + std::to_string(k) + "]");
         }
     }
-
-#ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -813,10 +785,6 @@ TEST_CASE("3D_param_api", "[smoke]")
             REQUIRE(v(1).value() == 3);
         }
     }
-
-#    ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 
 #endif

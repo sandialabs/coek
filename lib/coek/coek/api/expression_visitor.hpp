@@ -14,11 +14,11 @@ class QuadraticExpr {
    public:
     double constval;
 
-    std::vector<VariableTerm*> linear_vars;
+    std::vector<VariableRepn> linear_vars;
     std::vector<double> linear_coefs;
 
-    std::vector<VariableTerm*> quadratic_lvars;
-    std::vector<VariableTerm*> quadratic_rvars;
+    std::vector<VariableRepn> quadratic_lvars;
+    std::vector<VariableRepn> quadratic_rvars;
     std::vector<double> quadratic_coefs;
 
     QuadraticExpr() : constval(0.0) {}
@@ -37,29 +37,25 @@ class QuadraticExpr {
 class MutableNLPExpr {
    public:
     struct varterm_compare {
-        bool operator()(const VariableTerm*, const VariableTerm*) const;
+        bool operator()(const VariableRepn&, const VariableRepn&) const;
     };
 
    public:
-    Expression constval;
+    ExpressionRepn constval;
 
-    std::vector<VariableTerm*> linear_vars;
-    std::vector<Expression> linear_coefs;
+    std::vector<VariableRepn> linear_vars;
+    std::vector<ExpressionRepn> linear_coefs;
 
-    std::vector<VariableTerm*> quadratic_lvars;
-    std::vector<VariableTerm*> quadratic_rvars;
-    std::vector<Expression> quadratic_coefs;
+    std::vector<VariableRepn> quadratic_lvars;
+    std::vector<VariableRepn> quadratic_rvars;
+    std::vector<ExpressionRepn> quadratic_coefs;
 
-    std::set<VariableTerm*, varterm_compare> nonlinear_vars;
-    Expression nonlinear;
-
-    // std::unordered_set<coek::VariableTerm*> fixed_vars;
-    // std::unordered_set<coek::ParameterTerm*> params;
+    std::set<VariableRepn, varterm_compare> nonlinear_vars;
+    ExpressionRepn nonlinear;
 
     bool mutable_values;
 
     MutableNLPExpr();
-    ~MutableNLPExpr();
 
     void collect_terms(Expression& expr);
     void collect_terms(Objective& expr);
@@ -68,6 +64,11 @@ class MutableNLPExpr {
     bool is_mutable() { return mutable_values; }
 };
 
-std::ostream& operator<<(std::ostream& ostr, const QuadraticExpr& arg);
-
 }  // namespace coek
+
+namespace std {
+
+std::ostream& operator<<(std::ostream& ostr, const coek::QuadraticExpr& arg);
+std::ostream& operator<<(std::ostream& ostr, const coek::MutableNLPExpr& arg);
+
+}  // namespace std

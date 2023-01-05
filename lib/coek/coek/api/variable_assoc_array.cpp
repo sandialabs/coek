@@ -1,8 +1,8 @@
-#include "coek/api/variable_assoc_array.hpp"
 
 #include <cmath>
 #include <variant>
 
+#include "coek/api/variable_assoc_array.hpp"
 #include "coek/ast/compact_terms.hpp"
 
 namespace coek {
@@ -14,7 +14,7 @@ expr_pointer_t create_varref(const std::vector<refarg_types>& indices, const std
 // VariableAssocArrayRepn
 //
 
-VariableAssocArrayRepn::VariableAssocArrayRepn() : call_setup(true) { variable_template.name("x"); }
+VariableAssocArrayRepn::VariableAssocArrayRepn() {}
 
 void VariableAssocArrayRepn::resize_index_vectors(IndexVector& tmp,
                                                   std::vector<refarg_types>& reftmp)
@@ -25,19 +25,20 @@ void VariableAssocArrayRepn::resize_index_vectors(IndexVector& tmp,
 
 void VariableAssocArrayRepn::setup()
 {
-    call_setup = false;
-
-    auto vtype = variable_template.within();
-    bool binary = (vtype == Boolean) or (vtype == Binary);
-    bool integer = vtype == Integers;
-    auto lower = variable_template.lower_expression().expand().value();
-    auto upper = variable_template.upper_expression().expand().value();
-    auto value = variable_template.value_expression().expand().value();
-    for (size_t i = 0; i < size(); i++) {
-        values.emplace_back(CREATE_POINTER(IndexedVariableTerm, CREATE_POINTER(ConstantTerm, lower),
-                                           CREATE_POINTER(ConstantTerm, upper),
-                                           CREATE_POINTER(ConstantTerm, value), binary, integer, i,
-                                           this));
+    if (first_setup) {
+        auto vtype = variable_template.within();
+        bool binary = (vtype == Boolean) or (vtype == Binary);
+        bool integer = vtype == Integers;
+        auto lower
+            = std::make_shared<ConstantTerm>(variable_template.lower_expression().expand().value());
+        auto upper
+            = std::make_shared<ConstantTerm>(variable_template.upper_expression().expand().value());
+        auto value
+            = std::make_shared<ConstantTerm>(variable_template.value_expression().expand().value());
+        for (size_t i = 0; i < size(); i++) {
+            values.emplace_back(CREATE_POINTER(VariableTerm, lower, upper, value, binary, integer));
+        }
+        first_setup = false;
     }
 }
 
@@ -129,13 +130,7 @@ void VariableAssocArrayRepn::fixed(bool value)
     }
 }
 
-void VariableAssocArrayRepn::name(const std::string& name)
-{
-    variable_template.name(name);
-    if (values.size() > 0) {
-        for (auto& var : values) var.name(name);
-    }
-}
+void VariableAssocArrayRepn::name(const std::string& name) { variable_template.name(name); }
 
 void VariableAssocArrayRepn::within(VariableTypes vtype)
 {
@@ -165,16 +160,6 @@ Expression VariableAssocArray::create_varref(const std::vector<refarg_types>& ar
 //
 // OTHER
 //
-
-std::string IndexedVariableTerm::get_name()
-{
-    if (first) {
-        first = false;
-        VariableAssocArrayRepn* _var = static_cast<VariableAssocArrayRepn*>(var);
-        this->name = _var->get_name(vindex);
-    }
-    return this->name;
-}
 
 expr_pointer_t get_concrete_var(VariableRefTerm& varref)
 {

@@ -1,0 +1,72 @@
+stages:
+  - pre-check
+  - build
+  - test
+  - process
+
+variables:
+  ARTIFACTS_DIR: $ARTIFACTS_DIR
+
+temporary:
+  stage: pre-check
+  script:
+    - echo $CI_COMMIT_BRANCH
+
+compile:
+  stage: build
+  script:
+    - pwd
+    - which python
+    - mkdir build
+    - cd build
+    - cmake
+      -Dwith_pybind11=ON
+      -Dwith_cppad=ON
+      -Dwith_tests=ON
+      -Dwith_python=ON
+      -Dwith_gurobi=ON
+      -DGUROBI_LIBRARY=$GUROBI_LIBRARY/libgurobi95.so
+      -DGUROBI_INCLUDE_DIRS=$GUROBI_INCLUDE_DIRS
+      -DGUROBI_CXX_LIBRARY=$GUROBI_LIBRARY/libgurobi_g++5.2.a
+      -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE
+      -Dwith_compact=OFF
+      -Dwith_docs=OFF ..
+    - make install_tpls
+    - make install
+  artifacts:
+    paths:
+      - build
+    expire_in: 1 hour
+
+unit-tests:
+  stage: test
+  script:
+    - pwd
+    - cd build
+    - ls
+    - make test
+  allow_failure: true
+
+performance-tests:
+  stage: test
+  script:
+    - cd build
+    - make coek_solve0
+    - make coek_writer
+    - make gurobi_solve0
+    - make gurobi_writer
+    - cd ../test/aml_comparisons/
+    - mkdir build
+    - cd build
+    - ../scripts/run bench_coek 3
+    - ../scripts/collect
+    - ../scripts/dog solve0
+    - ../scripts/dog writer
+    - python ../scripts/to_csv.py --dirname ${ARTIFACTS_DIR}${CI_COMMIT_BRANCH}
+    - python ../scripts/compare.py --artifact_dir=$ARTIFACTS_DIR --branch_name=$CI_COMMIT_BRANCH
+  artifacts:
+    expose_as: 'performance-trend'
+    paths:
+      - test/aml_comparisons/build/solve0_trend.html
+      - test/aml_comparisons/build/writer_trend.html
+    expire_in: 4 weeks

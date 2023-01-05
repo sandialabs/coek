@@ -2,84 +2,19 @@
 
 #ifdef COEK_WITH_COMPACT_MODEL
 
+#    include <variant>
 #    include <coek/api/variable_array.hpp>
 #    include <coek/compact/coek_sets.hpp>
 #    include <coek/compact/variable_map.hpp>
 #    include <coek/model/model.hpp>
-#    include <variant>
 
 namespace coek {
 
 class VariableMap;
 class VariableArray;
-class ObjectiveMap;
-class CompactConstraintMap;
 class SequenceContext;
 class ConstraintSequence;
 class CompactModelRepn;
-
-class CompactVariableMap {
-   public:
-    std::shared_ptr<ModelRepn> repn;
-
-   public:
-    /** \returns the i-th variable defined in this map */
-    Variable operator()(size_t i);
-
-    /** \returns the variable associated with the index parameters */
-    template <typename... TYPES>
-    Variable operator[](const TYPES&... args)
-    {
-        std::vector<IndexParameter> indices;
-        collect_index_parameters(indices, args...);
-        return operator[](indices);
-    }
-
-    /** \returns the variable associated with the index parameters */
-    Variable operator[](const std::vector<IndexParameter>& indices);
-};
-
-class ObjectiveMap {
-   public:
-    std::shared_ptr<ModelRepn> repn;
-
-   public:
-    /** \returns the i-th objective defined in this map */
-    Objective operator()(size_t i);
-
-    /** \returns the objective associated with the index parameters */
-    template <typename... TYPES>
-    Objective operator[](const TYPES&... args)
-    {
-        std::vector<IndexParameter> indices;
-        collect_index_parameters(indices, args...);
-        return operator[](indices);
-    }
-
-    /** \returns the objective associated with the index parameters */
-    Objective operator[](const std::vector<IndexParameter>& indices);
-};
-
-class CompactConstraintMap {
-   public:
-    std::shared_ptr<ModelRepn> repn;
-
-   public:
-    /** \returns the i-th constraint defined in this map */
-    Constraint operator()(size_t i);
-
-    /** \returns the constraint associated with the index parameters */
-    template <typename... TYPES>
-    Constraint operator[](const TYPES&... args)
-    {
-        std::vector<IndexParameter> indices;
-        collect_index_parameters(indices, args...);
-        return operator[](indices);
-    }
-
-    /** \returns the constraint associated with the index parameters */
-    Constraint operator[](const std::vector<IndexParameter>& indices);
-};
 
 class CompactModel {
    public:

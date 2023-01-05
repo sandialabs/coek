@@ -19,13 +19,15 @@ install(TARGETS pycoek_pybind11
 
 # Uninstall pycoek_pybind11 in python environment
 add_custom_target(uninstall_pycoek_pybind11
-        COMMAND ${Python_EXECUTABLE} ${PROJECT_SOURCE_DIR}/pybind11/setup.py develop -u
-        #COMMAND ${Python_EXECUTABLE} -m pip uninstall -y pycoek_pybind11
+        COMMAND ${Python_EXECUTABLE} -m pip uninstall -y pycoek_pybind11
         )
 
 # Install pycoek_pybind11 in python environment, after uninstalling it
 add_custom_target(install_pycoek_pybind11 ALL
         DEPENDS uninstall_pycoek_pybind11
-        COMMAND ${Python_EXECUTABLE} ${PROJECT_SOURCE_DIR}/pybind11/setup.py develop -v
-        #COMMAND ${Python_EXECUTABLE} -m pip install ${PROJECT_SOURCE_DIR}/pybind11
+        COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_CURRENT_SOURCE_DIR}/setup.py
+                ${CMAKE_CURRENT_BINARY_DIR}/setup.py
+        COMMAND ${Python_EXECUTABLE} -m pip install -e ${CMAKE_CURRENT_BINARY_DIR}
         )
+

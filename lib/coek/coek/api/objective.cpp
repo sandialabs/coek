@@ -7,28 +7,15 @@
 
 namespace coek {
 
-Objective::Objective()
-{
-    Expression e(0);
-    repn = CREATE_POINTER(ObjectiveTerm, e.repn, true);
-    OWN_POINTER(repn);
-}
+Objective::Objective() { repn = CREATE_POINTER(ObjectiveTerm, ZEROCONST, true); }
 
-Objective::Objective(const ObjectiveRepn& _repn) : repn(_repn) { OWN_POINTER(repn); }
+Objective::Objective(const ObjectiveRepn& _repn) : repn(_repn) {}
 
-Objective::Objective(const Objective& expr)
-{
-    repn = expr.repn;
-    OWN_POINTER(repn);
-}
-
-Objective::~Objective() { DISOWN_POINTER(repn); }
+Objective::Objective(const Objective& expr) : repn(expr.repn) {}
 
 Objective& Objective::operator=(const Objective& expr)
 {
-    DISOWN_POINTER(repn);
     repn = expr.repn;
-    OWN_POINTER(repn);
     return *this;
 }
 
@@ -38,8 +25,6 @@ double Objective::value() const { return repn->eval(); }
 
 Objective& Objective::expr(const Expression& body)
 {
-    DISOWN_POINTER(repn->body);
-    OWN_POINTER(body.repn);
     repn->body = body.repn;
     return *this;
 }
@@ -60,7 +45,7 @@ Objective& Objective::name(const std::string& name)
     return *this;
 }
 
-std::string Objective::name() const { return repn->name; }
+std::string Objective::name() const { return repn->get_name(); }
 
 std::list<std::string> Objective::to_list() const
 {

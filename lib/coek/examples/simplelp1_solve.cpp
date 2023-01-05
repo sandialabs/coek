@@ -14,7 +14,7 @@ void simplelp1_solve()
     //
     // Optimize the model
     //
-    coek::Solver solver("ipopt");
+    coek::Solver solver("gurobi");
     auto status = solver.solve(m);
 
     std::cout << "Value of " + x.name() + ": " << x.value() << std::endl;

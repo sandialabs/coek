@@ -6,6 +6,7 @@
 #include "../ast/value_terms.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
+#include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
 #include "cppad_repn.hpp"
 
@@ -240,9 +241,8 @@ void CppAD_Repn::initialize(bool _sparse_JH)
     //
     // Create the CppAD function
     //
-    std::unordered_map<VariableTerm*, size_t> _used_variables;
-    for (auto it = used_variables.begin(); it != used_variables.end(); ++it)
-        _used_variables[it->second] = it->first;
+    std::unordered_map<VariableRepn, size_t> _used_variables;
+    for (auto& it : used_variables) _used_variables[it.second] = it.first;
 
     std::vector<CppAD::AD<double> > ADvars(nx);
     std::vector<CppAD::AD<double> > ADrange(nf + nc);
@@ -253,14 +253,14 @@ void CppAD_Repn::initialize(bool _sparse_JH)
 
     try {
         size_t nb = 0;
-        for (auto it = model.repn->objectives.begin(); it != model.repn->objectives.end(); ++it) {
-            build_expression(it->repn, ADvars, ADrange[nb], _used_variables);
+        for (auto& it : model.repn->objectives) {
+            build_expression(it.repn, ADvars, ADrange[nb], _used_variables);
             nb++;
         }
 
         nb = 0;
-        for (auto it = model.repn->constraints.begin(); it != model.repn->constraints.end(); ++it) {
-            build_expression(it->repn, ADvars, ADrange[nf + nb], _used_variables);
+        for (auto& it : model.repn->constraints) {
+            build_expression(it.repn, ADvars, ADrange[nf + nb], _used_variables);
             nb++;
         }
     }
@@ -558,161 +558,129 @@ void CppAD_Repn::reset(void)
 //
 namespace {
 
-void visit_expression(expr_pointer_t expr,
-                      std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
-                      std::unordered_map<VariableTerm*, size_t>& used_variables,
-                      std::map<VariableTerm*, size_t>& fixed_variables,
-                      std::map<ParameterTerm*, size_t>& parameters,
-                      std::vector<CppAD::AD<double> >& ADvars,
-                      std::vector<CppAD::AD<double> >& dynamic_params, CppAD::AD<double>& ans);
+class VisitorData {
+   public:
+    std::unordered_map<expr_pointer_t, CppAD::AD<double> > cache;
 
-void visit(ConstantTerm& expr, std::unordered_map<expr_pointer_t, CppAD::AD<double> >& /*cache*/,
-           std::unordered_map<VariableTerm*, size_t>& /*used_variables*/,
-           std::map<VariableTerm*, size_t>& /*fixed_variables*/,
-           std::map<ParameterTerm*, size_t>& /*parameters*/,
-           std::vector<CppAD::AD<double> >& /*ADvars*/,
-           std::vector<CppAD::AD<double> >& /*dynamic_params*/, CppAD::AD<double>& ans)
+    std::vector<CppAD::AD<double> >& ADvars;
+    std::unordered_map<VariableRepn, size_t>& used_variables;
+    std::map<VariableRepn, size_t>& fixed_variables;
+    std::map<ParameterRepn, size_t>& parameters;
+    std::vector<CppAD::AD<double> >& dynamic_params;
+
+    VisitorData(std::vector<CppAD::AD<double> >& _ADvars,
+                std::unordered_map<VariableRepn, size_t>& _used_variables,
+                std::map<VariableRepn, size_t>& _fixed_variables,
+                std::map<ParameterRepn, size_t>& _parameters,
+                std::vector<CppAD::AD<double> >& _dynamic_params)
+        : ADvars(_ADvars),
+          used_variables(_used_variables),
+          fixed_variables(_fixed_variables),
+          parameters(_parameters),
+          dynamic_params(_dynamic_params)
+    {
+    }
+};
+
+void visit_expression(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans);
+
+void visit_ConstantTerm(expr_pointer_t& expr, VisitorData& /*data*/, CppAD::AD<double>& ans)
 {
-    ans += expr.value;
+    auto tmp = std::dynamic_pointer_cast<ConstantTerm>(expr);
+    if (tmp->value != 0) ans += tmp->value;
 }
 
-void visit(ParameterTerm& expr, std::unordered_map<expr_pointer_t, CppAD::AD<double> >& /*cache*/,
-           std::unordered_map<VariableTerm*, size_t>& /*used_variables*/,
-           std::map<VariableTerm*, size_t>& /*fixed_variables*/,
-           std::map<ParameterTerm*, size_t>& parameters,
-           std::vector<CppAD::AD<double> >& /*ADvars*/,
-           std::vector<CppAD::AD<double> >& dynamic_params, CppAD::AD<double>& ans)
+void visit_ParameterTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
 {
-    ans += dynamic_params[parameters[&expr]];
+    auto tmp = std::dynamic_pointer_cast<ParameterTerm>(expr);
+    ans += data.dynamic_params[data.parameters[tmp]];
 }
 
-void visit(VariableTerm& expr, std::unordered_map<expr_pointer_t, CppAD::AD<double> >& /*cache*/,
-           std::unordered_map<VariableTerm*, size_t>& used_variables,
-           std::map<VariableTerm*, size_t>& fixed_variables,
-           std::map<ParameterTerm*, size_t>& /*parameters*/,
-           std::vector<CppAD::AD<double> >& ADvars, std::vector<CppAD::AD<double> >& dynamic_params,
-           CppAD::AD<double>& ans)
+void visit_VariableTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
 {
-    if (expr.fixed)
-        ans += dynamic_params[fixed_variables[&expr]];
+    auto tmp = std::dynamic_pointer_cast<VariableTerm>(expr);
+    if (tmp->fixed)
+        ans += data.dynamic_params[data.fixed_variables[tmp]];
     else
-        ans += ADvars[used_variables[&expr]];
+        ans += data.ADvars[data.used_variables[tmp]];
 }
 
-void visit(MonomialTerm& expr, std::unordered_map<expr_pointer_t, CppAD::AD<double> >& /*cache*/,
-           std::unordered_map<VariableTerm*, size_t>& used_variables,
-           std::map<VariableTerm*, size_t>& fixed_variables,
-           std::map<ParameterTerm*, size_t>& /*parameters*/,
-           std::vector<CppAD::AD<double> >& ADvars, std::vector<CppAD::AD<double> >& dynamic_params,
-           CppAD::AD<double>& ans)
+void visit_MonomialTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
 {
-    if (expr.var->fixed)
-        ans += expr.coef * dynamic_params[fixed_variables[expr.var]];
+    auto tmp = std::dynamic_pointer_cast<MonomialTerm>(expr);
+    if (tmp->var->fixed)
+        ans += tmp->coef * data.dynamic_params[data.fixed_variables[tmp->var]];
     else
-        ans += expr.coef * ADvars[used_variables[expr.var]];
+        ans += tmp->coef * data.ADvars[data.used_variables[tmp->var]];
 }
 
-void visit(InequalityTerm& expr, std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
-           std::unordered_map<VariableTerm*, size_t>& used_variables,
-           std::map<VariableTerm*, size_t>& fixed_variables,
-           std::map<ParameterTerm*, size_t>& parameters, std::vector<CppAD::AD<double> >& ADvars,
-           std::vector<CppAD::AD<double> >& dynamic_params, CppAD::AD<double>& ans)
-{
-    visit_expression(expr.body, cache, used_variables, fixed_variables, parameters, ADvars,
-                     dynamic_params, ans);
-}
+#define FROM_BODY(TERM)                                                                \
+    void visit_##TERM(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans) \
+    {                                                                                  \
+        auto tmp = std::dynamic_pointer_cast<TERM>(expr);                              \
+        visit_expression(tmp->body, data, ans);                                        \
+    }
 
-void visit(EqualityTerm& expr, std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
-           std::unordered_map<VariableTerm*, size_t>& used_variables,
-           std::map<VariableTerm*, size_t>& fixed_variables,
-           std::map<ParameterTerm*, size_t>& parameters, std::vector<CppAD::AD<double> >& ADvars,
-           std::vector<CppAD::AD<double> >& dynamic_params, CppAD::AD<double>& ans)
-{
-    visit_expression(expr.body, cache, used_variables, fixed_variables, parameters, ADvars,
-                     dynamic_params, ans);
-}
+FROM_BODY(InequalityTerm)
+FROM_BODY(EqualityTerm)
+FROM_BODY(ObjectiveTerm)
 
-void visit(ObjectiveTerm& expr, std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
-           std::unordered_map<VariableTerm*, size_t>& used_variables,
-           std::map<VariableTerm*, size_t>& fixed_variables,
-           std::map<ParameterTerm*, size_t>& parameters, std::vector<CppAD::AD<double> >& ADvars,
-           std::vector<CppAD::AD<double> >& dynamic_params, CppAD::AD<double>& ans)
+void visit_SubExpressionTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
 {
-    visit_expression(expr.body, cache, used_variables, fixed_variables, parameters, ADvars,
-                     dynamic_params, ans);
-}
-
-void visit(NegateTerm& expr, std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
-           std::unordered_map<VariableTerm*, size_t>& used_variables,
-           std::map<VariableTerm*, size_t>& fixed_variables,
-           std::map<ParameterTerm*, size_t>& parameters, std::vector<CppAD::AD<double> >& ADvars,
-           std::vector<CppAD::AD<double> >& dynamic_params, CppAD::AD<double>& ans)
-{
+    auto tmp = std::dynamic_pointer_cast<SubExpressionTerm>(expr);
     CppAD::AD<double> body;
-    visit_expression(expr.body, cache, used_variables, fixed_variables, parameters, ADvars,
-                     dynamic_params, body);
+    visit_expression(tmp->body, data, body);
+    ans += body;
+}
+
+void visit_NegateTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
+{
+    auto tmp = std::dynamic_pointer_cast<NegateTerm>(expr);
+    CppAD::AD<double> body;
+    visit_expression(tmp->body, data, body);
     ans += -body;
 }
 
-void visit(PlusTerm& expr, std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
-           std::unordered_map<VariableTerm*, size_t>& used_variables,
-           std::map<VariableTerm*, size_t>& fixed_variables,
-           std::map<ParameterTerm*, size_t>& parameters, std::vector<CppAD::AD<double> >& ADvars,
-           std::vector<CppAD::AD<double> >& dynamic_params, CppAD::AD<double>& ans)
+void visit_PlusTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
 {
-    NAryPrefixTerm::shared_t::iterator it = expr.data.get()->begin();
-    NAryPrefixTerm::shared_t::iterator end = expr.data.get()->end();
-
-    for (; it != end; ++it) {
+    auto tmp = std::dynamic_pointer_cast<PlusTerm>(expr);
+    std::vector<expr_pointer_t>& vec = *(tmp->data);
+    auto n = tmp->num_expressions();
+    for (size_t i = 0; i < n; i++) {
         CppAD::AD<double> next;
-        visit_expression(*it, cache, used_variables, fixed_variables, parameters, ADvars,
-                         dynamic_params, next);
+        visit_expression(vec[i], data, next);
         ans += next;
     }
 }
 
-void visit(TimesTerm& expr, std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
-           std::unordered_map<VariableTerm*, size_t>& used_variables,
-           std::map<VariableTerm*, size_t>& fixed_variables,
-           std::map<ParameterTerm*, size_t>& parameters, std::vector<CppAD::AD<double> >& ADvars,
-           std::vector<CppAD::AD<double> >& dynamic_params, CppAD::AD<double>& ans)
+void visit_TimesTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
 {
+    auto tmp = std::dynamic_pointer_cast<TimesTerm>(expr);
     CppAD::AD<double> lhs;
-    visit_expression(expr.lhs, cache, used_variables, fixed_variables, parameters, ADvars,
-                     dynamic_params, lhs);
+    visit_expression(tmp->lhs, data, lhs);
     CppAD::AD<double> rhs;
-    visit_expression(expr.rhs, cache, used_variables, fixed_variables, parameters, ADvars,
-                     dynamic_params, rhs);
+    visit_expression(tmp->rhs, data, rhs);
     ans += lhs * rhs;
 }
 
-void visit(DivideTerm& expr, std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
-           std::unordered_map<VariableTerm*, size_t>& used_variables,
-           std::map<VariableTerm*, size_t>& fixed_variables,
-           std::map<ParameterTerm*, size_t>& parameters, std::vector<CppAD::AD<double> >& ADvars,
-           std::vector<CppAD::AD<double> >& dynamic_params, CppAD::AD<double>& ans)
+void visit_DivideTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
 {
+    auto tmp = std::dynamic_pointer_cast<DivideTerm>(expr);
     CppAD::AD<double> lhs;
-    visit_expression(expr.lhs, cache, used_variables, fixed_variables, parameters, ADvars,
-                     dynamic_params, lhs);
+    visit_expression(tmp->lhs, data, lhs);
     CppAD::AD<double> rhs;
-    visit_expression(expr.rhs, cache, used_variables, fixed_variables, parameters, ADvars,
-                     dynamic_params, rhs);
+    visit_expression(tmp->rhs, data, rhs);
+
     ans += lhs / rhs;
 }
 
-#define UNARY_VISITOR(TERM, FN)                                                                 \
-    void visit(TERM& expr, std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,       \
-               std::unordered_map<VariableTerm*, size_t>& used_variables,                       \
-               std::map<VariableTerm*, size_t>& fixed_variables,                                \
-               std::map<ParameterTerm*, size_t>& parameters,                                    \
-               std::vector<CppAD::AD<double> >& ADvars,                                         \
-               std::vector<CppAD::AD<double> >& dynamic_params, CppAD::AD<double>& ans)         \
-    {                                                                                           \
-        CppAD::AD<double> body;                                                                 \
-        visit_expression(expr.body, cache, used_variables, fixed_variables, parameters, ADvars, \
-                         dynamic_params, body);                                                 \
-        ans += CppAD::FN(body);                                                                 \
+#define UNARY_VISITOR(TERM, FN)                                                        \
+    void visit_##TERM(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans) \
+    {                                                                                  \
+        auto tmp = std::dynamic_pointer_cast<TERM>(expr);                              \
+        CppAD::AD<double> body;                                                        \
+        visit_expression(tmp->body, data, body);                                       \
+        ans += CppAD::FN(body);                                                        \
     }
 
 UNARY_VISITOR(AbsTerm, abs)
@@ -735,65 +703,33 @@ UNARY_VISITOR(ASinhTerm, asinh)
 UNARY_VISITOR(ACoshTerm, acosh)
 UNARY_VISITOR(ATanhTerm, atanh)
 
-#define BINARY_VISITOR(TERM, FN)                                                               \
-    void visit(TERM& expr, std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,      \
-               std::unordered_map<VariableTerm*, size_t>& used_variables,                      \
-               std::map<VariableTerm*, size_t>& fixed_variables,                               \
-               std::map<ParameterTerm*, size_t>& parameters,                                   \
-               std::vector<CppAD::AD<double> >& ADvars,                                        \
-               std::vector<CppAD::AD<double> >& dynamic_params, CppAD::AD<double>& ans)        \
-    {                                                                                          \
-        CppAD::AD<double> lhs;                                                                 \
-        visit_expression(expr.lhs, cache, used_variables, fixed_variables, parameters, ADvars, \
-                         dynamic_params, lhs);                                                 \
-        CppAD::AD<double> rhs;                                                                 \
-        visit_expression(expr.rhs, cache, used_variables, fixed_variables, parameters, ADvars, \
-                         dynamic_params, rhs);                                                 \
-        ans += CppAD::FN(lhs, rhs);                                                            \
-    }
-
-// BINARY_VISITOR(PowTerm, pow)
-
-void visit(PowTerm& expr, std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
-           std::unordered_map<VariableTerm*, size_t>& used_variables,
-           std::map<VariableTerm*, size_t>& fixed_variables,
-           std::map<ParameterTerm*, size_t>& parameters, std::vector<CppAD::AD<double> >& ADvars,
-           std::vector<CppAD::AD<double> >& dynamic_params, CppAD::AD<double>& ans)
+void visit_PowTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
 {
+    auto tmp = std::dynamic_pointer_cast<PowTerm>(expr);
     CppAD::AD<double> lhs;
-    visit_expression(expr.lhs, cache, used_variables, fixed_variables, parameters, ADvars,
-                     dynamic_params, lhs);
-    CppAD::AD<double> rhs;
-    visit_expression(expr.rhs, cache, used_variables, fixed_variables, parameters, ADvars,
-                     dynamic_params, rhs);
-
-    if (expr.rhs->is_constant()) {
-        double tmp = expr.rhs->eval();
-        if (fabs(tmp - int(tmp)) < 1e-12) {
-            ans += CppAD::pow(lhs, int(tmp));
+    visit_expression(tmp->lhs, data, lhs);
+    if (tmp->rhs->is_constant()) {
+        double val = tmp->rhs->eval();
+        if (fabs(val - int(val)) < 1e-12) {
+            ans += CppAD::pow(lhs, int(val));
             return;
         }
     }
+
+    CppAD::AD<double> rhs;
+    visit_expression(tmp->rhs, data, rhs);
     ans += CppAD::pow(lhs, rhs);
 }
 
-#define VISIT_CASE(TERM)                                                                      \
-    case TERM##_id:                                                                           \
-        visit(*dynamic_cast<TERM*>(expr), cache, used_variables, fixed_variables, parameters, \
-              ADvars, dynamic_params, ans);                                                   \
-        cache[expr] = ans;                                                                    \
+#define VISIT_CASE(TERM)               \
+    case TERM##_id:                    \
+        visit_##TERM(expr, data, ans); \
         break
 
-void visit_expression(expr_pointer_t expr,
-                      std::unordered_map<expr_pointer_t, CppAD::AD<double> >& cache,
-                      std::unordered_map<VariableTerm*, size_t>& used_variables,
-                      std::map<VariableTerm*, size_t>& fixed_variables,
-                      std::map<ParameterTerm*, size_t>& parameters,
-                      std::vector<CppAD::AD<double> >& ADvars,
-                      std::vector<CppAD::AD<double> >& dynamic_params, CppAD::AD<double>& ans)
+void visit_expression(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
 {
-    auto curr = cache.find(expr);
-    if (curr != cache.end()) {
+    auto curr = data.cache.find(expr);
+    if (curr != data.cache.end()) {
         ans += curr->second;
         return;
     }
@@ -807,6 +743,7 @@ void visit_expression(expr_pointer_t expr,
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(NegateTerm);
+        VISIT_CASE(SubExpressionTerm);
         VISIT_CASE(PlusTerm);
         VISIT_CASE(TimesTerm);
         VISIT_CASE(DivideTerm);
@@ -836,18 +773,18 @@ void visit_expression(expr_pointer_t expr,
                 "Error in CppAD_Repn visitor!  Visiting unexpected expression term "
                 + std::to_string(expr->id()));
     };
+
+    data.cache[expr] = ans;
 }
 
 }  // namespace
 
 void CppAD_Repn::build_expression(expr_pointer_t root, std::vector<CppAD::AD<double> >& ADvars,
-                                  CppAD::AD<double>& range,
-                                  std::unordered_map<VariableTerm*, size_t>& _used_variables)
+                                  CppAD::AD<double>& ans,
+                                  std::unordered_map<VariableRepn, size_t>& _used_variables)
 {
-    std::unordered_map<expr_pointer_t, CppAD::AD<double> > cache;
-
-    visit_expression(root, cache, _used_variables, fixed_variables, parameters, ADvars,
-                     dynamic_params, range);
+    VisitorData data(ADvars, _used_variables, fixed_variables, parameters, dynamic_params);
+    visit_expression(root, data, ans);
 }
 
 }  // namespace coek

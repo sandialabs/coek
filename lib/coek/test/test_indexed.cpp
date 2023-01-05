@@ -5,7 +5,7 @@
 #include "coek/ast/value_terms.hpp"
 #include "coek/coek.hpp"
 
-#define NLP_INTRINSIC_TEST1(FN, MEMCHECK)                                         \
+#define NLP_INTRINSIC_TEST1(FN)                                                   \
     WHEN(#FN " 1")                                                                \
     {                                                                             \
         {                                                                         \
@@ -16,10 +16,9 @@
             static std::list<std::string> constval = {std::to_string(0.0)};       \
             static std::list<std::string> nonlinear                               \
                 = {"[", #FN, "[", "+", "v", std::to_string(1.0), "]", "]"};       \
-            REQUIRE(repn.constval.to_list() == constval);                         \
+            REQUIRE(repn.constval->to_list() == constval);                        \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
         }                                                                         \
-        MEMCHECK;                                                                 \
     }                                                                             \
     WHEN(#FN " 2")                                                                \
     {                                                                             \
@@ -33,12 +32,11 @@
             repn.collect_terms(E);                                                \
             static std::list<std::string> nonlinear = {std::to_string(0.0)};      \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
-            REQUIRE(repn.nonlinear.to_list() == nonlinear);                       \
+            REQUIRE(repn.nonlinear->to_list() == nonlinear);                      \
         }                                                                         \
-        MEMCHECK;                                                                 \
     }
 
-#define NLP_INTRINSIC_TEST2(FN, MEMCHECK)                                         \
+#define NLP_INTRINSIC_TEST2(FN)                                                   \
     WHEN(#FN " 1")                                                                \
     {                                                                             \
         {                                                                         \
@@ -49,10 +47,9 @@
             static std::list<std::string> constval = {std::to_string(0.0)};       \
             static std::list<std::string> nonlinear                               \
                 = {"[", #FN, "[", "+", "v", std::to_string(1.0), "]", "v", "]"};  \
-            REQUIRE(repn.constval.to_list() == constval);                         \
+            REQUIRE(repn.constval->to_list() == constval);                        \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
         }                                                                         \
-        MEMCHECK;                                                                 \
     }                                                                             \
     WHEN(#FN " 2")                                                                \
     {                                                                             \
@@ -66,9 +63,8 @@
             repn.collect_terms(E);                                                \
             static std::list<std::string> nonlinear = {std::to_string(0.0)};      \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
-            REQUIRE(repn.nonlinear.to_list() == nonlinear);                       \
+            REQUIRE(repn.nonlinear->to_list() == nonlinear);                      \
         }                                                                         \
-        MEMCHECK;                                                                 \
     }
 
 #define MV_INTRINSIC_TEST1(FN)                                            \
@@ -99,12 +95,6 @@
         REQUIRE(params == pbaseline);                                     \
     }
 
-#ifdef DEBUG
-#    define ENV_MEMCHECK REQUIRE(coek::env.check_memory() == true)
-#else
-#    define ENV_MEMCHECK
-#endif
-
 #ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE("expr_sequence", "[smoke]")
 {
@@ -112,8 +102,8 @@ TEST_CASE("expr_sequence", "[smoke]")
     {
         std::vector<int> v = {1, 5, 3, 7};
         auto s = coek::SetOf(v);
-        auto y = coek::variable("y", s);
-        auto x = coek::variable("x", s * s);
+        auto y = coek::variable("y", s).generate_names();
+        auto x = coek::variable("x", s * s).generate_names();
         auto i = coek::set_element("i");
         auto j = coek::set_element("j");
 
@@ -254,8 +244,8 @@ TEST_CASE("expr_sequence", "[smoke]")
     {
         std::vector<int> v = {1, 5, 3, 7};
         auto s = coek::SetOf(v);
-        auto y = coek::variable("y", s);
-        auto x = coek::variable("x", s * s);
+        auto y = coek::variable("y", s).generate_names();
+        auto x = coek::variable("x", s * s).generate_names();
         auto i = coek::set_element("i");
 
         WHEN("y[i] == 0")
@@ -377,11 +367,6 @@ TEST_CASE("expr_sequence", "[smoke]")
             REQUIRE(e.to_list() == baseline);
         }
     }
-
-#    ifdef DEBUG
-    // coek::env.debug = false;
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
 }
 
 TEST_CASE("expr_expand", "[smoke]")
@@ -396,7 +381,7 @@ TEST_CASE("expr_expand", "[smoke]")
 
             static std::list<std::string> constval = {std::to_string(3.0)};
             REQUIRE(repn.mutable_values == false);
-            REQUIRE(repn.constval.to_list() == constval);
+            REQUIRE(repn.constval->to_list() == constval);
             REQUIRE(repn.linear_coefs.size() == 0);
             REQUIRE(repn.quadratic_coefs.size() == 0);
         }
@@ -415,7 +400,7 @@ TEST_CASE("expr_expand", "[smoke]")
 
                 static std::list<std::string> constval = {"p"};
                 REQUIRE(repn.mutable_values == true);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
@@ -431,7 +416,7 @@ TEST_CASE("expr_expand", "[smoke]")
 
                 static std::list<std::string> constval = {"[", "*", std::to_string(0.5), "p", "]"};
                 REQUIRE(repn.mutable_values == true);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
@@ -453,9 +438,9 @@ TEST_CASE("expr_expand", "[smoke]")
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> coefval = {std::to_string(1.0)};
                 REQUIRE(repn.mutable_values == false);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
                 REQUIRE(repn.linear_vars[0] == e.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
@@ -473,7 +458,7 @@ TEST_CASE("expr_expand", "[smoke]")
 
                 static std::list<std::string> constval = {"v"};
                 REQUIRE(repn.mutable_values == true);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
@@ -492,7 +477,7 @@ TEST_CASE("expr_expand", "[smoke]")
 
                 static std::list<std::string> constval = {"[", "*", std::to_string(0.5), "v", "]"};
                 REQUIRE(repn.mutable_values == true);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
@@ -514,10 +499,10 @@ TEST_CASE("expr_expand", "[smoke]")
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> coefval = {std::to_string(2.0)};
                 REQUIRE(repn.mutable_values == false);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval);
-                coek::MonomialTerm* tmp = dynamic_cast<coek::MonomialTerm*>(e.repn);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
+                auto tmp = std::dynamic_pointer_cast<coek::MonomialTerm>(e.repn);
                 REQUIRE(repn.linear_vars[0]->index == tmp->var->index);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
@@ -535,7 +520,7 @@ TEST_CASE("expr_expand", "[smoke]")
 
                 static std::list<std::string> constval = {"[", "*", std::to_string(2.0), "v", "]"};
                 REQUIRE(repn.mutable_values == true);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
@@ -555,9 +540,9 @@ TEST_CASE("expr_expand", "[smoke]")
             static std::list<std::string> constval = {std::to_string(-1.0)};
             static std::list<std::string> coefval = {std::to_string(-1.0)};
             REQUIRE(repn.mutable_values == false);
-            REQUIRE(repn.constval.to_list() == constval);
+            REQUIRE(repn.constval->to_list() == constval);
             REQUIRE(repn.linear_coefs.size() == 1);
-            REQUIRE(repn.linear_coefs[0].to_list() == coefval);
+            REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
             REQUIRE(repn.linear_vars[0] == v.repn);
             REQUIRE(repn.quadratic_coefs.size() == 0);
         }
@@ -579,9 +564,9 @@ TEST_CASE("expr_expand", "[smoke]")
                 static std::list<std::string> constval = {std::to_string(1.0)};
                 static std::list<std::string> coefval = {std::to_string(1.0)};
                 REQUIRE(repn.mutable_values == false);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
                 REQUIRE(repn.linear_vars[0] == v.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
@@ -605,10 +590,10 @@ TEST_CASE("expr_expand", "[smoke]")
                 static std::list<std::string> coefval0 = {std::to_string(1.0)};
                 static std::list<std::string> coefval1 = {std::to_string(-1.0)};
                 REQUIRE(repn.mutable_values == false);
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 2);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval0);
-                REQUIRE(repn.linear_coefs[1].to_list() == coefval1);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval0);
+                REQUIRE(repn.linear_coefs[1]->to_list() == coefval1);
                 REQUIRE(repn.linear_vars[0] == v.repn);
                 REQUIRE(repn.linear_vars[1] == v.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
@@ -631,9 +616,9 @@ TEST_CASE("expr_expand", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> coefval = {"p"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
                 REQUIRE(repn.linear_vars[0] == w.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
@@ -651,9 +636,9 @@ TEST_CASE("expr_expand", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> coefval = {"p"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
                 REQUIRE(repn.linear_vars[0] == w.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
@@ -670,10 +655,10 @@ TEST_CASE("expr_expand", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> qcoefval = {std::to_string(1.0)};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 1);
-                REQUIRE(repn.quadratic_coefs[0].to_list() == qcoefval);
+                REQUIRE(repn.quadratic_coefs[0]->to_list() == qcoefval);
                 REQUIRE(repn.quadratic_lvars[0] == w.repn);
                 REQUIRE(repn.quadratic_rvars[0] == w.repn);
             }
@@ -691,7 +676,7 @@ TEST_CASE("expr_expand", "[smoke]")
                 repn.collect_terms(E);
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
@@ -711,12 +696,12 @@ TEST_CASE("expr_expand", "[smoke]")
                 static std::list<std::string> lcoef0 = {std::to_string(12.0)};
                 static std::list<std::string> qcoef0 = {std::to_string(15.0)};
                 static std::list<std::string> qcoef1 = {std::to_string(3.0)};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == lcoef0);
+                REQUIRE(repn.linear_coefs[0]->to_list() == lcoef0);
                 REQUIRE(repn.quadratic_coefs.size() == 2);
-                REQUIRE(repn.quadratic_coefs[0].to_list() == qcoef0);
-                REQUIRE(repn.quadratic_coefs[1].to_list() == qcoef1);
+                REQUIRE(repn.quadratic_coefs[0]->to_list() == qcoef0);
+                REQUIRE(repn.quadratic_coefs[1]->to_list() == qcoef1);
             }
         }
         WHEN("complex quadratic 2")
@@ -731,10 +716,10 @@ TEST_CASE("expr_expand", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(6.0)};
                 static std::list<std::string> qcoefval = {std::to_string(3.0)};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 1);
-                REQUIRE(repn.quadratic_coefs[0].to_list() == qcoefval);
+                REQUIRE(repn.quadratic_coefs[0]->to_list() == qcoefval);
                 REQUIRE(repn.quadratic_lvars[0] == w.repn);
                 REQUIRE(repn.quadratic_rvars[0] == w.repn);
             }
@@ -751,10 +736,10 @@ TEST_CASE("expr_expand", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(6.0)};
                 static std::list<std::string> qcoefval = {std::to_string(3.0)};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 1);
-                REQUIRE(repn.quadratic_coefs[0].to_list() == qcoefval);
+                REQUIRE(repn.quadratic_coefs[0]->to_list() == qcoefval);
                 REQUIRE(repn.quadratic_lvars[0] == w.repn);
                 REQUIRE(repn.quadratic_rvars[0] == w.repn);
             }
@@ -776,10 +761,10 @@ TEST_CASE("expr_expand", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> nonlinear = {"[", "/", "p", "w", "]"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
-                REQUIRE(repn.nonlinear.to_list() == nonlinear);
+                REQUIRE(repn.nonlinear->to_list() == nonlinear);
             }
         }
         WHEN("rhs parameter - zero")
@@ -795,11 +780,11 @@ TEST_CASE("expr_expand", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> lcoef0 = {"[", "/", std::to_string(1.0), "p", "]"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == lcoef0);
+                REQUIRE(repn.linear_coefs[0]->to_list() == lcoef0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
-                REQUIRE(repn.nonlinear.to_list() == constval);
+                REQUIRE(repn.nonlinear->to_list() == constval);
             }
         }
         WHEN("lhs constant - zero")
@@ -814,10 +799,10 @@ TEST_CASE("expr_expand", "[smoke]")
                 repn.collect_terms(E);
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
-                REQUIRE(repn.nonlinear.to_list() == constval);
+                REQUIRE(repn.nonlinear->to_list() == constval);
             }
         }
         WHEN("lhs constant - zero AND rhs constant")
@@ -832,10 +817,10 @@ TEST_CASE("expr_expand", "[smoke]")
                 repn.collect_terms(E);
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
-                REQUIRE(repn.nonlinear.to_list() == constval);
+                REQUIRE(repn.nonlinear->to_list() == constval);
             }
         }
         WHEN("rhs constant - zero")
@@ -863,10 +848,10 @@ TEST_CASE("expr_expand", "[smoke]")
                 static std::list<std::string> constval = {std::to_string(0.0)};
                 static std::list<std::string> nonlinear
                     = {"[", "/", "w", "[", "+", std::to_string(1.0), "w", "]", "]"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
-                REQUIRE(repn.nonlinear.to_list() == nonlinear);
+                REQUIRE(repn.nonlinear->to_list() == nonlinear);
             }
         }
         WHEN("rhs nonzero")
@@ -881,11 +866,11 @@ TEST_CASE("expr_expand", "[smoke]")
                 repn.collect_terms(E);
 
                 static std::list<std::string> constval = {"[", "/", std::to_string(1.0), "p", "]"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == constval);
+                REQUIRE(repn.linear_coefs[0]->to_list() == constval);
                 REQUIRE(repn.quadratic_coefs.size() == 1);
-                REQUIRE(repn.quadratic_coefs[0].to_list() == constval);
+                REQUIRE(repn.quadratic_coefs[0]->to_list() == constval);
             }
         }
     }
@@ -905,9 +890,9 @@ TEST_CASE("expr_expand", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(-3.0)};
                 static std::list<std::string> coefval = {"p"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
                 REQUIRE(repn.linear_vars[0] == w.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
@@ -925,31 +910,39 @@ TEST_CASE("expr_expand", "[smoke]")
 
                 static std::list<std::string> constval = {std::to_string(1.0)};
                 static std::list<std::string> coefval = {"p"};
-                REQUIRE(repn.constval.to_list() == constval);
+                REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 1);
-                REQUIRE(repn.linear_coefs[0].to_list() == coefval);
+                REQUIRE(repn.linear_coefs[0]->to_list() == coefval);
                 REQUIRE(repn.linear_vars[0] == w.repn);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
             }
         }
     }
 
-    SECTION("intrinsic funcs"){
-        NLP_INTRINSIC_TEST1(abs, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(ceil, ENV_MEMCHECK)
-            NLP_INTRINSIC_TEST1(floor, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(exp, ENV_MEMCHECK)
-                NLP_INTRINSIC_TEST1(log, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(log10, ENV_MEMCHECK)
-                    NLP_INTRINSIC_TEST1(sqrt, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(sin, ENV_MEMCHECK)
-                        NLP_INTRINSIC_TEST1(cos, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(
-                            tan, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(sinh, ENV_MEMCHECK)
-                            NLP_INTRINSIC_TEST1(cosh, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(
-                                tanh, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(asin, ENV_MEMCHECK)
-                                NLP_INTRINSIC_TEST1(acos, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(
-                                    atan, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(asinh, ENV_MEMCHECK)
-                                    NLP_INTRINSIC_TEST1(acosh, ENV_MEMCHECK) NLP_INTRINSIC_TEST1(
-                                        atanh, ENV_MEMCHECK) NLP_INTRINSIC_TEST2(pow, ENV_MEMCHECK)}
-
-#    ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#    endif
+    SECTION("intrinsic funcs")
+    {
+        // clang-format off
+        NLP_INTRINSIC_TEST1(abs) 
+        NLP_INTRINSIC_TEST1(ceil)
+        NLP_INTRINSIC_TEST1(floor) 
+        NLP_INTRINSIC_TEST1(exp)
+        NLP_INTRINSIC_TEST1(log) 
+        NLP_INTRINSIC_TEST1(log10)
+        NLP_INTRINSIC_TEST1(sqrt) 
+        NLP_INTRINSIC_TEST1(sin)
+        NLP_INTRINSIC_TEST1(cos) 
+        NLP_INTRINSIC_TEST1(tan) 
+        NLP_INTRINSIC_TEST1(sinh)
+        NLP_INTRINSIC_TEST1(cosh) 
+        NLP_INTRINSIC_TEST1(tanh) 
+        NLP_INTRINSIC_TEST1(asin)
+        NLP_INTRINSIC_TEST1(acos) 
+        NLP_INTRINSIC_TEST1(atan) 
+        NLP_INTRINSIC_TEST1(asinh)
+        NLP_INTRINSIC_TEST1(acosh) 
+        NLP_INTRINSIC_TEST1(atanh) 
+        NLP_INTRINSIC_TEST2(pow)
+        // clang-format on
+    }
 }
 #endif

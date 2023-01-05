@@ -192,9 +192,7 @@ expr_pointer_t visit(SumExpressionTerm& arg)
             e += *it;
         }
         curr = e.repn;
-        OWN_POINTER(curr);
     }
-    FREE_POINTER(curr);
     return curr;
 }
 

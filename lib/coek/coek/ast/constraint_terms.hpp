@@ -22,22 +22,20 @@ class ObjectiveTerm : public BaseExpressionTerm {
    public:
     ObjectiveTerm();
     ObjectiveTerm(const expr_pointer_t& body, bool sense);
-    ~ObjectiveTerm();
 
-    double eval() const { return body->eval(); }
+    double _eval() const { return body->_eval(); }
 
     void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return ObjectiveTerm_id; }
-};
 
-class DummyObjectiveTerm : public ObjectiveTerm {
-   public:
-    DummyObjectiveTerm() : ObjectiveTerm() {}
-    term_id id() { return DummyObjectiveTerm_id; }
-#if 0
-    double eval() const
-        {return 0.0;}
-#endif
+    virtual std::string get_simple_name() { return "O[" + std::to_string(index) + "]"; }
+    virtual std::string get_name()
+    {
+        if (name == "")
+            return get_simple_name();
+        else
+            return name;
+    }
 };
 
 //
@@ -59,9 +57,11 @@ class ConstraintTerm : public BaseExpressionTerm {
     ConstraintTerm();
     ConstraintTerm(const expr_pointer_t& lower, const expr_pointer_t& body,
                    const expr_pointer_t& upper);
-    ~ConstraintTerm();
+    ConstraintTerm(const expr_pointer_t& lower, const expr_pointer_t& body, int upper);
+    ConstraintTerm(int lower, const expr_pointer_t& body, const expr_pointer_t& upper);
 
-    double eval() const { return body->eval(); }
+    double _eval() const { return body->_eval(); }
+
     bool is_constraint() const { return true; }
     virtual bool is_inequality() const { return false; }
     virtual bool is_equality() const { return false; }
@@ -70,6 +70,15 @@ class ConstraintTerm : public BaseExpressionTerm {
     virtual bool is_trivial() const
         {return false;}
     */
+
+    virtual std::string get_simple_name() { return "C[" + std::to_string(index) + "]"; }
+    virtual std::string get_name()
+    {
+        if (name == "")
+            return get_simple_name();
+        else
+            return name;
+    }
 };
 
 class InequalityTerm : public ConstraintTerm {
@@ -78,6 +87,18 @@ class InequalityTerm : public ConstraintTerm {
 
     InequalityTerm(const expr_pointer_t& lower, const expr_pointer_t& body,
                    const expr_pointer_t& upper, bool _strict = false)
+        : ConstraintTerm(lower, body, upper), strict(_strict)
+    {
+    }
+
+    InequalityTerm(const expr_pointer_t& lower, const expr_pointer_t& body, int upper,
+                   bool _strict = false)
+        : ConstraintTerm(lower, body, upper), strict(_strict)
+    {
+    }
+
+    InequalityTerm(int lower, const expr_pointer_t& body, const expr_pointer_t& upper,
+                   bool _strict = false)
         : ConstraintTerm(lower, body, upper), strict(_strict)
     {
     }
@@ -116,20 +137,16 @@ class EqualityTerm : public ConstraintTerm {
     term_id id() { return EqualityTerm_id; }
 };
 
-class DummyConstraintTerm : public ConstraintTerm {
+class EmptyConstraintTerm : public ConstraintTerm {
    public:
-    DummyConstraintTerm();
-    ~DummyConstraintTerm()
-    {
-        body = 0;
-        lower = 0;
-        upper = 0;
-    }
+    EmptyConstraintTerm();
 
     bool is_feasible() const { return true; }
 
     void accept(Visitor& v) { v.visit(*this); }
-    term_id id() { return DummyConstraintTerm_id; }
+    term_id id() { return EmptyConstraintTerm_id; }
 };
+
+extern std::shared_ptr<EmptyConstraintTerm> EmptyConstraintRepn;
 
 }  // namespace coek

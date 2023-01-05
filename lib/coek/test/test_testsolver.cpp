@@ -136,8 +136,4 @@ TEST_CASE("solver_test", "[smoke]")
         coek::Solver solver("test");
         solver.solve(model);
     }
-
-#ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#endif
 }

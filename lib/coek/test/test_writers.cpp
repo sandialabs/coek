@@ -367,240 +367,231 @@ bool run_test(ModelType& model, const std::string& name, const std::string& suff
 
 TEST_CASE("model_writer", "[smoke]")
 {
+    std::vector<std::string> nonlinear = {"nl", "ostrnl"
+#ifdef WITH_FMTLIB
+                                          ,
+                                          "fmtnl"
+#endif
+    };
+    std::vector<std::string> linear = {"lp",
+                                       "nl",
+                                       "ostrlp",
+                                       "ostrnl"
+#ifdef WITH_FMTLIB
+                                       ,
+                                       "fmtlp",
+                                       "fmtnl"
+#endif
+    };
+    coek::Model model;
+
+    SECTION("error1")
     {
-        std::vector<std::string> nonlinear = {"nl", "ostrnl"
-#ifdef WITH_FMTLIB
-                                              ,
-                                              "fmtnl"
-#endif
-        };
-        std::vector<std::string> linear = {"lp",
-                                           "nl",
-                                           "ostrlp",
-                                           "ostrnl"
-#ifdef WITH_FMTLIB
-                                           ,
-                                           "fmtlp",
-                                           "fmtnl"
-#endif
-        };
-        coek::Model model;
-
-        SECTION("error1")
-        {
-            error1(model);
-            REQUIRE_THROWS_WITH(model.write("error1.nl"),
-                                "Error writing NL file: Model expressions contain variable 'y' "
-                                "that is not declared in the model.");
-            std::remove("error1.nl");
-            REQUIRE_THROWS_WITH(model.write("error1.fmtnl"),
-                                "Error writing NL file: Model expressions contain variable 'y' "
-                                "that is not declared in the model.");
-            std::remove("error1.fmtnl");
-            REQUIRE_THROWS_WITH(model.write("error1.ostrnl"),
-                                "Error writing NL file: Model expressions contain variable 'y' "
-                                "that is not declared in the model.");
-            std::remove("error1.ostrnl");
-            REQUIRE_THROWS_WITH(model.write("error1.lp"),
-                                "Error writing LP file: Model expressions contain variable that is "
-                                "not declared in the model.");
-            std::remove("error1.lp");
-            REQUIRE_THROWS_WITH(model.write("error1.fmtlp"),
-                                "Error writing LP file: Model expressions contain variable that is "
-                                "not declared in the model.");
-            std::remove("error1.fmtlp");
-            REQUIRE_THROWS_WITH(model.write("error1.ostrlp"),
-                                "Error writing LP file: Model expressions contain variable that is "
-                                "not declared in the model.");
-            std::remove("error1.ostrlp");
-        }
-
-        SECTION("error2")
-        {
-            error2(model);
-            REQUIRE_THROWS_WITH(model.write("error2.nl"),
-                                "Error writing NL file: No objectives specified!");
-            std::remove("error2.nl");
-            REQUIRE_THROWS_WITH(model.write("error2.fmtnl"),
-                                "Error writing NL file: No objectives specified!");
-            std::remove("error2.fmtnl");
-            REQUIRE_THROWS_WITH(model.write("error2.ostrnl"),
-                                "Error writing NL file: No objectives specified!");
-            std::remove("error2.ostrnl");
-            REQUIRE_THROWS_WITH(model.write("error2.lp"),
-                                "Error writing LP file: No objectives specified!");
-            std::remove("error2.lp");
-            REQUIRE_THROWS_WITH(model.write("error2.fmtlp"),
-                                "Error writing LP file: No objectives specified!");
-            std::remove("error2.fmtlp");
-            REQUIRE_THROWS_WITH(model.write("error2.ostrlp"),
-                                "Error writing LP file: No objectives specified!");
-            std::remove("error2.ostrlp");
-        }
-
-        SECTION("error3")
-        {
-            error3(model);
-            REQUIRE_THROWS_WITH(model.write("error3.nl"),
-                                "Error writing NL file: More than one objective defined!");
-            std::remove("error3.nl");
-            REQUIRE_THROWS_WITH(model.write("error3.fmtnl"),
-                                "Error writing NL file: More than one objective defined!");
-            std::remove("error3.fmtnl");
-            REQUIRE_THROWS_WITH(model.write("error3.ostrnl"),
-                                "Error writing NL file: More than one objective defined!");
-            std::remove("error3.ostrnl");
-            REQUIRE_THROWS_WITH(model.write("error3.lp"),
-                                "Error writing LP file: More than one objective defined!");
-            std::remove("error3.lp");
-            REQUIRE_THROWS_WITH(model.write("error3.fmtlp"),
-                                "Error writing LP file: More than one objective defined!");
-            std::remove("error3.fmtlp");
-            REQUIRE_THROWS_WITH(model.write("error3.ostrlp"),
-                                "Error writing LP file: More than one objective defined!");
-            std::remove("error3.ostrlp");
-        }
-
-        SECTION("error4")
-        {
-            error4(model);
-            REQUIRE_THROWS_WITH(model.write("error3.nl"),
-                                "Error writing NL file: Unexpected index parameter.");
-            std::remove("error3.nl");
-            REQUIRE_THROWS_WITH(model.write("error3.fmtnl"),
-                                "Error writing NL file: Unexpected index parameter.");
-            std::remove("error3.fmtnl");
-            REQUIRE_THROWS_WITH(model.write("error3.ostrnl"),
-                                "Error writing NL file: Unexpected index parameter.");
-            std::remove("error3.ostrnl");
-            REQUIRE_THROWS_WITH(model.write("error3.lp"),
-                                "Error writing LP file: Unexpected index parameter.");
-            std::remove("error3.lp");
-            REQUIRE_THROWS_WITH(model.write("error3.fmtlp"),
-                                "Error writing LP file: Unexpected index parameter.");
-            std::remove("error3.fmtlp");
-            REQUIRE_THROWS_WITH(model.write("error3.ostrlp"),
-                                "Error writing LP file: Unexpected index parameter.");
-            std::remove("error3.ostrlp");
-        }
-
-        SECTION("error5")
-        {
-            error1(model);
-            REQUIRE_THROWS_WITH(model.write("error1.bad"), "Unknown problem type: error1.bad");
-        }
-
-        SECTION("small1")
-        {
-            small1(model);
-            for (const std::string& suffix : linear) REQUIRE(run_test(model, "small1", suffix));
-        }
-
-        SECTION("small2")
-        {
-            small2(model);
-            for (const std::string& suffix : linear) REQUIRE(run_test(model, "small2", suffix));
-        }
-
-        SECTION("small3")
-        {
-            small3(model);
-            for (const std::string& suffix : linear) REQUIRE(run_test(model, "small3", suffix));
-        }
-
-        SECTION("small4")
-        {
-            small4(model);
-            for (const std::string& suffix : linear) REQUIRE(run_test(model, "small4", suffix));
-        }
-
-        SECTION("small5")
-        {
-            small5(model);
-            for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small5", suffix));
-        }
-
-        SECTION("small6")
-        {
-            small6(model);
-            for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small6", suffix));
-        }
-
-        SECTION("small7")
-        {
-            small7(model);
-            for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small7", suffix));
-        }
-
-        SECTION("small8")
-        {
-            small8(model);
-            for (const std::string& suffix : linear) REQUIRE(run_test(model, "small8", suffix));
-        }
-
-        SECTION("small9")
-        {
-            small9(model);
-            for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small9", suffix));
-        }
-
-        SECTION("small13")
-        {
-            small13(model);
-            for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small13", suffix));
-        }
-
-        SECTION("small14")
-        {
-            small14(model);
-            for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small14", suffix));
-        }
-
-        SECTION("testing1")
-        {
-            testing1(model);
-            for (const std::string& suffix : linear) REQUIRE(run_test(model, "testing1", suffix));
-        }
-
-        SECTION("testing2")
-        {
-            testing2(model);
-            for (const std::string& suffix : nonlinear)
-                REQUIRE(run_test(model, "testing2", suffix));
-        }
-
-        SECTION("testing3")
-        {
-            testing3(model);
-            for (const std::string& suffix : nonlinear)
-                REQUIRE(run_test(model, "testing3", suffix));
-        }
-
-        SECTION("testing4")
-        {
-            testing4(model);
-            for (const std::string& suffix : nonlinear)
-                REQUIRE(run_test(model, "testing4", suffix));
-        }
-
-        SECTION("testing5")
-        {
-            testing5(model);
-            for (const std::string& suffix : linear) REQUIRE(run_test(model, "testing5", suffix));
-        }
-
-        // TODO - Add separate NLP writer tests to confirm the variable mappings
-        SECTION("testing1-nlp")
-        {
-            testing1(model);
-            coek::NLPModel nlp(model, "cppad");
-            for (const std::string& suffix : linear) REQUIRE(run_test(nlp, "testing1", suffix));
-        }
+        error1(model);
+        REQUIRE_THROWS_WITH(model.write("error1.nl"),
+                            "Error writing NL file: Model expressions contain variable 'y' "
+                            "that is not declared in the model.");
+        std::remove("error1.nl");
+        REQUIRE_THROWS_WITH(model.write("error1.fmtnl"),
+                            "Error writing NL file: Model expressions contain variable 'y' "
+                            "that is not declared in the model.");
+        std::remove("error1.fmtnl");
+        REQUIRE_THROWS_WITH(model.write("error1.ostrnl"),
+                            "Error writing NL file: Model expressions contain variable 'y' "
+                            "that is not declared in the model.");
+        std::remove("error1.ostrnl");
+        REQUIRE_THROWS_WITH(model.write("error1.lp"),
+                            "Error writing LP file: Model expressions contain variable that is "
+                            "not declared in the model.");
+        std::remove("error1.lp");
+        REQUIRE_THROWS_WITH(model.write("error1.fmtlp"),
+                            "Error writing LP file: Model expressions contain variable that is "
+                            "not declared in the model.");
+        std::remove("error1.fmtlp");
+        REQUIRE_THROWS_WITH(model.write("error1.ostrlp"),
+                            "Error writing LP file: Model expressions contain variable that is "
+                            "not declared in the model.");
+        std::remove("error1.ostrlp");
     }
 
-#ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#endif
+    SECTION("error2")
+    {
+        error2(model);
+        REQUIRE_THROWS_WITH(model.write("error2.nl"),
+                            "Error writing NL file: No objectives specified!");
+        std::remove("error2.nl");
+        REQUIRE_THROWS_WITH(model.write("error2.fmtnl"),
+                            "Error writing NL file: No objectives specified!");
+        std::remove("error2.fmtnl");
+        REQUIRE_THROWS_WITH(model.write("error2.ostrnl"),
+                            "Error writing NL file: No objectives specified!");
+        std::remove("error2.ostrnl");
+        REQUIRE_THROWS_WITH(model.write("error2.lp"),
+                            "Error writing LP file: No objectives specified!");
+        std::remove("error2.lp");
+        REQUIRE_THROWS_WITH(model.write("error2.fmtlp"),
+                            "Error writing LP file: No objectives specified!");
+        std::remove("error2.fmtlp");
+        REQUIRE_THROWS_WITH(model.write("error2.ostrlp"),
+                            "Error writing LP file: No objectives specified!");
+        std::remove("error2.ostrlp");
+    }
+
+    SECTION("error3")
+    {
+        error3(model);
+        REQUIRE_THROWS_WITH(model.write("error3.nl"),
+                            "Error writing NL file: More than one objective defined!");
+        std::remove("error3.nl");
+        REQUIRE_THROWS_WITH(model.write("error3.fmtnl"),
+                            "Error writing NL file: More than one objective defined!");
+        std::remove("error3.fmtnl");
+        REQUIRE_THROWS_WITH(model.write("error3.ostrnl"),
+                            "Error writing NL file: More than one objective defined!");
+        std::remove("error3.ostrnl");
+        REQUIRE_THROWS_WITH(model.write("error3.lp"),
+                            "Error writing LP file: More than one objective defined!");
+        std::remove("error3.lp");
+        REQUIRE_THROWS_WITH(model.write("error3.fmtlp"),
+                            "Error writing LP file: More than one objective defined!");
+        std::remove("error3.fmtlp");
+        REQUIRE_THROWS_WITH(model.write("error3.ostrlp"),
+                            "Error writing LP file: More than one objective defined!");
+        std::remove("error3.ostrlp");
+    }
+
+    SECTION("error4")
+    {
+        error4(model);
+        REQUIRE_THROWS_WITH(model.write("error3.nl"),
+                            "Error writing NL file: Unexpected index parameter.");
+        std::remove("error3.nl");
+        REQUIRE_THROWS_WITH(model.write("error3.fmtnl"),
+                            "Error writing NL file: Unexpected index parameter.");
+        std::remove("error3.fmtnl");
+        REQUIRE_THROWS_WITH(model.write("error3.ostrnl"),
+                            "Error writing NL file: Unexpected index parameter.");
+        std::remove("error3.ostrnl");
+        REQUIRE_THROWS_WITH(model.write("error3.lp"),
+                            "Error writing LP file: Unexpected index parameter.");
+        std::remove("error3.lp");
+        REQUIRE_THROWS_WITH(model.write("error3.fmtlp"),
+                            "Error writing LP file: Unexpected index parameter.");
+        std::remove("error3.fmtlp");
+        REQUIRE_THROWS_WITH(model.write("error3.ostrlp"),
+                            "Error writing LP file: Unexpected index parameter.");
+        std::remove("error3.ostrlp");
+    }
+
+    SECTION("error5")
+    {
+        error1(model);
+        REQUIRE_THROWS_WITH(model.write("error1.bad"), "Unknown problem type: error1.bad");
+    }
+
+    SECTION("small1")
+    {
+        small1(model);
+        for (const std::string& suffix : linear) REQUIRE(run_test(model, "small1", suffix));
+    }
+
+    SECTION("small2")
+    {
+        small2(model);
+        for (const std::string& suffix : linear) REQUIRE(run_test(model, "small2", suffix));
+    }
+
+    SECTION("small3")
+    {
+        small3(model);
+        for (const std::string& suffix : linear) REQUIRE(run_test(model, "small3", suffix));
+    }
+
+    SECTION("small4")
+    {
+        small4(model);
+        for (const std::string& suffix : linear) REQUIRE(run_test(model, "small4", suffix));
+    }
+
+    SECTION("small5")
+    {
+        small5(model);
+        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small5", suffix));
+    }
+
+    SECTION("small6")
+    {
+        small6(model);
+        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small6", suffix));
+    }
+
+    SECTION("small7")
+    {
+        small7(model);
+        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small7", suffix));
+    }
+
+    SECTION("small8")
+    {
+        small8(model);
+        for (const std::string& suffix : linear) REQUIRE(run_test(model, "small8", suffix));
+    }
+
+    SECTION("small9")
+    {
+        small9(model);
+        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small9", suffix));
+    }
+
+    SECTION("small13")
+    {
+        small13(model);
+        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small13", suffix));
+    }
+
+    SECTION("small14")
+    {
+        small14(model);
+        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small14", suffix));
+    }
+
+    SECTION("testing1")
+    {
+        testing1(model);
+        for (const std::string& suffix : linear) REQUIRE(run_test(model, "testing1", suffix));
+    }
+
+    SECTION("testing2")
+    {
+        testing2(model);
+        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "testing2", suffix));
+    }
+
+    SECTION("testing3")
+    {
+        testing3(model);
+        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "testing3", suffix));
+    }
+
+    SECTION("testing4")
+    {
+        testing4(model);
+        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "testing4", suffix));
+    }
+
+    SECTION("testing5")
+    {
+        testing5(model);
+        for (const std::string& suffix : linear) REQUIRE(run_test(model, "testing5", suffix));
+    }
+
+    // TODO - Add separate NLP writer tests to confirm the variable mappings
+    SECTION("testing1-nlp")
+    {
+        testing1(model);
+        coek::NLPModel nlp(model, "cppad");
+        for (const std::string& suffix : linear) REQUIRE(run_test(nlp, "testing1", suffix));
+    }
 }
 
 #if 0
@@ -673,52 +664,47 @@ SECTION( "compact1" ) {
 #        endif
 #    endif
 }
-
-#    ifdef DEBUG
-REQUIRE( coek::env.check_memory() == true );
-#    endif
 }
 #endif
 
 TEST_CASE("model_io", "[smoke]")
 {
+    SECTION("Model")
     {
-        SECTION("Model")
+        coek::Model model;
+        auto a = model.add_variable("a");
+        auto b = model.add_variable("b");
+        auto q = coek::parameter("q");
+
+        model.add(coek::objective(3 * a + q)).sense(model.maximize);
+        model.add(3 * b + q <= 0);
+        model.add(3 * b + q == 0);
+        model.add(coek::inequality(0, 3 * b + q, 1));
+        model.add(coek::inequality(2, 3 * b + q, 3, true));
+
+        WHEN("simple")
         {
-            coek::Model model;
-            auto a = model.add_variable("a");
-            auto b = model.add_variable("b");
-            auto q = coek::parameter("q");
-
-            model.add(coek::objective(3 * a + q)).sense(model.maximize);
-            model.add(3 * b + q <= 0);
-            model.add(3 * b + q == 0);
-            model.add(coek::inequality(0, 3 * b + q, 1));
-            model.add(coek::inequality(2, 3 * b + q, 3, true));
-
-            WHEN("simple")
-            {
-                std::stringstream os;
-                os << model;
-                std::string tmp = os.str();
-                REQUIRE( tmp == "MODEL\n\
+            std::stringstream os;
+            os << model;
+            std::string tmp = os.str();
+            REQUIRE( tmp == "MODEL\n\
   Objectives\n\
-    max( 3*a + q )\n\
+    0:  max( 3*a + q )\n\
   Constraints\n\
-    3*b + q <= 0\n\
-    3*b + q == 0\n\
-    0 <= 3*b + q <= 1\n\
-    2 < 3*b + q < 3\n\
+    0:  3*b + q <= 0\n\
+    1:  3*b + q == 0\n\
+    2:  0 <= 3*b + q <= 1\n\
+    3:  2 < 3*b + q < 3\n\
 ");
-            }
+        }
 
-            WHEN("nlp - cppad")
-            {
-                coek::NLPModel nlp(model, "cppad");
-                std::stringstream os;
-                os << nlp;
-                std::string tmp = os.str();
-                REQUIRE( tmp == "NLPModel:\n\
+        WHEN("nlp - cppad")
+        {
+            coek::NLPModel nlp(model, "cppad");
+            std::stringstream os;
+            os << nlp;
+            std::string tmp = os.str();
+            REQUIRE( tmp == "NLPModel:\n\
   variables:         2\n\
   all variables:     2\n\
   fixed variables:   0\n\
@@ -730,50 +716,47 @@ TEST_CASE("model_io", "[smoke]")
 \n\
 MODEL\n\
   Objectives\n\
-    max( 3*a + q )\n\
+    0:  max( 3*a + q )\n\
   Constraints\n\
-    3*b + q <= 0\n\
-    3*b + q == 0\n\
-    0 <= 3*b + q <= 1\n\
-    2 < 3*b + q < 3\n\n");
-            }
-        }
-
-        SECTION("Model values")
-        {
-            coek::Model model;
-            auto a = model.add_variable("a").lower(0).upper(1).value(0);
-            auto b = model.add_variable("b").lower(0).upper(1).value(0.5);
-            auto q = coek::parameter("q");
-
-            model.add(coek::objective(3 * a + q));
-            model.add(3 * b + q <= 0);
-            model.add(3 * b + q == 0);
-
-            WHEN("simple")
-            {
-                std::stringstream os;
-                model.print_values(os);
-                std::string tmp = os.str();
-                REQUIRE( tmp == "Model Variables: 2\n\
-Nonzero Variables\n\
-   b 0.5 0\n");
-            }
-
-            WHEN("nlp - cppad")
-            {
-                coek::NLPModel nlp(model, "cppad");
-                std::stringstream os;
-                nlp.print_values(os);
-                std::string tmp = os.str();
-                REQUIRE( tmp == "Model Variables: 2\n\
-Nonzero Variables\n\
-   1 0.5 0\n");
-            }
+    0:  3*b + q <= 0\n\
+    1:  3*b + q == 0\n\
+    2:  0 <= 3*b + q <= 1\n\
+    3:  2 < 3*b + q < 3\n\n");
         }
     }
 
-#ifdef DEBUG
-    REQUIRE(coek::env.check_memory() == true);
-#endif
+    SECTION("Model values")
+    {
+        coek::Model model;
+        auto a = model.add_variable("a").lower(0).upper(1).value(0);
+        auto b = model.add_variable("b").lower(0).upper(1).value(0.5);
+        auto q = coek::parameter("q");
+
+        model.add(coek::objective(3 * a + q));
+        model.add(3 * b + q <= 0);
+        model.add(3 * b + q == 0);
+
+        WHEN("simple")
+        {
+            std::stringstream os;
+            model.print_values(os);
+            std::string tmp = os.str();
+            REQUIRE( tmp == "Model Variables: 2\n\
+   (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n\
+   0:  a 0 0 1 0\n\
+   1:  b 0.5 0 1 0\n");
+        }
+
+        WHEN("nlp - cppad")
+        {
+            coek::NLPModel nlp(model, "cppad");
+            std::stringstream os;
+            nlp.print_values(os);
+            std::string tmp = os.str();
+            REQUIRE( tmp == "Model Variables: 2\n\
+   (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n\
+   0: a 0 0 1 0\n\
+   1: b 0.5 0 1 0\n");
+        }
+    }
 }

@@ -25,6 +25,8 @@ class VariableArray : public VariableAssocArray {
     std::vector<Variable>::iterator begin();
     std::vector<Variable>::iterator end();
 
+    VariableArray& generate_names();
+
    public:
     /// Collect arguments with references
 

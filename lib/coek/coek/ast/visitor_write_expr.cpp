@@ -27,11 +27,11 @@ class WriteExprVisitor : public Visitor {
     void visit(ParameterRefTerm& arg);
     void visit(VariableRefTerm& arg);
 #endif
-    void visit(IndexedVariableTerm& arg);
     void visit(MonomialTerm& arg);
     void visit(InequalityTerm& arg);
     void visit(EqualityTerm& arg);
     void visit(ObjectiveTerm& arg);
+    void visit(SubExpressionTerm& arg);
     void visit(NegateTerm& arg);
     void visit(PlusTerm& arg);
     void visit(TimesTerm& arg);
@@ -57,20 +57,25 @@ class WriteExprVisitor : public Visitor {
     void visit(ATanhTerm& arg);
     void visit(PowTerm& arg);
     void visit(SumExpressionTerm& arg);
-    void visit(DummyConstraintTerm& arg);
-    // void visit(DummyObjectiveTerm& arg);
+    void visit(EmptyConstraintTerm& arg);
 };
 
 void WriteExprVisitor::visit(ConstantTerm& arg) { ostr << arg.value; }
 
 void WriteExprVisitor::visit(ParameterTerm& arg)
 {
-    auto name = arg.get_name();
-    if (name.size() == 0) {
-        ostr << std::to_string(arg.eval());
-    }
+#if 0
+    // TODO - consider this format for param outputs
+    
+    if (arg.name.size() > 0)
+        ostr << arg.name;
+    ostr << "{" << std::to_string(arg.eval()) << "}";
+#else
+    if (arg.name.size() > 0)
+        ostr << arg.name;
     else
-        ostr << name;
+        ostr << std::to_string(arg.eval());
+#endif
 }
 
 void WriteExprVisitor::visit(IndexParameterTerm& arg) { ostr << arg.name; }
@@ -91,12 +96,11 @@ void WriteExprVisitor::visit(ParameterRefTerm& arg)
 {
     bool first = true;
     ostr << arg.name << "[";
-    for (auto it = arg.indices.begin(); it != arg.indices.end(); ++it) {
+    for (auto& val : arg.indices) {
         if (first)
             first = false;
         else
             ostr << ",";
-        auto val = *it;
         if (auto ival = std::get_if<int>(&val)) {
             ostr << *ival;
         }
@@ -111,12 +115,11 @@ void WriteExprVisitor::visit(VariableRefTerm& arg)
 {
     bool first = true;
     ostr << arg.name << "[";
-    for (auto it = arg.indices.begin(); it != arg.indices.end(); ++it) {
+    for (auto& val : arg.indices) {
         if (first)
             first = false;
         else
             ostr << ",";
-        auto val = *it;
         if (auto ival = std::get_if<int>(&val)) {
             ostr << *ival;
         }
@@ -127,8 +130,6 @@ void WriteExprVisitor::visit(VariableRefTerm& arg)
     ostr << "]";
 }
 #endif
-
-void WriteExprVisitor::visit(IndexedVariableTerm& arg) { ostr << arg.get_name(); }
 
 void WriteExprVisitor::visit(MonomialTerm& arg)
 {
@@ -172,6 +173,8 @@ void WriteExprVisitor::visit(ObjectiveTerm& arg)
     ostr << " )";
 }
 
+void WriteExprVisitor::visit(SubExpressionTerm& arg) { arg.body->accept(*this); }
+
 void WriteExprVisitor::visit(NegateTerm& arg)
 {
     ostr << "- (";
@@ -190,7 +193,7 @@ void WriteExprVisitor::visit(PlusTerm& arg)
     // GCOVR_EXCL_STOP
     vec[0]->accept(*this);
 
-    for (size_t i = 1; i < arg.n; i++) {
+    for (size_t i = 1; i < arg.num_expressions(); i++) {
         ostr << " + ";
         vec[i]->accept(*this);
     }
@@ -222,19 +225,31 @@ void WriteExprVisitor::visit(DivideTerm& arg)
         ostr << ")";                        \
     }
 
-WriteExprVisitor_FN(abs, AbsTerm) WriteExprVisitor_FN(ceil, CeilTerm)
-    WriteExprVisitor_FN(floor, FloorTerm) WriteExprVisitor_FN(exp, ExpTerm)
-        WriteExprVisitor_FN(log, LogTerm) WriteExprVisitor_FN(log10, Log10Term)
-            WriteExprVisitor_FN(sqrt, SqrtTerm) WriteExprVisitor_FN(sin, SinTerm)
-                WriteExprVisitor_FN(cos, CosTerm) WriteExprVisitor_FN(tan, TanTerm)
-                    WriteExprVisitor_FN(sinh, SinhTerm) WriteExprVisitor_FN(cosh, CoshTerm)
-                        WriteExprVisitor_FN(tanh, TanhTerm) WriteExprVisitor_FN(asin, ASinTerm)
-                            WriteExprVisitor_FN(acos, ACosTerm) WriteExprVisitor_FN(atan, ATanTerm)
-                                WriteExprVisitor_FN(asinh, ASinhTerm)
-                                    WriteExprVisitor_FN(acosh, ACoshTerm)
-                                        WriteExprVisitor_FN(atanh, ATanhTerm)
+// clang-format off
 
-                                            void WriteExprVisitor::visit(PowTerm& arg)
+WriteExprVisitor_FN(abs, AbsTerm)
+WriteExprVisitor_FN(ceil, CeilTerm)
+WriteExprVisitor_FN(floor, FloorTerm)
+WriteExprVisitor_FN(exp, ExpTerm)
+WriteExprVisitor_FN(log, LogTerm)
+WriteExprVisitor_FN(log10, Log10Term)
+WriteExprVisitor_FN(sqrt, SqrtTerm)
+WriteExprVisitor_FN(sin, SinTerm)
+WriteExprVisitor_FN(cos, CosTerm)
+WriteExprVisitor_FN(tan, TanTerm)
+WriteExprVisitor_FN(sinh, SinhTerm)
+WriteExprVisitor_FN(cosh, CoshTerm)
+WriteExprVisitor_FN(tanh, TanhTerm)
+WriteExprVisitor_FN(asin, ASinTerm)
+WriteExprVisitor_FN(acos, ACosTerm)
+WriteExprVisitor_FN(atan, ATanTerm)
+WriteExprVisitor_FN(asinh, ASinhTerm)
+WriteExprVisitor_FN(acosh, ACoshTerm)
+WriteExprVisitor_FN(atanh, ATanhTerm)
+
+    // clang-format on
+
+    void WriteExprVisitor::visit(PowTerm& arg)
 {
     ostr << "pow(";
     arg.lhs->accept(*this);
@@ -245,14 +260,14 @@ WriteExprVisitor_FN(abs, AbsTerm) WriteExprVisitor_FN(ceil, CeilTerm)
 
 void WriteExprVisitor::visit(SumExpressionTerm&) { ostr << "Sum()"; }
 
-void WriteExprVisitor::visit(DummyConstraintTerm&) { ostr << "DummyConstraint()"; }
-
-// void WriteExprVisitor::visit(DummyObjectiveTerm& )
-//{ ostr << "DummyObjective()"; }
+void WriteExprVisitor::visit(EmptyConstraintTerm&) { ostr << "EmptyConstraint()"; }
 
 }  // namespace
 
-void write_expr(expr_pointer_t expr, std::ostream& ostr)
+// NOTE: This function is defined with raw pointers to allow for the convenient
+// writing of raw AST term objects.  The pointer passed-in here is owned by a
+// shared_ptr object.
+void write_expr(BaseExpressionTerm* expr, std::ostream& ostr)
 {
     // GCOVR_EXCL_START
     if (expr == 0) {

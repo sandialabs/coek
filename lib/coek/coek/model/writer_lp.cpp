@@ -202,8 +202,8 @@ class LPWriter {
     bool one_var_constant;
     std::unordered_map<size_t, size_t> vid;
     std::vector<Variable> variables;
-    std::map<size_t, VariableTerm*> bvars;
-    std::map<size_t, VariableTerm*> ivars;
+    std::map<size_t, Variable> bvars;
+    std::map<size_t, Variable> ivars;
     std::map<size_t, size_t>& invvarmap;
     std::map<size_t, size_t>& invconmap;
 

@@ -1,7 +1,9 @@
-#include "coek/api/variable_array.hpp"
 
+#include "coek/ast/value_terms.hpp"
 #include "coek/api/variable_assoc_array_repn.hpp"
 #include "coek/model/model.hpp"
+#include "coek/model/model_repn.hpp"
+#include "coek/api/variable_array.hpp"
 
 namespace coek {
 
@@ -22,7 +24,7 @@ class VariableArrayRepn : public VariableAssocArrayRepn {
     VariableArrayRepn(const std::vector<int>& _shape) : _size(1)
     {
         shape.resize(_shape.size());
-        for (size_t i = 0; i < shape.size(); ++i) shape[i] = _shape[i];
+        for (size_t i = 0; i < shape.size(); ++i) shape[i] = static_cast<size_t>(_shape[i]);
         for (auto n : shape) _size *= n;
         cache.resize((size() + 1) * (dim() + 1));
     }
@@ -37,13 +39,13 @@ class VariableArrayRepn : public VariableAssocArrayRepn {
 
     size_t size() const { return _size; }
 
-    std::string get_name(size_t index);
+    std::string get_name(std::string name, size_t index);
+
+    void generate_names();
 };
 
-std::string VariableArrayRepn::get_name(size_t index)
+std::string VariableArrayRepn::get_name(std::string name, size_t index)
 {
-    std::string name(variable_template.name());
-    // name += std::to_string(index) + "(";
     name += "[";
 
     if (shape.size() == 1) {
@@ -63,6 +65,20 @@ std::string VariableArrayRepn::get_name(size_t index)
 
     name += "]";
     return name;
+}
+
+void VariableArrayRepn::generate_names()
+{
+    // If no name has been provided to this array object,
+    // then we do not try to generate names.  The default/simple
+    // variable names will be used.
+    std::string name = variable_template.name();
+    if (name == "") return;
+
+    setup();
+
+    size_t ctr = 0;
+    for (auto& var : values) var.name(get_name(name, ctr++));
 }
 
 //
@@ -103,12 +119,12 @@ Variable VariableArray::index(const IndexVector& args)
     auto& shape = _repn->shape;
     assert(args.size() == shape.size());
 
-    if (_repn->call_setup) _repn->setup();
+    _repn->setup();
 
     // We know that the args[i] values are nonnegative b.c. we have asserted that while
     // processing these arguments
     size_t ndx = static_cast<size_t>(args[0]);
-    for (size_t i = 1; i < args.size(); i++) ndx = ndx * shape[i] + args[i];
+    for (size_t i = 1; i < args.size(); i++) ndx = ndx * shape[i] + static_cast<size_t>(args[i]);
 
     if (ndx > size()) {
         std::string err = "Unknown index value: " + _repn->variable_template.name() + "[";
@@ -139,6 +155,12 @@ std::vector<Variable>::const_iterator VariableArray::end() const { return repn->
 std::vector<Variable>::iterator VariableArray::begin() { return repn->values.begin(); }
 
 std::vector<Variable>::iterator VariableArray::end() { return repn->values.end(); }
+
+VariableArray& VariableArray::generate_names()
+{
+    repn->generate_names();
+    return *this;
+}
 
 VariableArray& VariableArray::value(double value)
 {
@@ -213,7 +235,7 @@ VariableArray& VariableArray::name(const std::string& name)
     return *this;
 }
 
-std::string VariableArray::name() const { return repn->variable_template.name(); }
+std::string VariableArray::name() const { return repn->variable_template.repn->name; }
 
 VariableArray& VariableArray::within(VariableTypes vtype)
 {
@@ -233,20 +255,13 @@ VariableArray variable(const std::initializer_list<size_t>& shape) { return Vari
 
 VariableArray& Model::add_variable(VariableArray& vars)
 {
-    if (vars.repn->call_setup) vars.repn->setup();
+    vars.repn->setup();
+    if (repn->name_generation_policy == Model::NameGeneration::eager)
+        vars.generate_names();
+    else if (repn->name_generation_policy == Model::NameGeneration::lazy)
+        repn->variable_arrays.push_back(vars);
     for (auto& var : vars.repn->values) add_variable(var);
     return vars;
 }
-
-/* WEH - needed?
-VariableArray& Model::add_variable(VariableArray&& vars)
-{
-if (vars.repn->call_setup)
-    vars.repn->setup();
-for (auto& var: vars.repn->values)
-    add_variable(var);
-return vars;
-}
-*/
 
 }  // namespace coek

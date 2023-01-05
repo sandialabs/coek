@@ -4,9 +4,7 @@
 #include <cassert>
 #include <cstddef>
 #include <map>
-//#include <vector>
-//#include <variant>
-//#include "coek/api/expression.hpp"
+#include <iostream>
 
 namespace coek {
 
@@ -124,4 +122,11 @@ template <>
 struct hash<coek::IndexVector> {
     coek::IndexVector::vecdata_t operator()(const coek::IndexVector& a) const;
 };
+
+inline std::ostream& operator<<(std::ostream& ostr, const coek::IndexVector& vec)
+{
+    for (size_t i = 0; i < vec.size(); i++) ostr << vec[i] << " ";
+    return ostr;
+}
+
 }  // namespace std

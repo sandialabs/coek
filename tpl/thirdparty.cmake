@@ -15,9 +15,9 @@ add_revision(catch2
   )
 
 add_revision(cppad
-  SRC CppAD-20210000.6
-  URL "https://github.com/coin-or/CppAD/archive/refs/tags/20210000.6.tar.gz"
-  URL_MD5 d63b03bce0417c420e610cb1cfb64d33
+  SRC CppAD-20220000.5
+  URL "https://github.com/coin-or/CppAD/archive/refs/tags/20220000.5.tar.gz"
+  URL_MD5 0e9694fc6f8e037b0416d9a4d57e8ef2
   )
 
 add_revision(rapidjson

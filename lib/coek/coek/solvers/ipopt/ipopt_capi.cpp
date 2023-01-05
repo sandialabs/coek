@@ -193,16 +193,20 @@ bool IpoptModel::get_bounds_info(Index /*n*/, Number* x_l, Number* x_u, Index /*
 
     // std::cout << "  num constraints: " << model.num_constraints() << std::endl;
     for (size_t j = 0; j < model.repn->model.repn->constraints.size(); j++) {
-        if (model.repn->model.repn->constraints[j].is_inequality()) {
-            // Inequality constraints are g(x) <= 0
-            g_l[j] = -COEK_INFINITY;
-            g_u[j] = 0;
+        auto& con = model.repn->model.repn->constraints[j];
+        if (con.is_inequality()) {
+            if (con.has_lower())
+                g_l[j] = con.lower().value();
+            else
+                g_l[j] = -COEK_INFINITY;
+            if (con.has_upper())
+                g_u[j] = con.upper().value();
+            else
+                g_u[j] = COEK_INFINITY;
             // std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl << std::flush;
         }
         else {
-            // Equality constraints are g(x) == 0
-            g_l[j] = 0;
-            g_u[j] = 0;
+            g_l[j] = g_u[j] = con.lower().value();
             // std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl << std::flush;
         }
     }
