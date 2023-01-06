@@ -35,6 +35,13 @@ if(with_cppad)
     test_autograd_cppad.cpp)
 endif()
 
+# ASL LIBRARY
+if(with_asl)
+  MESSAGE("-- Building Test with AD:        ASL")
+  list(APPEND sources
+    test_autograd_asl.cpp)
+endif()
+
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(BEFORE ${coek_include_directories})
 LINK_DIRECTORIES(${coek_link_directories})

@@ -14,6 +14,9 @@
 #ifdef WITH_CPPAD
 #    include "cppad_repn.hpp"
 #endif
+#ifdef WITH_ASL
+#    include "asl_repn.hpp"
+#endif
 #include "unknownad_repn.hpp"
 
 namespace coek {
@@ -25,6 +28,9 @@ NLPModelRepn* create_NLPModelRepn(Model& model, const std::string& name)
 {
 #ifdef WITH_CPPAD
     if (name == "cppad") return new CppAD_Repn(model);
+#endif
+#ifdef WITH_ASL
+    if (name == "asl") return new ASL_Repn(model);
 #endif
 
     throw std::runtime_error("Unexpected NLP model type: " + name);

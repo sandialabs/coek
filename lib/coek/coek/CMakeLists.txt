@@ -114,6 +114,16 @@ if(with_cppad)
     list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
+#
+# ASL LIBRARY
+#
+if(with_asl)
+    list(APPEND sources
+                autograd/asl_repn.cpp)
+    list(APPEND coek_compile_options "-DWITH_ASL")
+    list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
+endif()
+
 # ASL LIBRARY
 # if(NOT with_cppad AND with_asl)
 #  MESSAGE("-- Building Source with AD:        ASL")
