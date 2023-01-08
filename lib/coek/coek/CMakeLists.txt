@@ -104,9 +104,7 @@ endif()
 # ADMODEL OPTIONS
 #
 
-#
 # CppAD LIBRARY
-#
 if(with_cppad)
     list(APPEND sources
                 autograd/cppad_repn.cpp)
@@ -114,22 +112,15 @@ if(with_cppad)
     list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
-#
 # ASL LIBRARY
-#
 if(with_asl)
     list(APPEND sources
                 autograd/asl_repn.cpp)
     list(APPEND coek_compile_options "-DWITH_ASL")
-    list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
+    list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include/asl)
+    list(APPEND coek_link_directories ${CMAKE_INSTALL_PREFIX}/lib)
+    list(APPEND coek_link_libraries asl)
 endif()
-
-# ASL LIBRARY
-# if(NOT with_cppad AND with_asl)
-#  MESSAGE("-- Building Source with AD:        ASL")
-#  list(APPEND sources
-#	autograd/asl_model.cpp)
-# endif()
 
 # Default AD LIBRARY
 # if(NOT with_cppad AND NOT with_asl)
@@ -207,12 +198,13 @@ target_include_directories(coek
                            PUBLIC
                            ${coek_include_directories})
 target_link_libraries(coek PUBLIC ${coek_link_libraries})
+target_link_directories(coek PUBLIC ${coek_link_directories})
 set_property(TARGET coek PROPERTY INTERFACE_LINK_LIBRARIES ${coek_link_libraries})
 
-if (WIN32)
-    target_link_libraries(coek ${coek_link_libraries})
-    target_link_directories(coek PRIVATE ${coek_link_directories})
-endif()
+#if (WIN32)
+#    target_link_libraries(coek ${coek_link_libraries})
+#    target_link_directories(coek PRIVATE ${coek_link_directories})
+#endif()
 
 #
 # make install
