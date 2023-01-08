@@ -15,7 +15,7 @@
 
 namespace coek {
 
-//void xyz();
+// void xyz();
 
 ASL_Repn::ASL_Repn(Model& model) : NLPModelRepn(model)
 {
@@ -73,41 +73,41 @@ void ASL_Repn::set_variables(const double* x, size_t n)
 
 void ASL_Repn::get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol)
 {
-ASL_pfgh* asl = asl_;
+    ASL_pfgh* asl = asl_;
 
-jrow.resize(nnz_jac_g);
-jcol.resize(nnz_jac_g);
-size_t curr_nz=0;
-for(size_t i : coek::range(nc)) {
-    for(cgrad* cg = Cgrad[i]; cg; cg = cg->next) {
-        jrow[cg->goff] = i+1;
-        jcol[cg->goff] = cg->varno + 1;
-        curr_nz++;
+    jrow.resize(nnz_jac_g);
+    jcol.resize(nnz_jac_g);
+    size_t curr_nz = 0;
+    for (size_t i : coek::range(nc)) {
+        for (cgrad* cg = Cgrad[i]; cg; cg = cg->next) {
+            jrow[cg->goff] = i + 1;
+            jcol[cg->goff] = cg->varno + 1;
+            curr_nz++;
         }
     }
 
-// The number of nonzeros should match what the value in the ASL data
-assert(curr_nz == nnz_jac_g);
+    // The number of nonzeros should match what the value in the ASL data
+    assert(curr_nz == nnz_jac_g);
 }
 
 void ASL_Repn::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol)
 {
-ASL_pfgh* asl = asl_;
+    ASL_pfgh* asl = asl_;
 
-hrow.resize(nnz_lag_h);
-hcol.resize(nnz_lag_h);
-size_t curr_nz=0;
-for(size_t i : coek::range(nx)) {
-    for(size_t j = sputinfo->hcolstartsZ[i]; j<sputinfo->hcolstartsZ[i+1]; j++) {
-        hrow[curr_nz] = i+1;
-        hcol[curr_nz] = sputinfo->hrownos[j]+1;
-        //std::cout << curr_nz << " : " << hrow[curr_nz] << " " << hcol[curr_nz] << std::endl;
-        curr_nz++;
+    hrow.resize(nnz_lag_h);
+    hcol.resize(nnz_lag_h);
+    size_t curr_nz = 0;
+    for (size_t i : coek::range(nx)) {
+        for (size_t j = sputinfo->hcolstartsZ[i]; j < sputinfo->hcolstartsZ[i + 1]; j++) {
+            hrow[curr_nz] = i + 1;
+            hcol[curr_nz] = sputinfo->hrownos[j] + 1;
+            // std::cout << curr_nz << " : " << hrow[curr_nz] << " " << hcol[curr_nz] << std::endl;
+            curr_nz++;
+        }
     }
-}
 
-// The number of nonzeros should match what the value in the ASL data
-assert(curr_nz == nnz_lag_h);
+    // The number of nonzeros should match what the value in the ASL data
+    assert(curr_nz == nnz_lag_h);
 }
 
 void ASL_Repn::print_equations(std::ostream& ostr) const { NLPModelRepn::print_equations(ostr); }
@@ -201,9 +201,9 @@ void ASL_Repn::compute_dc(std::vector<double>& dc, size_t i)
 void ASL_Repn::compute_H(std::vector<double>& w, std::vector<double>& H)
 {
     ASL_pfgh* asl = asl_;
-    
+
     if (!objval_called_with_current_x_) {
-        f_cache = compute_f(0);             // TODO - Extend API for multiple objectives
+        f_cache = compute_f(0);  // TODO - Extend API for multiple objectives
     }
     if (!conval_called_with_current_x_) {
         compute_c(c_cache);
@@ -378,7 +378,7 @@ void ASL_Repn::call_hesset()
         // see "changes" in solvers directory of ampl code...
         hesset(1, obj_no, 1, 0, nlc);
     }
-    
+
     // find the nonzero structure for the hessian parameters to
     // sphsetup:
     int coeff_obj = 1;
