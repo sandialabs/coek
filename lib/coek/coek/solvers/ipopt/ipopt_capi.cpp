@@ -373,8 +373,9 @@ bool IpoptModel::eval_h(Index n, const Number* x, bool new_x, Number obj_factor,
         }
         size_t nf = model.num_objectives();
         size_t nc = model.num_constraints();
-        for (size_t i = 0; i < nf; i++) tmp_hw[i] = obj_factor;
-        // for (size_t i=nf; i<nc; i++)
+        // TODO 
+        for (size_t i = 0; i < nf; i++)
+            tmp_hw[i] = obj_factor * (model.get_objective(i).sense() ? 1 : -1);
         for (size_t i = 0; i < nc; i++) tmp_hw[i + nf] = lambda[i];
         model.compute_H(tmp_hw, tmp_h);
         for (size_t i = 0; i < tmp_h.size(); i++) values[i] = tmp_h[i];
