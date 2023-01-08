@@ -1,23 +1,44 @@
+#include <cassert>
+#include <cmath>
 #include <unordered_map>
 
-#include "../ast/base_terms.hpp"
-#include "../ast/constraint_terms.hpp"
-#include "../ast/expr_terms.hpp"
-#include "../ast/value_terms.hpp"
-#include "coek/api/constraint.hpp"
-#include "coek/api/objective.hpp"
-#include "coek/model/model.hpp"
-#include "coek/model/model_repn.hpp"
+#include "coek/util/sequence.hpp"
+#include "coek/autograd/asl_repn.hpp"
+
+// AMPL includes
+#include "asl.h"
+#include "asl_pfgh.h"
+#include "getstub.h"
+#ifdef range
+#    undef range
+#endif
 
 namespace coek {
+
+//void xyz();
 
 ASL_Repn::ASL_Repn(Model& model) : NLPModelRepn(model)
 {
     nx = 0;
     nf = 0;
     nc = 0;
-    invalid_fc = true;
-    sparse_JH = true;
+    objval_called_with_current_x_ = false;
+    conval_called_with_current_x_ = false;
+    asl_ = 0;
+    nnz_jac_g = 0;
+    nnz_lag_h = 0;
+
+    // First assume that we don't want to halt on error (default)
+    nerror_ = (void*)new fint;
+    *(fint*)nerror_ = 0;
+}
+
+ASL_Repn::~ASL_Repn()
+{
+    free_asl();
+
+    delete (fint*)nerror_;
+    nerror_ = 0;
 }
 
 size_t ASL_Repn::num_variables() const { return nx; }
@@ -26,9 +47,9 @@ size_t ASL_Repn::num_objectives() const { return nf; }
 
 size_t ASL_Repn::num_constraints() const { return nc; }
 
-size_t ASL_Repn::num_nonzeros_Jacobian() const { return jac_row.size(); }
+size_t ASL_Repn::num_nonzeros_Jacobian() const { return nnz_jac_g; }
 
-size_t ASL_Repn::num_nonzeros_Hessian_Lagrangian() const { return hes_row.size(); }
+size_t ASL_Repn::num_nonzeros_Hessian_Lagrangian() const { return nnz_lag_h; }
 
 void ASL_Repn::set_variables(std::vector<double>& x)
 {
@@ -37,7 +58,8 @@ void ASL_Repn::set_variables(std::vector<double>& x)
     auto xit = x.begin();
     for (; cit != currx.end(); ++cit, ++xit) *cit = *xit;
 
-    invalid_fc = true;
+    objval_called_with_current_x_ = false;
+    conval_called_with_current_x_ = false;
 }
 
 void ASL_Repn::set_variables(const double* x, size_t n)
@@ -45,68 +67,123 @@ void ASL_Repn::set_variables(const double* x, size_t n)
     assert(n == currx.size());
     for (size_t i = 0; i < n; i++) currx[i] = x[i];
 
-    invalid_fc = true;
+    objval_called_with_current_x_ = false;
+    conval_called_with_current_x_ = false;
 }
 
 void ASL_Repn::get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol)
 {
-    jrow.resize(jac_row.size());
-    jcol.resize(jac_col.size());
+ASL_pfgh* asl = asl_;
 
-    for (size_t i = 0; i < jac_row.size(); i++) {
-        jrow[i] = jac_row[i] - 1;
-        jcol[i] = jac_col[i];
+jrow.resize(nnz_jac_g);
+jcol.resize(nnz_jac_g);
+size_t curr_nz=0;
+for(size_t i : coek::range(nc)) {
+    for(cgrad* cg = Cgrad[i]; cg; cg = cg->next) {
+        jrow[cg->goff] = i+1;
+        jcol[cg->goff] = cg->varno + 1;
+        curr_nz++;
+        }
     }
+
+// The number of nonzeros should match what the value in the ASL data
+assert(curr_nz == nnz_jac_g);
 }
 
 void ASL_Repn::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol)
 {
-    hrow.resize(hes_row.size());
-    hcol.resize(hes_col.size());
+ASL_pfgh* asl = asl_;
 
-    for (size_t i = 0; i < hes_row.size(); i++) {
-        hrow[i] = hes_row[i];
-        hcol[i] = hes_col[i];
+hrow.resize(nnz_lag_h);
+hcol.resize(nnz_lag_h);
+size_t curr_nz=0;
+for(size_t i : coek::range(nx)) {
+    for(size_t j = sputinfo->hcolstartsZ[i]; j<sputinfo->hcolstartsZ[i+1]; j++) {
+        hrow[curr_nz] = i+1;
+        hcol[curr_nz] = sputinfo->hrownos[j]+1;
+        //std::cout << curr_nz << " : " << hrow[curr_nz] << " " << hcol[curr_nz] << std::endl;
+        curr_nz++;
     }
+}
+
+// The number of nonzeros should match what the value in the ASL data
+assert(curr_nz == nnz_lag_h);
 }
 
 void ASL_Repn::print_equations(std::ostream& ostr) const { NLPModelRepn::print_equations(ostr); }
 
 void ASL_Repn::print_values(std::ostream& ostr) const { NLPModelRepn::print_values(ostr); }
 
+// TODO - Should COEK capture errors and return an error flag?
+// TODO - Generalize caching for multiple objectives
 double ASL_Repn::compute_f(size_t i)
 {
-    assert(i < nf);
-    if (invalid_fc) {
-        fc_cache = ADfc.Forward(0, currx);
-        invalid_fc = false;
+    assert(i == 0);
+
+    if (nf == 0) {
+        objval_called_with_current_x_ = true;
+        return 0;
     }
-    return fc_cache[i];
+    else if (not objval_called_with_current_x_) {
+        ASL_pfgh* asl = asl_;
+        f_cache = objval(static_cast<int>(i), &(currx[0]), (fint*)nerror_);
+        nerror_ok = check_asl_status(nerror_);
+        if (nerror_ok) {
+            objval_called_with_current_x_ = true;
+            if (objtype[i] != 0) f_cache *= -1;
+        }
+        else {
+            objval_called_with_current_x_ = false;
+            f_cache = nan("");
+        }
+    }
+
+    return f_cache;
 }
 
 void ASL_Repn::compute_df(double& f, std::vector<double>& df, size_t i)
 {
     assert(df.size() == nx);
 
-    f = compute_f(i);
-    fcw[i] = 1;
-    auto dy = ADfc.Reverse(1, fcw);
-    fcw[i] = 0;
-    for (size_t j = 0; j < df.size(); j++) df[j] = dy[j];
+    if (nf == 0) {
+        f = 0.0;
+        for (double& df_x : df) df_x = 0.0;
+    }
+    else {
+        f = compute_f(i);
+
+        ASL_pfgh* asl = asl_;
+        objgrd(static_cast<int>(i), &(currx[0]), &(df[0]), (fint*)nerror_);
+        nerror_ok = check_asl_status(nerror_);
+        if (nerror_ok) {
+            if (objtype[i] != 0)
+                for (double& df_x : df) df_x *= -1;
+        }
+    }
 }
 
 void ASL_Repn::compute_c(std::vector<double>& c)
 {
     assert(c.size() == nc);
-    if (invalid_fc) {
-        fc_cache = ADfc.Forward(0, currx);
-        invalid_fc = false;
+
+    if (not conval_called_with_current_x_) {
+        ASL_pfgh* asl = asl_;
+        conval(&(currx[0]), &(c_cache[0]), (fint*)nerror_);
+        nerror_ok = check_asl_status(nerror_);
+        if (nerror_ok)
+            conval_called_with_current_x_ = true;
+        else {
+            conval_called_with_current_x_ = false;
+            for (size_t i : coek::range(nc)) c[i] = nan("");
+            return;
+        }
     }
-    for (size_t i = 0; i < c.size(); i++) c[i] = fc_cache[nf + i];
+    for (size_t i : coek::range(nc)) c[i] = c_cache[i];
 }
 
 void ASL_Repn::compute_dc(std::vector<double>& dc, size_t i)
 {
+#if 0
     assert(i < fcw.size());
     assert(dc.size() == nx);
 
@@ -118,436 +195,196 @@ void ASL_Repn::compute_dc(std::vector<double>& dc, size_t i)
     auto dy = ADfc.Reverse(1, fcw);
     fcw[nf + i] = 0;
     for (size_t j = 0; j < dc.size(); j++) dc[j] = dy[j];
+#endif
 }
 
 void ASL_Repn::compute_H(std::vector<double>& w, std::vector<double>& H)
 {
-#if 0
-if (invalid_fc) {
-    fc_cache = ADfc.Forward(0, currx);
-    invalid_fc = false;
+    ASL_pfgh* asl = asl_;
+    
+    if (!objval_called_with_current_x_) {
+        f_cache = compute_f(0);             // TODO - Extend API for multiple objectives
     }
-#endif
-    if (sparse_JH) {
-        //
-        // Sparse Hessian
-        //
-        ADfc.SparseHessian(currx, w, hes_pattern, hes_row, hes_col, H, hes_work);
+    if (!conval_called_with_current_x_) {
+        compute_c(c_cache);
     }
-    else {
-        //
-        // Dense Hessian
-        //
-        auto hes = ADfc.Hessian(currx, w);
-        for (size_t k = 0; k < hes_row.size(); k++) {
-            size_t i = hes_row[k];
-            size_t j = hes_col[k];
-            H[k] = hes[i * nx + j];
-        }
-    }
+    sphes(&(H[0]), -1, &(w[0]), &(w[nf]));
 }
 
 void ASL_Repn::compute_J(std::vector<double>& J)
 {
-    if (sparse_JH) {
-        //
-        // Sparse Jacobian calculation
-        //
-        if (nx < nc) {
-            // Forward
-            ADfc.SparseJacobianForward(currx, jac_pattern, jac_row, jac_col, J, jac_work);
-        }
-        else {
-            // Reverse
-            ADfc.SparseJacobianReverse(currx, jac_pattern, jac_row, jac_col, J, jac_work);
-        }
-    }
+    ASL_pfgh* asl = asl_;
 
-    else {
-        //
-        // Dense Jacobian
-        //
-        if (invalid_fc) {
-            //
-            // Unlike the sparse case, we need to explicitly initialize ASL with its
-            // forward function calculation.
-            //
-            fc_cache = ADfc.Forward(0, currx);
-            invalid_fc = false;
-        }
-        if (nx < nc) {
-            // Forward
-            std::vector<double> x1(nx), fg1(nf + nc);
-            for (size_t j = 0; j < nx; j++) x1[j] = 0.0;
-            // index in col_order_jac_ of next entry
-            size_t ell = 0;
-            size_t k = jac_col_order[ell];
-            size_t nk = jac_col.size();
-            for (size_t j = 0; j < nx; j++) {
-                // compute j-th column of Jacobian of g(x)
-                x1[j] = 1.0;
-                fg1 = ADfc.Forward(1, x1);
-                while (ell < nk && jac_col[k] <= j) {
-                    CPPAD_ASSERT_UNKNOWN(jac_col[k] == j);
-                    size_t i = jac_row[k];
-                    CPPAD_ASSERT_UNKNOWN(i >= nf)
-                    J[k] = fg1[i];
-                    ell++;
-                    if (ell < nk) k = jac_col_order[ell];
-                }
-                x1[j] = 0.0;
-            }
-        }
-        else {
-            // Reverse
-            size_t nfc = nf + nc;
-            // user reverse mode
-            std::vector<double> w(nfc), dw(nx);
-            for (size_t i = 0; i < nfc; i++) w[i] = 0.0;
-            // index in jac_row of next entry
-            size_t k = 0;
-            size_t nk = jac_row.size();
-            for (size_t i = nf; i < nfc; i++) {
-                // compute i-th row of Jacobian of g(x)
-                w[i] = 1.0;
-                dw = ADfc.Reverse(1, w);
-                while (k < nk && jac_row[k] <= i) {
-                    CPPAD_ASSERT_UNKNOWN(jac_row[k] == i);
-                    size_t j = jac_col[k];
-                    J[k] = dw[j];
-                    k++;
-                }
-                w[i] = 0.0;
-            }
-        }
-    }
+    jacval(&(currx[0]), &(J[0]), (fint*)nerror_);
+
+    nerror_ok = check_asl_status(nerror_);
 }
 
-void ASL_Repn::initialize(bool _sparse_JH)
+void ASL_Repn::initialize(bool /*_sparse_JH*/)
 {
-    sparse_JH = _sparse_JH;
-    //
-    // Find all variables used in the NLP model
-    //
-    find_used_variables();
-    nx = used_variables.size();
-    nf = model.repn->objectives.size();
-    nc = model.repn->constraints.size();
+    alloc_asl();
+    ASL_pfgh* asl = asl_;
 
-    dynamic_params.resize(fixed_variables.size() + parameters.size());
-    dynamic_param_vals.resize(fixed_variables.size() + parameters.size());
-
-    //
-    // Create the ASL function
-    //
-    std::unordered_map<VariableRepn, size_t> _used_variables;
-    for (auto& it : used_variables) _used_variables[it.second] = it.first;
-
-    std::vector<ASL::AD<double> > ADvars(nx);
-    std::vector<ASL::AD<double> > ADrange(nf + nc);
-    if (dynamic_params.size() > 0)
-        ASL::Independent(ADvars, 0, false, dynamic_params);
-    else
-        ASL::Independent(ADvars);
-
-    try {
-        size_t nb = 0;
-        for (auto& it : model.repn->objectives) {
-            build_expression(it.repn, ADvars, ADrange[nb], _used_variables);
-            nb++;
-        }
-
-        nb = 0;
-        for (auto& it : model.repn->constraints) {
-            build_expression(it.repn, ADvars, ADrange[nf + nb], _used_variables);
-            nb++;
-        }
-    }
-    catch (std::runtime_error& err) {
-        ADfc.Dependent(ADvars, ADrange);
-        throw err;
-    }
-    ADfc.Dependent(ADvars, ADrange);
-    ADfc.optimize();
+    // Must have at least one continuous variable.
+    assert(n_var > 0);
+    // API does not support discrete variables
+    assert((nbv == 0 && niv == 0 && nlvbi == 0 && nlvci == 0 && nlvoi == 0));
+    // API does not support complementary constraints
+    assert(n_cc == 0);
+    // API does not support linear arc variables
+    assert(nwv == 0);
+    // API does not support nonlinear network constraints
+    assert(nlnc == 0);
+    // API does not support linear network constraints
+    assert(lnc == 0);
 
     //
-    // Setup temporary arrays used during computations
+    // Set options in the asl structure
     //
-    size_t nfc = nf + nc;
-    fc_cache.resize(nfc);
+    // allocate initial values for primal and dual if available
+    want_xpi0 = 1 | 2;
+    assert((want_xpi0 & 1) == 1 && (want_xpi0 & 2) == 2);
+
+    call_hesset();
+
+    nx = static_cast<size_t>(n_var);
+    nf = static_cast<size_t>(n_obj);
+    nc = static_cast<size_t>(n_con);
+    nnz_jac_g = static_cast<size_t>(nzc);
+
     currx.resize(nx);
-    fcw.assign(nfc, 0.0);
+    xlb.resize(nx);
+    xub.resize(nx);
+    c_cache.resize(nc);
 
-    if (nc > 0) {
-        //
-        // Setup Jacobian calculations
-        //
-        if (sparse_JH) {
-            //
-            // Sparse Jacobian
-            //
-            // Compute jac_pattern
-            //
-            jac_pattern.resize(nfc * nx);
-            if (nx <= nfc) {
-                //
-                // Use forward mode to compute sparsity
-                //
-
-#if 0
-            // number of bits that are packed into one unit in vectorBool
-            size_t n_column = ASL::vectorBool::bit_per_unit();
-
-            // sparsity patterns for current columns
-            ASL::vectorBool r(nx * n_column), s(nc * n_column);
-
-            // compute the sparsity pattern n_column columns at a time
-            size_t n_loop = (nx - 1) / n_column + 1;
-            for(size_t i_loop = 0; i_loop < n_loop; i_loop++) {   // starting column index for this iteration
-                size_t i_column = i_loop * n_column;
-
-                // pattern that picks out the appropriate columns
-                for(size_t i = 0; i < nx; i++) {
-                    for(size_t j = 0; j < n_column; j++)
-                        r[i*n_column + j] = (i == i_column + j);
-                    }
-
-                s = ADfc.ForSparseJac(n_column, r);
-
-                // fill in the corresponding columns of total_sparsity
-                for(size_t i = 0; i < nc; i++) {
-                    for(size_t j = 0; j < n_column; j++) {
-                        if( i_column + j < nx  )
-                            jac_pattern[i*nx  + i_column + j] = s[i*n_column + j];
-                        }
-                    }
-                }
-#else
-                // Identity marix
-                ASL::vectorBool r(nx * nx);
-                for (size_t i = 0; i < nx; i++)
-                    for (size_t j = 0; j < nx; j++)
-                        if (i == j)
-                            r[i * nx + j] = true;
-                        else
-                            r[i * nx + j] = false;
-                auto s = ADfc.ForSparseJac(nx, r);
-
-                // fill in the corresponding columns of total_sparsity
-                for (size_t i = 0; i < nf; i++) {
-                    for (size_t j = 0; j < nx; j++) jac_pattern[i * nx + j] = 0;
-                }
-                for (size_t i = nf; i < nfc; i++) {
-                    for (size_t j = 0; j < nx; j++) jac_pattern[i * nx + j] = s[i * nx + j];
-                }
-#endif
-            }
-            else {
-                //
-                // Use reverse mode to compute sparsity
-                //
-
-#if 0
-            // number of bits that are packed into one unit in vectorBool
-            size_t n_row = ASL::vectorBool::bit_per_unit();
-
-            // sparsity patterns for current rows
-            ASL::vectorBool r(n_row * nc), s(n_row * nx);
-
-            // compute the sparsity pattern n_row row at a time
-            size_t n_loop = (nc - 1) / n_row + 1;
-            for(size_t i_loop = 0; i_loop < n_loop; i_loop++) {   // starting row index for this iteration
-                size_t i_row = i_loop * n_row;
-
-                // pattern that picks out the appropriate rows
-                for(size_t i = 0; i < n_row; i++) {
-                    for(size_t j = 0; j < nc; j++)
-                        r[i*nc + j] = (i_row + i ==  j);
-                    }
-                s = ADfc.RevSparseJac(n_row, r);
-
-                // fill in correspoding rows of total sparsity
-                for(size_t i = 0; i < n_row; i++) {
-                    for(size_t j = 0; j < nx; j++)
-                        if( i_row + i < nc )
-                            jac_pattern[(i_row + i)*nx + j] = s[i*nx + j];
-                    }
-                }
-#else
-                // sparsity patterns for current rows
-                ASL::vectorBool r(nfc * nfc);  //, s(nx * nc);
-
-                // R is the identity matrix
-                for (size_t i = 0; i < nfc * nfc; i++) r[i] = false;
-                for (size_t i = nf; i < nfc; i++) r[i * nfc + i] = true;
-                auto s = ADfc.RevSparseJac(nfc, r);
-
-                // fill in correspoding rows of total sparsity
-                for (size_t i = 0; i < nf; i++) {
-                    for (size_t j = 0; j < nx; j++) jac_pattern[i * nx + j] = 0;
-                }
-                for (size_t i = nf; i < nfc; i++) {
-                    for (size_t j = 0; j < nx; j++) jac_pattern[i * nx + j] = s[i * nx + j];
-                }
-#endif
-            }
-            //
-            // Row-major indices for Jacobian of c(x).
-            //
-            for (size_t i = nf; i < nfc; i++) {
-                for (size_t j = 0; j < nx; j++) {
-                    if (jac_pattern[i * nx + j]) {
-                        jac_row.push_back(i);
-                        jac_col.push_back(j);
-                    }
-                }
-            }
-        }
-        else {
-            //
-            // Dense Jacobian
-            //
-            // Row-major indices for Jacobian of c(x).
-            //
-            for (size_t i = nf; i < nfc; i++) {
-                for (size_t j = 0; j < nx; j++) {
-                    jac_row.push_back(i);
-                    jac_col.push_back(j);
-                }
-            }
-        }
-
-        // Column order indirect sort of the Jacobian indices
-        jac_col_order.resize(jac_col.size());
-        index_sort(jac_col, jac_col_order);
+    //
+    // Setup initial values
+    //
+    for (size_t i : coek::range(nx)) {
+        currx[i] = havex0[i] != 0 ? X0[i] : std::max(LUv[2 * i], std::min(LUv[2 * i + 1], 0.0));
+        xlb[i] = LUv[2 * i];
+        xub[i] = LUv[2 * i + 1];
     }
-
-    if (sparse_JH) {
-        //
-        // Sparse Hessian
-        //
-        // Compute hes_pattern
-        //
-        size_t nfc = nf + nc;
-        hes_pattern.resize(nx * nx);
-
-#if 0
-    // sparsity patterns for current columns
-    ASL::vectorBool r(nx * n_column), h(nx * n_column);
-
-    // number of bits that are packed into one unit in vectorBool
-    size_t n_column = ASL::vectorBool::bit_per_unit();
-
-    // sparsity pattern for range space of function
-    ASL::vectorBool s(m);
-    for(size_t i = 0; i < m; i++)
-        s[i] = true;
-
-    // compute the sparsity pattern n_column columns at a time
-    size_t n_loop = (nx - 1) / n_column + 1;
-    for(size_t i_loop = 0; i_loop < n_loop; i_loop++) {
-        // starting column index for this iteration
-        size_t i_column = i_loop * n_column;
-
-        // pattern that picks out the appropriate columns
-        for(size_t i = 0; i < nx; i++) {
-            for(size_t j = 0; j < n_column; j++)
-                r[i * n_column + j] = (i == i_column + j);
-            }
-        ////adfun_.ForSparseJac(n_column, r);
-
-        // sparsity pattern corresponding to paritls w.r.t. (theta, u)
-        // of partial w.r.t. the selected columns
-        bool transpose = true;
-        ////h = adfun_.RevSparseHes(n_column, s, transpose);
-
-        // fill in the corresponding columns of total_sparsity
-        for(size_t i = 0; i < nx; i++) {
-            for(size_t j = 0; j < n_column; j++) {
-                if( i_column + j < nx )
-                    hes_pattern[i * nx + i_column + j] = h[i * n_column + j];
-                }
-            }
-        }
-#else
-        // Identity matrix
-        ASL::vectorBool r(nx * nx);  //, h(nx * n_column);
-        for (size_t i = 0; i < nx; i++)
-            for (size_t j = 0; j < nx; j++)
-                if (i == j)
-                    r[i * nx + j] = true;
-                else
-                    r[i * nx + j] = false;
-        ADfc.ForSparseJac(nx, r);
-
-        // sparsity pattern corresponding to parials w.r.t. (theta, u)
-        // of partial w.r.t. the selected columns
-        bool transpose = true;
-        // sparsity pattern for range space of function
-        ASL::vectorBool s(nfc);
-        for (size_t i = 0; i < nfc; i++) s[i] = true;
-        auto h = ADfc.RevSparseHes(nx, s, transpose);
-
-        // fill in the corresponding columns of total_sparsity
-        for (size_t i = 0; i < nx; i++) {
-            for (size_t j = 0; j <= i; j++) hes_pattern[i * nx + j] = h[i * nx + j];
-            // TODO - Why is ASL looking at the pattern in a non-symmetric manner?
-            for (size_t j = i + 1; j < nx; j++) hes_pattern[i * nx + j] = 0;
-        }
-#endif
-        //
-        // Set row and column indices for Lower triangle of Hessian
-        // of Lagragian.  These indices are in row major order.
-        //
-        for (size_t i = 0; i < nx; i++) {
-            for (size_t j = 0; j <= i; j++) {
-                if (hes_pattern[i * nx + j]) {
-                    hes_row.push_back(i);
-                    hes_col.push_back(j);
-                }
-            }
-        }
-    }
-
-    else {
-        //
-        // Dense Hessian
-        //
-        // Row-major indices for lower triangular Hessian.
-        //
-        for (size_t i = 0; i < nx; i++) {
-            for (size_t j = 0; j <= i; j++) {
-                hes_row.push_back(i);
-                hes_col.push_back(j);
-            }
-        }
-    }
-
-    if (sparse_JH) hes_work.color_method = "cppad.symmetric";
-
-    reset();
+    set_variables(currx);
 }
 
 void ASL_Repn::reset(void)
 {
     //
-    // Initialize the ASL dynamic parameters
+    // We re-generate the NL file and parse it, using new parameter values and new
+    // fixed variables.
     //
-    for (auto& it : fixed_variables) dynamic_param_vals[it.second] = it.first->value->eval();
-    for (auto& it : parameters) dynamic_param_vals[it.second] = it.first->value->eval();
-    ADfc.new_dynamic(dynamic_param_vals);
+    initialize();
+}
+
+bool ASL_Repn::check_asl_status(void* nerror)
+{
+    if (nerror == NULL || *((fint*)nerror) == 0) return true;
+
+    std::cerr << "Error in an ASL evaluation." << std::endl;
+    std::cerr << "nerror = " << *((fint*)nerror) << std::endl;
+    return false;
+}
+
+void ASL_Repn::alloc_asl()
+{
+    free_asl();
+
+    // Create the ASL structure
+    ASL_pfgh* asl = reinterpret_cast<ASL_pfgh*>(ASL_alloc(ASL_read_pfgh));
+    asl_ = asl;
+
+    // Write an NL file
+    //      TODO: Create a temporary file here
+    model.write("asl_temp.nl");
+    //
+    // Read the NL file with the ASL library
+    //
+    FILE* nlfile = jac0dim("asl_temp", 8);
+    //
+    // allocate space for initial values
+    //
+    X0 = new real[n_var];
+    havex0 = new char[n_var];
+    //
+    // Load model expressions
+    //
+    int retcode = pfgh_read(nlfile, ASL_return_read_err | ASL_findgroups);
+
+    // DEBUG
+    // std::cout << "RETCODE " << retcode << std::endl;
 
     //
-    // Setup initial value
+    // No errors, so return
     //
-    xlb.resize(used_variables.size());
-    xub.resize(used_variables.size());
-    for (auto& it : used_variables) {
-        currx[it.first] = it.second->value->eval();
-        xlb[it.first] = it.second->lb->eval();
-        xub[it.first] = it.second->ub->eval();
+    if ((retcode == ASL_readerr_none) or (retcode == ASL_readerr_nonlin)) return;
+
+    free_asl();
+    if (retcode == ASL_readerr_nofile)
+        throw std::runtime_error("ASL_Repn::alloc_asl - Cannot open asl_temp.nl file");
+
+    else if (retcode == ASL_readerr_argerr)
+        throw std::runtime_error("ASL_Repn::alloc_asl - User-defined function with bad arguments");
+
+    else if (retcode == ASL_readerr_unavail)
+        throw std::runtime_error("ASL_Repn::alloc_asl - User-defined function not available");
+
+    else if (retcode == ASL_readerr_corrupt)
+        throw std::runtime_error("ASL_Repn::alloc_asl - Corrupt NL file");
+
+    else if (retcode == ASL_readerr_bug)
+        throw std::runtime_error("ASL_Repn::alloc_asl - Bug in ASL NL reader");
+
+    else if (retcode == ASL_readerr_CLP)
+        throw std::runtime_error(
+            "ASL_Repn::alloc_asl - NL file contains a constraint without \"=\", \">=\", or "
+            "\"<=\"");
+
+    else
+        throw std::runtime_error("ASL_Repn::alloc_asl - Unknown error in ASL file reader");
+}
+
+void ASL_Repn::free_asl()
+{
+    ASL_pfgh* asl = asl_;
+    if (asl) {
+        if (X0) {
+            delete[] X0;
+            X0 = 0;
+        }
+
+        if (havex0) {
+            delete[] havex0;
+            havex0 = 0;
+        }
+
+        ASL* asl_to_free = (ASL*)asl_;
+        ASL_free(&asl_to_free);
+        asl_ = 0;
     }
-    set_variables(currx);
+}
+
+void ASL_Repn::call_hesset()
+{
+    ASL_pfgh* asl = asl_;
+
+    if (n_obj == 0) {
+        hesset(1, 0, 0, 0, nlc);
+    }
+    else {
+        // TODO - rethink how this is setup, since the ASL data structures
+        // are being optimized for a specific objective here.
+        obj_no = 0;
+        // see "changes" in solvers directory of ampl code...
+        hesset(1, obj_no, 1, 0, nlc);
+    }
+    
+    // find the nonzero structure for the hessian parameters to
+    // sphsetup:
+    int coeff_obj = 1;
+    int mult_supplied = 1;  // multipliers will be supplied
+    int uptri = 1;          // only need the upper triangular part
+    nnz_lag_h = static_cast<size_t>(sphsetup(-1, coeff_obj, mult_supplied, uptri));
 }
 
 }  // namespace coek

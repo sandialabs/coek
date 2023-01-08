@@ -5,6 +5,10 @@
 
 #include "autograd.hpp"
 
+extern "C" {
+struct ASL_pfgh;
+}
+
 namespace coek {
 
 class VariableTerm;
@@ -14,22 +18,31 @@ class VariableTerm;
 //
 class ASL_Repn : public NLPModelRepn {
    public:
-#if 0
+    // The main ASL structure
+    ASL_pfgh* asl_;
+
     // ----------------------------------------------------------------------
     // Problem information
     // ----------------------------------------------------------------------
-    /// dimension of the range space for f(x).
+    /// Dimension of the range space for f(x).
     size_t nf;
-    /// dimension of the domain space
+    /// Dimension of the domain space
     size_t nx;
-    /// dimension of the range space for c(x)
+    /// Dimension of the range space for c(x)
     size_t nc;
+    /// Number of nonzeros in the Jacobian
+    size_t nnz_jac_g;
+    /// Number of nonzeros in Hessian of the Lagrangian
+    size_t nnz_lag_h;
+
     /// initial value for x
     std::vector<double> xi;
     /// lower limit for x
     std::vector<double> xlb;
     /// upper limit for x
     std::vector<double> xub;
+
+#if 0
     /// lower limit for c(x)
     // std::vector<double>     glb;
     /// upper limit for c(x)
@@ -75,18 +88,22 @@ class ASL_Repn : public NLPModelRepn {
     /// Work vector used by SparseJacobian, stored here to avoid recalculation.
     CppAD::sparse_hessian_work hes_work;
 
-    bool invalid_fc;
-    std::vector<double> fc_cache;
 
-    std::vector<double> currx;
     std::vector<double> fcw;
 
     std::vector<CppAD::AD<double> > dynamic_params;
     std::vector<double> dynamic_param_vals;
 #endif
 
+    bool objval_called_with_current_x_;
+    bool conval_called_with_current_x_;
+    double f_cache;
+    std::vector<double> c_cache;
+    std::vector<double> currx;
+
    public:
     ASL_Repn(Model& model);
+    ~ASL_Repn();
 
     void initialize(bool sparse_JH = true);
 
@@ -123,6 +140,15 @@ class ASL_Repn : public NLPModelRepn {
     void compute_H(std::vector<double>& w, std::vector<double>& H);
 
     void compute_J(std::vector<double>& J);
+
+   protected:
+    void* nerror_;
+
+    void free_asl();
+    void alloc_asl();
+    bool nerror_ok;
+    bool check_asl_status(void* nerror);
+    void call_hesset();
 };
 
 }  // namespace coek
