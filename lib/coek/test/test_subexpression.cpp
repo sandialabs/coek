@@ -18,17 +18,19 @@ TEST_CASE("mutable_subexpression", "[smoke]")
     {
         auto v = coek::variable("v");
         auto e = coek::subexpression("e");
-        e.value( v );
-        auto E = e + 2*(e+1);
+        e.value(v);
+        auto E = e + 2 * (e + 1);
 
         static std::list<std::string> baseline1
-                = {"[", "+", "[", "_", "v", "]", "[", "*", "2.000000", "[", "+", "[", "_", "v", "]", "1.000000", "]", "]", "]"};
-        REQUIRE( E.to_list() == baseline1 );
+            = {"[", "+", "[", "_", "v", "]",        "[", "*", "2.000000", "[",
+               "+", "[", "_", "v", "]", "1.000000", "]", "]", "]"};
+        REQUIRE(E.to_list() == baseline1);
 
         e += v;
         static std::list<std::string> baseline2
-                = {"[", "+", "[", "_", "[", "+", "v", "v", "]", "]", "[", "*", "2.000000", "[", "+", "[", "_", "[", "+", "v", "v", "]", "]", "1.000000", "]", "]", "]"};
-        REQUIRE( E.to_list() == baseline2 );
+            = {"[", "+", "[", "_", "[", "+", "v", "v", "]", "]",        "[", "*", "2.000000", "[",
+               "+", "[", "_", "[", "+", "v", "v", "]", "]", "1.000000", "]", "]", "]"};
+        REQUIRE(E.to_list() == baseline2);
     }
 }
 
