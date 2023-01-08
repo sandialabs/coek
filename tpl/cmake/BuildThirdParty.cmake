@@ -48,6 +48,26 @@ endmacro()
 macro(setup_builds)
     set(tpls)
 
+    # ASL
+    set(asl_available OFF CACHE BOOL "ASL is available")
+    if (install_asl)
+        ExternalProject_Add(libasl
+            #${asl_revision}   # specified in thirdparty.cmake
+            PREFIX              ${CMAKE_CURRENT_BINARY_DIR}/build/ASL
+            DOWNLOAD_DIR        ${download_dir}
+            GIT_REPOSITORY      "https://github.com/ampl/asl.git"
+            SOURCE_DIR          "downloads/ASL"
+            INSTALL_DIR         ${CMAKE_INSTALL_PREFIX}
+            CMAKE_ARGS
+                -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+            #-DCMAKE_C_FLAGS="-g"
+            BUILD_ALWAYS FALSE
+            EXCLUDE_FROM_ALL TRUE
+            )
+        set(asl_available ON)
+        list(APPEND tpls libasl)
+    endif()
+
     # Catch
     set(catch2_available OFF CACHE BOOL "Catch2 is available")
     if (install_catch2)
@@ -167,6 +187,7 @@ macro(setup_builds)
     endif()
 
     MESSAGE("Configured to Install Third Party Packages (use 'make install_tpls')")
+    MESSAGE("   ASL Library:       ${asl_available}")
     MESSAGE("   Catch2 Library:    ${catch2_available}")
     MESSAGE("   CppAD Library:     ${cppad_available}")
     MESSAGE("   FMT Library:       ${fmtlib_available}")

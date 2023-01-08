@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.13)
 project(CoekProject)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
@@ -39,11 +39,11 @@ add_subdirectory(tpl)
 
 add_custom_target(install_tpls
         DEPENDS _install_tpls
-        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON ${PROJECT_SOURCE_DIR}
+        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON -Dwith_asl=ON ${PROJECT_SOURCE_DIR}
         )
 add_custom_target(install_tpl
         DEPENDS _install_tpls
-        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON ${PROJECT_SOURCE_DIR}
+        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON -Dwith_asl=ON ${PROJECT_SOURCE_DIR}
         )
 
 ##################### Options #####################
@@ -72,12 +72,13 @@ message("-- with_tests: ${with_tests}")
 message("-- with_docs: ${with_docs}")
 message("-- with_python: ${with_python}")
 # Options defined in tpl
+message("-- with_asl: ${with_asl}")
 message("-- with_catch2: ${with_catch2}")
 message("-- with_cppad: ${with_cppad}")
-message("-- with_pybind11: ${with_pybind11}")
 message("-- with_cppyy: ${with_cppyy}")
-message("-- with_rapidjson: ${with_rapidjson}")
 message("-- with_fmtlib: ${with_fmtlib}")
+message("-- with_pybind11: ${with_pybind11}")
+message("-- with_rapidjson: ${with_rapidjson}")
 
 ##################### Checks for compiler #####################
 
