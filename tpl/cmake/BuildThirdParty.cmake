@@ -55,12 +55,12 @@ macro(setup_builds)
             #${asl_revision}   # specified in thirdparty.cmake
             PREFIX              ${CMAKE_CURRENT_BINARY_DIR}/build/ASL
             DOWNLOAD_DIR        ${download_dir}
-            GIT_REPOSITORY      "https://github.com/ampl/asl.git"
+            GIT_REPOSITORY      "https://github.com/whart222/asl.git"
             SOURCE_DIR          "downloads/ASL"
             INSTALL_DIR         ${CMAKE_INSTALL_PREFIX}
             CMAKE_ARGS
                 -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-            #-DCMAKE_C_FLAGS="-g"
+                -DBUILD_SHARED_LIBS=ON
             BUILD_ALWAYS FALSE
             EXCLUDE_FROM_ALL TRUE
             )
