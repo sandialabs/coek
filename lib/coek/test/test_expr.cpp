@@ -3949,7 +3949,7 @@ TEST_CASE("expression_value", "[smoke]")
         WHEN("2*x + 1 == 0")
         {
             auto x = coek::variable().value(1.0);
-            auto c = 2*x + 1 == 0;
+            auto c = 2 * x + 1 == 0;
             std::map<std::shared_ptr<coek::SubExpressionTerm>, double> subexpr_value;
             REQUIRE(evaluate_expr(c.repn, subexpr_value) == 3.0);
         }
@@ -3957,7 +3957,7 @@ TEST_CASE("expression_value", "[smoke]")
         WHEN("2*x + 1 <= 0")
         {
             auto x = coek::variable().value(1.0);
-            auto c = 2*x + 1 <= 0;
+            auto c = 2 * x + 1 <= 0;
             std::map<std::shared_ptr<coek::SubExpressionTerm>, double> subexpr_value;
             REQUIRE(evaluate_expr(c.repn, subexpr_value) == 3.0);
         }
