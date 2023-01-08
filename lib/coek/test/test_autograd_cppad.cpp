@@ -523,7 +523,7 @@ TEST_CASE("cppad_ad", "[smoke]")
     }
 }
 
-TEST_CASE("diff_tests", "[smoke]")
+TEST_CASE("cppad_diff_tests", "[smoke]")
 {
     // TODO - test constant expression
 
