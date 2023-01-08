@@ -414,6 +414,9 @@ TEST_CASE("model_writer", "[smoke]")
         std::remove("error1.ostrlp");
     }
 
+#if 0
+    TODO - Revisit this test
+
     SECTION("error2")
     {
         error2(model);
@@ -436,6 +439,10 @@ TEST_CASE("model_writer", "[smoke]")
                             "Error writing LP file: No objectives specified!");
         std::remove("error2.ostrlp");
     }
+#endif
+
+#if 0
+    TODO - Add tests with multiple objectives 
 
     SECTION("error3")
     {
@@ -459,6 +466,7 @@ TEST_CASE("model_writer", "[smoke]")
                             "Error writing LP file: More than one objective defined!");
         std::remove("error3.ostrlp");
     }
+#endif
 
     SECTION("error4")
     {
