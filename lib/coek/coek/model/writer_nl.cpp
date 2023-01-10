@@ -593,22 +593,26 @@ class NLWriter {
     std::set<size_t> vars;
     std::set<size_t> nonlinear_vars_obj;
     std::set<size_t> nonlinear_vars_con;
-    size_t num_inequalities;
-    size_t num_ranges;
-    size_t num_equalities;
-    size_t nonl_objectives;
-    size_t nonl_constraints;
-    size_t nonlinear_vars_both;
-
     std::set<size_t> linear_vars;
-    size_t num_linear_binary_vars;
-    size_t num_linear_integer_vars;
-    size_t num_nonlinear_obj_int_vars;
-    size_t num_nonlinear_con_int_vars;
-    size_t num_nonlinear_both_int_vars;
 
-    size_t nnz_Jacobian;
-    size_t nnz_gradient;
+    size_t num_inequalities = 0;
+    size_t num_ranges = 0;
+    size_t num_equalities = 0;
+    size_t nonl_objectives = 0;
+    size_t nonl_constraints = 0;
+
+    size_t num_nonlinear_vars_con = 0;
+    size_t num_nonlinear_vars_obj = 0;
+    size_t num_nonlinear_vars_both = 0;
+
+    size_t num_linear_binary_vars = 0;
+    size_t num_linear_integer_vars = 0;
+    size_t num_nonlinear_obj_int_vars = 0;
+    size_t num_nonlinear_con_int_vars = 0;
+    size_t num_nonlinear_both_int_vars = 0;
+
+    size_t nnz_Jacobian = 0;
+    size_t nnz_gradient = 0;
 
     std::vector<MutableNLPExpr> o_expr;
     std::vector<MutableNLPExpr> c_expr;
@@ -621,23 +625,7 @@ class NLWriter {
     std::vector<std::map<size_t, double>> J;
 
     NLWriter()
-    {
-        num_inequalities = 0;
-        num_ranges = 0;
-        num_equalities = 0;
-        nonl_objectives = 0;
-        nonl_constraints = 0;
-        nonlinear_vars_both = 0;
-
-        num_linear_binary_vars = 0;
-        num_linear_integer_vars = 0;
-        num_nonlinear_obj_int_vars = 0;
-        num_nonlinear_con_int_vars = 0;
-        num_nonlinear_both_int_vars = 0;
-
-        nnz_Jacobian = 0;
-        nnz_gradient = 0;
-    }
+    { }
 
     void collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap,
                          std::map<size_t, size_t>& invconmap);
@@ -806,34 +794,39 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
     }
 
     CALI_MARK_BEGIN("Misc NL");
-    for (auto it = linear_vars.begin(); it != linear_vars.end(); ++it) {
-        auto& var = varobj[*it];
+    for (auto& vid : linear_vars) {
+        auto& var = varobj[vid];
         if (var.is_binary())
             ++num_linear_binary_vars;
         else if (var.is_integer())
             ++num_linear_integer_vars;
     }
 
-    for (auto it = nonlinear_vars_obj.begin(); it != nonlinear_vars_obj.end(); ++it) {
-        auto& var = varobj[*it];
+    for (auto& vid : nonlinear_vars_obj) {
+        auto& var = varobj[vid];
         bool flag = var.is_binary() or var.is_integer();
         if (flag) ++num_nonlinear_obj_int_vars;
-        if (nonlinear_vars_con.find(*it) != nonlinear_vars_con.end()) {
-            ++nonlinear_vars_both;
+        if (nonlinear_vars_con.find(vid) != nonlinear_vars_con.end()) {
+            ++num_nonlinear_vars_both;
             if (flag) ++num_nonlinear_both_int_vars;
         }
     }
-    for (auto it = nonlinear_vars_con.begin(); it != nonlinear_vars_con.end(); ++it) {
-        auto& var = varobj[*it];
+    num_nonlinear_vars_con = nonlinear_vars_con.size();
+    num_nonlinear_vars_obj = num_nonlinear_vars_con + nonlinear_vars_obj.size() - num_nonlinear_vars_both;
+    if (num_nonlinear_vars_obj == num_nonlinear_vars_con)
+       num_nonlinear_vars_obj = num_nonlinear_vars_both;
+
+    for (auto& vid : nonlinear_vars_con) {
+        auto& var = varobj[vid];
         if (var.is_binary() or var.is_integer()) ++num_nonlinear_con_int_vars;
     }
 
     // Map Variable index to NL variable ID (0 ... n_vars-1)
     {
         size_t ctr = 0;
-        for (auto it = vars.begin(); it != vars.end(); ++it) {
-            invvarmap[ctr] = *it;
-            varmap[*it] = ctr;
+        for (auto& vid : vars) {
+            invvarmap[ctr] = vid;
+            varmap[vid] = ctr;
             ++ctr;
         }
         CALI_MARK_END("Misc NL");
@@ -939,8 +932,8 @@ void NLWriter::write_ostream(Model& model, std::string& fname)
         ostr << " " << nonl_constraints << " " << nonl_objectives
              << " # nonlinear constraints, objectives\n";
         ostr << " 0 0 # network constraints: nonlinear, linear\n";
-        ostr << " " << nonlinear_vars_con.size() << " " << nonlinear_vars_obj.size() << " "
-             << nonlinear_vars_both << " # nonlinear vars in constraints, objectives, both\n";
+        ostr << " " << num_nonlinear_vars_con << " " << num_nonlinear_vars_obj << " "
+             << num_nonlinear_vars_both << " # nonlinear vars in constraints, objectives, both\n";
         ostr << " 0 0 0 1 # linear network variables; functions; arith, flags\n";
         ostr << " " << num_linear_binary_vars << " " << num_linear_integer_vars << " "
              << num_nonlinear_both_int_vars << " " << num_nonlinear_con_int_vars << " "
@@ -1148,7 +1141,7 @@ void NLWriter::write_fmtlib(Model& model, std::string& fname)
     ostr.print(" {} {} # nonlinear constraints, objectives\n", nonl_constraints, nonl_objectives);
     ostr.print(" 0 0 # network constraints: nonlinear, linear\n");
     ostr.print(" {} {} {} # nonlinear vars in constraints, objectives, both\n",
-               nonlinear_vars_con.size(), nonlinear_vars_obj.size(), nonlinear_vars_both);
+               num_nonlinear_vars_con, num_nonlinear_vars_obj, num_nonlinear_vars_both);
     ostr.print(" 0 0 0 1 # linear network variables; functions; arith, flags\n");
     ostr.print(" {} {} {} {} {} # discrete variables: binary, integer, nonlinear (b,c,o)\n",
                num_linear_binary_vars, num_linear_integer_vars, num_nonlinear_both_int_vars,
