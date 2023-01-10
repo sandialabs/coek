@@ -222,6 +222,14 @@ void ASL_Repn::compute_J(std::vector<double>& J)
 
 void ASL_Repn::initialize(bool /*_sparse_JH*/)
 {
+    //
+    // Initialize the NLPModelRepn data
+    //
+    find_used_variables();
+
+    //
+    // Create the ASL object
+    //
     alloc_asl();
     ASL_pfgh* asl = asl_;
 
@@ -247,6 +255,9 @@ void ASL_Repn::initialize(bool /*_sparse_JH*/)
 
     call_hesset();
 
+    //
+    // Resize and initialize the ASL_Repn data
+    //
     nx = static_cast<size_t>(n_var);
     nf = static_cast<size_t>(n_obj);
     nc = static_cast<size_t>(n_con);
