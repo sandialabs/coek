@@ -98,7 +98,7 @@ void ASL_Repn::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hc
     hcol.resize(nnz_lag_h);
     size_t curr_nz = 0;
     for (size_t i : coek::range(nx)) {
-        for (size_t j = sputinfo->hcolstartsZ[i]; j < sputinfo->hcolstartsZ[i + 1]; j++) {
+        for (size_t j = sputinfo->hcolstarts[i]; j < sputinfo->hcolstarts[i + 1]; j++) {
             hrow[curr_nz] = i + 1;
             hcol[curr_nz] = sputinfo->hrownos[j] + 1;
             // std::cout << curr_nz << " : " << hrow[curr_nz] << " " << hcol[curr_nz] << std::endl;
@@ -130,7 +130,6 @@ double ASL_Repn::compute_f(size_t i)
         nerror_ok = check_asl_status(nerror_);
         if (nerror_ok) {
             objval_called_with_current_x_ = true;
-            if (objtype[i] != 0) f_cache *= -1;
         }
         else {
             objval_called_with_current_x_ = false;
@@ -155,10 +154,6 @@ void ASL_Repn::compute_df(double& f, std::vector<double>& df, size_t i)
         ASL_pfgh* asl = asl_;
         objgrd(static_cast<int>(i), &(currx[0]), &(df[0]), (fint*)nerror_);
         nerror_ok = check_asl_status(nerror_);
-        if (nerror_ok) {
-            if (objtype[i] != 0)
-                for (double& df_x : df) df_x *= -1;
-        }
     }
 }
 
