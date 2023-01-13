@@ -4,6 +4,7 @@
 
 #include "coek/util/sequence.hpp"
 #include "coek/autograd/asl_repn.hpp"
+#include "coek/api/objective.hpp"   // DEBUG
 
 // AMPL includes
 #include "asl.h"
@@ -80,8 +81,8 @@ void ASL_Repn::get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jc
     size_t curr_nz = 0;
     for (size_t i : coek::range(nc)) {
         for (cgrad* cg = Cgrad[i]; cg; cg = cg->next) {
-            jrow[cg->goff] = i + 1;
-            jcol[cg->goff] = cg->varno + 1;
+            jrow[cg->goff] = i;
+            jcol[cg->goff] = cg->varno;
             curr_nz++;
         }
     }
@@ -99,9 +100,8 @@ void ASL_Repn::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hc
     size_t curr_nz = 0;
     for (size_t i : coek::range(nx)) {
         for (size_t j = sputinfo->hcolstarts[i]; j < sputinfo->hcolstarts[i + 1]; j++) {
-            hrow[curr_nz] = i + 1;
-            hcol[curr_nz] = sputinfo->hrownos[j] + 1;
-            // std::cout << curr_nz << " : " << hrow[curr_nz] << " " << hcol[curr_nz] << std::endl;
+            hrow[curr_nz] = i;
+            hcol[curr_nz] = sputinfo->hrownos[j];
             curr_nz++;
         }
     }
@@ -120,6 +120,7 @@ double ASL_Repn::compute_f(size_t i)
 {
     assert(i == 0);
 
+    std::cout << "DEBUG flag " << objval_called_with_current_x_ << std::endl;
     if (nf == 0) {
         objval_called_with_current_x_ = true;
         return 0;
@@ -136,6 +137,11 @@ double ASL_Repn::compute_f(size_t i)
             f_cache = nan("");
         }
     }
+
+    for (size_t i : coek::range(nx))
+        model.get_variable(i).value(currx[i]);
+    std::cout << "DEBUG model.obj.value " << model.get_objective(0).value() << std::endl;
+    std::cout << "DEBUG compute_f(0) " << f_cache << std::endl;
 
     return f_cache;
 }
