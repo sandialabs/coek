@@ -1834,6 +1834,30 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.quadratic_rvars[0] == w.repn);
             }
         }
+        WHEN("complex quadratic 4")
+        {
+            {
+                coek::Model m;
+                auto w = m.add_variable("w").lower(0).upper(1).value(0);
+                coek::Expression e = (w - 3) * (w - 3);
+                coek::MutableNLPExpr repn;
+                repn.collect_terms(e);
+
+                static std::list<std::string> constval = {std::to_string(9.0)};
+                static std::list<std::string> lcoefval = {std::to_string(-3.0)};
+                static std::list<std::string> qcoefval = {std::to_string(1.0)};
+                REQUIRE(repn.constval->to_list() == constval);
+
+                REQUIRE(repn.linear_coefs.size() == 2);
+                REQUIRE(repn.linear_coefs[0]->to_list() == lcoefval);
+                REQUIRE(repn.linear_coefs[1]->to_list() == lcoefval);
+
+                REQUIRE(repn.quadratic_coefs.size() == 1);
+                REQUIRE(repn.quadratic_coefs[0]->to_list() == qcoefval);
+                REQUIRE(repn.quadratic_lvars[0] == w.repn);
+                REQUIRE(repn.quadratic_rvars[0] == w.repn);
+            }
+        }
         WHEN("complex nonlinear")
         {
             {
