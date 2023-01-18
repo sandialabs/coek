@@ -224,7 +224,7 @@ bool IpoptModel::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 
     for (size_t j=0; j<n; j++)
         std::cout << "X " << j << " " << x[j] << std::endl;
-    std::cout << "f " << objsign << " " << objsign*obj_value << std::endl;
+    std::cout << "f " << objsign << " " << obj_value << std::endl;
 
     // std::cout << "EVAL F - END" << std::endl << std::flush;
     return true;

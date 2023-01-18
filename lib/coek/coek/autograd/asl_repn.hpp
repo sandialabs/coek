@@ -42,64 +42,15 @@ class ASL_Repn : public NLPModelRepn {
     /// upper limit for x
     std::vector<double> xub;
 
-#if 0
-    /// lower limit for c(x)
-    // std::vector<double>     glb;
-    /// upper limit for c(x)
-    // std::vector<double>     gub;
-    /// object that evaluates f(x) and c(x)
-    CppAD::ADFun<double> ADfc;
-
-    // ----------------------------------------------------------------------
-    // Jacobian information
-    // ----------------------------------------------------------------------
-    /// Should sparse methods be used to compute Jacobians and Hessians.
-    bool sparse_JH;
-    /// Sparsity pattern for Jacobian of [f(x), g(x) ].
-    /// If sparse_JH is true, this pattern set by constructor and does not change.
-    /// Otherwise this vector has size zero.
-    CppAD::vectorBool jac_pattern;
-    /// Row indices of [f(x), g(x)] for Jacobian of g(x) in row order.
-    /// (Set by constructor and not changed.)
-    CppAD::vector<size_t> jac_row;
-    /// Column indices for Jacobian of g(x), same order as row_jac_.
-    /// (Set by constructor and not changed.)
-    CppAD::vector<size_t> jac_col;
-    /// col_order_jac_ sorts row_jac_ and col_jac_ in column order.
-    /// (Set by constructor and not changed.)
-    CppAD::vector<size_t> jac_col_order;
-    /// Work vector used by SparseJacobian, stored here to avoid recalculation.
-    CppAD::sparse_jacobian_work jac_work;
-
-    // ----------------------------------------------------------------------
-    // Hessian information
-    // ----------------------------------------------------------------------
-    /// Sparsity pattern for Hessian of Lagragian
-    /// \f[ L(x) = \sigma \sum_i f_i (x) + \sum_i \lambda_i  g_i (x) \f]
-    /// If sparse_JH is true, this pattern set by constructor and does not change.
-    /// Otherwise this vector has size zero.
-    CppAD::vectorBool hes_pattern;
-    /// Row indices of Hessian lower left triangle in row order.
-    /// (Set by constructor and not changed.)
-    CppAD::vector<size_t> hes_row;
-    /// Column indices of Hessian left triangle in same order as row_hes_.
-    /// (Set by constructor and not changed.)
-    CppAD::vector<size_t> hes_col;
-    /// Work vector used by SparseJacobian, stored here to avoid recalculation.
-    CppAD::sparse_hessian_work hes_work;
-
-
-    std::vector<double> fcw;
-
-    std::vector<CppAD::AD<double> > dynamic_params;
-    std::vector<double> dynamic_param_vals;
-#endif
-
     bool objval_called_with_current_x_;
     bool conval_called_with_current_x_;
     double f_cache;
     std::vector<double> c_cache;
     std::vector<double> currx;
+
+   public:
+    std::map<size_t, size_t> varmap;    // ASL index -> NLPModelRepn index
+    VariableRepn get_variable(size_t i);
 
    public:
     ASL_Repn(Model& model);

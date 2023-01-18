@@ -135,8 +135,8 @@ class CompactModel {
 
     Model expand();
 
-    void write(std::string filename);
-    void write(std::string filename, std::map<size_t, size_t>& varmap,
+    void write(const std::string& filename);
+    void write(const std::string& filename, std::map<size_t, size_t>& varmap,
                std::map<size_t, size_t>& conmap);
 };
 

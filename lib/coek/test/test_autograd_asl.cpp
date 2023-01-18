@@ -3,6 +3,7 @@
 #include "catch2/catch.hpp"
 #include "coek/ast/base_terms.hpp"
 #include "coek/coek.hpp"
+#include "coek/util/io_utils.hpp"
 
 const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
@@ -409,22 +410,28 @@ TEST_CASE("asl_ad", "[smoke]")
             // nlp.get_H_nonzeros(hr,hc);
             REQUIRE(nlp.num_constraints() == 2);
             REQUIRE(nlp.num_nonzeros_Hessian_Lagrangian() == 7);
-
-            // H = [ [ 0, 1,    0,   1 ]
+            // Variable Ordering:  c, d, a, b
+            //
+            // H = [ [ 2d^2,  4cd, 0, 1 ]
+            //       [  4cd, 2c^2, 1, 1 ]
+            //       [    0,    1, 0, 1 ]
+            //       [    1,    1, 1, 0 ] ]
+            //
+            // h = [ [ 0, 1,    0,   1 ]
             //       [ 1, 0,    1,   1 ]
             //       [ 0, 1, 2d^2, 4cd ]
             //       [ 1, 1, 4cd, 2c^2 ] ]
             std::vector<double> w{1, 1, 1};
-            std::vector<double> x{0, 1, 2, 3};
+            std::vector<double> x{2, 3, 0, 1};
             std::vector<double> h(nlp.num_nonzeros_Hessian_Lagrangian());
             nlp.compute_H(x, w, h);
-            REQUIRE(h[0] == 1);
-            REQUIRE(h[1] == 1);
-            REQUIRE(h[2] == 18);
+            REQUIRE(h[0] == 18);
+            REQUIRE(h[1] == 24);
+            REQUIRE(h[2] == 8);
             REQUIRE(h[3] == 1);
             REQUIRE(h[4] == 1);
-            REQUIRE(h[5] == 24);
-            REQUIRE(h[6] == 8);
+            REQUIRE(h[5] == 1);
+            REQUIRE(h[6] == 1);
         }
 
         WHEN("nx > nc weighted")
@@ -439,23 +446,32 @@ TEST_CASE("asl_ad", "[smoke]")
             model.add_constraint(a + a * b <= 0);
 
             // model.print_equations();
-            // model.write("bad.nl");
+            //model.write("bad.nl");
             coek::NLPModel nlp(model, "asl");
             std::vector<size_t> hr, hc;
-            // nlp.get_H_nonzeros(hr,hc);
+            nlp.get_H_nonzeros(hr,hc);
+            std::cout << "FOOBAR " << hr << std::endl;
+            std::cout << "FOOBAR " << hc << std::endl;
             REQUIRE(nlp.num_constraints() == 1);
             REQUIRE(nlp.num_nonzeros_Hessian_Lagrangian() == 4);
+            // Variable Ordering:  b, a, c, d
 
-            // H = [ [ 0, 2,  0,  0 ]
+            // H = [ [ 2, 9,  0,  0 ]
+            //       [ 9, 0,  0,  0 ]
+            //       [ 0, 0,  2,  1 ]
+            //       [ 0, 0,  1,  0 ] ]
+            //
+            // h = [ [ 0, 2,  0,  0 ]
             //       [ 2, 2,  0,  0 ]
             //       [ 0, 0,  0,  1 ]
             //       [ 0, 0,  1,  0 ] ]
-            std::vector<double> w{1, 2};
-            std::vector<double> x{0, 1, 2, 3};
+            std::vector<double> w{1, 9};
+            std::vector<double> x{1, 0, 2, 3};
             std::vector<double> h(nlp.num_nonzeros_Hessian_Lagrangian());
             nlp.compute_H(x, w, h);
             REQUIRE(h[0] == 2);
-            REQUIRE(h[1] == 2);
+            REQUIRE(h[1] == 9);
+            REQUIRE(h[2] == 2);
             REQUIRE(h[3] == 1);
         }
 

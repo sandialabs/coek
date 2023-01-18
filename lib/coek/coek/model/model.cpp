@@ -351,30 +351,30 @@ std::set<std::string> Model::constraint_suffix_names() const { return map_keys(r
 
 std::set<std::string> Model::model_suffix_names() const { return map_keys(repn->msuffix); }
 
-void write_lp_problem(Model& model, std::string& fname, std::map<size_t, size_t>& varmap,
+void write_lp_problem(Model& model, const std::string& fname, std::map<size_t, size_t>& varmap,
                       std::map<size_t, size_t>& conmap);
-void write_nl_problem(Model& model, std::string& fname, std::map<size_t, size_t>& varmap,
+void write_nl_problem(Model& model, const std::string& fname, std::map<size_t, size_t>& varmap,
                       std::map<size_t, size_t>& conmap);
 
-void write_lp_problem_ostream(Model& model, std::string& fname, std::map<size_t, size_t>& varmap,
+void write_lp_problem_ostream(Model& model, const std::string& fname, std::map<size_t, size_t>& varmap,
                               std::map<size_t, size_t>& conmap);
-void write_nl_problem_ostream(Model& model, std::string& fname, std::map<size_t, size_t>& varmap,
+void write_nl_problem_ostream(Model& model, const std::string& fname, std::map<size_t, size_t>& varmap,
                               std::map<size_t, size_t>& conmap);
 #ifdef WITH_FMTLIB
-void write_lp_problem_fmtlib(Model& model, std::string& fname, std::map<size_t, size_t>& varmap,
+void write_lp_problem_fmtlib(Model& model, const std::string& fname, std::map<size_t, size_t>& varmap,
                              std::map<size_t, size_t>& conmap);
-void write_nl_problem_fmtlib(Model& model, std::string& fname, std::map<size_t, size_t>& varmap,
+void write_nl_problem_fmtlib(Model& model, const std::string& fname, std::map<size_t, size_t>& varmap,
                              std::map<size_t, size_t>& conmap);
 #endif
 
-void Model::write(std::string fname)
+void Model::write(const std::string& fname)
 {
     std::map<size_t, size_t> varmap;
     std::map<size_t, size_t> conmap;
     write(fname, varmap, conmap);
 }
 
-void Model::write(std::string fname, std::map<size_t, size_t>& varmap,
+void Model::write(const std::string& fname, std::map<size_t, size_t>& varmap,
                   std::map<size_t, size_t>& conmap)
 {
     if (repn->name_generation_policy == Model::NameGeneration::lazy) {

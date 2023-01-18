@@ -162,7 +162,7 @@ class Model {
     Objective& add(Objective& var);
     Objective& add(Objective&& var);
 
-    /** \returns the objective with the specified id */
+    /** \returns the i-th objective that was added */
     Objective get_objective(size_t i = 0);
     /** \returns the objective with the specified name */
     Objective get_objective(const std::string& name);
@@ -199,7 +199,7 @@ class Model {
     void add(ConstraintMap& expr);
 #endif
 
-    /** \returns the constraint with the specified id */
+    /** \returns the i-th constraint that was added */
     Constraint get_constraint(size_t i);
     /** \returns the constraint with the specified name */
     Constraint get_constraint(const std::string& name);
@@ -260,14 +260,14 @@ class Model {
     //
 
     /** Write the model to the specified file */
-    void write(std::string filename);
+    void write(const std::string& filename);
     /** Write the model to the specified file
      *
      * \param filename  the output file
      * \param varmap  varmap[i] contains the id of the i-th variable in this model
      * \param conmap  conmap[i] contains the id of the i-th constraint in this model
      */
-    void write(std::string filename, std::map<size_t, size_t>& varmap,
+    void write(const std::string& filename, std::map<size_t, size_t>& varmap,
                std::map<size_t, size_t>& conmap);
     /** Print the equations in the model to \c std::cout */
     void print_equations() const;

@@ -524,7 +524,13 @@ void print_expr(fmt::ostream& ostr, const MutableNLPExpr& repn,
     bool quadratic = repn.quadratic_coefs.size() > 0;
 
     double cval = repn.constval->eval();
+    if (objective) {
+        std::cout << "DEBUG " << repn << std::endl;
+        std::cout << "DEBUG cval1 " << cval << std::endl;
+        }
     if (not nonlinear) cval += repn.nonlinear->eval();
+    if (objective)
+        std::cout << "DEBUG cval2 " << cval << std::endl;
 
     std::map<std::pair<ITYPE, ITYPE>, double> term;
     if (quadratic) {
@@ -550,6 +556,8 @@ void print_expr(fmt::ostream& ostr, const MutableNLPExpr& repn,
 
     // Compute the number of terms in the sum
     size_t ctr = 0;
+    if (objective)
+        std::cout << "DEBUG cval3 " << (fabs(cval) > EPSILON) << std::endl;
     if (objective and (fabs(cval) > EPSILON)) ++ctr;
     if (nonlinear) ++ctr;
     if (quadratic) ctr += term.size();
@@ -630,8 +638,8 @@ class NLWriter {
     void collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap,
                          std::map<size_t, size_t>& invconmap);
 
-    void write_ostream(Model& model, std::string& fname);
-    void write_fmtlib(Model& model, std::string& fname);
+    void write_ostream(Model& model, const std::string& fname);
+    void write_fmtlib(Model& model, const std::string& fname);
 };
 
 // TODO - Reorder constraints to have nonlinear before linear
@@ -653,9 +661,8 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
         {
             nnz_gradient = 0;
             size_t ctr = 0;
-            for (auto it = model.repn->objectives.begin(); it != model.repn->objectives.end();
-                 ++it, ++ctr) {
-                o_expr[ctr].collect_terms(*it);
+            for (auto& obj : model.repn->objectives) {
+                o_expr[ctr].collect_terms(obj);
                 if ((o_expr[ctr].quadratic_coefs.size() > 0)
                     or (not o_expr[ctr].nonlinear->is_constant()))
                     ++nonl_objectives;
@@ -690,6 +697,8 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
                     varobj[index] = var;
                 }
                 nnz_gradient += curr_vars.size();
+
+                ctr++;
                 break;  // TODO - Fix this
             }
         }
@@ -794,6 +803,7 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
     }
 
     CALI_MARK_BEGIN("Misc NL");
+#if 0
     for (auto& vid : linear_vars) {
         auto& var = varobj[vid];
         if (var.is_binary())
@@ -831,12 +841,134 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
         }
         CALI_MARK_END("Misc NL");
 
-        // GCOVR_EXCL_START
-        if (vars.size() != varmap.size())
-            throw std::runtime_error(
-                "Error writing NL file: Variables with duplicate index values detected!");
-        // GCOVR_EXCL_STOP
     }
+#else
+    std::set<size_t> nonlinear_vars_both_c;
+    std::set<size_t> nonlinear_vars_both_i;
+    std::set<size_t> nonlinear_vars_con_c;
+    std::set<size_t> nonlinear_vars_con_i;
+    std::set<size_t> nonlinear_vars_obj_c;
+    std::set<size_t> nonlinear_vars_obj_i;
+    std::set<size_t> linear_vars_c;
+    std::set<size_t> linear_vars_b;
+    std::set<size_t> linear_vars_i;
+    //
+    // Collect the variables that are in both objectives and constraints
+    //
+    for (auto& vid : nonlinear_vars_con) {
+        if (nonlinear_vars_obj.find(vid) == nonlinear_vars_obj.end()) {
+            auto& var = varobj[vid];
+            // CON
+            if (var.is_binary() or var.is_integer())
+                nonlinear_vars_con_i.insert(vid);
+            else
+                nonlinear_vars_con_c.insert(vid);
+        } else {
+            auto& var = varobj[vid];
+            // BOTH
+            if (var.is_binary() or var.is_integer())
+                nonlinear_vars_both_i.insert(vid);
+            else
+                nonlinear_vars_both_c.insert(vid);
+        }
+    }
+    for (auto& vid : nonlinear_vars_obj) {
+        if (nonlinear_vars_con.find(vid) == nonlinear_vars_con.end()) {
+            auto& var = varobj[vid];
+            // OBJ
+            if (var.is_binary() or var.is_integer())
+                nonlinear_vars_obj_i.insert(vid);
+            else
+                nonlinear_vars_obj_c.insert(vid);
+        }
+    }
+    num_nonlinear_both_int_vars = nonlinear_vars_both_i.size();
+    num_nonlinear_con_int_vars = num_nonlinear_con_int_vars + nonlinear_vars_con_i.size();
+    num_nonlinear_obj_int_vars = num_nonlinear_con_int_vars + nonlinear_vars_obj_i.size();
+
+    num_nonlinear_vars_both = nonlinear_vars_both_i.size() + nonlinear_vars_both_c.size();
+    num_nonlinear_vars_con = num_nonlinear_vars_both + nonlinear_vars_con_i.size() + nonlinear_vars_con_c.size();
+    num_nonlinear_vars_obj = num_nonlinear_vars_con + nonlinear_vars_obj_i.size() + nonlinear_vars_obj_c.size(); 
+    // WEH - Why?
+    //if (num_nonlinear_vars_obj == 0)
+    //   num_nonlinear_vars_obj = num_nonlinear_vars_both;
+
+/*
+    num_nonlinear_vars_obj = num_nonlinear_vars_con + nonlinear_vars_obj.size() - num_nonlinear_vars_both;
+    if (num_nonlinear_vars_obj == num_nonlinear_vars_con)
+       num_nonlinear_vars_obj = num_nonlinear_vars_both;
+*/
+
+    num_linear_binary_vars = 0;
+    num_linear_integer_vars = 0;
+    for (auto& vid : linear_vars) {
+        auto& var = varobj[vid];
+        if (var.is_binary())
+            num_linear_binary_vars++;
+        else if (var.is_integer())
+            num_linear_integer_vars++;
+
+        if (nonlinear_vars_obj.find(vid) != nonlinear_vars_obj.end())
+            continue;
+        if (nonlinear_vars_con.find(vid) != nonlinear_vars_con.end())
+            continue;
+
+        if (var.is_binary())
+            linear_vars_b.insert(vid);
+        else if (var.is_integer())
+            linear_vars_i.insert(vid);
+        else
+            linear_vars_c.insert(vid);
+    }
+
+    // Map Variable index to NL variable ID (0 ... n_vars-1)
+    {
+        size_t ctr = 0;
+        for (auto& vid : nonlinear_vars_both_c) {
+            invvarmap[ctr] = vid;
+            varmap[vid] = ctr++;
+        }
+        for (auto& vid : nonlinear_vars_both_i) {
+            invvarmap[ctr] = vid;
+            varmap[vid] = ctr++;
+        }
+        for (auto& vid : nonlinear_vars_con_c) {
+            invvarmap[ctr] = vid;
+            varmap[vid] = ctr++;
+        }
+        for (auto& vid : nonlinear_vars_con_i) {
+            invvarmap[ctr] = vid;
+            varmap[vid] = ctr++;
+        }
+        for (auto& vid : nonlinear_vars_obj_c) {
+            invvarmap[ctr] = vid;
+            varmap[vid] = ctr++;
+        }
+        for (auto& vid : nonlinear_vars_obj_i) {
+            invvarmap[ctr] = vid;
+            varmap[vid] = ctr++;
+        }
+        for (auto& vid : linear_vars_c) {
+            invvarmap[ctr] = vid;
+            varmap[vid] = ctr++;
+        }
+        for (auto& vid : linear_vars_b) {
+            invvarmap[ctr] = vid;
+            varmap[vid] = ctr++;
+        }
+        for (auto& vid : linear_vars_i) {
+            invvarmap[ctr] = vid;
+            varmap[vid] = ctr++;
+        }
+    }
+ 
+    //
+    // GCOVR_EXCL_START
+    if (vars.size() != varmap.size())
+        throw std::runtime_error(
+            "Error writing NL file: Variables with duplicate index values detected!");
+    // GCOVR_EXCL_STOP
+#endif
 
     // Compute linear Jacobian and Gradient values
     CALI_MARK_BEGIN("Compute Jacobian/Gradient");
@@ -913,7 +1045,7 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
     CALI_MARK_END("Compute Jacobian/Gradient");
 }
 
-void NLWriter::write_ostream(Model& model, std::string& fname)
+void NLWriter::write_ostream(Model& model, const std::string& fname)
 {
     std::ofstream ostr(fname);
 
@@ -1080,7 +1212,7 @@ void NLWriter::write_ostream(Model& model, std::string& fname)
         //
         // "k" section - Jacobian column counts
         //
-        if (k_count.size() > 1) {
+        if ((J.size() > 0) and (k_count.size() > 1)) {
             ostr << "k" << (k_count.size() - 1) << '\n';
             ctr = 0;
             for (size_t i = 0; i < (k_count.size() - 1); ++i) {
@@ -1088,9 +1220,9 @@ void NLWriter::write_ostream(Model& model, std::string& fname)
                 ostr << ctr << '\n';
             }
         }
-        else {
-            ostr << "k0\n";
-        }
+        //else {
+        //    ostr << "k0\n";
+        //}
 
         //
         // "J" section - Jacobian sparsity, linear terms
@@ -1124,7 +1256,7 @@ void NLWriter::write_ostream(Model& model, std::string& fname)
 }
 
 #ifdef WITH_FMTLIB
-void NLWriter::write_fmtlib(Model& model, std::string& fname)
+void NLWriter::write_fmtlib(Model& model, const std::string& fname)
 {
     auto ostr = fmt::output_file(fname, fmt::file::WRONLY | fmt::file::CREATE | FMT_POSIX(O_TRUNC));
 
@@ -1303,7 +1435,7 @@ void NLWriter::write_fmtlib(Model& model, std::string& fname)
     // "k" section - Jacobian column counts
     //
     CALI_MARK_BEGIN("k");
-    if (k_count.size() > 1) {
+    if ((J.size() > 0) and (k_count.size() > 1)) {
         ostr.print("k{}\n", k_count.size() - 1);  // << "k" << (k_count.size()-1) << '\n';
         {
             size_t ctr = 0;
@@ -1313,9 +1445,9 @@ void NLWriter::write_fmtlib(Model& model, std::string& fname)
             }
         }
     }
-    else {
-        ostr.print("k0\n");
-    }
+    //else {
+    //    ostr.print("k0\n");
+    //}
     CALI_MARK_END("k");
 
     CALI_MARK_BEGIN("J");
@@ -1357,7 +1489,7 @@ void NLWriter::write_fmtlib(Model& model, std::string& fname)
 }
 #endif
 
-void write_nl_problem_ostream(Model& model, std::string& fname, std::map<size_t, size_t>& invvarmap,
+void write_nl_problem_ostream(Model& model, const std::string& fname, std::map<size_t, size_t>& invvarmap,
                               std::map<size_t, size_t>& invconmap)
 {
     NLWriter writer;
@@ -1366,7 +1498,7 @@ void write_nl_problem_ostream(Model& model, std::string& fname, std::map<size_t,
 }
 
 #ifdef WITH_FMTLIB
-void write_nl_problem_fmtlib(Model& model, std::string& fname, std::map<size_t, size_t>& invvarmap,
+void write_nl_problem_fmtlib(Model& model, const std::string& fname, std::map<size_t, size_t>& invvarmap,
                              std::map<size_t, size_t>& invconmap)
 {
     NLWriter writer;
@@ -1374,14 +1506,14 @@ void write_nl_problem_fmtlib(Model& model, std::string& fname, std::map<size_t, 
     writer.write_fmtlib(model, fname);
 }
 
-void write_nl_problem(Model& model, std::string& fname, std::map<size_t, size_t>& invvarmap,
+void write_nl_problem(Model& model, const std::string& fname, std::map<size_t, size_t>& invvarmap,
                       std::map<size_t, size_t>& invconmap)
 {
     write_nl_problem_fmtlib(model, fname, invvarmap, invconmap);
 }
 #else
 
-void write_nl_problem(Model& model, std::string& fname, std::map<size_t, size_t>& invvarmap,
+void write_nl_problem(Model& model, const std::string& fname, std::map<size_t, size_t>& invvarmap,
                       std::map<size_t, size_t>& invconmap)
 {
     write_nl_problem_ostream(model, fname, invvarmap, invconmap);
