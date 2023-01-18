@@ -450,8 +450,8 @@ TEST_CASE("asl_ad", "[smoke]")
             coek::NLPModel nlp(model, "asl");
             std::vector<size_t> hr, hc;
             nlp.get_H_nonzeros(hr,hc);
-            std::cout << "FOOBAR " << hr << std::endl;
-            std::cout << "FOOBAR " << hc << std::endl;
+            //std::cout << "FOOBAR " << hr << std::endl;
+            //std::cout << "FOOBAR " << hc << std::endl;
             REQUIRE(nlp.num_constraints() == 1);
             REQUIRE(nlp.num_nonzeros_Hessian_Lagrangian() == 4);
             // Variable Ordering:  b, a, c, d

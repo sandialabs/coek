@@ -222,9 +222,11 @@ bool IpoptModel::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
     //  return the value of the objective function
     obj_value = objsign * nlpmodel.compute_f(0);
 
+#if 0
     for (size_t j=0; j<n; j++)
         std::cout << "X " << j << " " << x[j] << std::endl;
     std::cout << "f " << objsign << " " << obj_value << std::endl;
+#endif
 
     // std::cout << "EVAL F - END" << std::endl << std::flush;
     return true;
@@ -238,8 +240,10 @@ bool IpoptModel::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_
         nlpmodel.set_variable_view(x, static_cast<size_t>(n));
     }
 
+#if 0
     for (size_t j=0; j<n; j++)
         std::cout << "X " << j << " " << x[j] << std::endl;
+#endif
 
     // std::cout << "Compute DF - START" << std::endl << std::flush;
     //  return the gradient of the objective function grad_{x} f(x)
@@ -247,7 +251,7 @@ bool IpoptModel::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_
     nlpmodel.compute_df(f, tmp_grad, 0);
     size_t i = 0;
     for (double val : tmp_grad) {
-        std::cout << "DF " << i << " " << objsign << " " << val << std::endl;
+        //std::cout << "DF " << i << " " << objsign << " " << val << std::endl;
         grad_f[i++] = objsign * val;
         }
 
@@ -319,11 +323,11 @@ bool IpoptModel::eval_h(Index n, const Number* x, bool new_x, Number obj_factor,
         std::vector<size_t> hrow;
         std::vector<size_t> hcol;
         nlpmodel.get_H_nonzeros(hrow, hcol);
-        std::cout << "HERE hrow_size " << hrow.size() << std::endl;
+        //std::cout << "HERE hrow_size " << hrow.size() << std::endl;
         for (size_t i = 0; i < hrow.size(); i++) {
             hRow[i] = static_cast<Index>(hrow[i])+1;
             hCol[i] = static_cast<Index>(hcol[i])+1;
-            std::cout << hRow[i] << " " << hCol[i] << std::endl;
+            //std::cout << hRow[i] << " " << hCol[i] << std::endl;
         }
     }
 
@@ -341,8 +345,10 @@ bool IpoptModel::eval_h(Index n, const Number* x, bool new_x, Number obj_factor,
         nlpmodel.compute_H(tmp_hw, tmp_h);
         for (size_t i = 0; i < tmp_h.size(); i++) values[i] = tmp_h[i];
 
+#if 0
         for (size_t i = 0; i < tmp_h.size(); i++)
             std::cout << "H " << i << " " << values[i] << std::endl;
+#endif
     }
 
     return true;

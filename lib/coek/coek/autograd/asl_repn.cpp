@@ -121,7 +121,7 @@ double ASL_Repn::compute_f(size_t i)
 {
     assert(i == 0);
 
-    std::cout << "DEBUG flag " << objval_called_with_current_x_ << std::endl;
+    //std::cout << "DEBUG flag " << objval_called_with_current_x_ << std::endl;
     if (nf == 0) {
         objval_called_with_current_x_ = true;
         return 0;
@@ -130,7 +130,7 @@ double ASL_Repn::compute_f(size_t i)
         ASL_pfgh* asl = asl_;
         f_cache = objval(static_cast<int>(i), &(currx[0]), (fint*)nerror_);
         nerror_ok = check_asl_status(nerror_);
-        std::cout << "DEBUG nerror_ok: " << nerror_ok << std::endl;
+        //std::cout << "DEBUG nerror_ok: " << nerror_ok << std::endl;
         if (nerror_ok) {
             objval_called_with_current_x_ = true;
         }
@@ -140,6 +140,7 @@ double ASL_Repn::compute_f(size_t i)
         }
     }
 
+#if 0
     for (size_t i : coek::range(nx))
         std::cout << "DEBUG X " << i << " " << currx[i] << std::endl;
     for (size_t i : coek::range(nx))
@@ -149,6 +150,7 @@ double ASL_Repn::compute_f(size_t i)
     std::cout << "DEBUG model.obj " << model.get_objective(0).to_list() << std::endl;
     std::cout << "DEBUG model.obj.value " << model.get_objective(0).value() << std::endl;
     std::cout << "DEBUG compute_f(0) " << f_cache << std::endl;
+#endif
 
     return f_cache;
 }

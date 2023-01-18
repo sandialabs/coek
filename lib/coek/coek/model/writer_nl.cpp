@@ -524,13 +524,17 @@ void print_expr(fmt::ostream& ostr, const MutableNLPExpr& repn,
     bool quadratic = repn.quadratic_coefs.size() > 0;
 
     double cval = repn.constval->eval();
+#if 0
     if (objective) {
         std::cout << "DEBUG " << repn << std::endl;
         std::cout << "DEBUG cval1 " << cval << std::endl;
         }
+#endif
     if (not nonlinear) cval += repn.nonlinear->eval();
+#if 0
     if (objective)
         std::cout << "DEBUG cval2 " << cval << std::endl;
+#endif
 
     std::map<std::pair<ITYPE, ITYPE>, double> term;
     if (quadratic) {
@@ -556,8 +560,10 @@ void print_expr(fmt::ostream& ostr, const MutableNLPExpr& repn,
 
     // Compute the number of terms in the sum
     size_t ctr = 0;
+#if 0
     if (objective)
         std::cout << "DEBUG cval3 " << (fabs(cval) > EPSILON) << std::endl;
+#endif
     if (objective and (fabs(cval) > EPSILON)) ++ctr;
     if (nonlinear) ++ctr;
     if (quadratic) ctr += term.size();
