@@ -196,7 +196,7 @@ void visit(std::shared_ptr<TimesTerm>& expr, MutableNLPExpr& repn, double multip
 
     // CONSTANT * CONSTANT
     if (not((lhs_repn.constval == ZEROCONST) or (rhs_repn.constval == ZEROCONST)))
-        repn.constval = times_(lhs_repn.constval, rhs_repn.constval);
+        repn.constval = plus_(repn.constval, times_(lhs_repn.constval, rhs_repn.constval));
 
     if (not(lhs_repn.constval == ZEROCONST)) {
         // CONSTANT * LINEAR
