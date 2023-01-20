@@ -378,7 +378,7 @@ int IpoptModel::perform_solve()
                                         0, 0, this);
     }
 
-    if (status == Solve_Succeeded) {
+    if ((status == Solve_Succeeded) || (status == Solved_To_Acceptable_Level)) {
 #ifdef DEBUG
         std::cout << std::endl
                   << std::endl
