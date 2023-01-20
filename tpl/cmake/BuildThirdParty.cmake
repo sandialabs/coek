@@ -115,6 +115,7 @@ macro(setup_builds)
         list(APPEND tpls cppad)
     endif()
 
+    # TODO: Assess whether fmtlib should be installed with Release type: -DCMAKE_BUILD_TYPE=Release
     # fmtlib
     set(fmtlib_available OFF CACHE BOOL "FMT is available")
     if (install_fmtlib)
