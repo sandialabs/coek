@@ -186,8 +186,15 @@ void PrintExpr::visit(SubExpressionTerm& arg) { arg.body->accept(*this); }
 
 void PrintExpr::visit(NegateTerm& arg)
 {
-    ostr << "o16\n";
-    arg.body->accept(*this);
+    if (arg.is_constant()) {
+        ostr << "n";
+        format(ostr, arg.eval());
+        ostr << "\n";
+        }
+    else {
+        ostr << "o16\n";
+        arg.body->accept(*this);
+        }
 }
 
 void PrintExpr::visit(PlusTerm& arg)
@@ -385,8 +392,12 @@ void PrintExprFmtlib::visit(SubExpressionTerm& arg) { arg.body->accept(*this); }
 
 void PrintExprFmtlib::visit(NegateTerm& arg)
 {
-    ostr.print("o16\n");
-    arg.body->accept(*this);
+    if (arg.is_constant_expression()) {
+        ostr.print(fmt::format(_fmtstr_n, arg.eval())); }
+    else {
+        ostr.print("o16\n");
+        arg.body->accept(*this);
+    }
 }
 
 void PrintExprFmtlib::visit(PlusTerm& arg)

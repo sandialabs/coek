@@ -35,6 +35,8 @@ class UnaryTerm : public ExpressionTerm {
         non_variable = repn->non_variable;
     }
 
+    bool is_constant_expression() { return body->is_constant_expression(); }
+
     size_t num_expressions() const { return 1; }
     expr_pointer_t expression(size_t) { return body; }
 };
@@ -50,6 +52,8 @@ class BinaryTerm : public ExpressionTerm {
 
    public:
     BinaryTerm(const expr_pointer_t& _lhs, const expr_pointer_t& _rhs);
+
+    bool is_constant_expression() { return lhs->is_constant_expression() and rhs->is_constant_expression(); }
 
     size_t num_expressions() const { return 2; }
     expr_pointer_t expression(size_t i)
@@ -72,6 +76,15 @@ class NAryPrefixTerm : public ExpressionTerm {
     void initialize(NAryPrefixTerm* lhs, const expr_pointer_t& rhs);
 
     void push_back(const expr_pointer_t& rhs);
+
+    bool is_constant_expression() {
+        bool ans=true;
+        for (size_t i=0; i<n; i++) {
+            ans = ans and expression(i)->is_constant_expression();
+            if (not ans) break;
+            }
+        return ans;
+        }
 
     size_t num_expressions() const { return n; }
 

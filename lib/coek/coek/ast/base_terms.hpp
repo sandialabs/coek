@@ -33,6 +33,7 @@ class BaseExpressionTerm {
     virtual bool is_variable() const { return false; }
     virtual bool is_monomial() const { return false; }
     virtual bool is_expression() const { return false; }
+    virtual bool is_constant_expression() { return false; }
 
     virtual expr_pointer_t const_mult(double coef, const expr_pointer_t& repn);
     virtual expr_pointer_t negate(const expr_pointer_t& repn);
@@ -55,6 +56,7 @@ class ConstantTerm : public BaseExpressionTerm {
 
     bool is_constant() const { return true; }
     bool is_parameter() const { return false; }
+    bool is_constant_expression() { return true; }
 
     expr_pointer_t negate(const expr_pointer_t& repn);
 
