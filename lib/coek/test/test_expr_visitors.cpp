@@ -2212,7 +2212,7 @@ TEST_CASE("mutable_values", "[smoke]")
     REQUIRE(params == pbaseline);
 }
 
-#ifdef DEBUG
+#    ifdef DEBUG
 WHEN("debug walker0")
 {
     auto v = coek::variable("v");
@@ -2268,7 +2268,7 @@ WHEN("debug walker2")
     REQUIRE(params == pbaseline);
     REQUIRE(num_visits == 7);
 }
-#endif
+#    endif
 }
 
 SECTION("plus")
@@ -2651,7 +2651,7 @@ TEST_CASE("find_vars_and_params", "[smoke]")
     REQUIRE(params == pbaseline);
 }
 
-#ifdef DEBUG
+#    ifdef DEBUG
 WHEN("debug walker0")
 {
     auto v = coek::variable("v");
@@ -2717,7 +2717,7 @@ WHEN("debug walker2")
     REQUIRE(params == pbaseline);
     REQUIRE(num_visits == 7);
 }
-#endif
+#    endif
 }
 
 SECTION("plus")
