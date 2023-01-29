@@ -356,15 +356,15 @@ void write_lp_problem(Model& model, const std::string& fname, std::map<size_t, s
 void write_nl_problem(Model& model, const std::string& fname, std::map<size_t, size_t>& varmap,
                       std::map<size_t, size_t>& conmap);
 
-void write_lp_problem_ostream(Model& model, const std::string& fname, std::map<size_t, size_t>& varmap,
-                              std::map<size_t, size_t>& conmap);
-void write_nl_problem_ostream(Model& model, const std::string& fname, std::map<size_t, size_t>& varmap,
-                              std::map<size_t, size_t>& conmap);
+void write_lp_problem_ostream(Model& model, const std::string& fname,
+                              std::map<size_t, size_t>& varmap, std::map<size_t, size_t>& conmap);
+void write_nl_problem_ostream(Model& model, const std::string& fname,
+                              std::map<size_t, size_t>& varmap, std::map<size_t, size_t>& conmap);
 #ifdef WITH_FMTLIB
-void write_lp_problem_fmtlib(Model& model, const std::string& fname, std::map<size_t, size_t>& varmap,
-                             std::map<size_t, size_t>& conmap);
-void write_nl_problem_fmtlib(Model& model, const std::string& fname, std::map<size_t, size_t>& varmap,
-                             std::map<size_t, size_t>& conmap);
+void write_lp_problem_fmtlib(Model& model, const std::string& fname,
+                             std::map<size_t, size_t>& varmap, std::map<size_t, size_t>& conmap);
+void write_nl_problem_fmtlib(Model& model, const std::string& fname,
+                             std::map<size_t, size_t>& varmap, std::map<size_t, size_t>& conmap);
 #endif
 
 void Model::write(const std::string& fname)

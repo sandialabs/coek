@@ -12,8 +12,8 @@
 namespace coek {
 
 #ifdef COEK_WITH_COMPACT_MODEL
-void write_lp_problem(CompactModel& model, const std::string& fname, std::map<size_t, size_t>& varmap,
-                      std::map<size_t, size_t>& conmap);
+void write_lp_problem(CompactModel& model, const std::string& fname,
+                      std::map<size_t, size_t>& varmap, std::map<size_t, size_t>& conmap);
 void write_lp_problem_ostream(CompactModel& model, const std::string& fname,
                               std::map<size_t, size_t>& varmap, std::map<size_t, size_t>& conmap);
 #    ifdef WITH_FMTLIB
