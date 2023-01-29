@@ -187,7 +187,11 @@ void visit(std::shared_ptr<TimesTerm>& expr, MutableNLPExpr& repn, double multip
     if (((lhs_mindegree + rhs_mindegree) > 2) or  // Creating 3rd-degree polynomial
         (std::min(lhs_repn.linear_coefs.size(), rhs_repn.linear_coefs.size())
          > 1)) {  // Creating product of linear terms
-        repn.nonlinear = plus_(repn.nonlinear, expr);
+        if (multiplier == 1)
+            repn.nonlinear = plus_(repn.nonlinear, expr);
+        else
+            repn.nonlinear
+                = plus(repn.nonlinear, times(CREATE_POINTER(ConstantTerm, multiplier), expr));
         std::unordered_set<std::shared_ptr<VariableTerm>> exprvars;
         find_variables(expr, exprvars);
         repn.nonlinear_vars.insert(exprvars.begin(), exprvars.end());
