@@ -84,6 +84,8 @@ class CppAD_Repn : public NLPModelRepn {
     std::vector<CppAD::AD<double> > dynamic_params;
     std::vector<double> dynamic_param_vals;
 
+    bool simplify_expressions = true;
+
    public:
     CppAD_Repn(Model& model);
 
@@ -125,6 +127,7 @@ class CppAD_Repn : public NLPModelRepn {
     void compute_J(std::vector<double>& J);
 
    public:
+    void create_CppAD_function();
     void build_expression(expr_pointer_t root, std::vector<CppAD::AD<double> >& ADvars,
                           CppAD::AD<double>& range,
                           std::unordered_map<VariableRepn, size_t>& _used_variables);

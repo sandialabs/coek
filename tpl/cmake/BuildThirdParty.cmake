@@ -108,6 +108,7 @@ macro(setup_builds)
             CMAKE_ARGS
                 -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
                 -Dcppad_prefix=${CMAKE_INSTALL_PREFIX}
+                -DCMAKE_BUILD_TYPE=Release
             BUILD_ALWAYS FALSE
             EXCLUDE_FROM_ALL TRUE
             )
