@@ -11,8 +11,13 @@ endif()
 SET(sources
     runner.cpp
     test_model.cpp
-    test_expr_visitors.cpp
     test_visitor_simplify.cpp
+    test_visitor_mutable.cpp
+    test_visitor_writer.cpp
+    test_visitor_quadexpr.cpp
+    test_visitor_nlpexpr.cpp
+    test_visitor_symdiff.cpp
+    test_visitor_findvarparam.cpp
     test_testsolver.cpp
     test_examples.cpp
     test_writers.cpp

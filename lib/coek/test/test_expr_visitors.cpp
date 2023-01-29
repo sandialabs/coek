@@ -195,6 +195,7 @@
 
 #define ENV_MEMCHECK
 
+#if 0
 TEST_CASE("expr_writer", "[smoke]")
 {
     SECTION("constant")
@@ -2995,3 +2996,4 @@ SECTION("constraint")
     }
 }
 }
+#endif
