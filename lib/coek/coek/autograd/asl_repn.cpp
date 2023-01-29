@@ -4,9 +4,7 @@
 
 #include "coek/util/sequence.hpp"
 #include "coek/autograd/asl_repn.hpp"
-#include "coek/api/objective.hpp"   // DEBUG
-#include "coek/util/io_utils.hpp"   // DEBUG
-#include "coek/ast/value_terms.hpp"   // DEBUG
+#include "coek/ast/value_terms.hpp"
 
 // AMPL includes
 #include "asl.h"
@@ -20,10 +18,9 @@ namespace coek {
 
 // TODO - Put this declaration in a header
 void write_nl_problem(Model& model, const std::string& fname, std::map<size_t, size_t>& invvarmap,
-        std::map<size_t, size_t>& invconmap);
+                      std::map<size_t, size_t>& invconmap);
 
-VariableRepn ASL_Repn::get_variable(size_t i) 
-{ return used_variables[varmap[i]]; }
+VariableRepn ASL_Repn::get_variable(size_t i) { return used_variables[varmap[i]]; }
 
 ASL_Repn::ASL_Repn(Model& model) : NLPModelRepn(model)
 {
@@ -59,10 +56,7 @@ size_t ASL_Repn::num_nonzeros_Jacobian() const { return nnz_jac_g; }
 
 size_t ASL_Repn::num_nonzeros_Hessian_Lagrangian() const { return nnz_lag_h; }
 
-void ASL_Repn::set_variables(std::vector<double>& x)
-{
-    set_variables(&(x[0]), x.size());
-}
+void ASL_Repn::set_variables(std::vector<double>& x) { set_variables(&(x[0]), x.size()); }
 
 void ASL_Repn::set_variables(const double* x, size_t n)
 {
@@ -121,7 +115,7 @@ double ASL_Repn::compute_f(size_t i)
 {
     assert(i == 0);
 
-    //std::cout << "DEBUG flag " << objval_called_with_current_x_ << std::endl;
+    // std::cout << "DEBUG flag " << objval_called_with_current_x_ << std::endl;
     if (nf == 0) {
         objval_called_with_current_x_ = true;
         return 0;
@@ -130,7 +124,7 @@ double ASL_Repn::compute_f(size_t i)
         ASL_pfgh* asl = asl_;
         f_cache = objval(static_cast<int>(i), &(currx[0]), (fint*)nerror_);
         nerror_ok = check_asl_status(nerror_);
-        //std::cout << "DEBUG nerror_ok: " << nerror_ok << std::endl;
+        // std::cout << "DEBUG nerror_ok: " << nerror_ok << std::endl;
         if (nerror_ok) {
             objval_called_with_current_x_ = true;
         }
@@ -318,14 +312,13 @@ void ASL_Repn::alloc_asl()
     // Write an NL file
     //      TODO: Create a temporary file here
     {
-    std::map<size_t,size_t> invvarmap;    // ASL index -> Var ID
-    std::map<size_t,size_t> invconmap;    // Ignore
-    write_nl_problem(model, "asl_temp.nl", invvarmap, invconmap);
-    std::map<size_t,size_t> tmpvarmap;    // Var ID -> Coek index
-    for (auto& it : used_variables)
-        tmpvarmap[it.second->index] = it.first;
-    for (auto& it : invvarmap)
-        varmap[it.first] = tmpvarmap[it.second];    // ASL index -> Coek -> index
+        std::map<size_t, size_t> invvarmap;  // ASL index -> Var ID
+        std::map<size_t, size_t> invconmap;  // Ignore
+        write_nl_problem(model, "asl_temp.nl", invvarmap, invconmap);
+        std::map<size_t, size_t> tmpvarmap;  // Var ID -> Coek index
+        for (auto& it : used_variables) tmpvarmap[it.second->index] = it.first;
+        for (auto& it : invvarmap)
+            varmap[it.first] = tmpvarmap[it.second];  // ASL index -> Coek -> index
     }
     //
     // Read the NL file with the ASL library

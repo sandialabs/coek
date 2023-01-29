@@ -49,7 +49,7 @@ class ASL_Repn : public NLPModelRepn {
     std::vector<double> currx;
 
    public:
-    std::map<size_t, size_t> varmap;    // ASL index -> NLPModelRepn index
+    std::map<size_t, size_t> varmap;  // ASL index -> NLPModelRepn index
     VariableRepn get_variable(size_t i);
 
    public:

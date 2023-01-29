@@ -60,9 +60,10 @@ void NLPModelRepn::find_used_variables()
     used_variables.clear();
     size_t i = 0;
     for (auto& it : tmp) {
-        //std::cout << "DEBUG USED VARS  " << i << " " << it.first << " " << it.second->get_name() << std::endl;
+        // std::cout << "DEBUG USED VARS  " << i << " " << it.first << " " << it.second->get_name()
+        // << std::endl;
         used_variables[i++] = it.second;
-        }
+    }
 
     fixed_variables.clear();
     parameters.clear();
