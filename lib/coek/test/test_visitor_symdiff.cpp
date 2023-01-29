@@ -54,7 +54,6 @@
         REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0);                  \
     }
 
-
 TEST_CASE("symbolic_diff", "[smoke]")
 {
     SECTION("constant")

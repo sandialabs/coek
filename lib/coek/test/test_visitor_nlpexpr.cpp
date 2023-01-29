@@ -11,8 +11,7 @@
 #include "coek/coek.hpp"
 #include "coek/util/io_utils.hpp"
 
-
-#define NLP_INTRINSIC_TEST1(FN)                                         \
+#define NLP_INTRINSIC_TEST1(FN)                                                   \
     WHEN(#FN " 1")                                                                \
     {                                                                             \
         {                                                                         \
@@ -41,7 +40,7 @@
         }                                                                         \
     }
 
-#define NLP_INTRINSIC_TEST2(FN)                                         \
+#define NLP_INTRINSIC_TEST2(FN)                                                   \
     WHEN(#FN " 1")                                                                \
     {                                                                             \
         {                                                                         \
@@ -69,7 +68,6 @@
             REQUIRE(repn.nonlinear->to_list() == nonlinear);                      \
         }                                                                         \
     }
-
 
 TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 {

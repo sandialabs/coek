@@ -245,4 +245,3 @@ TEST_CASE("expr_writer", "[smoke]")
         REQUIRE(sstr.str() == "5 + v[0] + v[1] + v[2] + v[3]");
     }
 }
-

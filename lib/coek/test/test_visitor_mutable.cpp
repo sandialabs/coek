@@ -11,7 +11,6 @@
 #include "coek/coek.hpp"
 #include "coek/util/io_utils.hpp"
 
-
 #define MV_INTRINSIC_TEST1(FN)                                                            \
     WHEN(#FN)                                                                             \
     {                                                                                     \
@@ -37,7 +36,6 @@
         REQUIRE(fixed_vars == vbaseline);                                                 \
         REQUIRE(params == pbaseline);                                                     \
     }
-
 
 TEST_CASE("mutable_values", "[smoke]")
 {
