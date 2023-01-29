@@ -71,6 +71,9 @@ void CppAD_Repn::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& 
     }
 }
 
+bool CppAD_Repn::column_major_hessian()
+{ return true; }
+
 void CppAD_Repn::print_equations(std::ostream& ostr) const { NLPModelRepn::print_equations(ostr); }
 
 void CppAD_Repn::print_values(std::ostream& ostr) const { NLPModelRepn::print_values(ostr); }

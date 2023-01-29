@@ -158,8 +158,7 @@ bool IpoptModel::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g, Index& nnz_h
     // std::cout << "HERE Z " << nnz_h_lag << std::endl << std::flush;
 
     // The index style for row/col entries
-    index_style = 1; /* FORTRAN_STYLE */
-    // index_style = 0; /* C_STYLE */
+    index_style = nlpmodel.column_major_hessian() ? 1 : 0;
 
     objsign = nlpmodel.get_objective(0).sense() ? 1.0 : -1.0;
 

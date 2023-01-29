@@ -106,6 +106,7 @@ class CppAD_Repn : public NLPModelRepn {
 
     void get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol);
     void get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol);
+    bool column_major_hessian();
 
     void print_equations(std::ostream& ostr) const;
     void print_values(std::ostream& ostr) const;

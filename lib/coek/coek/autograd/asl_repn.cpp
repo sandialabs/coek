@@ -105,6 +105,9 @@ void ASL_Repn::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hc
     assert(curr_nz == nnz_lag_h);
 }
 
+bool ASL_Repn::column_major_hessian()
+{ return true; }
+
 void ASL_Repn::print_equations(std::ostream& ostr) const { NLPModelRepn::print_equations(ostr); }
 
 void ASL_Repn::print_values(std::ostream& ostr) const { NLPModelRepn::print_values(ostr); }

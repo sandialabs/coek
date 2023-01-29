@@ -64,6 +64,8 @@ void NLPModel::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hc
     repn->get_H_nonzeros(hrow, hcol);
 }
 
+bool NLPModel::column_major_hessian() { return repn->column_major_hessian(); }
+
 double NLPModel::compute_f(size_t i) { return repn->compute_f(i); }
 
 void NLPModel::compute_df(double& f, std::vector<double>& df, size_t i)
