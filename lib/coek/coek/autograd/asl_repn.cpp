@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <cassert>
 #include <cmath>
 #include <unordered_map>
@@ -307,17 +308,26 @@ bool ASL_Repn::check_asl_status(void* nerror)
 void ASL_Repn::alloc_asl()
 {
     free_asl();
-
+    // 
     // Create the ASL structure
+    // 
     ASL_pfgh* asl = reinterpret_cast<ASL_pfgh*>(ASL_alloc(ASL_read_pfgh));
     asl_ = asl;
-
-    // Write an NL file
-    //      TODO: Create a temporary file here
+    // 
+    // Create a temporary filename
+    // 
+    std::string fname = "/tmp/coek_XXXXXX";
+    std::string tmp = mktemp(&fname[0]);
+    if (tmp.size() == 0)
+        throw std::runtime_error("Failure to create temporary file for ASL interface");
+    fname += ".nl";
+    // 
+    // Write the NL file
+    // 
     {
         std::map<size_t, size_t> invvarmap;  // ASL index -> Var ID
         std::map<size_t, size_t> invconmap;  // Ignore
-        write_nl_problem(model, "asl_temp.nl", invvarmap, invconmap);
+        write_nl_problem(model, fname, invvarmap, invconmap);
         std::map<size_t, size_t> tmpvarmap;  // Var ID -> Coek index
         for (auto& it : used_variables) tmpvarmap[it.second->index] = it.first;
         for (auto& it : invvarmap)
@@ -326,7 +336,7 @@ void ASL_Repn::alloc_asl()
     //
     // Read the NL file with the ASL library
     //
-    FILE* nlfile = jac0dim("asl_temp", 8);
+    FILE* nlfile = jac0dim(&(fname[0]), 16);
     //
     // allocate space for initial values
     //
@@ -336,9 +346,10 @@ void ASL_Repn::alloc_asl()
     // Load model expressions
     //
     int retcode = pfgh_read(nlfile, ASL_return_read_err | ASL_findgroups);
-
-    // DEBUG
-    // std::cout << "RETCODE " << retcode << std::endl;
+    //
+    // Close and remove the file
+    //
+    remove(fname.c_str());
 
     //
     // No errors, so return
