@@ -1863,7 +1863,7 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
             {
                 coek::Model m;
                 auto w = m.add_variable("w").lower(0).upper(1).value(0);
-                coek::Expression e = (w - 3) * (w - 3) + (w-5)*(w-5);
+                coek::Expression e = (w - 3) * (w - 3) + (w - 5) * (w - 5);
                 coek::MutableNLPExpr repn;
                 repn.collect_terms(e);
 
@@ -1891,17 +1891,21 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
             {
                 // Force use of ceil and floor functions within a nested product.
                 // Force expression of multiplication between constant parameter and quadratic term
+                // Force inclusion of multipliers in nonlinear terms
                 coek::Model m;
                 auto w = m.add_variable("w").lower(0).upper(1).value(0);
                 auto p = coek::parameter("p");
-                coek::Expression e = ceil(w) * floor(w) + p * (w * w);
+                coek::Expression e = ceil(w) * floor(w) + p * (w * w) - floor(w) * floor(w);
                 coek::MutableNLPExpr repn;
                 repn.collect_terms(e);
 
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 1);
                 static std::list<std::string> baseline
-                    = {"[", "*", "[", "ceil", "w", "]", "[", "floor", "w", "]", "]"};
+                    = {"[", "+",     "[", "*",     "[", "ceil", "w", "]",
+                       "[", "floor", "w", "]",     "]", "[",    "*", std::to_string(-1.0),
+                       "[", "*",     "[", "floor", "w", "]",    "[", "floor",
+                       "w", "]",     "]", "]",     "]"};
                 REQUIRE(repn.nonlinear->to_list() == baseline);
             }
         }

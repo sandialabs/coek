@@ -12,6 +12,7 @@ SET(sources
     runner.cpp
     test_model.cpp
     test_expr_visitors.cpp
+    test_visitor_simplify.cpp
     test_testsolver.cpp
     test_examples.cpp
     test_writers.cpp

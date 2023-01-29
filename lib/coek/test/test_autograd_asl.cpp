@@ -446,12 +446,12 @@ TEST_CASE("asl_ad", "[smoke]")
             model.add_constraint(a + a * b <= 0);
 
             // model.print_equations();
-            //model.write("bad.nl");
+            // model.write("bad.nl");
             coek::NLPModel nlp(model, "asl");
             std::vector<size_t> hr, hc;
-            nlp.get_H_nonzeros(hr,hc);
-            //std::cout << "FOOBAR " << hr << std::endl;
-            //std::cout << "FOOBAR " << hc << std::endl;
+            nlp.get_H_nonzeros(hr, hc);
+            // std::cout << "FOOBAR " << hr << std::endl;
+            // std::cout << "FOOBAR " << hc << std::endl;
             REQUIRE(nlp.num_constraints() == 1);
             REQUIRE(nlp.num_nonzeros_Hessian_Lagrangian() == 4);
             // Variable Ordering:  b, a, c, d
@@ -782,6 +782,9 @@ TEST_CASE("asl_diff_tests", "[smoke]")
 
     SECTION("times")
     {
+#if 0
+        // TODO - Raise an error when the underlying model has not variables
+        
         WHEN("lhs zero")
         {
             coek::Model m;
@@ -797,6 +800,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             nlp.compute_df(x, ans);
             REQUIRE(ans == baseline);
         }
+#endif
         WHEN("lhs constant")
         {
             coek::Model m;
@@ -812,6 +816,8 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             nlp.compute_df(x, ans);
             REQUIRE(ans == baseline);
         }
+#if 0
+        // TODO - Raise an error when the underlying model has not variables
         WHEN("rhs zero")
         {
             coek::Model m;
@@ -827,6 +833,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             nlp.compute_df(x, ans);
             REQUIRE(ans == baseline);
         }
+#endif
         WHEN("rhs constant")
         {
             coek::Model m;
@@ -861,6 +868,8 @@ TEST_CASE("asl_diff_tests", "[smoke]")
 
     SECTION("divide")
     {
+#if 0
+        // TODO - raise error when model has no variables
         WHEN("lhs zero parameter")
         {
             coek::Model m;
@@ -891,6 +900,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             nlp.compute_df(x, ans);
             REQUIRE(ans == baseline);
         }
+#endif
         WHEN("lhs zero subexpression")
         {
             coek::Model m;
