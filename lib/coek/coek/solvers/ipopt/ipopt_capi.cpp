@@ -159,7 +159,7 @@ bool IpoptModel::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g, Index& nnz_h
 
     // The index style for row/col entries
     index_style = 1; /* FORTRAN_STYLE */
-    //index_style = 0; /* C_STYLE */
+    // index_style = 0; /* C_STYLE */
 
     objsign = nlpmodel.get_objective(0).sense() ? 1.0 : -1.0;
 
@@ -251,9 +251,9 @@ bool IpoptModel::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_
     nlpmodel.compute_df(f, tmp_grad, 0);
     size_t i = 0;
     for (double val : tmp_grad) {
-        //std::cout << "DF " << i << " " << objsign << " " << val << std::endl;
+        // std::cout << "DF " << i << " " << objsign << " " << val << std::endl;
         grad_f[i++] = objsign * val;
-        }
+    }
 
     // std::cout << "EVAL DF - END" << std::endl << std::flush;
     return true;
@@ -271,8 +271,7 @@ bool IpoptModel::eval_g(Index n, const Number* x, bool new_x, Index /*m*/, Numbe
     //  return the value of the constraints: g(x)
     nlpmodel.compute_c(tmp_g);
     size_t i = 0;
-    for (double val : tmp_g)
-        g[i++] = val;
+    for (double val : tmp_g) g[i++] = val;
 
     // std::cout << "EVAL G - END" << std::endl << std::flush;
     return true;
@@ -288,8 +287,8 @@ bool IpoptModel::eval_jac_g(Index n, const Number* x, bool new_x, Index /*m*/, I
         std::vector<size_t> jcol;
         nlpmodel.get_J_nonzeros(jrow, jcol);
         for (size_t i = 0; i < jrow.size(); i++) {
-            jRow[i] = static_cast<Index>(jrow[i])+1;
-            jCol[i] = static_cast<Index>(jcol[i])+1;
+            jRow[i] = static_cast<Index>(jrow[i]) + 1;
+            jCol[i] = static_cast<Index>(jcol[i]) + 1;
         }
         // std::cout << "Get Structure " << std::endl << std::flush;
         // std::cout << jrow << std::endl;
@@ -323,11 +322,11 @@ bool IpoptModel::eval_h(Index n, const Number* x, bool new_x, Number obj_factor,
         std::vector<size_t> hrow;
         std::vector<size_t> hcol;
         nlpmodel.get_H_nonzeros(hrow, hcol);
-        //std::cout << "HERE hrow_size " << hrow.size() << std::endl;
+        // std::cout << "HERE hrow_size " << hrow.size() << std::endl;
         for (size_t i = 0; i < hrow.size(); i++) {
-            hRow[i] = static_cast<Index>(hrow[i])+1;
-            hCol[i] = static_cast<Index>(hcol[i])+1;
-            //std::cout << hRow[i] << " " << hCol[i] << std::endl;
+            hRow[i] = static_cast<Index>(hrow[i]) + 1;
+            hCol[i] = static_cast<Index>(hcol[i]) + 1;
+            // std::cout << hRow[i] << " " << hCol[i] << std::endl;
         }
     }
 
@@ -339,8 +338,7 @@ bool IpoptModel::eval_h(Index n, const Number* x, bool new_x, Number obj_factor,
         size_t nf = nlpmodel.num_objectives();
         size_t nc = nlpmodel.num_constraints();
         // TODO - handle multiple objectives
-        for (size_t i = 0; i < nf; i++)
-            tmp_hw[i] = obj_factor;
+        for (size_t i = 0; i < nf; i++) tmp_hw[i] = obj_factor;
         for (size_t i = 0; i < nc; i++) tmp_hw[i + nf] = lambda[i];
         nlpmodel.compute_H(tmp_hw, tmp_h);
         for (size_t i = 0; i < tmp_h.size(); i++) values[i] = tmp_h[i];
