@@ -32,7 +32,6 @@ class ParameterTerm : public BaseParameterTerm {
     double _eval() const { return value->_eval(); }
 
     bool is_parameter() const { return true; }
-    bool is_constant_expression() { return true; }
 
     expr_pointer_t negate(const expr_pointer_t& repn);
 
@@ -122,7 +121,6 @@ class VariableTerm : public BaseVariableTerm {
     double _eval() const { return value->_eval(); }
 
     bool is_variable() const { return true; }
-    bool is_constant_expression() { return fixed; }
 
     expr_pointer_t const_mult(double coef, const expr_pointer_t& repn);
     expr_pointer_t negate(const expr_pointer_t& repn);
@@ -164,7 +162,6 @@ class MonomialTerm : public BaseExpressionTerm {
     double _eval() const { return coef * var->value->_eval(); }
 
     bool is_monomial() const { return true; }
-    bool is_constant_expression() { return var->fixed; }
 
     expr_pointer_t negate(const expr_pointer_t& repn);
 
