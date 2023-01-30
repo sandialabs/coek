@@ -106,8 +106,7 @@ void ASL_Repn::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hc
     assert(curr_nz == nnz_lag_h);
 }
 
-bool ASL_Repn::column_major_hessian()
-{ return true; }
+bool ASL_Repn::column_major_hessian() { return false; }
 
 void ASL_Repn::print_equations(std::ostream& ostr) const { NLPModelRepn::print_equations(ostr); }
 
@@ -308,22 +307,22 @@ bool ASL_Repn::check_asl_status(void* nerror)
 void ASL_Repn::alloc_asl()
 {
     free_asl();
-    // 
+    //
     // Create the ASL structure
-    // 
+    //
     ASL_pfgh* asl = reinterpret_cast<ASL_pfgh*>(ASL_alloc(ASL_read_pfgh));
     asl_ = asl;
-    // 
+    //
     // Create a temporary filename
-    // 
+    //
     std::string fname = "/tmp/coek_XXXXXX";
     std::string tmp = mktemp(&fname[0]);
     if (tmp.size() == 0)
         throw std::runtime_error("Failure to create temporary file for ASL interface");
     fname += ".nl";
-    // 
+    //
     // Write the NL file
-    // 
+    //
     {
         std::map<size_t, size_t> invvarmap;  // ASL index -> Var ID
         std::map<size_t, size_t> invconmap;  // Ignore
@@ -336,7 +335,11 @@ void ASL_Repn::alloc_asl()
     //
     // Read the NL file with the ASL library
     //
+    return_nofile = 1;      // A hack to prevent the ASL from calling exit()
     FILE* nlfile = jac0dim(&(fname[0]), 16);
+    if (!nlfile) {
+        throw std::runtime_error("ASL_Repn::alloc_asl - Cannot create ASL interface for model with no variables.");
+        }
     //
     // allocate space for initial values
     //
@@ -358,7 +361,7 @@ void ASL_Repn::alloc_asl()
 
     free_asl();
     if (retcode == ASL_readerr_nofile)
-        throw std::runtime_error("ASL_Repn::alloc_asl - Cannot open asl_temp.nl file");
+        throw std::runtime_error("ASL_Repn::alloc_asl - Error opening file "+fname);
 
     else if (retcode == ASL_readerr_argerr)
         throw std::runtime_error("ASL_Repn::alloc_asl - User-defined function with bad arguments");
