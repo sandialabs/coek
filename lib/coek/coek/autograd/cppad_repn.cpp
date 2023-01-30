@@ -72,8 +72,7 @@ void CppAD_Repn::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& 
     }
 }
 
-bool CppAD_Repn::column_major_hessian()
-{ return true; }
+bool CppAD_Repn::column_major_hessian() { return false; }
 
 void CppAD_Repn::print_equations(std::ostream& ostr) const { NLPModelRepn::print_equations(ostr); }
 
@@ -258,16 +257,19 @@ void CppAD_Repn::create_CppAD_function()
 
             size_t nb = 0;
             for (auto& it : model.repn->objectives) {
-                build_expression(simplify_expr(it.repn, cache), ADvars, ADrange[nb], _used_variables);
+                build_expression(simplify_expr(it.repn, cache), ADvars, ADrange[nb],
+                                 _used_variables);
                 nb++;
             }
 
             nb = 0;
             for (auto& it : model.repn->constraints) {
-                build_expression(simplify_expr(it.repn, cache), ADvars, ADrange[nf + nb], _used_variables);
+                build_expression(simplify_expr(it.repn, cache), ADvars, ADrange[nf + nb],
+                                 _used_variables);
                 nb++;
             }
-        } else {
+        }
+        else {
             size_t nb = 0;
             for (auto& it : model.repn->objectives) {
                 build_expression(it.repn, ADvars, ADrange[nb], _used_variables);
@@ -301,7 +303,7 @@ void CppAD_Repn::initialize(bool _sparse_JH)
     nc = model.repn->constraints.size();
 
     create_CppAD_function();
-    
+
     //
     // Setup temporary arrays used during computations
     //
@@ -569,11 +571,11 @@ void CppAD_Repn::reset(void)
         for (auto& it : fixed_variables) dynamic_param_vals[it.second] = it.first->value->eval();
         for (auto& it : parameters) dynamic_param_vals[it.second] = it.first->value->eval();
         ADfc.new_dynamic(dynamic_param_vals);
-        }
+    }
     else {
         // Regenerate CppAD data structures when simplifying the expressions
         create_CppAD_function();
-        }
+    }
 
     //
     // Setup initial value
