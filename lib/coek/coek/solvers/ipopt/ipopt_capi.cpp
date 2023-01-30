@@ -158,7 +158,7 @@ bool IpoptModel::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g, Index& nnz_h
     // std::cout << "HERE Z " << nnz_h_lag << std::endl << std::flush;
 
     // The index style for row/col entries
-    index_style = nlpmodel.column_major_hessian() ? 1 : 0;
+    index_style = 1; // FORTRAN STYLE
 
     objsign = nlpmodel.get_objective(0).sense() ? 1.0 : -1.0;
 
@@ -321,11 +321,10 @@ bool IpoptModel::eval_h(Index n, const Number* x, bool new_x, Number obj_factor,
         std::vector<size_t> hrow;
         std::vector<size_t> hcol;
         nlpmodel.get_H_nonzeros(hrow, hcol);
-        // std::cout << "HERE hrow_size " << hrow.size() << std::endl;
         for (size_t i = 0; i < hrow.size(); i++) {
             hRow[i] = static_cast<Index>(hrow[i]) + 1;
             hCol[i] = static_cast<Index>(hcol[i]) + 1;
-            // std::cout << hRow[i] << " " << hCol[i] << std::endl;
+            //std::cout << "H " << hRow[i] << " " << hCol[i] << std::endl;
         }
     }
 
