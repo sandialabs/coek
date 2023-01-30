@@ -1151,14 +1151,18 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
         //
         // "k" section - Jacobian column counts
         //
-        if ((J.size() > 0) and (k_count.size() > 1)) {
-            ostr << "k" << (k_count.size() - 1) << '\n';
-            ctr = 0;
-            for (size_t i = 0; i < (k_count.size() - 1); ++i) {
-                ctr += k_count[i].size();
-                ostr << ctr << '\n';
+        if (J.size() > 0) {
+            if (k_count.size() > 1) {
+                ostr << "k" << (k_count.size() - 1) << '\n';
+                ctr = 0;
+                for (size_t i = 0; i < (k_count.size() - 1); ++i) {
+                    ctr += k_count[i].size();
+                    ostr << ctr << '\n';
+                }
             }
-        }
+            else
+                ostr << "k0\n";
+            }
 
         //
         // "J" section - Jacobian sparsity, linear terms
@@ -1371,15 +1375,19 @@ void NLWriter::write_fmtlib(Model& model, const std::string& fname)
     // "k" section - Jacobian column counts
     //
     CALI_MARK_BEGIN("k");
-    if ((J.size() > 0) and (k_count.size() > 1)) {
-        ostr.print("k{}\n", k_count.size() - 1);  // << "k" << (k_count.size()-1) << '\n';
-        {
-            size_t ctr = 0;
-            for (size_t i = 0; i < (k_count.size() - 1); ++i) {
-                ctr += k_count[i].size();
-                ostr.print(fmt::format(_fmtstr_value, ctr));  // << ctr << '\n';
+    if (J.size() > 0) {
+        if (k_count.size() > 1) {
+            ostr.print("k{}\n", k_count.size() - 1);  // << "k" << (k_count.size()-1) << '\n';
+            {
+                size_t ctr = 0;
+                for (size_t i = 0; i < (k_count.size() - 1); ++i) {
+                    ctr += k_count[i].size();
+                    ostr.print(fmt::format(_fmtstr_value, ctr));  // << ctr << '\n';
+                }
             }
         }
+        else
+            ostr.print("k0\n");
     }
     CALI_MARK_END("k");
 
