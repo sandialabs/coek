@@ -21,8 +21,6 @@
 
 namespace coek {
 
-// void xyz() {}
-
 void check_that_expression_variables_are_declared(
     Model& model, const std::unordered_set<std::shared_ptr<VariableTerm>>& vars);
 
