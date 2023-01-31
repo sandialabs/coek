@@ -23,7 +23,6 @@ add_revision(cppad
 add_revision(rapidjson
   SRC rapidjson-1.1.0
   URL "https://github.com/Tencent/rapidjson/archive/refs/tags/v1.1.0.tar.gz"
-  OLD_URL_MD5 badd12c511e081fec6c89c43a7027bce
   URL_MD5 119686608b0571e1fa5c7b03efb2526f
   )
 
