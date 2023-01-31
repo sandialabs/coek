@@ -642,7 +642,6 @@ class NLWriter {
 };
 
 // TODO - Reorder constraints to have nonlinear before linear
-// TODO - Reorder variables per the AMPL solver hookup logic
 void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap,
                                std::map<size_t, size_t>& invconmap)
 {
@@ -700,7 +699,7 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
                 nnz_gradient += curr_vars.size();
 
                 ctr++;
-                break;  // TODO - Fix this
+                break;  // TODO - Fix this for multiobjective
             }
         }
         CALI_MARK_END("Prepare Objective Expressions");
