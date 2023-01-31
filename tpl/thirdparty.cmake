@@ -11,30 +11,30 @@
 add_revision(catch2
   SRC Catch2-2.13.6
   URL "https://github.com/catchorg/Catch2/archive/refs/tags/v2.13.6.tar.gz"
-  URL_MD5 a01187eecc1af812f6a6cdec2e107c91
+  URL_HASH SHA256=48dfbb77b9193653e4e72df9633d2e0383b9b625a47060759668480fdf24fbd4
   )
 
 add_revision(cppad
   SRC CppAD-20220000.5
   URL "https://github.com/coin-or/CppAD/archive/refs/tags/20220000.5.tar.gz"
-  URL_MD5 01d20f8bd0fe3df9b804e4b1f3384819
-  )
-
-add_revision(rapidjson
-  SRC rapidjson-1.1.0
-  URL "https://github.com/Tencent/rapidjson/archive/refs/tags/v1.1.0.tar.gz"
-  URL_MD5 119686608b0571e1fa5c7b03efb2526f
-  )
-
-add_revision(pybind11
-  SRC "pybind11-2.6.2"
-  URL "https://github.com/pybind/pybind11/archive/refs/tags/v2.6.2.tar.gz"
-  URL_MD5 f4e0a73ec3f58a50f9213af4b1d6bac2
+  URL_HASH SHA256=9fb4562f6169855eadcd86ac4671593d1c0edf97bb6ce7cbb28e19af2bfc165e
   )
 
 add_revision(fmtlib
   SRC "fmt-8.0.0"
   URL "https://github.com/fmtlib/fmt/archive/refs/tags/8.0.0.tar.gz"
-  URL_MD5 b996c6ed3d03b9f1bafd7c6f12a64a41
+  URL_HASH SHA256=7bce0e9e022e586b178b150002e7c2339994e3c2bbe44027e9abb0d60f9cce83
+  )
+
+add_revision(pybind11
+  SRC "pybind11-2.6.2"
+  URL "https://github.com/pybind/pybind11/archive/refs/tags/v2.6.2.tar.gz"
+  URL_HASH SHA256=8ff2fff22df038f5cd02cea8af56622bc67f5b64534f1b83b9f133b8366acff2
+  )
+
+add_revision(rapidjson
+  SRC rapidjson-1.1.0
+  URL "https://github.com/Tencent/rapidjson/archive/refs/tags/v1.1.0.tar.gz"
+  URL_HASH SHA256=bf7ced29704a1e696fbccf2a2b4ea068e7774fa37f6d7dd4039d0787f8bed98e
   )
 
