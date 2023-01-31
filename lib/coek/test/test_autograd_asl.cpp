@@ -221,9 +221,6 @@ TEST_CASE("asl_ad", "[smoke]")
         REQUIRE(c[1] == 18.0);
     }
 
-#if 0
-    TODO - Fix this test
-
     SECTION("dc")
     {
         coek::Model model;
@@ -258,7 +255,6 @@ TEST_CASE("asl_ad", "[smoke]")
         REQUIRE(dc[0] == 6.0);
         REQUIRE(dc[1] == 3.0);
     }
-#endif
 
     SECTION("sparse_j")
     {
@@ -309,63 +305,6 @@ TEST_CASE("asl_ad", "[smoke]")
             REQUIRE(j[3] == 2);
         }
     }
-
-#if 0
-    TODO - Confirm that dense logic can be ignored
-
-    SECTION("dense_j")
-    {
-        WHEN("nx < nc")
-        {
-            coek::Model model;
-            auto a = model.add_variable("a");
-            auto b = model.add_variable("b");
-
-            model.add_objective(a);
-            model.add_constraint(a <= 0);
-            model.add_constraint(a * b <= 0);
-            model.add_constraint(b <= 0);
-
-            coek::NLPModel nlp(model, ADNAME, false);
-            REQUIRE(nlp.num_nonzeros_Jacobian() == 6);
-
-            std::vector<double> x{0, 1};
-            std::vector<double> j(nlp.num_nonzeros_Jacobian());
-            nlp.compute_J(x, j);
-            REQUIRE(j[0] == 1);
-            REQUIRE(j[1] == 0);
-            REQUIRE(j[2] == 1);
-            REQUIRE(j[3] == 0);
-            REQUIRE(j[4] == 0);
-            REQUIRE(j[5] == 1);
-        }
-
-        WHEN("nx > nc")
-        {
-            coek::Model model;
-            auto a = model.add_variable("a");
-            auto b = model.add_variable("b");
-            auto c = model.add_variable("c");
-
-            model.add_objective(a);
-            model.add_constraint(a + a * b + b <= 0);
-            model.add_constraint(b + b * c + c <= 0);
-
-            coek::NLPModel nlp(model, ADNAME, false);
-            REQUIRE(nlp.num_nonzeros_Jacobian() == 6);
-
-            std::vector<double> x{0, 1, 2};
-            std::vector<double> j(nlp.num_nonzeros_Jacobian());
-            nlp.compute_J(x, j);
-            REQUIRE(j[0] == 2);
-            REQUIRE(j[1] == 1);
-            REQUIRE(j[2] == 0);
-            REQUIRE(j[3] == 0);
-            REQUIRE(j[4] == 3);
-            REQUIRE(j[5] == 2);
-        }
-    }
-#endif
 
     SECTION("sparse_h")
     {

@@ -118,7 +118,6 @@ double ASL_Repn::compute_f(size_t i)
 {
     assert(i == 0);
 
-    // std::cout << "DEBUG flag " << objval_called_with_current_x_ << std::endl;
     if (nf == 0) {
         objval_called_with_current_x_ = true;
         return 0;
@@ -127,7 +126,6 @@ double ASL_Repn::compute_f(size_t i)
         ASL_pfgh* asl = asl_;
         f_cache = objval(static_cast<int>(i), &(currx[0]), (fint*)nerror_);
         nerror_ok = check_asl_status(nerror_);
-        // std::cout << "DEBUG nerror_ok: " << nerror_ok << std::endl;
         if (nerror_ok) {
             objval_called_with_current_x_ = true;
         }
@@ -136,18 +134,6 @@ double ASL_Repn::compute_f(size_t i)
             f_cache = nan("");
         }
     }
-
-#if 0
-    for (size_t i : coek::range(nx))
-        std::cout << "DEBUG X " << i << " " << currx[i] << std::endl;
-    for (size_t i : coek::range(nx))
-        get_variable(i)->set_value(currx[i]);
-    for (size_t i : coek::range(nx))
-        std::cout << "DEBUG x " << i << " " << get_variable(i)->value->eval() << " " << get_variable(i)->get_name() << std::endl;
-    std::cout << "DEBUG model.obj " << model.get_objective(0).to_list() << std::endl;
-    std::cout << "DEBUG model.obj.value " << model.get_objective(0).value() << std::endl;
-    std::cout << "DEBUG compute_f(0) " << f_cache << std::endl;
-#endif
 
     return f_cache;
 }
@@ -190,19 +176,14 @@ void ASL_Repn::compute_c(std::vector<double>& c)
 
 void ASL_Repn::compute_dc(std::vector<double>& dc, size_t i)
 {
-#if 0
-    assert(i < fcw.size());
     assert(dc.size() == nx);
 
-    if (invalid_fc) {
-        fc_cache = ADfc.Forward(0, currx);
-        invalid_fc = false;
+    ASL_pfgh* asl = asl_;
+    congrd(i, &(currx[0]), &(dc[0]), (fint*)nerror_);
+    nerror_ok = check_asl_status(nerror_);
+    if (not nerror_ok) {
+        for (size_t j : coek::indices(dc)) dc[j] = nan("");
     }
-    fcw[nf + i] = 1;
-    auto dy = ADfc.Reverse(1, fcw);
-    fcw[nf + i] = 0;
-    for (size_t j = 0; j < dc.size(); j++) dc[j] = dy[j];
-#endif
 }
 
 void ASL_Repn::compute_H(std::vector<double>& w, std::vector<double>& H)
