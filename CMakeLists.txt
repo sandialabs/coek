@@ -100,7 +100,7 @@ else()
     MESSAGE("-- C++ version: C++${CMAKE_CXX_STANDARD}")
 endif()
 
-if (CMAKE_CXX_STANDARD LESS_EQUAL 17)
+if (CMAKE_CXX_STANDARD LESS 17)
     message("DISABLING FMTLIB")
     set(with_fmtlib OFF)   
 endif()

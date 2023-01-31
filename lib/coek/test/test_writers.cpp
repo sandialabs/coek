@@ -374,20 +374,16 @@ bool run_test(ModelType& model, const std::string& name, const std::string& suff
 
 TEST_CASE("model_writer", "[smoke]")
 {
-    std::vector<std::string> nonlinear = {"nl", "ostrnl"
+    std::vector<std::string> nonlinear = {
+                                            "ostrnl"
 #ifdef WITH_FMTLIB
-                                          ,
-                                          "fmtnl"
+                                            ,"nl", "fmtnl"
 #endif
     };
-    std::vector<std::string> linear = {"lp",
-                                       "nl",
-                                       "ostrlp",
-                                       "ostrnl"
+    std::vector<std::string> linear = {
+                                        "ostrlp", "ostrnl"
 #ifdef WITH_FMTLIB
-                                       ,
-                                       "fmtlp",
-                                       "fmtnl"
+                                        ,"lp", "nl", "fmtlp", "fmtnl"
 #endif
     };
     coek::Model model;
@@ -395,11 +391,11 @@ TEST_CASE("model_writer", "[smoke]")
     SECTION("error1")
     {
         error1(model);
+#ifdef WITH_FMTLIB
         REQUIRE_THROWS_WITH(model.write("error1.nl"),
                             "Error writing NL file: Model expressions contain variable 'y' "
                             "that is not declared in the model.");
         std::remove("error1.nl");
-#ifdef WITH_FMTLIB
         REQUIRE_THROWS_WITH(model.write("error1.fmtnl"),
                             "Error writing NL file: Model expressions contain variable 'y' "
                             "that is not declared in the model.");
@@ -409,11 +405,11 @@ TEST_CASE("model_writer", "[smoke]")
                             "Error writing NL file: Model expressions contain variable 'y' "
                             "that is not declared in the model.");
         std::remove("error1.ostrnl");
+#ifdef WITH_FMTLIB
         REQUIRE_THROWS_WITH(model.write("error1.lp"),
                             "Error writing LP file: Model expressions contain variable that is "
                             "not declared in the model.");
         std::remove("error1.lp");
-#ifdef WITH_FMTLIB
         REQUIRE_THROWS_WITH(model.write("error1.fmtlp"),
                             "Error writing LP file: Model expressions contain variable that is "
                             "not declared in the model.");
@@ -482,10 +478,10 @@ TEST_CASE("model_writer", "[smoke]")
     SECTION("error4")
     {
         error4(model);
+#ifdef WITH_FMTLIB
         REQUIRE_THROWS_WITH(model.write("error3.nl"),
                             "Error writing NL file: Unexpected index parameter.");
         std::remove("error3.nl");
-#ifdef WITH_FMTLIB
         REQUIRE_THROWS_WITH(model.write("error3.fmtnl"),
                             "Error writing NL file: Unexpected index parameter.");
         std::remove("error3.fmtnl");
@@ -493,10 +489,10 @@ TEST_CASE("model_writer", "[smoke]")
         REQUIRE_THROWS_WITH(model.write("error3.ostrnl"),
                             "Error writing NL file: Unexpected index parameter.");
         std::remove("error3.ostrnl");
+#ifdef WITH_FMTLIB
         REQUIRE_THROWS_WITH(model.write("error3.lp"),
                             "Error writing LP file: Unexpected index parameter.");
         std::remove("error3.lp");
-#ifdef WITH_FMTLIB
         REQUIRE_THROWS_WITH(model.write("error3.fmtlp"),
                             "Error writing LP file: Unexpected index parameter.");
         std::remove("error3.fmtlp");
