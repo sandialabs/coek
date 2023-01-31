@@ -11,7 +11,7 @@
 add_revision(catch2
   SRC Catch2-2.13.6
   URL "https://github.com/catchorg/Catch2/archive/refs/tags/v2.13.6.tar.gz"
-  URL_MD5 c7c7ef181b9e08418fd9f2ef8159d03f
+  URL_MD5 a01187eecc1af812f6a6cdec2e107c91
   )
 
 add_revision(cppad
