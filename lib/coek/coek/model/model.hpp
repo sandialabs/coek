@@ -117,12 +117,12 @@ class Model {
     // VariableArray& add_variable(VariableArray&& var);
     VariableArray& add(VariableArray& var);
     VariableArray& add(VariableArray&& var);
-#endif
 #ifdef COEK_WITH_COMPACT_MODEL
     VariableMap& add_variable(VariableMap& var);
     // VariableMap& add_variable(VariableMap&& var);
     VariableMap& add(VariableMap& var);
     VariableMap& add(VariableMap&& var);
+#endif
 #endif
 
     /** \returns the variable with the specified id */

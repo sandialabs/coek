@@ -35,7 +35,7 @@ SET(sources
     autograd/autograd.cpp
     abstract/expr_rule.cpp
    )
-if (CMAKE_CXX_STANDARD GREATER_EQUAL 14)
+if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
     list(APPEND sources
         ast/compact_terms.cpp
         api/parameter_assoc_array.cpp

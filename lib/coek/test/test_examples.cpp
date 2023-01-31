@@ -16,10 +16,12 @@ std::vector<double> simplelp1_soln{375, 250};
 void simplelp1_solve();
 
 coek::Model invquad_vector(std::vector<coek::Parameter>& p);
+#if __cpp_lib_variant
 coek::Model invquad_array(std::vector<coek::Parameter>& p);
-std::vector<double> invquad_soln_5{-10, -10, -10, -10, -10};
 void invquad_array_solve();
 void invquad_array_resolve();
+#endif
+std::vector<double> invquad_soln_5{-10, -10, -10, -10, -10};
 
 void check(std::vector<coek::Variable>& variables, std::vector<double>& soln)
 {
@@ -113,6 +115,7 @@ TEST_CASE("ipopt_cppad", "[smoke]")
             */
         }
 
+#if __cpp_lib_variant
         SECTION("invquad_array")
         {
             std::vector<coek::Parameter> p(5);
@@ -183,6 +186,7 @@ TEST_CASE("ipopt_cppad", "[smoke]")
             WHEN("invquad_solve") { invquad_array_solve(); }
             WHEN("invquad_resolve") { invquad_array_resolve(); }
         }
+#endif
     }
     else {
         REQUIRE(solver.error_status());
@@ -278,6 +282,7 @@ TEST_CASE("ipopt_asl", "[smoke]")
             */
         }
 
+#if __cpp_lib_variant
         SECTION("invquad_array")
         {
             std::vector<coek::Parameter> p(5);
@@ -348,6 +353,7 @@ TEST_CASE("ipopt_asl", "[smoke]")
             WHEN("invquad_solve") { invquad_array_solve(); }
             WHEN("invquad_resolve") { invquad_array_resolve(); }
         }
+#endif
     }
     else {
         REQUIRE(solver.error_status());
