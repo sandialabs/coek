@@ -84,6 +84,8 @@ class CppAD_Repn : public NLPModelRepn {
     std::vector<CppAD::AD<double> > dynamic_params;
     std::vector<double> dynamic_param_vals;
 
+    bool simplify_expressions = true;
+
    public:
     CppAD_Repn(Model& model);
 
@@ -106,6 +108,7 @@ class CppAD_Repn : public NLPModelRepn {
 
     void get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol);
     void get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol);
+    bool column_major_hessian();
 
     void print_equations(std::ostream& ostr) const;
     void print_values(std::ostream& ostr) const;
@@ -124,6 +127,7 @@ class CppAD_Repn : public NLPModelRepn {
     void compute_J(std::vector<double>& J);
 
    public:
+    void create_CppAD_function();
     void build_expression(expr_pointer_t root, std::vector<CppAD::AD<double> >& ADvars,
                           CppAD::AD<double>& range,
                           std::unordered_map<VariableRepn, size_t>& _used_variables);

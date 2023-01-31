@@ -4,6 +4,7 @@
 #include "../ast/constraint_terms.hpp"
 #include "../ast/expr_terms.hpp"
 #include "../ast/value_terms.hpp"
+#include "../ast/visitor_fns.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/model/model.hpp"
@@ -70,6 +71,8 @@ void CppAD_Repn::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& 
         hcol[i] = hes_col[i];
     }
 }
+
+bool CppAD_Repn::column_major_hessian() { return false; }
 
 void CppAD_Repn::print_equations(std::ostream& ostr) const { NLPModelRepn::print_equations(ostr); }
 
@@ -224,19 +227,16 @@ void CppAD_Repn::compute_J(std::vector<double>& J)
     }
 }
 
-void CppAD_Repn::initialize(bool _sparse_JH)
+void CppAD_Repn::create_CppAD_function()
 {
-    sparse_JH = _sparse_JH;
-    //
-    // Find all variables used in the NLP model
-    //
-    find_used_variables();
-    nx = used_variables.size();
-    nf = model.repn->objectives.size();
-    nc = model.repn->constraints.size();
-
-    dynamic_params.resize(fixed_variables.size() + parameters.size());
-    dynamic_param_vals.resize(fixed_variables.size() + parameters.size());
+    if (simplify_expressions) {
+        dynamic_params.resize(0);
+        dynamic_param_vals.resize(0);
+    }
+    else {
+        dynamic_params.resize(fixed_variables.size() + parameters.size());
+        dynamic_param_vals.resize(fixed_variables.size() + parameters.size());
+    }
 
     //
     // Create the CppAD function
@@ -252,16 +252,35 @@ void CppAD_Repn::initialize(bool _sparse_JH)
         CppAD::Independent(ADvars);
 
     try {
-        size_t nb = 0;
-        for (auto& it : model.repn->objectives) {
-            build_expression(it.repn, ADvars, ADrange[nb], _used_variables);
-            nb++;
-        }
+        if (simplify_expressions) {
+            std::map<std::shared_ptr<SubExpressionTerm>, expr_pointer_t> cache;
 
-        nb = 0;
-        for (auto& it : model.repn->constraints) {
-            build_expression(it.repn, ADvars, ADrange[nf + nb], _used_variables);
-            nb++;
+            size_t nb = 0;
+            for (auto& it : model.repn->objectives) {
+                build_expression(simplify_expr(it.repn, cache), ADvars, ADrange[nb],
+                                 _used_variables);
+                nb++;
+            }
+
+            nb = 0;
+            for (auto& it : model.repn->constraints) {
+                build_expression(simplify_expr(it.repn, cache), ADvars, ADrange[nf + nb],
+                                 _used_variables);
+                nb++;
+            }
+        }
+        else {
+            size_t nb = 0;
+            for (auto& it : model.repn->objectives) {
+                build_expression(it.repn, ADvars, ADrange[nb], _used_variables);
+                nb++;
+            }
+
+            nb = 0;
+            for (auto& it : model.repn->constraints) {
+                build_expression(it.repn, ADvars, ADrange[nf + nb], _used_variables);
+                nb++;
+            }
         }
     }
     catch (std::runtime_error& err) {
@@ -270,6 +289,20 @@ void CppAD_Repn::initialize(bool _sparse_JH)
     }
     ADfc.Dependent(ADvars, ADrange);
     ADfc.optimize();
+}
+
+void CppAD_Repn::initialize(bool _sparse_JH)
+{
+    sparse_JH = _sparse_JH;
+    //
+    // Find all variables used in the NLP model
+    //
+    find_used_variables();
+    nx = used_variables.size();
+    nf = model.repn->objectives.size();
+    nc = model.repn->constraints.size();
+
+    create_CppAD_function();
 
     //
     // Setup temporary arrays used during computations
@@ -534,9 +567,15 @@ void CppAD_Repn::reset(void)
     //
     // Initialize the CppAD dynamic parameters
     //
-    for (auto& it : fixed_variables) dynamic_param_vals[it.second] = it.first->value->eval();
-    for (auto& it : parameters) dynamic_param_vals[it.second] = it.first->value->eval();
-    ADfc.new_dynamic(dynamic_param_vals);
+    if (not simplify_expressions) {
+        for (auto& it : fixed_variables) dynamic_param_vals[it.second] = it.first->value->eval();
+        for (auto& it : parameters) dynamic_param_vals[it.second] = it.first->value->eval();
+        ADfc.new_dynamic(dynamic_param_vals);
+    }
+    else {
+        // Regenerate CppAD data structures when simplifying the expressions
+        create_CppAD_function();
+    }
 
     //
     // Setup initial value

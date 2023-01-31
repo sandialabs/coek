@@ -11,7 +11,13 @@ endif()
 SET(sources
     runner.cpp
     test_model.cpp
-    test_expr_visitors.cpp
+    test_visitor_simplify.cpp
+    test_visitor_mutable.cpp
+    test_visitor_writer.cpp
+    test_visitor_quadexpr.cpp
+    test_visitor_nlpexpr.cpp
+    test_visitor_symdiff.cpp
+    test_visitor_findvarparam.cpp
     test_testsolver.cpp
     test_examples.cpp
     test_writers.cpp
@@ -33,6 +39,13 @@ if(with_cppad)
   MESSAGE("-- Building Test with AD:        CppAd")
   list(APPEND sources
     test_autograd_cppad.cpp)
+endif()
+
+# ASL LIBRARY
+if(with_asl)
+  MESSAGE("-- Building Test with AD:        ASL")
+  list(APPEND sources
+    test_autograd_asl.cpp)
 endif()
 
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)

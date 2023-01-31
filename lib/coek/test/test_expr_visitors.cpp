@@ -195,6 +195,7 @@
 
 #define ENV_MEMCHECK
 
+#if 0
 TEST_CASE("expr_writer", "[smoke]")
 {
     SECTION("constant")
@@ -1834,22 +1835,78 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.quadratic_rvars[0] == w.repn);
             }
         }
+        WHEN("complex quadratic 4")
+        {
+            {
+                coek::Model m;
+                auto w = m.add_variable("w").lower(0).upper(1).value(0);
+                coek::Expression e = (w - 3) * (w - 3);
+                coek::MutableNLPExpr repn;
+                repn.collect_terms(e);
+
+                static std::list<std::string> constval = {std::to_string(9.0)};
+                static std::list<std::string> lcoefval = {std::to_string(-3.0)};
+                static std::list<std::string> qcoefval = {std::to_string(1.0)};
+                REQUIRE(repn.constval->to_list() == constval);
+
+                REQUIRE(repn.linear_coefs.size() == 2);
+                REQUIRE(repn.linear_coefs[0]->to_list() == lcoefval);
+                REQUIRE(repn.linear_coefs[1]->to_list() == lcoefval);
+
+                REQUIRE(repn.quadratic_coefs.size() == 1);
+                REQUIRE(repn.quadratic_coefs[0]->to_list() == qcoefval);
+                REQUIRE(repn.quadratic_lvars[0] == w.repn);
+                REQUIRE(repn.quadratic_rvars[0] == w.repn);
+            }
+        }
+        WHEN("complex quadratic 5")
+        {
+            {
+                coek::Model m;
+                auto w = m.add_variable("w").lower(0).upper(1).value(0);
+                coek::Expression e = (w - 3) * (w - 3) + (w - 5) * (w - 5);
+                coek::MutableNLPExpr repn;
+                repn.collect_terms(e);
+
+                static std::list<std::string> constval = {std::to_string(34.0)};
+                static std::list<std::string> lcoefval1 = {std::to_string(-3.0)};
+                static std::list<std::string> lcoefval2 = {std::to_string(-5.0)};
+                static std::list<std::string> qcoefval = {std::to_string(1.0)};
+                REQUIRE(repn.constval->to_list() == constval);
+
+                REQUIRE(repn.linear_coefs.size() == 4);
+                REQUIRE(repn.linear_coefs[0]->to_list() == lcoefval1);
+                REQUIRE(repn.linear_coefs[1]->to_list() == lcoefval1);
+                REQUIRE(repn.linear_coefs[2]->to_list() == lcoefval2);
+                REQUIRE(repn.linear_coefs[3]->to_list() == lcoefval2);
+
+                REQUIRE(repn.quadratic_coefs.size() == 2);
+                REQUIRE(repn.quadratic_coefs[0]->to_list() == qcoefval);
+                REQUIRE(repn.quadratic_coefs[1]->to_list() == qcoefval);
+                REQUIRE(repn.quadratic_lvars[0] == w.repn);
+                REQUIRE(repn.quadratic_rvars[0] == w.repn);
+            }
+        }
         WHEN("complex nonlinear")
         {
             {
                 // Force use of ceil and floor functions within a nested product.
                 // Force expression of multiplication between constant parameter and quadratic term
+                // Force inclusion of multipliers in nonlinear terms
                 coek::Model m;
                 auto w = m.add_variable("w").lower(0).upper(1).value(0);
                 auto p = coek::parameter("p");
-                coek::Expression e = ceil(w) * floor(w) + p * (w * w);
+                coek::Expression e = ceil(w) * floor(w) + p * (w * w) - floor(w) * floor(w);
                 coek::MutableNLPExpr repn;
                 repn.collect_terms(e);
 
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 1);
                 static std::list<std::string> baseline
-                    = {"[", "*", "[", "ceil", "w", "]", "[", "floor", "w", "]", "]"};
+                    = {"[", "+",     "[", "*",     "[", "ceil", "w", "]",
+                       "[", "floor", "w", "]",     "]", "[",    "*", std::to_string(-1.0),
+                       "[", "*",     "[", "floor", "w", "]",    "[", "floor",
+                       "w", "]",     "]", "]",     "]"};
                 REQUIRE(repn.nonlinear->to_list() == baseline);
             }
         }
@@ -2155,7 +2212,7 @@ TEST_CASE("mutable_values", "[smoke]")
     REQUIRE(params == pbaseline);
 }
 
-#ifdef DEBUG
+#    ifdef DEBUG
 WHEN("debug walker0")
 {
     auto v = coek::variable("v");
@@ -2211,7 +2268,7 @@ WHEN("debug walker2")
     REQUIRE(params == pbaseline);
     REQUIRE(num_visits == 7);
 }
-#endif
+#    endif
 }
 
 SECTION("plus")
@@ -2594,7 +2651,7 @@ TEST_CASE("find_vars_and_params", "[smoke]")
     REQUIRE(params == pbaseline);
 }
 
-#ifdef DEBUG
+#    ifdef DEBUG
 WHEN("debug walker0")
 {
     auto v = coek::variable("v");
@@ -2660,7 +2717,7 @@ WHEN("debug walker2")
     REQUIRE(params == pbaseline);
     REQUIRE(num_visits == 7);
 }
-#endif
+#    endif
 }
 
 SECTION("plus")
@@ -2939,3 +2996,4 @@ SECTION("constraint")
     }
 }
 }
+#endif

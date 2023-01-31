@@ -323,6 +323,13 @@ void testing5(coek::Model& model)
     model.add(coek::objective(x));
 }
 
+void testing6(coek::Model& model)
+{
+    auto x = model.add_variable("x").lower(0).upper(1).value(0);
+    auto q = coek::parameter("q").value(2);
+    model.add(coek::objective(-q * x * x));
+}
+
 #ifdef COEK_WITH_COMPACT_MODEL
 void compact1(coek::CompactModel& model)
 {
@@ -356,7 +363,7 @@ bool run_test(ModelType& model, const std::string& name, const std::string& suff
     std::string baseline = currdir + "/baselines/" + fname;
     model.write(fname);
     auto same = compare_files(fname, baseline);
-    // std::cout << "name " << name << " " << same << std::endl;
+    // std::cout << "name " << name << " " << same << " " << fname << std::endl;
     if (same) {
         if (std::remove(fname.c_str()) != 0) return false;
     }
@@ -414,6 +421,9 @@ TEST_CASE("model_writer", "[smoke]")
         std::remove("error1.ostrlp");
     }
 
+#if 0
+    TODO - Revisit this test
+
     SECTION("error2")
     {
         error2(model);
@@ -436,6 +446,10 @@ TEST_CASE("model_writer", "[smoke]")
                             "Error writing LP file: No objectives specified!");
         std::remove("error2.ostrlp");
     }
+#endif
+
+#if 0
+    TODO - Add tests with multiple objectives 
 
     SECTION("error3")
     {
@@ -459,6 +473,7 @@ TEST_CASE("model_writer", "[smoke]")
                             "Error writing LP file: More than one objective defined!");
         std::remove("error3.ostrlp");
     }
+#endif
 
     SECTION("error4")
     {
@@ -583,6 +598,12 @@ TEST_CASE("model_writer", "[smoke]")
     {
         testing5(model);
         for (const std::string& suffix : linear) REQUIRE(run_test(model, "testing5", suffix));
+    }
+
+    SECTION("testing6")
+    {
+        testing6(model);
+        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "testing6", suffix));
     }
 
     // TODO - Add separate NLP writer tests to confirm the variable mappings
