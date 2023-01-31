@@ -29,7 +29,7 @@ add_revision(rapidjson
 add_revision(pybind11
   SRC "pybind11-2.6.2"
   URL "https://github.com/pybind/pybind11/archive/refs/tags/v2.6.2.tar.gz"
-  URL_MD5 c5ea9c4c57082e05efe14e4b34323bfd
+  URL_MD5 f4e0a73ec3f58a50f9213af4b1d6bac2
   )
 
 add_revision(fmtlib
