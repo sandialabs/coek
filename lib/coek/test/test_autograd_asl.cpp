@@ -734,7 +734,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = w + (2 * p) / w;
             m.add_objective(f);
-            m.add_constraint(2*w <= 0);
+            m.add_constraint(2 * w <= 0);
             coek::NLPModel nlp(m, ADNAME);
 
             std::vector<double> x{2};
@@ -750,7 +750,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = w + (2 * p) / w;
             m.add_objective(f);
-            m.add_constraint(2*w <= 0);
+            m.add_constraint(2 * w <= 0);
             coek::NLPModel nlp(m, ADNAME);
 
             std::vector<double> x{2};

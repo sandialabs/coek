@@ -316,11 +316,12 @@ void ASL_Repn::alloc_asl()
     //
     // Read the NL file with the ASL library
     //
-    return_nofile = 1;      // A hack to prevent the ASL from calling exit()
+    return_nofile = 1;  // A hack to prevent the ASL from calling exit()
     FILE* nlfile = jac0dim(&(fname[0]), 16);
     if (!nlfile) {
-        throw std::runtime_error("ASL_Repn::alloc_asl - Cannot create ASL interface for model with no variables.");
-        }
+        throw std::runtime_error(
+            "ASL_Repn::alloc_asl - Cannot create ASL interface for model with no variables.");
+    }
     //
     // allocate space for initial values
     //
@@ -342,7 +343,7 @@ void ASL_Repn::alloc_asl()
 
     free_asl();
     if (retcode == ASL_readerr_nofile)
-        throw std::runtime_error("ASL_Repn::alloc_asl - Error opening file "+fname);
+        throw std::runtime_error("ASL_Repn::alloc_asl - Error opening file " + fname);
 
     else if (retcode == ASL_readerr_argerr)
         throw std::runtime_error("ASL_Repn::alloc_asl - User-defined function with bad arguments");

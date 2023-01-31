@@ -1161,7 +1161,7 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
             }
             else
                 ostr << "k0\n";
-            }
+        }
 
         //
         // "J" section - Jacobian sparsity, linear terms
