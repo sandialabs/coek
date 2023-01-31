@@ -35,6 +35,6 @@ add_revision(pybind11
 add_revision(fmtlib
   SRC "fmt-8.0.0"
   URL "https://github.com/fmtlib/fmt/archive/refs/tags/8.0.0.tar.gz"
-  URL_MD5 001d59c967115682aed0e836ba5753a8
+  URL_MD5 b996c6ed3d03b9f1bafd7c6f12a64a41
   )
 
