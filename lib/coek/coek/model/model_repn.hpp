@@ -7,9 +7,11 @@
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
+#if __cpp_lib_variant
 #include "coek/api/parameter_array.hpp"
 #include "coek/api/variable_array.hpp"
 #include "coek/api/constraint_map.hpp"
+#endif
 #include "coek/model/model.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL
 #    include "coek/compact/variable_sequence.hpp"
@@ -31,9 +33,9 @@ class ModelRepn {
     std::vector<Constraint> constraints;
     std::vector<Variable> variables;
 
+#if __cpp_lib_variant
     std::vector<ParameterArray> parameter_arrays;
     std::vector<VariableArray> variable_arrays;
-#if __cpp_lib_variant
 #    ifdef COEK_WITH_COMPACT_MODEL
     std::vector<ParameterMap> parameter_maps;
     std::vector<VariableMap> variable_maps;

@@ -272,6 +272,7 @@ TEST_CASE("1D_param_map", "[smoke]")
 }
 #endif
 
+#if __cpp_lib_variant
 TEST_CASE("1D_param_array", "[smoke]")
 {
     SECTION("int_vector")
@@ -370,6 +371,7 @@ TEST_CASE("1D_param_array", "[smoke]")
         }
     }
 }
+#endif
 
 #ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE("2D_param_map", "[smoke]")
@@ -474,6 +476,7 @@ TEST_CASE("2D_param_map", "[smoke]")
 }
 #endif
 
+#if __cpp_lib_variant
 TEST_CASE("2D_param_array", "[smoke]")
 {
     SECTION("int_vector_dim")
@@ -673,6 +676,7 @@ TEST_CASE("3D_param_array", "[smoke]")
         }
     }
 }
+#endif
 
 #ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE("3D_param_api", "[smoke]")
@@ -786,5 +790,5 @@ TEST_CASE("3D_param_api", "[smoke]")
         }
     }
 }
-
 #endif
+

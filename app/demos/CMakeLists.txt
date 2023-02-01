@@ -4,7 +4,7 @@ PROJECT(demos)
 #
 # For now, let's just assume we have C++17
 #
-set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD 17)
 
 MESSAGE("-- With Gurobi Solver: ${with_gurobi}")
 if(with_gurobi)

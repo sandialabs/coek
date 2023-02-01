@@ -12,12 +12,16 @@ SET(sources
     simplelp1_solve.cpp
     rosenbr.cpp
     srosenbr_vector.cpp
-    srosenbr_array.cpp
     invquad_vector.cpp
-    invquad_array.cpp
-    invquad_array_solve.cpp
-    invquad_array_resolve.cpp
    )
+if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
+    list(APPEND sources
+        srosenbr_array.cpp
+        invquad_array.cpp
+        invquad_array_solve.cpp
+        invquad_array_resolve.cpp
+        )
+endif()
 
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 

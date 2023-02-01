@@ -310,6 +310,7 @@ TEST_CASE("1D_var_map", "[smoke]")
 }
 #endif
 
+#if __cpp_lib_variant
 TEST_CASE("1D_var_array", "[smoke]")
 {
     SECTION("int_vector")
@@ -408,6 +409,7 @@ TEST_CASE("1D_var_array", "[smoke]")
         }
     }
 }
+#endif
 
 #ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE("2D_var_map", "[smoke]")
@@ -531,6 +533,7 @@ TEST_CASE("2D_var_map", "[smoke]")
 }
 #endif
 
+#if __cpp_lib_variant
 TEST_CASE("2D_var_array", "[smoke]")
 {
     SECTION("int_vector_dim")
@@ -730,6 +733,7 @@ TEST_CASE("3D_var_array", "[smoke]")
         }
     }
 }
+#endif
 
 #ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE("3D_var_api", "[smoke]")
@@ -974,5 +978,5 @@ TEST_CASE("3D_var_api", "[smoke]")
         }
     }
 }
-
 #endif
+

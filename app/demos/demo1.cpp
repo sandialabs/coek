@@ -24,6 +24,7 @@ coek::Model knapsack(size_t N)
     
     auto model = coek::Model();
 
+#if __cpp_lib_variant
     auto x = coek::variable(N).bounds(0, 1).value(0);
     model.add(x);
     
@@ -36,6 +37,7 @@ coek::Model knapsack(size_t N)
     auto con = coek::expression();
     for (size_t n : coek::range(N)) con += w[n] * x(n);
     model.add(con <= W);
+#endif
 
     return model;
 }

@@ -15,6 +15,7 @@
 const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
+#if __cpp_lib_variant
 TEST_CASE("elementary_expression", "[smoke]")
 {
     SECTION("empty")
@@ -122,6 +123,7 @@ TEST_CASE("elementary_subexpression", "[smoke]")
         REQUIRE(e.to_list() == baseline);
     }
 }
+#endif
 
 TEST_CASE("model_monomial", "[smoke]")
 {
