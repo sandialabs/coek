@@ -77,19 +77,28 @@ TEST_CASE("elementary_constraint", "[smoke]")
             REQUIRE(e.lower().value() == 1.0);
         }
 
-        /* TODO
-        WHEN("lower - unbounded") {
+        WHEN("has_lower")
+        {
             auto v = coek::variable("v");
-            auto e = 1 > v;
-            REQUIRE( e.lower().isinf() );
-            }
-        */
+            auto e = 1 < v;
+            REQUIRE(e.has_lower());
+            REQUIRE(not e.has_upper());
+        }
 
         WHEN("upper")
         {
             auto v = coek::variable("v");
             auto e = 1 > v;
             REQUIRE(e.upper().value() == 1.0);
+        }
+
+        WHEN("has_upper")
+        {
+            auto v = coek::variable("v");
+            auto e = 1 > v;
+            REQUIRE(e.upper().value() == 1.0);
+            REQUIRE(not e.has_lower());
+            REQUIRE(e.has_upper());
         }
 
         WHEN("body")

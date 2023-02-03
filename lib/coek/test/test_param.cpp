@@ -25,6 +25,14 @@ TEST_CASE("elementary_param", "[smoke]")
             q.value(3);
             REQUIRE(q.value() == 3);
         }
+        WHEN("parameter - p+1")
+        {
+            auto p = coek::parameter("p").value(3);
+            auto q = coek::parameter("q").value(2);
+            REQUIRE(q.value() == 2);
+            q.value(p+1);
+            REQUIRE(q.value() == 4);
+        }
     }
 
     SECTION("constructors")
