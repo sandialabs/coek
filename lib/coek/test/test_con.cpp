@@ -1694,6 +1694,7 @@ TEST_CASE("elementary_constraint", "[smoke]")
 #else
 #    define MODEL_TYPES coek::Model
 #endif
+#if __cpp_lib_variant
 TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
 {
     TestType m;
@@ -1937,3 +1938,4 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
     }
 #endif
 }
+#endif
