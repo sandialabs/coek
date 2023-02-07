@@ -267,7 +267,7 @@ Expression construct_linear_expression(std::vector<double> coefs, std::vector<Va
     return res;
 }
 
-double expression_eval(Expression& e, bool exception = false) { return e.value(); }
+double expression_eval(Expression& e, bool /*exception*/ = false) { return e.value(); }
 
 py::list to_nested_list(std::list<std::string>::iterator& it, std::list<std::string>::iterator& end)
 {
@@ -577,7 +577,12 @@ VariableMap variable_fn(coek::ConcreteSet& index_set, py::kwargs kwargs)
 
 VariableArray variable_fn(std::vector<int>& dimen, py::kwargs kwargs)
 {
-    VariableArray tmp(dimen);
+    std::vector<size_t> _dimen(dimen.size());
+    for (size_t i=0; i<dimen.size(); ++i) {
+        assert (dimen[i] >= 0);
+        _dimen[i] = static_cast<size_t>(dimen[i]);
+        }
+    VariableArray tmp(_dimen);
     set_kwargs(tmp, kwargs);
     return tmp;
 }
@@ -1269,7 +1274,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
             "__iter__",
             [](const coek::VariableArray& va) {
                 typedef coek::VecKeyIterator<std::vector<coek::Variable>::const_iterator> vec_key_t;
-                return py::make_iterator(vec_key_t(va.begin()), vec_key_t(va.end()));
+                return py::make_iterator(vec_key_t(va.cbegin()), vec_key_t(va.cend()));
                 /*
                 if (va.dim() == 0)
                      return py::make_iterator(vec_key_t(va.begin()), vec_key_t(va.end()));

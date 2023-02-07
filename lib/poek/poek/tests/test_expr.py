@@ -17,7 +17,7 @@ class TestValue(unittest.TestCase):
         self.assertEqual(p.value, 2)
         e = p + 3
         self.assertEqual(e.value, 5)
-        with self.assertRaisesRegex(AttributeError, "can't set attribute"):
+        with self.assertRaisesRegex(AttributeError, "property of 'expression' object has no setter"):
             e.value = 0
 
     def test_constraint(self):
@@ -25,7 +25,7 @@ class TestValue(unittest.TestCase):
         self.assertEqual(p.value, 2)
         e = p < 3
         self.assertEqual(e.value, 2)
-        with self.assertRaisesRegex(AttributeError, "can't set attribute"):
+        with self.assertRaisesRegex(AttributeError, "property of 'constraint' object has no setter"):
             e.value = 0
 
     def test_param1(self):
