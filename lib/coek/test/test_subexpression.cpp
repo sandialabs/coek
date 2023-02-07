@@ -39,6 +39,7 @@ TEST_CASE("mutable_subexpression", "[smoke]")
     }
 }
 
+#if __cpp_lib_variant
 TEST_CASE("indexed_subexpression", "[smoke]")
 {
     SECTION("simple array")
@@ -270,3 +271,4 @@ TEST_CASE("indexed_subexpression", "[smoke]")
     }
 #endif
 }
+#endif
