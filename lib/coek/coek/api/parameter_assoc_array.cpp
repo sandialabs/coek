@@ -7,7 +7,6 @@
 
 namespace coek {
 
-
 //
 // ParameterAssocArrayRepn
 //
@@ -56,9 +55,9 @@ void ParameterAssocArrayRepn::name(const std::string& name)
         // If the string is empty, then we reset the names of all variables
         if (name.size() == 0) {
             for (auto& var : values) var.name(name);
-            }
+        }
         // Otherwise, we re-generate the names
-        else 
+        else
             generate_names();
     }
 }

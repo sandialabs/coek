@@ -84,7 +84,7 @@ class VariableArray : public VariableAssocArray {
 
     void collect_args(size_t i, int arg)
     {
-        assert(arg >= 0);       // TODO - Resolve coverage for this assertion
+        assert(arg >= 0);  // TODO - Resolve coverage for this assertion
         tmp[i] = arg;
     }
 
@@ -148,7 +148,7 @@ class VariableArray : public VariableAssocArray {
    public:
     VariableArray(size_t n);
     VariableArray(const std::vector<size_t>& shape);
-    //VariableArray(const std::vector<int>& shape);
+    // VariableArray(const std::vector<int>& shape);
     VariableArray(const std::initializer_list<size_t>& shape);
     ~VariableArray() {}
 

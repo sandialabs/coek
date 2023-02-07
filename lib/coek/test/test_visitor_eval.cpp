@@ -11,26 +11,26 @@
 #include "coek/coek.hpp"
 #include "coek/util/io_utils.hpp"
 
-#define INTRINSIC_TEST1(FN)                                                      \
-    WHEN(#FN)                                                               \
-    {                                                                            \
-        {                                                                        \
+#define INTRINSIC_TEST1(FN)                                          \
+    WHEN(#FN)                                                        \
+    {                                                                \
+        {                                                            \
             auto v = coek::variable("v").lower(0).upper(1).value(0); \
-            coek::Expression e = FN(v + 1);                                      \
-            double tmp = 1.0 * FN(1.0);                                          \
-            REQUIRE(evaluate_expr(e.repn) == tmp); \
-        }                                                                        \
+            coek::Expression e = FN(v + 1);                          \
+            double tmp = 1.0 * FN(1.0);                              \
+            REQUIRE(evaluate_expr(e.repn) == tmp);                   \
+        }                                                            \
     }
 
-#define INTRINSIC_TEST2(FN)                                                      \
-    WHEN(#FN " 2")                                                               \
-    {                                                                            \
-        {                                                                        \
+#define INTRINSIC_TEST2(FN)                                          \
+    WHEN(#FN " 2")                                                   \
+    {                                                                \
+        {                                                            \
             auto v = coek::variable("v").lower(0).upper(1).value(0); \
-            coek::Expression e = FN(v + 1, v);                                   \
-            double tmp = 1.0 * FN(1.0, 0.0);                                     \
-            REQUIRE(evaluate_expr(e.repn) == tmp); \
-        }                                                                        \
+            coek::Expression e = FN(v + 1, v);                       \
+            double tmp = 1.0 * FN(1.0, 0.0);                         \
+            REQUIRE(evaluate_expr(e.repn) == tmp);                   \
+        }                                                            \
     }
 
 TEST_CASE("evaluate_expr", "[smoke]")
@@ -381,7 +381,7 @@ TEST_CASE("evaluate_expr", "[smoke]")
         {
             {
                 auto w = coek::variable("w").lower(0).upper(1).value(3);
-                auto e = coek::pow(w, w-1);
+                auto e = coek::pow(w, w - 1);
 
                 REQUIRE(evaluate_expr(e.repn) == 9.0);
             }

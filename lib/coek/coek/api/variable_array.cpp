@@ -21,15 +21,15 @@ class VariableArrayRepn : public VariableAssocArrayRepn {
         cache.resize((size() + 1) * (dim() + 1));
     }
 
-/*
-    VariableArrayRepn(const std::vector<int>& _shape) : _size(1)
-    {
-        shape.resize(_shape.size());
-        for (size_t i = 0; i < shape.size(); ++i) shape[i] = static_cast<size_t>(_shape[i]);
-        for (auto n : shape) _size *= n;
-        cache.resize((size() + 1) * (dim() + 1));
-    }
-*/
+    /*
+        VariableArrayRepn(const std::vector<int>& _shape) : _size(1)
+        {
+            shape.resize(_shape.size());
+            for (size_t i = 0; i < shape.size(); ++i) shape[i] = static_cast<size_t>(_shape[i]);
+            for (auto n : shape) _size *= n;
+            cache.resize((size() + 1) * (dim() + 1));
+        }
+    */
 
     VariableArrayRepn(const std::initializer_list<size_t>& _shape) : shape(_shape), _size(1)
     {
@@ -152,7 +152,10 @@ void VariableArray::index_error(size_t i)
     throw std::runtime_error(err);
 }
 
-VariableArray::const_iterator VariableArray::cbegin() const noexcept { return repn->values.begin(); }
+VariableArray::const_iterator VariableArray::cbegin() const noexcept
+{
+    return repn->values.begin();
+}
 
 VariableArray::const_iterator VariableArray::cend() const noexcept { return repn->values.end(); }
 

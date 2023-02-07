@@ -132,11 +132,11 @@ void VariableAssocArrayRepn::fixed(bool value)
 
 void VariableAssocArrayRepn::name(const std::string& name)
 {
-variable_template.name(name);
+    variable_template.name(name);
     if (values.size() > 0) {
         // If the string is empty, then we reset the names of all variables
         if (name.size() == 0) {
-        for (auto& var : values) var.name(name);
+            for (auto& var : values) var.name(name);
         }
         // Otherwise, we re-generate the names
         else

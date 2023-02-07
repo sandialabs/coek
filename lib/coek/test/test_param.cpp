@@ -310,11 +310,11 @@ TEST_CASE("1D_param_array", "[smoke]")
         WHEN("value - 1")
         {
             auto params = coek::parameter(4);
-            
+
             // Set value using template
             params.value(1);
             for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 1);
-            
+
             // Set value for all indices
             params.value(2);
             for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 2);
@@ -348,8 +348,8 @@ TEST_CASE("1D_param_array", "[smoke]")
             params.generate_names();
             for (int i = 0; i < 4; i++) REQUIRE(params(i).name() == "v[" + std::to_string(i) + "]");
 
-            // We don't need to call generate_names() again.  Names are automatically generated after
-            // the first time.
+            // We don't need to call generate_names() again.  Names are automatically generated
+            // after the first time.
             params.name("w");
             for (int i = 0; i < 4; i++) REQUIRE(params(i).name() == "w[" + std::to_string(i) + "]");
 
