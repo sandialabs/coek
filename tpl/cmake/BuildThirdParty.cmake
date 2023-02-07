@@ -154,7 +154,6 @@ macro(setup_builds)
             SOURCE_DIR          ${source_dir}
             INSTALL_DIR         ${CMAKE_INSTALL_PREFIX}
             CMAKE_ARGS
-                -DPYBIND11_MASTER_PROJECT=OFF
                 -DPYBIND11_INSTALL=ON
                 -DPYBIND11_TEST=OFF
                 -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
