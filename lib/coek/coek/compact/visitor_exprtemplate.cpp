@@ -6,8 +6,6 @@
 #include "coek/api/expression.hpp"
 #include "coek_exprterm.hpp"
 
-// void xxx() {}
-
 namespace coek {
 
 expr_pointer_t get_concrete_var(VariableRefTerm& varref);
@@ -20,7 +18,6 @@ expr_pointer_t visit(SumExpressionTerm&);
 
 expr_pointer_t visit(IndexParameterTerm& arg)
 {
-    // xxx();
     //  TODO - embed this logic in the IndexParameterTerm class
     if (arg.type == 1)
         return CREATE_POINTER(ConstantTerm, arg.double_value);

@@ -491,16 +491,14 @@ TEST_CASE("model_subexpression", "[smoke]")
 
         WHEN("double")
         {
-            coek::SubExpression a(1.0);
+            auto a = coek::subexpression().value(1.0);
             static std::list<std::string> baseline = {"[", "_", std::to_string(1.0), "]"};
             REQUIRE(a.to_list() == baseline);
         }
 
         WHEN("equal")
         {
-            coek::SubExpression a(1.0);
-            coek::SubExpression b;
-            b = a;
+            auto a = coek::subexpression().value(1.0);
             static std::list<std::string> baseline = {"[", "_", std::to_string(1.0), "]"};
             REQUIRE(a.to_list() == baseline);
         }
@@ -510,7 +508,7 @@ TEST_CASE("model_subexpression", "[smoke]")
     {
         WHEN("constant")
         {
-            coek::SubExpression a(1.0);
+            auto a = coek::subexpression().value(1.0);
             REQUIRE(a.is_constant() == false);
             REQUIRE(a.repn->body->is_constant() == true);
         }

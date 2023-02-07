@@ -299,18 +299,21 @@ Variable variable(const std::string& name)
 
 Expression::Expression() : repn(ZEROCONST) {}
 
-Expression::Expression(const ParameterRepn& _repn) : repn(_repn) {}
-Expression::Expression(const IndexParameterRepn& _repn) : repn(_repn) {}
+// Expression::Expression(const ParameterRepn& _repn) : repn(_repn) {}
+
+// Expression::Expression(const IndexParameterRepn& _repn) : repn(_repn) {}
+
 Expression::Expression(const VariableRepn& _repn) : repn(_repn) {}
+
 Expression::Expression(const ExpressionRepn& _repn) : repn(_repn) {}
 
 Expression::Expression(ExpressionRepn&& _repn) : repn(_repn) {}
 
-Expression::Expression(ParameterRepn&& _repn) : repn(_repn) {}
+// Expression::Expression(ParameterRepn&& _repn) : repn(_repn) {}
 
-Expression::Expression(IndexParameterRepn&& _repn) : repn(_repn) {}
+// Expression::Expression(IndexParameterRepn&& _repn) : repn(_repn) {}
 
-Expression::Expression(VariableRepn&& _repn) : repn(_repn) {}
+Expression::Expression(VariableRepn&& _repn) : repn(_repn) {}  // TODO - why isn't this covered?
 
 Expression::Expression(double value) { repn = CREATE_POINTER(ConstantTerm, value); }
 
@@ -541,6 +544,7 @@ Expression expression(const Variable& arg) { return coek::Expression(arg); }
 
 SubExpression::SubExpression() { repn = CREATE_POINTER(SubExpressionTerm, ZEROCONST); }
 
+/*
 SubExpression::SubExpression(double value)
 {
     repn = CREATE_POINTER(SubExpressionTerm, CREATE_POINTER(ConstantTerm, value));
@@ -550,6 +554,7 @@ SubExpression::SubExpression(int value)
 {
     repn = CREATE_POINTER(SubExpressionTerm, CREATE_POINTER(ConstantTerm, value));
 }
+*/
 
 SubExpression::SubExpression(const Parameter& arg)
 {
@@ -600,24 +605,6 @@ std::list<std::string> SubExpression::to_list() const
     std::list<std::string> tmp;
     expr_to_list(repn, tmp);
     return tmp;
-}
-
-Expression SubExpression::diff(const Variable& var) const
-{
-    std::map<std::shared_ptr<VariableTerm>, expr_pointer_t> ans;
-    symbolic_diff_all(repn, ans);
-    Expression e;
-    if (ans.find(var.repn) != ans.end()) e = ans[var.repn];
-    return e;
-}
-
-Expression SubExpression::expand()
-{
-#ifdef COEK_WITH_COMPACT_MODEL
-    return convert_expr_template(repn);
-#else
-    return *this;
-#endif
 }
 
 SubExpression& SubExpression::operator+=(int arg)

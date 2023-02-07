@@ -8,9 +8,9 @@
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
 #if __cpp_lib_variant
-#include "coek/api/parameter_array.hpp"
-#include "coek/api/variable_array.hpp"
-#include "coek/api/constraint_map.hpp"
+#    include "coek/api/parameter_array.hpp"
+#    include "coek/api/variable_array.hpp"
+#    include "coek/api/constraint_map.hpp"
 #endif
 #include "coek/model/model.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL

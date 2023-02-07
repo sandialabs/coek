@@ -33,6 +33,7 @@ double evaluate_expr_debug(const expr_pointer_t& expr,
 #endif
 double evaluate_expr(const expr_pointer_t& expr,
                      std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value);
+double evaluate_expr(const expr_pointer_t& expr);
 double evaluate_expr(const BaseExpressionTerm* expr,
                      std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value);
 

@@ -76,7 +76,7 @@ class ParameterArray : public ParameterAssocArray {
 
     void collect_args(size_t i, int arg)
     {
-        assert(arg >= 0);
+        assert(arg >= 0);  // TODO - fix code coverage here
         tmp[i] = arg;
     }
 
@@ -95,6 +95,7 @@ class ParameterArray : public ParameterAssocArray {
         collect_args(i + 1, args...);
     }
 
+#ifdef COEK_WITH_COMPACT_MODEL
     template <typename... ARGTYPES>
     typename std::enable_if<has_nonintegral_args<ARGTYPES...>::value, Expression>::type operator()(
         const ARGTYPES&... args)
@@ -104,6 +105,7 @@ class ParameterArray : public ParameterAssocArray {
         collect_refargs(static_cast<size_t>(0), args...);
         return create_paramref(reftmp);
     }
+#endif
 
     template <typename... ARGTYPES>
     typename std::enable_if<!has_nonintegral_args<ARGTYPES...>::value, Parameter>::type operator()(

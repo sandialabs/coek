@@ -20,10 +20,12 @@ class VariableArray : public VariableAssocArray {
     Variable index(const IndexVector& args);
     void index_error(size_t i);
 
-    std::vector<Variable>::const_iterator begin() const;
-    std::vector<Variable>::const_iterator end() const;
-    std::vector<Variable>::iterator begin();
-    std::vector<Variable>::iterator end();
+    using iterator = std::vector<Variable>::iterator;
+    using const_iterator = std::vector<Variable>::const_iterator;
+    const_iterator cbegin() const noexcept;
+    const_iterator cend() const noexcept;
+    iterator begin() noexcept;
+    iterator end() noexcept;
 
     VariableArray& generate_names();
 
@@ -82,7 +84,7 @@ class VariableArray : public VariableAssocArray {
 
     void collect_args(size_t i, int arg)
     {
-        assert(arg >= 0);
+        assert(arg >= 0);       // TODO - Resolve coverage for this assertion
         tmp[i] = arg;
     }
 
@@ -101,6 +103,7 @@ class VariableArray : public VariableAssocArray {
         collect_args(i + 1, args...);
     }
 
+#ifdef COEK_WITH_COMPACT_MODEL
     template <typename... ARGTYPES>
     typename std::enable_if<has_nonintegral_args<ARGTYPES...>::value, Expression>::type operator()(
         const ARGTYPES&... args)
@@ -110,6 +113,7 @@ class VariableArray : public VariableAssocArray {
         collect_refargs(static_cast<size_t>(0), args...);
         return create_varref(reftmp);
     }
+#endif
 
     template <typename... ARGTYPES>
     typename std::enable_if<!has_nonintegral_args<ARGTYPES...>::value, Variable>::type operator()(
@@ -144,7 +148,7 @@ class VariableArray : public VariableAssocArray {
    public:
     VariableArray(size_t n);
     VariableArray(const std::vector<size_t>& shape);
-    VariableArray(const std::vector<int>& shape);
+    //VariableArray(const std::vector<int>& shape);
     VariableArray(const std::initializer_list<size_t>& shape);
     ~VariableArray() {}
 

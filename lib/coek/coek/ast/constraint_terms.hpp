@@ -66,10 +66,6 @@ class ConstraintTerm : public BaseExpressionTerm {
     virtual bool is_inequality() const { return false; }
     virtual bool is_equality() const { return false; }
     virtual bool is_feasible() const = 0;
-    /* WEH - Not used (yet?)
-    virtual bool is_trivial() const
-        {return false;}
-    */
 
     virtual std::string get_simple_name() { return "C[" + std::to_string(index) + "]"; }
     virtual std::string get_name()

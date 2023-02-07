@@ -21,6 +21,7 @@ class VariableArrayRepn : public VariableAssocArrayRepn {
         cache.resize((size() + 1) * (dim() + 1));
     }
 
+/*
     VariableArrayRepn(const std::vector<int>& _shape) : _size(1)
     {
         shape.resize(_shape.size());
@@ -28,6 +29,7 @@ class VariableArrayRepn : public VariableAssocArrayRepn {
         for (auto n : shape) _size *= n;
         cache.resize((size() + 1) * (dim() + 1));
     }
+*/
 
     VariableArrayRepn(const std::initializer_list<size_t>& _shape) : shape(_shape), _size(1)
     {
@@ -97,11 +99,13 @@ VariableArray::VariableArray(const std::vector<size_t>& shape)
     repn->resize_index_vectors(tmp, reftmp);
 }
 
+/*
 VariableArray::VariableArray(const std::vector<int>& shape)
 {
     repn = std::make_shared<VariableArrayRepn>(shape);
     repn->resize_index_vectors(tmp, reftmp);
 }
+*/
 
 VariableArray::VariableArray(const std::initializer_list<size_t>& shape)
 {
@@ -148,13 +152,13 @@ void VariableArray::index_error(size_t i)
     throw std::runtime_error(err);
 }
 
-std::vector<Variable>::const_iterator VariableArray::begin() const { return repn->values.begin(); }
+VariableArray::const_iterator VariableArray::cbegin() const noexcept { return repn->values.begin(); }
 
-std::vector<Variable>::const_iterator VariableArray::end() const { return repn->values.end(); }
+VariableArray::const_iterator VariableArray::cend() const noexcept { return repn->values.end(); }
 
-std::vector<Variable>::iterator VariableArray::begin() { return repn->values.begin(); }
+VariableArray::iterator VariableArray::begin() noexcept { return repn->values.begin(); }
 
-std::vector<Variable>::iterator VariableArray::end() { return repn->values.end(); }
+VariableArray::iterator VariableArray::end() noexcept { return repn->values.end(); }
 
 VariableArray& VariableArray::generate_names()
 {

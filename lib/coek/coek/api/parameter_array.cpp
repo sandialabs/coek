@@ -64,7 +64,7 @@ void ParameterArrayRepn::generate_names()
     // then we do not try to generate names.  The default/simple
     // parameter names will be used.
     std::string name = parameter_template.name();
-    if (name == "") return;
+    if (name.size() == 0) return;
 
     setup();
 
@@ -110,6 +110,8 @@ Parameter ParameterArray::index(const IndexVector& args)
     for (size_t i = 1; i < args.size(); i++) ndx = ndx * shape[i] + args[i];
 
     if (ndx > size()) {
+        // TODO - Can't we do better than this check?  Do we check if each index is in the correct
+        // range?
         std::string err = "Unknown index value: " + _repn->parameter_template.name() + "[";
         for (size_t i = 0; i < args.size(); i++) {
             if (i > 0) err += ",";

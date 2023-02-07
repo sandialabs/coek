@@ -48,24 +48,26 @@ void IndexedComponentRepn_multiarray<TYPE>::generate_names()
     // then we do not try to generate names.  The default/simple
     // names will be used.
     auto name = this->_name;
-    if (name == "") return;
+    if (name.size() == 0) return;
 
-    for (auto& con : this->value) {
+    for (auto& component : this->value) {
         name += "[";
 
-        if (shape.size() >= 1) name += std::to_string(con.first[0]);
+        auto shape_size = shape.size();
+        if (shape_size >= 1) name += std::to_string(component.first[0]);
 
-        if (shape.size() > 1) {
-            for (size_t i = 1; i < shape.size(); ++i) name += "," + std::to_string(con.first[i]);
+        if (shape_size > 1) {
+            for (size_t i = 1; i < shape_size; ++i) {
+                name += ",";
+                name += std::to_string(component.first[i]);
+            }
         }
 
         name += "]";
 
-        con.second.name(name);
+        component.second.name(name);
     }
 }
-
-void zzz();
 
 #ifdef COEK_WITH_COMPACT_MODEL
 template <class TYPE>
@@ -88,7 +90,6 @@ class IndexedComponentRepn_setindex : public IndexedComponentRepn<TYPE> {
             return this->concrete_set.contains(args[0]);
         else {
             for (size_t i = 0; i < tmp.size(); i++) tmp[i] = args[i];
-            // zzz();
             return this->concrete_set.contains(tmp);
         }
     }
@@ -175,13 +176,10 @@ IndexedComponent_Map<TYPE>::IndexedComponent_Map(ConcreteSet& arg)
 }
 #endif
 
-void zzz();
-
 template <class TYPE>
 TYPE& IndexedComponent_Map<TYPE>::index(const IndexVector& args)
 {
     assert(this->dim() == args.size());
-    // zzz();
 
     if (!(this->repn->valid_index(this->tmp))) {
         std::string err = "Unexpected index value: " + this->repn->_name + "(";

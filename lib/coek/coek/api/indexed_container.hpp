@@ -55,8 +55,9 @@ class IndexedComponent {
     std::vector<refarg_types> reftmp;
 
    public:
-    typename std::map<IndexVector, TYPE>::iterator begin() { return repn->value.begin(); }
-    typename std::map<IndexVector, TYPE>::iterator end() { return repn->value.end(); }
+    using iterator = typename std::map<IndexVector, TYPE>;
+    iterator begin() { return repn->value.begin(); }
+    iterator end() { return repn->value.end(); }
 
     size_t size() { return repn->size(); }
     size_t dim() { return repn->dim(); }

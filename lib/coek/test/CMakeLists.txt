@@ -18,6 +18,7 @@ SET(sources
     test_visitor_nlpexpr.cpp
     test_visitor_symdiff.cpp
     test_visitor_findvarparam.cpp
+    test_visitor_eval.cpp
     test_testsolver.cpp
     test_examples.cpp
     test_writers.cpp
@@ -84,8 +85,9 @@ add_custom_target(test_coek_memcheck
 
 if (gcovr_FOUND)
 add_custom_target(gcovr_coek
-    COMMAND ${GCOVR_EXECUTABLE} -d -r ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_BINARY_DIR}/.. )
+    COMMAND ${GCOVR_EXECUTABLE} -d -r ${coek_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/..
+)
 add_custom_target(gcovr_coek_verbose
-    COMMAND ${GCOVR_EXECUTABLE} -v -d -r ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_BINARY_DIR}/.. )
+    COMMAND ${GCOVR_EXECUTABLE} -v -d -r ${coek_SOURCE_DIR} --filter "\.\." ${CMAKE_CURRENT_BINARY_DIR}/.. )
 endif()
 

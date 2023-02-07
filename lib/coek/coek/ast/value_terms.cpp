@@ -8,8 +8,10 @@ namespace coek {
 //
 // BaseExpressionTerm
 //
+#if 0
 double evaluate_expr(const BaseExpressionTerm* expr,
                      std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value);
+#endif
 
 double BaseExpressionTerm::eval() const
 {

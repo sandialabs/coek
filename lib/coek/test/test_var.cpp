@@ -140,6 +140,26 @@ TEST_CASE("elementary_variable", "[smoke]")
             a.upper(3.0);
             REQUIRE(a.upper() == 3.0);
         }
+        WHEN("bounds")
+        {
+            auto q = coek::parameter("q").value(1);
+            auto v = coek::variable("x").bounds(1, 2);
+
+            REQUIRE(v.lower() == 1);
+            REQUIRE(v.upper() == 2);
+            v.bounds(q + 1, q + 2);
+            REQUIRE(v.lower() == 2);
+            REQUIRE(v.upper() == 3);
+            q.value(2);
+            REQUIRE(v.lower() == 3);
+            REQUIRE(v.upper() == 4);
+            v.bounds(q + 1, 10);
+            REQUIRE(v.lower() == 3);
+            REQUIRE(v.upper() == 10);
+            v.bounds(10, 10 * q);
+            REQUIRE(v.lower() == 10);
+            REQUIRE(v.upper() == 20);
+        }
     }
 
     SECTION("properties")
@@ -339,17 +359,83 @@ TEST_CASE("1D_var_array", "[smoke]")
             REQUIRE(typeid(vars(1)).name() == typeid(coek::Variable).name());
         }
 
-        WHEN("index")
+        WHEN("value 1")
         {
             auto vars = coek::variable(4).value(1);
             for (size_t i = 0; i < 4; i++) REQUIRE(vars(i).value() == 1);
             for (int i = 0; i < 4; i++) REQUIRE(vars(i).value() == 1);
         }
 
+        WHEN("value - q")
+        {
+            auto vars = coek::variable(4);
+            auto q = coek::parameter().value(2);
+            for (size_t i = 0; i < 4; i++)
+                vars(i).value(q + (int)i);  // TODO - generalize API to include unsigned ints
+            for (size_t i = 0; i < 4; i++) REQUIRE(vars(i).value() == 2 + i);
+        }
+
+        WHEN("value all - q")
+        {
+            auto vars = coek::variable(4);
+            auto q = coek::parameter().value(2);
+            
+            // Set value using template
+            vars.value(q + (int)2);  // TODO - generalize API to include unsigned ints
+            for (size_t i = 0; i < 4; i++) REQUIRE(vars(i).value() == 4);
+            
+            // Set value for all indices
+            vars.value(q + (int)3);
+            for (size_t i = 0; i < 4; i++) REQUIRE(vars(i).value() == 5);
+        }
+            
+        WHEN("name")
+        {
+            auto vars = coek::variable(4);
+
+            vars.name("v");
+            vars.generate_names();
+            for (int i = 0; i < 4; i++) REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
+
+            // We don't need to call generate_names() again.  Names are automatically generated after
+            // the first time.
+            vars.name("w");
+            REQUIRE(vars.name() == "w");
+            for (int i = 0; i < 4; i++) REQUIRE(vars(i).name() == "w[" + std::to_string(i) + "]");
+            
+            vars.name("");
+            REQUIRE(vars.name() == "");
+            for (int i = 0; i < 4; i++) REQUIRE(vars(i).name()[0] == 'X');
+        }
+            
         WHEN("name")
         {
             auto vars = coek::variable(4).name("v").generate_names();
             for (int i = 0; i < 4; i++) REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
+        }
+
+        WHEN("iter")
+        {
+            auto vars = coek::variable(4).value(1);
+            for (auto& v : vars)
+                REQUIRE(v.value() == 1);
+
+            decltype(vars)::const_iterator it;
+            for (it = vars.cbegin(); it < vars.cend(); ++it)
+                REQUIRE(it->value() == 1);
+        }
+
+        WHEN("fixed")
+        {
+            auto a = coek::variable("a", 4).lower(0).upper(10).value(5).within(coek::Integers);
+            ;
+            REQUIRE(a(0).fixed() == false);
+            a.fixed(true);
+            REQUIRE(a(0).fixed() == true);
+            REQUIRE(a(0).value() == 5);
+            a(0).fix(3);
+            REQUIRE(a(0).fixed() == true);
+            REQUIRE(a(0).value() == 3);
         }
     }
 
@@ -736,7 +822,7 @@ TEST_CASE("3D_var_array", "[smoke]")
 #endif
 
 #ifdef COEK_WITH_COMPACT_MODEL
-TEST_CASE("3D_var_api", "[smoke]")
+TEST_CASE("3D_var_map_api", "[smoke]")
 {
     SECTION("map")
     {
@@ -858,19 +944,6 @@ TEST_CASE("3D_var_api", "[smoke]")
             v.within(coek::Integers);
             REQUIRE(v(1).within() == coek::Integers);
         }
-    }
-
-    SECTION("array")
-    {
-        auto p = coek::parameter("p").value(1);
-
-        WHEN("add model")
-        {
-            auto v = coek::variable_array({4, 4, 4}).name("x").value(1);
-            coek::Model model;
-            auto vv = model.add(v);
-            REQUIRE(vv.size() == 64);
-        }
 
         WHEN("index api")
         {
@@ -909,11 +982,29 @@ TEST_CASE("3D_var_api", "[smoke]")
 
             REQUIRE_THROWS_WITH(v(100, 100, 100), "Unknown index value: x[100,100,100]");
         }
+    }
+}
+#endif
+
+#if __cpp_lib_variant
+TEST_CASE("var_array_api", "[smoke]")
+{
+    SECTION("array")
+    {
+        auto p = coek::parameter("p").value(1);
+
+        WHEN("add model")
+        {
+            auto v = coek::variable({4, 4, 4}).name("x").value(1);
+            coek::Model model;
+            auto vv = model.add(v);
+            REQUIRE(vv.size() == 64);
+        }
 
         WHEN("var value")
         {
             auto q = coek::parameter("q").value(1);
-            auto v = coek::variable_array(4).name("x").value(1);
+            auto v = coek::variable(4).name("x").value(1);
 
             REQUIRE(v(1).value() == 1);
             v.value(q + 1);
@@ -922,10 +1013,20 @@ TEST_CASE("3D_var_api", "[smoke]")
             REQUIRE(v(1).value() == 3);
         }
 
-        WHEN("var lower")
+        WHEN("var lower - 3")
         {
             auto q = coek::parameter("q").value(1);
-            auto v = coek::variable_array(4).name("x").lower(1);
+            auto v = coek::variable(4).name("x").lower(1);
+
+            REQUIRE(v(1).lower() == 1);
+            v.lower(3);
+            REQUIRE(v(1).lower() == 3);
+        }
+
+        WHEN("var lower - q")
+        {
+            auto q = coek::parameter("q").value(1);
+            auto v = coek::variable(4).name("x").lower(1);
 
             REQUIRE(v(1).lower() == 1);
             v.lower(q + 1);
@@ -934,10 +1035,20 @@ TEST_CASE("3D_var_api", "[smoke]")
             REQUIRE(v(1).lower() == 3);
         }
 
-        WHEN("var upper")
+        WHEN("var upper - 3")
         {
             auto q = coek::parameter("q").value(1);
-            auto v = coek::variable_array(4).name("x").upper(1);
+            auto v = coek::variable(4).name("x").upper(1);
+
+            REQUIRE(v(1).upper() == 1);
+            v.upper(3);
+            REQUIRE(v(1).upper() == 3);
+        }
+
+        WHEN("var upper - q")
+        {
+            auto q = coek::parameter("q").value(1);
+            auto v = coek::variable(4).name("x").upper(1);
 
             REQUIRE(v(1).upper() == 1);
             v.upper(q + 1);
@@ -949,7 +1060,7 @@ TEST_CASE("3D_var_api", "[smoke]")
         WHEN("var bounds")
         {
             auto q = coek::parameter("q").value(1);
-            auto v = coek::variable_array(4).name("x").bounds(1, 2);
+            auto v = coek::variable(4).name("x").bounds(1, 2);
 
             REQUIRE(v(1).lower() == 1);
             REQUIRE(v(1).upper() == 2);
@@ -965,12 +1076,15 @@ TEST_CASE("3D_var_api", "[smoke]")
             v.bounds(10, 10 * q);
             REQUIRE(v(1).lower() == 10);
             REQUIRE(v(1).upper() == 20);
+            v.bounds(11, 11);
+            REQUIRE(v(1).lower() == 11);
+            REQUIRE(v(1).upper() == 11);
         }
 
         WHEN("var within")
         {
             auto q = coek::parameter("q").value(1);
-            auto v = coek::variable_array(4).name("x");
+            auto v = coek::variable(4).name("x");
 
             REQUIRE(v(1).within() == coek::Reals);
             v.within(coek::Integers);
@@ -980,3 +1094,14 @@ TEST_CASE("3D_var_api", "[smoke]")
 }
 #endif
 
+
+#if __cpp_lib_variant
+TEST_CASE("ND_var_array_errors", "[smoke]")
+{
+    SECTION("wrong index values")
+    {
+        auto v = coek::variable("v", {10, 10});
+        REQUIRE_THROWS_WITH(v(11, 11).value(), "Unknown index value: v[11,11]");
+    }
+}
+#endif

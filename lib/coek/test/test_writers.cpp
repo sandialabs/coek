@@ -374,16 +374,20 @@ bool run_test(ModelType& model, const std::string& name, const std::string& suff
 
 TEST_CASE("model_writer", "[smoke]")
 {
-    std::vector<std::string> nonlinear = {
-                                            "ostrnl"
+    std::vector<std::string> nonlinear = {"ostrnl"
 #ifdef WITH_FMTLIB
-                                            ,"nl", "fmtnl"
+                                          ,
+                                          "nl", "fmtnl"
 #endif
     };
-    std::vector<std::string> linear = {
-                                        "ostrlp", "ostrnl"
+    std::vector<std::string> linear = {"ostrlp",
+                                       "ostrnl"
 #ifdef WITH_FMTLIB
-                                        ,"lp", "nl", "fmtlp", "fmtnl"
+                                       ,
+                                       "lp",
+                                       "nl",
+                                       "fmtlp",
+                                       "fmtnl"
 #endif
     };
     coek::Model model;
