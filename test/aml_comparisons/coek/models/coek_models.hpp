@@ -11,10 +11,10 @@ void lqcp_scalar(coek::Model& model, size_t N);
 #if __cpp_lib_variant
 void fac_array(coek::Model& model, size_t F);
 void lqcp_array(coek::Model& model, size_t N);
-#ifdef COEK_WITH_COMPACT_MODEL
+#    ifdef COEK_WITH_COMPACT_MODEL
 void lqcp_compact(coek::CompactModel& model, size_t N);
 void lqcp_map(coek::Model& model, size_t N);
-#endif
+#    endif
 #endif
 
 //
@@ -31,29 +31,29 @@ void pmedian_array(coek::Model& model, size_t N, size_t P);
 
 inline void print_models(std::ostream& os)
 {
-    os << 
+    os <<
 #if __cpp_lib_variant
-          "  fac-array N\n"
+        "  fac-array N\n"
 #endif
-          "  fac-scalar N\n"
+        "  fac-scalar N\n"
 #if __cpp_lib_variant
-          "  knapsack-array N\n"
+        "  knapsack-array N\n"
 #endif
-          "  knapsack-scalar N\n"
-          "  lqcp-array N\n"
+        "  knapsack-scalar N\n"
+        "  lqcp-array N\n"
 #ifdef COEK_WITH_COMPACT_MODEL
-          "  lqcp-compact N\n"
-          "  lqcp-map N\n"
+        "  lqcp-compact N\n"
+        "  lqcp-map N\n"
 #endif
-          "  lqcp-scalar N\n"
+        "  lqcp-scalar N\n"
 #if __cpp_lib_variant
-          "  nqueens-array N\n"
+        "  nqueens-array N\n"
 #endif
-          "  nqueens-scalar N\n"
+        "  nqueens-scalar N\n"
 #if __cpp_lib_variant
-          "  pmedian-array N P\n"
+        "  pmedian-array N P\n"
 #endif
-          "  pmedian-scalar N P\n";
+        "  pmedian-scalar N P\n";
 }
 
 inline void check_data(const std::string& name, const std::vector<size_t>& data, size_t num)
@@ -87,7 +87,7 @@ inline void create_instance(coek::Model& model, const std::string& name,
         check_data(name, data, 1);
         lqcp_array(model, data[0]);
     }
-#ifdef COEK_WITH_COMPACT_MODEL
+#    ifdef COEK_WITH_COMPACT_MODEL
     else if (name == "lqcp-compact") {
         check_data(name, data, 1);
         coek::CompactModel cmodel;
@@ -98,7 +98,7 @@ inline void create_instance(coek::Model& model, const std::string& name,
         check_data(name, data, 1);
         lqcp_map(model, data[0]);
     }
-#endif
+#    endif
 #endif
     else if (name == "lqcp-scalar") {
         check_data(name, data, 1);
