@@ -3,6 +3,16 @@
 Here we list changes of Coek.  More detailed information about incremental changes can be found in the
 [commit history](https://github.com/sandialabs/coek/commits).
 
+## 1.3
+
+* Added ASL autograd functionality
+* Various fixes in expression management logic.
+* Improving support for C++14
+* Updates to support Python 3.11
+* Switch to use SHA256 hashes for third-party packages
+* Adding expression simplifier logic
+* Fixing many bugs with NL writer
+
 ## 1.2
 
 * Added the SubExpression object, which is used to denote 
