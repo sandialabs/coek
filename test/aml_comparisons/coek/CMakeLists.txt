@@ -5,19 +5,19 @@
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 set(sources
-    models/jump/lqcp_array.cpp
     models/jump/lqcp_scalar.cpp
-    models/jump/fac_array.cpp
     models/jump/fac_scalar.cpp
-    models/misc/pmedian_array.cpp
     models/misc/pmedian.cpp
-    models/misc/nqueens_array.cpp
     models/misc/nqueens.cpp
-    models/misc/knapsack_array.cpp
     models/misc/knapsack.cpp
     )
 if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
     list(APPEND sources
+        models/jump/fac_array.cpp
+        models/jump/lqcp_array.cpp
+        models/misc/pmedian_array.cpp
+        models/misc/nqueens_array.cpp
+        models/misc/knapsack_array.cpp
         models/jump/lqcp_compact.cpp
         models/jump/lqcp_map.cpp
         )

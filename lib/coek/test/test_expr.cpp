@@ -15,6 +15,7 @@
 const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
+#if __cpp_lib_variant
 TEST_CASE("elementary_expression", "[smoke]")
 {
     SECTION("empty")
@@ -122,6 +123,7 @@ TEST_CASE("elementary_subexpression", "[smoke]")
         REQUIRE(e.to_list() == baseline);
     }
 }
+#endif
 
 TEST_CASE("model_monomial", "[smoke]")
 {
@@ -489,16 +491,14 @@ TEST_CASE("model_subexpression", "[smoke]")
 
         WHEN("double")
         {
-            coek::SubExpression a(1.0);
+            auto a = coek::subexpression().value(1.0);
             static std::list<std::string> baseline = {"[", "_", std::to_string(1.0), "]"};
             REQUIRE(a.to_list() == baseline);
         }
 
         WHEN("equal")
         {
-            coek::SubExpression a(1.0);
-            coek::SubExpression b;
-            b = a;
+            auto a = coek::subexpression().value(1.0);
             static std::list<std::string> baseline = {"[", "_", std::to_string(1.0), "]"};
             REQUIRE(a.to_list() == baseline);
         }
@@ -508,7 +508,7 @@ TEST_CASE("model_subexpression", "[smoke]")
     {
         WHEN("constant")
         {
-            coek::SubExpression a(1.0);
+            auto a = coek::subexpression().value(1.0);
             REQUIRE(a.is_constant() == false);
             REQUIRE(a.repn->body->is_constant() == true);
         }
@@ -3949,7 +3949,7 @@ TEST_CASE("expression_value", "[smoke]")
         WHEN("2*x + 1 == 0")
         {
             auto x = coek::variable().value(1.0);
-            auto c = 2*x + 1 == 0;
+            auto c = 2 * x + 1 == 0;
             std::map<std::shared_ptr<coek::SubExpressionTerm>, double> subexpr_value;
             REQUIRE(evaluate_expr(c.repn, subexpr_value) == 3.0);
         }
@@ -3957,7 +3957,7 @@ TEST_CASE("expression_value", "[smoke]")
         WHEN("2*x + 1 <= 0")
         {
             auto x = coek::variable().value(1.0);
-            auto c = 2*x + 1 <= 0;
+            auto c = 2 * x + 1 <= 0;
             std::map<std::shared_ptr<coek::SubExpressionTerm>, double> subexpr_value;
             REQUIRE(evaluate_expr(c.repn, subexpr_value) == 3.0);
         }

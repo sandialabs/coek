@@ -33,6 +33,7 @@ double evaluate_expr_debug(const expr_pointer_t& expr,
 #endif
 double evaluate_expr(const expr_pointer_t& expr,
                      std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value);
+double evaluate_expr(const expr_pointer_t& expr);
 double evaluate_expr(const BaseExpressionTerm* expr,
                      std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value);
 
@@ -62,4 +63,9 @@ void find_vars_and_params(const expr_pointer_t& expr,
                           std::set<std::shared_ptr<SubExpressionTerm>>& visited_subexpressions);
 void find_variables(const expr_pointer_t& expr,
                     std::unordered_set<std::shared_ptr<VariableTerm>>& variables);
+
+expr_pointer_t simplify_expr(
+    const expr_pointer_t& expr,
+    std::map<std::shared_ptr<SubExpressionTerm>, expr_pointer_t>& subexpr_value);
+expr_pointer_t simplify_expr(const expr_pointer_t& expr);
 }  // namespace coek

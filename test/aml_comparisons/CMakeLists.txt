@@ -4,7 +4,7 @@ PROJECT(aml_comparisons)
 #
 # For now, let's just assume we have C++17
 #
-set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD 17)
 
 ##################### SubDirectories #####################
 # coek

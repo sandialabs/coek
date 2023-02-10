@@ -77,19 +77,28 @@ TEST_CASE("elementary_constraint", "[smoke]")
             REQUIRE(e.lower().value() == 1.0);
         }
 
-        /* TODO
-        WHEN("lower - unbounded") {
+        WHEN("has_lower")
+        {
             auto v = coek::variable("v");
-            auto e = 1 > v;
-            REQUIRE( e.lower().isinf() );
-            }
-        */
+            auto e = 1 < v;
+            REQUIRE(e.has_lower());
+            REQUIRE(not e.has_upper());
+        }
 
         WHEN("upper")
         {
             auto v = coek::variable("v");
             auto e = 1 > v;
             REQUIRE(e.upper().value() == 1.0);
+        }
+
+        WHEN("has_upper")
+        {
+            auto v = coek::variable("v");
+            auto e = 1 > v;
+            REQUIRE(e.upper().value() == 1.0);
+            REQUIRE(not e.has_lower());
+            REQUIRE(e.has_upper());
         }
 
         WHEN("body")
@@ -1681,7 +1690,12 @@ TEST_CASE("elementary_constraint", "[smoke]")
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", coek::Model, coek::CompactModel)
+#    define MODEL_TYPES coek::Model, coek::CompactModel
+#else
+#    define MODEL_TYPES coek::Model
+#endif
+#if __cpp_lib_variant
+TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
 {
     TestType m;
 
@@ -1736,6 +1750,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", coek::Model, coek::CompactMo
             m.add(c);
         }
 
+#ifdef COEK_WITH_COMPACT_MODEL
         WHEN("operator () - param")
         {
             auto p = coek::parameter();
@@ -1747,6 +1762,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", coek::Model, coek::CompactMo
             }
             m.add(c);
         }
+#endif
 
         /*
         TODO - Should we allow this?
@@ -1851,6 +1867,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", coek::Model, coek::CompactMo
         }
     }
 
+#ifdef COEK_WITH_COMPACT_MODEL
     SECTION("map")
     {
         WHEN("constructor")
@@ -1919,5 +1936,6 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", coek::Model, coek::CompactMo
             REQUIRE_THROWS_WITH(c(-1, -1), "Unexpected index value: (-1,-1)");
         }
     }
+#endif
 }
 #endif

@@ -34,12 +34,12 @@ class ParameterAssocArrayRepn {
 
     void resize_index_vectors(IndexVector& tmp, std::vector<refarg_types>& reftmp);
 
-    /** Set the initial variable value. \returns the variable object. */
+    /** Set the initial variable value. */
     void value(double value);
-    /** Set the initial variable value. \returns the variable object. */
+    /** Set the initial variable value. */
     void value(const Expression& value);
 
-    /** Set the name of the variable. \returns the variable object */
+    /** Set the name of the variable. */
     void name(const std::string& name);
 };
 

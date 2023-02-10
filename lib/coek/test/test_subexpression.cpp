@@ -18,21 +18,28 @@ TEST_CASE("mutable_subexpression", "[smoke]")
     {
         auto v = coek::variable("v");
         auto e = coek::subexpression("e");
-        e.value( v );
-        auto E = e + 2*(e+1);
+        e.value(v);
+        auto E = e + 2 * (e + 1);
 
         static std::list<std::string> baseline1
-                = {"[", "+", "[", "_", "v", "]", "[", "*", "2.000000", "[", "+", "[", "_", "v", "]", "1.000000", "]", "]", "]"};
-        REQUIRE( E.to_list() == baseline1 );
+            = {"[", "+", "[", "_", "v", "]",        "[", "*", "2.000000", "[",
+               "+", "[", "_", "v", "]", "1.000000", "]", "]", "]"};
+        REQUIRE(E.to_list() == baseline1);
 
         e += v;
         static std::list<std::string> baseline2
-                = {"[", "+", "[", "_", "[", "+", "v", "v", "]", "]", "[", "*", "2.000000", "[", "+", "[", "_", "[", "+", "v", "v", "]", "]", "1.000000", "]", "]", "]"};
-        REQUIRE( E.to_list() == baseline2 );
+            = {"[", "+", "[", "_", "[", "+", "v", "v", "]", "]",        "[", "*", "2.000000", "[",
+               "+", "[", "_", "[", "+", "v", "v", "]", "]", "1.000000", "]", "]", "]"};
+        REQUIRE(E.to_list() == baseline2);
+    }
+    SECTION("name")
+    {
+        auto e = coek::subexpression("e");
+        REQUIRE(e.name() == "e");
     }
 }
 
-#ifdef COEK_WITH_COMPACT_MODEL
+#if __cpp_lib_variant
 TEST_CASE("indexed_subexpression", "[smoke]")
 {
     SECTION("simple array")
@@ -85,6 +92,7 @@ TEST_CASE("indexed_subexpression", "[smoke]")
             }
         }
 
+#ifdef COEK_WITH_COMPACT_MODEL
         WHEN("operator () - param")
         {
             auto p = coek::parameter();
@@ -95,6 +103,7 @@ TEST_CASE("indexed_subexpression", "[smoke]")
                 e(p) = v(p) + 1.0 * i;
             }
         }
+#endif
 
         /*
         TODO - Should we allow this?
@@ -195,6 +204,7 @@ TEST_CASE("indexed_subexpression", "[smoke]")
         }
     }
 
+#ifdef COEK_WITH_COMPACT_MODEL
     SECTION("map")
     {
         WHEN("constructor")
@@ -259,5 +269,6 @@ TEST_CASE("indexed_subexpression", "[smoke]")
             REQUIRE_THROWS_WITH(e(-1, -1), "Unexpected index value: e(-1,-1)");
         }
     }
+#endif
 }
 #endif

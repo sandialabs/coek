@@ -74,8 +74,12 @@ class NLPModel {
      *
      * \param hrow   vector that is filled with row indices
      * \param hcol   vector that is filled with column indices
+     *
+     * \returns a boolean that is true if the data is column-major ordered.
      */
     void get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol);
+
+    bool column_major_hessian();
 
     /** Write the model to the specified file */
     void write(std::string filename);

@@ -48,6 +48,27 @@ endmacro()
 macro(setup_builds)
     set(tpls)
 
+    # ASL
+    set(asl_available OFF CACHE BOOL "ASL is available")
+    if (install_asl)
+        ExternalProject_Add(libasl
+            #${asl_revision}   # specified in thirdparty.cmake
+            PREFIX              ${CMAKE_CURRENT_BINARY_DIR}/build/ASL
+            DOWNLOAD_DIR        ${download_dir}
+            GIT_REPOSITORY      "https://github.com/whart222/asl.git"
+            SOURCE_DIR          "downloads/ASL"
+            INSTALL_DIR         ${CMAKE_INSTALL_PREFIX}
+            CMAKE_ARGS
+                -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+                -DBUILD_SHARED_LIBS=ON
+                -DCMAKE_BUILD_TYPE=Release
+            BUILD_ALWAYS FALSE
+            EXCLUDE_FROM_ALL TRUE
+            )
+        set(asl_available ON)
+        list(APPEND tpls libasl)
+    endif()
+
     # Catch
     set(catch2_available OFF CACHE BOOL "Catch2 is available")
     if (install_catch2)
@@ -87,6 +108,7 @@ macro(setup_builds)
             CMAKE_ARGS
                 -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
                 -Dcppad_prefix=${CMAKE_INSTALL_PREFIX}
+                -DCMAKE_BUILD_TYPE=Release
             BUILD_ALWAYS FALSE
             EXCLUDE_FROM_ALL TRUE
             )
@@ -94,6 +116,7 @@ macro(setup_builds)
         list(APPEND tpls cppad)
     endif()
 
+    # TODO: Assess whether fmtlib should be installed with Release type: -DCMAKE_BUILD_TYPE=Release
     # fmtlib
     set(fmtlib_available OFF CACHE BOOL "FMT is available")
     if (install_fmtlib)
@@ -131,7 +154,6 @@ macro(setup_builds)
             SOURCE_DIR          ${source_dir}
             INSTALL_DIR         ${CMAKE_INSTALL_PREFIX}
             CMAKE_ARGS
-                -DPYBIND11_MASTER_PROJECT=OFF
                 -DPYBIND11_INSTALL=ON
                 -DPYBIND11_TEST=OFF
                 -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
@@ -167,6 +189,7 @@ macro(setup_builds)
     endif()
 
     MESSAGE("Configured to Install Third Party Packages (use 'make install_tpls')")
+    MESSAGE("   ASL Library:       ${asl_available}")
     MESSAGE("   Catch2 Library:    ${catch2_available}")
     MESSAGE("   CppAD Library:     ${cppad_available}")
     MESSAGE("   FMT Library:       ${fmtlib_available}")

@@ -12,7 +12,7 @@ class SumExpressionTerm : public BaseExpressionTerm {
    public:
     SumExpressionTerm(const ExpressionSequence& _seq) : seq(_seq) {}
 
-    double eval() const { throw std::runtime_error("Cannot evaluate a Sum() expression."); }
+    double _eval() const { throw std::runtime_error("Cannot evaluate a Sum() expression."); }
 
     bool is_expression() const { return false; }
 

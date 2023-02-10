@@ -285,13 +285,15 @@ std::map<std::string, Constraint>& Model::get_constraints_by_name()
 void Model::generate_names()
 {
     if (repn->name_generation_policy == Model::NameGeneration::lazy) {
+#if __cpp_lib_variant
         for (auto& parray : repn->parameter_arrays) parray.generate_names();
         for (auto& varray : repn->variable_arrays) varray.generate_names();
-#ifdef COEK_WITH_COMPACT_MODEL
+#    ifdef COEK_WITH_COMPACT_MODEL
         for (auto& pmap : repn->parameter_maps) pmap.generate_names();
         for (auto& vmap : repn->variable_maps) vmap.generate_names();
-#endif
+#    endif
         for (auto& cmap : repn->constraint_maps) cmap.generate_names();
+#endif
     }
 
     repn->variables_by_name.clear();
@@ -351,38 +353,40 @@ std::set<std::string> Model::constraint_suffix_names() const { return map_keys(r
 
 std::set<std::string> Model::model_suffix_names() const { return map_keys(repn->msuffix); }
 
-void write_lp_problem(Model& model, std::string& fname, std::map<size_t, size_t>& varmap,
+void write_lp_problem(Model& model, const std::string& fname, std::map<size_t, size_t>& varmap,
                       std::map<size_t, size_t>& conmap);
-void write_nl_problem(Model& model, std::string& fname, std::map<size_t, size_t>& varmap,
+void write_nl_problem(Model& model, const std::string& fname, std::map<size_t, size_t>& varmap,
                       std::map<size_t, size_t>& conmap);
 
-void write_lp_problem_ostream(Model& model, std::string& fname, std::map<size_t, size_t>& varmap,
-                              std::map<size_t, size_t>& conmap);
-void write_nl_problem_ostream(Model& model, std::string& fname, std::map<size_t, size_t>& varmap,
-                              std::map<size_t, size_t>& conmap);
+void write_lp_problem_ostream(Model& model, const std::string& fname,
+                              std::map<size_t, size_t>& varmap, std::map<size_t, size_t>& conmap);
+void write_nl_problem_ostream(Model& model, const std::string& fname,
+                              std::map<size_t, size_t>& varmap, std::map<size_t, size_t>& conmap);
 #ifdef WITH_FMTLIB
-void write_lp_problem_fmtlib(Model& model, std::string& fname, std::map<size_t, size_t>& varmap,
-                             std::map<size_t, size_t>& conmap);
-void write_nl_problem_fmtlib(Model& model, std::string& fname, std::map<size_t, size_t>& varmap,
-                             std::map<size_t, size_t>& conmap);
+void write_lp_problem_fmtlib(Model& model, const std::string& fname,
+                             std::map<size_t, size_t>& varmap, std::map<size_t, size_t>& conmap);
+void write_nl_problem_fmtlib(Model& model, const std::string& fname,
+                             std::map<size_t, size_t>& varmap, std::map<size_t, size_t>& conmap);
 #endif
 
-void Model::write(std::string fname)
+void Model::write(const std::string& fname)
 {
     std::map<size_t, size_t> varmap;
     std::map<size_t, size_t> conmap;
     write(fname, varmap, conmap);
 }
 
-void Model::write(std::string fname, std::map<size_t, size_t>& varmap,
+void Model::write(const std::string& fname, std::map<size_t, size_t>& varmap,
                   std::map<size_t, size_t>& conmap)
 {
     if (repn->name_generation_policy == Model::NameGeneration::lazy) {
+#if __cpp_lib_variant
         for (auto& varray : repn->variable_arrays) varray.generate_names();
-#ifdef COEK_WITH_COMPACT_MODEL
+#    ifdef COEK_WITH_COMPACT_MODEL
         for (auto& vmap : repn->variable_maps) vmap.generate_names();
-#endif
+#    endif
         for (auto& cmap : repn->constraint_maps) cmap.generate_names();
+#endif
     }
 
     if (ends_with(fname, ".lp")) {

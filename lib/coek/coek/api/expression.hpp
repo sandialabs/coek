@@ -306,12 +306,12 @@ class Expression {
     /** Implicit construction of an Expression from a SubExpression */
     Expression(const SubExpression& arg);
 
-    Expression(const ParameterRepn& _repn);
-    Expression(const IndexParameterRepn& _repn);
+    // Expression(const ParameterRepn& _repn);
+    // Expression(const IndexParameterRepn& _repn);
     Expression(const VariableRepn& _repn);
     Expression(const ExpressionRepn& _repn);
-    Expression(ParameterRepn&& _repn);
-    Expression(IndexParameterRepn&& _repn);
+    // Expression(ParameterRepn&& _repn);
+    // Expression(IndexParameterRepn&& _repn);
     Expression(VariableRepn&& _repn);
     Expression(ExpressionRepn&& _repn);
 
@@ -414,9 +414,9 @@ class SubExpression {
     /** Constructs a SubExpression without defining its value */
     SubExpression();
     /** Explict construction of a SubExpression from a double */
-    explicit SubExpression(double value);
+    // explicit SubExpression(double value);
     /** Explict construction of a SubExpression from an integer */
-    explicit SubExpression(int value);
+    // explicit SubExpression(int value);
     /** Implicit construction of a SubExpression from a Parameter */
     SubExpression(const Parameter& arg);
     /** Implicit construction of a SubExpression from an IndexParameter */
@@ -449,13 +449,6 @@ class SubExpression {
 
     /** \returns a list representation of the expression */
     std::list<std::string> to_list() const;
-    /**
-     * Create an expression that computes the partial derivative relative to a specified variable.
-     *
-     * \param var - The variable that will be used to compute the partial derivative
-     * \returns an expression that computes the partial derivative
-     */
-    Expression diff(const Variable& var) const;
 
     /** Add an integer to the expression */
     SubExpression& operator+=(int arg);
@@ -516,9 +509,6 @@ class SubExpression {
     SubExpression& operator/=(const Expression& arg);
     /** Divide the expression by a SubExpression */
     SubExpression& operator/=(const SubExpression& arg);
-
-    /** \returns an expanded Expression */
-    Expression expand();
 };
 
 SubExpression subexpression();

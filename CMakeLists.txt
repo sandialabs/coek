@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.13)
 project(CoekProject)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
@@ -39,11 +39,11 @@ add_subdirectory(tpl)
 
 add_custom_target(install_tpls
         DEPENDS _install_tpls
-        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON ${PROJECT_SOURCE_DIR}
+        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON -Dwith_asl=ON ${PROJECT_SOURCE_DIR}
         )
 add_custom_target(install_tpl
         DEPENDS _install_tpls
-        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON ${PROJECT_SOURCE_DIR}
+        COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON -Dwith_asl=ON ${PROJECT_SOURCE_DIR}
         )
 
 ##################### Options #####################
@@ -60,24 +60,6 @@ option(with_caliper "Use the Caliper library" OFF)
 option(with_tests "Build tests" OFF)
 option(with_docs "Build documentation" OFF)
 option(with_python "Build/Install Python libs" ${Python_FOUND})
-
-message("Initial Configuration Options")
-# Options defined here
-message("-- with_debug: ${with_debug}")
-message("-- with_verbose: ${with_verbose}")
-message("-- with_gcov: ${with_gcov}")
-message("-- with_gprof: ${with_gprof}")
-message("-- with_caliper: ${with_caliper}")
-message("-- with_tests: ${with_tests}")
-message("-- with_docs: ${with_docs}")
-message("-- with_python: ${with_python}")
-# Options defined in tpl
-message("-- with_catch2: ${with_catch2}")
-message("-- with_cppad: ${with_cppad}")
-message("-- with_pybind11: ${with_pybind11}")
-message("-- with_cppyy: ${with_cppyy}")
-message("-- with_rapidjson: ${with_rapidjson}")
-message("-- with_fmtlib: ${with_fmtlib}")
 
 ##################### Checks for compiler #####################
 
@@ -117,6 +99,34 @@ elseif(NOT "${CMAKE_CXX_STANDARD}")
 else()
     MESSAGE("-- C++ version: C++${CMAKE_CXX_STANDARD}")
 endif()
+
+if (CMAKE_CXX_STANDARD LESS 17)
+    message("DISABLING FMTLIB")
+    set(with_fmtlib OFF)   
+endif()
+
+##################### General Configuration Options #####################
+
+message("Initial Configuration Options")
+# Options defined here
+message("-- with_debug: ${with_debug}")
+message("-- with_verbose: ${with_verbose}")
+message("-- with_gcov: ${with_gcov}")
+message("-- with_gprof: ${with_gprof}")
+message("-- with_caliper: ${with_caliper}")
+message("-- with_tests: ${with_tests}")
+message("-- with_docs: ${with_docs}")
+message("-- with_python: ${with_python}")
+# Options defined in tpl
+message("-- with_asl: ${with_asl}")
+message("-- with_catch2: ${with_catch2}")
+message("-- with_cppad: ${with_cppad}")
+message("-- with_cppyy: ${with_cppyy}")
+message("-- with_fmtlib: ${with_fmtlib}")
+message("-- with_pybind11: ${with_pybind11}")
+message("-- with_rapidjson: ${with_rapidjson}")
+
+##################### Other Configuraton Options #####################
 
 if (with_gcov)
   if (CMAKE_CXX_COMPILER_ID MATCHES GNU)

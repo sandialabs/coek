@@ -262,6 +262,17 @@ double evaluate_expr(const expr_pointer_t& expr,
     return visit_expression(expr, data);
 }
 
+double evaluate_expr(const expr_pointer_t& expr)
+{
+    // GCOVR_EXCL_START
+    if (not expr) return 0.0;
+    // GCOVR_EXCL_STOP
+
+    std::map<std::shared_ptr<SubExpressionTerm>, double> subexpr_value;
+    VariableData data(subexpr_value);
+    return visit_expression(expr, data);
+}
+
 double evaluate_expr(const BaseExpressionTerm* expr,
                      std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value)
 {

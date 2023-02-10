@@ -54,7 +54,6 @@ class ConstantTerm : public BaseExpressionTerm {
     double _eval() const { return value; }
 
     bool is_constant() const { return true; }
-    bool is_parameter() const { return false; }
 
     expr_pointer_t negate(const expr_pointer_t& repn);
 

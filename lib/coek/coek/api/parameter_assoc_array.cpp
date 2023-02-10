@@ -7,9 +7,6 @@
 
 namespace coek {
 
-expr_pointer_t create_paramref(const std::vector<refarg_types>& indices, const std::string& name,
-                               void* var);
-
 //
 // ParameterAssocArrayRepn
 //
@@ -55,7 +52,13 @@ void ParameterAssocArrayRepn::name(const std::string& name)
 {
     parameter_template.name(name);
     if (values.size() > 0) {
-        for (auto& var : values) var.name(name);
+        // If the string is empty, then we reset the names of all variables
+        if (name.size() == 0) {
+            for (auto& var : values) var.name(name);
+        }
+        // Otherwise, we re-generate the names
+        else
+            generate_names();
     }
 }
 
@@ -71,15 +74,21 @@ std::vector<Parameter>::iterator ParameterAssocArray::begin() { return get_repn(
 
 std::vector<Parameter>::iterator ParameterAssocArray::end() { return get_repn()->values.end(); }
 
+#ifdef COEK_WITH_COMPACT_MODEL
+expr_pointer_t create_paramref(const std::vector<refarg_types>& indices, const std::string& name,
+                               void* var);
+
 Expression ParameterAssocArray::create_paramref(const std::vector<refarg_types>& args)
 {
     return coek::create_paramref(args, get_repn()->parameter_template.name(), this);
 }
+#endif
 
 //
 // OTHER
 //
 
+#ifdef COEK_WITH_COMPACT_MODEL
 expr_pointer_t get_concrete_param(ParameterRefTerm& paramref)
 {
     ParameterAssocArray* param = static_cast<ParameterAssocArray*>(paramref.param);
@@ -104,5 +113,6 @@ expr_pointer_t get_concrete_param(ParameterRefTerm& paramref)
     Expression e = param->index(tmp);
     return e.repn;
 }
+#endif
 
 }  // namespace coek

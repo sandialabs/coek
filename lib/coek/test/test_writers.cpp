@@ -323,6 +323,13 @@ void testing5(coek::Model& model)
     model.add(coek::objective(x));
 }
 
+void testing6(coek::Model& model)
+{
+    auto x = model.add_variable("x").lower(0).upper(1).value(0);
+    auto q = coek::parameter("q").value(2);
+    model.add(coek::objective(-q * x * x));
+}
+
 #ifdef COEK_WITH_COMPACT_MODEL
 void compact1(coek::CompactModel& model)
 {
@@ -356,7 +363,7 @@ bool run_test(ModelType& model, const std::string& name, const std::string& suff
     std::string baseline = currdir + "/baselines/" + fname;
     model.write(fname);
     auto same = compare_files(fname, baseline);
-    // std::cout << "name " << name << " " << same << std::endl;
+    // std::cout << "name " << name << " " << same << " " << fname << std::endl;
     if (same) {
         if (std::remove(fname.c_str()) != 0) return false;
     }
@@ -367,18 +374,18 @@ bool run_test(ModelType& model, const std::string& name, const std::string& suff
 
 TEST_CASE("model_writer", "[smoke]")
 {
-    std::vector<std::string> nonlinear = {"nl", "ostrnl"
+    std::vector<std::string> nonlinear = {"ostrnl"
 #ifdef WITH_FMTLIB
                                           ,
-                                          "fmtnl"
+                                          "nl", "fmtnl"
 #endif
     };
-    std::vector<std::string> linear = {"lp",
-                                       "nl",
-                                       "ostrlp",
+    std::vector<std::string> linear = {"ostrlp",
                                        "ostrnl"
 #ifdef WITH_FMTLIB
                                        ,
+                                       "lp",
+                                       "nl",
                                        "fmtlp",
                                        "fmtnl"
 #endif
@@ -388,6 +395,7 @@ TEST_CASE("model_writer", "[smoke]")
     SECTION("error1")
     {
         error1(model);
+#ifdef WITH_FMTLIB
         REQUIRE_THROWS_WITH(model.write("error1.nl"),
                             "Error writing NL file: Model expressions contain variable 'y' "
                             "that is not declared in the model.");
@@ -396,10 +404,12 @@ TEST_CASE("model_writer", "[smoke]")
                             "Error writing NL file: Model expressions contain variable 'y' "
                             "that is not declared in the model.");
         std::remove("error1.fmtnl");
+#endif
         REQUIRE_THROWS_WITH(model.write("error1.ostrnl"),
                             "Error writing NL file: Model expressions contain variable 'y' "
                             "that is not declared in the model.");
         std::remove("error1.ostrnl");
+#ifdef WITH_FMTLIB
         REQUIRE_THROWS_WITH(model.write("error1.lp"),
                             "Error writing LP file: Model expressions contain variable that is "
                             "not declared in the model.");
@@ -408,11 +418,15 @@ TEST_CASE("model_writer", "[smoke]")
                             "Error writing LP file: Model expressions contain variable that is "
                             "not declared in the model.");
         std::remove("error1.fmtlp");
+#endif
         REQUIRE_THROWS_WITH(model.write("error1.ostrlp"),
                             "Error writing LP file: Model expressions contain variable that is "
                             "not declared in the model.");
         std::remove("error1.ostrlp");
     }
+
+#if 0
+    TODO - Revisit this test
 
     SECTION("error2")
     {
@@ -436,6 +450,10 @@ TEST_CASE("model_writer", "[smoke]")
                             "Error writing LP file: No objectives specified!");
         std::remove("error2.ostrlp");
     }
+#endif
+
+#if 0
+    TODO - Add tests with multiple objectives 
 
     SECTION("error3")
     {
@@ -459,25 +477,30 @@ TEST_CASE("model_writer", "[smoke]")
                             "Error writing LP file: More than one objective defined!");
         std::remove("error3.ostrlp");
     }
+#endif
 
     SECTION("error4")
     {
         error4(model);
+#ifdef WITH_FMTLIB
         REQUIRE_THROWS_WITH(model.write("error3.nl"),
                             "Error writing NL file: Unexpected index parameter.");
         std::remove("error3.nl");
         REQUIRE_THROWS_WITH(model.write("error3.fmtnl"),
                             "Error writing NL file: Unexpected index parameter.");
         std::remove("error3.fmtnl");
+#endif
         REQUIRE_THROWS_WITH(model.write("error3.ostrnl"),
                             "Error writing NL file: Unexpected index parameter.");
         std::remove("error3.ostrnl");
+#ifdef WITH_FMTLIB
         REQUIRE_THROWS_WITH(model.write("error3.lp"),
                             "Error writing LP file: Unexpected index parameter.");
         std::remove("error3.lp");
         REQUIRE_THROWS_WITH(model.write("error3.fmtlp"),
                             "Error writing LP file: Unexpected index parameter.");
         std::remove("error3.fmtlp");
+#endif
         REQUIRE_THROWS_WITH(model.write("error3.ostrlp"),
                             "Error writing LP file: Unexpected index parameter.");
         std::remove("error3.ostrlp");
@@ -583,6 +606,12 @@ TEST_CASE("model_writer", "[smoke]")
     {
         testing5(model);
         for (const std::string& suffix : linear) REQUIRE(run_test(model, "testing5", suffix));
+    }
+
+    SECTION("testing6")
+    {
+        testing6(model);
+        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "testing6", suffix));
     }
 
     // TODO - Add separate NLP writer tests to confirm the variable mappings

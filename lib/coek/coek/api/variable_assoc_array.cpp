@@ -130,7 +130,19 @@ void VariableAssocArrayRepn::fixed(bool value)
     }
 }
 
-void VariableAssocArrayRepn::name(const std::string& name) { variable_template.name(name); }
+void VariableAssocArrayRepn::name(const std::string& name)
+{
+    variable_template.name(name);
+    if (values.size() > 0) {
+        // If the string is empty, then we reset the names of all variables
+        if (name.size() == 0) {
+            for (auto& var : values) var.name(name);
+        }
+        // Otherwise, we re-generate the names
+        else
+            generate_names();
+    }
+}
 
 void VariableAssocArrayRepn::within(VariableTypes vtype)
 {
@@ -152,15 +164,18 @@ std::vector<Variable>::iterator VariableAssocArray::begin() { return get_repn()-
 
 std::vector<Variable>::iterator VariableAssocArray::end() { return get_repn()->values.end(); }
 
+#ifdef COEK_WITH_COMPACT_MODEL
 Expression VariableAssocArray::create_varref(const std::vector<refarg_types>& args)
 {
     return coek::create_varref(args, get_repn()->variable_template.name(), this);
 }
+#endif
 
 //
 // OTHER
 //
 
+#ifdef COEK_WITH_COMPACT_MODEL
 expr_pointer_t get_concrete_var(VariableRefTerm& varref)
 {
     VariableAssocArray* var = static_cast<VariableAssocArray*>(varref.var);
@@ -185,5 +200,6 @@ expr_pointer_t get_concrete_var(VariableRefTerm& varref)
     Expression e = var->index(tmp);
     return e.repn;
 }
+#endif
 
 }  // namespace coek

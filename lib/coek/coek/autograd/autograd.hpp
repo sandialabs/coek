@@ -51,8 +51,9 @@ class NLPModelRepn {
     virtual void compute_J(std::vector<double>& J) = 0;
 
     virtual void get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol) = 0;
-    // NOTE: Should we always assume column- or row-major order?
     virtual void get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol) = 0;
+    // Returns true if the Hessian representation is column-major order, and false otherwise
+    virtual bool column_major_hessian() = 0;
 
    public:
     void find_used_variables();

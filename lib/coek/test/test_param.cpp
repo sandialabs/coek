@@ -12,8 +12,6 @@
 const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
-void xyz() {}
-
 TEST_CASE("elementary_param", "[smoke]")
 {
     SECTION("values")
@@ -24,6 +22,14 @@ TEST_CASE("elementary_param", "[smoke]")
             REQUIRE(q.value() == 2);
             q.value(3);
             REQUIRE(q.value() == 3);
+        }
+        WHEN("parameter - p+1")
+        {
+            auto p = coek::parameter("p").value(3);
+            auto q = coek::parameter("q").value(2);
+            REQUIRE(q.value() == 2);
+            q.value(p + 1);
+            REQUIRE(q.value() == 4);
         }
     }
 
@@ -200,7 +206,7 @@ TEST_CASE("1D_param_map", "[smoke]")
             REQUIRE(typeid(params(1)).name() == typeid(coek::Parameter).name());
         }
 
-        WHEN("value")
+        WHEN("value - 1")
         {
             auto s = coek::SetOf(v);
             auto params = coek::parameter(s).value(1);
@@ -272,6 +278,7 @@ TEST_CASE("1D_param_map", "[smoke]")
 }
 #endif
 
+#if __cpp_lib_variant
 TEST_CASE("1D_param_array", "[smoke]")
 {
     SECTION("int_vector")
@@ -300,17 +307,54 @@ TEST_CASE("1D_param_array", "[smoke]")
             REQUIRE(typeid(params(1)).name() == typeid(coek::Parameter).name());
         }
 
-        WHEN("index")
+        WHEN("value - 1")
         {
-            auto params = coek::parameter(4).value(1);
-            for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 1);
-            for (int i = 0; i < 4; i++) REQUIRE(params(i).value() == 1);
-        }
+            auto params = coek::parameter(4);
 
+            // Set value using template
+            params.value(1);
+            for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 1);
+
+            // Set value for all indices
+            params.value(2);
+            for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 2);
+        }
+        WHEN("value - q")
+        {
+            auto params = coek::parameter(4);
+            auto q = coek::parameter().value(2);
+            for (size_t i = 0; i < 4; i++)
+                params(i).value(q + (int)i);  // TODO - generalize API to include unsigned ints
+            for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 2 + i);
+        }
+        WHEN("value all - q")
+        {
+            auto params = coek::parameter(4);
+            auto q = coek::parameter().value(2);
+
+            // Set value using template
+            params.value(q + (int)2);  // TODO - generalize API to include unsigned ints
+            for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 4);
+
+            // Set value for all indices
+            params.value(q + (int)3);
+            for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 5);
+        }
         WHEN("name")
         {
-            auto params = coek::parameter(4).name("v").generate_names();
+            auto params = coek::parameter(4);
+
+            params.name("v");
+            params.generate_names();
             for (int i = 0; i < 4; i++) REQUIRE(params(i).name() == "v[" + std::to_string(i) + "]");
+
+            // We don't need to call generate_names() again.  Names are automatically generated
+            // after the first time.
+            params.name("w");
+            for (int i = 0; i < 4; i++) REQUIRE(params(i).name() == "w[" + std::to_string(i) + "]");
+
+            params.name("");
+            for (int i = 0; i < 4; i++) REQUIRE(params(i).name()[0] == 'P');
         }
     }
 
@@ -370,6 +414,7 @@ TEST_CASE("1D_param_array", "[smoke]")
         }
     }
 }
+#endif
 
 #ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE("2D_param_map", "[smoke]")
@@ -474,6 +519,7 @@ TEST_CASE("2D_param_map", "[smoke]")
 }
 #endif
 
+#if __cpp_lib_variant
 TEST_CASE("2D_param_array", "[smoke]")
 {
     SECTION("int_vector_dim")
@@ -673,6 +719,7 @@ TEST_CASE("3D_param_array", "[smoke]")
         }
     }
 }
+#endif
 
 #ifdef COEK_WITH_COMPACT_MODEL
 TEST_CASE("3D_param_api", "[smoke]")
@@ -786,5 +833,15 @@ TEST_CASE("3D_param_api", "[smoke]")
         }
     }
 }
+#endif
 
+#if __cpp_lib_variant
+TEST_CASE("ND_param_array_errors", "[smoke]")
+{
+    SECTION("wrong index values")
+    {
+        auto p = coek::parameter("p", {10, 10}).value(1);
+        REQUIRE_THROWS_WITH(p(11, 11).value(), "Unknown index value: p[11,11]");
+    }
+}
 #endif

@@ -63,6 +63,8 @@ class UnknownAD_Repn : public NLPModelRepn {
         throw std::runtime_error("Error accessing uninitialized NLPModel");
     }
 
+    bool column_major_hessian() { return false; }
+
     void print_equations(std::ostream&) const
     {
         throw std::runtime_error("Error accessing uninitialized NLPModel");
