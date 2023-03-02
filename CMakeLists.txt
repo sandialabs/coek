@@ -58,6 +58,7 @@ option(with_gprof "Profile build" OFF)
 option(with_caliper "Use the Caliper library" OFF)
 # Monorepo configuration
 option(with_tests "Build tests" OFF)
+option(with_apps "Build apps" ON)
 option(with_docs "Build documentation" OFF)
 option(with_python "Build/Install Python libs" ${Python_FOUND})
 
@@ -184,7 +185,11 @@ message("")
 
 message("Configuring Monorepo Packages")
 add_subdirectory(lib)
-add_subdirectory(test)
-add_subdirectory(app)
+if(${with_tests})
+    add_subdirectory(test)
+endif()
+if(${with_apps})
+    add_subdirectory(app)
+endif()
 
 message("")
