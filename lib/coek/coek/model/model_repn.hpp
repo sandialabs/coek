@@ -2,12 +2,12 @@
 
 #include <map>
 #include <unordered_map>
-#include <variant>
 #include <vector>
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/api/constraint.hpp"
 #if __cpp_lib_variant
+#    include <variant>
 #    include "coek/api/parameter_array.hpp"
 #    include "coek/api/variable_array.hpp"
 #    include "coek/api/constraint_map.hpp"

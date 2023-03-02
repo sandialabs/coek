@@ -4,10 +4,11 @@
 #    if __has_include(<version>)
 #        include <version>
 #    endif
-#    if __has_include(<variant>)
-#        include <variant>
-#    endif
 #endif
+#if __cpp_lib_variant
+#include <variant>
+#endif
+
 #include <coek/api/constants.hpp>
 #include <map>
 #include <memory>
