@@ -18,8 +18,6 @@ compile:
     - pwd
     - which g++
     - which python
-    - which conda
-    - conda env list
     - mkdir build
     - cd build
     - cmake
