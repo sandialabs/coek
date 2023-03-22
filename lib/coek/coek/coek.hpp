@@ -14,7 +14,7 @@
 #include "coek/api/expression_visitor.hpp"
 #include "coek/api/intrinsic_fn.hpp"
 #include "coek/api/objective.hpp"
-#if __cpp_lib_variant
+#ifdef __cpp_lib_variant
 #    include "coek/api/parameter_array.hpp"
 #    include "coek/api/variable_array.hpp"
 #    include "coek/api/constraint_map.hpp"
