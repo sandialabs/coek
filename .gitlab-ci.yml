@@ -17,6 +17,8 @@ compile:
   script:
     - pwd
     - which python
+    - which conda
+    - conda env list
     - mkdir build
     - cd build
     - cmake
