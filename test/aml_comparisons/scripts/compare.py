@@ -1,8 +1,13 @@
 import os
 import csv
 import argparse
-import plotly.express as px
+import pandas as pd
 import math
+import statistics
+#import plotly.express as px
+import plotly.graph_objects as go
+import pprint
+import datetime
 
 
 def parse_args():
@@ -15,63 +20,70 @@ def parse_args():
 
 def compare(source_dir, test_type):
     args = parse_args()
-    branch_dir = os.path.join(args.artifact_dir, args.branch_name)
-    baseline_dir = os.path.join(args.artifact_dir, 'dev-private')
+    branches=['dev-private', 'dev-public', 'mt']
 
-    build_fname = os.path.join(branch_dir, 'build_number.txt')
-    f = open(build_fname, 'r')
-    build_number = int(f.read()) - 1
-    f.close()
+    data = {}
+    mindate = None
+    maxdate = None
+    maxbuild = -1
+    maxvalue = -1.0
+    for datadir in branches:
+        branch_dir = os.path.join(args.artifact_dir, datadir)
 
-    build_list = list()
-    ratio_list = list()
-    running_fname = os.path.join(baseline_dir, f'{test_type}_running.csv')
-    f = open(running_fname, 'r')
-    reader = csv.DictReader(f)
-    fieldnames = reader.fieldnames
-    for row in reader:
-        build_list.append(int(row.pop('build_number')))
-        rlist = [float(i) for i in row.values()]
-        r = sum(rlist) / len(rlist)
-        ratio_list.append(r)
-    f.close()
+        build_fname = os.path.join(branch_dir, 'build_number.txt')
+        f = open(build_fname, 'r')
+        build_number = int(f.read())
+        f.close()
 
-    build_list.append(build_list[-1] + 1)
-    fname = os.path.join(branch_dir, str(build_number), f'{test_type}_summary.csv')
-    f = open(fname)
-    reader = csv.DictReader(f)
-    assert reader.fieldnames == fieldnames
-    row = next(reader)
-    row.pop('build_number')
-    rlist = [float(i) for i in row.values()]
-    r = sum(rlist) / len(rlist)
-    ratio_list.append(r)
-    f.close()
+        tmp = {}
+        for num in range(build_number):
+            running_fname = os.path.join(branch_dir, str(num), f'{test_type}_summary.csv')
+            created = os.path.getctime(running_fname)
+            with open(running_fname, 'r') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    row.pop('build_number',0)
+                    tmp[created] = statistics.mean(float(i) for i in row.values())
+                    maxbuild = max(num, maxbuild)
+                    maxvalue = max(tmp[created], maxvalue)
+                    break
+            if mindate is None or created < mindate:
+                mindate = created
+            if maxdate is None or created > maxdate:
+                maxdate = created
+            
+        data[datadir] = tmp
 
-    print(build_list)
-    print(ratio_list)
-    fig = px.scatter(
-        x=build_list,
-        y=ratio_list,
-        size=[10]*len(build_list),
-        range_y=[0, 1.1*math.ceil(max(ratio_list))],
-    )
+    #print(mindate)
+    #print(maxdate)
+    #print(maxvalue)
+    
+    fig = go.Figure()
+
+    for datadir in branches:
+        #pprint.pprint(data[datadir])
+        tmp = {'index': [datetime.datetime.fromtimestamp(key) for key in data[datadir]], 'value': [data[datadir][key] for key in data[datadir]]}
+        df = pd.DataFrame.from_dict(tmp)
+        fig.add_trace( go.Scatter(x=df['index'], y=df['value'], mode='lines', name=datadir ) )
+                                #,     range_x=[mindate,maxdate], range_y=[0, 1.1*math.ceil(maxvalue)]) )
+
+    fig.update_yaxes(range=[0, 1.1*math.ceil(maxvalue)])
     fig.update_layout(
-        xaxis_title='build number',
+        xaxis_title='Date',
         yaxis_title='coek time / gurobi time',
         title=test_type,
     )
     fig.write_html(f'{test_type}_trend.html')
 
-    if args.branch_name == 'dev-private':
-        fwrite = open(running_fname, 'a')
-        fread = open(fname, 'r')
-        lines = fread.readlines()
-        assert len(lines) == 2
-        l = lines[1]
-        fwrite.write(l)
-        fwrite.close()
-        fread.close()
+    #if args.branch_name == 'dev-private':
+    #    fwrite = open(running_fname, 'a')
+    #    fread = open(fname, 'r')
+    #    lines = fread.readlines()
+    #    assert len(lines) == 2
+    #    l = lines[1]
+    #    fwrite.write(l)
+    #    fwrite.close()
+    #    fread.close()
 
 
 if __name__ == '__main__':
