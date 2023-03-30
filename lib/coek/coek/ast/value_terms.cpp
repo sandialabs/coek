@@ -1,9 +1,21 @@
+#include <mutex>
 #include <map>
 #include "../api/constants.hpp"
 #include "value_terms.hpp"
 #include "expr_terms.hpp"
 
 namespace coek {
+
+namespace {
+
+//
+// Mutex objects used to lock the modifications of the count value
+//
+std::mutex ParameterTerm_mtx;
+std::mutex VariableTerm_mtx;
+
+}
+
 
 //
 // BaseExpressionTerm
@@ -46,13 +58,17 @@ ParameterTerm::ParameterTerm()
 {
     non_variable = true;
     value = std::make_shared<ConstantTerm>(0.0);
+    ParameterTerm_mtx.lock();
     index = count++;
+    ParameterTerm_mtx.unlock();
 }
 
 ParameterTerm::ParameterTerm(const expr_pointer_t& _value) : value(_value)
 {
     non_variable = true;
+    ParameterTerm_mtx.lock();
     index = count++;
+    ParameterTerm_mtx.unlock();
 }
 
 expr_pointer_t ParameterTerm::negate(const expr_pointer_t& repn)
@@ -131,11 +147,11 @@ bool IndexParameterTerm::get_value(std::string& value)
 // VariableTerm
 //
 
-std::shared_ptr<ConstantTerm> VariableTerm::negative_infinity
+const std::shared_ptr<ConstantTerm> VariableTerm::negative_infinity
     = std::make_shared<ConstantTerm>(-COEK_INFINITY);
-std::shared_ptr<ConstantTerm> VariableTerm::positive_infinity
+const std::shared_ptr<ConstantTerm> VariableTerm::positive_infinity
     = std::make_shared<ConstantTerm>(COEK_INFINITY);
-std::shared_ptr<ConstantTerm> VariableTerm::nan = std::make_shared<ConstantTerm>(COEK_NAN);
+const std::shared_ptr<ConstantTerm> VariableTerm::nan = std::make_shared<ConstantTerm>(COEK_NAN);
 
 unsigned int VariableTerm::count = 0;
 
@@ -143,7 +159,9 @@ VariableTerm::VariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub,
                            const expr_pointer_t& _value, bool _binary, bool _integer)
     : value(_value), lb(_lb), ub(_ub), binary(_binary), integer(_integer), fixed(false)
 {
+    VariableTerm_mtx.lock();
     index = count++;
+    VariableTerm_mtx.unlock();
 }
 
 expr_pointer_t VariableTerm::const_mult(double coef, const expr_pointer_t& repn)

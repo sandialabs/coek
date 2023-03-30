@@ -100,9 +100,9 @@ class BaseVariableTerm : public BaseExpressionTerm {};
 class VariableTerm : public BaseVariableTerm {
    public:
     static unsigned int count;
-    static std::shared_ptr<ConstantTerm> negative_infinity;
-    static std::shared_ptr<ConstantTerm> positive_infinity;
-    static std::shared_ptr<ConstantTerm> nan;
+    static const std::shared_ptr<ConstantTerm> negative_infinity;
+    static const std::shared_ptr<ConstantTerm> positive_infinity;
+    static const std::shared_ptr<ConstantTerm> nan;
 
    public:
     unsigned int index;

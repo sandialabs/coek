@@ -578,10 +578,10 @@ VariableMap variable_fn(coek::ConcreteSet& index_set, py::kwargs kwargs)
 VariableArray variable_fn(std::vector<int>& dimen, py::kwargs kwargs)
 {
     std::vector<size_t> _dimen(dimen.size());
-    for (size_t i=0; i<dimen.size(); ++i) {
-        assert (dimen[i] >= 0);
+    for (size_t i = 0; i < dimen.size(); ++i) {
+        assert(dimen[i] >= 0);
         _dimen[i] = static_cast<size_t>(dimen[i]);
-        }
+    }
     VariableArray tmp(_dimen);
     set_kwargs(tmp, kwargs);
     return tmp;

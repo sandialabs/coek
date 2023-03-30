@@ -1750,7 +1750,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
             m.add(c);
         }
 
-#ifdef COEK_WITH_COMPACT_MODEL
+#    ifdef COEK_WITH_COMPACT_MODEL
         WHEN("operator () - param")
         {
             auto p = coek::parameter();
@@ -1762,7 +1762,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
             }
             m.add(c);
         }
-#endif
+#    endif
 
         /*
         TODO - Should we allow this?
@@ -1867,7 +1867,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
         }
     }
 
-#ifdef COEK_WITH_COMPACT_MODEL
+#    ifdef COEK_WITH_COMPACT_MODEL
     SECTION("map")
     {
         WHEN("constructor")
@@ -1936,6 +1936,6 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
             REQUIRE_THROWS_WITH(c(-1, -1), "Unexpected index value: (-1,-1)");
         }
     }
-#endif
+#    endif
 }
 #endif
