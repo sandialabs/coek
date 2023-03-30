@@ -42,9 +42,8 @@ namespace {
 
 double _max(double v1, double v2)
 {
-if (v1 < v2)
-    return v2;
-return v1;
+    if (v1 < v2) return v2;
+    return v1;
 }
 
 #if 0

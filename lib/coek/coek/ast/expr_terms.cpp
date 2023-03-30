@@ -1,14 +1,36 @@
+#include <mutex>
+#include <cassert>
 #include "expr_terms.hpp"
 
-#include <cassert>
 
 namespace coek {
+
+namespace {
+
+//
+// Mutex objects used to lock the modifications of the count value
+//
+std::mutex SubExpressionTerm_mtx;
+
+}
+
+//
+// SubExpressionTerm
+//
+
+unsigned int SubExpressionTerm::count = 0;
+
+SubExpressionTerm::SubExpressionTerm(const expr_pointer_t& body) : UnaryTerm(body) 
+{
+    SubExpressionTerm_mtx.lock();
+    index = count++;
+    SubExpressionTerm_mtx.unlock();
+}
 
 //
 // UnaryTerm
 //
 
-unsigned int SubExpressionTerm::count = 0;
 
 BinaryTerm::BinaryTerm(const expr_pointer_t& _lhs, const expr_pointer_t& _rhs)
     : lhs(_lhs), rhs(_rhs)

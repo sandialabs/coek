@@ -92,7 +92,7 @@ TEST_CASE("indexed_subexpression", "[smoke]")
             }
         }
 
-#ifdef COEK_WITH_COMPACT_MODEL
+#    ifdef COEK_WITH_COMPACT_MODEL
         WHEN("operator () - param")
         {
             auto p = coek::parameter();
@@ -103,7 +103,7 @@ TEST_CASE("indexed_subexpression", "[smoke]")
                 e(p) = v(p) + 1.0 * i;
             }
         }
-#endif
+#    endif
 
         /*
         TODO - Should we allow this?
@@ -204,7 +204,7 @@ TEST_CASE("indexed_subexpression", "[smoke]")
         }
     }
 
-#ifdef COEK_WITH_COMPACT_MODEL
+#    ifdef COEK_WITH_COMPACT_MODEL
     SECTION("map")
     {
         WHEN("constructor")
@@ -269,6 +269,6 @@ TEST_CASE("indexed_subexpression", "[smoke]")
             REQUIRE_THROWS_WITH(e(-1, -1), "Unexpected index value: e(-1,-1)");
         }
     }
-#endif
+#    endif
 }
 #endif

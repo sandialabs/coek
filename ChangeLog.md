@@ -3,6 +3,10 @@
 Here we list changes of Coek.  More detailed information about incremental changes can be found in the
 [commit history](https://github.com/sandialabs/coek/commits).
 
+## 1.4
+
+* Adding support for multithreaded model creation.
+
 ## 1.3
 
 * Added ASL autograd functionality
