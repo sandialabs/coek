@@ -120,16 +120,13 @@ if(with_asl)
     list(APPEND coek_compile_options "-DWITH_ASL")
     list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include/asl)
     list(APPEND coek_link_directories ${CMAKE_INSTALL_PREFIX}/lib)
-    list(APPEND coek_link_libraries asl)
+    if (${with_openmp})
+        list(APPEND coek_link_libraries asl-mt)
+        list(APPEND coek_link_libraries OpenMP::OpenMP_CXX)
+    else()
+        list(APPEND coek_link_libraries asl)
+    endif()
 endif()
-
-# Default AD LIBRARY
-# if(NOT with_cppad AND NOT with_asl)
-#  MESSAGE("-- Building Source with AD:        Simple")
-#  list(APPEND sources
-#    admodel/simplead.cpp)
-#  add_definitions(-DWITH_ADMODEL_SIMPLEAD)
-# endif()
 
 #
 # SOLVER OPTIONS
