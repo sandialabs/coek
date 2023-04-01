@@ -18,7 +18,7 @@ void srosenbr_example(coek::Model& m)
 
     auto obj = coek::expression();
     for (size_t i = 0; i < N / 2; i++)
-        obj += 100 * pow(x[2 * i] - pow(x[2 * i - 1], 2), 2) + pow(x[2 * i - 1] - 1, 2);
+        obj += 100 * pow(x[2 * i] - pow(x[2 * i + 1], 2), 2) + pow(x[2 * i] - 1, 2);
 
     m.add_objective(obj);
 }
