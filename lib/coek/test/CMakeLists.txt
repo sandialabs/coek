@@ -33,7 +33,10 @@ SET(sources
     test_subexpression.cpp
     test_autograd_unknown.cpp
     test_sequence.cpp
+    mt_funcs.cpp
    )
+
+set(coek_test_libraries)
 
 # CppAD LIBRARY
 if(with_cppad)
@@ -49,6 +52,11 @@ if(with_asl)
     test_autograd_asl.cpp)
 endif()
 
+# Thread tests
+if (with_threads)
+    list(APPEND coek_test_libraries Threads::Threads)
+endif()
+
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(BEFORE ${coek_include_directories})
 LINK_DIRECTORIES(${coek_link_directories})
@@ -59,7 +67,7 @@ enable_testing()
 
 # runner
 add_executable(runner ${sources})
-TARGET_LINK_LIBRARIES(runner PUBLIC coek coekexamples Catch2::Catch2 ${coek_link_libraries})
+TARGET_LINK_LIBRARIES(runner PUBLIC coek coekexamples Catch2::Catch2 ${coek_link_libraries} ${coek_test_libraries})
 TARGET_COMPILE_OPTIONS(runner PUBLIC ${coek_compile_options})
 target_compile_definitions(runner PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 

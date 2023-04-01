@@ -91,7 +91,7 @@ class SubExpressionTerm : public UnaryTerm {
     std::string name;
 
    public:
-    explicit SubExpressionTerm(const expr_pointer_t& body) : UnaryTerm(body) { index = count++; }
+    explicit SubExpressionTerm(const expr_pointer_t& body);
 
     double _eval() const { return body->_eval(); }
 

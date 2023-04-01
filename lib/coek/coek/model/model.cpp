@@ -20,9 +20,9 @@ namespace coek {
 // Model
 //
 
-bool Model::minimize = true;
-bool Model::maximize = false;
-double Model::inf = COEK_INFINITY;
+const bool Model::minimize = true;
+const bool Model::maximize = false;
+const double Model::inf = COEK_INFINITY;
 
 std::ostream& operator<<(std::ostream& ostr, const Model& arg)
 {

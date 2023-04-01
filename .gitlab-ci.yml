@@ -16,6 +16,7 @@ compile:
   stage: build
   script:
     - pwd
+    - which g++
     - which python
     - mkdir build
     - cd build
