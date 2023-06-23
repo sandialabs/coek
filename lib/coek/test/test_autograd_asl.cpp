@@ -42,6 +42,26 @@ TEST_CASE("asl_add", "[smoke]")
         REQUIRE_THROWS_WITH(nlp.initialize(model, "bad"), "Unexpected NLP model type: bad");
     }
 
+    SECTION("options")
+    {
+        coek::Model model;
+        auto x = model.add_variable("x").lower(0).upper(1).value(0);
+        auto y = model.add_variable("y").lower(0).upper(1).value(0);
+        model.add_objective("o", x + y);
+        coek::NLPModel m;
+
+        std::string dir;
+        REQUIRE(m.get_option("bad_option", dir) == false);
+        REQUIRE(m.get_option("temp_directory", dir) == false);
+
+        m.set_option("temp_directory", "foo");
+        REQUIRE(m.get_option("temp_directory", dir) == true);
+        REQUIRE(dir == "foo");
+
+        m.set_option("temp_directory", "./");
+        m.initialize(model, ADNAME);
+    }
+
     SECTION("Variables")
     {
         coek::Model model;

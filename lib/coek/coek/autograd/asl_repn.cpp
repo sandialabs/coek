@@ -37,6 +37,8 @@ ASL_Repn::ASL_Repn(Model& model) : NLPModelRepn(model)
     // First assume that we don't want to halt on error (default)
     nerror_ = (void*)new fint;
     *(fint*)nerror_ = 0;
+
+    temp_directory = "/tmp/";
 }
 
 ASL_Repn::~ASL_Repn()
@@ -208,7 +210,7 @@ void ASL_Repn::compute_J(std::vector<double>& J)
     nerror_ok = check_asl_status(nerror_);
 }
 
-void ASL_Repn::initialize(bool /*_sparse_JH*/)
+void ASL_Repn::initialize()
 {
     //
     // Initialize the NLPModelRepn data
@@ -296,7 +298,7 @@ void ASL_Repn::alloc_asl()
     //
     // Create a temporary filename
     //
-    std::string fname = "/tmp/coek_XXXXXX";
+    std::string fname = temp_directory + "coek_XXXXXX";
     std::string tmp = mktemp(&fname[0]);
     if (tmp.size() == 0)
         throw std::runtime_error("Failure to create temporary file for ASL interface");
@@ -407,6 +409,21 @@ void ASL_Repn::call_hesset()
     int mult_supplied = 1;  // multipliers will be supplied
     int uptri = 1;          // only need the upper triangular part
     nnz_lag_h = static_cast<size_t>(sphsetup(-1, coeff_obj, mult_supplied, uptri));
+}
+
+bool ASL_Repn::get_option(const std::string& option, std::string& value) const
+{
+if (option == "temp_directory") {
+    value = temp_directory;
+    return true;
+    }
+return false;
+}
+
+void ASL_Repn::set_option(const std::string& option, const std::string value)
+{
+if (option == "temp_directory")
+    temp_directory = value;
 }
 
 }  // namespace coek

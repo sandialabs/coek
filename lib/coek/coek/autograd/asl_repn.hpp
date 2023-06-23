@@ -20,6 +20,8 @@ class ASL_Repn : public NLPModelRepn {
    public:
     // The main ASL structure
     ASL_pfgh* asl_;
+    // The temporary file directory used to write the NL file
+    std::string temp_directory;
 
     // ----------------------------------------------------------------------
     // Problem information
@@ -56,7 +58,7 @@ class ASL_Repn : public NLPModelRepn {
     ASL_Repn(Model& model);
     ~ASL_Repn();
 
-    void initialize(bool sparse_JH = true);
+    void initialize();
 
     void reset(void);
 
@@ -92,6 +94,10 @@ class ASL_Repn : public NLPModelRepn {
     void compute_H(std::vector<double>& w, std::vector<double>& H);
 
     void compute_J(std::vector<double>& J);
+
+   public:
+    bool get_option(const std::string& option, std::string& value) const;
+    void set_option(const std::string& option, const std::string value);
 
    protected:
     void* nerror_;
