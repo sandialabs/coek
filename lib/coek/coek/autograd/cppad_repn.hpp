@@ -89,7 +89,7 @@ class CppAD_Repn : public NLPModelRepn {
    public:
     CppAD_Repn(Model& model);
 
-    void initialize(bool sparse_JH = true);
+    void initialize();
 
     void reset(void);
 
@@ -125,6 +125,12 @@ class CppAD_Repn : public NLPModelRepn {
     void compute_H(std::vector<double>& w, std::vector<double>& H);
 
     void compute_J(std::vector<double>& J);
+
+   public:
+
+    bool get_option(const std::string& option, int& value) const;
+
+    void set_option(const std::string& option, int value);
 
    public:
     void create_CppAD_function();

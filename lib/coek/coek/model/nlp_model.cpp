@@ -8,6 +8,58 @@
 namespace coek {
 
 //
+// OptionCache
+//
+
+class OptionCacheRepn {
+public:
+    std::map<std::string, std::string> string_options;
+    std::map<std::string, int> integer_options;
+    std::map<std::string, double> double_options;
+};
+
+OptionCache::OptionCache()
+{
+    options = std::make_shared<OptionCacheRepn>();
+}
+
+bool OptionCache::get_option(const std::string& option, int& value) const
+{
+auto it = options->integer_options.find(option);
+if (it == options->integer_options.end())
+    return false;
+value = it->second;
+return true;
+}
+
+bool OptionCache::get_option(const std::string& option, double& value) const
+{
+auto it = options->double_options.find(option);
+if (it == options->double_options.end())
+    return false;
+value = it->second;
+return true;
+}
+
+bool OptionCache::get_option(const std::string& option, std::string& value) const
+{
+auto it = options->string_options.find(option);
+if (it == options->string_options.end())
+    return false;
+value = it->second;
+return true;
+}
+
+void OptionCache::set_option(const std::string& option, int value)
+{ options->integer_options[option] = value; }
+
+void OptionCache::set_option(const std::string& option, double value)
+{ options->double_options[option] = value; }
+
+void OptionCache::set_option(const std::string& option, const std::string value)
+{ options->string_options[option] = value; }
+
+//
 // NLPModel
 //
 
@@ -17,16 +69,24 @@ NLPModel::NLPModel()
     repn = tmp;
 }
 
-NLPModel::NLPModel(Model& model, std::string type, bool sparse_JH)
+NLPModel::NLPModel(Model& model, std::string type)
 {
-    initialize(model, type, sparse_JH);
+    initialize(model, type);
 }
 
-void NLPModel::initialize(Model& model, std::string type, bool sparse_JH)
+void NLPModel::initialize(Model& model, std::string type)
 {
     std::shared_ptr<NLPModelRepn> tmp(create_NLPModelRepn(model, type));
     repn = tmp;
-    repn->initialize(sparse_JH);
+
+    for (const auto& ioption: options->integer_options)
+        repn->set_option(ioption.first, ioption.second);
+    for (const auto& doption: options->double_options)
+        repn->set_option(doption.first, doption.second);
+    for (const auto& soption: options->string_options)
+        repn->set_option(soption.first, soption.second);
+
+    repn->initialize();
 }
 
 void NLPModel::reset() { repn->reset(); }
