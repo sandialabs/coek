@@ -319,7 +319,7 @@ void ASL_Repn::alloc_asl()
     // Read the NL file with the ASL library
     //
     return_nofile = 1;  // A hack to prevent the ASL from calling exit()
-    FILE* nlfile = jac0dim(&(fname[0]), 16);
+    FILE* nlfile = jac0dim(&(fname[0]), static_cast<fint>(fname.length()));
     if (!nlfile) {
         throw std::runtime_error(
             "ASL_Repn::alloc_asl - Cannot create ASL interface for model with no variables.");
