@@ -114,6 +114,16 @@ Objective NLPModel::get_objective(size_t i) { return repn->get_objective(i); }
 
 Constraint NLPModel::get_constraint(size_t i) { return repn->get_constraint(i); }
 
+bool NLPModel::has_constraint_lower(size_t i)
+{return repn->has_constraint_lower(i);}
+bool NLPModel::has_constraint_upper(size_t i)
+{return repn->has_constraint_upper(i);}
+double NLPModel::get_constraint_lower(size_t i)
+{return repn->get_constraint_lower(i);}
+double NLPModel::get_constraint_upper(size_t i)
+{return repn->get_constraint_upper(i);}
+
+
 void NLPModel::get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol)
 {
     repn->get_J_nonzeros(jrow, jcol);

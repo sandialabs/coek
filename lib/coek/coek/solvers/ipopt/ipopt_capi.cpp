@@ -187,6 +187,17 @@ bool IpoptModel::get_bounds_info(Index /*n*/, Number* x_l, Number* x_u, Index /*
     }
 
     // std::cout << "  num constraints: " << nlpmodel.num_constraints() << std::endl;
+    for (size_t j : coek::range(nlpmodel.num_constraints())) {
+        if (nlpmodel.has_constraint_lower(j))
+            g_l[j] = nlpmodel.get_constraint_lower(j);
+        else
+            g_l[j] = -COEK_INFINITY;
+        if (nlpmodel.has_constraint_upper(j))
+            g_u[j] = nlpmodel.get_constraint_upper(j);
+        else
+            g_u[j] = COEK_INFINITY;
+        }
+/*
     for (size_t j = 0; j < nlpmodel.repn->model.repn->constraints.size(); j++) {
         auto& con = nlpmodel.repn->model.repn->constraints[j];
         if (con.is_inequality()) {
@@ -205,6 +216,7 @@ bool IpoptModel::get_bounds_info(Index /*n*/, Number* x_l, Number* x_u, Index /*
             // std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl << std::flush;
         }
     }
+*/
 
     return true;
 }

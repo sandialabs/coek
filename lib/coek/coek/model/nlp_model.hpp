@@ -117,10 +117,16 @@ class NLPModel : public OptionCache {
     /** Sets the value of variables used in the model view */
     void set_variable_view(const double* x, size_t n);
 
+    // TODO - Deprecate these two methods
     /** \returns the i-th objective in the model view */
     Objective get_objective(size_t i);
     /** \returns the i-th constraint in the model view */
     Constraint get_constraint(size_t i);
+
+    bool has_constraint_lower(size_t i);
+    bool has_constraint_upper(size_t i);
+    double get_constraint_lower(size_t i);
+    double get_constraint_upper(size_t i);
 
     /**
      * Return the row and column indices of the Jacobian nonzeros.

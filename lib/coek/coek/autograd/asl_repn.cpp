@@ -38,7 +38,7 @@ ASL_Repn::ASL_Repn(Model& model) : NLPModelRepn(model)
     nerror_ = (void*)new fint;
     *(fint*)nerror_ = 0;
 
-    temp_directory = "/tmp/";
+    temp_directory = "/tmp";
 }
 
 ASL_Repn::~ASL_Repn()
@@ -69,6 +69,23 @@ void ASL_Repn::set_variables(const double* x, size_t n)
     objval_called_with_current_x_ = false;
     conval_called_with_current_x_ = false;
 }
+
+bool ASL_Repn::has_constraint_lower(size_t i)
+{    ASL_pfgh* asl = asl_;
+return LUrhs[i] > negInfinity; }
+
+bool ASL_Repn::has_constraint_upper(size_t i)
+{    ASL_pfgh* asl = asl_;
+return Urhsx[i] < Infinity; }
+
+double ASL_Repn::get_constraint_lower(size_t i)
+{    ASL_pfgh* asl = asl_;
+return LUrhs[i]; }
+
+double ASL_Repn::get_constraint_upper(size_t i)
+{    ASL_pfgh* asl = asl_;
+return Urhsx[i]; }
+
 
 void ASL_Repn::get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol)
 {
@@ -298,7 +315,7 @@ void ASL_Repn::alloc_asl()
     //
     // Create a temporary filename
     //
-    std::string fname = temp_directory + "coek_XXXXXX";
+    std::string fname = temp_directory + "/coek_XXXXXX";
     std::string tmp = mktemp(&fname[0]);
     if (tmp.size() == 0)
         throw std::runtime_error("Failure to create temporary file for ASL interface");
@@ -325,9 +342,13 @@ void ASL_Repn::alloc_asl()
             "ASL_Repn::alloc_asl - Cannot create ASL interface for model with no variables.");
     }
     //
-    // allocate space for initial values
+    // allocate space for data read in by pfgh_read()
     //
     X0 = new real[n_var];
+    LUv = new real[2*n_var];
+    //Uvx = new real[n_var];
+    LUrhs = new real[n_var];
+    Urhsx = new real[n_var];
     havex0 = new char[n_var];
     //
     // Load model expressions
@@ -336,7 +357,8 @@ void ASL_Repn::alloc_asl()
     //
     // Close and remove the file
     //
-    remove(fname.c_str());
+    if (remove_nl_file)
+        remove(fname.c_str());
 
     //
     // No errors, so return
@@ -375,6 +397,25 @@ void ASL_Repn::free_asl()
         if (X0) {
             delete[] X0;
             X0 = 0;
+        }
+
+        if (LUv) {
+            delete[] LUv;
+            LUv = 0;
+        }
+        /*
+        if (Uvx) {
+            delete[] Uvx;
+            Uvx = 0;
+        }
+        */
+        if (LUrhs) {
+            delete[] LUrhs;
+            LUrhs = 0;
+        }
+        if (Urhsx) {
+            delete[] Urhsx;
+            Urhsx = 0;
         }
 
         if (havex0) {
@@ -420,10 +461,25 @@ if (option == "temp_directory") {
 return false;
 }
 
+bool ASL_Repn::get_option(const std::string& option, int& value) const
+{
+if (option == "remove_nl_file") {
+    value = remove_nl_file;
+    return true;
+    }
+return false;
+}
+
 void ASL_Repn::set_option(const std::string& option, const std::string value)
 {
 if (option == "temp_directory")
     temp_directory = value;
+}
+
+void ASL_Repn::set_option(const std::string& option, int value)
+{
+if (option == "remove_nl_file")
+    remove_nl_file = value;
 }
 
 }  // namespace coek
