@@ -354,8 +354,8 @@ void ASL_Repn::alloc_asl()
     X0 = new real[n_var];
     LUv = new real[2 * n_var];
     // Uvx = new real[n_var];
-    LUrhs = new real[n_var];
-    Urhsx = new real[n_var];
+    LUrhs = new real[n_con];
+    Urhsx = new real[n_con];
     havex0 = new char[n_var];
     //
     // Load model expressions
