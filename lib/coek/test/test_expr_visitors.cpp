@@ -1470,6 +1470,7 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
             REQUIRE(repn.constval->to_list() == constval);
             REQUIRE(repn.linear_coefs.size() == 0);
             REQUIRE(repn.quadratic_coefs.size() == 0);
+            REQUIRE(repn.nonlinear_vars.size() == 0);
         }
     }
 
