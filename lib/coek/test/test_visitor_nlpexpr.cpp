@@ -19,12 +19,13 @@
             auto v = m.add_variable("v").lower(0).upper(1).value(0);              \
             coek::Expression e = FN(v + 1);                                       \
             coek::MutableNLPExpr repn;                                            \
+            repn.collect_terms(e);                                                \
             static std::list<std::string> constval = {std::to_string(0.0)};       \
             static std::list<std::string> nonlinear                               \
                 = {"[", #FN, "[", "+", "v", std::to_string(1.0), "]", "]"};       \
             REQUIRE(repn.constval->to_list() == constval);                        \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
-            REQUIRE(repn.nonlinear_vars.size() == 0); \
+            REQUIRE(repn.nonlinear_vars.size() == 1); \
         }                                                                         \
     }                                                                             \
     WHEN(#FN " 2")                                                                \
@@ -48,14 +49,16 @@
         {                                                                         \
             coek::Model m;                                                        \
             auto v = m.add_variable("v").lower(0).upper(1).value(0);              \
-            coek::Expression e = FN(v + 1, v);                                    \
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);              \
+            coek::Expression e = FN(v + 1, w);                                    \
             coek::MutableNLPExpr repn;                                            \
+            repn.collect_terms(e);                                                \
             static std::list<std::string> constval = {std::to_string(0.0)};       \
             static std::list<std::string> nonlinear                               \
-                = {"[", #FN, "[", "+", "v", std::to_string(1.0), "]", "v", "]"};  \
+                = {"[", #FN, "[", "+", "v", std::to_string(1.0), "]", "w", "]"};  \
             REQUIRE(repn.constval->to_list() == constval);                        \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
-            REQUIRE(repn.nonlinear_vars.size() == 0); \
+            REQUIRE(repn.nonlinear_vars.size() == 2); \
         }                                                                         \
     }                                                                             \
     WHEN(#FN " 2")                                                                \
@@ -256,6 +259,7 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
 
     SECTION("subexpression")
     {
+        WHEN("linear")
         {
             coek::Model m;
             auto v = m.add_variable("v").lower(0).upper(1).value(3);
@@ -278,6 +282,31 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
             REQUIRE(repn.linear_vars[1] == v.repn);
             REQUIRE(repn.quadratic_coefs.size() == 0);
             REQUIRE(repn.nonlinear_vars.size() == 0);
+        }
+        WHEN("nonlinear")
+        {
+            coek::Model m;
+            auto v = m.add_variable("v").lower(0).upper(1).value(3);
+            auto w = m.add_variable("v").lower(0).upper(1).value(1);
+            auto E = coek::subexpression().value(2*v + w + 1);
+            coek::Expression e = E + (E+1)*(E + 1);
+            REQUIRE(e.value() == 89);
+
+            coek::MutableNLPExpr repn;
+            repn.collect_terms(e);
+
+            static std::list<std::string> constval = {std::to_string(1.0)};
+            static std::list<std::string> coefval0 = {std::to_string(2.0)};
+            static std::list<std::string> coefval1 = {std::to_string(1.0)};
+            REQUIRE(repn.mutable_values == false);
+            REQUIRE(repn.constval->to_list() == constval);
+            REQUIRE(repn.linear_coefs.size() == 2);
+            REQUIRE(repn.linear_coefs[0]->to_list() == coefval0);
+            REQUIRE(repn.linear_coefs[1]->to_list() == coefval1);
+            REQUIRE(repn.linear_vars[0] == v.repn);
+            REQUIRE(repn.linear_vars[1] == w.repn);
+            REQUIRE(repn.quadratic_coefs.size() == 0);
+            REQUIRE(repn.nonlinear_vars.size() == 2);
         }
     }
 
@@ -405,7 +434,7 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
-                REQUIRE(repn.nonlinear_vars.size() == 0);
+                REQUIRE(repn.nonlinear_vars.size() == 2);
             }
         }
         WHEN("complex quadratic 1b")
@@ -551,7 +580,7 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                        "[", "*",     "[", "floor", "w", "]",    "[", "floor",
                        "w", "]",     "]", "]",     "]"};
                 REQUIRE(repn.nonlinear->to_list() == baseline);
-                REQUIRE(repn.nonlinear_vars.size() == 0);
+                REQUIRE(repn.nonlinear_vars.size() == 1);
             }
         }
     }
@@ -574,7 +603,7 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
                 REQUIRE(repn.nonlinear->to_list() == nonlinear);
-                REQUIRE(repn.nonlinear_vars.size() == 0);
+                REQUIRE(repn.nonlinear_vars.size() == 1);
             }
         }
         WHEN("rhs parameter - zero")
@@ -660,7 +689,7 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
                 REQUIRE(repn.nonlinear->to_list() == nonlinear);
-                REQUIRE(repn.nonlinear_vars.size() == 0);
+                REQUIRE(repn.nonlinear_vars.size() == 1);
             }
         }
         WHEN("rhs nonzero")
