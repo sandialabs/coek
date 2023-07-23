@@ -11,8 +11,7 @@ class OptionCache {
    public:
     std::shared_ptr<OptionCacheRepn> options;
 
-    public:
-
+   public:
     OptionCache();
 
     /** Get the value of an integer option
@@ -68,7 +67,6 @@ class OptionCache {
      */
     void set_option(const std::string& option, const std::string value);
 };
-
 
 /**
  * An optimization model that provides a view of a coek::Model

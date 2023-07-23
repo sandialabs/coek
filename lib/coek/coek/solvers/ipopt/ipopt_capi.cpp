@@ -196,27 +196,29 @@ bool IpoptModel::get_bounds_info(Index /*n*/, Number* x_l, Number* x_u, Index /*
             g_u[j] = nlpmodel.get_constraint_upper(j);
         else
             g_u[j] = COEK_INFINITY;
-        }
-/*
-    for (size_t j = 0; j < nlpmodel.repn->model.repn->constraints.size(); j++) {
-        auto& con = nlpmodel.repn->model.repn->constraints[j];
-        if (con.is_inequality()) {
-            if (con.has_lower())
-                g_l[j] = con.lower().value();
-            else
-                g_l[j] = -COEK_INFINITY;
-            if (con.has_upper())
-                g_u[j] = con.upper().value();
-            else
-                g_u[j] = COEK_INFINITY;
-            // std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl << std::flush;
-        }
-        else {
-            g_l[j] = g_u[j] = con.lower().value();
-            // std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl << std::flush;
-        }
     }
-*/
+    /*
+        for (size_t j = 0; j < nlpmodel.repn->model.repn->constraints.size(); j++) {
+            auto& con = nlpmodel.repn->model.repn->constraints[j];
+            if (con.is_inequality()) {
+                if (con.has_lower())
+                    g_l[j] = con.lower().value();
+                else
+                    g_l[j] = -COEK_INFINITY;
+                if (con.has_upper())
+                    g_u[j] = con.upper().value();
+                else
+                    g_u[j] = COEK_INFINITY;
+                // std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl <<
+       std::flush;
+            }
+            else {
+                g_l[j] = g_u[j] = con.lower().value();
+                // std::cout << "g " << j << " " << g_l[j] << " " << g_u[j] << std::endl <<
+       std::flush;
+            }
+        }
+    */
 
     return true;
 }

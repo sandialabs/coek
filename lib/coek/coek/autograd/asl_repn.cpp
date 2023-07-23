@@ -71,21 +71,28 @@ void ASL_Repn::set_variables(const double* x, size_t n)
 }
 
 bool ASL_Repn::has_constraint_lower(size_t i)
-{    ASL_pfgh* asl = asl_;
-return LUrhs[i] > negInfinity; }
+{
+    ASL_pfgh* asl = asl_;
+    return LUrhs[i] > negInfinity;
+}
 
 bool ASL_Repn::has_constraint_upper(size_t i)
-{    ASL_pfgh* asl = asl_;
-return Urhsx[i] < Infinity; }
+{
+    ASL_pfgh* asl = asl_;
+    return Urhsx[i] < Infinity;
+}
 
 double ASL_Repn::get_constraint_lower(size_t i)
-{    ASL_pfgh* asl = asl_;
-return LUrhs[i]; }
+{
+    ASL_pfgh* asl = asl_;
+    return LUrhs[i];
+}
 
 double ASL_Repn::get_constraint_upper(size_t i)
-{    ASL_pfgh* asl = asl_;
-return Urhsx[i]; }
-
+{
+    ASL_pfgh* asl = asl_;
+    return Urhsx[i];
+}
 
 void ASL_Repn::get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol)
 {
@@ -345,8 +352,8 @@ void ASL_Repn::alloc_asl()
     // allocate space for data read in by pfgh_read()
     //
     X0 = new real[n_var];
-    LUv = new real[2*n_var];
-    //Uvx = new real[n_var];
+    LUv = new real[2 * n_var];
+    // Uvx = new real[n_var];
     LUrhs = new real[n_var];
     Urhsx = new real[n_var];
     havex0 = new char[n_var];
@@ -357,8 +364,7 @@ void ASL_Repn::alloc_asl()
     //
     // Close and remove the file
     //
-    if (remove_nl_file)
-        remove(fname.c_str());
+    if (remove_nl_file) remove(fname.c_str());
 
     //
     // No errors, so return
@@ -454,32 +460,30 @@ void ASL_Repn::call_hesset()
 
 bool ASL_Repn::get_option(const std::string& option, std::string& value) const
 {
-if (option == "temp_directory") {
-    value = temp_directory;
-    return true;
+    if (option == "temp_directory") {
+        value = temp_directory;
+        return true;
     }
-return false;
+    return false;
 }
 
 bool ASL_Repn::get_option(const std::string& option, int& value) const
 {
-if (option == "remove_nl_file") {
-    value = remove_nl_file;
-    return true;
+    if (option == "remove_nl_file") {
+        value = remove_nl_file;
+        return true;
     }
-return false;
+    return false;
 }
 
 void ASL_Repn::set_option(const std::string& option, const std::string value)
 {
-if (option == "temp_directory")
-    temp_directory = value;
+    if (option == "temp_directory") temp_directory = value;
 }
 
 void ASL_Repn::set_option(const std::string& option, int value)
 {
-if (option == "remove_nl_file")
-    remove_nl_file = value;
+    if (option == "remove_nl_file") remove_nl_file = value;
 }
 
 }  // namespace coek

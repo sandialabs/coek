@@ -12,52 +12,52 @@ namespace coek {
 //
 
 class OptionCacheRepn {
-public:
+   public:
     std::map<std::string, std::string> string_options;
     std::map<std::string, int> integer_options;
     std::map<std::string, double> double_options;
 };
 
-OptionCache::OptionCache()
-{
-    options = std::make_shared<OptionCacheRepn>();
-}
+OptionCache::OptionCache() { options = std::make_shared<OptionCacheRepn>(); }
 
 bool OptionCache::get_option(const std::string& option, int& value) const
 {
-auto it = options->integer_options.find(option);
-if (it == options->integer_options.end())
-    return false;
-value = it->second;
-return true;
+    auto it = options->integer_options.find(option);
+    if (it == options->integer_options.end()) return false;
+    value = it->second;
+    return true;
 }
 
 bool OptionCache::get_option(const std::string& option, double& value) const
 {
-auto it = options->double_options.find(option);
-if (it == options->double_options.end())
-    return false;
-value = it->second;
-return true;
+    auto it = options->double_options.find(option);
+    if (it == options->double_options.end()) return false;
+    value = it->second;
+    return true;
 }
 
 bool OptionCache::get_option(const std::string& option, std::string& value) const
 {
-auto it = options->string_options.find(option);
-if (it == options->string_options.end())
-    return false;
-value = it->second;
-return true;
+    auto it = options->string_options.find(option);
+    if (it == options->string_options.end()) return false;
+    value = it->second;
+    return true;
 }
 
 void OptionCache::set_option(const std::string& option, int value)
-{ options->integer_options[option] = value; }
+{
+    options->integer_options[option] = value;
+}
 
 void OptionCache::set_option(const std::string& option, double value)
-{ options->double_options[option] = value; }
+{
+    options->double_options[option] = value;
+}
 
 void OptionCache::set_option(const std::string& option, const std::string value)
-{ options->string_options[option] = value; }
+{
+    options->string_options[option] = value;
+}
 
 //
 // NLPModel
@@ -69,21 +69,18 @@ NLPModel::NLPModel()
     repn = tmp;
 }
 
-NLPModel::NLPModel(Model& model, std::string type)
-{
-    initialize(model, type);
-}
+NLPModel::NLPModel(Model& model, std::string type) { initialize(model, type); }
 
 void NLPModel::initialize(Model& model, std::string type)
 {
     std::shared_ptr<NLPModelRepn> tmp(create_NLPModelRepn(model, type));
     repn = tmp;
 
-    for (const auto& ioption: options->integer_options)
+    for (const auto& ioption : options->integer_options)
         repn->set_option(ioption.first, ioption.second);
-    for (const auto& doption: options->double_options)
+    for (const auto& doption : options->double_options)
         repn->set_option(doption.first, doption.second);
-    for (const auto& soption: options->string_options)
+    for (const auto& soption : options->string_options)
         repn->set_option(soption.first, soption.second);
 
     repn->initialize();
@@ -114,15 +111,10 @@ Objective NLPModel::get_objective(size_t i) { return repn->get_objective(i); }
 
 Constraint NLPModel::get_constraint(size_t i) { return repn->get_constraint(i); }
 
-bool NLPModel::has_constraint_lower(size_t i)
-{return repn->has_constraint_lower(i);}
-bool NLPModel::has_constraint_upper(size_t i)
-{return repn->has_constraint_upper(i);}
-double NLPModel::get_constraint_lower(size_t i)
-{return repn->get_constraint_lower(i);}
-double NLPModel::get_constraint_upper(size_t i)
-{return repn->get_constraint_upper(i);}
-
+bool NLPModel::has_constraint_lower(size_t i) { return repn->has_constraint_lower(i); }
+bool NLPModel::has_constraint_upper(size_t i) { return repn->has_constraint_upper(i); }
+double NLPModel::get_constraint_lower(size_t i) { return repn->get_constraint_lower(i); }
+double NLPModel::get_constraint_upper(size_t i) { return repn->get_constraint_upper(i); }
 
 void NLPModel::get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol)
 {

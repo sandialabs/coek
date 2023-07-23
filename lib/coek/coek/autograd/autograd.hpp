@@ -37,7 +37,8 @@ class NLPModelRepn {
     virtual void set_variables(std::vector<double>& x) = 0;
     virtual void set_variables(const double* x, size_t n) = 0;
 
-    // TODO - Deprecate these methods!  The AD package may change the objective/constraint expressions
+    // TODO - Deprecate these methods!  The AD package may change the objective/constraint
+    // expressions
     virtual Objective get_objective(size_t i);
     virtual Constraint get_constraint(size_t i);
 
@@ -64,8 +65,7 @@ class NLPModelRepn {
    public:
     void find_used_variables();
 
-    public:
-
+   public:
     /** Get the value of an integer option
      *
      * The option value is returned by reference if it has
@@ -76,7 +76,7 @@ class NLPModelRepn {
      *
      * \returns \c true if the option is found
      */
-    virtual bool get_option(const std::string& /*option*/, int& /*value*/) const {return false;}
+    virtual bool get_option(const std::string& /*option*/, int& /*value*/) const { return false; }
     /** Get the value of a double option
      *
      * The option value is returned by reference if it has
@@ -87,7 +87,10 @@ class NLPModelRepn {
      *
      * \returns \c true if the option is found
      */
-    virtual bool get_option(const std::string& /*option*/, double& /*value*/) const {return false;}
+    virtual bool get_option(const std::string& /*option*/, double& /*value*/) const
+    {
+        return false;
+    }
     /** Get the value of a string option
      *
      * The option value is returned by reference if it has
@@ -98,7 +101,10 @@ class NLPModelRepn {
      *
      * \returns \c true if the option is found
      */
-    virtual bool get_option(const std::string& /*option*/, std::string& /*value*/) const { return false; }
+    virtual bool get_option(const std::string& /*option*/, std::string& /*value*/) const
+    {
+        return false;
+    }
 
     /** Set an integer option
      *
@@ -111,14 +117,13 @@ class NLPModelRepn {
      * \param option  the option name
      * \param value   the double value
      */
-    virtual void set_option(const std::string& /*option*/, double /*value*/) { }
+    virtual void set_option(const std::string& /*option*/, double /*value*/) {}
     /** Set a string option
      *
      * \param option  the option name
      * \param value   the string value
      */
-    virtual void set_option(const std::string& /*option*/, const std::string /*value*/) { }
-
+    virtual void set_option(const std::string& /*option*/, const std::string /*value*/) {}
 };
 
 NLPModelRepn* create_NLPModelRepn(Model& model, const std::string& name);

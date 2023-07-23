@@ -591,19 +591,17 @@ void CppAD_Repn::reset(void)
 
 bool CppAD_Repn::get_option(const std::string& option, int& value) const
 {
-if (option == "sparse_JH") {
-    value = sparse_JH;
-    return true;
+    if (option == "sparse_JH") {
+        value = sparse_JH;
+        return true;
     }
-return false;
+    return false;
 }
 
 void CppAD_Repn::set_option(const std::string& option, int value)
 {
-if (option == "sparse_JH")
-    sparse_JH = (value==1);
+    if (option == "sparse_JH") sparse_JH = (value == 1);
 }
-
 
 //
 // This empty namespace contains functions used to walk the COEK

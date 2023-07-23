@@ -30,41 +30,42 @@ std::vector<double> invquad_soln_5{-10, -10, -10, -10, -10};
 // bounds_check
 coek::Model check_bounds()
 {
-coek::Model model;
+    coek::Model model;
 
-auto a = model.add_variable().value(2.0);
-auto b = model.add_variable().value(-2.0);
-auto c = model.add_variable().value(2.0);
-auto d = model.add_variable().value(-2.0);
-auto e = model.add_variable().value(2.0);
+    auto a = model.add_variable().value(2.0);
+    auto b = model.add_variable().value(-2.0);
+    auto c = model.add_variable().value(2.0);
+    auto d = model.add_variable().value(-2.0);
+    auto e = model.add_variable().value(2.0);
 
-auto aa = model.add_variable().value(2.0);
-auto bb = model.add_variable().value(-2.0);
-auto cc = model.add_variable().value(2.0);
-auto dd = model.add_variable().value(-2.0);
-auto ee = model.add_variable().value(2.0);
+    auto aa = model.add_variable().value(2.0);
+    auto bb = model.add_variable().value(-2.0);
+    auto cc = model.add_variable().value(2.0);
+    auto dd = model.add_variable().value(-2.0);
+    auto ee = model.add_variable().value(2.0);
 
-model.add_objective( a*a+b*b+c*c+d*d );
+    model.add_objective(a * a + b * b + c * c + d * d);
 
-model.add( a >= 1 );
-model.add( b <= -1 );
-model.add( aa - 1 >= 0 );
-model.add( bb + 1 <= 0 );
-model.add( inequality(1, c, 3) );
-model.add( inequality(-3, d, -1) );
-model.add( inequality(0, cc-1, 2) );
-model.add( inequality(-2, dd+1, 0) );
-model.add( e == 1 );
-model.add( ee - 1 == 0 );
+    model.add(a >= 1);
+    model.add(b <= -1);
+    model.add(aa - 1 >= 0);
+    model.add(bb + 1 <= 0);
+    model.add(inequality(1, c, 3));
+    model.add(inequality(-3, d, -1));
+    model.add(inequality(0, cc - 1, 2));
+    model.add(inequality(-2, dd + 1, 0));
+    model.add(e == 1);
+    model.add(ee - 1 == 0);
 
-return model;
+    return model;
 }
 std::vector<double> check_bounds_soln{1, -1, 1, -1, 1, -1, 1};
 
-
 void check(std::vector<coek::Variable>& variables, std::vector<double>& soln)
 {
-    for (size_t i = 0; i < variables.size(); i++) { REQUIRE(variables[i].value() == Approx(soln[i])); }
+    for (size_t i = 0; i < variables.size(); i++) {
+        REQUIRE(variables[i].value() == Approx(soln[i]));
+    }
 }
 
 TEST_CASE("ipopt_cppad", "[smoke]")
