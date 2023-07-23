@@ -88,6 +88,20 @@ Objective NLPModelRepn::get_objective(size_t i) { return model.get_objective(i);
 
 Constraint NLPModelRepn::get_constraint(size_t i) { return model.get_constraint(i); }
 
+bool NLPModelRepn::has_constraint_lower(size_t i) { return model.get_constraint(i).has_lower(); }
+
+bool NLPModelRepn::has_constraint_upper(size_t i) { return model.get_constraint(i).has_upper(); }
+
+double NLPModelRepn::get_constraint_lower(size_t i)
+{
+    return model.get_constraint(i).lower().value();
+}
+
+double NLPModelRepn::get_constraint_upper(size_t i)
+{
+    return model.get_constraint(i).upper().value();
+}
+
 void NLPModelRepn::print_equations(std::ostream& ostr) const
 {
     ostr << "NLPModel:" << std::endl;

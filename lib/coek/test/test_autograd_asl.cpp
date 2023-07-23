@@ -1210,14 +1210,15 @@ TEST_CASE("asl_diff_tests", "[smoke]")
     }
 }
 
-double test_srosenbr_vector_threadeval(const std::string& asl_type, size_t nthreads, size_t niters, double timelimit);
+double test_srosenbr_vector_threadeval(const std::string& asl_type, size_t nthreads, size_t niters,
+                                       double timelimit);
 
 TEST_CASE("asl_mt", "[smoke]")
 {
     SECTION("srosenbr")
     {
         double tmp = test_srosenbr_vector_threadeval(ADNAME, 10, 100, 30);
-        //REQUIRE(tmp == Approx(262080.5003334123));   nthreads = 2
-        REQUIRE(tmp == Approx(260040.0242064819));      // nthreads=2 niters=100
+        // REQUIRE(tmp == Approx(262080.5003334123));   nthreads = 2
+        REQUIRE(tmp == Approx(260040.0242064819));  // nthreads=2 niters=100
     }
 }

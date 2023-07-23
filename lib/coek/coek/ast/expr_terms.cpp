@@ -2,7 +2,6 @@
 #include <cassert>
 #include "expr_terms.hpp"
 
-
 namespace coek {
 
 namespace {
@@ -12,7 +11,7 @@ namespace {
 //
 std::mutex SubExpressionTerm_mtx;
 
-}
+}  // namespace
 
 //
 // SubExpressionTerm
@@ -20,7 +19,7 @@ std::mutex SubExpressionTerm_mtx;
 
 unsigned int SubExpressionTerm::count = 0;
 
-SubExpressionTerm::SubExpressionTerm(const expr_pointer_t& body) : UnaryTerm(body) 
+SubExpressionTerm::SubExpressionTerm(const expr_pointer_t& body) : UnaryTerm(body)
 {
     SubExpressionTerm_mtx.lock();
     index = count++;
@@ -30,7 +29,6 @@ SubExpressionTerm::SubExpressionTerm(const expr_pointer_t& body) : UnaryTerm(bod
 //
 // UnaryTerm
 //
-
 
 BinaryTerm::BinaryTerm(const expr_pointer_t& _lhs, const expr_pointer_t& _rhs)
     : lhs(_lhs), rhs(_rhs)
