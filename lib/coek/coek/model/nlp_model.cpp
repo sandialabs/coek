@@ -8,7 +8,7 @@
 namespace coek {
 
 //
-// OptionCache
+// OptionCacheRepn
 //
 
 class OptionCacheRepn {
@@ -17,6 +17,10 @@ class OptionCacheRepn {
     std::map<std::string, int> integer_options;
     std::map<std::string, double> double_options;
 };
+
+//
+// OptionCache
+//
 
 OptionCache::OptionCache() { options = std::make_shared<OptionCacheRepn>(); }
 
