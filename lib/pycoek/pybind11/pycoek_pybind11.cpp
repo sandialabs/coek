@@ -2043,7 +2043,6 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     py::class_<coek::NLPModel>(m, "nlp_model")
         .def(py::init<>())
         .def(py::init<coek::Model&, std::string>())
-        .def(py::init<coek::Model&, std::string, bool>())
 
         .def("num_variables", &coek::NLPModel::num_variables)
         .def("num_objectives", &coek::NLPModel::num_objectives)
