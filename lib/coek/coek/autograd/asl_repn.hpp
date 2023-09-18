@@ -20,6 +20,10 @@ class ASL_Repn : public NLPModelRepn {
    public:
     // The main ASL structure
     ASL_pfgh* asl_;
+    // The temporary file directory used to write the NL file
+    std::string temp_directory;
+    // If set to 1, then the NL file is removed
+    int remove_nl_file = 1;
 
     // ----------------------------------------------------------------------
     // Problem information
@@ -56,7 +60,7 @@ class ASL_Repn : public NLPModelRepn {
     ASL_Repn(Model& model);
     ~ASL_Repn();
 
-    void initialize(bool sparse_JH = true);
+    void initialize();
 
     void reset(void);
 
@@ -72,6 +76,11 @@ class ASL_Repn : public NLPModelRepn {
 
     void set_variables(std::vector<double>& x);
     void set_variables(const double* x, size_t n);
+
+    bool has_constraint_lower(size_t i);
+    bool has_constraint_upper(size_t i);
+    double get_constraint_lower(size_t i);
+    double get_constraint_upper(size_t i);
 
     void get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol);
     void get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol);
@@ -92,6 +101,12 @@ class ASL_Repn : public NLPModelRepn {
     void compute_H(std::vector<double>& w, std::vector<double>& H);
 
     void compute_J(std::vector<double>& J);
+
+   public:
+    bool get_option(const std::string& option, std::string& value) const;
+    bool get_option(const std::string& option, int& value) const;
+    void set_option(const std::string& option, const std::string value);
+    void set_option(const std::string& option, int value);
 
    protected:
     void* nerror_;

@@ -14,8 +14,7 @@ namespace {
 std::mutex ParameterTerm_mtx;
 std::mutex VariableTerm_mtx;
 
-}
-
+}  // namespace
 
 //
 // BaseExpressionTerm

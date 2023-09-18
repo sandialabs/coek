@@ -22,7 +22,7 @@ class NLPModelRepn {
     NLPModelRepn(Model& _model) : model(_model) {}
     virtual ~NLPModelRepn() {}
 
-    virtual void initialize(bool sparse_JH = true) = 0;
+    virtual void initialize() = 0;
     virtual void reset(void) = 0;
 
     virtual size_t num_variables() const = 0;
@@ -37,8 +37,15 @@ class NLPModelRepn {
     virtual void set_variables(std::vector<double>& x) = 0;
     virtual void set_variables(const double* x, size_t n) = 0;
 
+    // TODO - Deprecate these methods!  The AD package may change the objective/constraint
+    // expressions
     virtual Objective get_objective(size_t i);
     virtual Constraint get_constraint(size_t i);
+
+    virtual bool has_constraint_lower(size_t i);
+    virtual bool has_constraint_upper(size_t i);
+    virtual double get_constraint_lower(size_t i);
+    virtual double get_constraint_upper(size_t i);
 
     virtual void print_equations(std::ostream& ostr) const = 0;
     virtual void print_values(std::ostream& ostr) const = 0;
@@ -57,6 +64,66 @@ class NLPModelRepn {
 
    public:
     void find_used_variables();
+
+   public:
+    /** Get the value of an integer option
+     *
+     * The option value is returned by reference if it has
+     * a value.
+     *
+     * \param option  the option name
+     * \param value   an integer value that is passed by reference
+     *
+     * \returns \c true if the option is found
+     */
+    virtual bool get_option(const std::string& /*option*/, int& /*value*/) const { return false; }
+    /** Get the value of a double option
+     *
+     * The option value is returned by reference if it has
+     * a value.
+     *
+     * \param option  the option name
+     * \param value   a double value that is passed by reference
+     *
+     * \returns \c true if the option is found
+     */
+    virtual bool get_option(const std::string& /*option*/, double& /*value*/) const
+    {
+        return false;
+    }
+    /** Get the value of a string option
+     *
+     * The option value is returned by reference if it has
+     * a value.
+     *
+     * \param option  the option name
+     * \param value   a string value that is passed by reference
+     *
+     * \returns \c true if the option is found
+     */
+    virtual bool get_option(const std::string& /*option*/, std::string& /*value*/) const
+    {
+        return false;
+    }
+
+    /** Set an integer option
+     *
+     * \param option  the option name
+     * \param value   the integer value
+     */
+    virtual void set_option(const std::string& /*option*/, int /*value*/) {}
+    /** Set a double option
+     *
+     * \param option  the option name
+     * \param value   the double value
+     */
+    virtual void set_option(const std::string& /*option*/, double /*value*/) {}
+    /** Set a string option
+     *
+     * \param option  the option name
+     * \param value   the string value
+     */
+    virtual void set_option(const std::string& /*option*/, const std::string /*value*/) {}
 };
 
 NLPModelRepn* create_NLPModelRepn(Model& model, const std::string& name);

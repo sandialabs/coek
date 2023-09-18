@@ -315,7 +315,9 @@ TEST_CASE("cppad_ad", "[smoke]")
             model.add_constraint(a * b <= 0);
             model.add_constraint(b <= 0);
 
-            coek::NLPModel nlp(model, ADNAME, false);
+            coek::NLPModel nlp;
+            nlp.set_option("sparse_JH", false);
+            nlp.initialize(model, ADNAME);
             REQUIRE(nlp.num_nonzeros_Jacobian() == 6);
 
             std::vector<double> x{0, 1};
@@ -340,7 +342,9 @@ TEST_CASE("cppad_ad", "[smoke]")
             model.add_constraint(a + a * b + b <= 0);
             model.add_constraint(b + b * c + c <= 0);
 
-            coek::NLPModel nlp(model, ADNAME, false);
+            coek::NLPModel nlp;
+            nlp.set_option("sparse_JH", false);
+            nlp.initialize(model, ADNAME);
             REQUIRE(nlp.num_nonzeros_Jacobian() == 6);
 
             std::vector<double> x{0, 1, 2};
@@ -483,7 +487,9 @@ TEST_CASE("cppad_ad", "[smoke]")
             model.add_constraint(a * b <= 0);
             model.add_constraint(b <= 0);
 
-            coek::NLPModel nlp(model, ADNAME, false);
+            coek::NLPModel nlp;
+            nlp.set_option("sparse_JH", false);
+            nlp.initialize(model, ADNAME);
             REQUIRE(nlp.num_nonzeros_Hessian_Lagrangian() == 3);
 
             // H = [ [ 2, 1 ]
@@ -509,7 +515,9 @@ TEST_CASE("cppad_ad", "[smoke]")
             model.add_constraint(a + a * b + b <= 0);
             model.add_constraint(b + b * c + c <= 0);
 
-            coek::NLPModel nlp(model, ADNAME, false);
+            coek::NLPModel nlp;
+            nlp.set_option("sparse_JH", false);
+            nlp.initialize(model, ADNAME);
             REQUIRE(nlp.num_nonzeros_Hessian_Lagrangian() == 10);
 
             // H = [ [ 0, 1, 0, 0 ]

@@ -291,9 +291,8 @@ void CppAD_Repn::create_CppAD_function()
     ADfc.optimize();
 }
 
-void CppAD_Repn::initialize(bool _sparse_JH)
+void CppAD_Repn::initialize()
 {
-    sparse_JH = _sparse_JH;
     //
     // Find all variables used in the NLP model
     //
@@ -588,6 +587,20 @@ void CppAD_Repn::reset(void)
         xub[it.first] = it.second->ub->eval();
     }
     set_variables(currx);
+}
+
+bool CppAD_Repn::get_option(const std::string& option, int& value) const
+{
+    if (option == "sparse_JH") {
+        value = sparse_JH;
+        return true;
+    }
+    return false;
+}
+
+void CppAD_Repn::set_option(const std::string& option, int value)
+{
+    if (option == "sparse_JH") sparse_JH = (value == 1);
 }
 
 //

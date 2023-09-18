@@ -16,7 +16,7 @@ class UnknownAD_Repn : public NLPModelRepn {
    public:
     UnknownAD_Repn(const std::string& ad_type_) : ad_type(ad_type_) {}
 
-    void initialize(bool /*sparse_JH*/ = true) {}  // GCOVR_EXCL_LINE
+    void initialize() {}  // GCOVR_EXCL_LINE
 
     void reset(void) {}
 

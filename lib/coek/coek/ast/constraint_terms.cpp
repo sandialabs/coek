@@ -12,15 +12,14 @@ namespace {
 std::mutex ObjectiveTerm_mtx;
 std::mutex ConstraintTerm_mtx;
 
-}
-
+}  // namespace
 
 //
 // ObjectiveTerm
 //
 unsigned int ObjectiveTerm::count = 0;
 
-ObjectiveTerm::ObjectiveTerm() : body(ZeroConstant), sense(true) 
+ObjectiveTerm::ObjectiveTerm() : body(ZeroConstant), sense(true)
 {
     ObjectiveTerm_mtx.lock();
     index = count++;
@@ -40,8 +39,8 @@ ObjectiveTerm::ObjectiveTerm(const expr_pointer_t& _body, bool _sense) : body(_b
 
 unsigned int ConstraintTerm::count = 0;
 
-ConstraintTerm::ConstraintTerm() 
-{ 
+ConstraintTerm::ConstraintTerm()
+{
     ConstraintTerm_mtx.lock();
     index = count++;
     ConstraintTerm_mtx.unlock();
