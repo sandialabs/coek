@@ -496,14 +496,14 @@ class IpoptSolverRepn_CAPI : public IpoptSolverRepn {
 
     void set_start_from_last_x(bool flag) { nlp->start_from_last_x = flag; }
 
-    void set_options(std::map<std::string, std::string>& string_options,
-                     std::map<std::string, int>& integer_options,
-                     std::map<std::string, double>& double_options);
+    void set_options(const std::map<std::string, std::string>& string_options,
+                     const std::map<std::string, int>& integer_options,
+                     const std::map<std::string, double>& double_options);
 };
 
-void IpoptSolverRepn_CAPI::set_options(std::map<std::string, std::string>& string_options,
-                                       std::map<std::string, int>& integer_options,
-                                       std::map<std::string, double>& double_options)
+void IpoptSolverRepn_CAPI::set_options(const std::map<std::string, std::string>& string_options,
+                                       const std::map<std::string, int>& integer_options,
+                                       const std::map<std::string, double>& double_options)
 {
     for (auto it = string_options.begin(); it != string_options.end(); ++it) {
         char* tmp1 = const_cast<char*>(it->first.c_str());

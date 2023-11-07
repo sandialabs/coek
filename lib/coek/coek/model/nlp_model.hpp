@@ -1,72 +1,11 @@
 #pragma once
 
+#include <coek/util/option_cache.hpp>
 #include <coek/model/model.hpp>
 
 namespace coek {
 
 class NLPModelRepn;
-class OptionCacheRepn;
-
-class OptionCache {
-   public:
-    std::shared_ptr<OptionCacheRepn> options;
-
-   public:
-    OptionCache();
-
-    /** Get the value of an integer option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option name
-     * \param value   an integer value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(const std::string& option, int& value) const;
-    /** Get the value of a double option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option name
-     * \param value   a double value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(const std::string& option, double& value) const;
-    /** Get the value of a string option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option name
-     * \param value   a string value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(const std::string& option, std::string& value) const;
-
-    /** Set an integer option
-     *
-     * \param option  the option name
-     * \param value   the integer value
-     */
-    void set_option(const std::string& option, int value);
-    /** Set a double option
-     *
-     * \param option  the option name
-     * \param value   the double value
-     */
-    void set_option(const std::string& option, double value);
-    /** Set a string option
-     *
-     * \param option  the option name
-     * \param value   the string value
-     */
-    void set_option(const std::string& option, const std::string value);
-};
 
 /**
  * An optimization model that provides a view of a coek::Model

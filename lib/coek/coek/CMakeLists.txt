@@ -3,6 +3,7 @@
 
 SET(sources
     util/index_vector.cpp
+    util/option_cache.cpp
     ast/base_terms.cpp
     ast/constraint_terms.cpp
     ast/value_terms.cpp
@@ -226,6 +227,7 @@ install(FILES
         util/index_vector.hpp
         util/template_utils.hpp
         util/sequence.hpp
+        util/option_cache.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/util
         )
 install(FILES
