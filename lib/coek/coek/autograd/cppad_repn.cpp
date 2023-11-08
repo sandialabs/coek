@@ -595,12 +595,19 @@ bool CppAD_Repn::get_option(const std::string& option, int& value) const
         value = sparse_JH;
         return true;
     }
+    else if (option == "simplify_expressions") {
+        value = simplify_expressions;
+        return true;
+    }
     return false;
 }
 
 void CppAD_Repn::set_option(const std::string& option, int value)
 {
-    if (option == "sparse_JH") sparse_JH = (value == 1);
+    if (option == "sparse_JH")
+        sparse_JH = (value == 1);
+    else if (option == "simplify_expressions")
+        simplify_expressions = (value == 1);
 }
 
 //
