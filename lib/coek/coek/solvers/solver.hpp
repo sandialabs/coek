@@ -89,7 +89,7 @@ class NLPSolver : public OptionCache {
     /* Resolve a model that has been loaded
      *
      * \returns an error code that is nonzero if an error occurs */
-    int resolve();
+    int resolve(bool reset_nlpmodel = true);
     /** Resets the state of the optimizer */
     void reset();
 

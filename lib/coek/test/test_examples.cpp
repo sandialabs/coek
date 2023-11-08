@@ -18,6 +18,11 @@ coek::Model simplelp1();
 std::vector<double> simplelp1_soln{375, 250};
 void simplelp1_solve();
 
+// quad
+coek::Model quad_vector(std::vector<coek::Parameter>& p);
+std::vector<double> quad_soln1{0.5, 0.5, 0.5, 0.5, 0.5};
+std::vector<double> quad_soln2{-0.5, -0.5, -0.5, -0.5, -0.5};
+
 // invquad
 coek::Model invquad_vector(std::vector<coek::Parameter>& p);
 #if __cpp_lib_variant
@@ -44,7 +49,8 @@ coek::Model check_bounds()
     auto dd = model.add_variable().value(-2.0);
     auto ee = model.add_variable().value(2.0);
 
-    model.add_objective(a * a + b * b + c * c + d * d);
+    model.add_objective(a * a + b * b + c * c + d * d + e * e + aa * aa + bb * bb + cc * cc
+                        + dd * dd + ee * ee);
 
     model.add(a >= 1);
     model.add(b <= -1);
@@ -59,17 +65,37 @@ coek::Model check_bounds()
 
     return model;
 }
-std::vector<double> check_bounds_soln{1, -1, 1, -1, 1, -1, 1};
+std::vector<double> check_bounds_soln{1, -1, 1, -1, 1, 1, -1, 1, -1, 1};
 
 void check(std::vector<coek::Variable>& variables, std::vector<double>& soln)
 {
+    REQUIRE(variables.size() == soln.size());
     for (size_t i = 0; i < variables.size(); i++) {
+        // CAPTURE(i);
         REQUIRE(variables[i].value() == Approx(soln[i]));
     }
 }
 
-TEST_CASE("ipopt_cppad", "[smoke]")
+namespace {
+std::initializer_list<const char*> adnames{
+#ifdef WITH_CPPAD
+    "cppad",
+#endif
+#ifdef WITH_ASL
+    "asl",
+#endif
+};
+}  // namespace
+
+TEST_CASE("ipopt_examples", "[smoke]")
 {
+    INFO("TEST_CASE ipopt_examples");
+
+// TODO - use SKIP after upgrading to Catch2 v3
+#if defined(WITH_ASL) | defined(WITH_CPPAD)
+    auto adname = GENERATE(values(adnames));
+    CAPTURE(adname);
+
     coek::NLPSolver solver("ipopt");
     if (solver.available()) {
         REQUIRE(not solver.error_status());
@@ -81,7 +107,7 @@ TEST_CASE("ipopt_cppad", "[smoke]")
         {
             auto m = rosenbr();
 
-            coek::NLPModel nlp(m, "cppad");
+            coek::NLPModel nlp(m, adname);
             solver.solve(nlp);
 
             check(m.get_variables(), rosenbr_soln);
@@ -91,10 +117,54 @@ TEST_CASE("ipopt_cppad", "[smoke]")
         {
             auto m = check_bounds();
 
-            coek::NLPModel nlp(m, "cppad");
+            coek::NLPModel nlp(m, adname);
             solver.solve(nlp);
 
             check(m.get_variables(), check_bounds_soln);
+        }
+
+        SECTION("quad_vector")
+        {
+            std::vector<coek::Parameter> p(5);
+            for (auto& param : p) param.value(0.5);
+
+            WHEN("solve")
+            {
+                auto m = quad_vector(p);
+
+                coek::NLPModel nlp(m, adname);
+                solver.solve(nlp);
+
+                check(m.get_variables(), quad_soln1);
+            }
+            WHEN("resolve - Same start")
+            {
+                auto m = quad_vector(p);
+
+                coek::NLPModel nlp(m, adname);
+                solver.solve(nlp);
+
+                for (auto& param : p) param.value(-0.5);
+
+                for (size_t i = 0; i < nlp.num_variables(); i++) nlp.get_variable(i).value(0);
+                // solver.set_option("print_level", 0);
+                solver.resolve();
+
+                check(m.get_variables(), quad_soln2);
+            }
+            WHEN("resolve - Current point")
+            {
+                auto m = quad_vector(p);
+
+                coek::NLPModel nlp(m, adname);
+                solver.solve(nlp);
+
+                for (auto& param : p) param.value(-0.5);
+
+                solver.resolve();
+
+                check(m.get_variables(), quad_soln2);
+            }
         }
 
         SECTION("invquad_vector")
@@ -106,7 +176,7 @@ TEST_CASE("ipopt_cppad", "[smoke]")
             {
                 auto m = invquad_vector(p);
 
-                coek::NLPModel nlp(m, "cppad");
+                coek::NLPModel nlp(m, adname);
                 solver.solve(nlp);
 
                 check(m.get_variables(), invquad_soln_5);
@@ -115,7 +185,7 @@ TEST_CASE("ipopt_cppad", "[smoke]")
             {
                 auto m = invquad_vector(p);
 
-                coek::NLPModel nlp(m, "cppad");
+                coek::NLPModel nlp(m, adname);
                 solver.solve(nlp);
 
                 for (auto& param : p) param.value(-0.5);
@@ -131,7 +201,7 @@ TEST_CASE("ipopt_cppad", "[smoke]")
             {
                 auto m = invquad_vector(p);
 
-                coek::NLPModel nlp(m, "cppad");
+                coek::NLPModel nlp(m, adname);
                 solver.solve(nlp);
 
                 for (auto& param : p) param.value(0.5);
@@ -144,7 +214,7 @@ TEST_CASE("ipopt_cppad", "[smoke]")
                     WHEN( "resolve - Warm Start" ) {
                         auto m = invquad_vector(p);
 
-                        coek::NLPModel nlp(m, "cppad");
+                        coek::NLPModel nlp(m, adname);
                         solver.solve(nlp);
 
                         for (auto& param : p)
@@ -165,7 +235,7 @@ TEST_CASE("ipopt_cppad", "[smoke]")
             */
         }
 
-#if __cpp_lib_variant
+#    if __cpp_lib_variant
         SECTION("invquad_array")
         {
             std::vector<coek::Parameter> p(5);
@@ -175,7 +245,7 @@ TEST_CASE("ipopt_cppad", "[smoke]")
             {
                 auto m = invquad_array(p);
 
-                coek::NLPModel nlp(m, "cppad");
+                coek::NLPModel nlp(m, adname);
                 solver.solve(nlp);
 
                 check(m.get_variables(), invquad_soln_5);
@@ -184,7 +254,7 @@ TEST_CASE("ipopt_cppad", "[smoke]")
             {
                 auto m = invquad_array(p);
 
-                coek::NLPModel nlp(m, "cppad");
+                coek::NLPModel nlp(m, adname);
                 solver.solve(nlp);
 
                 for (auto& param : p) param.value(-0.5);
@@ -200,7 +270,7 @@ TEST_CASE("ipopt_cppad", "[smoke]")
             {
                 auto m = invquad_array(p);
 
-                coek::NLPModel nlp(m, "cppad");
+                coek::NLPModel nlp(m, adname);
                 solver.solve(nlp);
 
                 for (auto& param : p) param.value(0.5);
@@ -213,7 +283,7 @@ TEST_CASE("ipopt_cppad", "[smoke]")
                     WHEN( "resolve - Warm Start" ) {
                         auto m = invquad_array(p);
 
-                        coek::NLPModel nlp(m, "cppad");
+                        coek::NLPModel nlp(m, adname);
                         solver.solve(nlp);
 
                         for (auto& param : p)
@@ -236,14 +306,18 @@ TEST_CASE("ipopt_cppad", "[smoke]")
             WHEN("invquad_solve") { invquad_array_solve(); }
             WHEN("invquad_resolve") { invquad_array_resolve(); }
         }
-#endif
+#    endif
     }
     else {
         REQUIRE(solver.error_status());
         REQUIRE(solver.error_code() != 0);
         std::cerr << solver.error_message() << std::endl;
     }
+#endif
 }
+
+#if 0
+TODO - confirm that the earlier tests are the same
 
 TEST_CASE("ipopt_asl", "[smoke]")
 {
@@ -342,7 +416,7 @@ TEST_CASE("ipopt_asl", "[smoke]")
             */
         }
 
-#if __cpp_lib_variant
+#    if __cpp_lib_variant
         SECTION("invquad_array")
         {
             std::vector<coek::Parameter> p(5);
@@ -413,7 +487,7 @@ TEST_CASE("ipopt_asl", "[smoke]")
             WHEN("invquad_solve") { invquad_array_solve(); }
             WHEN("invquad_resolve") { invquad_array_resolve(); }
         }
-#endif
+#    endif
     }
     else {
         REQUIRE(solver.error_status());
@@ -421,21 +495,21 @@ TEST_CASE("ipopt_asl", "[smoke]")
         std::cerr << solver.error_message() << std::endl;
     }
 }
-
-#ifdef WITH_GUROBI
-TEST_CASE("gurobi", "[smoke]")
-{
-    SECTION("simplelp1")
-    {
-        auto m = simplelp1();
-
-        coek::Solver solver("gurobi");
-
-        solver.set_option("OutputFlag", 0);
-        solver.solve(m);
-
-        check(m.get_variables(), simplelp1_soln);
-    }
-    SECTION("simplelp1_solve") { simplelp1_solve(); }
-}
 #endif
+
+TEST_CASE("gurobi_examples", "[smoke]")
+{
+    coek::Solver solver("gurobi");
+    if (solver.available()) {
+        SECTION("simplelp1")
+        {
+            auto m = simplelp1();
+
+            solver.set_option("OutputFlag", 0);
+            solver.solve(m);
+
+            check(m.get_variables(), simplelp1_soln);
+        }
+        SECTION("simplelp1_solve") { simplelp1_solve(); }
+    }
+}

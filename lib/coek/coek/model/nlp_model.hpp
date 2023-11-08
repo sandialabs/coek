@@ -25,14 +25,36 @@ class NLPModel : public OptionCache {
      */
     NLPModel(Model& model, std::string type);
 
-    /** Initialize the NLP model view
+    /** Initialize the NLP model view.
+     *
+     * This method sets up the NLP model representation for a
+     * coek::Model object, including data structures for
+     * automatic differentiation.
+     *
+     * After calling this method, the NLP model can be used
+     * to perform optimization. However, subsequent changes to
+     * the coek::Model data may require a call to the
+     * NLPModel::reset() method before optimizing.
      *
      * \param model  a coek::Model
      * \param type  the type of AD used for computations
      */
     void initialize(Model& model, std::string type);
 
-    /** TODO - maybe this should be called 'update' */
+    /** Update the NLP model representation.
+     *
+     * This method updates the NLP model representation to
+     * account for changes in the coek::Model data. Changes to
+     * parameter values and the values of fixed variables can
+     * impact the data structures used to evaluate expressions
+     * and perform automatic differentiation.
+     *
+     * This method needs to be called before Solver::solve() if
+     * these data values are changed after calling
+     * NLPModel::initialize().  However, this method is
+     * automatically called by Solver::resolve() unless a flag
+     * is passed to suppress this step.
+     */
     void reset();
 
     /** \returns the number of variables in the model */

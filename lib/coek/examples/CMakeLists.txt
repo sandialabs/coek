@@ -12,6 +12,9 @@ SET(sources
     simplelp1_solve.cpp
     rosenbr.cpp
     srosenbr_vector.cpp
+    quad.cpp
+    invquad.cpp
+    quad_vector.cpp
     invquad_vector.cpp
    )
 if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)

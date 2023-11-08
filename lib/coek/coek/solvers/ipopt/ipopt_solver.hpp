@@ -31,7 +31,7 @@ class IpoptSolver : public NLPSolverRepn {
 
     void load(NLPModel& model);
 
-    int resolve();
+    int resolve_exec();
 
     int solve(NLPModel& model);
 

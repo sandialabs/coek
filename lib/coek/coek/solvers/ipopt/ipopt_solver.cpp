@@ -20,7 +20,7 @@ int IpoptSolver::solve(NLPModel& _model)
     return repn->perform_solve();
 }
 
-int IpoptSolver::resolve()
+int IpoptSolver::resolve_exec()
 {
 #ifdef DEBUG
     auto start = std::chrono::high_resolution_clock::now();

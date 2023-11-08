@@ -64,7 +64,7 @@ int NLPSolver::solve(NLPModel& model) { return repn->solve(model); }
 
 void NLPSolver::load(NLPModel& model) { repn->load(model); }
 
-int NLPSolver::resolve() { return repn->resolve(); }
+int NLPSolver::resolve(bool reset_nlpmodel) { return repn->resolve(reset_nlpmodel); }
 
 void NLPSolver::reset() { repn->reset(); }
 

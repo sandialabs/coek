@@ -39,7 +39,7 @@ class SolverCache {
 
     virtual void find_updated_values();
 
-    virtual void reset();
+    virtual void reset_cache();
 
    protected:
     //
@@ -81,9 +81,10 @@ class SolverRepn : public SolverCache {
     virtual void load(CompactModel& model);
 #endif
 
+    virtual void reset();
+    bool initial_solve();
     virtual int resolve() = 0;
 
-    bool initial_solve();
     void find_updated_coefs();
 };
 
@@ -99,15 +100,9 @@ class NLPSolverRepn : public SolverCache, public OptionCache {
 
     void set_options(OptionCache& _options) { options = _options.options; }
 
-    virtual void load(NLPModel& _model)
-    {
-        model = &_model;
-        reset();
-    }
+    virtual void load(NLPModel& _model) { model = &_model; }
 
-    virtual int resolve() = 0;
-
-    virtual int solve(NLPModel& model) = 0;
+    virtual void reset() {}
 
     virtual bool initial_solve()
     {
@@ -118,6 +113,9 @@ class NLPSolverRepn : public SolverCache, public OptionCache {
         else
             return false;
     }
+    virtual int solve(NLPModel& model) = 0;
+    int resolve(bool reset_nlpmodel);
+    virtual int resolve_exec() = 0;
 
     virtual bool available() { return true; }
 };

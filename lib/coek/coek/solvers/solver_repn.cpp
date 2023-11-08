@@ -45,7 +45,7 @@ void SolverCache::find_updated_values()
 #endif
 }
 
-void SolverCache::reset()
+void SolverCache::reset_cache()
 {
     error_occurred = false;
     error_message = "";
@@ -77,6 +77,12 @@ NLPSolverRepn* create_nlpsolver(std::string& name, OptionCache& options)
     }
 
     return 0;
+}
+
+int NLPSolverRepn::resolve(bool reset_nlpmodel)
+{
+    if (reset_nlpmodel) model->reset();
+    return this->resolve_exec();
 }
 
 template <typename K, typename V>
@@ -165,6 +171,8 @@ void SolverRepn::load(Model& _model)
     std::cout << "# Mutable Expressions: " << nmutable << std::endl;
 #endif
 }
+
+void SolverRepn::reset() { reset_cache(); }
 
 #ifdef COEK_WITH_COMPACT_MODEL
 void SolverRepn::load(CompactModel& _model)
