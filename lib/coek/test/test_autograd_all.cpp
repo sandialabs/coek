@@ -7,39 +7,160 @@
 const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
-#define ADNAME "asl"
+namespace {
+std::initializer_list<std::string> adnames{
+#ifdef WITH_CPPAD
+    "cppad",
+#endif
+#ifdef WITH_ASL
+    "asl",
+#endif
+#ifdef WITH_FASTAD
+    "fastad",
+#endif
+    };
+}
 
-TEST_CASE("autograd_asl", "[smoke]")
+TEST_CASE("autograd_add", "[smoke]")
 {
-    SECTION("options")
+    INFO("TEST_CASE autograd_add");
+
+    // TODO - use SKIP after upgrading to Catch2 v3
+    #if defined(WITH_ASL) | defined(WITH_CPPAD)
+    auto adname = GENERATE( values(adnames) );
+    CAPTURE(adname);
+
+    SECTION("error1")
+    {
+        auto v = coek::variable("v");
+        coek::Model model;
+        model.add_objective(v);
+
+        coek::NLPModel nlp;
+        REQUIRE_THROWS_WITH(
+            nlp.initialize(model, adname),
+            "Model expressions contain variable 'v' that is not declared in the model.");
+    }
+
+    SECTION("error2")
+    {
+        INFO("error2");
+        auto v = coek::variable("v");
+        coek::Model model;
+        model.add_objective(2 * v);
+
+        coek::NLPModel nlp;
+        REQUIRE_THROWS_WITH(
+            nlp.initialize(model, adname),
+            "Model expressions contain variable 'v' that is not declared in the model.");
+    }
+
+    SECTION("error3")
+    {
+        INFO("error3");
+        coek::Model model;
+        coek::NLPModel nlp;
+        REQUIRE_THROWS_WITH(nlp.initialize(model, "bad"), "Unexpected NLP model type: bad");
+    }
+
+    SECTION("Variables")
     {
         coek::Model model;
         auto x = model.add_variable("x").lower(0).upper(1).value(0);
         auto y = model.add_variable("y").lower(0).upper(1).value(0);
         model.add_objective("o", x + y);
         coek::NLPModel m;
+        m.initialize(model, adname);
 
-        std::string dir;
-        REQUIRE(m.get_option("bad_option", dir) == false);
-        REQUIRE(m.get_option("temp_directory", dir) == false);
+        REQUIRE(m.compute_f() == 0.0);
 
-        m.set_option("temp_directory", "foo");
-        REQUIRE(m.get_option("temp_directory", dir) == true);
-        REQUIRE(dir == "foo");
+        std::vector<double> tmp = {1.0, 2.0};
+        m.set_variable_view(tmp);
 
-        m.set_option("temp_directory", "./");
-        m.initialize(model, ADNAME);
+        REQUIRE(m.compute_f() == 3.0);
     }
+
+    SECTION("Add Objective")
+    {
+        coek::Model model;
+        auto x = model.add_variable("x").lower(0).upper(1).value(0);
+        auto y = model.add_variable("y").lower(0).upper(1).value(0);
+
+        model.add_objective("o", x + y);
+
+        REQUIRE(model.num_variables() == 2);
+
+        coek::NLPModel m;
+
+        REQUIRE_THROWS_WITH(m.num_variables(), "Error accessing uninitialized NLPModel");
+        REQUIRE_THROWS_WITH(m.num_objectives(), "Error accessing uninitialized NLPModel");
+        REQUIRE_THROWS_WITH(m.num_constraints(), "Error accessing uninitialized NLPModel");
+
+        m.initialize(model, adname);
+        REQUIRE(m.num_variables() == 2);
+        REQUIRE(m.num_objectives() == 1);
+        REQUIRE(m.num_constraints() == 0);
+
+        auto o = m.get_objective(0);
+        REQUIRE(o.name() == "o");
+
+        REQUIRE_THROWS(m.get_objective(1), "");
+    }
+
+    SECTION("Add Inequality")
+    {
+        coek::Model model;
+        auto x = model.add_variable("x").lower(0).upper(1).value(0);
+        auto y = model.add_variable("y").lower(0).upper(1).value(0);
+
+        auto e = x + y <= 0;
+        model.add_objective("o", x);
+        model.add_constraint("c", e);
+
+        coek::NLPModel m;
+        m.initialize(model, adname);
+        REQUIRE(m.num_variables() == 2);
+        REQUIRE(m.num_objectives() == 1);
+        REQUIRE(m.num_constraints() == 1);
+
+        auto c = m.get_constraint(0);
+        REQUIRE(c.name() == "c");
+
+        REQUIRE_THROWS(m.get_constraint(1), "");
+    }
+
+    SECTION("Add Equality")
+    {
+        coek::Model model;
+        auto x = model.add_variable("x").lower(0).upper(1).value(0);
+        auto y = model.add_variable("y").lower(0).upper(1).value(0);
+
+        auto e = x + y == 0;
+        model.add_objective("o", x);
+        model.add_constraint(e);
+
+        coek::NLPModel m;
+        m.initialize(model, adname);
+        REQUIRE(m.num_variables() == 2);
+        REQUIRE(m.num_objectives() == 1);
+        REQUIRE(m.num_constraints() == 1);
+    }
+    #endif
 }
 
-#if 0
-TEST_CASE("asl_ad", "[smoke]")
+TEST_CASE("autograd_ad", "[smoke]")
 {
-#if 0
-    TODO - fix these tests with multiple objectives
+    INFO("TEST_CASE autograd_ad");
+
+    // TODO - use SKIP after upgrading to Catch2 v3
+    #if defined(WITH_ASL) | defined(WITH_CPPAD)
+    auto adname = GENERATE( values(adnames) );
+    CAPTURE(adname);
 
     SECTION("f")
     {
+        // TODO - Extend ASL to support multiple objectives
+        if (adname != "asl") {
         coek::Model model;
         auto a = model.add_variable("a").lower(0).upper(1).value(0);
         auto b = model.add_variable("b").lower(0).upper(1).value(0);
@@ -47,7 +168,7 @@ TEST_CASE("asl_ad", "[smoke]")
         model.add_objective(a + b);
         model.add_objective(a * b);
 
-        coek::NLPModel nlp(model, ADNAME);
+        coek::NLPModel nlp(model, adname);
 
         std::vector<double> x{3, 5};
         REQUIRE(nlp.compute_f(x) == 8.0);
@@ -58,10 +179,13 @@ TEST_CASE("asl_ad", "[smoke]")
         REQUIRE(nlp.compute_f(y) == 9.0);
         REQUIRE(nlp.compute_f(1) == 18.0);
         REQUIRE(nlp.compute_f(y, 1) == 18.0);
+        }
     }
 
     SECTION("df")
     {
+        // TODO - Extend ASL to support multiple objectives
+        if (adname != "asl") {
         coek::Model model;
         auto a = model.add_variable("a").lower(0).upper(1).value(0);
         auto b = model.add_variable("b").lower(0).upper(1).value(0);
@@ -69,7 +193,7 @@ TEST_CASE("asl_ad", "[smoke]")
         model.add_objective(a + b);
         model.add_objective(a * b);
 
-        coek::NLPModel nlp(model, ADNAME);
+        coek::NLPModel nlp(model, adname);
 
         std::vector<double> x{3, 5};
         std::vector<double> df(2);
@@ -96,8 +220,8 @@ TEST_CASE("asl_ad", "[smoke]")
         REQUIRE(df[1] == 3.0);
         nlp.compute_df(f, df, 1);
         REQUIRE(f == 18.0);
+        }
     }
-#endif
 
     SECTION("c")
     {
@@ -108,7 +232,7 @@ TEST_CASE("asl_ad", "[smoke]")
         model.add_constraint(a + b <= 0);
         model.add_constraint(a * b == 0);
 
-        coek::NLPModel nlp(model, ADNAME);
+        coek::NLPModel nlp(model, adname);
 
         std::vector<double> x{3, 5};
         std::vector<double> c(2);
@@ -137,7 +261,7 @@ TEST_CASE("asl_ad", "[smoke]")
         model.add_constraint(a + b <= 0);
         model.add_constraint(a * b == 0);
 
-        coek::NLPModel nlp(model, ADNAME);
+        coek::NLPModel nlp(model, adname);
 
         std::vector<double> x{3, 5};
         std::vector<double> dc(2);
@@ -176,7 +300,7 @@ TEST_CASE("asl_ad", "[smoke]")
             model.add_constraint(a * b <= 0);
             model.add_constraint(b <= 0);
 
-            coek::NLPModel nlp(model, ADNAME);
+            coek::NLPModel nlp(model, adname);
             REQUIRE(nlp.num_nonzeros_Jacobian() == 4);
 
             std::vector<double> x{0, 1};
@@ -200,7 +324,7 @@ TEST_CASE("asl_ad", "[smoke]")
             model.add_constraint(a + a * b + b <= 0);
             model.add_constraint(b + b * c + c <= 0);
 
-            coek::NLPModel nlp(model, ADNAME);
+            coek::NLPModel nlp(model, adname);
             REQUIRE(nlp.num_nonzeros_Jacobian() == 4);
 
             std::vector<double> x{0, 1, 2, 3};
@@ -226,7 +350,7 @@ TEST_CASE("asl_ad", "[smoke]")
             model.add_constraint(a * b <= 0);
             model.add_constraint(b <= 0);
 
-            coek::NLPModel nlp(model, ADNAME);
+            coek::NLPModel nlp(model, adname);
             REQUIRE(nlp.num_nonzeros_Hessian_Lagrangian() == 2);
 
             // H = [ [ 2, 1 ]
@@ -251,11 +375,31 @@ TEST_CASE("asl_ad", "[smoke]")
             model.add_constraint(a + a * b + b + a * d <= 0);
             model.add_constraint(b + b * c + c + b * d <= 0);
 
-            coek::NLPModel nlp(model, ADNAME);
+            coek::NLPModel nlp(model, adname);
             REQUIRE(nlp.num_constraints() == 2);
             REQUIRE(nlp.num_nonzeros_Jacobian() == 6);
             REQUIRE(nlp.num_nonzeros_Hessian_Lagrangian() == 7);
 
+            if (adname == "cppad") {
+            // Variable Ordering:  a, b, c, d
+            //
+            // h = [ [ 0, 1,    0,   1 ]
+            //       [ 1, 0,    1,   1 ]
+            //       [ 0, 1, 2d^2, 4cd ]
+            //       [ 1, 1, 4cd, 2c^2 ] ]
+            std::vector<double> w{1, 1, 1};
+            std::vector<double> x{0, 1, 2, 3};
+            std::vector<double> h(nlp.num_nonzeros_Hessian_Lagrangian());
+            nlp.compute_H(x, w, h);
+            REQUIRE(h[0] == 1);
+            REQUIRE(h[1] == 1);
+            REQUIRE(h[2] == 18);
+            REQUIRE(h[3] == 1);
+            REQUIRE(h[4] == 1);
+            REQUIRE(h[5] == 24);
+            REQUIRE(h[6] == 8);
+            }
+            else if (adname == "asl") {
             // Variable Ordering:  c, d, a, b
             //
             // H = [ [ 2d^2,  4cd, 0, 1 ]
@@ -278,6 +422,7 @@ TEST_CASE("asl_ad", "[smoke]")
             REQUIRE(h[4] == 1);
             REQUIRE(h[5] == 1);
             REQUIRE(h[6] == 1);
+            }
         }
 
         WHEN("nx > nc weighted")
@@ -291,11 +436,30 @@ TEST_CASE("asl_ad", "[smoke]")
             model.add_objective(d * c + c + b * b + c * c);
             model.add_constraint(a + a * b <= 0);
 
-            coek::NLPModel nlp(model, ADNAME);
+            coek::NLPModel nlp(model, adname);
             REQUIRE(nlp.num_constraints() == 1);
             REQUIRE(nlp.num_nonzeros_Hessian_Lagrangian() == 4);
-            // Variable Ordering:  b, a, c, d
 
+            if (adname == "cppad") {
+            // Variable Ordering:  a, b, c, d
+            //
+            // h = [ [ 0, 9,  0,  0 ]
+            //       [ 9, 2,  0,  0 ]
+            //       [ 0, 0,  2,  1 ]
+            //       [ 0, 0,  1,  0 ] ]
+            //
+            std::vector<double> w{1, 9};
+            std::vector<double> x{0, 1, 2, 3};
+            std::vector<double> h(nlp.num_nonzeros_Hessian_Lagrangian());
+            nlp.compute_H(x, w, h);
+            REQUIRE(h[0] == 9);
+            REQUIRE(h[1] == 2);
+            REQUIRE(h[2] == 2);
+            REQUIRE(h[3] == 1);
+            }
+            else if (adname == "asl") {
+            // Variable Ordering:  b, a, c, d
+            //
             // H = [ [ 2, 9,  0,  0 ]
             //       [ 9, 0,  0,  0 ]
             //       [ 0, 0,  2,  1 ]
@@ -313,6 +477,7 @@ TEST_CASE("asl_ad", "[smoke]")
             REQUIRE(h[1] == 9);
             REQUIRE(h[2] == 2);
             REQUIRE(h[3] == 1);
+            }
         }
 
         WHEN("other 1")
@@ -322,7 +487,7 @@ TEST_CASE("asl_ad", "[smoke]")
             auto b = model.add_variable("b").lower(0.1).upper(100).value(2);
             model.add_objective(pow(b - pow(a, 2), 2) + pow(a - 1, 2));
 
-            coek::NLPModel nlp(model, ADNAME);
+            coek::NLPModel nlp(model, adname);
             REQUIRE(nlp.num_nonzeros_Hessian_Lagrangian() == 3);
 
             // H = [ [ -4b+12a^2+2, -4a]
@@ -336,10 +501,18 @@ TEST_CASE("asl_ad", "[smoke]")
             REQUIRE(h[2] == 2);
         }
     }
+    #endif
 }
 
-TEST_CASE("asl_diff_tests", "[smoke]")
+TEST_CASE("autograd_diff_tests", "[smoke]")
 {
+    INFO("TEST_CASE autograd_diff_tests");
+
+    // TODO - use SKIP after upgrading to Catch2 v3
+    #if defined(WITH_ASL) | defined(WITH_CPPAD)
+    auto adname = GENERATE( values(adnames) );
+    CAPTURE(adname);
+
     // TODO - test constant expression
 
     SECTION("constant")
@@ -348,7 +521,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
         coek::Expression f(3);
         auto v = model.add_variable("v");
         model.add_objective(f * v);
-        coek::NLPModel nlp(model, ADNAME);
+        coek::NLPModel nlp(model, adname);
 
         std::vector<double> x{0};
         std::vector<double> baseline{3};
@@ -366,7 +539,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             coek::Expression f = p;
             auto v = model.add_variable("v");
             model.add_objective(f * v);
-            coek::NLPModel nlp(model, ADNAME);
+            coek::NLPModel nlp(model, adname);
 
             std::vector<double> x{0};
             std::vector<double> baseline{3};
@@ -391,7 +564,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             coek::Expression f = p1 + 2 * p2 + 3 * p3 + 4 * p4 + 5 * p5;
             auto v = model.add_variable("v");
             model.add_objective(f * v);
-            coek::NLPModel nlp(model, ADNAME);
+            coek::NLPModel nlp(model, adname);
 
             std::vector<double> x{0};
             std::vector<double> baseline{1 + 4 + 9 + 16 + 25};
@@ -417,7 +590,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             v.fixed(true);
             coek::Expression f = v + 2 * w;
             model.add_objective(f);
-            coek::NLPModel nlp(model, ADNAME);
+            coek::NLPModel nlp(model, adname);
 
             std::vector<double> x{0};
             std::vector<double> baseline{2};
@@ -426,18 +599,17 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             REQUIRE(ans == baseline);
         }
 
-#if 0
-    TODO - Fix this test - multiple objectives
-
         WHEN("unfixed")
         {
+            // TODO = Fix this test - multiple objectives
+            if (adname != "asl") {
             coek::Model model;
             auto v = model.add_variable("v");
             auto w = model.add_variable("w");
             coek::Expression f = v;
             model.add_objective(f);
             model.add_objective(w);
-            coek::NLPModel nlp(model, ADNAME);
+            coek::NLPModel nlp(model, adname);
 
             std::vector<double> x{0, 0};
             std::vector<double> baseline{1, 0};
@@ -447,8 +619,8 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             nlp.compute_df(x, ans, 1);
             std::vector<double> baseline2{0, 1};
             REQUIRE(ans == baseline2);
+            }
         }
-#endif
     }
 
     SECTION("monomial")
@@ -460,7 +632,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w");
             coek::Expression f = 2 * v;
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0};
             std::vector<double> baseline{2};
@@ -477,7 +649,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             v.fixed(true);
             coek::Expression f = 2 * v;
             m.add_objective(f + 3 * w);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0};
             std::vector<double> baseline{3};
@@ -496,7 +668,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto v = m.add_variable("v");
             coek::Expression f = 2 * (v + v) + v;
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0};
             std::vector<double> baseline{5};
@@ -511,7 +683,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto v = m.add_variable("v");
             coek::Expression f = 3 * p + 2 * v;
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0};
             std::vector<double> baseline{2};
@@ -525,7 +697,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto v = m.add_variable("v");
             coek::Expression f = 7 * v + v;
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0};
             std::vector<double> baseline{8};
@@ -543,7 +715,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto v = m.add_variable("v");
             coek::Expression f = -(v + 1);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0};
             std::vector<double> baseline{-1};
@@ -562,7 +734,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto v = m.add_variable("v");
             coek::Expression f = v + p * v;
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0};
             std::vector<double> baseline{1};
@@ -577,7 +749,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto v = m.add_variable("v");
             coek::Expression f = p * v;
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0};
             std::vector<double> baseline{2};
@@ -592,7 +764,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto v = m.add_variable("v");
             coek::Expression f = v + v * p;
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0};
             std::vector<double> baseline{1};
@@ -607,7 +779,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto v = m.add_variable("v");
             coek::Expression f = v * p;
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0};
             std::vector<double> baseline{2};
@@ -622,7 +794,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = v * w;
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2, 3};
             std::vector<double> baseline{3, 2};
@@ -642,7 +814,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             coek::Expression f = w + (2 * p) / w;
             m.add_objective(f);
             m.add_constraint(2 * w <= 0);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{1};
@@ -658,7 +830,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             coek::Expression f = w + (2 * p) / w;
             m.add_objective(f);
             m.add_constraint(2 * w <= 0);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{1};
@@ -673,7 +845,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("W").lower(0).upper(1).value(0);
             coek::Expression f = w + (2 * p) / w;
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0};
             std::vector<double> baseline{1};
@@ -688,7 +860,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = w / p;
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{1};
             std::vector<double> baseline{0.5};
@@ -702,7 +874,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = w / (1 + w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{1};
             std::vector<double> baseline{0.25};
@@ -721,7 +893,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = w * v + v * (2 * w + 1);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2, 3};
             std::vector<double> baseline{10, 6};
@@ -736,7 +908,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = v * (2 * w + 1);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2, 3};
             std::vector<double> baseline{7, 4};
@@ -750,7 +922,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = 3 * w + 2 * w;
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{5};
@@ -764,7 +936,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = -(-w) + (-(-w));
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{2};
@@ -779,7 +951,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = v + 2 * w;
             m.add_objective(2 * f + 3 * f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{10, 11};
             std::vector<double> baseline{5, 10};
@@ -797,7 +969,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = abs(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{-1};
             std::vector<double> baseline{-2};
@@ -813,7 +985,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = exp(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{1};
             std::vector<double> baseline{2 * pow(E, 2.0)};
@@ -827,7 +999,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = log(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{0.5};
@@ -841,7 +1013,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = log10(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{0.5 / log(10.0)};
@@ -855,7 +1027,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = sqrt(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{0.5};
@@ -869,7 +1041,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = sin(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{2 * cos(4)};
@@ -883,7 +1055,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = cos(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{-2 * sin(4)};
@@ -897,7 +1069,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = tan(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{2 / pow(cos(4), 2)};
@@ -911,7 +1083,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = sinh(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{2 * cosh(4)};
@@ -927,7 +1099,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = cosh(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{2 * sinh(4)};
@@ -943,7 +1115,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = tanh(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{2 * (1 - pow(tanh(4), 2))};
@@ -960,7 +1132,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = asin(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0.25};
             std::vector<double> baseline{2 / sqrt(3.0 / 4.0)};
@@ -977,7 +1149,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = acos(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0.25};
             std::vector<double> baseline{-2 / sqrt(3.0 / 4.0)};
@@ -995,7 +1167,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = atan(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0.25};
             std::vector<double> baseline{2 / (5.0 / 4.0)};
@@ -1012,7 +1184,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = asinh(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0.25};
             std::vector<double> baseline{2 / sqrt(5.0 / 4.0)};
@@ -1030,7 +1202,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = acosh(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{1};
             std::vector<double> baseline{2 / sqrt(3.0)};
@@ -1048,7 +1220,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = atanh(2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{0.25};
             std::vector<double> baseline{2 / (3.0 / 4.0)};
@@ -1066,7 +1238,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = pow(w, 3);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{3 * 4};
@@ -1083,7 +1255,7 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = pow(3, 2 * w);
             m.add_objective(f);
-            coek::NLPModel nlp(m, ADNAME);
+            coek::NLPModel nlp(m, adname);
 
             std::vector<double> x{2};
             std::vector<double> baseline{2 * log(3) * pow(3, 4)};
@@ -1095,18 +1267,29 @@ TEST_CASE("asl_diff_tests", "[smoke]")
             // "pow", "3.000", "[", "*", "2", "w", "]", "]", "]", "]" };
         }
     }
+    #endif
 }
 
 double test_srosenbr_vector_threadeval(const std::string& asl_type, size_t nthreads, size_t niters,
                                        double timelimit);
 
-TEST_CASE("asl_mt", "[smoke]")
+TEST_CASE("autograd_mt", "[smoke]")
 {
+    INFO("TEST_CASE autograd_mt");
+
+    // TODO - figure out issue with cppad using threading
+    // TODO - use SKIP after upgrading to Catch2 v3
+    #if defined(WITH_ASL) | defined(WITH_CPPAD)
+    //auto adname = GENERATE( values(adnames) );
+    //CAPTURE(adname);
+
     SECTION("srosenbr")
     {
-        double tmp = test_srosenbr_vector_threadeval(ADNAME, 10, 100, 30);
+        double tmp = test_srosenbr_vector_threadeval("asl", 10, 100, 30);
         // REQUIRE(tmp == Approx(262080.5003334123));   nthreads = 2
+        CAPTURE(tmp);
         REQUIRE(tmp == Approx(260040.0242064819));  // nthreads=2 niters=100
     }
+    #endif
 }
-#endif
+        
