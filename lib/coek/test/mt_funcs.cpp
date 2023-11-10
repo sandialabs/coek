@@ -19,6 +19,7 @@ void eval_model(size_t thread_id, size_t niters, coek::NLPModel& nlp, double& f_
 
     f_min = std::numeric_limits<double>::max();
     for (auto i : coek::range(niters)) {
+        std::ignore = i;
         for (double& val : x) val = urand(gen);
 
         nlp.set_variable_view(x);
@@ -31,7 +32,7 @@ void eval_model(size_t thread_id, size_t niters, coek::NLPModel& nlp, double& f_
 // Randomly search for low values of srosenbr across nthreads
 //
 double test_srosenbr_vector_threadeval(const std::string& asl_type, size_t nthreads, size_t niters,
-                                       double timelimit)
+                                       double /*timelimit*/)
 {
     std::vector<double> f_min(nthreads);
 
@@ -40,6 +41,7 @@ double test_srosenbr_vector_threadeval(const std::string& asl_type, size_t nthre
     //
     std::vector<coek::NLPModel> models;
     for (auto i : coek::range(nthreads)) {
+        std::ignore = i;
         coek::Model tmp = srosenbr_vector();
         models.emplace_back(coek::NLPModel(tmp, asl_type));
     }
