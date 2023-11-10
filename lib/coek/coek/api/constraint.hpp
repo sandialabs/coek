@@ -256,8 +256,28 @@ inline Constraint constraint(const std::string& name, Constraint& con) { return 
 
 inline Constraint constraint(const std::string& name, Constraint&& con) { return con.name(name); }
 
-Constraint inequality(int lower, const Expression& body, int upper, bool strict = false);
-Constraint inequality(double lower, const Expression& body, double upper, bool strict = false);
+//
+// inequality(lower, body, upper)
+//
 Constraint inequality(const Expression& lower, const Expression& body, const Expression& upper,
                       bool strict = false);
+
+template <typename LowerType, typename UpperType,
+          typename = typename std::enable_if<std::is_arithmetic<LowerType>::value, LowerType>::type>
+inline Constraint inequality(LowerType _lower, const Expression& body, const UpperType& upper,
+                             bool strict = false)
+{
+    Expression lower(_lower);
+    return inequality(lower, body, upper, strict);
+}
+
+template <typename UpperType,
+          typename = typename std::enable_if<std::is_arithmetic<UpperType>::value, UpperType>::type>
+inline Constraint inequality(const Expression& lower, const Expression& body, UpperType _upper,
+                             bool strict = false)
+{
+    Expression upper(_upper);
+    return inequality(lower, body, upper, strict);
+}
+
 }  // namespace coek
