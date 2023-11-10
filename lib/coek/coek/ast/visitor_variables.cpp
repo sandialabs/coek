@@ -95,9 +95,22 @@ void visit_MonomialTerm(const expr_pointer_t& expr, VariableData& data)
         data.vars.insert(tmp->var);
 }
 
+void visit_InequalityTerm(const expr_pointer_t& expr, VariableData& data)
+{
+    auto tmp = safe_pointer_cast<InequalityTerm>(expr);
+    if (tmp->lower) visit_expression(tmp->lower, data);
+    visit_expression(tmp->body, data);
+    if (tmp->upper) visit_expression(tmp->upper, data);
+}
+
+void visit_EqualityTerm(const expr_pointer_t& expr, VariableData& data)
+{
+    auto tmp = safe_pointer_cast<EqualityTerm>(expr);
+    visit_expression(tmp->lower, data);
+    visit_expression(tmp->body, data);
+}
+
 // clang-format off
-FROM_BODY(InequalityTerm)
-FROM_BODY(EqualityTerm)
 FROM_BODY(ObjectiveTerm)
 FROM_BODY(NegateTerm)
 // clang-format on
@@ -122,6 +135,14 @@ void visit_PlusTerm(const expr_pointer_t& expr, VariableData& data)
 // clang-format off
 FROM_LHS_RHS(TimesTerm)
 FROM_LHS_RHS(DivideTerm)
+
+void visit_IfThenElseTerm(const expr_pointer_t& expr, VariableData& data)
+{
+    auto tmp = safe_pointer_cast<IfThenElseTerm>(expr);
+    visit_expression(tmp->cond_expr, data);
+    visit_expression(tmp->then_expr, data);
+    visit_expression(tmp->else_expr, data);
+}
 
 FROM_BODY(AbsTerm)
 FROM_BODY(CeilTerm)
@@ -171,6 +192,7 @@ void visit_expression(const expr_pointer_t& expr, VariableData& data)
         VISIT_CASE(PlusTerm);
         VISIT_CASE(TimesTerm);
         VISIT_CASE(DivideTerm);
+        VISIT_CASE(IfThenElseTerm);
         VISIT_CASE(AbsTerm);
         VISIT_CASE(CeilTerm);
         VISIT_CASE(FloorTerm);
