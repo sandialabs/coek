@@ -713,7 +713,71 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
         }
     }
 
-    SECTION("constriaints")
+    SECTION("if_else")
+    {
+        WHEN("if_else - p nonzero")
+        {
+            coek::Model m;
+            auto p = coek::parameter().value(2);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression e = if_else(p, (w * w + w + 1) / p);
+            coek::MutableNLPExpr repn;
+            repn.collect_terms(e);
+
+            static std::list<std::string> constval = {std::to_string(0.0)};
+            REQUIRE(repn.constval->to_list() == constval);
+            REQUIRE(repn.linear_coefs.size() == 0);
+            REQUIRE(repn.quadratic_coefs.size() == 0);
+            REQUIRE(repn.nonlinear_vars.size() == 1);
+        }
+        WHEN("if_else - p zero")
+        {
+            coek::Model m;
+            auto p = coek::parameter().value(0);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression e = if_else(p, (w * w + w + 1) / p);
+            coek::MutableNLPExpr repn;
+            repn.collect_terms(e);
+
+            static std::list<std::string> constval = {std::to_string(0.0)};
+            REQUIRE(repn.constval->to_list() == constval);
+            REQUIRE(repn.linear_coefs.size() == 0);
+            REQUIRE(repn.quadratic_coefs.size() == 0);
+            REQUIRE(repn.nonlinear_vars.size() == 1);
+        }
+        WHEN("if_else - p zero")
+        {
+            coek::Model m;
+            auto p = coek::parameter().value(0);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression e = if_else(p, (w * w + w + 1) / p, w);
+            coek::MutableNLPExpr repn;
+            repn.collect_terms(e);
+
+            static std::list<std::string> constval = {std::to_string(0.0)};
+            REQUIRE(repn.constval->to_list() == constval);
+            REQUIRE(repn.linear_coefs.size() == 0);
+            REQUIRE(repn.quadratic_coefs.size() == 0);
+            REQUIRE(repn.nonlinear_vars.size() == 1);
+        }
+        WHEN("if_else - non-quadratic")
+        {
+            coek::Model m;
+            auto p = coek::parameter().value(0);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression e = if_else(p, (w * w + w + 1) / p, w * w * w);
+            coek::MutableNLPExpr repn;
+            repn.collect_terms(e);
+
+            static std::list<std::string> constval = {std::to_string(0.0)};
+            REQUIRE(repn.constval->to_list() == constval);
+            REQUIRE(repn.linear_coefs.size() == 0);
+            REQUIRE(repn.quadratic_coefs.size() == 0);
+            REQUIRE(repn.nonlinear_vars.size() == 1);
+        }
+    }
+
+    SECTION("constraints")
     {
         WHEN("inequality")
         {
