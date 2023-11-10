@@ -26,17 +26,17 @@ inline Expression if_else(const CondType& cond_, ThenType _then, const ElseType&
     return if_else(cond_, then_, else_);
 }
 
-template <typename CondType, typename ThenType, typename ElseType,
+template <typename CondType, typename ElseType,
           typename = typename std::enable_if<std::is_arithmetic<ElseType>::value, ElseType>::type>
-inline Expression if_else(const CondType& cond_, const ThenType& then_, ElseType _else)
+inline Expression if_else(const CondType& cond_, const Expression& then_, ElseType _else)
 {
     Expression else_(_else);
     return if_else(cond_, then_, else_);
 }
 
-template <typename CondType, typename ThenType, typename ElseType,
+template <typename CondType, 
           typename = typename std::enable_if<std::is_arithmetic<CondType>::value, CondType>::type>
-inline Expression if_else(CondType _cond, const ThenType& then_, const ElseType& else_)
+inline Expression if_else(CondType _cond, const Expression& then_, const Expression& else_)
 {
     if (_cond)
         return then_;
