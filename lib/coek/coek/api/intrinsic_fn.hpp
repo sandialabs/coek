@@ -3,6 +3,46 @@
 namespace coek {
 
 class Expression;
+class Constraint;
+
+/**
+ * Create a conditional expression.
+ *
+ * The function if_else(cond,x,y) returns the value x if cond is true,
+ * and the value y otherwise.
+ */
+Expression if_else(const Expression&, const Expression&, const Expression&);
+Expression if_else(const Constraint&, const Expression&, const Expression&);
+
+template <typename CondType, typename ThenType>
+inline Expression if_else(const CondType& cond_, const ThenType& then_)
+{ return if_else(cond_, then_, 0); }
+
+template <typename CondType, typename ThenType, typename ElseType,
+          typename = typename std::enable_if<std::is_arithmetic<ThenType>::value, ThenType>::type>
+inline Expression if_else(const CondType& cond_, ThenType _then, const ElseType& else_)
+{
+    Expression then_(_then);
+    return if_else(cond_, then_, else_);
+}
+
+template <typename CondType, typename ThenType, typename ElseType,
+          typename = typename std::enable_if<std::is_arithmetic<ElseType>::value, ElseType>::type>
+inline Expression if_else(const CondType& cond_, const ThenType& then_, ElseType _else)
+{
+    Expression else_(_else);
+    return if_else(cond_, then_, else_);
+}
+
+template <typename CondType, typename ThenType, typename ElseType,
+          typename = typename std::enable_if<std::is_arithmetic<CondType>::value, CondType>::type>
+inline Expression if_else(CondType _cond, const ThenType& then_, const ElseType& else_)
+{
+    if (_cond)
+        return then_;
+    else
+        return else_;
+}
 
 /**
  * Create an expression calling the abs() function.
