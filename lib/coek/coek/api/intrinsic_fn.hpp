@@ -16,7 +16,9 @@ Expression if_else(const Constraint&, const Expression&, const Expression&);
 
 template <typename CondType, typename ThenType>
 inline Expression if_else(const CondType& cond_, const ThenType& then_)
-{ return if_else(cond_, then_, 0); }
+{
+    return if_else(cond_, then_, 0);
+}
 
 template <typename CondType, typename ThenType, typename ElseType,
           typename = typename std::enable_if<std::is_arithmetic<ThenType>::value, ThenType>::type>
@@ -34,7 +36,7 @@ inline Expression if_else(const CondType& cond_, const Expression& then_, ElseTy
     return if_else(cond_, then_, else_);
 }
 
-template <typename CondType, 
+template <typename CondType,
           typename = typename std::enable_if<std::is_arithmetic<CondType>::value, CondType>::type>
 inline Expression if_else(CondType _cond, const Expression& then_, const Expression& else_)
 {

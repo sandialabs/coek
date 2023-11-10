@@ -923,7 +923,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             coek::Model m;
             auto p = coek::parameter("p");
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
-            coek::Expression f = coek::if_else(p, 2 * w * w, 2-w*w);
+            coek::Expression f = coek::if_else(p, 2 * w * w, 2 - w * w);
             m.add_objective(f);
             m.add_constraint(2 * w <= 0);
             coek::NLPModel nlp(m, adname);
@@ -939,7 +939,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             coek::Model m;
             auto p = coek::parameter("p").value(1);
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
-            coek::Expression f = coek::if_else(p, 2 * w * w, 2-w*w);
+            coek::Expression f = coek::if_else(p, 2 * w * w, 2 - w * w);
             m.add_objective(f);
             m.add_constraint(2 * w <= 0);
             coek::NLPModel nlp(m, adname);
@@ -955,7 +955,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             coek::Model m;
             auto p = coek::parameter("p").value(1);
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
-            coek::Expression f = coek::if_else(p>0, 2 * w * w, 2-w*w);
+            coek::Expression f = coek::if_else(p > 0, 2 * w * w, 2 - w * w);
             m.add_objective(f);
             m.add_constraint(2 * w <= 0);
             coek::NLPModel nlp(m, adname);
@@ -971,7 +971,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             coek::Model m;
             auto p = coek::parameter("p").value(1);
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
-            coek::Expression f = coek::if_else(w>0, 2 * w * w, 2-w*w);
+            coek::Expression f = coek::if_else(w > 0, 2 * w * w, 2 - w * w);
             m.add_objective(f);
             m.add_constraint(2 * w <= 0);
             coek::NLPModel nlp(m, adname);
