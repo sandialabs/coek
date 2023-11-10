@@ -173,8 +173,7 @@ void PrintExpr::visit(MonomialTerm& arg)
 // GCOVR_EXCL_START
 void PrintExpr::visit(InequalityTerm& arg)
 {
-    if (arg.lower and arg.upper)
-        ostr << "o21" << '\n';  // and
+    if (arg.lower and arg.upper) ostr << "o21" << '\n';  // and
 
     if (arg.lower) {
         if (arg.strict)
@@ -183,7 +182,7 @@ void PrintExpr::visit(InequalityTerm& arg)
             ostr << "o23" << '\n';  // le
         arg.lower->accept(*this);
         arg.body->accept(*this);
-        }
+    }
 
     if (arg.upper) {
         if (arg.strict)
@@ -192,7 +191,7 @@ void PrintExpr::visit(InequalityTerm& arg)
             ostr << "o23" << '\n';  // le
         arg.body->accept(*this);
         arg.upper->accept(*this);
-        }
+    }
 }
 
 void PrintExpr::visit(EqualityTerm& arg)
@@ -276,9 +275,9 @@ PrintExpr_FN(o49, ATanTerm)
 PrintExpr_FN(o50, ASinhTerm)
 PrintExpr_FN(o52, ACoshTerm)
 PrintExpr_FN(o47, ATanhTerm)
-// clang-format on
+    // clang-format on
 
-void PrintExpr::visit(PowTerm& arg)
+    void PrintExpr::visit(PowTerm& arg)
 {
     ostr << "o5\n";
     arg.lhs->accept(*this);
@@ -405,26 +404,25 @@ void PrintExprFmtlib::visit(MonomialTerm& arg)
 // GCOVR_EXCL_START
 void PrintExprFmtlib::visit(InequalityTerm& arg)
 {
-    if (arg.lower and arg.upper)
-        ostr.print("o21\n");        // and
+    if (arg.lower and arg.upper) ostr.print("o21\n");  // and
 
     if (arg.lower) {
         if (arg.strict)
-            ostr.print("o22\n");    // lt
+            ostr.print("o22\n");  // lt
         else
-            ostr.print("o23\n");    // le
+            ostr.print("o23\n");  // le
         arg.lower->accept(*this);
         arg.body->accept(*this);
-        }
+    }
 
     if (arg.upper) {
         if (arg.strict)
-            ostr.print("o22\n");    // lt
+            ostr.print("o22\n");  // lt
         else
-            ostr.print("o23\n");    // le
+            ostr.print("o23\n");  // le
         arg.body->accept(*this);
         arg.upper->accept(*this);
-        }
+    }
 }
 
 void PrintExprFmtlib::visit(EqualityTerm& arg)
@@ -508,9 +506,9 @@ PrintExprFmt_FN(o50, ASinhTerm)
 PrintExprFmt_FN(o52, ACoshTerm)
 PrintExprFmt_FN(o47, ATanhTerm)
 
-// clang-format on
+    // clang-format on
 
-void PrintExprFmtlib::visit(PowTerm& arg)
+    void PrintExprFmtlib::visit(PowTerm& arg)
 {
     ostr.print("o5\n");
     arg.lhs->accept(*this);
@@ -777,9 +775,9 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
 
                 invconmap[ctr] = Con.id();
 
-                //std::cout << "OLD " << Con.body().to_list() << std::endl;
+                // std::cout << "OLD " << Con.body().to_list() << std::endl;
                 to_MutableNLPExpr(simplify_expr(Con.repn, simplified_subexpressions), Expr);
-                //std::cout << "NEW " << Expr.nonlinear->to_list() << std::endl;
+                // std::cout << "NEW " << Expr.nonlinear->to_list() << std::endl;
 
                 double bodyconst = Expr.constval->eval();
                 if (Con.is_inequality()) {
@@ -858,10 +856,10 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
                 nnz_Jacobian += curr_vars.size();
             }
 
-        for (auto& lv : all_linear_vars) {
-            if ((nonlinear_vars_con.find(lv) == nonlinear_vars_con.end()) and
-                (nonlinear_vars_obj.find(lv) == nonlinear_vars_obj.end()))
-                linear_vars.insert(lv);
+            for (auto& lv : all_linear_vars) {
+                if ((nonlinear_vars_con.find(lv) == nonlinear_vars_con.end())
+                    and (nonlinear_vars_obj.find(lv) == nonlinear_vars_obj.end()))
+                    linear_vars.insert(lv);
             }
         }
         CALI_MARK_END("Prepare Constraint Expressions");
@@ -920,7 +918,8 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
     num_nonlinear_vars_both = nonlinear_vars_both_i.size() + nonlinear_vars_both_c.size();
     num_nonlinear_vars_con
         = num_nonlinear_vars_both + nonlinear_vars_con_i.size() + nonlinear_vars_con_c.size();
-    num_nonlinear_vars_obj = num_nonlinear_vars_con + nonlinear_vars_obj.size() - num_nonlinear_vars_both;
+    num_nonlinear_vars_obj
+        = num_nonlinear_vars_con + nonlinear_vars_obj.size() - num_nonlinear_vars_both;
     if (num_nonlinear_vars_obj == num_nonlinear_vars_con)
         num_nonlinear_vars_obj = num_nonlinear_vars_both;
 
