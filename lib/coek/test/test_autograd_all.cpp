@@ -884,6 +884,112 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
         }
     }
 
+    SECTION("if_else")
+    {
+        WHEN("constant - zero")
+        {
+            coek::Model m;
+            auto p = coek::parameter("p");
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression f = coek::if_else(0, 2 * w * w);
+            m.add_objective(f);
+            m.add_constraint(2 * w <= 0);
+            coek::NLPModel nlp(m, adname);
+
+            std::vector<double> x{2};
+            std::vector<double> baseline{0};
+            std::vector<double> ans{999.0};
+            nlp.compute_df(x, ans);
+            REQUIRE(ans == baseline);
+        }
+        WHEN("constant - one")
+        {
+            coek::Model m;
+            auto p = coek::parameter("p");
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression f = coek::if_else(1, 2 * w * w);
+            m.add_objective(f);
+            m.add_constraint(2 * w <= 0);
+            coek::NLPModel nlp(m, adname);
+
+            std::vector<double> x{2};
+            std::vector<double> baseline{8};
+            std::vector<double> ans{999.0};
+            nlp.compute_df(x, ans);
+            REQUIRE(ans == baseline);
+        }
+        WHEN("parameter - zero")
+        {
+            coek::Model m;
+            auto p = coek::parameter("p");
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression f = coek::if_else(p, 2 * w * w, 2-w*w);
+            m.add_objective(f);
+            m.add_constraint(2 * w <= 0);
+            coek::NLPModel nlp(m, adname);
+
+            std::vector<double> x{2};
+            std::vector<double> baseline{-4};
+            std::vector<double> ans{999.0};
+            nlp.compute_df(x, ans);
+            REQUIRE(ans == baseline);
+        }
+        WHEN("parameter - one")
+        {
+            coek::Model m;
+            auto p = coek::parameter("p").value(1);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression f = coek::if_else(p, 2 * w * w, 2-w*w);
+            m.add_objective(f);
+            m.add_constraint(2 * w <= 0);
+            coek::NLPModel nlp(m, adname);
+
+            std::vector<double> x{2};
+            std::vector<double> baseline{8};
+            std::vector<double> ans{999.0};
+            nlp.compute_df(x, ans);
+            REQUIRE(ans == baseline);
+        }
+        WHEN("condition - constant")
+        {
+            coek::Model m;
+            auto p = coek::parameter("p").value(1);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression f = coek::if_else(p>0, 2 * w * w, 2-w*w);
+            m.add_objective(f);
+            m.add_constraint(2 * w <= 0);
+            coek::NLPModel nlp(m, adname);
+
+            std::vector<double> x{2};
+            std::vector<double> baseline{8};
+            std::vector<double> ans{999.0};
+            nlp.compute_df(x, ans);
+            REQUIRE(ans == baseline);
+        }
+        WHEN("condition - variable")
+        {
+            coek::Model m;
+            auto p = coek::parameter("p").value(1);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression f = coek::if_else(w>0, 2 * w * w, 2-w*w);
+            m.add_objective(f);
+            m.add_constraint(2 * w <= 0);
+            coek::NLPModel nlp(m, adname);
+
+            std::vector<double> x{2};
+            std::vector<double> baseline_x{8};
+            std::vector<double> ans_x{999.0};
+            nlp.compute_df(x, ans_x);
+            REQUIRE(ans_x == baseline_x);
+
+            std::vector<double> y{-1};
+            std::vector<double> baseline_y{2};
+            std::vector<double> ans_y{999.0};
+            nlp.compute_df(y, ans_y);
+            REQUIRE(ans_y == baseline_y);
+        }
+    }
+
     SECTION("coverage")
     {
         WHEN("variable partial plus monomial - 1")

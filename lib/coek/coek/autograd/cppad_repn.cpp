@@ -733,6 +733,20 @@ void visit_DivideTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
     ans += lhs / rhs;
 }
 
+void visit_IfThenElseTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
+{
+    auto tmp = std::dynamic_pointer_cast<IfThenElseTerm>(expr);
+    CppAD::AD<double> cond_;
+    visit_expression(tmp->cond_expr, data, cond_);
+    CppAD::AD<double> then_;
+    visit_expression(tmp->then_expr, data, then_);
+    CppAD::AD<double> else_;
+    visit_expression(tmp->else_expr, data, else_);
+    CppAD::AD<double> zero(0.);
+
+    ans += CppAD::CondExpGt(cond_, zero, then_, else_);
+}
+
 #define UNARY_VISITOR(TERM, FN)                                                        \
     void visit_##TERM(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans) \
     {                                                                                  \
@@ -806,6 +820,7 @@ void visit_expression(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
         VISIT_CASE(PlusTerm);
         VISIT_CASE(TimesTerm);
         VISIT_CASE(DivideTerm);
+        VISIT_CASE(IfThenElseTerm);
         VISIT_CASE(AbsTerm);
         // VISIT_CASE(CeilTerm);
         // VISIT_CASE(FloorTerm);
