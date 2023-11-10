@@ -380,6 +380,42 @@ TEST_CASE("find_vars_and_params", "[smoke]")
         }
     }
 
+    SECTION("if_else")
+    {
+        WHEN("parameter")
+        {
+            coek::Model m;
+            auto p = coek::parameter();
+            auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
+            auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);
+            coek::Expression e = if_else(p, w, v);
+            find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+            static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{w.repn, v.repn};
+            static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
+            REQUIRE(vars == vbaseline);
+            REQUIRE(fixed_vars == fvbaseline);
+            REQUIRE(params == pbaseline);
+        }
+        WHEN("conditional")
+        {
+            coek::Model m;
+            auto p = coek::parameter();
+            auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
+            auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);
+            coek::Expression e = if_else(p > 0, w, v);
+            find_vars_and_params(e.repn, vars, fixed_vars, params, visited_subexpressions);
+
+            static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{};
+            static std::set<std::shared_ptr<coek::VariableTerm>> fvbaseline{w.repn, v.repn};
+            static std::set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
+            REQUIRE(vars == vbaseline);
+            REQUIRE(fixed_vars == fvbaseline);
+            REQUIRE(params == pbaseline);
+        }
+    }
+
     SECTION("coverage")
     {
         WHEN("variable partial plus monomial - 1")

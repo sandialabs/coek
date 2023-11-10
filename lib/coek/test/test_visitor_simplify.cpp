@@ -357,7 +357,57 @@ TEST_CASE("simplify_expr", "[smoke]")
         }
     }
 
-    SECTION("constriaints")
+    SECTION("if_else")
+    {
+        WHEN("cond parameter")
+        {
+            auto p = coek::parameter("p").value(2.0);
+            auto w = coek::variable("w").lower(0).upper(1).value(1);
+            coek::Expression e = if_else(p >= 2.0, w, 2 * w);
+
+            static std::list<std::string> baseline = {"w"};
+            REQUIRE(simplify_expr(e.repn)->to_list() == baseline);
+        }
+        WHEN("cond parameter - nonzero")
+        {
+            auto p = coek::parameter("p").value(2.0);
+            auto w = coek::variable("w").lower(0).upper(1).value(1);
+            coek::Expression e = if_else(p, w, 2 * w);
+
+            static std::list<std::string> baseline = {"w"};
+            REQUIRE(simplify_expr(e.repn)->to_list() == baseline);
+        }
+        WHEN("cond parameter - zero")
+        {
+            auto p = coek::parameter("p").value(0.0);
+            auto w = coek::variable("w").lower(0).upper(1).value(1);
+            coek::Expression e = if_else(p, w, 2 * w);
+
+            static std::list<std::string> baseline = {"[", "*", std::to_string(2), "w", "]"};
+            REQUIRE(simplify_expr(e.repn)->to_list() == baseline);
+        }
+        WHEN("cond variable 1")
+        {
+            auto w = coek::variable("w").lower(0).upper(1).value(1);
+            coek::Expression e = if_else(w, w, 2 * w);
+
+            static std::list<std::string> baseline
+                = {"[", "If", "w", "w", "[", "*", std::to_string(2), "w", "]", "]"};
+            REQUIRE(simplify_expr(e.repn)->to_list() == baseline);
+        }
+        WHEN("cond variable 2")
+        {
+            auto p = coek::parameter("p").value(1.0);
+            auto w = coek::variable("w").lower(0).upper(1).value(1);
+            coek::Expression e = if_else(w, p, 2 * p);
+
+            static std::list<std::string> baseline
+                = {"[", "If", "w", std::to_string(1.0), std::to_string(2.0), "]"};
+            REQUIRE(simplify_expr(e.repn)->to_list() == baseline);
+        }
+    }
+
+    SECTION("constraints")
     {
         WHEN("inequality")
         {

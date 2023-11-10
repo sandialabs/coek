@@ -292,6 +292,38 @@ void visit_DivideTerm(const expr_pointer_t& expr, VisitorData& data)
     }
 }
 
+void visit_IfThenElseTerm(const expr_pointer_t& expr, VisitorData& data)
+{
+    auto tmp = safe_pointer_cast<IfThenElseTerm>(expr);
+    visit_expression(tmp->cond_expr, data);
+    if (data.is_value) {
+        if (data.last_value)
+            visit_expression(tmp->then_expr, data);
+        else
+            visit_expression(tmp->else_expr, data);
+    }
+    else {
+        auto cond_expr = data.last_expr;
+
+        expr_pointer_t then_expr;
+        visit_expression(tmp->then_expr, data);
+        if (data.is_value)
+            then_expr = std::make_shared<ConstantTerm>(data.last_value);
+        else
+            then_expr = data.last_expr;
+
+        expr_pointer_t else_expr;
+        visit_expression(tmp->else_expr, data);
+        if (data.is_value)
+            else_expr = std::make_shared<ConstantTerm>(data.last_value);
+        else
+            else_expr = data.last_expr;
+
+        data.last_expr = std::make_shared<IfThenElseTerm>(cond_expr, then_expr, else_expr);
+        data.is_value = false;
+    }
+}
+
 // clang-format off
 FROM_BODY_FN(AbsTerm, std::fabs)
 FROM_BODY_FN(CeilTerm, std::ceil)
@@ -376,6 +408,7 @@ void visit_expression(const expr_pointer_t& expr, VisitorData& data)
         VISIT_CASE(PlusTerm);
         VISIT_CASE(TimesTerm);
         VISIT_CASE(DivideTerm);
+        VISIT_CASE(IfThenElseTerm);
         VISIT_CASE(AbsTerm);
         VISIT_CASE(CeilTerm);
         VISIT_CASE(FloorTerm);

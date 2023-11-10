@@ -283,7 +283,51 @@ TEST_CASE("evaluate_expr", "[smoke]")
         }
     }
 
-    SECTION("constriaints")
+    SECTION("if_else")
+    {
+        WHEN("if_else - parameter - zero")
+        {
+            {
+                auto p = coek::parameter("p");
+                auto w = coek::variable("w").lower(0).upper(1).value(2);
+                coek::Expression e = if_else(p, w);
+
+                REQUIRE(evaluate_expr(e.repn) == 0.0);
+            }
+        }
+        WHEN("if_else - parameter - zero")
+        {
+            {
+                auto p = coek::parameter("p");
+                auto w = coek::variable("w").lower(0).upper(1).value(2);
+                coek::Expression e = if_else(p, w, 3);
+
+                REQUIRE(evaluate_expr(e.repn) == 3.0);
+            }
+        }
+        WHEN("parameter - one")
+        {
+            {
+                auto p = coek::parameter("p").value(1.0);
+                auto w = coek::variable("w").lower(0).upper(1).value(2);
+                coek::Expression e = if_else(p, w);
+
+                REQUIRE(evaluate_expr(e.repn) == 2.0);
+            }
+        }
+        WHEN("conditional - true")
+        {
+            {
+                auto p = coek::parameter("p").value(1.0);
+                auto w = coek::variable("w").lower(0).upper(1).value(2);
+                coek::Expression e = if_else(p > 0.5, w);
+
+                REQUIRE(evaluate_expr(e.repn) == 2.0);
+            }
+        }
+    }
+
+    SECTION("constraints")
     {
         WHEN("inequality")
         {

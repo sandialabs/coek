@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include <map>
@@ -26,6 +27,7 @@
 #include "coek/api/objective.hpp"
 #include "coek/model/model.hpp"
 #include "coek/util/sequence.hpp"
+#include "coek/util/io_utils.hpp"
 #include "model_repn.hpp"
 
 #define EPSILON 1e-12
@@ -110,6 +112,7 @@ class PrintExpr : public Visitor {
     void visit(ACoshTerm& arg);
     void visit(ATanhTerm& arg);
     void visit(PowTerm& arg);
+    void visit(IfThenElseTerm& arg);
 };
 
 void PrintExpr::visit(ConstantTerm& arg)
@@ -168,18 +171,34 @@ void PrintExpr::visit(MonomialTerm& arg)
 }
 
 // GCOVR_EXCL_START
-void PrintExpr::visit(InequalityTerm&)
+void PrintExpr::visit(InequalityTerm& arg)
 {
-    throw std::runtime_error(
-        "Encountered an inequality constraint when printing an expression.  This error should have "
-        "been caught earlier!");
+    if (arg.lower and arg.upper) ostr << "o21" << '\n';  // and
+
+    if (arg.lower) {
+        if (arg.strict)
+            ostr << "o22" << '\n';  // lt
+        else
+            ostr << "o23" << '\n';  // le
+        arg.lower->accept(*this);
+        arg.body->accept(*this);
+    }
+
+    if (arg.upper) {
+        if (arg.strict)
+            ostr << "o22" << '\n';  // lt
+        else
+            ostr << "o23" << '\n';  // le
+        arg.body->accept(*this);
+        arg.upper->accept(*this);
+    }
 }
 
-void PrintExpr::visit(EqualityTerm&)
+void PrintExpr::visit(EqualityTerm& arg)
 {
-    throw std::runtime_error(
-        "Encountered an equality constraint when printing an expression.  This error should have "
-        "been caught earlier!");
+    ostr << "o24" << '\n';
+    arg.body->accept(*this);
+    arg.lower->accept(*this);
 }
 
 void PrintExpr::visit(ObjectiveTerm&)
@@ -265,6 +284,14 @@ PrintExpr_FN(o47, ATanhTerm)
     arg.rhs->accept(*this);
 }
 
+void PrintExpr::visit(IfThenElseTerm& arg)
+{
+    ostr << "o35\n";
+    arg.cond_expr->accept(*this);
+    arg.then_expr->accept(*this);
+    arg.else_expr->accept(*this);
+}
+
 //
 //
 // Print expressions with fmtlib
@@ -321,6 +348,7 @@ class PrintExprFmtlib : public Visitor {
     void visit(ACoshTerm& arg);
     void visit(ATanhTerm& arg);
     void visit(PowTerm& arg);
+    void visit(IfThenElseTerm& arg);
 };
 
 constexpr auto _fmtstr_value = FMT_COMPILE("{}\n");
@@ -374,18 +402,34 @@ void PrintExprFmtlib::visit(MonomialTerm& arg)
 }
 
 // GCOVR_EXCL_START
-void PrintExprFmtlib::visit(InequalityTerm&)
+void PrintExprFmtlib::visit(InequalityTerm& arg)
 {
-    throw std::runtime_error(
-        "Encountered an inequality constraint when printing an expression.  This error should have "
-        "been caught earlier!");
+    if (arg.lower and arg.upper) ostr.print("o21\n");  // and
+
+    if (arg.lower) {
+        if (arg.strict)
+            ostr.print("o22\n");  // lt
+        else
+            ostr.print("o23\n");  // le
+        arg.lower->accept(*this);
+        arg.body->accept(*this);
+    }
+
+    if (arg.upper) {
+        if (arg.strict)
+            ostr.print("o22\n");  // lt
+        else
+            ostr.print("o23\n");  // le
+        arg.body->accept(*this);
+        arg.upper->accept(*this);
+    }
 }
 
-void PrintExprFmtlib::visit(EqualityTerm&)
+void PrintExprFmtlib::visit(EqualityTerm& arg)
 {
-    throw std::runtime_error(
-        "Encountered an equality constraint when printing an expression.  This error should have "
-        "been caught earlier!");
+    ostr.print("o24\n");
+    arg.body->accept(*this);
+    arg.lower->accept(*this);
 }
 
 void PrintExprFmtlib::visit(ObjectiveTerm&)
@@ -470,6 +514,15 @@ PrintExprFmt_FN(o47, ATanhTerm)
     arg.lhs->accept(*this);
     arg.rhs->accept(*this);
 }
+
+void PrintExprFmtlib::visit(IfThenElseTerm& arg)
+{
+    ostr.print("o35\n");
+    arg.cond_expr->accept(*this);
+    arg.then_expr->accept(*this);
+    arg.else_expr->accept(*this);
+}
+
 #endif  // WITH_FMTLIB
 
 void print_expr(std::ostream& ostr, const MutableNLPExpr& repn,
@@ -664,6 +717,7 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
 
     // Objectives
     try {
+        std::set<size_t> all_linear_vars;
         {
             nnz_gradient = 0;
             size_t ctr = 0;
@@ -676,7 +730,7 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
                 std::set<ITYPE> curr_vars;
                 for (auto& var : o_expr[ctr].linear_vars) {
                     auto index = var->index;
-                    linear_vars.insert(index);
+                    all_linear_vars.insert(index);
                     vars.insert(index);
                     curr_vars.insert(index);
                     varobj[index] = var;
@@ -771,7 +825,7 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
 
                 for (auto& var : Expr.linear_vars) {
                     auto index = var->index;
-                    linear_vars.insert(index);
+                    all_linear_vars.insert(index);
                     vars.insert(index);
                     varobj[index] = var;
                     curr_vars.insert(index);
@@ -800,6 +854,12 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
 
                 // Add Jacobian terms for each constraint
                 nnz_Jacobian += curr_vars.size();
+            }
+
+            for (auto& lv : all_linear_vars) {
+                if ((nonlinear_vars_con.find(lv) == nonlinear_vars_con.end())
+                    and (nonlinear_vars_obj.find(lv) == nonlinear_vars_obj.end()))
+                    linear_vars.insert(lv);
             }
         }
         CALI_MARK_END("Prepare Constraint Expressions");
@@ -852,14 +912,16 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
         }
     }
     num_nonlinear_both_int_vars = nonlinear_vars_both_i.size();
-    num_nonlinear_con_int_vars = num_nonlinear_con_int_vars + nonlinear_vars_con_i.size();
-    num_nonlinear_obj_int_vars = num_nonlinear_con_int_vars + nonlinear_vars_obj_i.size();
+    num_nonlinear_con_int_vars = num_nonlinear_both_int_vars + nonlinear_vars_con_i.size();
+    num_nonlinear_obj_int_vars = num_nonlinear_both_int_vars + nonlinear_vars_obj_i.size();
 
     num_nonlinear_vars_both = nonlinear_vars_both_i.size() + nonlinear_vars_both_c.size();
     num_nonlinear_vars_con
         = num_nonlinear_vars_both + nonlinear_vars_con_i.size() + nonlinear_vars_con_c.size();
     num_nonlinear_vars_obj
-        = num_nonlinear_vars_con + nonlinear_vars_obj_i.size() + nonlinear_vars_obj_c.size();
+        = num_nonlinear_vars_con + nonlinear_vars_obj.size() - num_nonlinear_vars_both;
+    if (num_nonlinear_vars_obj == num_nonlinear_vars_con)
+        num_nonlinear_vars_obj = num_nonlinear_vars_both;
 
     num_linear_binary_vars = 0;
     num_linear_integer_vars = 0;

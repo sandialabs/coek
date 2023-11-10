@@ -249,7 +249,7 @@ void visit(std::shared_ptr<DivideTerm>& expr, MutableNLPExpr& repn, double multi
 
     if (((rhs_repn.linear_coefs.size() + rhs_repn.quadratic_coefs.size()) == 0)
         and (rhs_repn.nonlinear == ZEROCONST)) {
-        // Dividing by a constant expression
+        // Dividing by a simple constant expression
         if (rhs_repn.constval->is_constant()) {
             if (rhs_repn.constval->eval() == 0) {
                 throw std::runtime_error("Division by zero error.");
@@ -296,6 +296,34 @@ void visit(std::shared_ptr<DivideTerm>& expr, MutableNLPExpr& repn, double multi
     }
     repn.mutable_values = repn.mutable_values or lhs_repn.mutable_values or rhs_repn.mutable_values;
     repn.nonlinear = plus_(repn.nonlinear, expr);
+    std::unordered_set<std::shared_ptr<VariableTerm>> exprvars;
+    find_variables(expr, exprvars);
+    repn.nonlinear_vars.insert(exprvars.begin(), exprvars.end());
+}
+
+void visit(std::shared_ptr<IfThenElseTerm>& expr, MutableNLPExpr& repn, double multiplier)
+{
+    MutableNLPExpr cond_repn;
+    visit_expression(expr->cond_expr, cond_repn, 1.0);
+
+#if 0
+if ((cond_repn.linear_coefs.size() + cond_repn.quadratic_coefs.size() + cond_repn.nonlinear_vars.size()) > 0)
+    throw std::runtime_error(
+        "Non-constant expressions cannot appear in the condition of an if-then-else expression.");
+#endif
+
+    MutableNLPExpr then_repn;
+    visit_expression(expr->then_expr, then_repn, 1.0);
+    MutableNLPExpr else_repn;
+    visit_expression(expr->else_expr, else_repn, 1.0);
+
+    repn.mutable_values = repn.mutable_values or cond_repn.mutable_values
+                          or then_repn.mutable_values or else_repn.mutable_values;
+    if (multiplier == 1)
+        repn.nonlinear = plus(repn.nonlinear, expr);
+    else
+        repn.nonlinear
+            = plus(repn.nonlinear, times(CREATE_POINTER(ConstantTerm, multiplier), expr));
     std::unordered_set<std::shared_ptr<VariableTerm>> exprvars;
     find_variables(expr, exprvars);
     repn.nonlinear_vars.insert(exprvars.begin(), exprvars.end());
@@ -413,6 +441,7 @@ void visit_expression(const expr_pointer_t& expr, MutableNLPExpr& repn, double m
         VISIT_CASE(PlusTerm);
         VISIT_CASE(TimesTerm);
         VISIT_CASE(DivideTerm);
+        VISIT_CASE(IfThenElseTerm);
         VISIT_CASE(AbsTerm);
         VISIT_CASE(CeilTerm);
         VISIT_CASE(FloorTerm);

@@ -505,4 +505,17 @@ inline std::shared_ptr<ConstraintTerm> equal(double lhs, const expr_pointer_t& r
     return tmp;
 }
 
+inline expr_pointer_t if_then_else(const expr_pointer_t& cond_expr, const expr_pointer_t& then_expr,
+                                   const expr_pointer_t& else_expr)
+{
+    if (cond_expr->is_constant()) {
+        if (cond_expr->eval())
+            return then_expr;
+        else
+            return else_expr;
+    }
+    else
+        return CREATE_POINTER(IfThenElseTerm, cond_expr, then_expr, else_expr);
+}
+
 }  // namespace coek

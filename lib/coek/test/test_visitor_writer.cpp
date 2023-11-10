@@ -192,6 +192,28 @@ TEST_CASE("expr_writer", "[smoke]")
         REQUIRE(sstr.str() == "(v)/(w + 1)");
     }
 
+    SECTION("if_else")
+    {
+        auto p = coek::parameter().value(3);
+        auto v = coek::variable("v").lower(0).upper(1).value(0);
+        auto w = coek::variable("w").lower(0).upper(1).value(0);
+        coek::Expression e = if_else(p, v / (w + 1));
+        std::stringstream sstr;
+        sstr << e;
+        REQUIRE(sstr.str() == "if_else(" + std::to_string(p.value()) + ", (v)/(w + 1), 0)");
+    }
+
+    SECTION("if_else")
+    {
+        auto p = coek::parameter().value(3);
+        auto v = coek::variable("v").lower(0).upper(1).value(0);
+        auto w = coek::variable("w").lower(0).upper(1).value(0);
+        coek::Expression e = if_else(p > 1, v / (w + 1), v + w);
+        std::stringstream sstr;
+        sstr << e;
+        REQUIRE(sstr.str() == "if_else(1 < " + std::to_string(3.0) + ", (v)/(w + 1), v + w)");
+    }
+
     SECTION("intrinsic funcs"){
 
         // clang-format off

@@ -336,6 +336,64 @@ TEST_CASE("expr_to_QuadraticExpr", "[smoke]")
         }
     }
 
+    SECTION("if_else")
+    {
+        WHEN("if_else - p nonzero")
+        {
+            coek::Model m;
+            auto p = coek::parameter().value(2);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression e = if_else(p, (w * w + w + 1) / p);
+            coek::QuadraticExpr repn;
+            repn.collect_terms(e);
+
+            REQUIRE(repn.constval == 0.5);
+            REQUIRE(repn.linear_coefs.size() == 1);
+            REQUIRE(repn.linear_coefs[0] == 0.5);
+            REQUIRE(repn.quadratic_coefs.size() == 1);
+            REQUIRE(repn.quadratic_coefs[0] == 0.5);
+        }
+        WHEN("if_else - p zero")
+        {
+            coek::Model m;
+            auto p = coek::parameter().value(0);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression e = if_else(p, (w * w + w + 1) / p);
+            coek::QuadraticExpr repn;
+            repn.collect_terms(e);
+
+            REQUIRE(repn.constval == 0.0);
+            REQUIRE(repn.linear_coefs.size() == 0);
+            REQUIRE(repn.quadratic_coefs.size() == 0);
+        }
+        WHEN("if_else - p zero")
+        {
+            coek::Model m;
+            auto p = coek::parameter().value(0);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression e = if_else(p, (w * w + w + 1) / p, w);
+            coek::QuadraticExpr repn;
+            repn.collect_terms(e);
+
+            REQUIRE(repn.constval == 0.0);
+            REQUIRE(repn.linear_coefs.size() == 1);
+            REQUIRE(repn.linear_coefs[0] == 1.0);
+            REQUIRE(repn.quadratic_coefs.size() == 0);
+        }
+        WHEN("if_else - non-quadratic")
+        {
+            coek::Model m;
+            auto p = coek::parameter().value(0);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression e = if_else(p, (w * w + w + 1) / p, w * w * w);
+            coek::QuadraticExpr repn;
+            REQUIRE_THROWS_WITH(
+                repn.collect_terms(e),
+                Catch::Matchers::StartsWith(
+                    "Non-quadratic expressions cannot be expressed in a QuadraticExpr object."));
+        }
+    }
+
     SECTION("intrinsic funcs")
     {
         REPN_INTRINSIC_TEST1(abs)

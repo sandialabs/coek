@@ -88,4 +88,14 @@ PlusTerm::PlusTerm(const expr_pointer_t& lhs, const expr_pointer_t& rhs, bool)
     initialize(lhs, rhs);
 }
 
+//
+// IfThenElseTerm
+//
+
+IfThenElseTerm::IfThenElseTerm(const expr_pointer_t& _cond, const expr_pointer_t& _then,
+                               const expr_pointer_t& _else)
+    : cond_expr(_cond), then_expr(_then), else_expr(_else)
+{
+}
+
 }  // namespace coek
