@@ -18,16 +18,16 @@ std::initializer_list<std::string> adnames{
 #ifdef WITH_FASTAD
     "fastad",
 #endif
-    };
-}
+};
+}  // namespace
 
 TEST_CASE("autograd_add", "[smoke]")
 {
     INFO("TEST_CASE autograd_add");
 
-    // TODO - use SKIP after upgrading to Catch2 v3
-    #if defined(WITH_ASL) | defined(WITH_CPPAD)
-    auto adname = GENERATE( values(adnames) );
+// TODO - use SKIP after upgrading to Catch2 v3
+#if defined(WITH_ASL) | defined(WITH_CPPAD)
+    auto adname = GENERATE(values(adnames));
     CAPTURE(adname);
 
     SECTION("error1")
@@ -145,40 +145,40 @@ TEST_CASE("autograd_add", "[smoke]")
         REQUIRE(m.num_objectives() == 1);
         REQUIRE(m.num_constraints() == 1);
     }
-    #endif
+#endif
 }
 
 TEST_CASE("autograd_ad", "[smoke]")
 {
     INFO("TEST_CASE autograd_ad");
 
-    // TODO - use SKIP after upgrading to Catch2 v3
-    #if defined(WITH_ASL) | defined(WITH_CPPAD)
-    auto adname = GENERATE( values(adnames) );
+// TODO - use SKIP after upgrading to Catch2 v3
+#if defined(WITH_ASL) | defined(WITH_CPPAD)
+    auto adname = GENERATE(values(adnames));
     CAPTURE(adname);
 
     SECTION("f")
     {
         // TODO - Extend ASL to support multiple objectives
         if (adname != "asl") {
-        coek::Model model;
-        auto a = model.add_variable("a").lower(0).upper(1).value(0);
-        auto b = model.add_variable("b").lower(0).upper(1).value(0);
+            coek::Model model;
+            auto a = model.add_variable("a").lower(0).upper(1).value(0);
+            auto b = model.add_variable("b").lower(0).upper(1).value(0);
 
-        model.add_objective(a + b);
-        model.add_objective(a * b);
+            model.add_objective(a + b);
+            model.add_objective(a * b);
 
-        coek::NLPModel nlp(model, adname);
+            coek::NLPModel nlp(model, adname);
 
-        std::vector<double> x{3, 5};
-        REQUIRE(nlp.compute_f(x) == 8.0);
-        REQUIRE(nlp.compute_f(1) == 15.0);
-        REQUIRE(nlp.compute_f(x, 1) == 15.0);
+            std::vector<double> x{3, 5};
+            REQUIRE(nlp.compute_f(x) == 8.0);
+            REQUIRE(nlp.compute_f(1) == 15.0);
+            REQUIRE(nlp.compute_f(x, 1) == 15.0);
 
-        std::vector<double> y{3, 6};
-        REQUIRE(nlp.compute_f(y) == 9.0);
-        REQUIRE(nlp.compute_f(1) == 18.0);
-        REQUIRE(nlp.compute_f(y, 1) == 18.0);
+            std::vector<double> y{3, 6};
+            REQUIRE(nlp.compute_f(y) == 9.0);
+            REQUIRE(nlp.compute_f(1) == 18.0);
+            REQUIRE(nlp.compute_f(y, 1) == 18.0);
         }
     }
 
@@ -186,40 +186,40 @@ TEST_CASE("autograd_ad", "[smoke]")
     {
         // TODO - Extend ASL to support multiple objectives
         if (adname != "asl") {
-        coek::Model model;
-        auto a = model.add_variable("a").lower(0).upper(1).value(0);
-        auto b = model.add_variable("b").lower(0).upper(1).value(0);
+            coek::Model model;
+            auto a = model.add_variable("a").lower(0).upper(1).value(0);
+            auto b = model.add_variable("b").lower(0).upper(1).value(0);
 
-        model.add_objective(a + b);
-        model.add_objective(a * b);
+            model.add_objective(a + b);
+            model.add_objective(a * b);
 
-        coek::NLPModel nlp(model, adname);
+            coek::NLPModel nlp(model, adname);
 
-        std::vector<double> x{3, 5};
-        std::vector<double> df(2);
-        double f;
-        REQUIRE(nlp.compute_f(x) == 8.0);
+            std::vector<double> x{3, 5};
+            std::vector<double> df(2);
+            double f;
+            REQUIRE(nlp.compute_f(x) == 8.0);
 
-        nlp.compute_df(x, df);
-        REQUIRE(df[0] == 1.0);
-        REQUIRE(df[1] == 1.0);
-        nlp.compute_df(df, 1);
-        REQUIRE(df[0] == 5.0);
-        REQUIRE(df[1] == 3.0);
-        nlp.compute_df(f, df, 1);
-        REQUIRE(f == 15.0);
+            nlp.compute_df(x, df);
+            REQUIRE(df[0] == 1.0);
+            REQUIRE(df[1] == 1.0);
+            nlp.compute_df(df, 1);
+            REQUIRE(df[0] == 5.0);
+            REQUIRE(df[1] == 3.0);
+            nlp.compute_df(f, df, 1);
+            REQUIRE(f == 15.0);
 
-        std::vector<double> y{3, 6};
-        REQUIRE(nlp.compute_f(y) == 9.0);
+            std::vector<double> y{3, 6};
+            REQUIRE(nlp.compute_f(y) == 9.0);
 
-        nlp.compute_df(y, df);
-        REQUIRE(df[0] == 1.0);
-        REQUIRE(df[1] == 1.0);
-        nlp.compute_df(df, 1);
-        REQUIRE(df[0] == 6.0);
-        REQUIRE(df[1] == 3.0);
-        nlp.compute_df(f, df, 1);
-        REQUIRE(f == 18.0);
+            nlp.compute_df(y, df);
+            REQUIRE(df[0] == 1.0);
+            REQUIRE(df[1] == 1.0);
+            nlp.compute_df(df, 1);
+            REQUIRE(df[0] == 6.0);
+            REQUIRE(df[1] == 3.0);
+            nlp.compute_df(f, df, 1);
+            REQUIRE(f == 18.0);
         }
     }
 
@@ -381,47 +381,47 @@ TEST_CASE("autograd_ad", "[smoke]")
             REQUIRE(nlp.num_nonzeros_Hessian_Lagrangian() == 7);
 
             if (adname == "cppad") {
-            // Variable Ordering:  a, b, c, d
-            //
-            // h = [ [ 0, 1,    0,   1 ]
-            //       [ 1, 0,    1,   1 ]
-            //       [ 0, 1, 2d^2, 4cd ]
-            //       [ 1, 1, 4cd, 2c^2 ] ]
-            std::vector<double> w{1, 1, 1};
-            std::vector<double> x{0, 1, 2, 3};
-            std::vector<double> h(nlp.num_nonzeros_Hessian_Lagrangian());
-            nlp.compute_H(x, w, h);
-            REQUIRE(h[0] == 1);
-            REQUIRE(h[1] == 1);
-            REQUIRE(h[2] == 18);
-            REQUIRE(h[3] == 1);
-            REQUIRE(h[4] == 1);
-            REQUIRE(h[5] == 24);
-            REQUIRE(h[6] == 8);
+                // Variable Ordering:  a, b, c, d
+                //
+                // h = [ [ 0, 1,    0,   1 ]
+                //       [ 1, 0,    1,   1 ]
+                //       [ 0, 1, 2d^2, 4cd ]
+                //       [ 1, 1, 4cd, 2c^2 ] ]
+                std::vector<double> w{1, 1, 1};
+                std::vector<double> x{0, 1, 2, 3};
+                std::vector<double> h(nlp.num_nonzeros_Hessian_Lagrangian());
+                nlp.compute_H(x, w, h);
+                REQUIRE(h[0] == 1);
+                REQUIRE(h[1] == 1);
+                REQUIRE(h[2] == 18);
+                REQUIRE(h[3] == 1);
+                REQUIRE(h[4] == 1);
+                REQUIRE(h[5] == 24);
+                REQUIRE(h[6] == 8);
             }
             else if (adname == "asl") {
-            // Variable Ordering:  c, d, a, b
-            //
-            // H = [ [ 2d^2,  4cd, 0, 1 ]
-            //       [  4cd, 2c^2, 1, 1 ]
-            //       [    0,    1, 0, 1 ]
-            //       [    1,    1, 1, 0 ] ]
-            //
-            // h = [ [ 0, 1,    0,   1 ]
-            //       [ 1, 0,    1,   1 ]
-            //       [ 0, 1, 2d^2, 4cd ]
-            //       [ 1, 1, 4cd, 2c^2 ] ]
-            std::vector<double> w{1, 1, 1};
-            std::vector<double> x{2, 3, 0, 1};
-            std::vector<double> h(nlp.num_nonzeros_Hessian_Lagrangian());
-            nlp.compute_H(x, w, h);
-            REQUIRE(h[0] == 18);
-            REQUIRE(h[1] == 24);
-            REQUIRE(h[2] == 8);
-            REQUIRE(h[3] == 1);
-            REQUIRE(h[4] == 1);
-            REQUIRE(h[5] == 1);
-            REQUIRE(h[6] == 1);
+                // Variable Ordering:  c, d, a, b
+                //
+                // H = [ [ 2d^2,  4cd, 0, 1 ]
+                //       [  4cd, 2c^2, 1, 1 ]
+                //       [    0,    1, 0, 1 ]
+                //       [    1,    1, 1, 0 ] ]
+                //
+                // h = [ [ 0, 1,    0,   1 ]
+                //       [ 1, 0,    1,   1 ]
+                //       [ 0, 1, 2d^2, 4cd ]
+                //       [ 1, 1, 4cd, 2c^2 ] ]
+                std::vector<double> w{1, 1, 1};
+                std::vector<double> x{2, 3, 0, 1};
+                std::vector<double> h(nlp.num_nonzeros_Hessian_Lagrangian());
+                nlp.compute_H(x, w, h);
+                REQUIRE(h[0] == 18);
+                REQUIRE(h[1] == 24);
+                REQUIRE(h[2] == 8);
+                REQUIRE(h[3] == 1);
+                REQUIRE(h[4] == 1);
+                REQUIRE(h[5] == 1);
+                REQUIRE(h[6] == 1);
             }
         }
 
@@ -441,42 +441,42 @@ TEST_CASE("autograd_ad", "[smoke]")
             REQUIRE(nlp.num_nonzeros_Hessian_Lagrangian() == 4);
 
             if (adname == "cppad") {
-            // Variable Ordering:  a, b, c, d
-            //
-            // h = [ [ 0, 9,  0,  0 ]
-            //       [ 9, 2,  0,  0 ]
-            //       [ 0, 0,  2,  1 ]
-            //       [ 0, 0,  1,  0 ] ]
-            //
-            std::vector<double> w{1, 9};
-            std::vector<double> x{0, 1, 2, 3};
-            std::vector<double> h(nlp.num_nonzeros_Hessian_Lagrangian());
-            nlp.compute_H(x, w, h);
-            REQUIRE(h[0] == 9);
-            REQUIRE(h[1] == 2);
-            REQUIRE(h[2] == 2);
-            REQUIRE(h[3] == 1);
+                // Variable Ordering:  a, b, c, d
+                //
+                // h = [ [ 0, 9,  0,  0 ]
+                //       [ 9, 2,  0,  0 ]
+                //       [ 0, 0,  2,  1 ]
+                //       [ 0, 0,  1,  0 ] ]
+                //
+                std::vector<double> w{1, 9};
+                std::vector<double> x{0, 1, 2, 3};
+                std::vector<double> h(nlp.num_nonzeros_Hessian_Lagrangian());
+                nlp.compute_H(x, w, h);
+                REQUIRE(h[0] == 9);
+                REQUIRE(h[1] == 2);
+                REQUIRE(h[2] == 2);
+                REQUIRE(h[3] == 1);
             }
             else if (adname == "asl") {
-            // Variable Ordering:  b, a, c, d
-            //
-            // H = [ [ 2, 9,  0,  0 ]
-            //       [ 9, 0,  0,  0 ]
-            //       [ 0, 0,  2,  1 ]
-            //       [ 0, 0,  1,  0 ] ]
-            //
-            // h = [ [ 0, 9,  0,  0 ]
-            //       [ 9, 2,  0,  0 ]
-            //       [ 0, 0,  2,  1 ]
-            //       [ 0, 0,  1,  0 ] ]
-            std::vector<double> w{1, 9};
-            std::vector<double> x{1, 0, 2, 3};
-            std::vector<double> h(nlp.num_nonzeros_Hessian_Lagrangian());
-            nlp.compute_H(x, w, h);
-            REQUIRE(h[0] == 2);
-            REQUIRE(h[1] == 9);
-            REQUIRE(h[2] == 2);
-            REQUIRE(h[3] == 1);
+                // Variable Ordering:  b, a, c, d
+                //
+                // H = [ [ 2, 9,  0,  0 ]
+                //       [ 9, 0,  0,  0 ]
+                //       [ 0, 0,  2,  1 ]
+                //       [ 0, 0,  1,  0 ] ]
+                //
+                // h = [ [ 0, 9,  0,  0 ]
+                //       [ 9, 2,  0,  0 ]
+                //       [ 0, 0,  2,  1 ]
+                //       [ 0, 0,  1,  0 ] ]
+                std::vector<double> w{1, 9};
+                std::vector<double> x{1, 0, 2, 3};
+                std::vector<double> h(nlp.num_nonzeros_Hessian_Lagrangian());
+                nlp.compute_H(x, w, h);
+                REQUIRE(h[0] == 2);
+                REQUIRE(h[1] == 9);
+                REQUIRE(h[2] == 2);
+                REQUIRE(h[3] == 1);
             }
         }
 
@@ -501,16 +501,16 @@ TEST_CASE("autograd_ad", "[smoke]")
             REQUIRE(h[2] == 2);
         }
     }
-    #endif
+#endif
 }
 
 TEST_CASE("autograd_diff_tests", "[smoke]")
 {
     INFO("TEST_CASE autograd_diff_tests");
 
-    // TODO - use SKIP after upgrading to Catch2 v3
-    #if defined(WITH_ASL) | defined(WITH_CPPAD)
-    auto adname = GENERATE( values(adnames) );
+// TODO - use SKIP after upgrading to Catch2 v3
+#if defined(WITH_ASL) | defined(WITH_CPPAD)
+    auto adname = GENERATE(values(adnames));
     CAPTURE(adname);
 
     // TODO - test constant expression
@@ -603,22 +603,22 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
         {
             // TODO = Fix this test - multiple objectives
             if (adname != "asl") {
-            coek::Model model;
-            auto v = model.add_variable("v");
-            auto w = model.add_variable("w");
-            coek::Expression f = v;
-            model.add_objective(f);
-            model.add_objective(w);
-            coek::NLPModel nlp(model, adname);
+                coek::Model model;
+                auto v = model.add_variable("v");
+                auto w = model.add_variable("w");
+                coek::Expression f = v;
+                model.add_objective(f);
+                model.add_objective(w);
+                coek::NLPModel nlp(model, adname);
 
-            std::vector<double> x{0, 0};
-            std::vector<double> baseline{1, 0};
-            std::vector<double> ans(2);
-            nlp.compute_df(x, ans, 0);
-            REQUIRE(ans == baseline);
-            nlp.compute_df(x, ans, 1);
-            std::vector<double> baseline2{0, 1};
-            REQUIRE(ans == baseline2);
+                std::vector<double> x{0, 0};
+                std::vector<double> baseline{1, 0};
+                std::vector<double> ans(2);
+                nlp.compute_df(x, ans, 0);
+                REQUIRE(ans == baseline);
+                nlp.compute_df(x, ans, 1);
+                std::vector<double> baseline2{0, 1};
+                REQUIRE(ans == baseline2);
             }
         }
     }
@@ -1267,7 +1267,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             // "pow", "3.000", "[", "*", "2", "w", "]", "]", "]", "]" };
         }
     }
-    #endif
+#endif
 }
 
 double test_srosenbr_vector_threadeval(const std::string& asl_type, size_t nthreads, size_t niters,
@@ -1277,11 +1277,11 @@ TEST_CASE("autograd_mt", "[smoke]")
 {
     INFO("TEST_CASE autograd_mt");
 
-    // TODO - figure out issue with cppad using threading
-    // TODO - use SKIP after upgrading to Catch2 v3
-    #if defined(WITH_ASL) | defined(WITH_CPPAD)
-    //auto adname = GENERATE( values(adnames) );
-    //CAPTURE(adname);
+// TODO - figure out issue with cppad using threading
+// TODO - use SKIP after upgrading to Catch2 v3
+#if defined(WITH_ASL) | defined(WITH_CPPAD)
+    // auto adname = GENERATE( values(adnames) );
+    // CAPTURE(adname);
 
     SECTION("srosenbr")
     {
@@ -1290,6 +1290,5 @@ TEST_CASE("autograd_mt", "[smoke]")
         CAPTURE(tmp);
         REQUIRE(tmp == Approx(260040.0242064819));  // nthreads=2 niters=100
     }
-    #endif
+#endif
 }
-        
