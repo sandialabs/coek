@@ -15,8 +15,11 @@ class OptionCache {
    public:
     OptionCache();
 
+    std::map<std::string, std::string>& string_options();
     const std::map<std::string, std::string>& string_options() const;
+    std::map<std::string, int>& integer_options();
     const std::map<std::string, int>& integer_options() const;
+    std::map<std::string, double>& double_options();
     const std::map<std::string, double>& double_options() const;
 
     /** Get the value of an integer option
