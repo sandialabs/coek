@@ -19,14 +19,29 @@ class OptionCacheRepn {
 
 OptionCache::OptionCache() { options = std::make_shared<OptionCacheRepn>(); }
 
+std::map<std::string, std::string>& OptionCache::string_options()
+{
+    return options->string_options;
+}
+
 const std::map<std::string, std::string>& OptionCache::string_options() const
 {
     return options->string_options;
 }
 
+std::map<std::string, int>& OptionCache::integer_options()
+{
+    return options->integer_options;
+}
+
 const std::map<std::string, int>& OptionCache::integer_options() const
 {
     return options->integer_options;
+}
+
+std::map<std::string, double>& OptionCache::double_options()
+{
+    return options->double_options;
 }
 
 const std::map<std::string, double>& OptionCache::double_options() const

@@ -185,8 +185,8 @@ int GurobiSolver::solve(Model& model)
     }
 
     // All options are converted to strings for Gurobi
-    for (auto it = string_options.begin(); it != string_options.end(); ++it)
-        gmodel->set(it->first, it->second);
+    for (auto& it : string_options())
+        gmodel->set(it.first, it.second);
 
     try {
         gmodel->optimize();
@@ -307,8 +307,8 @@ int GurobiSolver::solve(CompactModel& compact_model)
 
     std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
     // All options are converted to strings for Gurobi
-    for (auto it = string_options.begin(); it != string_options.end(); ++it)
-        gmodel->set(it->first, it->second);
+    for (auto& it : string_options)
+        gmodel->set(it.first, it.second);
     try {
         gmodel->optimize();
 
@@ -421,8 +421,8 @@ int GurobiSolver::resolve()
         }
 
         // All options are converted to strings for Gurobi
-        for (auto it = string_options.begin(); it != string_options.end(); ++it)
-            gmodel->set(it->first, it->second);
+        for (auto& option : string_options())
+            gmodel->set(option.first, option.second);
 
         try {
             gmodel->optimize();
@@ -487,16 +487,16 @@ int GurobiSolver::resolve()
 
 bool GurobiSolver::get_option(const std::string& option, int& value) const
 {
-    auto curr = string_options.find(option);
-    if (curr == string_options.end()) return false;
+    auto curr = string_options().find(option);
+    if (curr == string_options().end()) return false;
     value = atoi(curr->second.c_str());
     return true;
 }
 
 bool GurobiSolver::get_option(const std::string& option, double& value) const
 {
-    auto curr = string_options.find(option);
-    if (curr == string_options.end()) return false;
+    auto curr = string_options().find(option);
+    if (curr == string_options().end()) return false;
     value = atoi(curr->second.c_str());
     return true;
 }
@@ -505,14 +505,14 @@ void GurobiSolver::set_option(const std::string& option, int value)
 {
     std::stringstream ostr;
     ostr << value;
-    string_options[option] = ostr.str();
+    string_options()[option] = ostr.str();
 }
 
 void GurobiSolver::set_option(const std::string& option, double value)
 {
     std::stringstream ostr;
     ostr << value;
-    string_options[option] = ostr.str();
+    string_options()[option] = ostr.str();
 }
 
 }  // namespace coek

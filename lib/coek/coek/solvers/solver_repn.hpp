@@ -49,7 +49,7 @@ class SolverCache {
 //
 // The base solver class that defines the API used by Python
 //
-class SolverRepn : public SolverCache {
+class SolverRepn : public SolverCache, public OptionCache {
    public:
     Model model;
 
@@ -72,6 +72,8 @@ class SolverRepn : public SolverCache {
    public:
     SolverRepn(void) : SolverCache() {}
     virtual ~SolverRepn() {}
+
+    void set_options(OptionCache& _options) { options = _options.options; }
 
     virtual int solve(Model& model) = 0;
     virtual void load(Model& model);
