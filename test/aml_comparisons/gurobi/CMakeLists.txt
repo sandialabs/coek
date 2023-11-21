@@ -26,11 +26,11 @@ message("includes ${GUROBI_INCLUDE_DIRS}")
 
 # gurobi_writer
 add_executable(gurobi_writer writer.cpp ${sources})
-TARGET_LINK_LIBRARIES(gurobi_writer PRIVATE ${GUROBI_LIBRARY} ${GUROBI_CXX_LIBRARY})
+TARGET_LINK_LIBRARIES(gurobi_writer PRIVATE ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARY})
 TARGET_INCLUDE_DIRECTORIES(gurobi_writer PUBLIC ${GUROBI_INCLUDE_DIRS})
 
 # gurobi_solver0
 add_executable(gurobi_solve0 solve0.cpp ${sources})
-TARGET_LINK_LIBRARIES(gurobi_solve0 PRIVATE ${GUROBI_LIBRARY} ${GUROBI_CXX_LIBRARY})
+TARGET_LINK_LIBRARIES(gurobi_solve0 PRIVATE ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARY})
 TARGET_INCLUDE_DIRECTORIES(gurobi_solve0 PUBLIC ${GUROBI_INCLUDE_DIRS})
 
