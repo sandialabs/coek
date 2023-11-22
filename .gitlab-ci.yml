@@ -10,3 +10,4 @@ compile:
   script:
     - pwd
     - which g++
+    - python --version
