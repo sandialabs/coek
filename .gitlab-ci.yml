@@ -10,6 +10,7 @@ pre:
   tags: ["docker"]
   script:
     - ls /cache/
+    - echo "hello" >> /cache/tmp.txt
 
 compile:
   stage: build
