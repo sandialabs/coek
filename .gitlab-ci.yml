@@ -9,6 +9,5 @@ compile:
   tags: ["docker"]
   script:
     - pwd
-    - source /root/.bashrc
     - which g++
     - which python
