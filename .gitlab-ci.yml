@@ -9,11 +9,7 @@ pre:
   stage: tmp
   tags: ["docker"]
   script:
-    - mkdir performance_results
     - ls performance_results/
-    - cp /dev-public_performance.zip performance_results/
-    - cd performance_results/
-    - unzip dev-public_performance.zip
   cache:
     key: perf-cache
     paths:
