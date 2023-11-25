@@ -9,6 +9,7 @@ pre:
   stage: tmp
   tags: ["docker"]
   script:
+    - ls
     - ls /cache/
     - ls performance_results/
     #- mkdir performance_results
