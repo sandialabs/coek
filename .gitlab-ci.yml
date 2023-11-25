@@ -9,9 +9,16 @@ pre:
   stage: tmp
   tags: ["docker"]
   script:
-    - ls /cache/
-    - echo "hello" >> /cache/tmp.txt
-    - cat /cache/tmp.txt
+    - mkdir performance_results
+    - cp /dev-public_performance.zip performance_results/
+    - unzip performance_results/dev-public_performance.zip
+  cache:
+    key: perf-cache
+    paths:
+      - performance_results/*.csv
+      - performance_results/*.json
+      - performance_results/*.txt
+    
 
 compile:
   stage: build
