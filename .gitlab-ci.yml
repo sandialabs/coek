@@ -10,10 +10,11 @@ pre:
   tags: ["docker"]
   script:
     - ls /cache/
-    - mkdir performance_results
-    - cp /dev-public_performance.zip performance_results/
-    - cd performance_results/
-    - unzip dev-public_performance.zip
+    - ls performance_results/
+    #- mkdir performance_results
+    #- cp /dev-public_performance.zip performance_results/
+    #- cd performance_results/
+    #- unzip dev-public_performance.zip
   cache:
     key: perf-cache
     paths:
