@@ -11,7 +11,8 @@ pre:
   script:
     - mkdir performance_results
     - cp /dev-public_performance.zip performance_results/
-    - unzip performance_results/dev-public_performance.zip
+    - cd performance_results/
+    - unzip dev-public_performance.zip
   cache:
     key: perf-cache
     paths:
