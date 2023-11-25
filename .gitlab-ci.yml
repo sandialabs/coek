@@ -12,3 +12,24 @@ compile:
     - source /root/.profile
     - which g++
     - which python
+    - mkdir build
+    - cd build
+    - cmake
+      -Dwith_asl=ON
+      -Dwith_pybind11=ON
+      -Dwith_cppad=ON
+      -Dwith_tests=ON
+      -Dwith_gurobi=ON
+      -DPython_EXECUTABLE=$PYTHON_DIR/python
+      -DGUROBI_LIBRARY=$GUROBI_LIBRARY/libgurobi100.so
+      -DGUROBI_INCLUDE_DIRS=$GUROBI_HOME/include
+      -DGUROBI_CXX_LIBRARY=$GUROBI_LIBRARY/libgurobi_g++5.2.a
+      -Dwith_compact=OFF
+      -Dwith_docs=OFF ..
+    - make install_tpls
+    - make -j8
+    - make install
+  artifacts:
+    paths:
+      - build
+    expire_in: 1 hour
