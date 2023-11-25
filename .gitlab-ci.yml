@@ -2,7 +2,14 @@ default:
   image: ubuntu_coek:latest
 
 stages:
+  - tmp
   - build
+
+pre:
+  stage: tmp
+  tags: ["docker"]
+  script:
+    - ls /cache/
 
 compile:
   stage: build
