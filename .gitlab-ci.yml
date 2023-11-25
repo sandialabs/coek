@@ -12,6 +12,7 @@ compile:
     - source /root/.profile
     - which g++
     - which python
+    - echo ${CI_PROJECT_DIR}
     - mkdir build
     - cd build
     - cmake
