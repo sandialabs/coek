@@ -9,6 +9,7 @@ pre:
   stage: tmp
   tags: ["docker"]
   script:
+    - ls /cache/
     - ls performance_results/
   cache:
     key: perf-cache
