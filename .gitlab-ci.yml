@@ -48,6 +48,7 @@ performance-tests:
   stage: test
   tags: ["docker"]
   script:
+    - ls /coek_performance_results/
     - ls /coek_performance_results/dev-public/1/
     - cd build
     - make coek_solve0
@@ -59,7 +60,7 @@ performance-tests:
     - cp build/test/aml_comparisons/gurobi/gurobi_solve0 test/aml_comparisons/gurobi/
     - cp build/test/aml_comparisons/coek/coek_writer test/aml_comparisons/coek/
     - cp build/test/aml_comparisons/coek/coek_solve0 test/aml_comparisons/coek/
-    - cd /test/aml_comparisons/
+    - cd test/aml_comparisons/
     - mkdir build
     - cd build
     - ../scripts/run bench_coek 3
