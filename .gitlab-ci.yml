@@ -10,18 +10,19 @@ pre:
   tags: ["docker"]
   script:
     - ls
-    - ls /cache/
-    - ls performance_results/
+    - ls /coek_performance_results/
+    #- ls /cache/
+    #- ls performance_results/
     #- mkdir performance_results
     #- cp /dev-public_performance.zip performance_results/
     #- cd performance_results/
     #- unzip dev-public_performance.zip
-  cache:
-    key: perf-cache
-    paths:
-      - performance_results/*/*/*.csv
-      - performance_results/*/*/*.json
-      - performance_results/*/*.txt
+  #cache:
+  #  key: perf-cache
+  #  paths:
+  #    - performance_results/*/*/*.csv
+  #    - performance_results/*/*/*.json
+  #    - performance_results/*/*.txt
     
 
 compile:
