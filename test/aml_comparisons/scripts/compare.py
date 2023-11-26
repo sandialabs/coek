@@ -41,6 +41,7 @@ def compare(source_dir, test_type):
         for num in range(build_number):
             running_fname = os.path.join(branch_dir, str(num), f'{test_type}_summary.csv')
             created = os.path.getctime(running_fname)
+            print(running_fname)
             with open(running_fname, 'r') as f:
                 print(f.read())
                 f.seek(0)
