@@ -11,6 +11,8 @@ pre:
   script:
     - ls
     - ls /coek_performance_results/
+    - rm /coek_performance_results/dev-public_performance.zip
+    - ls /coek_performance_results/dev-public/
     #- cp /dev-public_performance.zip /coek_performance_results/
     #- cd /coek_performance_results/
     #- unzip dev-public_performance.zip
