@@ -40,6 +40,7 @@ unit-tests:
   stage: test
   tags: ["docker"]
   script:
+    - source /root/.profile
     - cd build
     - make test
   allow_failure: true
@@ -48,6 +49,7 @@ performance-tests:
   stage: test
   tags: ["docker"]
   script:
+    - source /root/.profile
     - ls /coek_performance_results/
     - ls /coek_performance_results/dev-public/1/
     - cd build
