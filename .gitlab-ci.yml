@@ -11,15 +11,15 @@ pre:
   script:
     - ls
     - ls /coek_performance_results/
-    #- cp /dev-public_performance.zip /coek_performance_results/
-    #- cd /coek_performance_results/
-    #- unzip dev-public_performance.zip
-  #cache:
-  #  key: perf-cache
-  #  paths:
-  #    - performance_results/*/*/*.csv
-  #    - performance_results/*/*/*.json
-  #    - performance_results/*/*.txt
+    - cp /dev-public_performance.zip /coek_performance_results/
+    - cd /coek_performance_results/
+    - unzip dev-public_performance.zip
+  cache:
+    key: perf-cache
+    paths:
+      - /coek_performance_results/*/*/*.csv
+      - /coek_performance_results/*/*/*.json
+      - /coek_performance_results/*/*.txt
     
 
 compile:
