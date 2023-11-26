@@ -65,6 +65,7 @@ performance-tests:
     - cd test/aml_comparisons/
     - mkdir build
     - cd build
+    - ../coek/coek_writer results/writer/coek/lp_fac_50.0.lp fac 50
     - ../scripts/run bench_coek 3
     - ../scripts/collect
     - ../scripts/dog solve0

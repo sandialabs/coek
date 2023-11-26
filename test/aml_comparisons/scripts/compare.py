@@ -29,6 +29,8 @@ def compare(source_dir, test_type):
     maxvalue = -1.0
     for datadir in branches:
         branch_dir = os.path.join(args.artifact_dir, datadir)
+        if not os.path.isdir(branch_dir):
+            continue
 
         build_fname = os.path.join(branch_dir, 'build_number.txt')
         f = open(build_fname, 'r')
