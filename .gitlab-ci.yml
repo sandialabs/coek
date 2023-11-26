@@ -65,8 +65,6 @@ performance-tests:
     - cd test/aml_comparisons/
     - mkdir build
     - cd build
-    - python -c "import gurobipy; m = gurobipy.Model()"
-    - ../gurobi/gurobi_writer results/writer/gurobi/lp_fac_50.0.lp fac 50
     - ../scripts/run bench_coek 3
     - ../scripts/collect
     - ../scripts/dog solve0
