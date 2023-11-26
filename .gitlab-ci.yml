@@ -29,7 +29,7 @@ compile:
       -Dwith_compact=OFF
       -Dwith_docs=OFF ..
     - make install_tpls
-    #- make -j8
+    - make -j8
     - make install
   artifacts:
     paths:
