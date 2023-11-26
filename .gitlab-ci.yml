@@ -50,6 +50,7 @@ performance-tests:
   tags: ["docker"]
   script:
     - source /root/.profile
+    - ls build/install/lib/
     - ls /coek_performance_results/
     - ls /coek_performance_results/dev-public/1/
     - cd build
