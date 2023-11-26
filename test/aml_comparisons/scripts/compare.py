@@ -20,7 +20,7 @@ def parse_args():
 
 def compare(source_dir, test_type):
     args = parse_args()
-    branches=['dev-private', 'dev-public', 'mt', 'nl2']
+    branches = os.listdir(args.artifact_dir)  # ['dev-private', 'dev-public', 'mt', 'nl2']
 
     data = {}
     mindate = None

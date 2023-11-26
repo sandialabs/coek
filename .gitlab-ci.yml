@@ -2,22 +2,8 @@ default:
   image: ubuntu_coek:latest
 
 stages:
-  - tmp
   - build
-
-pre:
-  stage: tmp
-  tags: ["docker"]
-  script:
-    - ls
-    - ls /coek_performance_results/dev-public/1/
-  cache:
-    key: perf-cache
-    paths:
-      - /coek_performance_results/*/*/*.csv
-      - /coek_performance_results/*/*/*.json
-      - /coek_performance_results/*/*.txt
-    
+  - test
 
 compile:
   stage: build
@@ -43,9 +29,56 @@ compile:
       -Dwith_compact=OFF
       -Dwith_docs=OFF ..
     - make install_tpls
-    - make -j8
+    #- make -j8
     - make install
   artifacts:
     paths:
       - build
     expire_in: 1 hour
+
+unit-tests:
+  stage: test
+  tags: ["docker"]
+  script:
+    - cd build
+    - make test
+  allow_failure: true
+
+performance-tests:
+  stage: test
+  tags: ["docker"]
+  script:
+    - ls /coek_performance_results/dev-public/1/
+    - cd build
+    - make coek_solve0
+    - make coek_writer
+    - make gurobi_solve0
+    - make gurobi_writer
+    - cd ..
+    - cp build/test/aml_comparisons/gurobi/gurobi_writer test/aml_comparisons/gurobi/
+    - cp build/test/aml_comparisons/gurobi/gurobi_solve0 test/aml_comparisons/gurobi/
+    - cp build/test/aml_comparisons/coek/coek_writer test/aml_comparisons/coek/
+    - cp build/test/aml_comparisons/coek/coek_solve0 test/aml_comparisons/coek/
+    - cd /test/aml_comparisons/
+    - mkdir build
+    - cd build
+    - ../scripts/run bench_coek 3
+    - ../scripts/collect
+    - ../scripts/dog solve0
+    - ../scripts/dog writer
+    - python ../scripts/to_csv.py --dirname /coek_performance_results/${CI_COMMIT_BRANCH}
+    - python ../scripts/compare.py --artifact_dir=/coek_performance_results --branch_name=${CI_COMMIT_BRANCH}
+    - ls /coek_performance_results/
+    - ls /coek_performance_results/${CI_COMMIT_BRANCH}/
+  cache:
+    key: perf-cache
+    paths:
+      - /coek_performance_results/*/*/*.csv
+      - /coek_performance_results/*/*/*.json
+      - /coek_performance_results/*/*.txt
+  artifacts:
+    expose_as: 'performance-trend'
+    paths:
+      - test/aml-comparisons/build/solve0_trend.html
+      - test/aml_comparisons/build/writer_trend.html
+    expire_in: 4 weeks
