@@ -52,6 +52,8 @@ performance-tests:
     - source /root/.profile
     - ls /coek_performance_results/
     - ls /coek_performance_results/dev-public/1/
+    - ls /coek_performance_results/ci/
+    - ls /coek_performance_results/ci/0/
     - cd build
     - make coek_solve0
     - make coek_writer
@@ -70,6 +72,7 @@ performance-tests:
     - ../scripts/dog solve0
     - ../scripts/dog writer
     - python ../scripts/to_csv.py --dirname /coek_performance_results/${CI_COMMIT_BRANCH}
+    - ls /coek_performance_results/ci/
     - python ../scripts/compare.py --artifact_dir=/coek_performance_results --branch_name=${CI_COMMIT_BRANCH}
     - ls /coek_performance_results/
     - ls /coek_performance_results/${CI_COMMIT_BRANCH}/
