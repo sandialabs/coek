@@ -52,10 +52,11 @@ performance-tests:
     - source /root/.profile
     - ls /coek_performance_results/
     - ls /coek_performance_results/dev-public/1/
-    - ls /coek_performance_results/ci/
-    - ls /coek_performance_results/ci/0/
-    - find /coek_performance_results/ci/ -name "*.csv"
-    - find /coek_performance_results/ci/ -name "*.csv" | xargs cat
+    - rm -rf /coek_performance_results/ci
+    #- ls /coek_performance_results/ci/
+    #- ls /coek_performance_results/ci/0/
+    #- find /coek_performance_results/ci/ -name "*.csv"
+    #- find /coek_performance_results/ci/ -name "*.csv" | xargs cat
     - cd build
     - make coek_solve0
     - make coek_writer
