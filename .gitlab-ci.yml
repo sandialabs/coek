@@ -4,6 +4,7 @@ default:
 stages:
   - build
   - test
+  - pages_plot
 
 compile:
   stage: build
@@ -52,7 +53,6 @@ performance-tests:
     - source /root/.profile
     - ls /coek_performance_results/
     - ls /coek_performance_results/dev-public/1/
-    - rm -rf /coek_performance_results/ci
     #- ls /coek_performance_results/ci/
     #- ls /coek_performance_results/ci/0/
     #- find /coek_performance_results/ci/ -name "*.csv"
@@ -88,6 +88,16 @@ performance-tests:
   artifacts:
     expose_as: 'performance-trend'
     paths:
-      - test/aml-comparisons/build/solve0_trend.html
-      - test/aml_comparisons/build/writer_trend.html
+      - test/aml-comparisons/build/perf_trend.html
     expire_in: 4 weeks
+
+pages:
+  stage: pages_plot
+  tags: ["docker"]
+  script:
+    - ls test/aml_comparisons/build/
+    - mkdir public
+    - mv test/aml_comparisons/build/perf_trend.html public/
+  artifacts:
+    paths:
+      - public
