@@ -88,7 +88,7 @@ performance-tests:
   artifacts:
     expose_as: 'performance-trend'
     paths:
-      - test/aml-comparisons/build/perf_trend.html
+      - test/aml_comparisons/build/perf_trend.html
     expire_in: 4 weeks
 
 pages:
