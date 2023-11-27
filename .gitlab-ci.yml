@@ -100,4 +100,4 @@ pages:
     - mv test/aml_comparisons/build/perf_trend.html public/
   artifacts:
     paths:
-      - public
+      - public/perf_trend.html
