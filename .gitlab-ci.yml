@@ -97,7 +97,7 @@ pages:
   script:
     - ls test/aml_comparisons/build/
     - mkdir public
-    - mv test/aml_comparisons/build/perf_trend.html public/
+    - mv test/aml_comparisons/build/perf_trend.html public/index.html
   artifacts:
     paths:
-      - public/perf_trend.html
+      - public
