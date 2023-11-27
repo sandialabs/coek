@@ -2,6 +2,7 @@ import json
 import os
 import csv
 import argparse
+from datetime import datetime
 
 
 def parse_args():
@@ -41,7 +42,8 @@ def write_csv(source_dir, test_type, increase_build_number):
         f.write(str(build_number + 1))
         f.close()
 
-    row = {'build_number': build_number}
+    row = {'build_number': build_number,
+           'timestamp': datetime.now().timestamp()}
     for k, d in res['raw']['coek'].items():
         if k.startswith('_'):
             continue
