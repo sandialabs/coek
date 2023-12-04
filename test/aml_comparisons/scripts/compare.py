@@ -20,7 +20,7 @@ def parse_args():
 
 def compare(source_dir, test_type):
     args = parse_args()
-    branches=['dev-private', 'dev-public', 'mt', 'nl2']
+    branches = [i for i in os.listdir(args.artifact_dir) if os.path.isdir(os.path.join(args.artifact_dir, i))]  # ['dev-private', 'dev-public', 'mt', 'nl2']
 
     data = {}
     mindate = None
@@ -43,6 +43,7 @@ def compare(source_dir, test_type):
                 reader = csv.DictReader(f)
                 for row in reader:
                     row.pop('build_number',0)
+                    created = float(row.pop('timestamp', created))
                     tmp[created] = statistics.mean(float(i) for i in row.values())
                     maxbuild = max(num, maxbuild)
                     maxvalue = max(tmp[created], maxvalue)
@@ -57,15 +58,20 @@ def compare(source_dir, test_type):
     #print(mindate)
     #print(maxdate)
     #print(maxvalue)
-    
-    fig = go.Figure()
 
+    fig_list = list()
     for datadir in branches:
-        #pprint.pprint(data[datadir])
-        tmp = {'index': [datetime.datetime.fromtimestamp(key) for key in data[datadir]], 'value': [data[datadir][key] for key in data[datadir]]}
-        df = pd.DataFrame.from_dict(tmp)
-        fig.add_trace( go.Scatter(x=df['index'], y=df['value'], mode='lines', name=datadir ) )
-                                #,     range_x=[mindate,maxdate], range_y=[0, 1.1*math.ceil(maxvalue)]) )
+        fig_list.append(
+            go.Scatter(
+                x=[datetime.datetime.fromtimestamp(key) for key in data[datadir]],
+                y=[data[datadir][key] for key in data[datadir]],
+                mode="lines+markers",
+                marker=dict(size=10),
+                name=f'{datadir}_{test_type}',
+            )
+        )
+
+    return fig_list
 
     fig.update_yaxes(range=[0, 1.1*math.ceil(maxvalue)])
     fig.update_layout(
@@ -86,6 +92,16 @@ def compare(source_dir, test_type):
     #    fread.close()
 
 
+def main():
+    fig_list = compare(os.path.join('results', 'solve0'), 'solve0')
+    fig_list.extend(compare(os.path.join('results', 'writer'), 'writer'))
+    fig = go.Figure(data=fig_list)
+    fig.update_layout(
+        xaxis_title='Date',
+        yaxis_title='coek time / gurobi time',
+    )
+    fig.write_html('perf_trend.html')
+
+
 if __name__ == '__main__':
-    compare(os.path.join('results', 'solve0'), 'solve0')
-    compare(os.path.join('results', 'writer'), 'writer')
+    main()
