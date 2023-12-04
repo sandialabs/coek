@@ -44,7 +44,7 @@ def write_csv(source_dir, test_type, increase_build_number):
         f.close()
 
     modified = os.path.getmtime(summary_fname)
-    timestamp = datetime.datetime.fromtimestamp(modified).timestamp()
+    timestamp = datetime.fromtimestamp(modified).timestamp()
 
     row = {'build_number': build_number,
            'timestamp': timestamp}
