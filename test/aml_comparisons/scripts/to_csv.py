@@ -14,7 +14,8 @@ def parse_args():
 
 def write_csv(source_dir, test_type, increase_build_number):
     args = parse_args()
-    f = open(os.path.join(source_dir, 'summary.json'), 'r')
+    summary_fname = os.path.join(source_dir, 'summary.json')
+    f = open(summary_fname, 'r')
     res = json.load(f)
     f.close()
 
@@ -42,8 +43,11 @@ def write_csv(source_dir, test_type, increase_build_number):
         f.write(str(build_number + 1))
         f.close()
 
+    modified = os.path.getmtime(summary_fname)
+    timestamp = datetime.datetime.fromtimestamp(modified).timestamp()
+
     row = {'build_number': build_number,
-           'timestamp': datetime.now().timestamp()}
+           'timestamp': timestamp}
     for k, d in res['raw']['coek'].items():
         if k.startswith('_'):
             continue
