@@ -1,8 +1,5 @@
 default:
   image: ubuntu_coek:latest
-rules:
-  - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-  - if: $CI_COMMIT_BRANCH == "dev-public" && $CI_PIPELINE_SOURCE == "push"
 
 stages:
   - build
@@ -31,6 +28,10 @@ compile:
     - make install_tpls
     - make -j8
     - make install
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev-public" && $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   artifacts:
     paths:
       - build
@@ -44,6 +45,10 @@ unit-tests:
     - cd build
     - make test
   allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev-public" && $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
 
 performance-tests:
   stage: test
@@ -75,6 +80,10 @@ performance-tests:
       - /coek_performance_results/*/*/*.csv
       - /coek_performance_results/*/*/*.json
       - /coek_performance_results/*/*.txt
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev-public" && $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   artifacts:
     expose_as: 'performance-trend'
     paths:
@@ -87,6 +96,10 @@ pages:
   script:
     - mkdir public
     - mv test/aml_comparisons/build/perf_trend.html public/index.html
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev-public" && $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   artifacts:
     paths:
       - public
