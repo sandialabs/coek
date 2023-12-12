@@ -58,7 +58,7 @@ performance-tests:
           if [[ $CI_PIPELINE_SOURCE == "merge_request_event" ]]; then
             export BRANCH_NAME=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
           else
-            export BRANCH_NAME="dev-public"
+            export BRANCH_NAME=$CI_COMMIT_BRANCH
           fi
     - source /root/.profile
     - cd build
