@@ -10,6 +10,7 @@ compile:
   stage: build
   tags: ["docker"]
   script:
+    - echo ${CI_COMMIT_BRANCH}
     - source /root/.profile
     - mkdir build
     - cd build
@@ -74,6 +75,7 @@ performance-tests:
     - ../scripts/dog writer
     - python ../scripts/to_csv.py --dirname /coek_performance_results/${CI_COMMIT_BRANCH}
     - python ../scripts/compare.py --artifact_dir=/coek_performance_results --branch_name=${CI_COMMIT_BRANCH}
+    - tar -czvf perf_archive.tgz /coek_performance_results
   cache:
     key: perf-cache
     paths:
@@ -88,6 +90,7 @@ performance-tests:
     expose_as: 'performance-trend'
     paths:
       - test/aml_comparisons/build/perf_trend.html
+      - test/aml_comparisons/build/perf_archive.tgz
     expire_in: 4 weeks
 
 pages:
