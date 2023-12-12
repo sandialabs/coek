@@ -10,7 +10,6 @@ compile:
   stage: build
   tags: ["docker"]
   script:
-    - echo ${CI_COMMIT_BRANCH}
     - source /root/.profile
     - mkdir build
     - cd build
@@ -55,6 +54,12 @@ performance-tests:
   stage: test
   tags: ["docker"]
   script:
+    - |-
+          if [[ $CI_PIPELINE_SOURCE == "merge_request_event" ]]; then
+	      export BRANCH_NAME=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+	  else
+	      export BRANCH_NAME="dev-public"
+	  fi
     - source /root/.profile
     - cd build
     - make coek_solve0
@@ -73,8 +78,8 @@ performance-tests:
     - ../scripts/collect
     - ../scripts/dog solve0
     - ../scripts/dog writer
-    - python ../scripts/to_csv.py --dirname /coek_performance_results/${CI_COMMIT_BRANCH}
-    - python ../scripts/compare.py --artifact_dir=/coek_performance_results --branch_name=${CI_COMMIT_BRANCH}
+    - python ../scripts/to_csv.py --dirname /coek_performance_results/${BRANCH_NAME}
+    - python ../scripts/compare.py --artifact_dir=/coek_performance_results --branch_name=${BRANCH_NAME}
     - tar -czvf perf_archive.tgz /coek_performance_results
   cache:
     key: perf-cache
