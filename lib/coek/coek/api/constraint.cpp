@@ -565,22 +565,6 @@ Constraint operator==(const Expression& lhs, const Expression& rhs)
     return equal(lhs.repn, rhs.repn);
 }
 
-Constraint inequality(int lower, const Expression& body, int upper, bool strict)
-{
-    std::shared_ptr<ConstraintTerm> tmp
-        = CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lower), body.repn,
-                         CREATE_POINTER(ConstantTerm, upper), strict);
-    return tmp;
-}
-
-Constraint inequality(double lower, const Expression& body, double upper, bool strict)
-{
-    std::shared_ptr<ConstraintTerm> tmp
-        = CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lower), body.repn,
-                         CREATE_POINTER(ConstantTerm, upper), strict);
-    return tmp;
-}
-
 Constraint inequality(const Expression& lower, const Expression& body, const Expression& upper,
                       bool strict)
 {

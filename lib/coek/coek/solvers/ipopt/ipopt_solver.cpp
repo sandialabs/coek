@@ -16,11 +16,11 @@ int IpoptSolver::solve(NLPModel& _model)
         std::cout << "ERROR: must reset the model before solving" << std::endl;
         return -1;
     }
-    repn->set_options(string_options, integer_options, double_options);
+    repn->set_options(string_options(), integer_options(), double_options());
     return repn->perform_solve();
 }
 
-int IpoptSolver::resolve()
+int IpoptSolver::resolve_exec()
 {
 #ifdef DEBUG
     auto start = std::chrono::high_resolution_clock::now();
@@ -28,9 +28,9 @@ int IpoptSolver::resolve()
 
     if (not initial_solve()) model->reset();
 
-    repn->set_options(string_options, integer_options, double_options);
-    auto it = string_options.find("warm_start_init_point");
-    if ((it != string_options.end()) and (it->second == "yes"))
+    repn->set_options(string_options(), integer_options(), double_options());
+    auto it = string_options().find("warm_start_init_point");
+    if ((it != string_options().end()) and (it->second == "yes"))
         repn->set_start_from_last_x(true);
     else
         repn->set_start_from_last_x(false);

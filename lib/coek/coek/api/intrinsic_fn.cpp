@@ -4,12 +4,22 @@
 #include "../ast/visitor_fns.hpp"
 #include "../ast/ast_operators.hpp"
 #include "expression.hpp"
+#include "constraint.hpp"
 
 namespace coek {
 
-//
-// intrinsic functions
-//
+Expression if_else(const Expression& cond_expr, const Expression& then_expr,
+                   const Expression& else_expr)
+{
+    return if_then_else(cond_expr.repn, then_expr.repn, else_expr.repn);
+}
+
+Expression if_else(const Constraint& cond_expr, const Expression& then_expr,
+                   const Expression& else_expr)
+{
+    return if_then_else(cond_expr.repn, then_expr.repn, else_expr.repn);
+}
+
 Expression abs(const Expression& body)
 {
     if (body.repn->is_constant()) {

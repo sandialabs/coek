@@ -53,6 +53,7 @@ class ATanhTerm;
 class PowTerm;
 class SumExpressionTerm;
 class ObjectiveTerm;
+class IfThenElseTerm;
 
 class Visitor {
    public:
@@ -100,6 +101,7 @@ class Visitor {
     {
         throw std::runtime_error("Visitor cannot handle SumExpressionTerm");
     }
+    virtual void visit(IfThenElseTerm&) = 0;
 };
 
 enum term_id : unsigned int {
@@ -141,7 +143,8 @@ enum term_id : unsigned int {
     ATanhTerm_id = 30,
     PowTerm_id = 31,
     SumExpressionTerm_id = 102,
-    ObjectiveTerm_id = 103
+    ObjectiveTerm_id = 103,
+    IfThenElseTerm_id = 108,
 };
 
 }  // namespace coek

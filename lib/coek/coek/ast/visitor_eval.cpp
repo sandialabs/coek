@@ -142,6 +142,15 @@ double visit_DivideTerm(const expr_pointer_t& expr, VariableData& data)
     return lhs / visit_expression(tmp->rhs, data);
 }
 
+double visit_IfThenElseTerm(const expr_pointer_t& expr, VariableData& data)
+{
+    auto tmp = safe_pointer_cast<IfThenElseTerm>(expr);
+    if (visit_expression(tmp->cond_expr, data))
+        return visit_expression(tmp->then_expr, data);
+    else
+        return visit_expression(tmp->else_expr, data);
+}
+
 // clang-format off
 FROM_BODY_FN(AbsTerm, std::fabs)
 FROM_BODY_FN(CeilTerm, std::ceil)
@@ -202,6 +211,7 @@ double visit_expression(const expr_pointer_t& expr, VariableData& data)
         VISIT_CASE(PlusTerm);
         VISIT_CASE(TimesTerm);
         VISIT_CASE(DivideTerm);
+        VISIT_CASE(IfThenElseTerm);
         VISIT_CASE(AbsTerm);
         VISIT_CASE(CeilTerm);
         VISIT_CASE(FloorTerm);

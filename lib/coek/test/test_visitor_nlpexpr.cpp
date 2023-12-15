@@ -25,7 +25,7 @@
                 = {"[", #FN, "[", "+", "v", std::to_string(1.0), "]", "]"};       \
             REQUIRE(repn.constval->to_list() == constval);                        \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
-            REQUIRE(repn.nonlinear_vars.size() == 1); \
+            REQUIRE(repn.nonlinear_vars.size() == 1);                             \
         }                                                                         \
     }                                                                             \
     WHEN(#FN " 2")                                                                \
@@ -39,7 +39,7 @@
             static std::list<std::string> nonlinear = {std::to_string(0.0)};      \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
             REQUIRE(repn.nonlinear->to_list() == nonlinear);                      \
-            REQUIRE(repn.nonlinear_vars.size() == 0); \
+            REQUIRE(repn.nonlinear_vars.size() == 0);                             \
         }                                                                         \
     }
 
@@ -58,7 +58,7 @@
                 = {"[", #FN, "[", "+", "v", std::to_string(1.0), "]", "w", "]"};  \
             REQUIRE(repn.constval->to_list() == constval);                        \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
-            REQUIRE(repn.nonlinear_vars.size() == 2); \
+            REQUIRE(repn.nonlinear_vars.size() == 2);                             \
         }                                                                         \
     }                                                                             \
     WHEN(#FN " 2")                                                                \
@@ -72,7 +72,7 @@
             static std::list<std::string> nonlinear = {std::to_string(0.0)};      \
             REQUIRE(repn.linear_coefs.size() + repn.quadratic_coefs.size() == 0); \
             REQUIRE(repn.nonlinear->to_list() == nonlinear);                      \
-            REQUIRE(repn.nonlinear_vars.size() == 0); \
+            REQUIRE(repn.nonlinear_vars.size() == 0);                             \
         }                                                                         \
     }
 
@@ -288,8 +288,8 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
             coek::Model m;
             auto v = m.add_variable("v").lower(0).upper(1).value(3);
             auto w = m.add_variable("v").lower(0).upper(1).value(1);
-            auto E = coek::subexpression().value(2*v + w + 1);
-            coek::Expression e = E + (E+1)*(E + 1);
+            auto E = coek::subexpression().value(2 * v + w + 1);
+            coek::Expression e = E + (E + 1) * (E + 1);
             REQUIRE(e.value() == 89);
 
             coek::MutableNLPExpr repn;
@@ -713,7 +713,71 @@ TEST_CASE("expr_to_MutableNLPExpr", "[smoke]")
         }
     }
 
-    SECTION("constriaints")
+    SECTION("if_else")
+    {
+        WHEN("if_else - p nonzero")
+        {
+            coek::Model m;
+            auto p = coek::parameter().value(2);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression e = if_else(p, (w * w + w + 1) / p);
+            coek::MutableNLPExpr repn;
+            repn.collect_terms(e);
+
+            static std::list<std::string> constval = {std::to_string(0.0)};
+            REQUIRE(repn.constval->to_list() == constval);
+            REQUIRE(repn.linear_coefs.size() == 0);
+            REQUIRE(repn.quadratic_coefs.size() == 0);
+            REQUIRE(repn.nonlinear_vars.size() == 1);
+        }
+        WHEN("if_else - p zero")
+        {
+            coek::Model m;
+            auto p = coek::parameter().value(0);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression e = if_else(p, (w * w + w + 1) / p);
+            coek::MutableNLPExpr repn;
+            repn.collect_terms(e);
+
+            static std::list<std::string> constval = {std::to_string(0.0)};
+            REQUIRE(repn.constval->to_list() == constval);
+            REQUIRE(repn.linear_coefs.size() == 0);
+            REQUIRE(repn.quadratic_coefs.size() == 0);
+            REQUIRE(repn.nonlinear_vars.size() == 1);
+        }
+        WHEN("if_else - p zero")
+        {
+            coek::Model m;
+            auto p = coek::parameter().value(0);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression e = if_else(p, (w * w + w + 1) / p, w);
+            coek::MutableNLPExpr repn;
+            repn.collect_terms(e);
+
+            static std::list<std::string> constval = {std::to_string(0.0)};
+            REQUIRE(repn.constval->to_list() == constval);
+            REQUIRE(repn.linear_coefs.size() == 0);
+            REQUIRE(repn.quadratic_coefs.size() == 0);
+            REQUIRE(repn.nonlinear_vars.size() == 1);
+        }
+        WHEN("if_else - non-quadratic")
+        {
+            coek::Model m;
+            auto p = coek::parameter().value(0);
+            auto w = m.add_variable("w").lower(0).upper(1).value(0);
+            coek::Expression e = if_else(p, (w * w + w + 1) / p, w * w * w);
+            coek::MutableNLPExpr repn;
+            repn.collect_terms(e);
+
+            static std::list<std::string> constval = {std::to_string(0.0)};
+            REQUIRE(repn.constval->to_list() == constval);
+            REQUIRE(repn.linear_coefs.size() == 0);
+            REQUIRE(repn.quadratic_coefs.size() == 0);
+            REQUIRE(repn.nonlinear_vars.size() == 1);
+        }
+    }
+
+    SECTION("constraints")
     {
         WHEN("inequality")
         {

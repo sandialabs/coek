@@ -238,4 +238,34 @@ UNARY_CLASS(atanh, ATanhTerm)
 BINARY_CLASS(pow, PowTerm)
 // BINARY_CLASS(atan2, ATan2Term)
 
+//
+// IfThenElse Term
+//
+
+class IfThenElseTerm : public ExpressionTerm {
+   public:
+    expr_pointer_t cond_expr;
+    expr_pointer_t then_expr;
+    expr_pointer_t else_expr;
+
+   public:
+    IfThenElseTerm(const expr_pointer_t& _cond, const expr_pointer_t& _then,
+                   const expr_pointer_t& _else);
+
+    double _eval() const { return cond_expr->_eval() ? then_expr->_eval() : else_expr->_eval(); }
+
+    void accept(Visitor& v) { v.visit(*this); }
+    term_id id() { return IfThenElseTerm_id; }
+
+    size_t num_expressions() const { return 3; }
+    expr_pointer_t expression(size_t i)
+    {
+        if (i == 0)
+            return cond_expr;
+        else if (i == 1)
+            return then_expr;
+        return else_expr;
+    }
+};
+
 }  // namespace coek

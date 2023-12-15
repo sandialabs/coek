@@ -194,7 +194,7 @@ void small9(coek::Model& model)
     auto x = model.add_variable();
     auto y = model.add_variable();
     auto z = model.add_variable();
-    y.value(1.0);
+    y.value(0.0);
     y.fixed(true);
 
     auto p = coek::parameter();
@@ -207,6 +207,61 @@ void small9(coek::Model& model)
     model.add(x * y * z == 1);
     model.add(x * p * z == 1);
     model.add(x * q * z == 1);
+}
+
+void small12(coek::Model& model)
+{
+    auto vTrue = model.add_variable().value(1);
+    auto vFalse = model.add_variable().value(-1);
+
+    auto pTrue = coek::parameter().value(1);
+    auto pFalse = coek::parameter().value(-1);
+
+    auto vN1 = model.add_variable().value(-1);
+    auto vP1 = model.add_variable().value(1);
+    auto v0 = model.add_variable().value(0);
+    auto vN2 = model.add_variable().value(-2);
+    auto vP2 = model.add_variable().value(2);
+
+    model.add(coek::objective(10 * coek::if_else(v0, vTrue, vFalse)));
+
+    // True/False
+    model.add(coek::if_else(0, vTrue, vFalse) == pFalse);
+    model.add(coek::if_else(1, vTrue, vFalse) == pTrue);
+
+    // x <= 0
+    model.add(coek::if_else(vN1 <= 0, vTrue, vFalse) == pTrue);
+    model.add(coek::if_else(v0 <= 0, vTrue, vFalse) == pTrue);
+    model.add(coek::if_else(vP1 <= 0, vTrue, vFalse) == pFalse);
+
+    // x < 0
+    model.add(coek::if_else(vN1 < 0, vTrue, vFalse) == pTrue);
+    model.add(coek::if_else(v0 < 0, vTrue, vFalse) == pFalse);
+    model.add(coek::if_else(vP1 < 0, vTrue, vFalse) == pFalse);
+
+    // x >= 0
+    model.add(coek::if_else(vN1 * 10.0 >= 0, vTrue, vFalse) == pFalse);
+    model.add(coek::if_else(v0 * 10.0 >= 0, vTrue, vFalse) == pTrue);
+    model.add(coek::if_else(vP1 * 10.0 >= 0, vTrue, vFalse) == pTrue);
+
+    // x > 0
+    model.add(coek::if_else(vN1 * 10.0 > 0, vTrue, vFalse) == pFalse);
+    model.add(coek::if_else(v0 * 10.0 > 0, vTrue, vFalse) == pFalse);
+    model.add(coek::if_else(vP1 * 10.0 > 0, vTrue, vFalse) == pTrue);
+
+    // -1 <= x <= 1
+    model.add(coek::if_else(coek::inequality(-1, vN2, 1), vTrue, vFalse) == pFalse);
+    model.add(coek::if_else(coek::inequality(-1 * vP1, vN1, 1), vTrue, vFalse) == pTrue);
+    model.add(coek::if_else(coek::inequality(-1 * vP1 * vP1, v0, 1), vTrue, vFalse) == pTrue);
+    model.add(coek::if_else(coek::inequality(vN1, vP1, 1), vTrue, vFalse) == pTrue);
+    model.add(coek::if_else(coek::inequality(-1, vP2, 1), vTrue, vFalse) == pFalse);
+
+    // -1 < x < 1
+    model.add(coek::if_else(coek::inequality(-1, vN2, 1, true), vTrue, vFalse) == pFalse);
+    model.add(coek::if_else(coek::inequality(-1, vN1, 1 * vP1, true), vTrue, vFalse) == pFalse);
+    model.add(coek::if_else(coek::inequality(-1, v0, 1 * vP1 * vP1, true), vTrue, vFalse) == pTrue);
+    model.add(coek::if_else(coek::inequality(-1, vP1, vP1, true), vTrue, vFalse) == pFalse);
+    model.add(coek::if_else(coek::inequality(-1, vP2, 1, true), vTrue, vFalse) == pFalse);
 }
 
 void small13(coek::Model& model)
@@ -564,6 +619,12 @@ TEST_CASE("model_writer", "[smoke]")
     {
         small9(model);
         for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small9", suffix));
+    }
+
+    SECTION("small12")
+    {
+        small12(model);
+        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small12", suffix));
     }
 
     SECTION("small13")

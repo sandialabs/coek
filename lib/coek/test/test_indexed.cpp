@@ -875,6 +875,48 @@ TEST_CASE("expr_expand", "[smoke]")
         }
     }
 
+    SECTION("if_else")
+    {
+        WHEN("parameter")
+        {
+            {
+                coek::Model m;
+                auto p = coek::parameter("p");
+                auto w = m.add_variable("w").lower(0).upper(1).value(0);
+                coek::Expression e = if_else(p, w, 1 / w);
+                auto E = e.expand();
+                coek::MutableNLPExpr repn;
+                repn.collect_terms(E);
+
+                static std::list<std::string> constval = {std::to_string(0.0)};
+                static std::list<std::string> nonlinear = {"[", "/", std::to_string(1.0), "w", "]"};
+                REQUIRE(repn.constval->to_list() == constval);
+                REQUIRE(repn.linear_coefs.size() == 0);
+                REQUIRE(repn.quadratic_coefs.size() == 0);
+                REQUIRE(repn.nonlinear->to_list() == nonlinear);
+            }
+        }
+        WHEN("condition")
+        {
+            {
+                coek::Model m;
+                auto p = coek::parameter("p");
+                auto w = m.add_variable("w").lower(0).upper(1).value(0);
+                coek::Expression e = if_else(p + 1 < 0, w, 1 / w);
+                auto E = e.expand();
+                coek::MutableNLPExpr repn;
+                repn.collect_terms(E);
+
+                static std::list<std::string> constval = {std::to_string(0.0)};
+                static std::list<std::string> nonlinear = {"[", "/", std::to_string(1.0), "w", "]"};
+                REQUIRE(repn.constval->to_list() == constval);
+                REQUIRE(repn.linear_coefs.size() == 0);
+                REQUIRE(repn.quadratic_coefs.size() == 0);
+                REQUIRE(repn.nonlinear->to_list() == nonlinear);
+            }
+        }
+    }
+
     SECTION("constriaints")
     {
         WHEN("inequality")

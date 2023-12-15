@@ -58,6 +58,7 @@ class WriteExprVisitor : public Visitor {
     void visit(PowTerm& arg);
     void visit(SumExpressionTerm& arg);
     void visit(EmptyConstraintTerm& arg);
+    void visit(IfThenElseTerm& arg);
 };
 
 void WriteExprVisitor::visit(ConstantTerm& arg) { ostr << arg.value; }
@@ -261,6 +262,17 @@ WriteExprVisitor_FN(atanh, ATanhTerm)
 void WriteExprVisitor::visit(SumExpressionTerm&) { ostr << "Sum()"; }
 
 void WriteExprVisitor::visit(EmptyConstraintTerm&) { ostr << "EmptyConstraint()"; }
+
+void WriteExprVisitor::visit(IfThenElseTerm& arg)
+{
+    ostr << "if_else(";
+    arg.cond_expr->accept(*this);
+    ostr << ", ";
+    arg.then_expr->accept(*this);
+    ostr << ", ";
+    arg.else_expr->accept(*this);
+    ostr << ")";
+}
 
 }  // namespace
 

@@ -1,72 +1,11 @@
 #pragma once
 
+#include <coek/util/option_cache.hpp>
 #include <coek/model/model.hpp>
 
 namespace coek {
 
 class NLPModelRepn;
-class OptionCacheRepn;
-
-class OptionCache {
-   public:
-    std::shared_ptr<OptionCacheRepn> options;
-
-   public:
-    OptionCache();
-
-    /** Get the value of an integer option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option name
-     * \param value   an integer value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(const std::string& option, int& value) const;
-    /** Get the value of a double option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option name
-     * \param value   a double value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(const std::string& option, double& value) const;
-    /** Get the value of a string option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option name
-     * \param value   a string value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(const std::string& option, std::string& value) const;
-
-    /** Set an integer option
-     *
-     * \param option  the option name
-     * \param value   the integer value
-     */
-    void set_option(const std::string& option, int value);
-    /** Set a double option
-     *
-     * \param option  the option name
-     * \param value   the double value
-     */
-    void set_option(const std::string& option, double value);
-    /** Set a string option
-     *
-     * \param option  the option name
-     * \param value   the string value
-     */
-    void set_option(const std::string& option, const std::string value);
-};
 
 /**
  * An optimization model that provides a view of a coek::Model
@@ -86,14 +25,36 @@ class NLPModel : public OptionCache {
      */
     NLPModel(Model& model, std::string type);
 
-    /** Initialize the NLP model view
+    /** Initialize the NLP model view.
+     *
+     * This method sets up the NLP model representation for a
+     * coek::Model object, including data structures for
+     * automatic differentiation.
+     *
+     * After calling this method, the NLP model can be used
+     * to perform optimization. However, subsequent changes to
+     * the coek::Model data may require a call to the
+     * NLPModel::reset() method before optimizing.
      *
      * \param model  a coek::Model
      * \param type  the type of AD used for computations
      */
     void initialize(Model& model, std::string type);
 
-    /** TODO - maybe this should be called 'update' */
+    /** Update the NLP model representation.
+     *
+     * This method updates the NLP model representation to
+     * account for changes in the coek::Model data. Changes to
+     * parameter values and the values of fixed variables can
+     * impact the data structures used to evaluate expressions
+     * and perform automatic differentiation.
+     *
+     * This method needs to be called before Solver::solve() if
+     * these data values are changed after calling
+     * NLPModel::initialize().  However, this method is
+     * automatically called by Solver::resolve() unless a flag
+     * is passed to suppress this step.
+     */
     void reset();
 
     /** \returns the number of variables in the model */

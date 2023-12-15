@@ -324,6 +324,38 @@ SECTION("divide")
     }
 }
 
+SECTION("if_else")
+{
+    WHEN("parameter")
+    {
+        coek::Model m;
+        auto p = coek::parameter();
+        auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
+        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);
+        coek::Expression e = if_else(p, w, v);
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn, v.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
+    }
+    WHEN("conditional")
+    {
+        coek::Model m;
+        auto p = coek::parameter();
+        auto w = m.add_variable("w").lower(0).upper(1).value(0).fixed(true);
+        auto v = m.add_variable("v").lower(0).upper(1).value(0).fixed(true);
+        coek::Expression e = if_else(p > 0, w, v);
+        mutable_values(e.repn, fixed_vars, params, visited_subexpressions);
+
+        static std::unordered_set<std::shared_ptr<coek::VariableTerm>> vbaseline{w.repn, v.repn};
+        static std::unordered_set<std::shared_ptr<coek::ParameterTerm>> pbaseline{p.repn};
+        REQUIRE(fixed_vars == vbaseline);
+        REQUIRE(params == pbaseline);
+    }
+}
+
 SECTION("coverage")
 {
     WHEN("variable partial plus monomial - 1")

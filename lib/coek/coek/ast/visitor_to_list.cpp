@@ -59,6 +59,7 @@ class ToListVisitor : public Visitor {
     void visit(ATanhTerm& arg);
     void visit(PowTerm& arg);
     void visit(SumExpressionTerm& arg);
+    void visit(IfThenElseTerm& arg);
 };
 
 void ToListVisitor::visit(ConstantTerm& arg)
@@ -255,6 +256,16 @@ void ToListVisitor::visit(SumExpressionTerm&)
 {
     repr.push_back("[");
     repr.push_back("Sum");
+    repr.push_back("]");
+}
+
+void ToListVisitor::visit(IfThenElseTerm& arg)
+{
+    repr.push_back("[");
+    repr.push_back("If");
+    arg.cond_expr->accept(*this);
+    arg.then_expr->accept(*this);
+    arg.else_expr->accept(*this);
     repr.push_back("]");
 }
 
