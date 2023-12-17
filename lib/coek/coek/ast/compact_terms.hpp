@@ -21,7 +21,6 @@ class ParameterRefTerm : public BaseParameterTerm {
                      void* _param);
 
     double _eval() const { throw std::runtime_error("Cannot evaluate a ParameterRefTerm"); }
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return ParameterRefTerm_id; }
 };
 
@@ -36,7 +35,6 @@ class VariableRefTerm : public BaseVariableTerm {
                     void* _var);
 
     double _eval() const { throw std::runtime_error("Cannot evaluate a VariableRefTerm"); }
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return VariableRefTerm_id; }
 };
 

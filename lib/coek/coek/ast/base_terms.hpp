@@ -10,7 +10,6 @@
 
 namespace coek {
 
-class Visitor;
 class BaseExpressionTerm;
 
 // SHARED_PTR
@@ -36,7 +35,6 @@ class BaseExpressionTerm {
 
     virtual expr_pointer_t const_mult(double coef, const expr_pointer_t& repn);
     virtual expr_pointer_t negate(const expr_pointer_t& repn);
-    virtual void accept(Visitor& v) = 0;
     virtual term_id id() = 0;
     std::list<std::string> to_list();
 };
@@ -57,7 +55,6 @@ class ConstantTerm : public BaseExpressionTerm {
 
     expr_pointer_t negate(const expr_pointer_t& repn);
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return ConstantTerm_id; }
 };
 

@@ -104,7 +104,6 @@ class SubExpressionTerm : public UnaryTerm {
             return name;
     }
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return SubExpressionTerm_id; }
 };
 
@@ -118,7 +117,6 @@ class NegateTerm : public UnaryTerm {
 
     double _eval() const { return -body->_eval(); }
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return NegateTerm_id; }
 };
 
@@ -140,7 +138,6 @@ class PlusTerm : public NAryPrefixTerm {
         return ans;
     }
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return PlusTerm_id; }
 };
 
@@ -154,7 +151,6 @@ class TimesTerm : public BinaryTerm {
 
     double _eval() const { return lhs->_eval() * rhs->_eval(); }
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return TimesTerm_id; }
 };
 
@@ -168,7 +164,6 @@ class DivideTerm : public BinaryTerm {
 
     double _eval() const { return lhs->_eval() / rhs->_eval(); }
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return DivideTerm_id; }
 };
 
@@ -183,7 +178,6 @@ class DivideTerm : public BinaryTerm {
                                                                        \
         double _eval() const { return ::FN(body->_eval()); }           \
                                                                        \
-        void accept(Visitor& v) { v.visit(*this); }                    \
         term_id id() { return TERM##_id; }                             \
     };
 
@@ -231,7 +225,6 @@ UNARY_CLASS(atanh, ATanhTerm)
                                                                                              \
         double _eval() const { return ::FN(lhs->_eval(), rhs->_eval()); }                    \
                                                                                              \
-        void accept(Visitor& v) { v.visit(*this); }                                          \
         term_id id() { return TERM##_id; }                                                   \
     };
 
@@ -254,7 +247,6 @@ class IfThenElseTerm : public ExpressionTerm {
 
     double _eval() const { return cond_expr->_eval() ? then_expr->_eval() : else_expr->_eval(); }
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return IfThenElseTerm_id; }
 
     size_t num_expressions() const { return 3; }
@@ -266,6 +258,22 @@ class IfThenElseTerm : public ExpressionTerm {
             return then_expr;
         return else_expr;
     }
+};
+
+//
+// Class used in NL writer
+//
+class DefinedValueTerm : public BaseExpressionTerm {
+   public:
+    unsigned int index = 0;
+
+    DefinedValueTerm(unsigned int _index) : index(_index) {}
+
+    bool is_expression() const { return true; }
+
+    double _eval() const { return 0.0; }
+
+    term_id id() { return DefinedValueTerm_id; }
 };
 
 }  // namespace coek
