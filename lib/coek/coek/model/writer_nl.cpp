@@ -27,6 +27,7 @@
 #include "coek/api/objective.hpp"
 #include "coek/model/model.hpp"
 #include "coek/util/sequence.hpp"
+#include "coek/util/cast_utils.hpp"
 #include "coek/util/io_utils.hpp"
 #include "model_repn.hpp"
 
@@ -42,19 +43,109 @@ void check_that_expression_variables_are_declared(Model& model,
 
 namespace {
 
-double _max(double v1, double v2)
+template <class RETURNTYPE, class TYPE, class TYPE2>
+RETURNTYPE _max(TYPE v1, TYPE2 v2)
 {
-    if (v1 < v2) return v2;
-    return v1;
+    if (v1 < v2) return static_cast<RETURNTYPE>(v2);
+    return static_cast<RETURNTYPE>(v1);
 }
 
-#if 0
-struct UnknownVariable : public std::exception
+#define VISIT_CASE(TERM)          \
+    case TERM##_id:               \
+        visit_##TERM(expr, data); \
+        break;
+
+template <class VisitorType>
+void visit_expression(const expr_pointer_t& expr, VisitorType& data)
 {
-    const char * what () const throw ()
-        { return "Unknown variable encountered"; }
-};
+    switch (expr->id()) {
+        VISIT_CASE(ConstantTerm);
+        VISIT_CASE(ParameterTerm);
+        VISIT_CASE(IndexParameterTerm);
+        VISIT_CASE(VariableTerm);
+#if __cpp_lib_variant
+        VISIT_CASE(VariableRefTerm);
+        VISIT_CASE(ParameterRefTerm);
 #endif
+        VISIT_CASE(MonomialTerm);
+        VISIT_CASE(InequalityTerm);
+        VISIT_CASE(EqualityTerm);
+        VISIT_CASE(ObjectiveTerm);
+        VISIT_CASE(SubExpressionTerm);
+        VISIT_CASE(DefinedValueTerm);
+        VISIT_CASE(NegateTerm);
+        VISIT_CASE(PlusTerm);
+        VISIT_CASE(TimesTerm);
+        VISIT_CASE(DivideTerm);
+        VISIT_CASE(AbsTerm);
+        VISIT_CASE(CeilTerm);
+        VISIT_CASE(FloorTerm);
+        VISIT_CASE(ExpTerm);
+        VISIT_CASE(LogTerm);
+        VISIT_CASE(Log10Term);
+        VISIT_CASE(SqrtTerm);
+        VISIT_CASE(SinTerm);
+        VISIT_CASE(CosTerm);
+        VISIT_CASE(TanTerm);
+        VISIT_CASE(SinhTerm);
+        VISIT_CASE(CoshTerm);
+        VISIT_CASE(TanhTerm);
+        VISIT_CASE(ASinTerm);
+        VISIT_CASE(ACosTerm);
+        VISIT_CASE(ATanTerm);
+        VISIT_CASE(ASinhTerm);
+        VISIT_CASE(ACoshTerm);
+        VISIT_CASE(ATanhTerm);
+        VISIT_CASE(PowTerm);
+        VISIT_CASE(IfThenElseTerm);
+
+        // GCOVR_EXCL_START
+        default:
+            throw std::runtime_error(
+                "Error in write_nl visitor!  Visiting unexpected expression term "
+                + std::to_string(expr->id()));
+            // GCOVR_EXCL_STOP
+    };
+}
+
+// GCOVR_EXCL_START
+template <class TYPE>
+inline void visit_IndexParameterTerm(const expr_pointer_t&, TYPE&)
+{
+    throw std::runtime_error(
+        "Encountered an index parameter when printing an expression.  This error should have been "
+        "caught earlier!");
+}
+
+#if __cpp_lib_variant
+template <class TYPE>
+inline void visit_ParameterRefTerm(const expr_pointer_t&, TYPE&)
+{
+    throw std::runtime_error("Cannot write an NL file using an abstract expression!");
+}
+
+template <class TYPE>
+inline void visit_VariableRefTerm(const expr_pointer_t&, TYPE&)
+{
+    throw std::runtime_error("Cannot write an NL file using an abstract expression!");
+}
+#endif
+
+template <class TYPE>
+inline void visit_ObjectiveTerm(const expr_pointer_t&, TYPE&)
+{
+    throw std::runtime_error(
+        "Encountered an objective when printing an expression.  This error should have been caught "
+        "earlier!");
+}
+// GCOVR_EXCL_STOP
+
+template <class TYPE>
+inline void visit_SubExpressionTerm(const expr_pointer_t& expr, TYPE& data)
+{
+    auto tmp = safe_pointer_cast<SubExpressionTerm>(expr);
+    visit_expression(tmp->body, data);
+}
 
 //
 //
@@ -64,195 +155,145 @@ struct UnknownVariable : public std::exception
 
 void format(std::ostream& ostr, double value) { ostr << std::setprecision(16) << value; }
 
-class PrintExpr : public Visitor {
+class OStreamVisitorData {
    public:
     std::ostream& ostr;
     const std::unordered_map<ITYPE, ITYPE>& varmap;
 
    public:
-    PrintExpr(std::ostream& _ostr, const std::unordered_map<ITYPE, ITYPE>& _varmap)
+    OStreamVisitorData(std::ostream& _ostr, const std::unordered_map<ITYPE, ITYPE>& _varmap)
         : ostr(_ostr), varmap(_varmap)
     {
     }
-
-    void visit(ConstantTerm& arg);
-    void visit(ParameterTerm& arg);
-    void visit(IndexParameterTerm& arg);
-    void visit(VariableTerm& arg);
-#if __cpp_lib_variant
-    void visit(ParameterRefTerm& arg);
-    void visit(VariableRefTerm& arg);
-#endif
-    void visit(MonomialTerm& arg);
-    void visit(InequalityTerm& arg);
-    void visit(EqualityTerm& arg);
-    void visit(ObjectiveTerm& arg);
-    void visit(SubExpressionTerm& arg);
-    void visit(NegateTerm& arg);
-    void visit(PlusTerm& arg);
-    void visit(TimesTerm& arg);
-    void visit(DivideTerm& arg);
-    void visit(AbsTerm& arg);
-    void visit(CeilTerm& arg);
-    void visit(FloorTerm& arg);
-    void visit(ExpTerm& arg);
-    void visit(LogTerm& arg);
-    void visit(Log10Term& arg);
-    void visit(SqrtTerm& arg);
-    void visit(SinTerm& arg);
-    void visit(CosTerm& arg);
-    void visit(TanTerm& arg);
-    void visit(SinhTerm& arg);
-    void visit(CoshTerm& arg);
-    void visit(TanhTerm& arg);
-    void visit(ASinTerm& arg);
-    void visit(ACosTerm& arg);
-    void visit(ATanTerm& arg);
-    void visit(ASinhTerm& arg);
-    void visit(ACoshTerm& arg);
-    void visit(ATanhTerm& arg);
-    void visit(PowTerm& arg);
-    void visit(IfThenElseTerm& arg);
 };
 
-void PrintExpr::visit(ConstantTerm& arg)
+inline void visit_ConstantTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
 {
-    ostr << "n";
-    format(ostr, arg.value);
-    ostr << '\n';
+    auto tmp = safe_pointer_cast<ConstantTerm>(expr);
+    data.ostr << "n";
+    format(data.ostr, tmp->value);
+    data.ostr << '\n';
 }
 
-void PrintExpr::visit(ParameterTerm& arg)
+inline void visit_ParameterTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
 {
-    ostr << "n";
-    format(ostr, arg.eval());
-    ostr << '\n';
+    auto tmp = safe_pointer_cast<ParameterTerm>(expr);
+    data.ostr << "n";
+    format(data.ostr, tmp->eval());
+    data.ostr << '\n';
 }
 
-// GCOVR_EXCL_START
-void PrintExpr::visit(IndexParameterTerm&)
+inline void visit_VariableTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
 {
-    throw std::runtime_error(
-        "Encountered an index parameter when printing an expression.  This error should have been "
-        "caught earlier!");
-}
-// GCOVR_EXCL_STOP
-
-void PrintExpr::visit(VariableTerm& arg)
-{
-    if (arg.fixed)
-        ostr << "n" << arg.eval() << '\n';
+    auto tmp = safe_pointer_cast<VariableTerm>(expr).get();
+    if (tmp->fixed)
+        data.ostr << "n" << tmp->eval() << '\n';
     else
-        ostr << "v" << varmap.at(arg.index) << '\n';
+        data.ostr << "v" << data.varmap.at(tmp->index) << '\n';
 }
 
-#if __cpp_lib_variant
-void PrintExpr::visit(ParameterRefTerm&)
+inline void visit_MonomialTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
 {
-    throw std::runtime_error("Cannot write an NL file using an abstract expression!");
-}
-
-void PrintExpr::visit(VariableRefTerm&)
-{
-    throw std::runtime_error("Cannot write an NL file using an abstract expression!");
-}
-#endif
-
-void PrintExpr::visit(MonomialTerm& arg)
-{
-    ostr << "o2" << '\n';
-    ostr << "n";
-    format(ostr, arg.coef);
-    ostr << '\n';
-    if (arg.var->fixed)
-        ostr << "n" << arg.var->value->eval() << '\n';
+    auto tmp = safe_pointer_cast<MonomialTerm>(expr).get();
+    data.ostr << "o2" << '\n';
+    data.ostr << "n";
+    format(data.ostr, tmp->coef);
+    data.ostr << '\n';
+    if (tmp->var->fixed)
+        data.ostr << "n" << tmp->var->value->eval() << '\n';
     else
-        ostr << "v" << varmap.at(arg.var->index) << '\n';
+        data.ostr << "v" << data.varmap.at(tmp->var->index) << '\n';
 }
 
-// GCOVR_EXCL_START
-void PrintExpr::visit(InequalityTerm& arg)
+inline void visit_InequalityTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
 {
-    if (arg.lower and arg.upper) ostr << "o21" << '\n';  // and
+    auto tmp = safe_pointer_cast<InequalityTerm>(expr).get();
+    if (tmp->lower and tmp->upper) data.ostr << "o21" << '\n';  // and
 
-    if (arg.lower) {
-        if (arg.strict)
-            ostr << "o22" << '\n';  // lt
+    if (tmp->lower) {
+        if (tmp->strict)
+            data.ostr << "o22" << '\n';  // lt
         else
-            ostr << "o23" << '\n';  // le
-        arg.lower->accept(*this);
-        arg.body->accept(*this);
+            data.ostr << "o23" << '\n';  // le
+        visit_expression(tmp->lower, data);
+        visit_expression(tmp->body, data);
     }
 
-    if (arg.upper) {
-        if (arg.strict)
-            ostr << "o22" << '\n';  // lt
+    if (tmp->upper) {
+        if (tmp->strict)
+            data.ostr << "o22" << '\n';  // lt
         else
-            ostr << "o23" << '\n';  // le
-        arg.body->accept(*this);
-        arg.upper->accept(*this);
+            data.ostr << "o23" << '\n';  // le
+        visit_expression(tmp->body, data);
+        visit_expression(tmp->upper, data);
     }
 }
 
-void PrintExpr::visit(EqualityTerm& arg)
+inline void visit_EqualityTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
 {
-    ostr << "o24" << '\n';
-    arg.body->accept(*this);
-    arg.lower->accept(*this);
+    auto tmp = safe_pointer_cast<EqualityTerm>(expr).get();
+    data.ostr << "o24" << '\n';
+    visit_expression(tmp->body, data);
+    visit_expression(tmp->lower, data);
 }
 
-void PrintExpr::visit(ObjectiveTerm&)
+inline void visit_DefinedValueTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
 {
-    throw std::runtime_error(
-        "Encountered an objective when printing an expression.  This error should have been caught "
-        "earlier!");
+    auto tmp = safe_pointer_cast<DefinedValueTerm>(expr).get();
+    data.ostr << "v" << data.varmap.at(tmp->index) << '\n';
 }
-// GCOVR_EXCL_STOP
 
-void PrintExpr::visit(SubExpressionTerm& arg) { arg.body->accept(*this); }
-
-void PrintExpr::visit(NegateTerm& arg)
+inline void visit_NegateTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
 {
-    if (arg.body->is_constant()) {
-        ostr << "n";
-        format(ostr, -arg.body->eval());
-        ostr << "\n";
+    auto tmp = safe_pointer_cast<NegateTerm>(expr).get();
+    if (tmp->body->is_constant()) {
+        data.ostr << "n";
+        format(data.ostr, -tmp->body->eval());
+        data.ostr << "\n";
     }
     else {
-        ostr << "o16\n";
-        arg.body->accept(*this);
+        data.ostr << "o16\n";
+        visit_expression(tmp->body, data);
     }
 }
 
-void PrintExpr::visit(PlusTerm& arg)
+inline void visit_PlusTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
 {
-    if (arg.n == 2)
-        ostr << "o0\n";
-    else
-        ostr << "o54\n" << arg.n << '\n';
-    std::vector<expr_pointer_t>& vec = *(arg.data);
-    for (size_t i = 0; i < arg.num_expressions(); ++i) vec[i]->accept(*this);
+    auto tmp = safe_pointer_cast<PlusTerm>(expr).get();
+    if (tmp->n == 2) {
+        data.ostr << "o0\n";
+        visit_expression((*tmp->data)[0], data);
+        visit_expression((*tmp->data)[1], data);
+    }
+    else {
+        data.ostr << "o54\n" << tmp->n << '\n';
+        auto it = tmp->data->begin();
+        for (size_t i = 0; i < tmp->n; ++i, ++it) visit_expression(*it, data);
+    }
 }
 
-void PrintExpr::visit(TimesTerm& arg)
+inline void visit_TimesTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
 {
-    ostr << "o2\n";
-    arg.lhs->accept(*this);
-    arg.rhs->accept(*this);
+    auto tmp = safe_pointer_cast<TimesTerm>(expr).get();
+    data.ostr << "o2\n";
+    visit_expression(tmp->lhs, data);
+    visit_expression(tmp->rhs, data);
 }
 
-void PrintExpr::visit(DivideTerm& arg)
+inline void visit_DivideTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
 {
-    ostr << "o3\n";
-    arg.lhs->accept(*this);
-    arg.rhs->accept(*this);
+    auto tmp = safe_pointer_cast<DivideTerm>(expr).get();
+    data.ostr << "o3\n";
+    visit_expression(tmp->lhs, data);
+    visit_expression(tmp->rhs, data);
 }
 
-#define PrintExpr_FN(FN, TERM)       \
-    void PrintExpr::visit(TERM& arg) \
-    {                                \
-        ostr << #FN << '\n';         \
-        arg.body->accept(*this);     \
+#define PrintExpr_FN(FN, TERM)                                                     \
+    inline void visit_##TERM(const expr_pointer_t& expr, OStreamVisitorData& data) \
+    {                                                                              \
+        auto tmp = safe_pointer_cast<TERM>(expr);                                  \
+        data.ostr << #FN << '\n';                                                  \
+        visit_expression(tmp->body, data);                                         \
     }
 
 // clang-format off
@@ -277,19 +318,21 @@ PrintExpr_FN(o52, ACoshTerm)
 PrintExpr_FN(o47, ATanhTerm)
     // clang-format on
 
-    void PrintExpr::visit(PowTerm& arg)
+    inline void visit_PowTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
 {
-    ostr << "o5\n";
-    arg.lhs->accept(*this);
-    arg.rhs->accept(*this);
+    auto tmp = safe_pointer_cast<PowTerm>(expr).get();
+    data.ostr << "o5\n";
+    visit_expression(tmp->lhs, data);
+    visit_expression(tmp->rhs, data);
 }
 
-void PrintExpr::visit(IfThenElseTerm& arg)
+inline void visit_IfThenElseTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
 {
-    ostr << "o35\n";
-    arg.cond_expr->accept(*this);
-    arg.then_expr->accept(*this);
-    arg.else_expr->accept(*this);
+    auto tmp = safe_pointer_cast<IfThenElseTerm>(expr).get();
+    data.ostr << "o35\n";
+    visit_expression(tmp->cond_expr, data);
+    visit_expression(tmp->then_expr, data);
+    visit_expression(tmp->else_expr, data);
 }
 
 //
@@ -300,55 +343,16 @@ void PrintExpr::visit(IfThenElseTerm& arg)
 
 #ifdef WITH_FMTLIB
 
-class PrintExprFmtlib : public Visitor {
+class FMTVisitorData {
    public:
     fmt::ostream& ostr;
     const std::unordered_map<ITYPE, ITYPE>& varmap;
 
    public:
-    PrintExprFmtlib(fmt::ostream& _ostr, const std::unordered_map<ITYPE, ITYPE>& _varmap)
+    FMTVisitorData(fmt::ostream& _ostr, const std::unordered_map<ITYPE, ITYPE>& _varmap)
         : ostr(_ostr), varmap(_varmap)
     {
     }
-
-    void visit(ConstantTerm& arg);
-    void visit(ParameterTerm& arg);
-    void visit(IndexParameterTerm& arg);
-    void visit(VariableTerm& arg);
-#    if __cpp_lib_variant
-    void visit(ParameterRefTerm& arg);
-    void visit(VariableRefTerm& arg);
-#    endif
-    void visit(MonomialTerm& arg);
-    void visit(InequalityTerm& arg);
-    void visit(EqualityTerm& arg);
-    void visit(ObjectiveTerm& arg);
-    void visit(SubExpressionTerm& arg);
-    void visit(NegateTerm& arg);
-    void visit(PlusTerm& arg);
-    void visit(TimesTerm& arg);
-    void visit(DivideTerm& arg);
-    void visit(AbsTerm& arg);
-    void visit(CeilTerm& arg);
-    void visit(FloorTerm& arg);
-    void visit(ExpTerm& arg);
-    void visit(LogTerm& arg);
-    void visit(Log10Term& arg);
-    void visit(SqrtTerm& arg);
-    void visit(SinTerm& arg);
-    void visit(CosTerm& arg);
-    void visit(TanTerm& arg);
-    void visit(SinhTerm& arg);
-    void visit(CoshTerm& arg);
-    void visit(TanhTerm& arg);
-    void visit(ASinTerm& arg);
-    void visit(ACosTerm& arg);
-    void visit(ATanTerm& arg);
-    void visit(ASinhTerm& arg);
-    void visit(ACoshTerm& arg);
-    void visit(ATanhTerm& arg);
-    void visit(PowTerm& arg);
-    void visit(IfThenElseTerm& arg);
 };
 
 constexpr auto _fmtstr_value = FMT_COMPILE("{}\n");
@@ -358,130 +362,125 @@ constexpr auto _fmtstr_o54 = FMT_COMPILE("o54\n{}\n");
 constexpr auto _fmtstr_o2 = FMT_COMPILE("o2\nn{}\n");
 constexpr auto _fmtstr_2vals = FMT_COMPILE("{} {}\n");
 
-void PrintExprFmtlib::visit(ConstantTerm& arg) { ostr.print(fmt::format(_fmtstr_n, arg.value)); }
-
-void PrintExprFmtlib::visit(ParameterTerm& arg) { ostr.print(fmt::format(_fmtstr_n, arg.eval())); }
-
-// GCOVR_EXCL_START
-void PrintExprFmtlib::visit(IndexParameterTerm&)
+inline void visit_ConstantTerm(const expr_pointer_t& expr, FMTVisitorData& data)
 {
-    throw std::runtime_error(
-        "Encountered an index parameter when printing an expression.  This error should have been "
-        "caught earlier!");
+    auto tmp = safe_pointer_cast<ConstantTerm>(expr);
+    data.ostr.print(fmt::format(_fmtstr_n, tmp->value));
 }
-// GCOVR_EXCL_STOP
 
-void PrintExprFmtlib::visit(VariableTerm& arg)
+inline void visit_ParameterTerm(const expr_pointer_t& expr, FMTVisitorData& data)
 {
-    if (arg.fixed)
-        ostr.print(fmt::format(_fmtstr_n, arg.eval()));
+    auto tmp = safe_pointer_cast<ParameterTerm>(expr);
+    data.ostr.print(fmt::format(_fmtstr_n, tmp->eval()));
+}
+
+inline void visit_VariableTerm(const expr_pointer_t& expr, FMTVisitorData& data)
+{
+    auto tmp = safe_pointer_cast<VariableTerm>(expr).get();
+    if (tmp->fixed)
+        data.ostr.print(fmt::format(_fmtstr_n, tmp->eval()));
     else
-        ostr.print(fmt::format(_fmtstr_v, varmap.at(arg.index)));
+        data.ostr.print(fmt::format(_fmtstr_v, data.varmap.at(tmp->index)));
 }
 
-#    if __cpp_lib_variant
-void PrintExprFmtlib::visit(ParameterRefTerm&)
+inline void visit_MonomialTerm(const expr_pointer_t& expr, FMTVisitorData& data)
 {
-    throw std::runtime_error("Cannot write an NL file using an abstract expression!");
-}
+    auto tmp = safe_pointer_cast<MonomialTerm>(expr).get();
+    data.ostr.print(fmt::format(_fmtstr_o2, tmp->coef));
 
-void PrintExprFmtlib::visit(VariableRefTerm&)
-{
-    throw std::runtime_error("Cannot write an NL file using an abstract expression!");
-}
-#    endif
-
-void PrintExprFmtlib::visit(MonomialTerm& arg)
-{
-    ostr.print(fmt::format(_fmtstr_o2, arg.coef));
-
-    if (arg.var->fixed)
-        ostr.print(fmt::format(_fmtstr_n, arg.var->value->eval()));
+    if (tmp->var->fixed)
+        data.ostr.print(fmt::format(_fmtstr_n, tmp->var->value->eval()));
     else
-        ostr.print(fmt::format(_fmtstr_v, varmap.at(arg.var->index)));
+        data.ostr.print(fmt::format(_fmtstr_v, data.varmap.at(tmp->var->index)));
 }
 
-// GCOVR_EXCL_START
-void PrintExprFmtlib::visit(InequalityTerm& arg)
+inline void visit_InequalityTerm(const expr_pointer_t& expr, FMTVisitorData& data)
 {
-    if (arg.lower and arg.upper) ostr.print("o21\n");  // and
+    auto tmp = safe_pointer_cast<InequalityTerm>(expr).get();
+    if (tmp->lower and tmp->upper) data.ostr.print("o21\n");  // and
 
-    if (arg.lower) {
-        if (arg.strict)
-            ostr.print("o22\n");  // lt
+    if (tmp->lower) {
+        if (tmp->strict)
+            data.ostr.print("o22\n");  // lt
         else
-            ostr.print("o23\n");  // le
-        arg.lower->accept(*this);
-        arg.body->accept(*this);
+            data.ostr.print("o23\n");  // le
+        visit_expression(tmp->lower, data);
+        visit_expression(tmp->body, data);
     }
 
-    if (arg.upper) {
-        if (arg.strict)
-            ostr.print("o22\n");  // lt
+    if (tmp->upper) {
+        if (tmp->strict)
+            data.ostr.print("o22\n");  // lt
         else
-            ostr.print("o23\n");  // le
-        arg.body->accept(*this);
-        arg.upper->accept(*this);
+            data.ostr.print("o23\n");  // le
+        visit_expression(tmp->body, data);
+        visit_expression(tmp->upper, data);
     }
 }
 
-void PrintExprFmtlib::visit(EqualityTerm& arg)
+inline void visit_EqualityTerm(const expr_pointer_t& expr, FMTVisitorData& data)
 {
-    ostr.print("o24\n");
-    arg.body->accept(*this);
-    arg.lower->accept(*this);
+    auto tmp = safe_pointer_cast<EqualityTerm>(expr).get();
+    data.ostr.print("o24\n");
+    visit_expression(tmp->body, data);
+    visit_expression(tmp->lower, data);
 }
 
-void PrintExprFmtlib::visit(ObjectiveTerm&)
+inline void visit_DefinedValueTerm(const expr_pointer_t& expr, FMTVisitorData& data)
 {
-    throw std::runtime_error(
-        "Encountered an objective when printing an expression.  This error should have been caught "
-        "earlier!");
+    auto tmp = safe_pointer_cast<DefinedValueTerm>(expr).get();
+    data.ostr.print(fmt::format(_fmtstr_v, data.varmap.at(tmp->index)));
 }
-// GCOVR_EXCL_STOP
 
-void PrintExprFmtlib::visit(SubExpressionTerm& arg) { arg.body->accept(*this); }
-
-void PrintExprFmtlib::visit(NegateTerm& arg)
+inline void visit_NegateTerm(const expr_pointer_t& expr, FMTVisitorData& data)
 {
-    if (arg.body->is_constant()) {
-        ostr.print(fmt::format(_fmtstr_n, -arg.body->eval()));
+    auto tmp = safe_pointer_cast<NegateTerm>(expr).get();
+    if (tmp->body->is_constant()) {
+        data.ostr.print(fmt::format(_fmtstr_n, -tmp->body->eval()));
     }
     else {
-        ostr.print("o16\n");
-        arg.body->accept(*this);
+        data.ostr.print("o16\n");
+        visit_expression(tmp->body, data);
     }
 }
 
-void PrintExprFmtlib::visit(PlusTerm& arg)
+inline void visit_PlusTerm(const expr_pointer_t& expr, FMTVisitorData& data)
 {
-    if (arg.n == 2)
-        ostr.print("o0\n");
-    else
-        ostr.print(fmt::format(_fmtstr_o54, arg.n));
-    std::vector<expr_pointer_t>& vec = *(arg.data);
-    for (size_t i = 0; i < arg.num_expressions(); ++i) vec[i]->accept(*this);
+    auto tmp = safe_pointer_cast<PlusTerm>(expr).get();
+    if (tmp->n == 2) {
+        data.ostr.print("o0\n");
+        visit_expression((*tmp->data)[0], data);
+        visit_expression((*tmp->data)[1], data);
+    }
+    else {
+        data.ostr.print(fmt::format(_fmtstr_o54, tmp->n));
+        auto it = tmp->data->begin();
+        for (size_t i = 0; i < tmp->n; ++i, ++it) visit_expression(*it, data);
+    }
 }
 
-void PrintExprFmtlib::visit(TimesTerm& arg)
+inline void visit_TimesTerm(const expr_pointer_t& expr, FMTVisitorData& data)
 {
-    ostr.print("o2\n");
-    arg.lhs->accept(*this);
-    arg.rhs->accept(*this);
+    auto tmp = safe_pointer_cast<TimesTerm>(expr).get();
+    data.ostr.print("o2\n");
+    visit_expression(tmp->lhs, data);
+    visit_expression(tmp->rhs, data);
 }
 
-void PrintExprFmtlib::visit(DivideTerm& arg)
+inline void visit_DivideTerm(const expr_pointer_t& expr, FMTVisitorData& data)
 {
-    ostr.print("o3\n");
-    arg.lhs->accept(*this);
-    arg.rhs->accept(*this);
+    auto tmp = safe_pointer_cast<DivideTerm>(expr).get();
+    data.ostr.print("o3\n");
+    visit_expression(tmp->lhs, data);
+    visit_expression(tmp->rhs, data);
 }
 
-#    define PrintExprFmt_FN(FN, TERM)          \
-        void PrintExprFmtlib::visit(TERM& arg) \
-        {                                      \
-            ostr.print(#FN "\n");              \
-            arg.body->accept(*this);           \
+#    define PrintExprFmt_FN(FN, TERM)                                              \
+        inline void visit_##TERM(const expr_pointer_t& expr, FMTVisitorData& data) \
+        {                                                                          \
+            auto tmp = safe_pointer_cast<TERM>(expr);                              \
+            data.ostr.print(#FN "\n");                                             \
+            visit_expression(tmp->body, data);                                     \
         }
 
 // clang-format off
@@ -508,19 +507,21 @@ PrintExprFmt_FN(o47, ATanhTerm)
 
     // clang-format on
 
-    void PrintExprFmtlib::visit(PowTerm& arg)
+    inline void visit_PowTerm(const expr_pointer_t& expr, FMTVisitorData& data)
 {
-    ostr.print("o5\n");
-    arg.lhs->accept(*this);
-    arg.rhs->accept(*this);
+    auto tmp = safe_pointer_cast<PowTerm>(expr).get();
+    data.ostr.print("o5\n");
+    visit_expression(tmp->lhs, data);
+    visit_expression(tmp->rhs, data);
 }
 
-void PrintExprFmtlib::visit(IfThenElseTerm& arg)
+inline void visit_IfThenElseTerm(const expr_pointer_t& expr, FMTVisitorData& data)
 {
-    ostr.print("o35\n");
-    arg.cond_expr->accept(*this);
-    arg.then_expr->accept(*this);
-    arg.else_expr->accept(*this);
+    auto tmp = safe_pointer_cast<IfThenElseTerm>(expr).get();
+    data.ostr.print("o35\n");
+    visit_expression(tmp->cond_expr, data);
+    visit_expression(tmp->then_expr, data);
+    visit_expression(tmp->else_expr, data);
 }
 
 #endif  // WITH_FMTLIB
@@ -579,8 +580,8 @@ void print_expr(std::ostream& ostr, const MutableNLPExpr& repn,
         }
     }
     if (nonlinear) {
-        PrintExpr visitor(ostr, varmap);
-        repn.nonlinear->accept(visitor);
+        OStreamVisitorData data(ostr, varmap);
+        visit_expression(repn.nonlinear, data);
     }
     if (objective and (fabs(cval) > EPSILON)) {
         ostr << "n";
@@ -641,8 +642,8 @@ void print_expr(fmt::ostream& ostr, const MutableNLPExpr& repn,
         }
     }
     if (nonlinear) {
-        PrintExprFmtlib visitor(ostr, varmap);
-        repn.nonlinear->accept(visitor);
+        FMTVisitorData data(ostr, varmap);
+        visit_expression(repn.nonlinear, data);
     }
     if (objective and (fabs(cval) > EPSILON)) {
         ostr.print(fmt::format(_fmtstr_n, cval));  // FORMAT
@@ -1065,7 +1066,7 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
         //
         ostr << "g3 1 1 0 # unnamed problem generated by COEK\n";
         ostr << " " << vars.size() << " " << (num_inequalities + num_equalities) << " "
-             << _max((size_t)1, o_expr.size()) << " " << num_ranges << " " << num_equalities
+             << _max<double>((size_t)1, o_expr.size()) << " " << num_ranges << " " << num_equalities
              << " 0 # vars, constraints, objectives, ranges, eqns, lcons\n";
         ostr << " " << nonl_constraints << " " << nonl_objectives
              << " # nonlinear constraints, objectives\n";
@@ -1275,8 +1276,8 @@ void NLWriter::write_fmtlib(Model& model, const std::string& fname)
     //
     ostr.print("g3 1 1 0 # unnamed problem generated by COEK\n");
     ostr.print(" {} {} {} {} {} 0 # vars, constraints, objectives, ranges, eqns, lcons\n",
-               vars.size(), (num_inequalities + num_equalities), _max((size_t)1, o_expr.size()),
-               num_ranges, num_equalities);
+               vars.size(), (num_inequalities + num_equalities),
+               _max<double>((size_t)1, o_expr.size()), num_ranges, num_equalities);
     ostr.print(" {} {} # nonlinear constraints, objectives\n", nonl_constraints, nonl_objectives);
     ostr.print(" 0 0 # network constraints: nonlinear, linear\n");
     ostr.print(" {} {} {} # nonlinear vars in constraints, objectives, both\n",

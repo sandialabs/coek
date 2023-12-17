@@ -25,7 +25,6 @@ class ObjectiveTerm : public BaseExpressionTerm {
 
     double _eval() const { return body->_eval(); }
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return ObjectiveTerm_id; }
 
     virtual std::string get_simple_name() { return "O[" + std::to_string(index) + "]"; }
@@ -115,7 +114,6 @@ class InequalityTerm : public ConstraintTerm {
         }
     }
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return InequalityTerm_id; }
 };
 
@@ -129,7 +127,6 @@ class EqualityTerm : public ConstraintTerm {
     bool is_equality() const { return true; }
     bool is_feasible() const { return body->eval() == lower->eval(); }
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return EqualityTerm_id; }
 };
 
@@ -139,7 +136,6 @@ class EmptyConstraintTerm : public ConstraintTerm {
 
     bool is_feasible() const { return true; }
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return EmptyConstraintTerm_id; }
 };
 
