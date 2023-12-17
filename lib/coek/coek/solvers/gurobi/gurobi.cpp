@@ -185,8 +185,7 @@ int GurobiSolver::solve(Model& model)
     }
 
     // All options are converted to strings for Gurobi
-    for (auto& it : string_options())
-        gmodel->set(it.first, it.second);
+    for (auto& it : string_options()) gmodel->set(it.first, it.second);
 
     try {
         gmodel->optimize();
@@ -307,8 +306,7 @@ int GurobiSolver::solve(CompactModel& compact_model)
 
     std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
     // All options are converted to strings for Gurobi
-    for (auto& it : string_options)
-        gmodel->set(it.first, it.second);
+    for (auto& it : string_options) gmodel->set(it.first, it.second);
     try {
         gmodel->optimize();
 
@@ -421,8 +419,7 @@ int GurobiSolver::resolve()
         }
 
         // All options are converted to strings for Gurobi
-        for (auto& option : string_options())
-            gmodel->set(option.first, option.second);
+        for (auto& option : string_options()) gmodel->set(option.first, option.second);
 
         try {
             gmodel->optimize();
