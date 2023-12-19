@@ -4,6 +4,9 @@ import os
 import os.path
 import sys
 import subprocess
+import signal
+
+default_timeout=300
 
 currdir = os.path.abspath(os.path.dirname(__file__))
 
@@ -95,7 +98,7 @@ def test_writer(
     suffixes,
     executable,
     subdir,
-    timeout=300,
+    timeout=default_timeout,
     ntrials=1,
     errors=[]
 ):
@@ -198,7 +201,7 @@ def test_writer(
 
 
 def test_solve0(
-    *, test_type, models, solvers, executable, subdir, timeout=300, ntrials=1, errors=[]
+    *, test_type, models, solvers, executable, subdir, timeout=default_timeout, ntrials=1, errors=[]
 ):
     if not os.path.exists("results"):
         os.mkdir("results")
@@ -265,21 +268,23 @@ def test_solve0(
                             executable,
                             solver,
                         ] + cmd
-                        results = subprocess.run(
-                            run, capture_output=True, timeout=timeout
-                        )
+                        p = subprocess.Popen(run, start_new_session=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        outs, errs = p.communicate(timeout=timeout)
+                        results = outs + errs
+
                         with open(logfile, "wb") as OUTPUT:
-                            OUTPUT.write(results.stdout)
-                        if results.returncode == 0:
-                            print(". OK {}: rc={}".format(timefile, results.returncode))
+                            OUTPUT.write(results)
+                        if p.returncode == 0:
+                            print(". OK {}: rc={}".format(timefile, p.returncode))
                         else:
                             print(
-                                ". ERROR {}: rc={}".format(timefile, results.returncode)
+                                ". ERROR {}: rc={}".format(timefile, p.returncode)
                             )
                             if os.path.exists(timefile):
                                 os.remove(timefile)
                             errors.append(timefile)
                     except subprocess.TimeoutExpired:
+                        os.killpg(os.getpgid(p.pid), signal.SIGTERM)
                         print(". TIMEOUT {}".format(timefile))
                         with open(timefile, "w") as OUTPUT:
                             OUTPUT.write("timeout {}".format(timeout))
