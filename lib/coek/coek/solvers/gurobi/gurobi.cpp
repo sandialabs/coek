@@ -479,7 +479,6 @@ int GurobiSolver::resolve()
     return 0;
 }
 
-
 void GurobiSolver::set_gurobi_options()
 {
     // All options are converted to strings for Gurobi
