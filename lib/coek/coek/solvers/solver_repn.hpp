@@ -90,7 +90,7 @@ class SolverRepn : public SolverCache, public OptionCache {
     void find_updated_coefs();
 };
 
-SolverRepn* create_solver(std::string& name);
+SolverRepn* create_solver(std::string& name, OptionCache& options);
 
 class NLPSolverRepn : public SolverCache, public OptionCache {
    public:

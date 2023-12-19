@@ -23,10 +23,7 @@ class GurobiSolver : public SolverRepn {
 #endif
 
    public:
-    bool get_option(const std::string& option, int& value) const;
-    bool get_option(const std::string& option, double& value) const;
-    void set_option(const std::string& option, int value);
-    void set_option(const std::string& option, double value);
+    void set_gurobi_options();
 };
 
 }  // namespace coek

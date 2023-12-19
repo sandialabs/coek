@@ -12,8 +12,8 @@ namespace coek {
 
 void Solver::initialize(std::string name)
 {
-    SolverRepn* tmp = create_solver(name);
-    if (tmp) repn = std::shared_ptr<SolverRepn>(tmp);
+    std::shared_ptr<SolverRepn> tmp(create_solver(name, *this));
+    repn = tmp;
 }
 
 bool Solver::available() const { return repn.get(); }

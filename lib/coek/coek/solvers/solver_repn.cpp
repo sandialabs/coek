@@ -55,13 +55,15 @@ void SolverCache::reset_cache()
     pcache.clear();
 }
 
-SolverRepn* create_solver(std::string& name)
+SolverRepn* create_solver(std::string& name, OptionCache& options)
 {
     if (name == "test") return new TestSolver();
 
 #ifdef WITH_GUROBI
     if (name == "gurobi") {
-        return new GurobiSolver();
+        auto tmp = new GurobiSolver();
+        tmp->set_options(options);
+        return tmp;
     }
 #endif
 
