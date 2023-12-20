@@ -8,6 +8,9 @@ from datetime import datetime
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dirname', type=str, required=True)
+    parser.add_argument('--branch_name', type=str, required=False, default='not provided')
+    parser.add_argument('--ci_commit_sha', type=str, required=False, default='not provided')
+    parser.add_argument('--ci_commit_title', type=str, required=False, default='not provided')
     args = parser.parse_args()
     return args
 
@@ -47,7 +50,10 @@ def write_csv(source_dir, test_type, increase_build_number):
     timestamp = datetime.fromtimestamp(modified).timestamp()
 
     row = {'build_number': build_number,
-           'timestamp': timestamp}
+           'timestamp': timestamp,
+           'branch_name': args.branch_name,
+           'ci_commit_sha': args.ci_commit_sha,
+           'ci_commit_title', args.ci_commit_title}
     for k, d in res['raw']['coek'].items():
         if k.startswith('_'):
             continue
