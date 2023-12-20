@@ -7,7 +7,7 @@ import statistics
 #import plotly.express as px
 import plotly.graph_objects as go
 import pprint
-import datetime
+from datetime import datetime
 
 
 def parse_args():
@@ -22,11 +22,7 @@ def compare(source_dir, test_type):
     args = parse_args()
     branches = [i for i in os.listdir(args.artifact_dir) if os.path.isdir(os.path.join(args.artifact_dir, i))]  # ['dev-private', 'dev-public', 'mt', 'nl2']
 
-    data = {}
-    mindate = None
-    maxdate = None
-    maxbuild = -1
-    maxvalue = -1.0
+    fig_list = list()
     for datadir in branches:
         branch_dir = os.path.join(args.artifact_dir, datadir)
 
@@ -35,39 +31,39 @@ def compare(source_dir, test_type):
         build_number = int(f.read())
         f.close()
 
-        tmp = {}
+        xlist = list()
+        ylist = list()
+        text_list = list()
         for num in range(build_number):
             running_fname = os.path.join(branch_dir, str(num), f'{test_type}_summary.csv')
+            if not os.path.exists(running_fname):
+                continue
             created = os.path.getctime(running_fname)
             with open(running_fname, 'r') as f:
                 reader = csv.DictReader(f)
                 for row in reader:
                     row.pop('build_number',0)
                     created = float(row.pop('timestamp', created))
-                    tmp[created] = statistics.mean(float(i) for i in row.values())
-                    maxbuild = max(num, maxbuild)
-                    maxvalue = max(tmp[created], maxvalue)
+                    branch_name = row.pop('branch_name', datadir)
+                    if branch_name == 'not provided':
+                        branch_name = datadir
+                    ci_commit_sha = row.pop('ci_commit_sha', 'not provided')
+                    ci_commit_title = row.pop('ci_commit_title', 'not provided')
+                    created_dt = datetime.fromtimestamp(created)
+                    xlist.append(created_dt)
+                    y = statistics.mean(float(i) for i in row.values())
+                    ylist.append(y)
+                    text_list.append(f'test type: {test_type}<br>branch: {branch_name}<br>commit: {ci_commit_title}<br>commit SHA: {ci_commit_sha}<br>date: {created_dt}')
                     break
-            if mindate is None or created < mindate:
-                mindate = created
-            if maxdate is None or created > maxdate:
-                maxdate = created
-            
-        data[datadir] = tmp
 
-    #print(mindate)
-    #print(maxdate)
-    #print(maxvalue)
-
-    fig_list = list()
-    for datadir in branches:
         fig_list.append(
             go.Scatter(
-                x=[datetime.datetime.fromtimestamp(key) for key in data[datadir]],
-                y=[data[datadir][key] for key in data[datadir]],
+                x=xlist,
+                y=ylist,
                 mode="lines+markers",
                 marker=dict(size=10),
                 name=f'{datadir}_{test_type}',
+                hovertext=text_list,
             )
         )
 
