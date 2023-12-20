@@ -36,6 +36,8 @@ def compare(source_dir, test_type):
         text_list = list()
         for num in range(build_number):
             running_fname = os.path.join(branch_dir, str(num), f'{test_type}_summary.csv')
+            if not os.path.exists(running_fname):
+                continue
             created = os.path.getctime(running_fname)
             with open(running_fname, 'r') as f:
                 reader = csv.DictReader(f)
