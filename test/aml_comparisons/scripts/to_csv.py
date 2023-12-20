@@ -53,7 +53,7 @@ def write_csv(source_dir, test_type, increase_build_number):
            'timestamp': timestamp,
            'branch_name': args.branch_name,
            'ci_commit_sha': args.ci_commit_sha,
-           'ci_commit_title', args.ci_commit_title}
+           'ci_commit_title': args.ci_commit_title}
     for k, d in res['raw']['coek'].items():
         if k.startswith('_'):
             continue
