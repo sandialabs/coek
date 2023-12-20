@@ -61,6 +61,8 @@ performance-tests:
             export BRANCH_NAME=$CI_COMMIT_BRANCH
           fi
     - source /root/.profile
+    - echo $CI_COMMIT_SHA
+    - echo $CI_COMMIT_TITLE
     - cd build
     - make coek_solve0
     - make coek_writer
