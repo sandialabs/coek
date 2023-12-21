@@ -122,6 +122,10 @@ void print_repn(std::ostream& ostr, const QuadraticExpr& repn,
 }
 
 #ifdef WITH_FMTLIB
+constexpr auto print_repn_fmt1 = FMT_COMPILE("{:+} x{}\n");
+constexpr auto print_repn_fmt_x2 = FMT_COMPILE("{:+} x{} ^ 2\n");
+constexpr auto print_repn_fmt_x_x = FMT_COMPILE("{:+} x{} * x{}\n");
+
 void print_repn(fmt::ostream& ostr, const QuadraticExpr& repn,
                 const std::unordered_map<size_t, size_t>& vid)
 {
@@ -138,19 +142,12 @@ void print_repn(fmt::ostream& ostr, const QuadraticExpr& repn,
                 curr->second += repn.linear_coefs[i];
             else
                 vval[index] = repn.linear_coefs[i];
-#    if 0
-        if (auto jt{ vval.find(index) };  jt != vval.end() )
-            jt->second += repn.linear_coefs[i];
-        else
-            vval[index ] = repn.linear_coefs[i];
-#    endif
             i++;
         }
 
-        constexpr auto _fmt = FMT_COMPILE("{:+} x{}\n");
         for (auto& it : vval) {
             double tmp = it.second;
-            if (tmp != 0) ostr.print(fmt::format(_fmt, tmp, it.first));
+            if (tmp != 0) ostr.print(fmt::format(print_repn_fmt1, tmp, it.first));
         }
     }
 
@@ -171,25 +168,19 @@ void print_repn(fmt::ostream& ostr, const QuadraticExpr& repn,
                 curr->second += repn.quadratic_coefs[ii];
             else
                 qval[tmp] = repn.quadratic_coefs[ii];
-#    if 0
-        if (auto it{ qval.find(tmp) };  it != qval.end() )
-            it->second += repn.quadratic_coefs[ii];
-        else
-            qval[ tmp ] = repn.quadratic_coefs[ii];
-#    endif
         }
 
         ostr.print("+ [\n");
-        constexpr auto _fmt_x2 = FMT_COMPILE("{:+} x{} ^ 2\n");
-        constexpr auto _fmt_x_x = FMT_COMPILE("{:+} x{} * x{}\n");
         for (auto& it : qval) {
             const std::pair<int, int>& tmp = it.first;
             double val = it.second;
-            if (tmp.first == tmp.second) {
-                if (val != 0) ostr.print(fmt::format(_fmt_x2, val, tmp.first));
-            }
-            else {
-                if (val != 0) ostr.print(fmt::format(_fmt_x_x, val, tmp.first, tmp.second));
+            if (val != 0) {
+                if (tmp.first == tmp.second) {
+                    ostr.print(fmt::format(print_repn_fmt_x2, val, tmp.first));
+                }
+                else {
+                    ostr.print(fmt::format(print_repn_fmt_x_x, val, tmp.first, tmp.second));
+                }
             }
         }
         ostr.print("]\n");
@@ -560,6 +551,11 @@ void LPWriter::print_objective(fmt::ostream& ostr, const Objective& obj)
 
 void LPWriter::print_st(fmt::ostream& ostr) { ostr.print("\nsubject to\n\n"); }
 
+constexpr auto con_fmt = FMT_COMPILE("c{}:\n");
+constexpr auto lt_fmt1 = FMT_COMPILE("{} <= ");
+constexpr auto lt_fmt2 = FMT_COMPILE(" <= {}");
+constexpr auto eq_fmt = FMT_COMPILE("= {}\n\n");
+
 void LPWriter::print_constraint(fmt::ostream& ostr, const Constraint& c, size_t ctr)
 {
     CALI_CXX_MARK_FUNCTION;
@@ -572,8 +568,7 @@ void LPWriter::print_constraint(fmt::ostream& ostr, const Constraint& c, size_t 
     auto lower = c.lower();
     auto upper = c.upper();
 
-    constexpr auto _fmt = FMT_COMPILE("c{}:\n");
-    ostr.print(fmt::format(_fmt, ctr));
+    ostr.print(fmt::format(con_fmt, ctr));
     ++ctr;
     CALI_MARK_END("collect_terms");
 
@@ -584,25 +579,27 @@ void LPWriter::print_constraint(fmt::ostream& ostr, const Constraint& c, size_t 
     if (not is_equality) {
         // CALI_MARK_BEGIN("IF");
         if (lower.repn) {
-            constexpr auto _fmt = FMT_COMPILE("{} <= ");
-            ostr.print(fmt::format(_fmt, lower.value() - tmp));
+            ostr.print(fmt::format(lt_fmt1, lower.value() - tmp));
         }
         print_repn(ostr, expr, vid);
         if (upper.repn) {
-            constexpr auto _fmt = FMT_COMPILE(" <= {}");
-            ostr.print(fmt::format(_fmt, upper.value() - tmp));
+            ostr.print(fmt::format(lt_fmt2, upper.value() - tmp));
         }
         ostr.print("\n\n");
         // CALI_MARK_END("IF");
     }
     else {
         print_repn(ostr, expr, vid);
-        CALI_MARK_BEGIN("ELSE");
-        constexpr auto _fmt = FMT_COMPILE("= {}\n\n");
-        ostr.print(fmt::format(_fmt, lower.value() - tmp));
-        CALI_MARK_END("ELSE");
+        //CALI_MARK_BEGIN("ELSE");
+        ostr.print(fmt::format(eq_fmt, lower.value() - tmp));
+        //CALI_MARK_END("ELSE");
     }
 }
+
+constexpr auto _fmt_x = FMT_COMPILE(" <= x{} <= ");
+constexpr auto _fmt_lb = FMT_COMPILE("{}");
+constexpr auto _fmt_ub = FMT_COMPILE("{}\n");
+constexpr auto _fmt_xval = FMT_COMPILE("x{}\n");
 
 void LPWriter::print_bounds(fmt::ostream& ostr)
 {
@@ -613,9 +610,6 @@ void LPWriter::print_bounds(fmt::ostream& ostr)
     }
 
     ostr.print("\nbounds\n");
-    constexpr auto _fmt_x = FMT_COMPILE(" <= x{} <= ");
-    constexpr auto _fmt_lb = FMT_COMPILE("{}");
-    constexpr auto _fmt_ub = FMT_COMPILE("{}\n");
     for (auto& v : variables) {
         if (v.is_binary())  // TODO - Confirm that this optimization is helpful
             continue;
@@ -635,14 +629,12 @@ void LPWriter::print_bounds(fmt::ostream& ostr)
 
     if (bvars.size() > 0) {
         ostr.print("\nbinary\n");
-        constexpr auto _fmt = FMT_COMPILE("x{}\n");
-        for (auto& it : bvars) ostr.print(fmt::format(_fmt, it.first));
+        for (auto& it : bvars) ostr.print(fmt::format(_fmt_xval, it.first));
     }
 
     if (ivars.size() > 0) {
         ostr.print("\ninteger\n");
-        constexpr auto _fmt = FMT_COMPILE("x{}\n");
-        for (auto& it : ivars) ostr.print(fmt::format(_fmt, it.first));
+        for (auto& it : ivars) ostr.print(fmt::format(_fmt_xval, it.first));
     }
 
     ostr.print("\nend\n");  // << std::endl;
