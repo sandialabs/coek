@@ -409,6 +409,48 @@ if __name__ == "__main__":
             errors=errors,
         )
 
+    elif sys.argv[1] == "bench_coek_big":
+        test_solve0(
+            test_type="big",
+            models=all_coek_models,
+            solvers=["gurobi"],
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_solve0"),
+            subdir="coek",
+            ntrials=ntrials,
+            errors=errors,
+        )
+        test_solve0(
+            test_type="big",
+            models=all_gurobi_models,
+            solvers=["gurobi"],
+            executable=os.path.join(
+                build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"
+            ),
+            subdir="gurobi",
+            ntrials=ntrials,
+            errors=errors,
+        )
+        test_writer(
+            test_type="big",
+            models=all_coek_models,
+            suffixes=["lp"],
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_writer"),
+            subdir="coek",
+            ntrials=ntrials,
+            errors=errors,
+        )
+        test_writer(
+            test_type="big",
+            models=all_gurobi_models,
+            suffixes=["lp"],
+            executable=os.path.join(
+                build_dir, "test/aml_comparisons/gurobi/gurobi_writer"
+            ),
+            subdir="gurobi",
+            ntrials=ntrials,
+            errors=errors,
+        )
+
     elif sys.argv[1] == "big_lp_writer":
         test_writer(
             test_type="big",
