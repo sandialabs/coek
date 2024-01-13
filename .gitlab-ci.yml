@@ -1,39 +1,37 @@
+default:
+  image: ubuntu_coek:latest
+
 stages:
-  - pre-check
   - build
   - test
-  - process
-
-variables:
-  ARTIFACTS_DIR: $ARTIFACTS_DIR
-
-temporary:
-  stage: pre-check
-  script:
-    - echo $CI_COMMIT_BRANCH
+  - pages_plot
 
 compile:
   stage: build
+  tags: ["docker"]
   script:
-    - pwd
-    - which g++
-    - which python
+    - source /root/.profile
     - mkdir build
     - cd build
     - cmake
+      -Dwith_asl=ON
       -Dwith_pybind11=ON
       -Dwith_cppad=ON
       -Dwith_tests=ON
-      -Dwith_python=ON
       -Dwith_gurobi=ON
-      -DGUROBI_LIBRARY=$GUROBI_LIBRARY/libgurobi95.so
-      -DGUROBI_INCLUDE_DIRS=$GUROBI_INCLUDE_DIRS
+      -DPython_EXECUTABLE=$PYTHON_DIR/python
+      -DGUROBI_LIBRARY=$GUROBI_LIBRARY/libgurobi100.so
+      -DGUROBI_INCLUDE_DIRS=$GUROBI_HOME/include
       -DGUROBI_CXX_LIBRARY=$GUROBI_LIBRARY/libgurobi_g++5.2.a
-      -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE
       -Dwith_compact=OFF
       -Dwith_docs=OFF ..
     - make install_tpls
+    - make -j8
     - make install
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev-public" && $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   artifacts:
     paths:
       - build
@@ -41,33 +39,78 @@ compile:
 
 unit-tests:
   stage: test
+  tags: ["docker"]
   script:
-    - pwd
+    - source /root/.profile
     - cd build
-    - ls
     - make test
   allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev-public" && $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
 
 performance-tests:
   stage: test
+  tags: ["docker"]
   script:
+    - |-
+          if [[ $CI_PIPELINE_SOURCE == "merge_request_event" ]]; then
+            export BRANCH_NAME=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+          else
+            export BRANCH_NAME=$CI_COMMIT_BRANCH
+          fi
+    - source /root/.profile
+    - echo $CI_COMMIT_SHA
+    - echo $CI_COMMIT_TITLE
     - cd build
     - make coek_solve0
     - make coek_writer
     - make gurobi_solve0
     - make gurobi_writer
-    - cd ../test/aml_comparisons/
+    - cd ..
+    - cp build/test/aml_comparisons/gurobi/gurobi_writer test/aml_comparisons/gurobi/
+    - cp build/test/aml_comparisons/gurobi/gurobi_solve0 test/aml_comparisons/gurobi/
+    - cp build/test/aml_comparisons/coek/coek_writer test/aml_comparisons/coek/
+    - cp build/test/aml_comparisons/coek/coek_solve0 test/aml_comparisons/coek/
+    - cd test/aml_comparisons/
     - mkdir build
     - cd build
     - ../scripts/run bench_coek 3
     - ../scripts/collect
     - ../scripts/dog solve0
     - ../scripts/dog writer
-    - python ../scripts/to_csv.py --dirname ${ARTIFACTS_DIR}${CI_COMMIT_BRANCH}
-    - python ../scripts/compare.py --artifact_dir=$ARTIFACTS_DIR --branch_name=$CI_COMMIT_BRANCH
+    - CI_COMMIT_TITLE_MOD="${CI_COMMIT_TITLE// /_}"
+    - python ../scripts/to_csv.py --dirname /coek_performance_results/${BRANCH_NAME} --branch_name ${BRANCH_NAME} --ci_commit_sha ${CI_COMMIT_SHA} --ci_commit_title ${CI_COMMIT_TITLE_MOD}
+    - python ../scripts/compare.py --artifact_dir=/coek_performance_results --branch_name=${BRANCH_NAME}
+    - tar -czvf perf_archive.tgz /coek_performance_results
+  cache:
+    key: perf-cache
+    paths:
+      - /coek_performance_results/*/*/*.csv
+      - /coek_performance_results/*/*/*.json
+      - /coek_performance_results/*/*.txt
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev-public" && $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   artifacts:
     expose_as: 'performance-trend'
     paths:
-      - test/aml_comparisons/build/solve0_trend.html
-      - test/aml_comparisons/build/writer_trend.html
+      - test/aml_comparisons/build/perf_trend.html
+      - test/aml_comparisons/build/perf_archive.tgz
     expire_in: 4 weeks
+
+pages:
+  stage: pages_plot
+  tags: ["docker"]
+  script:
+    - mkdir public
+    - mv test/aml_comparisons/build/perf_trend.html public/index.html
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev-public" && $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  artifacts:
+    paths:
+      - public

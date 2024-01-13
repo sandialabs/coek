@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "gurobi_c++.h"
 
 #include "models/gurobi_models.hpp"
 
@@ -54,9 +55,19 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    model.set(GRB_IntParam_OutputFlag, debug);
-    model.set(GRB_DoubleParam_TimeLimit, 0.0);
-    model.optimize();
+    try {
+        model.set(GRB_IntParam_OutputFlag, debug);
+        model.set(GRB_DoubleParam_TimeLimit, 0.0);
+        model.optimize();
+    }
+    catch (std::exception& e) {
+        std::cout << "ERROR - " << e.what() << std::endl;
+        return 2;
+    }
+    catch (GRBException& e) {
+        std::cout << "ERROR - " << e.getMessage() << std::endl;
+        return 3;
+    }
 
     return 0;
 }
