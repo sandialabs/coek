@@ -1,7 +1,24 @@
 # ChangeLog
 
-Here we list changes of Coek.  More detailed information about incremental changes can be found in the
-[commit history](https://github.com/sandialabs/coek/commits).
+Here we list changes of Coek.  More detailed information
+about incremental changes can be found in the [commit
+history](https://github.com/sandialabs/coek/commits).
+
+## 1.4
+
+* Added support for multithreaded model creation.
+* Fixed bug with ASL missing constraint bounds
+* Added option logic to autograd class hierarchy
+* Added option to specify sparse Jacobian in CppAD interface
+* Added option to specify temporary directory for ASL AD interface
+* Added option to remove temporary NL file in ASL AD interface
+* Fixed model resolve logic to avoid explicit calls to reset()
+* Consolidated option management
+* Added if_else() function
+* Consolidated automatic differentiation tests
+* Generalized performance comparison graphs to use dates for the x-axis
+* Updated performance plots showing relative performance
+* Reworked expression walkers to remove use of visitor logic
 
 ## 1.3
 

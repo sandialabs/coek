@@ -8,6 +8,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include <coek/util/option_cache.hpp>
 #include "coek/api/expression_visitor.hpp"
 #include "coek/model/model.hpp"
 #include "coek/model/compact_model.hpp"
@@ -24,10 +25,6 @@ class SolverCache {
     std::unordered_set<VariableTerm*> vupdates;
     std::unordered_set<ParameterTerm*> pupdates;
 
-    std::map<std::string, std::string> string_options;
-    std::map<std::string, int> integer_options;
-    std::map<std::string, double> double_options;
-
     //
     double tolerance;
     // Error flag
@@ -42,23 +39,7 @@ class SolverCache {
 
     virtual void find_updated_values();
 
-    // TODO - Move these get/set methods into a separate common SolverRepn base class.
-
-    virtual bool get_option(const std::string& option, int& value) const;
-    virtual bool get_option(const std::string& option, double& value) const;
-    virtual bool get_option(const std::string& option, std::string& value) const;
-    virtual bool get_option(int option, int& value) const;
-    virtual bool get_option(int option, double& value) const;
-    virtual bool get_option(int option, std::string& value) const;
-
-    virtual void set_option(const std::string& option, int value);
-    virtual void set_option(const std::string& option, double value);
-    virtual void set_option(const std::string& option, const std::string value);
-    virtual void set_option(int option, int value);
-    virtual void set_option(int option, double value);
-    virtual void set_option(int option, const std::string value);
-
-    virtual void reset();
+    virtual void reset_cache();
 
    protected:
     //
@@ -68,7 +49,7 @@ class SolverCache {
 //
 // The base solver class that defines the API used by Python
 //
-class SolverRepn : public SolverCache {
+class SolverRepn : public SolverCache, public OptionCache {
    public:
     Model model;
 
@@ -92,6 +73,8 @@ class SolverRepn : public SolverCache {
     SolverRepn(void) : SolverCache() {}
     virtual ~SolverRepn() {}
 
+    void set_options(OptionCache& _options) { options = _options.options; }
+
     virtual int solve(Model& model) = 0;
     virtual void load(Model& model);
 
@@ -100,31 +83,28 @@ class SolverRepn : public SolverCache {
     virtual void load(CompactModel& model);
 #endif
 
+    virtual void reset();
+    bool initial_solve();
     virtual int resolve() = 0;
 
-    bool initial_solve();
     void find_updated_coefs();
 };
 
-SolverRepn* create_solver(std::string& name);
+SolverRepn* create_solver(std::string& name, OptionCache& options);
 
-class NLPSolverRepn : public SolverCache {
+class NLPSolverRepn : public SolverCache, public OptionCache {
    public:
     NLPModel* model;
 
    public:
-    NLPSolverRepn(void) : SolverCache(), model(0) {}
+    NLPSolverRepn() : SolverCache(), model(0) {}
     virtual ~NLPSolverRepn() {}
 
-    virtual void load(NLPModel& _model)
-    {
-        model = &_model;
-        reset();
-    }
+    void set_options(OptionCache& _options) { options = _options.options; }
 
-    virtual int resolve() = 0;
+    virtual void load(NLPModel& _model) { model = &_model; }
 
-    virtual int solve(NLPModel& model) = 0;
+    virtual void reset() {}
 
     virtual bool initial_solve()
     {
@@ -135,10 +115,13 @@ class NLPSolverRepn : public SolverCache {
         else
             return false;
     }
+    virtual int solve(NLPModel& model) = 0;
+    int resolve(bool reset_nlpmodel);
+    virtual int resolve_exec() = 0;
 
     virtual bool available() { return true; }
 };
 
-NLPSolverRepn* create_nlpsolver(std::string& name);
+NLPSolverRepn* create_nlpsolver(std::string& name, OptionCache& options);
 
 }  // namespace coek

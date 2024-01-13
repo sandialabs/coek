@@ -3440,6 +3440,73 @@ TEST_CASE("intrinsics", "[smoke]")
         auto v = coek::variable("v").lower(0).upper(1).value(0);
         auto p = coek::parameter("p");
 
+        SECTION("Test if_else - constant zero")
+        {
+            coek::Expression constant(0);
+            coek::Expression e = if_else(constant, v + 1);
+            REQUIRE(e.value() == 0.0);
+
+            static std::list<std::string> baseline = {std::to_string(0.0)};
+            REQUIRE(e.to_list() == baseline);
+        }
+
+        SECTION("Test if_else - constant one")
+        {
+            coek::Expression constant(1);
+            coek::Expression e = if_else(constant, v + 1);
+            REQUIRE(e.value() == 1.0);
+
+            static std::list<std::string> baseline = {"[", "+", "v", std::to_string(1.0), "]"};
+            REQUIRE(e.to_list() == baseline);
+        }
+
+        SECTION("Test if_else")
+        {
+            coek::Expression e = if_else(p, v + 1, v - 1);
+
+            static std::list<std::string> baseline = {"[",
+                                                      "If",
+                                                      "p",
+                                                      "[",
+                                                      "+",
+                                                      "v",
+                                                      std::to_string(1.0),
+                                                      "]",
+                                                      "[",
+                                                      "+",
+                                                      "v",
+                                                      std::to_string(-1.0),
+                                                      "]",
+                                                      "]"};
+            REQUIRE(e.to_list() == baseline);
+        }
+
+        SECTION("Test if_else")
+        {
+            coek::Expression e = if_else(p > 0, v + 1, v - 1);
+
+            static std::list<std::string> baseline = {"[",
+                                                      "If",
+                                                      "[",
+                                                      "<",
+                                                      std::to_string(0.0),
+                                                      "p",
+                                                      "Inf",
+                                                      "]",
+                                                      "[",
+                                                      "+",
+                                                      "v",
+                                                      std::to_string(1.0),
+                                                      "]",
+                                                      "[",
+                                                      "+",
+                                                      "v",
+                                                      std::to_string(-1.0),
+                                                      "]",
+                                                      "]"};
+            REQUIRE(e.to_list() == baseline);
+        }
+
         SECTION("Test abs")
         {
             {

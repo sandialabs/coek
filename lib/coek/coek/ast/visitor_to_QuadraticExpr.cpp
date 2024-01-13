@@ -224,6 +224,21 @@ void visit(std::shared_ptr<DivideTerm>& expr, QuadraticExpr& repn, double multip
         repn.quadratic_coefs[i] /= rhs_repn.constval;
 }
 
+void visit(std::shared_ptr<IfThenElseTerm>& expr, QuadraticExpr& repn, double multiplier)
+{
+    QuadraticExpr cond_repn;
+    visit_expression(expr->cond_expr, cond_repn, 1.0);
+    if ((cond_repn.linear_coefs.size() + cond_repn.quadratic_coefs.size()) > 0)
+        throw std::runtime_error(
+            "Non-constant expressions in the condition of an if-then-else expression are "
+            "non-quadratic.");
+
+    if (cond_repn.constval)
+        visit_expression(expr->then_expr, repn, multiplier);
+    else
+        visit_expression(expr->else_expr, repn, multiplier);
+}
+
 #define UNARY_VISITOR(TERM, FN)                                                                    \
     void visit(std::shared_ptr<TERM>& expr, QuadraticExpr& repn, double multiplier)                \
     {                                                                                              \
@@ -356,6 +371,7 @@ void visit_expression(const expr_pointer_t& expr, QuadraticExpr& repn, double mu
         VISIT_CASE(PlusTerm);
         VISIT_CASE(TimesTerm);
         VISIT_CASE(DivideTerm);
+        VISIT_CASE(IfThenElseTerm);
         VISIT_CASE(AbsTerm);
         VISIT_CASE(CeilTerm);
         VISIT_CASE(FloorTerm);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <coek/util/option_cache.hpp>
 #include <coek/model/compact_model.hpp>
 #include <coek/model/model.hpp>
 #include <coek/model/nlp_model.hpp>
@@ -14,7 +15,7 @@ class NLPSolverRepn;
  *
  * These solvers can be used to optimize coek::Model objects.
  */
-class Solver {
+class Solver : public OptionCache {
    public:
     std::shared_ptr<SolverRepn> repn;
 
@@ -55,112 +56,6 @@ class Solver {
     int error_code() const;
     /** Returns a string error message*/
     std::string error_message() const;
-
-    // Solver Options
-
-    /** Get the value of an integer option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option name
-     * \param value   an integer value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(const std::string& option, int& value) const;
-    /** Get the value of a double option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option name
-     * \param value   a double value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(const std::string& option, double& value) const;
-    /** Get the value of a string option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option name
-     * \param value   a string value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(const std::string& option, std::string& value) const;
-    /** Get the value of an integer option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option integer id
-     * \param value   an integer value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(int option, int& value) const;
-    /** Get the value of a double option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option integer id
-     * \param value   a double value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(int option, double& value) const;
-    /** Get the value of a string option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option integer id
-     * \param value   a string value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(int option, std::string& value) const;
-
-    /** Set an integer option
-     *
-     * \param option  the option name
-     * \param value   the integer value
-     */
-    void set_option(const std::string& option, int value);
-    /** Set a double option
-     *
-     * \param option  the option name
-     * \param value   the double value
-     */
-    void set_option(const std::string& option, double value);
-    /** Set a string option
-     *
-     * \param option  the option name
-     * \param value   the string value
-     */
-    void set_option(const std::string& option, const std::string value);
-    /** Set an integer option
-     *
-     * \param option  the option integer id
-     * \param value   the integer value
-     */
-    void set_option(int option, int value);
-    /** Set a double option
-     *
-     * \param option  the option integer id
-     * \param value   the double value
-     */
-    void set_option(int option, double value);
-    /** Set a string option
-     *
-     * \param option  the option integer id
-     * \param value   the string value
-     */
-    void set_option(int option, const std::string value);
 };
 
 /**
@@ -168,7 +63,7 @@ class Solver {
  *
  * These solvers can be used to optimize coek::NLPModel objects.
  */
-class NLPSolver {
+class NLPSolver : public OptionCache {
    public:
     std::shared_ptr<NLPSolverRepn> repn;
 
@@ -194,7 +89,7 @@ class NLPSolver {
     /* Resolve a model that has been loaded
      *
      * \returns an error code that is nonzero if an error occurs */
-    int resolve();
+    int resolve(bool reset_nlpmodel = true);
     /** Resets the state of the optimizer */
     void reset();
 
@@ -204,110 +99,6 @@ class NLPSolver {
     int error_code() const;
     /** Returns a string error message*/
     std::string error_message() const;
-
-    /** Get the value of an integer option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option name
-     * \param value   an integer value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(const std::string& option, int& value) const;
-    /** Get the value of a double option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option name
-     * \param value   a double value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(const std::string& option, double& value) const;
-    /** Get the value of a string option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option name
-     * \param value   a string value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(const std::string& option, std::string& value) const;
-    /** Get the value of an integer option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option integer id
-     * \param value   an integer value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(int option, int& value) const;
-    /** Get the value of a double option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option integer id
-     * \param value   a double value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(int option, double& value) const;
-    /** Get the value of a string option
-     *
-     * The option value is returned by reference if it has
-     * a value.
-     *
-     * \param option  the option integer id
-     * \param value   a string value that is passed by reference
-     *
-     * \returns \c true if the option is found
-     */
-    bool get_option(int option, std::string& value) const;
-
-    /** Set an integer option
-     *
-     * \param option  the option name
-     * \param value   the integer value
-     */
-    void set_option(const std::string& option, int value);
-    /** Set a double option
-     *
-     * \param option  the option name
-     * \param value   the double value
-     */
-    void set_option(const std::string& option, double value);
-    /** Set a string option
-     *
-     * \param option  the option name
-     * \param value   the string value
-     */
-    void set_option(const std::string& option, const std::string value);
-    /** Set an integer option
-     *
-     * \param option  the option integer id
-     * \param value   the integer value
-     */
-    void set_option(int option, int value);
-    /** Set a double option
-     *
-     * \param option  the option integer id
-     * \param value   the double value
-     */
-    void set_option(int option, double value);
-    /** Set a string option
-     *
-     * \param option  the option integer id
-     * \param value   the string value
-     */
-    void set_option(int option, const std::string value);
 };
 
 }  // namespace coek

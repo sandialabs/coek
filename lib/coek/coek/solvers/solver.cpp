@@ -1,5 +1,4 @@
 #include "coek/solvers/solver.hpp"
-
 #include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/objective.hpp"
@@ -13,8 +12,8 @@ namespace coek {
 
 void Solver::initialize(std::string name)
 {
-    SolverRepn* tmp = create_solver(name);
-    if (tmp) repn = std::shared_ptr<SolverRepn>(tmp);
+    std::shared_ptr<SolverRepn> tmp(create_solver(name, *this));
+    repn = tmp;
 }
 
 bool Solver::available() const { return repn.get(); }
@@ -49,45 +48,13 @@ std::string Solver::error_message() const
     return repn->error_message;
 }
 
-bool Solver::get_option(const std::string& option, int& value) const
-{
-    return repn->get_option(option, value);
-}
-bool Solver::get_option(const std::string& option, double& value) const
-{
-    return repn->get_option(option, value);
-}
-bool Solver::get_option(const std::string& option, std::string& value) const
-{
-    return repn->get_option(option, value);
-}
-bool Solver::get_option(int option, int& value) const { return repn->get_option(option, value); }
-bool Solver::get_option(int option, double& value) const { return repn->get_option(option, value); }
-bool Solver::get_option(int option, std::string& value) const
-{
-    return repn->get_option(option, value);
-}
-
-void Solver::set_option(const std::string& option, int value) { repn->set_option(option, value); }
-void Solver::set_option(const std::string& option, double value)
-{
-    repn->set_option(option, value);
-}
-void Solver::set_option(const std::string& option, const std::string value)
-{
-    repn->set_option(option, value);
-}
-void Solver::set_option(int option, int value) { repn->set_option(option, value); }
-void Solver::set_option(int option, double value) { repn->set_option(option, value); }
-void Solver::set_option(int option, const std::string value) { repn->set_option(option, value); }
-
 //
 // NLPSolver
 //
 
 void NLPSolver::initialize(std::string name)
 {
-    std::shared_ptr<NLPSolverRepn> tmp(create_nlpsolver(name));
+    std::shared_ptr<NLPSolverRepn> tmp(create_nlpsolver(name, *this));
     repn = tmp;
 }
 
@@ -97,7 +64,7 @@ int NLPSolver::solve(NLPModel& model) { return repn->solve(model); }
 
 void NLPSolver::load(NLPModel& model) { repn->load(model); }
 
-int NLPSolver::resolve() { return repn->resolve(); }
+int NLPSolver::resolve(bool reset_nlpmodel) { return repn->resolve(reset_nlpmodel); }
 
 void NLPSolver::reset() { repn->reset(); }
 
@@ -116,43 +83,5 @@ std::string NLPSolver::error_message() const
     if (not repn.get()) return "Error constructing solver.";
     return repn->error_message;
 }
-
-bool NLPSolver::get_option(const std::string& option, int& value) const
-{
-    return repn->get_option(option, value);
-}
-bool NLPSolver::get_option(const std::string& option, double& value) const
-{
-    return repn->get_option(option, value);
-}
-bool NLPSolver::get_option(const std::string& option, std::string& value) const
-{
-    return repn->get_option(option, value);
-}
-bool NLPSolver::get_option(int option, int& value) const { return repn->get_option(option, value); }
-bool NLPSolver::get_option(int option, double& value) const
-{
-    return repn->get_option(option, value);
-}
-bool NLPSolver::get_option(int option, std::string& value) const
-{
-    return repn->get_option(option, value);
-}
-
-void NLPSolver::set_option(const std::string& option, int value)
-{
-    repn->set_option(option, value);
-}
-void NLPSolver::set_option(const std::string& option, double value)
-{
-    repn->set_option(option, value);
-}
-void NLPSolver::set_option(const std::string& option, const std::string value)
-{
-    repn->set_option(option, value);
-}
-void NLPSolver::set_option(int option, int value) { repn->set_option(option, value); }
-void NLPSolver::set_option(int option, double value) { repn->set_option(option, value); }
-void NLPSolver::set_option(int option, const std::string value) { repn->set_option(option, value); }
 
 }  // namespace coek

@@ -4,11 +4,19 @@ import os
 import os.path
 import sys
 import subprocess
+import signal
+
+default_timeout = 300
 
 currdir = os.path.abspath(os.path.dirname(__file__))
 
 config = {
-    "knapsack": {"small": ["50"], "medium": ["500"], "big": ["1000"], "all": ["50", "100", "500", "1000"]},
+    "knapsack": {
+        "small": ["50"],
+        "medium": ["500"],
+        "big": ["1000"],
+        "all": ["50", "100", "500", "1000"],
+    },
     "nqueens": {
         "small": ["400"],
         "medium": ["800"],
@@ -21,8 +29,18 @@ config = {
         "big": [["1280", "1"]],
         "all": [["160", "1"], ["320", "1"], ["640", "1"], ["1280", "1"]],
     },
-    "lqcp": {"small": ["500"], "medium": ["700"], "big": ["1500"], "all": ["500", "1000", "1500", "2000"]},
-    "fac": {"small": ["25"], "medium": ["50"], "big": ["100"], "all": ["25", "50", "75", "100"]},
+    "lqcp": {
+        "small": ["500"],
+        "medium": ["700"],
+        "big": ["1500"],
+        "all": ["500", "1000", "1500", "2000"],
+    },
+    "fac": {
+        "small": ["25"],
+        "medium": ["50"],
+        "big": ["100"],
+        "all": ["25", "50", "75", "100"],
+    },
     "srosenbr": {"small": ["10"], "medium": ["1000"], "big": ["100000"]},
 }
 
@@ -95,7 +113,7 @@ def test_writer(
     suffixes,
     executable,
     subdir,
-    timeout=300,
+    timeout=default_timeout,
     ntrials=1,
     errors=[]
 ):
@@ -173,32 +191,48 @@ def test_writer(
                         outfile,
                     ] + cmd
                     try:
-                        results = subprocess.run(
-                            run, capture_output=True, timeout=timeout
+                        p = subprocess.Popen(
+                            run,
+                            start_new_session=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
                         )
-                        if results.returncode == 0:
+                        outs, errs = p.communicate(timeout=timeout)
+                        results = outs + errs
+
+                        if p.returncode == 0:
                             print(
                                 ". OK {}: rc={} output='{}'".format(
-                                    timefile, results.returncode, results.stdout
+                                    timefile, p.returncode, results
                                 )
                             )
                         else:
                             print(
                                 ". ERROR {}: rc={} output='{}'".format(
-                                    timefile, results.returncode, results.stdout
+                                    timefile, p.returncode, results
                                 )
                             )
                             if os.path.exists(timefile):
                                 os.remove(timefile)
                             errors.append(timefile)
                     except subprocess.TimeoutExpired:
-                        print(". TIMEOUT {}".format(timefile))
+                        os.killpg(os.getpgid(p.pid), signal.SIGTERM)
+                        errors.append(timefile)
+                        print(". TIMEOUT {} cmd={}".format(timefile, " ".join(run)))
                         with open(timefile, "w") as OUTPUT:
                             OUTPUT.write("timeout {}".format(timeout))
 
 
 def test_solve0(
-    *, test_type, models, solvers, executable, subdir, timeout=300, ntrials=1, errors=[]
+    *,
+    test_type,
+    models,
+    solvers,
+    executable,
+    subdir,
+    timeout=default_timeout,
+    ntrials=1,
+    errors=[]
 ):
     if not os.path.exists("results"):
         os.mkdir("results")
@@ -265,22 +299,28 @@ def test_solve0(
                             executable,
                             solver,
                         ] + cmd
-                        results = subprocess.run(
-                            run, capture_output=True, timeout=timeout
+                        p = subprocess.Popen(
+                            run,
+                            start_new_session=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
                         )
+                        outs, errs = p.communicate(timeout=timeout)
+                        results = outs + errs
+
                         with open(logfile, "wb") as OUTPUT:
-                            OUTPUT.write(results.stdout)
-                        if results.returncode == 0:
-                            print(". OK {}: rc={}".format(timefile, results.returncode))
+                            OUTPUT.write(results)
+                        if p.returncode == 0:
+                            print(". OK {}: rc={}".format(timefile, p.returncode))
                         else:
-                            print(
-                                ". ERROR {}: rc={}".format(timefile, results.returncode)
-                            )
+                            print(". ERROR {}: rc={}".format(timefile, p.returncode))
                             if os.path.exists(timefile):
                                 os.remove(timefile)
                             errors.append(timefile)
                     except subprocess.TimeoutExpired:
-                        print(". TIMEOUT {}".format(timefile))
+                        os.killpg(os.getpgid(p.pid), signal.SIGTERM)
+                        errors.append(timefile)
+                        print(". TIMEOUT {} cmd={}".format(timefile, " ".join(run)))
                         with open(timefile, "w") as OUTPUT:
                             OUTPUT.write("timeout {}".format(timeout))
 
@@ -341,7 +381,9 @@ if __name__ == "__main__":
             test_type="medium",
             models=all_gurobi_models,
             solvers=["gurobi"],
-            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"),
+            executable=os.path.join(
+                build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"
+            ),
             subdir="gurobi",
             ntrials=ntrials,
             errors=errors,
@@ -359,7 +401,51 @@ if __name__ == "__main__":
             test_type="medium",
             models=all_gurobi_models,
             suffixes=["lp"],
-            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_writer"),
+            executable=os.path.join(
+                build_dir, "test/aml_comparisons/gurobi/gurobi_writer"
+            ),
+            subdir="gurobi",
+            ntrials=ntrials,
+            errors=errors,
+        )
+
+    elif sys.argv[1] == "bench_coek_big":
+        test_solve0(
+            test_type="big",
+            models=all_coek_models,
+            solvers=["gurobi"],
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_solve0"),
+            subdir="coek",
+            ntrials=ntrials,
+            errors=errors,
+        )
+        test_solve0(
+            test_type="big",
+            models=all_gurobi_models,
+            solvers=["gurobi"],
+            executable=os.path.join(
+                build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"
+            ),
+            subdir="gurobi",
+            ntrials=ntrials,
+            errors=errors,
+        )
+        test_writer(
+            test_type="big",
+            models=all_coek_models,
+            suffixes=["lp"],
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_writer"),
+            subdir="coek",
+            ntrials=ntrials,
+            errors=errors,
+        )
+        test_writer(
+            test_type="big",
+            models=all_gurobi_models,
+            suffixes=["lp"],
+            executable=os.path.join(
+                build_dir, "test/aml_comparisons/gurobi/gurobi_writer"
+            ),
             subdir="gurobi",
             ntrials=ntrials,
             errors=errors,
@@ -379,7 +465,9 @@ if __name__ == "__main__":
             test_type="big",
             models=all_gurobi_models,
             suffixes=["lp"],
-            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_writer"),
+            executable=os.path.join(
+                build_dir, "test/aml_comparisons/gurobi/gurobi_writer"
+            ),
             subdir="gurobi",
             ntrials=ntrials,
             errors=errors,
@@ -417,7 +505,9 @@ if __name__ == "__main__":
             test_type="small",
             models=all_gurobi_models,
             suffixes=["lp"],
-            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_writer"),
+            executable=os.path.join(
+                build_dir, "test/aml_comparisons/gurobi/gurobi_writer"
+            ),
             subdir="gurobi",
             ntrials=ntrials,
             errors=errors,
@@ -455,7 +545,9 @@ if __name__ == "__main__":
             test_type="all",
             models=all_gurobi_models,
             suffixes=["lp"],
-            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_writer"),
+            executable=os.path.join(
+                build_dir, "test/aml_comparisons/gurobi/gurobi_writer"
+            ),
             subdir="gurobi",
             ntrials=ntrials,
             errors=errors,
@@ -551,7 +643,9 @@ if __name__ == "__main__":
             test_type="big",
             models=all_gurobi_models,
             solvers=["gurobi"],
-            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"),
+            executable=os.path.join(
+                build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"
+            ),
             subdir="gurobi",
             ntrials=ntrials,
             errors=errors,
@@ -616,7 +710,9 @@ if __name__ == "__main__":
             test_type="small",
             models=all_gurobi_models,
             solvers=["gurobi"],
-            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"),
+            executable=os.path.join(
+                build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"
+            ),
             subdir="gurobi",
             ntrials=ntrials,
             errors=errors,
@@ -681,7 +777,9 @@ if __name__ == "__main__":
             test_type="all",
             models=all_gurobi_models,
             solvers=["gurobi"],
-            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"),
+            executable=os.path.join(
+                build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"
+            ),
             subdir="gurobi",
             ntrials=ntrials,
             errors=errors,

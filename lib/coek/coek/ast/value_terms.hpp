@@ -35,7 +35,6 @@ class ParameterTerm : public BaseParameterTerm {
 
     expr_pointer_t negate(const expr_pointer_t& repn);
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return ParameterTerm_id; }
 
     void set_value(double val);
@@ -83,7 +82,6 @@ class IndexParameterTerm : public BaseExpressionTerm {
 
     expr_pointer_t negate(const expr_pointer_t& repn);
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return IndexParameterTerm_id; }
 };
 
@@ -100,9 +98,9 @@ class BaseVariableTerm : public BaseExpressionTerm {};
 class VariableTerm : public BaseVariableTerm {
    public:
     static unsigned int count;
-    static std::shared_ptr<ConstantTerm> negative_infinity;
-    static std::shared_ptr<ConstantTerm> positive_infinity;
-    static std::shared_ptr<ConstantTerm> nan;
+    static const std::shared_ptr<ConstantTerm> negative_infinity;
+    static const std::shared_ptr<ConstantTerm> positive_infinity;
+    static const std::shared_ptr<ConstantTerm> nan;
 
    public:
     unsigned int index;
@@ -125,7 +123,6 @@ class VariableTerm : public BaseVariableTerm {
     expr_pointer_t const_mult(double coef, const expr_pointer_t& repn);
     expr_pointer_t negate(const expr_pointer_t& repn);
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return VariableTerm_id; }
 
     virtual std::string get_simple_name() { return "X[" + std::to_string(index) + "]"; }
@@ -165,7 +162,6 @@ class MonomialTerm : public BaseExpressionTerm {
 
     expr_pointer_t negate(const expr_pointer_t& repn);
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return MonomialTerm_id; }
 };
 

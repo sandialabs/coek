@@ -1,5 +1,4 @@
 #include "coek/model/nlp_model.hpp"
-
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/autograd/autograd.hpp"
@@ -17,16 +16,18 @@ NLPModel::NLPModel()
     repn = tmp;
 }
 
-NLPModel::NLPModel(Model& model, std::string type, bool sparse_JH)
-{
-    initialize(model, type, sparse_JH);
-}
+NLPModel::NLPModel(Model& model, std::string type) { initialize(model, type); }
 
-void NLPModel::initialize(Model& model, std::string type, bool sparse_JH)
+void NLPModel::initialize(Model& model, std::string type)
 {
     std::shared_ptr<NLPModelRepn> tmp(create_NLPModelRepn(model, type));
     repn = tmp;
-    repn->initialize(sparse_JH);
+
+    for (const auto& ioption : integer_options()) repn->set_option(ioption.first, ioption.second);
+    for (const auto& doption : double_options()) repn->set_option(doption.first, doption.second);
+    for (const auto& soption : string_options()) repn->set_option(soption.first, soption.second);
+
+    repn->initialize();
 }
 
 void NLPModel::reset() { repn->reset(); }
@@ -53,6 +54,11 @@ void NLPModel::set_variable_view(const double* x, size_t n) { repn->set_variable
 Objective NLPModel::get_objective(size_t i) { return repn->get_objective(i); }
 
 Constraint NLPModel::get_constraint(size_t i) { return repn->get_constraint(i); }
+
+bool NLPModel::has_constraint_lower(size_t i) { return repn->has_constraint_lower(i); }
+bool NLPModel::has_constraint_upper(size_t i) { return repn->has_constraint_upper(i); }
+double NLPModel::get_constraint_lower(size_t i) { return repn->get_constraint_lower(i); }
+double NLPModel::get_constraint_upper(size_t i) { return repn->get_constraint_upper(i); }
 
 void NLPModel::get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jcol)
 {

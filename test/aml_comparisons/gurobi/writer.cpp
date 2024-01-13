@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "gurobi_c++.h"
 
 #include "models/gurobi_models.hpp"
 
@@ -56,7 +57,17 @@ int main(int argc, char* argv[])
         std::cout << "ERROR - " << e.what() << std::endl;
         return 1;
     }
-    model.write(filename);
+    try {
+        model.write(filename);
+    }
+    catch (std::exception& e) {
+        std::cout << "ERROR - " << e.what() << std::endl;
+        return 2;
+    }
+    catch (GRBException& e) {
+        std::cout << "ERROR - " << e.getMessage() << std::endl;
+        return 3;
+    }
 
     return 0;
 }

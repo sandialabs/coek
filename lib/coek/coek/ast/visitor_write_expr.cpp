@@ -7,84 +7,41 @@
 #if __cpp_lib_variant
 #    include "compact_terms.hpp"
 #endif
+#include "coek/util/cast_utils.hpp"
 
 namespace coek {
 
 namespace {
 
-class WriteExprVisitor : public Visitor {
-   public:
-    std::ostream& ostr;
+void visit_expression(const expr_pointer_t& expr, std::ostream& data);
 
-   public:
-    WriteExprVisitor(std::ostream& _ostr) : ostr(_ostr) {}
-
-    void visit(ConstantTerm& arg);
-    void visit(ParameterTerm& arg);
-    void visit(IndexParameterTerm& arg);
-    void visit(VariableTerm& arg);
-#if __cpp_lib_variant
-    void visit(ParameterRefTerm& arg);
-    void visit(VariableRefTerm& arg);
-#endif
-    void visit(MonomialTerm& arg);
-    void visit(InequalityTerm& arg);
-    void visit(EqualityTerm& arg);
-    void visit(ObjectiveTerm& arg);
-    void visit(SubExpressionTerm& arg);
-    void visit(NegateTerm& arg);
-    void visit(PlusTerm& arg);
-    void visit(TimesTerm& arg);
-    void visit(DivideTerm& arg);
-    void visit(AbsTerm& arg);
-    void visit(CeilTerm& arg);
-    void visit(FloorTerm& arg);
-    void visit(ExpTerm& arg);
-    void visit(LogTerm& arg);
-    void visit(Log10Term& arg);
-    void visit(SqrtTerm& arg);
-    void visit(SinTerm& arg);
-    void visit(CosTerm& arg);
-    void visit(TanTerm& arg);
-    void visit(SinhTerm& arg);
-    void visit(CoshTerm& arg);
-    void visit(TanhTerm& arg);
-    void visit(ASinTerm& arg);
-    void visit(ACosTerm& arg);
-    void visit(ATanTerm& arg);
-    void visit(ASinhTerm& arg);
-    void visit(ACoshTerm& arg);
-    void visit(ATanhTerm& arg);
-    void visit(PowTerm& arg);
-    void visit(SumExpressionTerm& arg);
-    void visit(EmptyConstraintTerm& arg);
-};
-
-void WriteExprVisitor::visit(ConstantTerm& arg) { ostr << arg.value; }
-
-void WriteExprVisitor::visit(ParameterTerm& arg)
+void visit_ConstantTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
-#if 0
-    // TODO - consider this format for param outputs
-    
-    if (arg.name.size() > 0)
-        ostr << arg.name;
-    ostr << "{" << std::to_string(arg.eval()) << "}";
-#else
-    if (arg.name.size() > 0)
-        ostr << arg.name;
-    else
-        ostr << std::to_string(arg.eval());
-#endif
+    auto tmp = safe_pointer_cast<ConstantTerm>(expr);
+    ostr << tmp->value;
 }
 
-void WriteExprVisitor::visit(IndexParameterTerm& arg) { ostr << arg.name; }
-
-void WriteExprVisitor::visit(VariableTerm& arg)
+void visit_ParameterTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
-    auto name = arg.get_name();
+    auto tmp = safe_pointer_cast<ParameterTerm>(expr);
+    if (tmp->name.size() > 0)
+        ostr << tmp->name;
+    else
+        ostr << std::to_string(tmp->eval());
+}
+
+void visit_IndexParameterTerm(const expr_pointer_t& expr, std::ostream& ostr)
+{
+    auto tmp = safe_pointer_cast<IndexParameterTerm>(expr);
+    ostr << tmp->name;
+}
+
+void visit_VariableTerm(const expr_pointer_t& expr, std::ostream& ostr)
+{
+    auto tmp = safe_pointer_cast<VariableTerm>(expr);
+    auto name = tmp->get_name();
     if (name.size() == 0) {
-        ostr << "x" << arg.index;
+        ostr << "x" << tmp->index;
     }
     else {
         ostr << name;
@@ -92,11 +49,12 @@ void WriteExprVisitor::visit(VariableTerm& arg)
 }
 
 #if __cpp_lib_variant
-void WriteExprVisitor::visit(ParameterRefTerm& arg)
+void visit_ParameterRefTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
+    auto tmp = safe_pointer_cast<ParameterRefTerm>(expr);
     bool first = true;
-    ostr << arg.name << "[";
-    for (auto& val : arg.indices) {
+    ostr << tmp->name << "[";
+    for (auto& val : tmp->indices) {
         if (first)
             first = false;
         else
@@ -105,17 +63,18 @@ void WriteExprVisitor::visit(ParameterRefTerm& arg)
             ostr << *ival;
         }
         else if (auto eval = std::get_if<expr_pointer_t>(&val)) {
-            (*eval)->accept(*this);
+            visit_expression(*eval, ostr);
         }
     }
     ostr << "]";
 }
 
-void WriteExprVisitor::visit(VariableRefTerm& arg)
+void visit_VariableRefTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
+    auto tmp = safe_pointer_cast<VariableRefTerm>(expr);
     bool first = true;
-    ostr << arg.name << "[";
-    for (auto& val : arg.indices) {
+    ostr << tmp->name << "[";
+    for (auto& val : tmp->indices) {
         if (first)
             first = false;
         else
@@ -124,105 +83,118 @@ void WriteExprVisitor::visit(VariableRefTerm& arg)
             ostr << *ival;
         }
         else if (auto eval = std::get_if<expr_pointer_t>(&val)) {
-            (*eval)->accept(*this);
+            visit_expression(*eval, ostr);
         }
     }
     ostr << "]";
 }
 #endif
 
-void WriteExprVisitor::visit(MonomialTerm& arg)
+void visit_MonomialTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
-    if (!(arg.coef == 1.0)) ostr << arg.coef << "*";
-    arg.var->accept(*this);
+    auto tmp = safe_pointer_cast<MonomialTerm>(expr);
+    if (!(tmp->coef == 1.0)) ostr << tmp->coef << "*";
+    visit_expression(tmp->var, ostr);
 }
 
-void WriteExprVisitor::visit(InequalityTerm& arg)
+void visit_InequalityTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
-    if (arg.lower) {
-        arg.lower->accept(*this);
-        if (arg.strict)
+    auto tmp = safe_pointer_cast<InequalityTerm>(expr);
+    if (tmp->lower) {
+        visit_expression(tmp->lower, ostr);
+        if (tmp->strict)
             ostr << " < ";
         else
             ostr << " <= ";
     }
-    arg.body->accept(*this);
-    if (arg.upper) {
-        if (arg.strict)
+    visit_expression(tmp->body, ostr);
+    if (tmp->upper) {
+        if (tmp->strict)
             ostr << " < ";
         else
             ostr << " <= ";
-        arg.upper->accept(*this);
+        visit_expression(tmp->upper, ostr);
     }
 }
 
-void WriteExprVisitor::visit(EqualityTerm& arg)
+void visit_EqualityTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
-    arg.body->accept(*this);
+    auto tmp = safe_pointer_cast<EqualityTerm>(expr);
+    visit_expression(tmp->body, ostr);
     ostr << " == ";
-    arg.lower->accept(*this);
+    visit_expression(tmp->lower, ostr);
 }
 
-void WriteExprVisitor::visit(ObjectiveTerm& arg)
+void visit_ObjectiveTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
-    if (arg.sense)
+    auto tmp = safe_pointer_cast<ObjectiveTerm>(expr);
+    if (tmp->sense)
         ostr << "min( ";
     else
         ostr << "max( ";
-    arg.body->accept(*this);
+    visit_expression(tmp->body, ostr);
     ostr << " )";
 }
 
-void WriteExprVisitor::visit(SubExpressionTerm& arg) { arg.body->accept(*this); }
-
-void WriteExprVisitor::visit(NegateTerm& arg)
+void visit_SubExpressionTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
+    auto tmp = safe_pointer_cast<SubExpressionTerm>(expr);
+    visit_expression(tmp->body, ostr);
+}
+
+void visit_NegateTerm(const expr_pointer_t& expr, std::ostream& ostr)
+{
+    auto tmp = safe_pointer_cast<NegateTerm>(expr);
     ostr << "- (";
-    arg.body->accept(*this);
+    visit_expression(tmp->body, ostr);
     ostr << ")";
 }
 
-void WriteExprVisitor::visit(PlusTerm& arg)
+void visit_PlusTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
-    std::vector<expr_pointer_t>& vec = *(arg.data);
+    auto tmp = safe_pointer_cast<PlusTerm>(expr);
+    std::vector<expr_pointer_t>& vec = *(tmp->data);
     // GCOVR_EXCL_START
     if (vec.size() == 0) {
         ostr << "NULL-SUM";
         return;
     }
     // GCOVR_EXCL_STOP
-    vec[0]->accept(*this);
+    visit_expression(vec[0], ostr);
 
-    for (size_t i = 1; i < arg.num_expressions(); i++) {
+    for (size_t i = 1; i < tmp->num_expressions(); i++) {
         ostr << " + ";
-        vec[i]->accept(*this);
+        visit_expression(vec[i], ostr);
     }
 }
 
-void WriteExprVisitor::visit(TimesTerm& arg)
+void visit_TimesTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
+    auto tmp = safe_pointer_cast<TimesTerm>(expr);
     ostr << "(";
-    arg.lhs->accept(*this);
+    visit_expression(tmp->lhs, ostr);
     ostr << ")*(";
-    arg.rhs->accept(*this);
+    visit_expression(tmp->rhs, ostr);
     ostr << ")";
 }
 
-void WriteExprVisitor::visit(DivideTerm& arg)
+void visit_DivideTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
+    auto tmp = safe_pointer_cast<DivideTerm>(expr);
     ostr << "(";
-    arg.lhs->accept(*this);
+    visit_expression(tmp->lhs, ostr);
     ostr << ")/(";
-    arg.rhs->accept(*this);
+    visit_expression(tmp->rhs, ostr);
     ostr << ")";
 }
 
-#define WriteExprVisitor_FN(FN, TERM)       \
-    void WriteExprVisitor::visit(TERM& arg) \
-    {                                       \
-        ostr << #FN << "(";                 \
-        arg.body->accept(*this);            \
-        ostr << ")";                        \
+#define WriteExprVisitor_FN(FN, TERM)                                 \
+    void visit_##TERM(const expr_pointer_t& expr, std::ostream& ostr) \
+    {                                                                 \
+        auto tmp = safe_pointer_cast<TERM>(expr);                     \
+        ostr << #FN << "(";                                           \
+        visit_expression(tmp->body, ostr);                            \
+        ostr << ")";                                                  \
     }
 
 // clang-format off
@@ -249,18 +221,92 @@ WriteExprVisitor_FN(atanh, ATanhTerm)
 
     // clang-format on
 
-    void WriteExprVisitor::visit(PowTerm& arg)
+    void visit_PowTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
+    auto tmp = safe_pointer_cast<PowTerm>(expr);
     ostr << "pow(";
-    arg.lhs->accept(*this);
+    visit_expression(tmp->lhs, ostr);
     ostr << ", ";
-    arg.rhs->accept(*this);
+    visit_expression(tmp->rhs, ostr);
     ostr << ")";
 }
 
-void WriteExprVisitor::visit(SumExpressionTerm&) { ostr << "Sum()"; }
+void visit_SumExpressionTerm(const expr_pointer_t&, std::ostream& ostr) { ostr << "Sum()"; }
 
-void WriteExprVisitor::visit(EmptyConstraintTerm&) { ostr << "EmptyConstraint()"; }
+void visit_EmptyConstraintTerm(const expr_pointer_t&, std::ostream& ostr)
+{
+    ostr << "EmptyConstraint()";
+}
+
+void visit_IfThenElseTerm(const expr_pointer_t& expr, std::ostream& ostr)
+{
+    auto tmp = safe_pointer_cast<IfThenElseTerm>(expr);
+    ostr << "if_else(";
+    visit_expression(tmp->cond_expr, ostr);
+    ostr << ", ";
+    visit_expression(tmp->then_expr, ostr);
+    ostr << ", ";
+    visit_expression(tmp->else_expr, ostr);
+    ostr << ")";
+}
+
+#define VISIT_CASE(TERM) \
+    case TERM##_id:      \
+        return visit_##TERM(expr, ostr);
+
+void visit_expression(const expr_pointer_t& expr, std::ostream& ostr)
+{
+    switch (expr->id()) {
+        VISIT_CASE(ConstantTerm);
+        VISIT_CASE(ParameterTerm);
+        VISIT_CASE(IndexParameterTerm);
+        VISIT_CASE(VariableTerm);
+#if __cpp_lib_variant
+        VISIT_CASE(ParameterRefTerm);
+        VISIT_CASE(VariableRefTerm);
+#endif
+
+        VISIT_CASE(MonomialTerm);
+        VISIT_CASE(InequalityTerm);
+        VISIT_CASE(EqualityTerm);
+        VISIT_CASE(ObjectiveTerm);
+        VISIT_CASE(SubExpressionTerm);
+        VISIT_CASE(NegateTerm);
+        VISIT_CASE(PlusTerm);
+        VISIT_CASE(TimesTerm);
+        VISIT_CASE(DivideTerm);
+        VISIT_CASE(AbsTerm);
+        VISIT_CASE(CeilTerm);
+        VISIT_CASE(FloorTerm);
+        VISIT_CASE(ExpTerm);
+        VISIT_CASE(LogTerm);
+        VISIT_CASE(Log10Term);
+        VISIT_CASE(SqrtTerm);
+        VISIT_CASE(SinTerm);
+        VISIT_CASE(CosTerm);
+        VISIT_CASE(TanTerm);
+        VISIT_CASE(SinhTerm);
+        VISIT_CASE(CoshTerm);
+        VISIT_CASE(TanhTerm);
+        VISIT_CASE(ASinTerm);
+        VISIT_CASE(ACosTerm);
+        VISIT_CASE(ATanTerm);
+        VISIT_CASE(ASinhTerm);
+        VISIT_CASE(ACoshTerm);
+        VISIT_CASE(ATanhTerm);
+        VISIT_CASE(PowTerm);
+        VISIT_CASE(SumExpressionTerm);
+        VISIT_CASE(EmptyConstraintTerm);
+        VISIT_CASE(IfThenElseTerm);
+
+        // GCOVR_EXCL_START
+        default:
+            throw std::runtime_error(
+                "Error in write_expr visitor!  Visiting unexpected expression term "
+                + std::to_string(expr->id()));
+            // GCOVR_EXCL_STOP
+    };
+}
 
 }  // namespace
 
@@ -275,8 +321,9 @@ void write_expr(BaseExpressionTerm* expr, std::ostream& ostr)
         return;
     }
     // GCOVR_EXCL_STOP
-    WriteExprVisitor visitor(ostr);
-    expr->accept(visitor);
+    visit_expression(std::shared_ptr<BaseExpressionTerm>(expr, [](BaseExpressionTerm*) {}), ostr);
 }
+
+void write_expr(const expr_pointer_t& expr, std::ostream& ostr) { visit_expression(expr, ostr); }
 
 }  // namespace coek

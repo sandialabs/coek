@@ -13,9 +13,9 @@ class IpoptSolverRepn {
    public:
     virtual int perform_solve() = 0;
     virtual void set_start_from_last_x(bool flag) = 0;
-    virtual void set_options(std::map<std::string, std::string>& string_options,
-                             std::map<std::string, int>& integer_options,
-                             std::map<std::string, double>& double_options)
+    virtual void set_options(const std::map<std::string, std::string>& string_options,
+                             const std::map<std::string, int>& integer_options,
+                             const std::map<std::string, double>& double_options)
         = 0;
 };
 
@@ -31,7 +31,7 @@ class IpoptSolver : public NLPSolverRepn {
 
     void load(NLPModel& model);
 
-    int resolve();
+    int resolve_exec();
 
     int solve(NLPModel& model);
 

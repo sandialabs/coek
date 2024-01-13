@@ -4,10 +4,11 @@
 #    if __has_include(<version>)
 #        include <version>
 #    endif
-#    if __has_include(<variant>)
-#        include <variant>
-#    endif
 #endif
+#if __cpp_lib_variant
+#    include <variant>
+#endif
+
 #include <coek/api/constants.hpp>
 #include <map>
 #include <memory>
@@ -50,11 +51,11 @@ class ModelRepn;
 class Model {
    public:
     /** A constant used to indicate a minimization objective */
-    static bool minimize;
+    static const bool minimize;
     /** A constant used to indicate a maximization objective */
-    static bool maximize;
+    static const bool maximize;
     /** A constant that indicates an infinite value */
-    static double inf;
+    static const double inf;
 
     /** The different policies for name generation. */
     enum NameGeneration { simple, lazy, eager };

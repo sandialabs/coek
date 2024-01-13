@@ -3,6 +3,7 @@
 
 SET(sources
     util/index_vector.cpp
+    util/option_cache.cpp
     ast/base_terms.cpp
     ast/constraint_terms.cpp
     ast/value_terms.cpp
@@ -120,16 +121,13 @@ if(with_asl)
     list(APPEND coek_compile_options "-DWITH_ASL")
     list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include/asl)
     list(APPEND coek_link_directories ${CMAKE_INSTALL_PREFIX}/lib)
-    list(APPEND coek_link_libraries asl)
+    if (${with_openmp})
+        list(APPEND coek_link_libraries asl-mt)
+        list(APPEND coek_link_libraries OpenMP::OpenMP_CXX)
+    else()
+        list(APPEND coek_link_libraries asl)
+    endif()
 endif()
-
-# Default AD LIBRARY
-# if(NOT with_cppad AND NOT with_asl)
-#  MESSAGE("-- Building Source with AD:        Simple")
-#  list(APPEND sources
-#    admodel/simplead.cpp)
-#  add_definitions(-DWITH_ADMODEL_SIMPLEAD)
-# endif()
 
 #
 # SOLVER OPTIONS
@@ -229,6 +227,7 @@ install(FILES
         util/index_vector.hpp
         util/template_utils.hpp
         util/sequence.hpp
+        util/option_cache.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/util
         )
 install(FILES

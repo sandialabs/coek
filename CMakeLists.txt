@@ -56,8 +56,11 @@ option(with_verbose "Verbose build" OFF)
 option(with_gcov "Add code coverage using gcov" OFF)
 option(with_gprof "Profile build" OFF)
 option(with_caliper "Use the Caliper library" OFF)
+option(with_threads "Compiled with threads enabled" ON)
+option(with_openmp "Compiled with openmp enabled" ON)
 # Monorepo configuration
 option(with_tests "Build tests" OFF)
+option(with_apps "Build apps" ON)
 option(with_docs "Build documentation" OFF)
 option(with_python "Build/Install Python libs" ${Python_FOUND})
 
@@ -107,6 +110,15 @@ endif()
 
 ##################### General Configuration Options #####################
 
+find_package(Threads)
+if (NOT ${Threads_FOUND})
+    set(with_threads OFF)
+endif()
+find_package(OpenMP)
+if (NOT ${OpenMP_FOUND})
+    set(with_openmp OFF)
+endif()
+
 message("Initial Configuration Options")
 # Options defined here
 message("-- with_debug: ${with_debug}")
@@ -117,6 +129,8 @@ message("-- with_caliper: ${with_caliper}")
 message("-- with_tests: ${with_tests}")
 message("-- with_docs: ${with_docs}")
 message("-- with_python: ${with_python}")
+message("-- with_threads: ${with_threads}")
+message("-- with_openmp: ${with_openmp}")
 # Options defined in tpl
 message("-- with_asl: ${with_asl}")
 message("-- with_catch2: ${with_catch2}")
@@ -184,7 +198,11 @@ message("")
 
 message("Configuring Monorepo Packages")
 add_subdirectory(lib)
-add_subdirectory(test)
-add_subdirectory(app)
+if(${with_tests})
+    add_subdirectory(test)
+endif()
+if(${with_apps})
+    add_subdirectory(app)
+endif()
 
 message("")

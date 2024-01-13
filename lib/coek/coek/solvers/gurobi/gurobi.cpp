@@ -184,9 +184,7 @@ int GurobiSolver::solve(Model& model)
         throw;
     }
 
-    // All options are converted to strings for Gurobi
-    for (auto it = string_options.begin(); it != string_options.end(); ++it)
-        gmodel->set(it->first, it->second);
+    set_gurobi_options();
 
     try {
         gmodel->optimize();
@@ -306,9 +304,8 @@ int GurobiSolver::solve(CompactModel& compact_model)
     }
 
     std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
-    // All options are converted to strings for Gurobi
-    for (auto it = string_options.begin(); it != string_options.end(); ++it)
-        gmodel->set(it->first, it->second);
+
+    set_gurobi_options();
     try {
         gmodel->optimize();
 
@@ -420,10 +417,7 @@ int GurobiSolver::resolve()
             throw;
         }
 
-        // All options are converted to strings for Gurobi
-        for (auto it = string_options.begin(); it != string_options.end(); ++it)
-            gmodel->set(it->first, it->second);
-
+        set_gurobi_options();
         try {
             gmodel->optimize();
         }
@@ -485,34 +479,12 @@ int GurobiSolver::resolve()
     return 0;
 }
 
-bool GurobiSolver::get_option(const std::string& option, int& value) const
+void GurobiSolver::set_gurobi_options()
 {
-    auto curr = string_options.find(option);
-    if (curr == string_options.end()) return false;
-    value = atoi(curr->second.c_str());
-    return true;
-}
-
-bool GurobiSolver::get_option(const std::string& option, double& value) const
-{
-    auto curr = string_options.find(option);
-    if (curr == string_options.end()) return false;
-    value = atoi(curr->second.c_str());
-    return true;
-}
-
-void GurobiSolver::set_option(const std::string& option, int value)
-{
-    std::stringstream ostr;
-    ostr << value;
-    string_options[option] = ostr.str();
-}
-
-void GurobiSolver::set_option(const std::string& option, double value)
-{
-    std::stringstream ostr;
-    ostr << value;
-    string_options[option] = ostr.str();
+    // All options are converted to strings for Gurobi
+    for (auto& it : string_options()) gmodel->set(it.first, it.second);
+    for (auto& it : integer_options()) gmodel->set(it.first, std::to_string(it.second));
+    for (auto& it : double_options()) gmodel->set(it.first, std::to_string(it.second));
 }
 
 }  // namespace coek

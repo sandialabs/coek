@@ -458,9 +458,6 @@ void symbolic_diff_all(const expr_pointer_t& root,
                         queue2.push_back(tmp);
                     }
                 }
-#ifdef DEBUG_DIFF
-                std::cout << "HERE" << std::endl << std::flush;
-#endif
                 if (partial.find(child) == partial.end())
                     partial[child] = times_(partial[curr], _partial);
                 else

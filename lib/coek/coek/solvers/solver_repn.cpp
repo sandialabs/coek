@@ -8,6 +8,7 @@
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
 #include "coek/model/nlp_model.hpp"
+#include "coek/solvers/solver_repn.hpp"
 #include "coek/solvers/ipopt/ipopt_solver.hpp"
 #include "testsolver.hpp"
 #ifdef WITH_GUROBI
@@ -44,7 +45,7 @@ void SolverCache::find_updated_values()
 #endif
 }
 
-void SolverCache::reset()
+void SolverCache::reset_cache()
 {
     error_occurred = false;
     error_message = "";
@@ -54,26 +55,36 @@ void SolverCache::reset()
     pcache.clear();
 }
 
-SolverRepn* create_solver(std::string& name)
+SolverRepn* create_solver(std::string& name, OptionCache& options)
 {
     if (name == "test") return new TestSolver();
 
 #ifdef WITH_GUROBI
     if (name == "gurobi") {
-        return new GurobiSolver();
+        auto tmp = new GurobiSolver();
+        tmp->set_options(options);
+        return tmp;
     }
 #endif
 
     return 0;
 }
 
-NLPSolverRepn* create_nlpsolver(std::string& name)
+NLPSolverRepn* create_nlpsolver(std::string& name, OptionCache& options)
 {
     if (name == "ipopt") {
-        return new IpoptSolver();
+        auto tmp = new IpoptSolver();
+        tmp->set_options(options);
+        return tmp;
     }
 
     return 0;
+}
+
+int NLPSolverRepn::resolve(bool reset_nlpmodel)
+{
+    if (reset_nlpmodel) model->reset();
+    return this->resolve_exec();
 }
 
 template <typename K, typename V>
@@ -162,6 +173,8 @@ void SolverRepn::load(Model& _model)
     std::cout << "# Mutable Expressions: " << nmutable << std::endl;
 #endif
 }
+
+void SolverRepn::reset() { reset_cache(); }
 
 #ifdef COEK_WITH_COMPACT_MODEL
 void SolverRepn::load(CompactModel& _model)
@@ -294,75 +307,6 @@ void SolverRepn::find_updated_coefs()
 #ifdef DEBUG
     std::cout << "Updated Coefficients:    " << updated_coefs.size() << std::endl;
 #endif
-}
-
-bool SolverCache::get_option(int, int&) const
-{
-    throw std::runtime_error(
-        "Solver does not support get_option with integer name and integer value");
-}
-bool SolverCache::get_option(int, double&) const
-{
-    throw std::runtime_error(
-        "Solver does not support get_option with integer name and double value");
-}
-bool SolverCache::get_option(int, std::string&) const
-{
-    throw std::runtime_error("Solver does not support get_option with integer name and string");
-}
-
-void SolverCache::set_option(int, int)
-{
-    throw std::runtime_error(
-        "Solver does not support set_option with integer name and integer value");
-}
-void SolverCache::set_option(int, double)
-{
-    throw std::runtime_error(
-        "Solver does not support set_option with integer name and double value");
-}
-void SolverCache::set_option(int, const std::string)
-{
-    throw std::runtime_error("Solver does not support set_option with integer name and string");
-}
-
-bool SolverCache::get_option(const std::string& option, int& value) const
-{
-    auto curr = integer_options.find(option);
-    if (curr == integer_options.end()) return false;
-    value = curr->second;
-    return true;
-}
-
-bool SolverCache::get_option(const std::string& option, double& value) const
-{
-    auto curr = double_options.find(option);
-    if (curr == double_options.end()) return false;
-    value = curr->second;
-    return true;
-}
-
-bool SolverCache::get_option(const std::string& option, std::string& value) const
-{
-    auto curr = string_options.find(option);
-    if (curr == string_options.end()) return false;
-    value = curr->second;
-    return true;
-}
-
-void SolverCache::set_option(const std::string& option, int value)
-{
-    integer_options[option] = value;
-}
-
-void SolverCache::set_option(const std::string& option, double value)
-{
-    double_options[option] = value;
-}
-
-void SolverCache::set_option(const std::string& option, const std::string value)
-{
-    string_options[option] = value;
 }
 
 }  // namespace coek

@@ -291,9 +291,8 @@ void CppAD_Repn::create_CppAD_function()
     ADfc.optimize();
 }
 
-void CppAD_Repn::initialize(bool _sparse_JH)
+void CppAD_Repn::initialize()
 {
-    sparse_JH = _sparse_JH;
     //
     // Find all variables used in the NLP model
     //
@@ -590,6 +589,27 @@ void CppAD_Repn::reset(void)
     set_variables(currx);
 }
 
+bool CppAD_Repn::get_option(const std::string& option, int& value) const
+{
+    if (option == "sparse_JH") {
+        value = sparse_JH;
+        return true;
+    }
+    else if (option == "simplify_expressions") {
+        value = simplify_expressions;
+        return true;
+    }
+    return false;
+}
+
+void CppAD_Repn::set_option(const std::string& option, int value)
+{
+    if (option == "sparse_JH")
+        sparse_JH = (value == 1);
+    else if (option == "simplify_expressions")
+        simplify_expressions = (value == 1);
+}
+
 //
 // This empty namespace contains functions used to walk the COEK
 // expression tree.  The CppAD expression is accumulated in the 'ans'
@@ -713,6 +733,20 @@ void visit_DivideTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
     ans += lhs / rhs;
 }
 
+void visit_IfThenElseTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
+{
+    auto tmp = std::dynamic_pointer_cast<IfThenElseTerm>(expr);
+    CppAD::AD<double> cond_;
+    visit_expression(tmp->cond_expr, data, cond_);
+    CppAD::AD<double> then_;
+    visit_expression(tmp->then_expr, data, then_);
+    CppAD::AD<double> else_;
+    visit_expression(tmp->else_expr, data, else_);
+    CppAD::AD<double> zero(0.);
+
+    ans += CppAD::CondExpGt(cond_, zero, then_, else_);
+}
+
 #define UNARY_VISITOR(TERM, FN)                                                        \
     void visit_##TERM(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans) \
     {                                                                                  \
@@ -786,6 +820,7 @@ void visit_expression(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
         VISIT_CASE(PlusTerm);
         VISIT_CASE(TimesTerm);
         VISIT_CASE(DivideTerm);
+        VISIT_CASE(IfThenElseTerm);
         VISIT_CASE(AbsTerm);
         // VISIT_CASE(CeilTerm);
         // VISIT_CASE(FloorTerm);
