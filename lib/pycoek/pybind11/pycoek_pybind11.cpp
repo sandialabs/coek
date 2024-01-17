@@ -11,6 +11,7 @@
 #include <typeinfo>
 
 #include "coek/coek.hpp"
+#include "coek/ast/value_terms.hpp"
 
 namespace py = pybind11;
 
@@ -1107,7 +1108,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     //
     py::class_<coek::Variable>(m, "variable_single")
         .def(py::init<>())
-#if 0
+#if 1
     // TODO - Check with Mike
         .def(py::init<const coek::VariableRepn&>())
 #endif
@@ -1129,9 +1130,10 @@ PYBIND11_MODULE(pycoek_pybind11, m)
             "within", [](const coek::Variable& x) { return x.within(); },
             [](coek::Variable& x, coek::VariableTypes value) { x.within(value); })
         .def_property_readonly("id", &coek::Variable::id)
-#if 0
+#if 1
         // TODO - Check with Mike
-        .def_readonly("repn", &coek::Variable::repn)
+        //.def_readonly("repn", coek::Variable::repn)
+        .def_property_readonly("repn", [](const coek::Variable& x) { return x.repn; })
 #endif
         .def("is_constraint", [](const coek::Variable&) { return false; })
         .def("is_continuous", [](const coek::Variable& x) { return x.is_continuous(); })
@@ -1736,7 +1738,9 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def("is_constant", &coek::QuadraticExpr::is_constant)
         .def("is_linear", &coek::QuadraticExpr::is_linear)
         .def("is_quadratic", &coek::QuadraticExpr::is_quadratic);
+#endif
 
+#if 1
     py::class_<coek::VariableTerm>(m, "VariableTerm")
 	.def_readonly("index", &coek::VariableTerm::index);
 #endif
