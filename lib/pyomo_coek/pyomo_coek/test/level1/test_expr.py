@@ -33,7 +33,7 @@ def test_con_value(pyomo_module):
     M = pe.ConcreteModel()
     M.p = pe.Var(initialize=2)
     assert pe.value(M.p) == 2
-    e = M.p < 3
+    e = M.p <= 3
     assert pe.value(e) == 2
     #with self.assertRaisesRegex(AttributeError, "can't set attribute"):
     #    e.value = 0
