@@ -11,4 +11,4 @@ from pyomo.core.expr import value
 from .quicksum import quicksum, construct_linear_expression
 
 def to_list(e):
-    return []
+    return e.to_list()

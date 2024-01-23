@@ -83,7 +83,7 @@ def test_simpleSum_API(pyomo_module, var_a, var_b):
     assert pe.to_list(e) == ["+", "a", "b", ["*", "2", "a"]]
 
 def test_constSum(pyomo_module, var_a):
-    pe,a,b = pyomo_module,var_a
+    pe,a = pyomo_module,var_a
     # a + 5
 
     e = a + 5
