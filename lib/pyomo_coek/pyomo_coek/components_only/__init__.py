@@ -7,4 +7,8 @@ from pyomo.core.base.PyomoModel import ConcreteModel
 from pyomo.core.base.set import RangeSet, Binary, Set, Reals, NonNegativeReals
 from pyomo.core.base.objective import minimize, maximize
 from pyomo.opt.base.solvers import SolverFactory
+from pyomo.core.expr import value
 from .quicksum import quicksum, construct_linear_expression
+
+def to_list(e):
+    return []

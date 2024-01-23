@@ -17,3 +17,7 @@ from pyomo.core.base.PyomoModel import ConcreteModel
 from pyomo.core.base.set import RangeSet, Binary, Set, Reals
 from pyomo.opt.base.solvers import SolverFactory
 from pyomo.core.base.objective import minimize, maximize
+from pyomo.core.expr import value
+
+def to_list(e):
+    return []
