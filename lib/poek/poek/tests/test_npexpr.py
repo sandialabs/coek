@@ -119,7 +119,7 @@ class Test_SumExpression(unittest.TestCase):
         z = np.int32(2)
         e += z * a
         #
-        self.assertEqual(e.to_list(), ["+", "a", "b", ["*", "2", "a"]])
+        self.assertEqual(e.to_list(), ["+", "a", "b", ["*", "2.000000", "a"]])
 
     def test_constSum(self):
         # a + 5
@@ -299,7 +299,7 @@ class Test_SumExpression(unittest.TestCase):
         e1 = a * z
         e = e1 + b
         #
-        self.assertEqual(e.to_list(), ["+", ["*", "5", "a"], "b"])
+        self.assertEqual(e.to_list(), ["+", ["*", "5.000000", "a"], "b"])
 
         #       +
         #      / \
@@ -308,7 +308,7 @@ class Test_SumExpression(unittest.TestCase):
         #       a   5
         e = b + e1
         #
-        self.assertEqual(e.to_list(), ["+", "b", ["*", "5", "a"]])
+        self.assertEqual(e.to_list(), ["+", "b", ["*", "5.000000", "a"]])
 
         #            +
         #          /   \
@@ -318,7 +318,7 @@ class Test_SumExpression(unittest.TestCase):
         e2 = b + c
         e = e1 + e2
         #
-        self.assertEqual(e.to_list(), ["+", ["*", "5", "a"], ["+", "b", "c"]])
+        self.assertEqual(e.to_list(), ["+", ["*", "5.000000", "a"], ["+", "b", "c"]])
 
         #            +
         #          /   \
@@ -328,7 +328,7 @@ class Test_SumExpression(unittest.TestCase):
         e2 = b + c
         e = e2 + e1
         #
-        self.assertEqual(e.to_list(), ["+", "b", "c", ["*", "5", "a"]])
+        self.assertEqual(e.to_list(), ["+", "b", "c", ["*", "5.000000", "a"]])
 
 
 @unittest.skipIf(
@@ -384,11 +384,11 @@ class TestDiffExpression(unittest.TestCase):
         #   / \
         #  a   b
         e = a - b
-        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1", "b"]])
+        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1.000000", "b"]])
 
         e = a
         e -= b
-        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1", "b"]])
+        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1.000000", "b"]])
 
     def test_constDiff(self):
         a = self.a
@@ -398,7 +398,7 @@ class TestDiffExpression(unittest.TestCase):
         self.assertEqual(e.to_list(), ["+", "a", "-5.000000"])
 
         e = z - a
-        self.assertEqual(e.to_list(), ["+", "5.000000", ["*", "-1", "a"]])
+        self.assertEqual(e.to_list(), ["+", "5.000000", ["*", "-1.000000", "a"]])
 
         e = a
         e -= z
@@ -409,7 +409,7 @@ class TestDiffExpression(unittest.TestCase):
         self.assertEqual(e.to_list(), ["+", "a", "-5.000000"])
 
         e = z - a
-        self.assertEqual(e.to_list(), ["+", "5.000000", ["*", "-1", "a"]])
+        self.assertEqual(e.to_list(), ["+", "5.000000", ["*", "-1.000000", "a"]])
 
         e = a
         e -= z
@@ -426,7 +426,7 @@ class TestDiffExpression(unittest.TestCase):
         # p - a
         e = p - a
         #
-        self.assertEqual(e.to_list(), ["+", "p", ["*", "-1", "a"]])
+        self.assertEqual(e.to_list(), ["+", "p", ["*", "-1.000000", "a"]])
 
     def test_termDiff(self):
         #
@@ -445,7 +445,7 @@ class TestDiffExpression(unittest.TestCase):
         z = np.int32(5)
         e = z - 2 * a
         #
-        self.assertEqual(e.to_list(), ["+", "5.000000", ["*", "-2", "a"]])
+        self.assertEqual(e.to_list(), ["+", "5.000000", ["*", "-2.000000", "a"]])
 
     def test_nestedDiff(self):
         #
@@ -466,7 +466,7 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a - b
         e = e1 - z
         #
-        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1", "b"], "-5.000000"])
+        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1.000000", "b"], "-5.000000"])
 
         #       -
         #      / \
@@ -477,7 +477,7 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a - b
         e = z - e1
         #
-        self.assertEqual(e.to_list(), ["+", "5.000000", ["-", ["+", "a", ["*", "-1", "b"]]]])
+        self.assertEqual(e.to_list(), ["+", "5.000000", ["-", ["+", "a", ["*", "-1.000000", "b"]]]])
 
         #       -
         #      / \
@@ -488,7 +488,7 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a - b
         e = e1 - c
         #
-        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1", "b"], ["*", "-1", "c"]])
+        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1.000000", "b"], ["*", "-1.000000", "c"]])
 
         #            -
         #          /   \
@@ -502,7 +502,7 @@ class TestDiffExpression(unittest.TestCase):
         #
         self.assertEqual(
             e.to_list(),
-            ["+", "a", ["*", "-1", "b"], ["-", ["+", "c", ["*", "-1", "d"]]]],
+            ["+", "a", ["*", "-1.000000", "b"], ["-", ["+", "c", ["*", "-1.000000", "d"]]]],
         )
 
     def test_negation_param(self):
@@ -535,9 +535,9 @@ class TestDiffExpression(unittest.TestCase):
         self.assertEqual(e.to_list(), ["-", ["*", ["-", "p"], "v"]])
         #
         e = -5 * v
-        self.assertEqual(e.to_list(), ["*", "-5", "v"])
+        self.assertEqual(e.to_list(), ["*", "-5.000000", "v"])
         e = -e
-        self.assertEqual(e.to_list(), ["*", "5", "v"])
+        self.assertEqual(e.to_list(), ["*", "5.000000", "v"])
 
     def test_trivialDiff(self):
         #
@@ -557,7 +557,7 @@ class TestDiffExpression(unittest.TestCase):
 
         # 0 - a
         e = z - a
-        self.assertEqual(e.to_list(), ["*", "-1", "a"])
+        self.assertEqual(e.to_list(), ["*", "-1.000000", "a"])
 
         # p - 0
         e = p - z
@@ -569,7 +569,7 @@ class TestDiffExpression(unittest.TestCase):
 
         # 0 - 5*a
         e = z - 5 * a
-        self.assertEqual(e.to_list(), ["*", "-5", "a"])
+        self.assertEqual(e.to_list(), ["*", "-5.000000", "a"])
 
         # 0 - p*a
         e = z - p * a
@@ -588,7 +588,7 @@ class TestDiffExpression(unittest.TestCase):
         self.assertEqual(e.to_list(), ["a"])
 
         e = z - a
-        self.assertEqual(e.to_list(), ["*", "-1", "a"])
+        self.assertEqual(e.to_list(), ["*", "-1.000000", "a"])
 
     def test_sumOf_nestedTrivialProduct2(self):
         #
@@ -606,7 +606,7 @@ class TestDiffExpression(unittest.TestCase):
         z = np.int32(5)
         e1 = a * z
         e = e1 - b
-        self.assertEqual(e.to_list(), ["+", ["*", "5", "a"], ["*", "-1", "b"]])
+        self.assertEqual(e.to_list(), ["+", ["*", "5.000000", "a"], ["*", "-1.000000", "b"]])
 
         #       -
         #      / \
@@ -615,7 +615,7 @@ class TestDiffExpression(unittest.TestCase):
         #       a   5
         e1 = a * z
         e = b - e1
-        self.assertEqual(e.to_list(), ["+", "b", ["*", "-5", "a"]])
+        self.assertEqual(e.to_list(), ["+", "b", ["*", "-5.000000", "a"]])
 
         #            -
         #          /   \
@@ -625,7 +625,7 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a * z
         e2 = b - c
         e = e1 - e2
-        self.assertEqual(e.to_list(), ["+", ["*", "5", "a"], ["-", ["+", "b", ["*", "-1", "c"]]]])
+        self.assertEqual(e.to_list(), ["+", ["*", "5.000000", "a"], ["-", ["+", "b", ["*", "-1.000000", "c"]]]])
 
         #            -
         #          /   \
@@ -635,7 +635,7 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a * z
         e2 = b - c
         e = e2 - e1
-        self.assertEqual(e.to_list(), ["+", "b", ["*", "-1", "c"], ["*", "-5", "a"]])
+        self.assertEqual(e.to_list(), ["+", "b", ["*", "-1.000000", "c"], ["*", "-5.000000", "a"]])
 
 
 @unittest.skipIf(
@@ -713,28 +713,28 @@ class Test_MulExpression(unittest.TestCase):
         #  a   5
         z = np.int32(5)
         e = a * z
-        self.assertEqual(e.to_list(), ["*", "5", "a"])
+        self.assertEqual(e.to_list(), ["*", "5.000000", "a"])
 
         e = a
         e *= z
-        self.assertEqual(e.to_list(), ["*", "5", "a"])
+        self.assertEqual(e.to_list(), ["*", "5.000000", "a"])
 
         z = np.float32(5)
         e = a * z
-        self.assertEqual(e.to_list(), ["*", "5", "a"])
+        self.assertEqual(e.to_list(), ["*", "5.000000", "a"])
 
         #    *
         #   / \
         #  5   a
         e = z * a
-        self.assertEqual(e.to_list(), ["*", "5", "a"])
+        self.assertEqual(e.to_list(), ["*", "5.000000", "a"])
 
         e = a
         e *= z
-        self.assertEqual(e.to_list(), ["*", "5", "a"])
+        self.assertEqual(e.to_list(), ["*", "5.000000", "a"])
 
         e = z * a
-        self.assertEqual(e.to_list(), ["*", "5", "a"])
+        self.assertEqual(e.to_list(), ["*", "5.000000", "a"])
 
     def test_nestedProduct(self):
         #
@@ -853,7 +853,7 @@ class Test_MulExpression(unittest.TestCase):
         y = np.int32(5)
         e1 = z * b
         e = e1 * y
-        self.assertEqual(e.to_list(), ["*", ["*", "3", "b"], "5.000000"])
+        self.assertEqual(e.to_list(), ["*", ["*", "3.000000", "b"], "5.000000"])
 
         #       *
         #      / \
@@ -871,7 +871,7 @@ class Test_MulExpression(unittest.TestCase):
         #       3   b
         e1 = z * b
         e = y * e1
-        self.assertEqual(e.to_list(), ["*", "5.000000", ["*", "3", "b"]])
+        self.assertEqual(e.to_list(), ["*", "5.000000", ["*", "3.000000", "b"]])
 
         #       *
         #      / \
@@ -1042,25 +1042,25 @@ class Test_DivExpression(unittest.TestCase):
 
         z = np.int32(5)
         e = a / z
-        self.assertEqual(e.to_list(), ["*", "0.2", "a"])
+        self.assertEqual(e.to_list(), ["*", "0.200000", "a"])
 
         e = z / a
         self.assertEqual(e.to_list(), ["/", "5.000000", "a"])
 
         e = a
         e /= z
-        self.assertEqual(e.to_list(), ["*", "0.2", "a"])
+        self.assertEqual(e.to_list(), ["*", "0.200000", "a"])
 
         z = np.float32(5)
         e = a / z
-        self.assertEqual(e.to_list(), ["*", "0.2", "a"])
+        self.assertEqual(e.to_list(), ["*", "0.200000", "a"])
 
         e = z / a
         self.assertEqual(e.to_list(), ["/", "5.000000", "a"])
 
         e = a
         e /= z
-        self.assertEqual(e.to_list(), ["*", "0.2", "a"])
+        self.assertEqual(e.to_list(), ["*", "0.200000", "a"])
 
     def test_nestedDivision(self):
         #
@@ -1080,7 +1080,7 @@ class Test_DivExpression(unittest.TestCase):
         y = np.int32(5)
         e1 = z * b
         e = e1 / y
-        self.assertEqual(e.to_list(), ["/", ["*", "3", "b"], "5.000000"])
+        self.assertEqual(e.to_list(), ["/", ["*", "3.000000", "b"], "5.000000"])
 
         #       /
         #      / \
@@ -1423,9 +1423,9 @@ class EntangledExpressionErrors(unittest.TestCase):
     def test_sumexpr_add_entangled(self):
         a = self.a
         e = a * 2 + 1
-        self.assertEqual(e.to_list(), ["+", ["*", "2", "a"], "1.000000"])
+        self.assertEqual(e.to_list(), ["+", ["*", "2.000000", "a"], "1.000000"])
         e += 1
-        self.assertEqual(e.to_list(), ["+", ["*", "2", "a"], "1.000000", "1.000000"])
+        self.assertEqual(e.to_list(), ["+", ["*", "2.000000", "a"], "1.000000", "1.000000"])
 
     def test_entangled_test1(self):
         a = self.a
