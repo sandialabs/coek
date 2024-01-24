@@ -25,8 +25,8 @@ def test_expr_value(pyomo_module):
     assert pe.value(M.p) == 2
     e = M.p + 3
     assert pe.value(e) == 5
-    #with self.assertRaisesRegex(AttributeError, "can't set attribute"):
-    #    e.value = 0
+    with pytest.raises(AttributeError) as einfo:
+        e.value = 0
 
 def test_con_value(pyomo_module):
     pe = pyomo_module
@@ -34,9 +34,9 @@ def test_con_value(pyomo_module):
     M.p = pe.Var(initialize=2)
     assert pe.value(M.p) == 2
     e = M.p <= 3
-    assert pe.value(e) == 2
-    #with self.assertRaisesRegex(AttributeError, "can't set attribute"):
-    #    e.value = 0
+    assert pe.value(e) == True 
+    with pytest.raises(AttributeError) as einfo:
+        e.value = 0
 
 def test_param1_value(pyomo_module):
     pe = pyomo_module
@@ -64,6 +64,23 @@ def var_b(model_M, pyomo_module):
     model_M.b = pyomo_module.Var()
     return model_M.b
     
+@pytest.fixture
+def var_c(model_M, pyomo_module):
+    model_M.c = pyomo_module.Var()
+    return model_M.c
+    
+@pytest.fixture
+def var_d(model_M, pyomo_module):
+    model_M.d = pyomo_module.Var()
+    return model_M.d
+    
+def test_sum_error1(pyomo_module, var_a):
+    pe,a = pyomo_module,var_a
+    with pytest.raises((TypeError,KeyError)) as einfo:
+        class TMP(object):
+            pass
+        TMP() + var_a
+
 def test_simpleSum(pyomo_module, var_a, var_b):
     pe,a,b = pyomo_module,var_a,var_b
     # a + b
@@ -80,7 +97,7 @@ def test_simpleSum_API(pyomo_module, var_a, var_b):
     e = a + b
     e += 2 * a
     #
-    assert pe.to_list(e) == ["+", "a", "b", ["*", "2", "a"]]
+    assert pe.to_list(e) == ["+", "a", "b", ["*", "2.000000", "a"]]
 
 def test_constSum(pyomo_module, var_a):
     pe,a = pyomo_module,var_a
@@ -107,231 +124,178 @@ def test_constSum(pyomo_module, var_a):
     assert pe.to_list(e) == ["+", "a", "5.000000"]
 
 
-class XTest_SumExpression(unittest.TestCase):
-    def setUp(self):
-        self.a = variable(name="a")
-        self.b = variable(name="b")
-        self.c = variable(name="c")
-        self.d = variable(name="d")
-        self.p = parameter("p", value=0)
+def test_nestedSum(pyomo_module, var_a, var_b, var_c, var_d):
+    #
+    # Check the structure of nested sums
+    #
+    pe,a,b,c,d = pyomo_module,var_a,var_b,var_c,var_d
 
-    def test_error1(self):
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__radd__\\(\\): incompatible function arguments.*"
-            ):
+    #           +
+    #          / \
+    #         +   5
+    #        / \
+    #       a   b
+    e1 = a + b
+    e = e1 + 5
+    #
+    assert (pe.to_list(e) == ["+", "a", "b", "5.000000"] or \
+            pe.to_list(e) == ["+", "5.000000", "a", "b"])
 
-                class TMP(object):
-                    pass
+    #       +
+    #      / \
+    #     5   +
+    #        / \
+    #       a   b
+    e1 = a + b
+    e = 5 + e1
+    #
+    assert (pe.to_list(e) == ["+", "5.000000", ["+", "a", "b"]] or \
+            pe.to_list(e) == ["+", "a", "b", "5.000000"])
 
-                TMP() + self.a
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+    #           +
+    #          / \
+    #         +   c
+    #        / \
+    #       a   b
+    e1 = a + b
+    e = e1 + c
+    #
+    assert pe.to_list(e) == ["+", "a", "b", "c"]
 
-                class TMP(object):
-                    pass
+    #       +
+    #      / \
+    #     c   +
+    #        / \
+    #       a   b
+    e1 = a + b
+    e = c + e1
+    #
+    assert pe.to_list(e) == ["+", "c", ["+", "a", "b"]] or \
+           pe.to_list(e) == ["+", "a", "b", "c"]
 
-                TMP() + self.a
+    #            +
+    #          /   \
+    #         +     +
+    #        / \   / \
+    #       a   b c   d
+    e1 = a + b
+    e2 = c + d
+    e = e1 + e2
+    #
+    assert pe.to_list(e) == ["+", "a", "b", ["+", "c", "d"]] or \
+           pe.to_list(e) == ["+", "a", "b", "c", "d"]
 
-    def test_error2(self):
-        x = variable(10)
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(TypeError, "unsupported operand type.*"):
-                self.a + x
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-                self.a + x
+def test_nestedSum2(pyomo_module, var_a, var_b, var_c, var_d):
+    #
+    # Check the structure of nested sums
+    #
+    pe,a,b,c,d = pyomo_module,var_a,var_b,var_c,var_d
 
-    def test_nestedSum(self):
-        #
-        # Check the structure of nested sums
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
+    #           +
+    #          / \
+    #         *   c
+    #        / \
+    #       2   +
+    #          / \
+    #         a   b
+    e1 = a + b
+    e = 2 * e1 + c
+    #
+    assert pe.to_list(e) == ["+", ["*", "2.000000", ["+", "a", "b"]], "c"]
 
-        #           +
-        #          / \
-        #         +   5
-        #        / \
-        #       a   b
-        e1 = a + b
-        e = e1 + 5
-        #
-        self.assertEqual(e.to_list(), ["+", "a", "b", "5.000000"])
+    #         *
+    #        / \
+    #       3   +
+    #          / \
+    #         *   c
+    #        / \
+    #       2   +
+    #          / \
+    #         a   b
+    e1 = a + b
+    e = 3 * (2 * e1 + c)
+    #
+    assert pe.to_list(e) == ["*", "3.000000", ["+", ["*", "2.000000", ["+", "a", "b"]], "c"]]
 
-        #       +
-        #      / \
-        #     5   +
-        #        / \
-        #       a   b
-        e1 = a + b
-        e = 5 + e1
-        #
-        self.assertEqual(e.to_list(), ["+", "5.000000", ["+", "a", "b"]])
+def test_trivialSum(pyomo_module, var_a):
+    #
+    # Check that adding zero doesn't change the expression
+    #
+    pe,a = pyomo_module,var_a
 
-        #           +
-        #          / \
-        #         +   c
-        #        / \
-        #       a   b
-        e1 = a + b
-        e = e1 + c
-        #
-        self.assertEqual(e.to_list(), ["+", "a", "b", "c"])
+    e = a + 0
+    assert pe.to_list(e) == ["a"]
 
-        #       +
-        #      / \
-        #     c   +
-        #        / \
-        #       a   b
-        e1 = a + b
-        e = c + e1
-        #
-        self.assertEqual(e.to_list(), ["+", "c", ["+", "a", "b"]])
+    e = 0 + a
+    assert pe.to_list(e) == ["a"]
 
-        #            +
-        #          /   \
-        #         +     +
-        #        / \   / \
-        #       a   b c   d
-        e1 = a + b
-        e2 = c + d
-        e = e1 + e2
-        #
-        self.assertEqual(e.to_list(), ["+", "a", "b", ["+", "c", "d"]])
+    e = a + 0.0
+    assert pe.to_list(e) == ["a"]
 
-    def test_nestedSum2(self):
-        #
-        # Check the structure of nested sums
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
+    e = 0.0 + a
+    assert pe.to_list(e) == ["a"]
 
-        #           +
-        #          / \
-        #         *   c
-        #        / \
-        #       2   +
-        #          / \
-        #         a   b
-        e1 = a + b
-        e = 2 * e1 + c
-        #
-        self.assertEqual(e.to_list(), ["+", ["*", "2.000000", ["+", "a", "b"]], "c"])
+    e = a
+    e += 0
+    assert pe.to_list(e) == ["a"]
 
-        #         *
-        #        / \
-        #       3   +
-        #          / \
-        #         *   c
-        #        / \
-        #       2   +
-        #          / \
-        #         a   b
-        e1 = a + b
-        e = 3 * (2 * e1 + c)
-        #
-        self.assertEqual(
-            e.to_list(),
-            ["*", "3.000000", ["+", ["*", "2.000000", ["+", "a", "b"]], "c"]],
-        )
+    e = a
+    e += 0.0
+    assert pe.to_list(e) == ["a"]
 
-    def test_trivialSum(self):
-        #
-        # Check that adding zero doesn't change the expression
-        #
-        a = self.a
+    #
+    # Adding zero to a sum will not change the sum
+    #
+    e = a + a
+    f = e + 0
+    assert pe.to_list(e) == ["+", "a", "a"]
 
-        e = a + 0
-        self.assertEqual(e.to_list(), ["a"])
+def test_sumOf_nestedTrivialProduct(pyomo_module, var_a, var_b, var_c):
+    #
+    # Check sums with nested products
+    #
+    pe,a,b,c = pyomo_module,var_a,var_b,var_c
 
-        e = 0 + a
-        self.assertEqual(e.to_list(), ["a"])
+    #       +
+    #      / \
+    #     *   b
+    #    / \
+    #   a   5
+    e1 = a * 5
+    e = e1 + b
+    #
+    assert pe.to_list(e) == ["+", ["*", "5.000000", "a"], "b"]
 
-        e = a + 0.0
-        self.assertEqual(e.to_list(), ["a"])
+    #       +
+    #      / \
+    #     b   *
+    #        / \
+    #       a   5
+    e = b + e1
+    #
+    assert pe.to_list(e) == ["+", "b", ["*", "5.000000", "a"]]
 
-        e = 0.0 + a
-        self.assertEqual(e.to_list(), ["a"])
+    #            +
+    #          /   \
+    #         *     +
+    #        / \   / \
+    #       a   5 b   c
+    e2 = b + c
+    e = e1 + e2
+    #
+    assert pe.to_list(e) == ["+", ["*", "5.000000", "a"], ["+", "b", "c"]] or \
+           pe.to_list(e) == ["+", "b", "c", ["*", "5.000000", "a"]]
 
-        e = a
-        e += 0
-        self.assertEqual(e.to_list(), ["a"])
+    #            +
+    #          /   \
+    #         +     *
+    #        / \   / \
+    #       b   c a   5
+    e2 = b + c
+    e = e2 + e1
+    #
+    assert pe.to_list(e) == ["+", "b", "c", ["*", "5.000000", "a"]]
 
-        e = a
-        e += 0.0
-        self.assertEqual(e.to_list(), ["a"])
-
-        #
-        # Adding zero to a sum will not change the sum
-        #
-        e = a + a
-        f = e + 0
-        self.assertEqual(e.to_list(), ["+", "a", "a"])
-
-    def test_sumOf_nestedTrivialProduct(self):
-        #
-        # Check sums with nested products
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-
-        #       +
-        #      / \
-        #     *   b
-        #    / \
-        #   a   5
-        e1 = a * 5
-        e = e1 + b
-        #
-        self.assertEqual(e.to_list(), ["+", ["*", "5", "a"], "b"])
-
-        #       +
-        #      / \
-        #     b   *
-        #        / \
-        #       a   5
-        e = b + e1
-        #
-        self.assertEqual(e.to_list(), ["+", "b", ["*", "5", "a"]])
-
-        #            +
-        #          /   \
-        #         *     +
-        #        / \   / \
-        #       a   5 b   c
-        e2 = b + c
-        e = e1 + e2
-        #
-        self.assertEqual(e.to_list(), ["+", ["*", "5", "a"], ["+", "b", "c"]])
-
-        #            +
-        #          /   \
-        #         +     *
-        #        / \   / \
-        #       b   c a   5
-        e2 = b + c
-        e = e2 + e1
-        #
-        self.assertEqual(e.to_list(), ["+", "b", "c", ["*", "5", "a"]])
-
-    def test_affine(self):
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
-
-        e = affine_expression([1, 2, 3, 4], [a, b, c, d], 5)
-        #
-        self.assertEqual(
-            e.to_list(),
-            ["+", "5.000000", "a", ["*", "2", "b"], ["*", "3", "c"], ["*", "4", "d"]],
-        )
 
 
 class XTestDiffExpression(unittest.TestCase):
@@ -543,18 +507,18 @@ class XTestDiffExpression(unittest.TestCase):
 
         # a - 0
         e = a - 0
-        self.assertEqual(e.to_list(), ["a"])
+        self.assertEqual(e.to_list(), "a")
 
         e = a - 0.0
-        self.assertEqual(e.to_list(), ["a"])
+        self.assertEqual(e.to_list(), "a")
 
         e = a
         e -= 0
-        self.assertEqual(e.to_list(), ["a"])
+        self.assertEqual(e.to_list(), "a")
 
         e = a
         e -= 0.0
-        self.assertEqual(e.to_list(), ["a"])
+        self.assertEqual(e.to_list(), "a")
 
         # 0 - a
         e = 0 - a
@@ -565,7 +529,7 @@ class XTestDiffExpression(unittest.TestCase):
 
         # p - 0
         e = p - 0
-        self.assertEqual(e.to_list(), ["p"])
+        self.assertEqual(e.to_list(), "p")
 
         # 0 - p
         e = 0 - p

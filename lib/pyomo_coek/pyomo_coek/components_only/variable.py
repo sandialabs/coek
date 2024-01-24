@@ -505,6 +505,14 @@ class ScalarVar(_GeneralVarData, Var):
         Var.__init__(self, *args, **kwd)
         self._index = UnindexedComponent_set
 
+    @property
+    def _name(self):
+        return self._pe.get_name()
+
+    @_name.setter
+    def _name(self, val):
+        self._pe.set_name(val)
+
 
 @disable_methods(_VARDATA_API)
 class AbstractScalarVar(ScalarVar):
@@ -1306,8 +1314,8 @@ class Param(IndexedComponent):
 
 class ScalarParam(_ParamData, Param):
     def __init__(self, *args, **kwds):
-        Param.__init__(self, *args, **kwds)
         _ParamData.__init__(self, component=self)
+        Param.__init__(self, *args, **kwds)
         self._index = UnindexedComponent_index
 
     #
@@ -1340,6 +1348,14 @@ class ScalarParam(_ParamData, Param):
                 "the Param has been constructed (there is currently no "
                 "value to return)." % (self.name,)
             )
+
+    @property
+    def _name(self):
+        return self._pe.get_name()
+
+    @_name.setter
+    def _name(self, val):
+        self._pe.set_name(val)
 
     def set_value(self, value, index=NOTSET):
         if index is NOTSET:

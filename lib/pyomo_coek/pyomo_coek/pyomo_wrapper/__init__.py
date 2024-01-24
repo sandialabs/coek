@@ -2,6 +2,4 @@
 # adds other utility functions used to support testing.
 
 from pyomo.environ import *
-
-def to_list(e):
-    return []
+from .to_list import to_list
