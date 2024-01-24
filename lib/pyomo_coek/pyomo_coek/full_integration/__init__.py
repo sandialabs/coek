@@ -20,4 +20,4 @@ from pyomo.core.base.objective import minimize, maximize
 from pyomo.core.expr import value
 
 def to_list(e):
-    return []
+    return e.to_list()

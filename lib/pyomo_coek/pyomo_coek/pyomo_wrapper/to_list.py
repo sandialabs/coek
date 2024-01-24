@@ -15,7 +15,7 @@ from pyomo.common.numeric_types import (
     value,
 )
 
-namemap = {'sum':'+', 'mon':'*', 'prod':'*'}
+namemap = {'sum':'+', 'mon':'*', 'prod':'*', 'neg':'-', 'div':'/'}
 
 class _ToListVisitor(ExpressionValueVisitor):
     _expression_handlers = None

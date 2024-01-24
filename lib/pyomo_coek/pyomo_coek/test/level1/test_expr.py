@@ -4,12 +4,62 @@ import math
 from poek import *
 import poek
 
+# This class will be removed when we finalize all the pytests
 class unittest:
     TestCase = object
 
 #
+# Test fixtures
+#
+
+@pytest.fixture
+def model_M(pyomo_module):
+    return pyomo_module.ConcreteModel()
+
+@pytest.fixture
+def var_a(model_M, pyomo_module):
+    model_M.a = pyomo_module.Var(initialize=0.0)
+    return model_M.a
+
+@pytest.fixture
+def var_b(model_M, pyomo_module):
+    model_M.b = pyomo_module.Var()
+    return model_M.b
+    
+@pytest.fixture
+def var_c(model_M, pyomo_module):
+    model_M.c = pyomo_module.Var()
+    return model_M.c
+    
+@pytest.fixture
+def var_d(model_M, pyomo_module):
+    model_M.d = pyomo_module.Var()
+    return model_M.d
+    
+@pytest.fixture
+def var_v(model_M, pyomo_module):
+    model_M.v = pyomo_module.Var()
+    return model_M.v
+    
+@pytest.fixture
+def param_p(model_M, pyomo_module):
+    model_M.p = pyomo_module.Param(initialize=0, mutable=True)
+    return model_M.p
+
+@pytest.fixture
+def param_q(model_M, pyomo_module):
+    model_M.q = pyomo_module.Param(initialize=0, mutable=True)
+    return model_M.q
+
+@pytest.fixture
+def param_r(model_M, pyomo_module):
+    model_M.r = pyomo_module.Param(initialize=1, mutable=True)
+    return model_M.r
+
+#
 # Value tests
 #
+
 def test_var_value(pyomo_module):
     pe = pyomo_module
     M = pe.ConcreteModel()
@@ -46,34 +96,10 @@ def test_param1_value(pyomo_module):
     M.p.value = 3
     assert pe.value(M.p) == 3
 
-
 #
 # Sum expression tests
 #
-@pytest.fixture
-def model_M(pyomo_module):
-    return pyomo_module.ConcreteModel()
 
-@pytest.fixture
-def var_a(model_M, pyomo_module):
-    model_M.a = pyomo_module.Var()
-    return model_M.a
-
-@pytest.fixture
-def var_b(model_M, pyomo_module):
-    model_M.b = pyomo_module.Var()
-    return model_M.b
-    
-@pytest.fixture
-def var_c(model_M, pyomo_module):
-    model_M.c = pyomo_module.Var()
-    return model_M.c
-    
-@pytest.fixture
-def var_d(model_M, pyomo_module):
-    model_M.d = pyomo_module.Var()
-    return model_M.d
-    
 def test_sum_error1(pyomo_module, var_a):
     pe,a = pyomo_module,var_a
     with pytest.raises((TypeError,KeyError)) as einfo:
@@ -138,8 +164,8 @@ def test_nestedSum(pyomo_module, var_a, var_b, var_c, var_d):
     e1 = a + b
     e = e1 + 5
     #
-    assert (pe.to_list(e) == ["+", "a", "b", "5.000000"] or \
-            pe.to_list(e) == ["+", "5.000000", "a", "b"])
+    assert pe.to_list(e) == ["+", "a", "b", "5.000000"] or \
+           pe.to_list(e) == ["+", "5.000000", "a", "b"]
 
     #       +
     #      / \
@@ -149,8 +175,8 @@ def test_nestedSum(pyomo_module, var_a, var_b, var_c, var_d):
     e1 = a + b
     e = 5 + e1
     #
-    assert (pe.to_list(e) == ["+", "5.000000", ["+", "a", "b"]] or \
-            pe.to_list(e) == ["+", "a", "b", "5.000000"])
+    assert pe.to_list(e) == ["+", "5.000000", ["+", "a", "b"]] or \
+           pe.to_list(e) == ["+", "a", "b", "5.000000"]
 
     #           +
     #          / \
@@ -296,1158 +322,906 @@ def test_sumOf_nestedTrivialProduct(pyomo_module, var_a, var_b, var_c):
     #
     assert pe.to_list(e) == ["+", "b", "c", ["*", "5.000000", "a"]]
 
+#
+# Diff expression tests
+#
+
+def test_diff_error1(pyomo_module, var_a):
+    pe,a = pyomo_module,var_a
+    with pytest.raises((TypeError,KeyError)) as einfo:
+        class TMP(object):
+            pass
+        TMP() - var_a
+
+def test_simpleDiff(pyomo_module, var_a, var_b):
+    #
+    # Check the structure of a simple difference with two variables
+    #
+    pe,a,b = pyomo_module,var_a,var_b
+
+    #    -
+    #   / \
+    #  a   b
+    e = a - b
+    assert pe.to_list(e) == ["+", "a", ["*", "-1.000000", "b"]]
+
+    e = a
+    e -= b
+    assert pe.to_list(e) == ["+", "a", ["*", "-1.000000", "b"]]
+
+def test_constDiff(pyomo_module, var_a):
+    pe,a = pyomo_module,var_a
+
+    e = a - 5
+    assert pe.to_list(e) == ["+", "a", "-5.000000"]
+
+    e = 5 - a
+    assert pe.to_list(e) == ["+", "5.000000", ["*", "-1.000000", "a"]]
+
+    e = a
+    e -= 5
+    assert pe.to_list(e) == ["+", "a", "-5.000000"]
+
+    e = a - 5.0
+    assert pe.to_list(e) == ["+", "a", "-5.000000"]
+
+    e = 5.0 - a
+    assert pe.to_list(e) == ["+", "5.000000", ["*", "-1.000000", "a"]]
+
+    e = a
+    e -= 5.0
+    assert pe.to_list(e) == ["+", "a", "-5.000000"]
+
+def test_paramDiff(pyomo_module, var_a, param_p):
+    # a - p
+    pe,a,p = pyomo_module,var_a,param_p
+
+    e = a - p
+    assert pe.to_list(e) == ["+", "a", ["-", "p"]]
+
+    # p - a
+    e = p - a
+    assert pe.to_list(e) == ["+", "p", ["*", "-1.000000", "a"]]
+
+def test_termDiff(pyomo_module, var_a):
+    #
+    # Check the structure of a simple difference with a term
+    #
+    pe,a = pyomo_module,var_a
+
+    #
+    #   -
+    #  / \
+    # 5   *
+    #    / \
+    #   2   a
+    #
+
+    e = 5 - 2 * a
+    assert pe.to_list(e) == ["+", "5.000000", ["*", "-2.000000", "a"]]
+
+def test_nestedDiff(pyomo_module, var_a, var_b, var_c, var_d):
+    #
+    # Check the structure of nested differences
+    #
+    pe,a,b,c,d = pyomo_module,var_a,var_b,var_c,var_d
+
+    #       -
+    #      / \
+    #     -   5
+    #    / \
+    #   a   b
+
+    e1 = a - b
+    e = e1 - 5
+    #
+    assert pe.to_list(e) == ["+", "a", ["*", "-1.000000", "b"], "-5.000000"]
+
+    #       -
+    #      / \
+    #     5   -
+    #        / \
+    #       a   b
+
+    e1 = a - b
+    e = 5 - e1
+    #
+    assert pe.to_list(e) == ["+", "5.000000", ["-", ["+", "a", ["*", "-1.000000", "b"]]]]
+
+    #       -
+    #      / \
+    #     -   c
+    #    / \
+    #   a   b
+
+    e1 = a - b
+    e = e1 - c
+    #
+    assert pe.to_list(e) == ["+", "a", ["*", "-1.000000", "b"], ["*", "-1.000000", "c"]]
+
+    #            -
+    #          /   \
+    #         -     -
+    #        / \   / \
+    #       a   b c   d
+
+    e1 = a - b
+    e2 = c - d
+    e = e1 - e2
+    #
+    assert pe.to_list(e) == ["+", "a", ["*", "-1.000000", "b"], ["-", ["+", "c", ["*", "-1.000000", "d"]]]] or \
+           pe.to_list(e) == ["+", ["+", "a", ["*", "-1.000000", "b"]], ["-", ["+", "c", ["*", "-1.000000", "d"]]]]
+
+def test_negation_param(pyomo_module, param_p):
+    #
+    # Check logic for negations
+    #
+    pe,p = pyomo_module,param_p
+
+    e = -p
+    assert pe.to_list(e) == ["-", "p"]
+
+    e = -e
+    #
+    # TODO: Can we detect negations of negations?
+    #
+    assert pe.to_list(e) == ["-", ["-", "p"]] or \
+           pe.to_list(e) == ["p"]
+
+def test_negation_terms(pyomo_module, param_p, var_v):
+    #
+    # Check logic for negations with terms
+    #
+    pe,p,v = pyomo_module,param_p,var_v
+
+    e = -p * v
+    assert pe.to_list(e) == ["*", ["-", "p"], "v"]
+
+    e = -e
+    assert pe.to_list(e) == ["-", ["*", ["-", "p"], "v"]] or \
+           pe.to_list(e) == ["*", "p", "v"]
+    #
+    e = -5 * v
+    assert pe.to_list(e) == ["*", "-5.000000", "v"]
+    e = -e
+    assert pe.to_list(e) == ["*", "5.000000", "v"]
+
+def test_trivialDiff(pyomo_module, var_a, param_p):
+    #
+    # Check that subtracting zero doesn't change the expression
+    #
+    pe,a,p = pyomo_module,var_a,param_p
+
+    # a - 0
+    e = a - 0
+    assert pe.to_list(e) == ["a"]
+
+    e = a - 0.0
+    assert pe.to_list(e) == ["a"]
+
+    e = a
+    e -= 0
+    assert pe.to_list(e) == ["a"]
+
+    e = a
+    e -= 0.0
+    assert pe.to_list(e) == ["a"]
+
+    # 0 - a
+    e = 0 - a
+    assert pe.to_list(e) == ["*", "-1.000000", "a"]
+
+    e = 0.0 - a
+    assert pe.to_list(e) == ["*", "-1.000000", "a"]
+
+    # p - 0
+    e = p - 0
+    assert pe.to_list(e) == ["p"]
+
+    # 0 - p
+    e = 0 - p
+    assert pe.to_list(e) == ["-", "p"]
+
+    # 0 - 5*a
+    e = 0 - 5 * a
+    assert pe.to_list(e) == ["*", "-5.000000", "a"]
+
+    # 0 - p*a
+    e = 0 - p * a
+    assert pe.to_list(e) == ["-", ["*", "p", "a"]] or \
+           pe.to_list(e) == ["*", ["-", "p"], "a"]
+
+    # 0 - a*a
+    e = 0 - a * a
+    assert pe.to_list(e) == ["-", ["*", "a", "a"]]
+
+def test_sumOf_nestedTrivialProduct2(pyomo_module, var_a, var_b, var_c):
+    #
+    # Check the structure of sum of products
+    #
+    pe,a,b,c = pyomo_module,var_a,var_b,var_c
+
+    #       -
+    #      / \
+    #     *   b
+    #    / \
+    #   a   5
+    e1 = a * 5
+    e = e1 - b
+    assert pe.to_list(e) == ["+", ["*", "5.000000", "a"], ["*", "-1.000000", "b"]]
+
+    #       -
+    #      / \
+    #     b   *
+    #        / \
+    #       a   5
+    e1 = a * 5
+    e = b - e1
+    assert pe.to_list(e) == ["+", "b", ["*", "-5.000000", "a"]]
+
+    #            -
+    #          /   \
+    #         *     -
+    #        / \   / \
+    #       a   5 b   c
+    e1 = a * 5
+    e2 = b - c
+    e = e1 - e2
+    assert pe.to_list(e) == ["+", ["*", "5.000000", "a"], ["-", ["+", "b", ["*", "-1.000000", "c"]]]]
+
+    #            -
+    #          /   \
+    #         -     *
+    #        / \   / \
+    #       b   c a   5
+    e1 = a * 5
+    e2 = b - c
+    e = e2 - e1
+    assert pe.to_list(e) == ["+", "b", ["*", "-1.000000", "c"], ["*", "-5.000000", "a"]]
+
+#
+# Mul expression tests
+#
+
+def test_mul_error1(pyomo_module, var_a):
+    pe,a = pyomo_module,var_a
+    with pytest.raises((TypeError,KeyError)) as einfo:
+        class TMP(object):
+            pass
+        TMP() * var_a
+
+def test_simpleProduct(pyomo_module, var_a, var_b, var_c, var_d):
+    #
+    # Check the structure of a simple product of variables
+    #
+    pe,a,b = pyomo_module,var_a,var_b
+
+    #    *
+    #   / \
+    #  a   b
+    e = a * b
+    assert pe.to_list(e) == ["*", "a", "b"]
+
+    #    *
+    #   / \
+    #  a   b
+    e = a
+    e *= b
+    assert pe.to_list(e) == ["*", "a", "b"]
+
+def test_constProduct(pyomo_module, var_a):
+    #
+    # Check the structure of a simple product with a constant
+    #
+    pe,a = pyomo_module,var_a
+
+    #    *
+    #   / \
+    #  a   5
+    e = a * 5
+    assert pe.to_list(e) == ["*", "5.000000", "a"]
+
+    e = a * 5.0
+    assert pe.to_list(e) == ["*", "5.000000", "a"]
+
+    e = a
+    e *= 5
+    assert pe.to_list(e) == ["*", "5.000000", "a"]
+
+    #    *
+    #   / \
+    #  5   a
+    e = 5.0 * a
+    assert pe.to_list(e) == ["*", "5.000000", "a"]
+
+    e = a
+    e *= 5.0
+    assert pe.to_list(e) == ["*", "5.000000", "a"]
+
+    e = 5.0 * a
+    assert pe.to_list(e) == ["*", "5.000000", "a"]
+
+def test_nestedProduct(pyomo_module, var_a, var_b, var_c, var_d):
+    #
+    # Check the structure of nested products
+    #
+    pe,a,b,c,d = pyomo_module,var_a,var_b,var_c,var_d
+
+    #       *
+    #      / \
+    #     *   5
+    #    / \
+    #   a   b
+    e1 = a * b
+    e = e1 * 5
+    assert pe.to_list(e) == ["*", ["*", "a", "b"], "5.000000"]
+
+    #       *
+    #      / \
+    #     5   *
+    #        / \
+    #       a   b
+    e1 = a * b
+    e = 5 * e1
+    assert pe.to_list(e) == ["*", "5.000000", ["*", "a", "b"]]
+
+    #       *
+    #      / \
+    #     *   c
+    #    / \
+    #   a   b
+    e1 = a * b
+    e = e1 * c
+    assert pe.to_list(e) == ["*", ["*", "a", "b"], "c"]
+
+    #       *
+    #      / \
+    #     c   *
+    #        / \
+    #       a   b
+    e1 = a * b
+    e = c * e1
+    assert pe.to_list(e) == ["*", "c", ["*", "a", "b"]]
+
+    #            *
+    #          /   \
+    #         *     *
+    #        / \   / \
+    #       a   b c   d
+    e1 = a * b
+    e2 = c * d
+    e = e1 * e2
+    assert pe.to_list(e) == ["*", ["*", "a", "b"], ["*", "c", "d"]]
+
+def test_nestedProduct2(pyomo_module, var_a, var_b, var_c, var_d):
+    #
+    # Check the structure of nested products
+    #
+    pe,a,b,c,d = pyomo_module,var_a,var_b,var_c,var_d
+
+    #
+    # Check the structure of nested products
+    #
+    #            *
+    #          /   \
+    #         +     +
+    #        / \   / \
+    #       c    +    d
+    #           / \
+    #          a   b
+    e1 = a + b
+    e2 = c + e1
+    e3 = e1 + d
+    e = e2 * e3
+    assert pe.to_list(e) == ["*", ["+", "c", ["+", "a", "b"]], ["+", "a", "b", "d"]] or \
+           pe.to_list(e) == ['*', ['+', 'a', 'b', 'c'], ['+', 'a', 'b', 'd']]
+
+    #
+    # Check the structure of nested products
+    #
+    #            *
+    #          /   \
+    #         *     *
+    #        / \   / \
+    #       c    +    d
+    #           / \
+    #          a   b
+    e1 = a + b
+    e2 = c * e1
+    e3 = e1 * d
+    e = e2 * e3
+    assert pe.to_list(e) == ["*", ["*", "c", ["+", "a", "b"]], ["*", ["+", "a", "b"], "d"]]
+
+def test_nestedProduct3(pyomo_module, var_a, var_b, var_c, var_d):
+    #
+    # Check the structure of nested products
+    #
+    pe,a,b,c,d = pyomo_module,var_a,var_b,var_c,var_d
+
+    #       *
+    #      / \
+    #     *   5
+    #    / \
+    #   3   b
+    e1 = 3 * b
+    e = e1 * 5
+    assert pe.to_list(e) == ["*", ["*", "3.000000", "b"], "5.000000"] or \
+           pe.to_list(e) == ["*", "15.000000", "b"]
+
+    #       *
+    #      / \
+    #     *   5
+    #    / \
+    #   a   b
+    e1 = a * b
+    e = e1 * 5
+    assert pe.to_list(e) == ["*", ["*", "a", "b"], "5.000000"]
+
+    #       *
+    #      / \
+    #     5   *
+    #        / \
+    #       3   b
+    e1 = 3 * b
+    e = 5 * e1
+    assert pe.to_list(e) == ["*", "5.000000", ["*", "3.000000", "b"]] or \
+           pe.to_list(e) == ["*", "15.000000", "b"]
+
+    #       *
+    #      / \
+    #     5   *
+    #        / \
+    #       a   b
+    e1 = a * b
+    e = 5 * e1
+    assert pe.to_list(e) == ["*", "5.000000", ["*", "a", "b"]]
+
+    #       *
+    #      / \
+    #     *   c
+    #    / \
+    #   a   b
+    e1 = a * b
+    e = e1 * c
+    assert pe.to_list(e) == ["*", ["*", "a", "b"], "c"]
+
+    #       *
+    #      / \
+    #     c   *
+    #        / \
+    #       a   b
+    e1 = a * b
+    e = c * e1
+    assert pe.to_list(e) == ["*", "c", ["*", "a", "b"]]
+
+    #            *
+    #          /   \
+    #         *     *
+    #        / \   / \
+    #       a   b c   d
+    e1 = a * b
+    e2 = c * d
+    e = e1 * e2
+    assert pe.to_list(e) == ["*", ["*", "a", "b"], ["*", "c", "d"]]
+
+def test_trivialProduct(pyomo_module, var_a, param_p, param_q, param_r):
+    #
+    # Check that multiplying by zero gives zero
+    #
+    pe,a,p,q,r = pyomo_module,var_a,param_p,param_q,param_r
+
+    e = a * 0
+    assert pe.value(e) == 0.0
+
+    e = a * 0.0
+    assert pe.value(e) == 0.0
+
+    e = a
+    e *= 0
+    assert pe.value(e) == 0.0
+
+    e = a
+    e *= 0.0
+    assert pe.value(e) == 0.0
+
+    e = 0 * a
+    assert pe.value(e) == 0.0
+
+    e = 0.0 * a
+    assert pe.value(e) == 0.0
+
+    e = a * p
+    assert pe.to_list(e) == ["*", "a", "p"] or \
+           pe.to_list(e) == ["*", "p", "a"]
+
+    e = p * a
+    assert pe.to_list(e) == ["*", "p", "a"] or \
+           pe.to_list(e) == ["*", "p", "a"]
+
+    #
+    # Check that multiplying by one gives the original expression
+    #
+    e = a * 1
+    assert pe.to_list(e) == ["a"]
+
+    e = a * 1.0
+    assert pe.to_list(e) == ["a"]
+
+    e = a
+    e *= 1
+    assert pe.to_list(e) == ["a"]
+
+    e = a
+    e *= 1.0
+    assert pe.to_list(e) == ["a"]
+
+    e = 1 * a
+    assert pe.to_list(e) == ["a"]
+
+    e = 1.0 * a
+    assert pe.to_list(e) == ["a"]
+
+#
+# Div expression tests
+#
+
+def test_div_error1(pyomo_module, var_a):
+    pe,a = pyomo_module,var_a
+    with pytest.raises((TypeError,KeyError)) as einfo:
+        class TMP(object):
+            pass
+        TMP() / var_a
+
+def test_simpleDivision(pyomo_module, var_a, var_b):
+    #
+    # Check the structure of a simple division with variables
+    #
+    pe,a,b = pyomo_module,var_a,var_b
+
+    #    /
+    #   / \
+    #  a   b
+    e = a / b
+    assert pe.to_list(e) == ["/", "a", "b"]
+
+    e = a
+    e /= b
+    assert pe.to_list(e) == ["/", "a", "b"]
+
+def test_constDivision(pyomo_module, var_a):
+    #
+    # Check the structure of a simple division with a constant
+    #
+    pe,a = pyomo_module,var_a
+
+    e = a / 5
+    assert pe.to_list(e) == ["*", "0.200000", "a"]
+
+    e = 5 / a
+    assert pe.to_list(e) == ["/", "5.000000", "a"]
+
+    e = a
+    e /= 5
+    assert pe.to_list(e) == ["*", "0.200000", "a"]
+
+    e = a / 5.0
+    assert pe.to_list(e) == ["*", "0.200000", "a"]
+
+    e = 5.0 / a
+    assert pe.to_list(e) == ["/", "5.000000", "a"]
+
+    e = a
+    e /= 5.0
+    assert pe.to_list(e) == ["*", "0.200000", "a"]
+
+def test_nestedDivision(pyomo_module, var_a, var_b, var_c, var_d):
+    #
+    # Check the structure of nested divisions
+    #
+    pe,a,b,c,d = pyomo_module,var_a,var_b,var_c,var_d
+
+    #       /
+    #      / \
+    #     *   5
+    #    / \
+    #   3   b
+    e1 = 3 * b
+    e = e1 / 5
+    assert pe.to_list(e) == ["/", ["*", "3.000000", "b"], "5.000000"] or \
+           pe.to_list(e) == ["*", "0.600000", "b"]
+
+    #       /
+    #      / \
+    #     /   5
+    #    / \
+    #   a   b
+    e1 = a / b
+    e = e1 / 5
+    assert pe.to_list(e) == ["/", ["/", "a", "b"], "5.000000"]
+
+    #       /
+    #      / \
+    #     5   /
+    #        / \
+    #       a   b
+    e1 = a / b
+    e = 5 / e1
+    assert pe.to_list(e) == ["/", "5.000000", ["/", "a", "b"]]
+
+    #       /
+    #      / \
+    #     /   c
+    #    / \
+    #   a   b
+    e1 = a / b
+    e = e1 / c
+    assert pe.to_list(e) == ["/", ["/", "a", "b"], "c"]
+
+    #       /
+    #      / \
+    #     c   /
+    #        / \
+    #       a   b
+    e1 = a / b
+    e = c / e1
+    assert pe.to_list(e) == ["/", "c", ["/", "a", "b"]]
+
+    #            /
+    #          /   \
+    #         /     /
+    #        / \   / \
+    #       a   b c   d
+    e1 = a / b
+    e2 = c / d
+    e = e1 / e2
+    assert pe.to_list(e) == ["/", ["/", "a", "b"], ["/", "c", "d"]]
+
+def test_trivialDivision(pyomo_module, var_a, param_p, param_q, param_r):
+    #
+    # Check that dividing by zero generates an exception
+    #
+    pe,a,p,q,r = pyomo_module,var_a,param_p,param_q,param_r
+
+    with pytest.raises((ValueError,TypeError,ZeroDivisionError)) as einfo:
+        a.__truediv__(0)
+    with pytest.raises((ValueError,TypeError,ZeroDivisionError)) as einfo:
+        a.__truediv__(0.0)
+
+    #
+    # Check that dividing zero by anything non-zero gives zero
+    #
+    e = 0 / a
+    assert pe.to_list(e) == ["0.000000"] or \
+           pe.to_list(e) == ["/", "0.000000", "a"]
+    #self.assertAlmostEqual(e.value, 0.0)
+
+    e = 0.0 / a
+    assert pe.to_list(e) == ["0.000000"] or \
+           pe.to_list(e) == ["/", "0.000000", "a"]
+    #self.assertAlmostEqual(e.value, 0.0)
+
+    #
+    # Check that dividing by one 1 gives the original expression
+    #
+    e = a / 1
+    assert pe.to_list(e) == ["a"]
+
+    e = a / 1.0
+    assert pe.to_list(e) == ["a"]
+
+    e = a
+    e /= 1
+    assert pe.to_list(e) == ["a"]
+
+    e = a
+    e /= 1.0
+    assert pe.to_list(e) == ["a"]
+
+    e = a / r
+    assert pe.to_list(e) == ["/", "a", "r"] or \
+           pe.to_list(e) == ["*", ["/", "1.000000", "r"], "a"]
+
+    #
+    # Check the structure dividing 1 by an expression
+    #
+    e = 1 / a
+    assert pe.to_list(e) == ["/", "1.000000", "a"]
+
+    e = 1.0 / a
+    assert pe.to_list(e) == ["/", "1.000000", "a"]
+
+    #
+    # Check the structure dividing 1 by a mutable zero
+    #
+    e = 1 / p
+    assert pe.to_list(e) == ["/", "1.000000", "p"]
+
+    e = 1.0 / p
+    assert pe.to_list(e) == ["/", "1.000000", "p"]
+
+#
+# Pow expression tests
+#
+
+def test_pow_error1(pyomo_module, var_a):
+    pe,a = pyomo_module,var_a
+    with pytest.raises((TypeError,KeyError)) as einfo:
+        class TMP(object):
+            pass
+        TMP() ** var_a
+
+def test_simplePow(pyomo_module, var_a, var_b):
+    pe,a,b = pyomo_module,var_a,var_b
+
+    e = a**b
+    assert pe.to_list(e) == ["pow", "a", "b"]
+
+    e = a
+    e **= b
+    assert pe.to_list(e) == ["pow", "a", "b"]
+
+def test_constPow(pyomo_module, var_a):
+    #
+    # Check the structure of a simple power with a constant
+    #
+    pe,a = pyomo_module,var_a
+
+    e = a**5
+    assert pe.to_list(e) == ["pow", "a", "5.000000"]
+
+    e = 5**a
+    assert pe.to_list(e) == ["pow", "5.000000", "a"]
+
+    e = a
+    e **= 5
+    assert pe.to_list(e) == ["pow", "a", "5.000000"]
+
+    e = a**5.0
+    assert pe.to_list(e) == ["pow", "a", "5.000000"]
+
+    e = 5.0**a
+    assert pe.to_list(e) == ["pow", "5.000000", "a"]
+
+    e = a
+    e **= 5.0
+    assert pe.to_list(e) == ["pow", "a", "5.000000"]
+
+def test_trivialPow(pyomo_module, var_a, param_p, param_q, param_r):
+    #
+    pe,a,p,q,r = pyomo_module,var_a,param_p,param_q,param_r
+
+    #
+    # Check that taking the first power returns the original object
+    #
+    e = a**1
+    assert pe.to_list(e) == ["a"]
+
+    e = a**1.0
+    assert pe.to_list(e) == ["a"]
+
+    e = a
+    e **= 1
+    assert pe.to_list(e) == ["a"]
+
+    e = a
+    e **= 1.0
+    assert pe.to_list(e) == ["a"]
+
+    e = a**r
+    assert pe.to_list(e) == ["pow", "a", "r"]
+
+    #
+    # Check that taking the zeroth power returns one
+    #
+    e = a**0
+    assert pe.to_list(e) == ["1.000000"] or \
+           pe.to_list(e) == ["pow", "a", "0.000000"]
+
+    e = a**0.0
+    assert pe.to_list(e) == ["1.000000"] or \
+           pe.to_list(e) == ["pow", "a", "0.000000"]
+
+    e = a
+    e **= 0
+    assert pe.to_list(e) == ["1.000000"] or \
+           pe.to_list(e) == ["pow", "a", "0.000000"]
+
+    e = a
+    e **= 0.0
+    assert pe.to_list(e) == ["1.000000"] or \
+           pe.to_list(e) == ["pow", "a", "0.000000"]
+
+    e = a**q
+    assert pe.to_list(e) == ["pow", "a", "q"]
+
+    #
+    # Check that taking powers of 0 and 1 are easy
+    #
+    e = 0**a
+    assert pe.to_list(e) == ["0.000000"] or \
+           pe.to_list(e) == ["pow", "0.000000", "a"]
+
+    e = 0.0**a
+    assert pe.to_list(e) == ["0.000000"] or \
+           pe.to_list(e) == ["pow", "0.000000", "a"]
+
+    e = 1**a
+    assert pe.to_list(e) == ["1.000000"] or \
+           pe.to_list(e) == ["pow", "1.000000", "a"]
+
+    e = 1.0**a
+    assert pe.to_list(e) == ["1.000000"] or \
+           pe.to_list(e) == ["pow", "1.000000", "a"]
+
+def test_trivialRPow(pyomo_module, var_a, param_p, param_q, param_r):
+    #
+    pe,a,p,q,r = pyomo_module,var_a,param_p,param_q,param_r
+
+    #
+    # Check that taking any power of 1 is 1
+    #
+    e = 1**a
+    assert pe.to_list(e) == ["1.000000"] or \
+           pe.to_list(e) == ["pow", "1.000000", "a"]
+
+    e = 1.0**a
+    assert pe.to_list(e) == ["1.000000"] or \
+           pe.to_list(e) == ["pow", "1.000000", "a"]
+
+    e = r**a
+    assert pe.to_list(e) == ["pow", "r", "a"]
+
+    #
+    # Check that taking the zeroth power returns one
+    #
+    e = 0**a
+    assert pe.to_list(e) == ["0.000000"] or \
+           pe.to_list(e) == ["pow", "0.000000", "a"]
+
+    e = 0.0**a
+    assert pe.to_list(e) == ["0.000000"] or \
+           pe.to_list(e) == ["pow", "0.000000", "a"]
+
+def test_pow_expresions(pyomo_module, var_a, param_r):
+    pe,a,r = pyomo_module,var_a,param_r
+
+    e = a**r
+    assert pe.to_list(e) == ["pow", "a", "r"]
+
+    e = a**2
+    assert pe.to_list(e) == ["pow", "a", "2.000000"]
+
+    e = a**2.0
+    assert pe.to_list(e) == ["pow", "a", "2.000000"]
+
+    e = 2**a
+    assert pe.to_list(e) == ["pow", "2.000000", "a"]
+
+    e = 2.0**a
+    assert pe.to_list(e) == ["pow", "2.000000", "a"]
+
+#
+# Test entangled expression errors
+#
+
+def test_sumexpr_add_entangled(pyomo_module, var_a):
+    pe,a = pyomo_module,var_a
+
+    e = a * 2 + 1
+    assert pe.to_list(e) == ["+", ["*", "2.000000", "a"], "1.000000"]
+    e += 1
+    assert pe.to_list(e) == ["+", ["*", "2.000000", "a"], "1.000000", "1.000000"]
+
+def test_entangled_test1(pyomo_module, var_a, var_b, var_c, var_d):
+    pe,a,b,c,d = pyomo_module,var_a,var_b,var_c,var_d
+
+    e1 = a + b
+    e2 = c + e1
+    e3 = d + e1
+
+    assert pe.to_list(e1) == ["+", "a", "b"]
+    assert pe.to_list(e2) == ["+", "c", ["+", "a", "b"]] or \
+           pe.to_list(e2) == ["+", "a", "b", "c"]
+    assert pe.to_list(e3) == ["+", "d", ["+", "a", "b"]] or \
+           pe.to_list(e3) == ["+", "a", "b", "d"]
 
-
-class XTestDiffExpression(unittest.TestCase):
-    def setUp(self):
-        self.a = variable(name="a")
-        self.b = variable(name="b")
-        self.c = variable(name="c")
-        self.d = variable(name="d")
-        self.v = variable(name="v")
-        self.p = parameter("p", value=0)
-
-    def test_error1(self):
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__rsub__\\(\\): incompatible function arguments.*"
-            ):
-
-                class TMP(object):
-                    pass
-
-                TMP() - self.a
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-
-                class TMP(object):
-                    pass
-
-                TMP() - self.a
-
-    def test_error2(self):
-        x = variable(10)
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__sub__\\(\\): incompatible function arguments.*"
-            ):
-                self.a - x
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-                self.a - x
-
-    def test_simpleDiff(self):
-        #
-        # Check the structure of a simple difference with two variables
-        #
-        a = self.a
-        b = self.b
-
-        #    -
-        #   / \
-        #  a   b
-        e = a - b
-        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1", "b"]])
-
-        e = a
-        e -= b
-        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1", "b"]])
-
-    def test_constDiff(self):
-        a = self.a
-
-        e = a - 5
-        self.assertEqual(e.to_list(), ["+", "a", "-5.000000"])
-
-        e = 5 - a
-        self.assertEqual(e.to_list(), ["+", "5.000000", ["*", "-1", "a"]])
-
-        e = a
-        e -= 5
-        self.assertEqual(e.to_list(), ["+", "a", "-5.000000"])
-
-        e = a - 5.0
-        self.assertEqual(e.to_list(), ["+", "a", "-5.000000"])
-
-        e = 5.0 - a
-        self.assertEqual(e.to_list(), ["+", "5.000000", ["*", "-1", "a"]])
-
-        e = a
-        e -= 5.0
-        self.assertEqual(e.to_list(), ["+", "a", "-5.000000"])
-
-    def test_paramDiff(self):
-        # a - p
-        a = self.a
-        p = self.p
-        e = a - p
-        #
-        self.assertEqual(e.to_list(), ["+", "a", ["-", "p"]])
-
-        # p - a
-        e = p - a
-        #
-        self.assertEqual(e.to_list(), ["+", "p", ["*", "-1", "a"]])
-
-    def test_termDiff(self):
-        #
-        # Check the structure of a simple difference with a term
-        #
-        a = self.a
-
-        #
-        #   -
-        #  / \
-        # 5   *
-        #    / \
-        #   2   a
-        #
-
-        e = 5 - 2 * a
-        #
-        self.assertEqual(e.to_list(), ["+", "5.000000", ["*", "-2", "a"]])
-
-    def test_nestedDiff(self):
-        #
-        # Check the structure of nested differences
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
-
-        #       -
-        #      / \
-        #     -   5
-        #    / \
-        #   a   b
-
-        e1 = a - b
-        e = e1 - 5
-        #
-        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1", "b"], "-5.000000"])
-
-        #       -
-        #      / \
-        #     5   -
-        #        / \
-        #       a   b
-
-        e1 = a - b
-        e = 5 - e1
-        #
-        self.assertEqual(e.to_list(), ["+", "5.000000", ["-", ["+", "a", ["*", "-1", "b"]]]])
-
-        #       -
-        #      / \
-        #     -   c
-        #    / \
-        #   a   b
-
-        e1 = a - b
-        e = e1 - c
-        #
-        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1", "b"], ["*", "-1", "c"]])
-
-        #            -
-        #          /   \
-        #         -     -
-        #        / \   / \
-        #       a   b c   d
-
-        e1 = a - b
-        e2 = c - d
-        e = e1 - e2
-        #
-        self.assertEqual(
-            e.to_list(),
-            ["+", "a", ["*", "-1", "b"], ["-", ["+", "c", ["*", "-1", "d"]]]],
-        )
-
-    def test_negation_param(self):
-        #
-        # Check logic for negations
-        #
-
-        p = self.p
-        e = -p
-        #
-        self.assertEqual(e.to_list(), ["-", "p"])
-
-        e = -e
-        #
-        # TODO: Can we detect negations of negations?
-        #
-        self.assertEqual(e.to_list(), ["-", ["-", "p"]])
-
-    def test_negation_terms(self):
-        #
-        # Check logic for negations with terms
-        #
-        p = self.p
-        v = self.v
-
-        e = -p * v
-        self.assertEqual(e.to_list(), ["*", ["-", "p"], "v"])
-
-        e = -e
-        self.assertEqual(e.to_list(), ["-", ["*", ["-", "p"], "v"]])
-        #
-        e = -5 * v
-        self.assertEqual(e.to_list(), ["*", "-5", "v"])
-        e = -e
-        self.assertEqual(e.to_list(), ["*", "5", "v"])
-
-    def test_trivialDiff(self):
-        #
-        # Check that subtracting zero doesn't change the expression
-        #
-        a = self.a
-        p = self.p
-
-        # a - 0
-        e = a - 0
-        self.assertEqual(e.to_list(), "a")
-
-        e = a - 0.0
-        self.assertEqual(e.to_list(), "a")
-
-        e = a
-        e -= 0
-        self.assertEqual(e.to_list(), "a")
-
-        e = a
-        e -= 0.0
-        self.assertEqual(e.to_list(), "a")
-
-        # 0 - a
-        e = 0 - a
-        self.assertEqual(e.to_list(), ["*", "-1", "a"])
-
-        e = 0.0 - a
-        self.assertEqual(e.to_list(), ["*", "-1", "a"])
-
-        # p - 0
-        e = p - 0
-        self.assertEqual(e.to_list(), "p")
-
-        # 0 - p
-        e = 0 - p
-        self.assertEqual(e.to_list(), ["-", "p"])
-
-        # 0 - 5*a
-        e = 0 - 5 * a
-        self.assertEqual(e.to_list(), ["*", "-5", "a"])
-
-        # 0 - p*a
-        e = 0 - p * a
-        self.assertEqual(e.to_list(), ["-", ["*", "p", "a"]])
-
-        # 0 - a*a
-        e = 0 - a * a
-        self.assertEqual(e.to_list(), ["-", ["*", "a", "a"]])
-
-    def test_sumOf_nestedTrivialProduct2(self):
-        #
-        # Check the structure of sum of products
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-
-        #       -
-        #      / \
-        #     *   b
-        #    / \
-        #   a   5
-        e1 = a * 5
-        e = e1 - b
-        self.assertEqual(e.to_list(), ["+", ["*", "5", "a"], ["*", "-1", "b"]])
-
-        #       -
-        #      / \
-        #     b   *
-        #        / \
-        #       a   5
-        e1 = a * 5
-        e = b - e1
-        self.assertEqual(e.to_list(), ["+", "b", ["*", "-5", "a"]])
-
-        #            -
-        #          /   \
-        #         *     -
-        #        / \   / \
-        #       a   5 b   c
-        e1 = a * 5
-        e2 = b - c
-        e = e1 - e2
-        self.assertEqual(e.to_list(), ["+", ["*", "5", "a"], ["-", ["+", "b", ["*", "-1", "c"]]]])
-
-        #            -
-        #          /   \
-        #         -     *
-        #        / \   / \
-        #       b   c a   5
-        e1 = a * 5
-        e2 = b - c
-        e = e2 - e1
-        self.assertEqual(e.to_list(), ["+", "b", ["*", "-1", "c"], ["*", "-5", "a"]])
-
-
-class XTest_MulExpression(unittest.TestCase):
-    def setUp(self):
-        self.a = variable(name="a")
-        self.b = variable(name="b")
-        self.c = variable(name="c")
-        self.d = variable(name="d")
-        self.v = variable(name="v")
-        self.p = parameter("p", value=0)
-        self.q = parameter("q", value=0)
-        self.r = parameter("r", value=1)
-
-    def test_error1(self):
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__rmul__\\(\\): incompatible function arguments.*"
-            ):
-
-                class TMP(object):
-                    pass
-
-                TMP() * self.a
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-
-                class TMP(object):
-                    pass
-
-                TMP() * self.a
-
-    def test_error2(self):
-        x = variable(10)
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__mul__\\(\\): incompatible function arguments.*"
-            ):
-                self.a * x
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-                self.a * x
-
-    def test_simpleProduct(self):
-        #
-        # Check the structure of a simple product of variables
-        #
-        a = self.a
-        b = self.b
-
-        #    *
-        #   / \
-        #  a   b
-        e = a * b
-        self.assertEqual(e.to_list(), ["*", "a", "b"])
-
-        #    *
-        #   / \
-        #  a   b
-        e = a
-        e *= b
-        self.assertEqual(e.to_list(), ["*", "a", "b"])
-
-    def test_constProduct(self):
-        #
-        # Check the structure of a simple product with a constant
-        #
-        a = self.a
-
-        #    *
-        #   / \
-        #  a   5
-        e = a * 5
-        self.assertEqual(e.to_list(), ["*", "5", "a"])
-
-        e = a * 5.0
-        self.assertEqual(e.to_list(), ["*", "5", "a"])
-
-        e = a
-        e *= 5
-        self.assertEqual(e.to_list(), ["*", "5", "a"])
-
-        #    *
-        #   / \
-        #  5   a
-        e = 5.0 * a
-        self.assertEqual(e.to_list(), ["*", "5", "a"])
-
-        e = a
-        e *= 5.0
-        self.assertEqual(e.to_list(), ["*", "5", "a"])
-
-        e = 5.0 * a
-        self.assertEqual(e.to_list(), ["*", "5", "a"])
-
-    def test_nestedProduct(self):
-        #
-        # Check the structure of nested products
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
-
-        #       *
-        #      / \
-        #     *   5
-        #    / \
-        #   a   b
-        e1 = a * b
-        e = e1 * 5
-        self.assertEqual(e.to_list(), ["*", ["*", "a", "b"], "5.000000"])
-
-        #       *
-        #      / \
-        #     5   *
-        #        / \
-        #       a   b
-        e1 = a * b
-        e = 5 * e1
-        self.assertEqual(e.to_list(), ["*", "5.000000", ["*", "a", "b"]])
-
-        #       *
-        #      / \
-        #     *   c
-        #    / \
-        #   a   b
-        e1 = a * b
-        e = e1 * c
-        self.assertEqual(e.to_list(), ["*", ["*", "a", "b"], "c"])
-
-        #       *
-        #      / \
-        #     c   *
-        #        / \
-        #       a   b
-        e1 = a * b
-        e = c * e1
-        self.assertEqual(e.to_list(), ["*", "c", ["*", "a", "b"]])
-
-        #            *
-        #          /   \
-        #         *     *
-        #        / \   / \
-        #       a   b c   d
-        e1 = a * b
-        e2 = c * d
-        e = e1 * e2
-        self.assertEqual(e.to_list(), ["*", ["*", "a", "b"], ["*", "c", "d"]])
-
-    def test_nestedProduct2(self):
-        #
-        # Check the structure of nested products
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
-
-        #
-        # Check the structure of nested products
-        #
-        #            *
-        #          /   \
-        #         +     +
-        #        / \   / \
-        #       c    +    d
-        #           / \
-        #          a   b
-        e1 = a + b
-        e2 = c + e1
-        e3 = e1 + d
-        e = e2 * e3
-        self.assertEqual(e.to_list(), ["*", ["+", "c", ["+", "a", "b"]], ["+", "a", "b", "d"]])
-
-        #
-        # Check the structure of nested products
-        #
-        #            *
-        #          /   \
-        #         *     *
-        #        / \   / \
-        #       c    +    d
-        #           / \
-        #          a   b
-        e1 = a + b
-        e2 = c * e1
-        e3 = e1 * d
-        e = e2 * e3
-        self.assertEqual(
-            e.to_list(), ["*", ["*", "c", ["+", "a", "b"]], ["*", ["+", "a", "b"], "d"]]
-        )
-
-    def test_nestedProduct3(self):
-        #
-        # Check the structure of nested products
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
-
-        #       *
-        #      / \
-        #     *   5
-        #    / \
-        #   3   b
-        e1 = 3 * b
-        e = e1 * 5
-        self.assertEqual(e.to_list(), ["*", ["*", "3", "b"], "5.000000"])
-
-        #       *
-        #      / \
-        #     *   5
-        #    / \
-        #   a   b
-        e1 = a * b
-        e = e1 * 5
-        self.assertEqual(e.to_list(), ["*", ["*", "a", "b"], "5.000000"])
-
-        #       *
-        #      / \
-        #     5   *
-        #        / \
-        #       3   b
-        e1 = 3 * b
-        e = 5 * e1
-        self.assertEqual(e.to_list(), ["*", "5.000000", ["*", "3", "b"]])
-
-        #       *
-        #      / \
-        #     5   *
-        #        / \
-        #       a   b
-        e1 = a * b
-        e = 5 * e1
-        self.assertEqual(e.to_list(), ["*", "5.000000", ["*", "a", "b"]])
-
-        #       *
-        #      / \
-        #     *   c
-        #    / \
-        #   a   b
-        e1 = a * b
-        e = e1 * c
-        self.assertEqual(e.to_list(), ["*", ["*", "a", "b"], "c"])
-
-        #       *
-        #      / \
-        #     c   *
-        #        / \
-        #       a   b
-        e1 = a * b
-        e = c * e1
-        self.assertEqual(e.to_list(), ["*", "c", ["*", "a", "b"]])
-
-        #            *
-        #          /   \
-        #         *     *
-        #        / \   / \
-        #       a   b c   d
-        e1 = a * b
-        e2 = c * d
-        e = e1 * e2
-        self.assertEqual(e.to_list(), ["*", ["*", "a", "b"], ["*", "c", "d"]])
-
-    def test_trivialProduct(self):
-        #
-        # Check that multiplying by zero gives zero
-        #
-        a = self.a
-        p = self.p
-        q = self.q
-        r = self.r
-
-        e = a * 0
-        self.assertEqual(e.value, 0)
-
-        e = a * 0.0
-        self.assertEqual(e.value, 0.0)
-
-        e = a
-        e *= 0
-        self.assertEqual(e.value, 0)
-
-        e = a
-        e *= 0.0
-        self.assertEqual(e.value, 0.0)
-
-        e = 0 * a
-        self.assertEqual(e.value, 0)
-
-        e = 0.0 * a
-        self.assertEqual(e.value, 0)
-
-        e = a * p
-        self.assertEqual(e.to_list(), ["*", "a", "p"])
-
-        e = p * a
-        self.assertEqual(e.to_list(), ["*", "p", "a"])
-
-        #
-        # Check that multiplying by one gives the original expression
-        #
-        e = a * 1
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = a * 1.0
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = a
-        e *= 1
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = a
-        e *= 1.0
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = 1 * a
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = 1.0 * a
-        self.assertEqual(e.to_list(), ["a"])
-
-
-class XTest_DivExpression(unittest.TestCase):
-    def setUp(self):
-        self.a = variable(name="a")
-        self.b = variable(name="b")
-        self.c = variable(name="c")
-        self.d = variable(name="d")
-        self.v = variable(name="v")
-        self.p = parameter("p", value=0)
-        self.q = parameter("q", value=0)
-        self.r = parameter("r", value=1)
-
-    def test_error1(self):
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__rtruediv__\\(\\): incompatible function arguments.*"
-            ):
-
-                class TMP(object):
-                    pass
-
-                TMP() / self.a
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-
-                class TMP(object):
-                    pass
-
-                TMP() / self.a
-
-    def test_error2(self):
-        x = variable(10)
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__truediv__\\(\\): incompatible function arguments.*"
-            ):
-                self.a / x
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-                self.a / x
-
-    def test_simpleDivision(self):
-        #
-        # Check the structure of a simple division with variables
-        #
-        a = self.a
-        b = self.b
-
-        #    /
-        #   / \
-        #  a   b
-        e = a / b
-        self.assertEqual(e.to_list(), ["/", "a", "b"])
-
-        e = a
-        e /= b
-        self.assertEqual(e.to_list(), ["/", "a", "b"])
-
-    def test_constDivision(self):
-        #
-        # Check the structure of a simple division with a constant
-        #
-        a = self.a
-
-        e = a / 5
-        self.assertEqual(e.to_list(), ["*", "0.2", "a"])
-
-        e = 5 / a
-        self.assertEqual(e.to_list(), ["/", "5.000000", "a"])
-
-        e = a
-        e /= 5
-        self.assertEqual(e.to_list(), ["*", "0.2", "a"])
-
-        e = a / 5.0
-        self.assertEqual(e.to_list(), ["*", "0.2", "a"])
-
-        e = 5.0 / a
-        self.assertEqual(e.to_list(), ["/", "5.000000", "a"])
-
-        e = a
-        e /= 5.0
-        self.assertEqual(e.to_list(), ["*", "0.2", "a"])
-
-    def test_nestedDivision(self):
-        #
-        # Check the structure of nested divisions
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
-
-        #       /
-        #      / \
-        #     *   5
-        #    / \
-        #   3   b
-        e1 = 3 * b
-        e = e1 / 5
-        self.assertEqual(e.to_list(), ["/", ["*", "3", "b"], "5.000000"])
-
-        #       /
-        #      / \
-        #     /   5
-        #    / \
-        #   a   b
-        e1 = a / b
-        e = e1 / 5
-        self.assertEqual(e.to_list(), ["/", ["/", "a", "b"], "5.000000"])
-
-        #       /
-        #      / \
-        #     5   /
-        #        / \
-        #       a   b
-        e1 = a / b
-        e = 5 / e1
-        self.assertEqual(e.to_list(), ["/", "5.000000", ["/", "a", "b"]])
-
-        #       /
-        #      / \
-        #     /   c
-        #    / \
-        #   a   b
-        e1 = a / b
-        e = e1 / c
-        self.assertEqual(e.to_list(), ["/", ["/", "a", "b"], "c"])
-
-        #       /
-        #      / \
-        #     c   /
-        #        / \
-        #       a   b
-        e1 = a / b
-        e = c / e1
-        self.assertEqual(e.to_list(), ["/", "c", ["/", "a", "b"]])
-
-        #            /
-        #          /   \
-        #         /     /
-        #        / \   / \
-        #       a   b c   d
-        e1 = a / b
-        e2 = c / d
-        e = e1 / e2
-        self.assertEqual(e.to_list(), ["/", ["/", "a", "b"], ["/", "c", "d"]])
-
-    def test_trivialDivision(self):
-        #
-        # Check that dividing by zero generates an exception
-        #
-        a = self.a
-        p = self.p
-        q = self.q
-        r = self.r
-
-        if poek.__using_pybind11__:
-            self.assertRaises(ValueError, a.__truediv__, 0)
-            self.assertRaises(ValueError, a.__truediv__, 0.0)
-        else:
-            try:
-                a.__truediv__(0)
-                self.fail("Expected TypeError when dividing by zero.")
-                print("Y")
-            except TypeError:
-                pass
-            try:
-                a.__truediv__(0.0)
-                self.fail("Expected TypeError when dividing by zero.")
-                print("Y")
-            except TypeError:
-                pass
-
-        #
-        # Check that dividing zero by anything non-zero gives zero
-        #
-        e = 0 / a
-        self.assertEqual(e.to_list(), ["0.000000"])
-        self.assertAlmostEqual(e.value, 0.0)
-
-        e = 0.0 / a
-        self.assertEqual(e.to_list(), ["0.000000"])
-        self.assertAlmostEqual(e.value, 0.0)
-
-        #
-        # Check that dividing by one 1 gives the original expression
-        #
-        e = a / 1
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = a / 1.0
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = a
-        e /= 1
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = a
-        e /= 1.0
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = a / r
-        self.assertEqual(e.to_list(), ["/", "a", "r"])
-
-        #
-        # Check the structure dividing 1 by an expression
-        #
-        e = 1 / a
-        self.assertEqual(e.to_list(), ["/", "1.000000", "a"])
-
-        e = 1.0 / a
-        self.assertEqual(e.to_list(), ["/", "1.000000", "a"])
-
-        #
-        # Check the structure dividing 1 by a mutable zero
-        #
-        e = 1 / p
-        self.assertEqual(e.to_list(), ["/", "1.000000", "p"])
-
-        e = 1.0 / p
-        self.assertEqual(e.to_list(), ["/", "1.000000", "p"])
-
-
-class XTest_PowExpression(unittest.TestCase):
-    def setUp(self):
-        self.a = variable(name="a")
-        self.b = variable(name="b")
-        self.c = variable(name="c")
-        self.d = variable(name="d")
-        self.v = variable(name="v")
-        self.p = parameter("p", value=0)
-        self.q = parameter("q", value=0)
-        self.r = parameter("r", value=1)
-
-    def test_error1(self):
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__rpow__\\(\\): incompatible function arguments.*"
-            ):
-
-                class TMP(object):
-                    pass
-
-                TMP() ** self.a
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-
-                class TMP(object):
-                    pass
-
-                TMP() ** self.a
-
-    def test_error2(self):
-        x = variable(10)
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__pow__\\(\\): incompatible function arguments.*"
-            ):
-                self.a**x
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-                self.a**x
-
-    def test_simplePow(self):
-        a = self.a
-        b = self.b
-
-        e = a**b
-        self.assertEqual(e.to_list(), ["pow", "a", "b"])
-
-        e = a
-        e **= b
-        self.assertEqual(e.to_list(), ["pow", "a", "b"])
-
-    def test_constPow(self):
-        #
-        # Check the structure of a simple power with a constant
-        #
-        a = self.a
-
-        e = a**5
-        self.assertEqual(e.to_list(), ["pow", "a", "5.000000"])
-
-        e = 5**a
-        self.assertEqual(e.to_list(), ["pow", "5.000000", "a"])
-
-        e = a
-        e **= 5
-        self.assertEqual(e.to_list(), ["pow", "a", "5.000000"])
-
-        e = a**5.0
-        self.assertEqual(e.to_list(), ["pow", "a", "5.000000"])
-
-        e = 5.0**a
-        self.assertEqual(e.to_list(), ["pow", "5.000000", "a"])
-
-        e = a
-        e **= 5.0
-        self.assertEqual(e.to_list(), ["pow", "a", "5.000000"])
-
-    def test_trivialPow(self):
-        #
-        a = self.a
-        p = self.p
-        q = self.q
-        r = self.r
-
-        #
-        # Check that taking the first power returns the original object
-        #
-        e = a**1
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = a**1.0
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = a
-        e **= 1
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = a
-        e **= 1.0
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = a**r
-        self.assertEqual(e.to_list(), ["pow", "a", "r"])
-
-        #
-        # Check that taking the zeroth power returns one
-        #
-        e = a**0
-        self.assertEqual(e.to_list(), ["1.000000"])
-
-        e = a**0.0
-        self.assertEqual(e.to_list(), ["1.000000"])
-
-        e = a
-        e **= 0
-        self.assertEqual(e.to_list(), ["1.000000"])
-
-        e = a
-        e **= 0.0
-        self.assertEqual(e.to_list(), ["1.000000"])
-
-        e = a**q
-        self.assertEqual(e.to_list(), ["pow", "a", "q"])
-
-        #
-        # Check that taking powers of 0 and 1 are easy
-        #
-        e = 0**a
-        self.assertEqual(e.to_list(), ["0.000000"])
-
-        e = 0.0**a
-        self.assertEqual(e.to_list(), ["0.000000"])
-
-        e = 1**a
-        self.assertEqual(e.to_list(), ["1.000000"])
-
-        e = 1.0**a
-        self.assertEqual(e.to_list(), ["1.000000"])
-
-    def test_trivialRPow(self):
-        #
-        a = self.a
-        p = self.p
-        q = self.q
-        r = self.r
-
-        #
-        # Check that taking any power of 1 is 1
-        #
-        e = 1**a
-        self.assertEqual(e.to_list(), ["1.000000"])
-
-        e = 1.0**a
-        self.assertEqual(e.to_list(), ["1.000000"])
-
-        e = r**a
-        self.assertEqual(e.to_list(), ["pow", "r", "a"])
-
-        #
-        # Check that taking the zeroth power returns one
-        #
-        e = 0**a
-        self.assertEqual(e.to_list(), ["0.000000"])
-
-        e = 0.0**a
-        self.assertEqual(e.to_list(), ["0.000000"])
-
-    def test_pow_expresions(self):
-        a = self.a
-        r = self.r
-
-        e = a**r
-        self.assertEqual(e.to_list(), ["pow", "a", "r"])
-
-        e = a**2
-        self.assertEqual(e.to_list(), ["pow", "a", "2.000000"])
-
-        e = a**2.0
-        self.assertEqual(e.to_list(), ["pow", "a", "2.000000"])
-
-        e = 2**a
-        self.assertEqual(e.to_list(), ["pow", "2.000000", "a"])
-
-        e = 2.0**a
-        self.assertEqual(e.to_list(), ["pow", "2.000000", "a"])
-
-
-class XEntangledExpressionErrors(unittest.TestCase):
-    def setUp(self):
-        self.a = variable(name="a")
-        self.b = variable(name="b")
-        self.c = variable(name="c")
-        self.d = variable(name="d")
-        self.v = variable(name="v")
-        self.p = parameter("p", value=0)
-        self.q = parameter("q", value=0)
-        self.r = parameter("r", value=1)
-
-    def test_sumexpr_add_entangled(self):
-        a = self.a
-        e = a * 2 + 1
-        self.assertEqual(e.to_list(), ["+", ["*", "2", "a"], "1.000000"])
-        e += 1
-        self.assertEqual(e.to_list(), ["+", ["*", "2", "a"], "1.000000", "1.000000"])
-
-    def test_entangled_test1(self):
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
-
-        e1 = a + b
-        e2 = c + e1
-        e3 = d + e1
-
-        self.assertEqual(e1.to_list(), ["+", "a", "b"])
-        self.assertEqual(e2.to_list(), ["+", "c", ["+", "a", "b"]])
-        self.assertEqual(e3.to_list(), ["+", "d", ["+", "a", "b"]])
-
-
-class XTestVariables(unittest.TestCase):
-    def test_default_value(self):
-        v = variable(3, name="v")
-        self.assertTrue(math.isnan(v[0].value))
-        self.assertTrue(math.isnan(v[1].value))
-        self.assertTrue(math.isnan(v[2].value))
-
-    def test_initialize(self):
-        v = variable(3, name="v", value=3)
-        self.assertEqual(v[0].value, 3)
-        self.assertEqual(v[1].value, 3)
-        self.assertEqual(v[2].value, 3)
-
-    def test_iterator(self):
-        v = variable(3, name="v")
-        for i in v:
-            math.isnan(v[i].value)
-
-    def test_getitem1(self):
-        v = variable(3, name="v")
-        v1 = v[0]
-        v2 = v[0]
-        self.assertEqual(v1.name, v2.name)
-
-    def test_getitem2(self):
-        v = variable(3)
-        v1 = v[0]
-        v2 = v[0]
-        self.assertEqual(v1.name, v2.name)
-
-    def test_name1(self):
-        v = variable(3, name="v", value=3).generate_names()
-        self.assertEqual(v.name, "v")
-        self.assertEqual(v[0].name, "v[0]")
-
-    def test_name2(self):
-        v = variable(3, value=3)
-        self.assertEqual(v.name, "X")
-        self.assertEqual(v[0].name[0], "X")
-
-    def test_name_single(self):
-        v = variable(value=3, name="y")
-        self.assertEqual(v.name, "y")
-        v = variable(value=3)
-        self.assertEqual(v.name[0], "X")
-
-
-class XTestNDVariables(unittest.TestCase):
-    def test_default_value(self):
-        v = variable((3, 2, 4), name="v")
-        self.assertTrue(math.isnan(v[0, 1, 3].value))
-        self.assertTrue(math.isnan(v[1, 0, 0].value))
-        self.assertTrue(math.isnan(v[2, 1, 2].value))
-
-    def test_initialize(self):
-        v = variable((3, 2, 4), name="v", value=3)
-        self.assertEqual(v[0, 1, 3].value, 3)
-        self.assertEqual(v[1, 0, 0].value, 3)
-        self.assertEqual(v[2, 1, 2].value, 3)
-
-    def test_iterator(self):
-        v = variable((3, 2, 4), name="v")
-        for i in v:
-            math.isnan(v[i].value)
-
-    def test_getitem1(self):
-        v = variable((3, 2, 4), name="v")
-        v1 = v[0, 0, 0]
-        v2 = v[0, 0, 0]
-        self.assertEqual(v1.name, v2.name)
-
-    def test_getitem2(self):
-        v = variable((3, 2, 4))
-        v1 = v[0, 0, 0]
-        v2 = v[0, 0, 0]
-        self.assertEqual(v1.name, v2.name)
-
-    def test_name1(self):
-        v = variable((3, 2, 4), name="v", value=3).generate_names()
-        self.assertEqual(v.name, "v")
-        self.assertEqual(v[2, 1, 3].name, "v[2,1,3]")
-        self.assertEqual(v[0, 0, 0].name, "v[0,0,0]")
-
-    def test_name2(self):
-        v = variable((3, 2, 4), value=3)
-        self.assertEqual(v.name, "X")
-        self.assertEqual(v[2, 1, 3].name[0], "X")
-        self.assertEqual(v[0, 0, 0].name[0], "X")
-
-
-if __name__ == "__main__":
-    unittest.main()
