@@ -851,6 +851,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def(py::init<>())
         .def(py::init<const std::string&>())
         .def("get_name", [](const coek::Parameter& x) { return x.name(); })
+        .def("set_name", [](coek::Parameter& x, const std::string& name) { x.name(name); })
         .def_property_readonly("name", [](const coek::Parameter& x) { return x.name(); })
         .def("set_value", [](coek::Parameter& x, double val) { x.value(val); })
         .def_property(
@@ -963,6 +964,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     py::class_<coek::IndexParameter>(m, "index")
         .def(py::init<const std::string&>())
         .def("get_name", [](const coek::IndexParameter& x) { return x.name(); })
+        .def("set_name", [](coek::IndexParameter& x, const std::string& name) { x.name(name); })
         .def("get_value",
              [](const coek::IndexParameter& x) {
                  double value = 0;
@@ -1113,6 +1115,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def(py::init<const coek::VariableRepn&>())
 #endif
         .def("get_name", [](const coek::Variable& x) { return x.name(); })
+        .def("set_name", [](coek::Variable& x, const std::string& name) { x.name(name); })
         .def_property_readonly("name", [](const coek::Variable& x) { return x.name(); })
         .def_property(
             "value", [](const coek::Variable& x) { return x.value(); },
@@ -1674,6 +1677,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     py::class_<coek::Constraint>(m, "constraint")
         .def(py::init<>())
         .def_property_readonly("value", [](coek::Constraint& c) { return c.body().value(); })
+        .def("__call__", [](const coek::Constraint& c, py::args args) {return c.is_feasible();})
         .def_property_readonly("lb", [](coek::Constraint& c) { return coek::constraint_lb(c); })
         .def_property_readonly("ub", [](coek::Constraint& c) { return coek::constraint_ub(c); })
         .def("lower", &coek::Constraint::lower)
