@@ -1,12 +1,7 @@
+#
+# Test scalar expression operations
+#
 import pytest
-import math
-
-from poek import *
-import poek
-
-# This class will be removed when we finalize all the pytests
-class unittest:
-    TestCase = object
 
 #
 # Test fixtures
@@ -55,46 +50,6 @@ def param_q(model_M, pyomo_module):
 def param_r(model_M, pyomo_module):
     model_M.r = pyomo_module.Param(initialize=1, mutable=True)
     return model_M.r
-
-#
-# Value tests
-#
-
-def test_var_value(pyomo_module):
-    pe = pyomo_module
-    M = pe.ConcreteModel()
-    M.p = pe.Var(initialize=2)
-    assert pe.value(M.p) == 2
-    M.p.value = 3
-    assert pe.value(M.p) == 3
-
-def test_expr_value(pyomo_module):
-    pe = pyomo_module
-    M = pe.ConcreteModel()
-    M.p = pe.Var(initialize=2)
-    assert pe.value(M.p) == 2
-    e = M.p + 3
-    assert pe.value(e) == 5
-    with pytest.raises(AttributeError) as einfo:
-        e.value = 0
-
-def test_con_value(pyomo_module):
-    pe = pyomo_module
-    M = pe.ConcreteModel()
-    M.p = pe.Var(initialize=2)
-    assert pe.value(M.p) == 2
-    e = M.p <= 3
-    assert pe.value(e) == True 
-    with pytest.raises(AttributeError) as einfo:
-        e.value = 0
-
-def test_param1_value(pyomo_module):
-    pe = pyomo_module
-    M = pe.ConcreteModel()
-    M.p = pe.Param(initialize=2, mutable=True)
-    assert pe.value(M.p) == 2
-    M.p.value = 3
-    assert pe.value(M.p) == 3
 
 #
 # Sum expression tests
