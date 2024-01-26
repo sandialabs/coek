@@ -39,18 +39,20 @@ _rev_domain_map[pk.VariableTypes.Integers] = Integers
 
 class _GeneralVarData(ComponentData):
 
-    __slots__ = ("_stale", "_pe")
+    __slots__ = ("_stale", "_pe", "_is_none")
 
     def __init__(self, component=None):
         super().__init__(component=component)
         self._stale = 0  # True
         self._pe = pk.variable_single()
+        self._is_none = True
 
     @classmethod
     def copy(cls, src, poek_var, index):
         self = cls.__new__(cls)
         self._component = src._component
         self._pe = poek_var
+        self._is_none = src._is_none
         self._stale = src._stale
         self._index = index
         return self
@@ -139,11 +141,17 @@ class _GeneralVarData(ComponentData):
         return self.value
 
     def set_value(self, val, skip_validation=False):
+        if val is None:
+            self._is_none = True
+            return
+        self._is_none = False
         self._pe.value = val
         self._stale = StaleFlagManager.get_flag(self._stale)
 
     @property
     def value(self):
+        if self._is_none:
+            return None
         return self._pe.value
 
     @value.setter
@@ -278,7 +286,7 @@ class Var(IndexedComponent):
 
     def __init__(self, *args, **kwargs):
         self._rule_init = Initializer(
-            self._pop_from_kwargs("Var", kwargs, ("rule", "initialize"), 0)
+            self._pop_from_kwargs("Var", kwargs, ("rule", "initialize"), None)
         )
         self._rule_domain = Initializer(
             self._pop_from_kwargs("Var", kwargs, ("domain", "within"), Reals)
