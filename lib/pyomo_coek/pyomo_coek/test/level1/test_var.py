@@ -92,3 +92,45 @@ def test_var_fix4(pyomo_module):
     assert M.v.fixed == True
     assert M.v.value == None
 
+
+#
+# Var bounds
+#
+
+def test_var_lb(pyomo_module):
+    pe = pyomo_module
+    M = pe.ConcreteModel()
+    M.v = pe.Var()
+    assert M.v.lb == None
+    M.v.lb = 1.0
+    assert M.v.lb == 1.0
+
+def test_var_ub(pyomo_module):
+    pe = pyomo_module
+    M = pe.ConcreteModel()
+    M.v = pe.Var()
+    assert M.v.ub == None
+    M.v.ub = 1.0
+    assert M.v.ub == 1.0
+
+def test_var_bounds1(pyomo_module):
+    pe = pyomo_module
+    M = pe.ConcreteModel()
+    M.v = pe.Var(bounds=(1.0,2.0))
+    assert M.v.lb == 1.0
+    assert M.v.ub == 2.0
+
+def test_var_bounds2(pyomo_module):
+    pe = pyomo_module
+    M = pe.ConcreteModel()
+    M.v = pe.Var(bounds=(1.0,None))
+    assert M.v.lb == 1.0
+    assert M.v.ub == None
+
+def test_var_bounds3(pyomo_module):
+    pe = pyomo_module
+    M = pe.ConcreteModel()
+    M.v = pe.Var(bounds=(None,1.0))
+    assert M.v.lb == None
+    assert M.v.ub == 1.0
+
