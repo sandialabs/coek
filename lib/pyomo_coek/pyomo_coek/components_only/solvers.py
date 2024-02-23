@@ -9,6 +9,8 @@ from pyomo.contrib.appsi.base import (
 )
 import poek as pk
 from typing import Tuple, Dict
+
+import pyomo.environ as pyo
 from pyomo.core.base.block import _BlockData
 from pyomo.common.timing import HierarchicalTimer
 import pyomo.environ as pe
@@ -54,11 +56,15 @@ class HybridSolver(Solver):
     def _construct_poek_model(self, model: _BlockData, timer: HierarchicalTimer) -> pk.model:
         timer.start("construct poek model")
         pm = pk.model()
-        for v in model.component_data_objects(Var, descend_into=True):
+        for v in model.component_data_objects(pyo.Var, descend_into=True):
             pm.add_variable_(v._pe)
-        for c in model.component_data_objects(Constraint, active=True, descend_into=True):
-            pm.add_constraint(c._pe)
-        for obj in model.component_data_objects(Objective, active=True, descend_into=True):
+        for c in model.component_data_objects(pyo.Constraint, active=True, descend_into=True):
+            try:
+                pm.add_constraint(c._pe)
+            except:
+                print("ERROR with constraint {} : {}".format(str(c), str(c.expr)))
+                raise
+        for obj in model.component_data_objects(pyo.Objective, active=True, descend_into=True):
             if obj.sense == minimize:
                 obj_expr = obj._pe
             else:
@@ -123,6 +129,15 @@ class HybridSolver(Solver):
 
         res = Results()
         return res
+
+    # WEH - This is a hack
+    def write(self, model: _BlockData, filename, timer: HierarchicalTimer = None):
+        if timer is None:
+            timer = HierarchicalTimer()
+
+        pm = self._construct_poek_model(model, timer)
+        pm.write(filename)
+        
 
 
 class Gurobi(HybridSolver):
