@@ -33,7 +33,8 @@ SET(sources
     test_subexpression.cpp
     test_autograd_unknown.cpp
     test_autograd_all.cpp
-    test_sequence.cpp
+    test_util_sequence.cpp
+    test_util_DataPortal.cpp
     mt_funcs.cpp
    )
 
