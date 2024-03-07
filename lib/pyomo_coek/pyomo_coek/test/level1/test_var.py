@@ -21,18 +21,20 @@ def M_v(model_M, pyomo_module):
 #
 
 def test_var_uninitialized(pyomo_module):
-    # Uninitialized variable has value None
     pe = pyomo_module
     M = pe.ConcreteModel()
     M.v = pe.Var()
+    # Uninitialized variable has value None
     assert M.v.value == None
     M.v.value = 1.0
+    # Variable value can be set
     assert M.v.value == 1.0
 
 def test_var_initialized(pyomo_module):
     pe = pyomo_module
     M = pe.ConcreteModel()
     M.v = pe.Var(initialize=1.0)
+    # Uninitialized variable has value 1.0
     assert M.v.value == 1.0
 
 #
