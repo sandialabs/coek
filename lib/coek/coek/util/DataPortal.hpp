@@ -104,6 +104,17 @@ public:
     typename std::enable_if<!is_std_set<ValueType>::value && !is_std_tuple<ValueType>::value, bool>::type
     get(const std::string& name, std::map<std::tuple<KEYTYPES...>,ValueType>& data) const;
 
+    // Indexed parameter data
+    // Map<KeyType,tuple<VALUETYPES...>> - Indexed parameter data 
+    template <typename KeyType, typename ...VALUETYPES>
+    typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type
+    get(const std::string& name, std::map<KeyType, std::tuple<VALUETYPES...>>& data) const;
+
+    // Indexed parameter data with tuple indices
+    // Map<tuple<KEYTYPES...>,tuple<VALUETYPES...>> - Indexed parameter data 
+    template <typename ...KEYTYPES, typename ...VALUETYPES>
+    bool get(const std::string& name, std::map<std::tuple<KEYTYPES...>, std::tuple<VALUETYPES...>>& data) const;
+
   protected:
 
     template <typename TupleT, typename ...ARGTYPES>
@@ -130,16 +141,20 @@ std::tuple<ARGTYPES...> DataPortalRepn::convert_to_tuple(const TupleT& v) const
 
 #if 0
 template <typename TYPE>
-std::string type_name()
+inline std::string type_name()
 { return "unknown"; }
 
 template <>
-std::string type_name<std::string>()
+inline std::string type_name<std::string>()
 { return "string"; }
 
 template <>
-std::string type_name<int>()
+inline std::string type_name<int>()
 { return "integer"; }
+
+template <>
+inline std::string type_name<double>()
+{ return "double"; }
 #endif
 
 
@@ -149,15 +164,10 @@ bool
 DataPortalRepn::get(const std::string& name, std::set<ValueType>& data) const
 {
 auto it = set_data.find(name);
-if (it == set_data.end()) {
-    // TODO - raise an exception
-    //std::cerr << "ERROR - missing data '" << name << "'" << std::endl;
+if (it == set_data.end())
     return false;
-    }
-
-if (not std::holds_alternative<std::set<ValueType>>(it->second)) {
+if (not std::holds_alternative<std::set<ValueType>>(it->second))
     return false;
-    }
 
 data = std::get<std::set<ValueType>>(it->second);
 
@@ -170,24 +180,15 @@ bool
 DataPortalRepn::get(const std::string& name, std::set<std::tuple<ARGTYPES ...>>& data) const
 {
 auto it = set_data.find(name);
-if (it == set_data.end()) {
-    // TODO - raise an exception
-    //std::cerr << "ERROR - missing data '" << name << "'" << std::endl;
+if (it == set_data.end())
     return false;
-    }
-
-if (not std::holds_alternative<std::set<TupleValueType>>(it->second)) {
-    // TODO - raise an exception
-    //std::cerr << "ERROR - data '" << name << "' is not a set of " << type_name<TYPE>() << " values." << std::endl;;
+if (not std::holds_alternative<std::set<TupleValueType>>(it->second))
     return false;
-    }
 
 data.clear();
 
 for (auto& v : std::get<std::set<TupleValueType>>(it->second))
     data.insert( convert_to_tuple<TupleValueType,ARGTYPES...>(v) );
-    //auto tmp = convert_to_tuple<ARGTYPES...>(v);
-    //data.insert(tmp);
 
 return true;
 }
@@ -203,8 +204,12 @@ if (it == indexed_set_data.end())
     return false;
 
 data.clear();
-for (auto& v : it->second)
+for (auto& v : it->second) {
+    if (not std::holds_alternative<std::set<SetType>>(v.second))
+        return false;
+
     data.emplace( std::get<KeyType>(v.first), std::get<std::set<SetType>>(v.second) );
+    }
 
 return true;
 }
@@ -220,8 +225,12 @@ if (it == indexed_set_data.end())
     return false;
 
 data.clear();
-for (auto& v : it->second)
+for (auto& v : it->second) {
+    if (not std::holds_alternative<std::set<SetType>>(v.second))
+        return false;
+
     data.emplace( convert_to_tuple<TupleKeyType,KEYTYPES...>(std::get<TupleKeyType>(v.first)), std::get<std::set<SetType>>(v.second) );
+    }
 
 return true;
 }
@@ -238,6 +247,9 @@ if (it == indexed_set_data.end())
 
 data.clear();
 for (auto& v : it->second) {
+    if (not std::holds_alternative<TupleSetType>(v.second))
+        return false;
+
     std::set<std::tuple<SETTYPES...>> tmp;
     for (auto& sv : std::get<TupleSetType>(v.second))
         tmp.insert( convert_to_tuple<TupleSetType,SETTYPES...>(sv) );
@@ -260,6 +272,9 @@ if (it == indexed_set_data.end())
 
 data.clear();
 for (auto& v : it->second) {
+    if (not std::holds_alternative<TupleSetType>(v.second))
+        return false;
+
     std::set<std::tuple<SETTYPES...>> tmp;
     for (auto& sv : std::get<TupleSetType>(v.second))
         tmp.insert( convert_to_tuple<TupleSetType,SETTYPES...>(sv) );
@@ -279,10 +294,8 @@ auto it = parameter_data.find(name);
 if (it == parameter_data.end()) {
     return false;
     }
-
-if (not std::holds_alternative<TYPE>(it->second)) {
+if (not std::holds_alternative<TYPE>(it->second))
     return false;
-    }
 
 data = std::get<TYPE>(it->second);
 
@@ -315,15 +328,15 @@ typename std::enable_if<!is_std_tuple<KeyType>::value && !is_std_set<ValueType>:
 DataPortalRepn::get(const std::string& name, std::map<KeyType,ValueType>& data) const
 {
 auto it = indexed_parameter_data.find(name);
-if (it == indexed_parameter_data.end()) {
-    // TODO - raise an exception
-    //std::cerr << "ERROR - missing data '" << name << "'" << std::endl;
+if (it == indexed_parameter_data.end())
     return false;
-    }
 
 data.clear();
-for (auto& v : it->second)
+for (auto& v : it->second) {
+    if (not std::holds_alternative<ValueType>(v.second))
+        return false;
     data.emplace( std::get<KeyType>(v.first), std::get<ValueType>(v.second) );
+    }
 
 return true;
 }
@@ -335,15 +348,58 @@ typename std::enable_if<!is_std_set<ValueType>::value && !is_std_tuple<ValueType
 DataPortalRepn::get(const std::string& name, std::map<std::tuple<KEYTYPES...>,ValueType>& data) const
 {
 auto it = indexed_parameter_data.find(name);
-if (it == indexed_parameter_data.end()) {
-    // TODO - raise an exception
-    //std::cerr << "ERROR - missing data '" << name << "'" << std::endl;
+if (it == indexed_parameter_data.end())
     return false;
-    }
 
 data.clear();
-for (auto& v : it->second)
+for (auto& v : it->second) {
+    if (not std::holds_alternative<ValueType>(v.second))
+        return false;
     data.emplace( convert_to_tuple<TupleKeyType,KEYTYPES...>(std::get<TupleKeyType>(v.first)), std::get<ValueType>(v.second) );
+    }
+
+return true;
+}
+
+// Indexed parameter data
+// Map<KeyType,tuple<VALUETYPES...>> - Indexed parameter data 
+template <typename KeyType, typename ...VALUETYPES>
+typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type
+DataPortalRepn::get(const std::string& name, std::map<KeyType, std::tuple<VALUETYPES...>>& data) const
+{
+auto it = indexed_parameter_data.find(name);
+if (it == indexed_parameter_data.end())
+    return false;
+
+data.clear();
+for (auto& v : it->second) {
+    if (not std::holds_alternative<TupleValueType>(v.second))
+        return false;
+    data.emplace( std::get<KeyType>(v.first), 
+                  convert_to_tuple<TupleValueType,VALUETYPES...>(std::get<TupleValueType>(v.second)) );
+    }
+
+return true;
+}
+
+
+// Indexed parameter data with tuple indices
+// Indexed parameter data with tuple indices
+// Map<tuple<KEYTYPES...>,tuple<VALUETYPES...>> - Indexed parameter data 
+template <typename ...KEYTYPES, typename ...VALUETYPES>
+bool DataPortalRepn::get(const std::string& name, std::map<std::tuple<KEYTYPES...>, std::tuple<VALUETYPES...>>& data) const
+{
+auto it = indexed_parameter_data.find(name);
+if (it == indexed_parameter_data.end())
+    return false;
+
+data.clear();
+for (auto& v : it->second) {
+    if (not std::holds_alternative<TupleValueType>(v.second))
+        return false;
+    data.emplace( convert_to_tuple<TupleKeyType,KEYTYPES...>(std::get<TupleKeyType>(v.first)), 
+                  convert_to_tuple<TupleValueType,VALUETYPES...>(std::get<TupleValueType>(v.second)) );
+    }
 
 return true;
 }
@@ -435,6 +491,19 @@ class DataPortal {
     template <typename ValueType, typename ...KEYTYPES>
     typename std::enable_if<!is_std_set<ValueType>::value && !is_std_tuple<ValueType>::value, bool>::type
     get(const std::string& name, std::map<std::tuple<KEYTYPES...>,ValueType>& data) const
+        { return repn->get(name, data); }
+
+    // Indexed parameter data
+    // Map<KeyType,tuple<VALUETYPES...>> - Indexed parameter data 
+    template <typename KeyType, typename ...VALUETYPES>
+    typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type
+    get(const std::string& name, std::map<KeyType, std::tuple<VALUETYPES...>>& data) const
+        { return repn->get(name, data); }
+
+    // Indexed parameter data with tuple indices
+    // Map<tuple<KEYTYPES...>,tuple<VALUETYPES...>> - Indexed parameter data 
+    template <typename ...KEYTYPES, typename ...VALUETYPES>
+    bool get(const std::string& name, std::map<std::tuple<KEYTYPES...>, std::tuple<VALUETYPES...>>& data) const
         { return repn->get(name, data); }
 };
 

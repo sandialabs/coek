@@ -356,7 +356,7 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data.size() == 3 );
         std::set<int> baseline{0,1,2};
-        REQUIRE( data[std::make_tuple("2","1")] == baseline );
+        REQUIRE( data[{"2","1"}] == baseline );
     }
 
     SECTION("int-tuple-set-int")
@@ -381,7 +381,7 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data.size() == 3 );
         std::set<int> baseline{0,1,2};
-        REQUIRE( data[std::make_tuple(2,1)] == baseline );
+        REQUIRE( data[{2,1}] == baseline );
     }
 
     SECTION("mixed-tuple-set-int")
@@ -406,7 +406,7 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data.size() == 3 );
         std::set<int> baseline{0,1,2};
-        REQUIRE( data[std::make_tuple("2",1)] == baseline );
+        REQUIRE( data[{"2",1}] == baseline );
     }
 }
 
@@ -551,7 +551,35 @@ TEST_CASE("DP_indexed_param", "[smoke]")
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data.size() == 3 );
-        REQUIRE( data[std::make_tuple("2","3")] == 2 );
+        REQUIRE( data[{"2","3"}] == 2 );
+    }
+
+    SECTION("int-tuple-param")
+    {
+        auto dp = coek::DataPortal();
+        dp.load_from_json_string(R"(
+{
+"A": {
+    "key_type": "i",
+    "param_type": ["d", "s", "i"],
+    "data":  [
+                [1, [0.1, "a", 0]],
+                [2, [1.1, "b", 1]],
+                [3, [2.1, "c", 2]]
+             ]
+    }
+}
+)");
+
+        std::map<int,std::tuple<double,std::string,int>> data;
+        REQUIRE( dp.get("unknown", data) == false );
+        REQUIRE( dp.get("A", data) == true );
+        REQUIRE( data.size() == 3 );
+        auto baseline = std::make_tuple<double,std::string,int>(2.1, "c", 2);
+        REQUIRE( data[3] == baseline );
+
+        std::map<std::tuple<std::string,int>,int> idata;
+        REQUIRE( dp.get("A", idata) == false );
     }
 
     SECTION("int-tuple-int-param")
@@ -575,7 +603,7 @@ TEST_CASE("DP_indexed_param", "[smoke]")
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data.size() == 3 );
-        REQUIRE( data[std::make_tuple(2,3)] == 2 );
+        REQUIRE( data[{2,3}] == 2 );
     }
 
     SECTION("mixed-tuple-int-param")
@@ -599,6 +627,61 @@ TEST_CASE("DP_indexed_param", "[smoke]")
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data.size() == 3 );
-        REQUIRE( data[std::make_tuple("2",3)] == 2 );
+        REQUIRE( data[{"2",3}] == 2 );
+    }
+
+    SECTION("mixed-tuple-double-param")
+    {
+        auto dp = coek::DataPortal();
+        dp.load_from_json_string(R"(
+{
+"A": {
+    "key_type": ["s", "i"],
+    "param_type": "d",
+    "data":  [
+                [["0", 1], 0.1],
+                [["1", 2], 1.1],
+                [["2", 3], 2.1]
+             ]
+    }
+}
+)");
+
+        std::map<std::tuple<std::string,int>,double> data;
+        REQUIRE( dp.get("unknown", data) == false );
+        REQUIRE( dp.get("A", data) == true );
+        REQUIRE( data.size() == 3 );
+        REQUIRE( data[{"2",3}] == 2.1 );
+
+        std::map<std::tuple<std::string,int>,int> idata;
+        REQUIRE( dp.get("A", idata) == false );
+    }
+
+    SECTION("mixed-tuple-tuple-param")
+    {
+        auto dp = coek::DataPortal();
+        dp.load_from_json_string(R"(
+{
+"A": {
+    "key_type": ["s", "i"],
+    "param_type": ["d", "s", "i"],
+    "data":  [
+                [["0", 1], [0.1, "a", 0]],
+                [["1", 2], [1.1, "b", 1]],
+                [["2", 3], [2.1, "c", 2]]
+             ]
+    }
+}
+)");
+
+        std::map<std::tuple<std::string,int>,std::tuple<double,std::string,int>> data;
+        REQUIRE( dp.get("unknown", data) == false );
+        REQUIRE( dp.get("A", data) == true );
+        REQUIRE( data.size() == 3 );
+        auto baseline = std::make_tuple<double,std::string,int>(2.1, "c", 2);
+        REQUIRE( data[{"2",3}] == baseline );
+
+        std::map<std::tuple<std::string,int>,int> idata;
+        REQUIRE( dp.get("A", idata) == false );
     }
 }
