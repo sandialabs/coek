@@ -16,24 +16,26 @@ class DataPortalRepn
 public:
 
     using StringType = std::string;
-    using StringSetType = std::set<std::string>;
-
     using IntegerType = int;
+    using TupleKeyType = std::vector<std::variant<StringType, IntegerType>>;
+    using KeyTypes = std::variant<StringType, IntegerType, TupleKeyType>;
+
+    using DoubleType = double;
+    using TupleValueType = std::vector<std::variant<StringType, IntegerType, DoubleType>>;
+
+    using ParameterTypes = std::variant<StringType, IntegerType, DoubleType, TupleValueType>;
+
+    std::map<std::string, ParameterTypes> parameter_data;
+    std::map<std::string, std::map<KeyTypes,ParameterTypes>> indexed_parameter_data;
+
+    using StringSetType = std::set<std::string>;
     using IntegerSetType = std::set<int>;
-
-    using TupleType = std::vector<std::variant<StringType, IntegerType>>;
-    using TupleSetType = std::set<TupleType>;
-
-    using SetTypes = std::variant<StringSetType,IntegerSetType,TupleSetType>;
-
-    using KeyTypes = std::variant<StringType, IntegerType, TupleType>;
-    using ParameterTypes = std::variant<StringType, IntegerType, TupleType>;
+    using DoubleSetType = std::set<double>;
+    using TupleSetType = std::set<TupleValueType>;
+    using SetTypes = std::variant<StringSetType,IntegerSetType,DoubleSetType,TupleSetType>;
 
     std::map<std::string, SetTypes> set_data;
-    std::map<std::string, ParameterTypes> parameter_data;
-
     std::map<std::string, std::map<KeyTypes,SetTypes>> indexed_set_data;
-    std::map<std::string, std::map<KeyTypes,ParameterTypes>> indexed_parameter_data;
 
 public:
 
@@ -104,8 +106,8 @@ public:
 
   protected:
 
-    template <typename ...ARGTYPES>
-    std::tuple<ARGTYPES...> convert_to_tuple(const TupleType& v) const;
+    template <typename TupleT, typename ...ARGTYPES>
+    std::tuple<ARGTYPES...> convert_to_tuple(const TupleT& v) const;
     
 };
 
@@ -113,17 +115,17 @@ public:
 template<size_t N, typename... Ts>
 using NthTypeOf = typename std::tuple_element<N, std::tuple<Ts...>>::type;
 
-template <typename... ARGTYPES, std::size_t... Indices>
-auto vector_to_tuple_helper(const DataPortalRepn::TupleType& v, std::index_sequence<Indices...>) {
+template <typename TupleT, typename... ARGTYPES, std::size_t... Indices>
+auto vector_to_tuple_helper(const TupleT& v, std::index_sequence<Indices...>) {
     return std::make_tuple(
         //std::any_cast<NthTypeOf<Indices, ARGTYPES...>>(v[Indices])...
         std::get<NthTypeOf<Indices, ARGTYPES...>>(v[Indices])...
     );
 }
 
-template <typename... ARGTYPES>
-std::tuple<ARGTYPES...> DataPortalRepn::convert_to_tuple(const TupleType& v) const
-{ return vector_to_tuple_helper<ARGTYPES...>(v, std::make_index_sequence<sizeof...(ARGTYPES)>()); }
+template <typename TupleT, typename... ARGTYPES>
+std::tuple<ARGTYPES...> DataPortalRepn::convert_to_tuple(const TupleT& v) const
+{ return vector_to_tuple_helper<TupleT,ARGTYPES...>(v, std::make_index_sequence<sizeof...(ARGTYPES)>()); }
     
 
 #if 0
@@ -142,9 +144,9 @@ std::string type_name<int>()
 
 
 // Set data
-template <typename TYPE>
+template <typename ValueType>
 bool
-DataPortalRepn::get(const std::string& name, std::set<TYPE>& data) const
+DataPortalRepn::get(const std::string& name, std::set<ValueType>& data) const
 {
 auto it = set_data.find(name);
 if (it == set_data.end()) {
@@ -153,13 +155,11 @@ if (it == set_data.end()) {
     return false;
     }
 
-if (not std::holds_alternative<std::set<TYPE>>(it->second)) {
-    // TODO - raise an exception
-    //std::cerr << "ERROR - data '" << name << "' is not a set of " << type_name<TYPE>() << " values." << std::endl;;
+if (not std::holds_alternative<std::set<ValueType>>(it->second)) {
     return false;
     }
 
-data = std::get<std::set<TYPE>>(it->second);
+data = std::get<std::set<ValueType>>(it->second);
 
 return true;
 }
@@ -176,7 +176,7 @@ if (it == set_data.end()) {
     return false;
     }
 
-if (not std::holds_alternative<std::set<TupleType>>(it->second)) {
+if (not std::holds_alternative<std::set<TupleValueType>>(it->second)) {
     // TODO - raise an exception
     //std::cerr << "ERROR - data '" << name << "' is not a set of " << type_name<TYPE>() << " values." << std::endl;;
     return false;
@@ -184,8 +184,8 @@ if (not std::holds_alternative<std::set<TupleType>>(it->second)) {
 
 data.clear();
 
-for (auto& v : std::get<std::set<TupleType>>(it->second))
-    data.insert( convert_to_tuple<ARGTYPES...>(v) );
+for (auto& v : std::get<std::set<TupleValueType>>(it->second))
+    data.insert( convert_to_tuple<TupleValueType,ARGTYPES...>(v) );
     //auto tmp = convert_to_tuple<ARGTYPES...>(v);
     //data.insert(tmp);
 
@@ -221,7 +221,7 @@ if (it == indexed_set_data.end())
 
 data.clear();
 for (auto& v : it->second)
-    data.emplace( convert_to_tuple<KEYTYPES...>(std::get<TupleType>(v.first)), std::get<std::set<SetType>>(v.second) );
+    data.emplace( convert_to_tuple<TupleKeyType,KEYTYPES...>(std::get<TupleKeyType>(v.first)), std::get<std::set<SetType>>(v.second) );
 
 return true;
 }
@@ -240,7 +240,7 @@ data.clear();
 for (auto& v : it->second) {
     std::set<std::tuple<SETTYPES...>> tmp;
     for (auto& sv : std::get<TupleSetType>(v.second))
-        tmp.insert( convert_to_tuple<SETTYPES...>(sv) );
+        tmp.insert( convert_to_tuple<TupleSetType,SETTYPES...>(sv) );
 
     data.emplace( std::get<KeyType>(v.first), tmp );
     }
@@ -262,9 +262,9 @@ data.clear();
 for (auto& v : it->second) {
     std::set<std::tuple<SETTYPES...>> tmp;
     for (auto& sv : std::get<TupleSetType>(v.second))
-        tmp.insert( convert_to_tuple<SETTYPES...>(sv) );
+        tmp.insert( convert_to_tuple<TupleSetType,SETTYPES...>(sv) );
 
-    data.emplace( convert_to_tuple<KEYTYPES...>(std::get<TupleType>(v.first)), tmp );
+    data.emplace( convert_to_tuple<TupleKeyType,KEYTYPES...>(std::get<TupleKeyType>(v.first)), tmp );
     }
 
 return true;
@@ -277,18 +277,33 @@ DataPortalRepn::get(const std::string& name, TYPE& data) const
 {
 auto it = parameter_data.find(name);
 if (it == parameter_data.end()) {
-    // TODO - raise an exception
-    //std::cerr << "ERROR - missing data '" << name << "'" << std::endl;
     return false;
     }
 
 if (not std::holds_alternative<TYPE>(it->second)) {
-    // TODO - raise an exception
-    //std::cerr << "ERROR - data '" << name << "' is not a " << type_name<TYPE>() << " value." << std::endl;;
     return false;
     }
 
 data = std::get<TYPE>(it->second);
+
+return true;
+}
+
+template <>
+bool 
+DataPortalRepn::get(const std::string& name, double& data) const
+{
+auto it = parameter_data.find(name);
+if (it == parameter_data.end()) {
+    return false;
+    }
+
+if (std::holds_alternative<double>(it->second))
+    data = std::get<double>(it->second);
+else if (std::holds_alternative<int>(it->second))
+    data = std::get<int>(it->second);
+else
+    return false;
 
 return true;
 }
@@ -328,7 +343,7 @@ if (it == indexed_parameter_data.end()) {
 
 data.clear();
 for (auto& v : it->second)
-    data.emplace( convert_to_tuple<KEYTYPES...>(std::get<TupleType>(v.first)), std::get<ValueType>(v.second) );
+    data.emplace( convert_to_tuple<TupleKeyType,KEYTYPES...>(std::get<TupleKeyType>(v.first)), std::get<ValueType>(v.second) );
 
 return true;
 }

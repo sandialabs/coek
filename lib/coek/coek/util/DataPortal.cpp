@@ -25,82 +25,266 @@ namespace {
 
 
 template <typename T>
-std::vector<std::variant<std::string,int>> get_tuple_repn(T& obj, int ctr)
+DataPortalRepn::TupleKeyType get_tuple_key(T& obj, std::vector<std::string>& key_type, int ctr)
 {
-std::vector<std::variant<std::string,int>> tmp;
+DataPortalRepn::TupleKeyType tmp;
+size_t i = 0;
 for (auto& val : obj.GetArray()) {
-    if (val.IsString())
+    if (key_type[i] == "s") {
+        RUNTIME_ASSERT(val.IsString(), "Unexpected tuple type (key " + std::to_string(i) + " in tuple " + std::to_string(ctr) + ")");
         tmp.push_back(val.GetString());
-    else if (val.IsInt())
+        }
+    else if (key_type[i] == "i") {
+        RUNTIME_ASSERT(val.IsInt(), "Unexpected tuple type (key " + std::to_string(i) + " in tuple " + std::to_string(ctr) + ")");
         tmp.push_back(val.GetInt());
+        }
     else
         RUNTIME_ASSERT(false, "Unexpected tuple value (value " + std::to_string(ctr) + ")");
+    i++;
     }
 
 return tmp;
 }
 
+template <typename T>
+DataPortalRepn::TupleValueType get_tuple_value(T& obj, std::vector<std::string>& set_type, int ctr)
+{
+DataPortalRepn::TupleValueType tmp;
+size_t i = 0;
+for (auto& val : obj.GetArray()) {
+    if (set_type[i] == "s") {
+        RUNTIME_ASSERT(val.IsString(), "Unexpected tuple type (key " + std::to_string(i) + " in tuple " + std::to_string(ctr) + ")");
+        tmp.push_back(val.GetString());
+        }
+    else if (set_type[i] == "i") {
+        RUNTIME_ASSERT(val.IsInt(), "Unexpected tuple type (key " + std::to_string(i) + " in tuple " + std::to_string(ctr) + ")");
+        tmp.push_back(val.GetInt());
+        }
+    else if (set_type[i] == "d") {
+        if (val.IsDouble())
+            tmp.push_back(val.GetDouble());
+        else if (val.IsInt()) {
+            double v = val.GetInt();
+            tmp.push_back(v);
+            }
+        else
+            RUNTIME_ASSERT(false, "Unexpected tuple type (key " + std::to_string(i) + " in tuple " + std::to_string(ctr) + ")");
+        }
+    else
+        RUNTIME_ASSERT(false, "Unexpected tuple type (value " + std::to_string(ctr) + ")");
+    i++;
+    }
+
+return tmp;
+}
+
+template <typename T>
+std::vector<std::string> load_type(T& obj)
+{
+std::vector<std::string> ans;
+if (obj.IsArray()) {
+    for (auto& item : obj.GetArray()) {
+        RUNTIME_ASSERT(item.IsString(), "Unexpected JSON data while loading type information.");
+        ans.push_back(item.GetString());
+        }
+    }
+else if (obj.IsString()) {
+    ans.push_back(obj.GetString());
+    }
+else
+    throw std::runtime_error("Unexpected JSON data while loading type information.");
+return ans;
+}
+
 //
-// Load set data
+// Load set data - Single set
 //
 template <typename T>
-void load_set_data(T& obj, DataPortalRepn::SetTypes& set_variant)
+void load_set_data(T& obj, DataPortalRepn::SetTypes& set_variant, std::vector<std::string>& set_type)
 {
-int type=0;
-for (auto& item : obj.GetArray()) {
-    if (item.IsString()) type=1;
-    if (item.IsInt()) type=2;
-    if (item.IsArray()) type=3;
-    break;
-    }
-if (type == 0) {
-    std::string tmp = obj.GetString();
-    throw std::runtime_error("Error processing data for " + tmp + ": unexpected data type.");
-    }
-else if (type == 1) {
-    //
-    // Set of strings
-    //
-    std::set<std::string> data;
-    int ctr=0;
-    for (auto& item : obj.GetArray()) {
-        RUNTIME_ASSERT(item.IsString(), "Unexpected non-string value (value " + std::to_string(ctr) + ")");
-        ctr++;
-        data.insert(item.GetString());
+RUNTIME_ASSERT(obj.IsArray(), "Expecting an array of set data.");
+RUNTIME_ASSERT(set_type.size() > 0, "Error processing set data empty set type specification.");
+
+if (set_type.size() == 1) {
+    if (set_type[0] == "s") {
+        //
+        // Set of strings
+        //
+        std::set<std::string> data;
+        int ctr=0;
+        for (auto& item : obj.GetArray()) {
+            RUNTIME_ASSERT(item.IsString(), "Unexpected non-string value (value " + std::to_string(ctr) + ")");
+            ctr++;
+            data.insert(item.GetString());
+            }
+        set_variant = data;
         }
-    set_variant = data;
-    }
-else if (type == 2) {
-    //
-    // Set of integers
-    //
-    std::set<int> data;
-    int ctr=0;
-    for (auto& item : obj.GetArray()) {
-        RUNTIME_ASSERT(item.IsInt(), "Unexpected non-integer value (value " + std::to_string(ctr) + ")");
-        ctr++;
-        data.insert(item.GetInt());
+    else if (set_type[0] == "i") {
+        //
+        // Set of integers
+        //
+        std::set<int> data;
+        int ctr=0;
+        for (auto& item : obj.GetArray()) {
+            RUNTIME_ASSERT(item.IsInt(), "Unexpected non-integer value (value " + std::to_string(ctr) + ")");
+            ctr++;
+            data.insert(item.GetInt());
+            }
+        set_variant = data;
         }
-    set_variant = data;
+    else if (set_type[0] == "d") {
+        //
+        // Set of doubles
+        //
+        std::set<double> data;
+        int ctr=0;
+        for (auto& item : obj.GetArray()) {
+            if (item.IsInt())
+                data.insert(item.GetInt());
+            else if (item.IsDouble())
+                data.insert(item.GetDouble());
+            else
+                RUNTIME_ASSERT(false, "Unexpected non-double value (value " + std::to_string(ctr) + ")");
+            ctr++;
+            }
+        set_variant = data;
+        }
     }
-else if (type == 3) {
+else {
     //
     // Set of tuples
     //
-    std::set<std::vector<std::variant<std::string,int>>> data;
+    std::set<DataPortalRepn::TupleValueType> data;
     int ctr=0;
     for (auto& item : obj.GetArray()) {
         RUNTIME_ASSERT(item.IsArray(), "Unexpected non-tuple value (value " + std::to_string(ctr) + ")");
         ctr++;
 
-        data.insert( get_tuple_repn(item, ctr) );
+        data.insert( get_tuple_value(item, set_type, ctr) );
         }
     set_variant = data;
     }
 }
 
 //
-// Process JPOF file version 20210301
+// Load set data - Indexed sets
+//
+template <typename T>
+void load_set_data(T& obj, std::map<DataPortalRepn::KeyTypes,DataPortalRepn::SetTypes>& data, std::vector<std::string>& key_type, std::vector<std::string>& set_type)
+{
+RUNTIME_ASSERT(obj.IsArray(), "Expecting an array of set data.");
+RUNTIME_ASSERT(set_type.size() > 0, "Error processing set data empty set type specification.");
+RUNTIME_ASSERT(key_type.size() > 0, "Error processing set data empty key type specification.");
+
+int ctr=0;
+for (auto& item : obj.GetArray()) {
+    RUNTIME_ASSERT(item.IsArray(), "Index value must be an array.");
+    auto tmp = item.GetArray();
+    RUNTIME_ASSERT(tmp.Size() == 2, "Unexpected data for key-value pair.");
+
+    DataPortalRepn::SetTypes set_variant;
+    load_set_data(tmp[1], set_variant, set_type);
+
+    if (key_type.size() == 1) {
+        if (key_type[0] == "s") {
+            RUNTIME_ASSERT(tmp[0].IsString(), "Unexpected key type (value " + std::to_string(ctr) + ")");
+            data.emplace(tmp[0].GetString(), set_variant);
+            }
+        else if (key_type[0] == "i") {
+            RUNTIME_ASSERT(tmp[0].IsInt(), "Unexpected key type (value " + std::to_string(ctr) + ")");
+            data.emplace(tmp[0].GetInt(), set_variant);
+            }
+        }
+    else {
+        data.emplace( get_tuple_key(tmp[0], key_type, ctr), set_variant);
+        }
+    ctr++;
+    }
+}
+
+//
+// Load param data - Single parameter
+//
+template <typename T>
+void load_param_data(T& obj, DataPortalRepn::ParameterTypes& param_variant, std::vector<std::string>& param_type)
+{
+//RUNTIME_ASSERT(obj.IsArray(), "Expecting an array of parameter data.");
+RUNTIME_ASSERT(param_type.size() > 0, "Error processing parameter data empty type specification.");
+
+if (param_type.size() == 1) {
+    if (param_type[0] == "s") {
+        //
+        // String parameter
+        //
+        RUNTIME_ASSERT(obj.IsString(), "Unexpected non-string value");
+        param_variant = obj.GetString();
+        }
+    else if (param_type[0] == "i") {
+        //
+        // Integer parameter
+        //
+        RUNTIME_ASSERT(obj.IsInt(), "Unexpected non-integer value");
+        param_variant = obj.GetInt();
+        }
+    else if (param_type[0] == "d") {
+        //
+        // Double parameter
+        //
+        if (obj.IsInt())
+            param_variant = obj.GetInt();
+        else if (obj.IsDouble())
+            param_variant = obj.GetDouble();
+        else
+            RUNTIME_ASSERT(false, "Unexpected non-double value");
+        }
+    }
+else {
+    //
+    // Tuple parameter
+    //
+    DataPortalRepn::TupleValueType data;
+    param_variant = get_tuple_value(obj, param_type, 0);
+    }
+}
+
+//
+// Load param data - Indexed parameters
+//
+template <typename T>
+void load_param_data(T& obj, std::map<DataPortalRepn::KeyTypes,DataPortalRepn::ParameterTypes>& data, std::vector<std::string>& key_type, std::vector<std::string>& param_type)
+{
+RUNTIME_ASSERT(obj.IsArray(), "Expecting an array of parameter data.");
+RUNTIME_ASSERT(param_type.size() > 0, "Error processing parameter data empty param type specification.");
+RUNTIME_ASSERT(key_type.size() > 0, "Error processing parameter data empty key type specification.");
+
+int ctr=0;
+for (auto& item : obj.GetArray()) {
+    RUNTIME_ASSERT(item.IsArray(), "Index value must be an array.");
+    auto tmp = item.GetArray();
+    RUNTIME_ASSERT(tmp.Size() == 2, "Unexpected data for key-value pair.");
+
+    DataPortalRepn::ParameterTypes param_variant;
+    load_param_data(tmp[1], param_variant, param_type);
+
+    if (key_type.size() == 1) {
+        if (key_type[0] == "s") {
+            RUNTIME_ASSERT(tmp[0].IsString(), "Unexpected key type (value " + std::to_string(ctr) + ")");
+            data.emplace(tmp[0].GetString(), param_variant);
+            }
+        else if (key_type[0] == "i") {
+            RUNTIME_ASSERT(tmp[0].IsInt(), "Unexpected key type (value " + std::to_string(ctr) + ")");
+            data.emplace(tmp[0].GetInt(), param_variant);
+            }
+        }
+    else {
+        data.emplace( get_tuple_key(tmp[0], key_type, ctr), param_variant);
+        }
+    ctr++;
+    }
+}
+
+//
+// Process JSON file
 //
 void initialize_from_dom(coek::DataPortalRepn& repn, rapidjson::Document& doc)
 {
@@ -110,13 +294,16 @@ for (auto& v : doc.GetObject()) {
     std::string name = v.name.GetString();
 
     if (v.value.IsArray()) {
-        coek::DataPortalRepn::SetTypes data;
-        load_set_data(v.value, data);
-        repn.set_data[name] = data;
+        throw std::runtime_error("Unexpected top-level array.  Set data must be specified with a dictionary.");
         }
 
     else if (v.value.IsString()) {
         std::string tmp = v.value.GetString();
+        repn.parameter_data[name] = tmp;
+        }
+
+    else if (v.value.IsDouble()) {
+        double tmp = v.value.GetDouble();
         repn.parameter_data[name] = tmp;
         }
 
@@ -126,39 +313,55 @@ for (auto& v : doc.GetObject()) {
         }
 
     else if (v.value.IsObject()) {
-        RUNTIME_ASSERT(v.value.HasMember("key_types"), "Missing 'key_types' in indexed data representation");
-        RUNTIME_ASSERT(v.value.HasMember("value_types"), "Missing 'value_types' in indexed data representation");
+        //RUNTIME_ASSERT(v.value.HasMember("key_type"), "Missing 'key_type' in indexed data representation");
         RUNTIME_ASSERT(v.value.HasMember("data"), "Missing 'data' in indexed data representation");
         RUNTIME_ASSERT(v.value["data"].IsArray(), "Expected 'data' in indexed data representation to be an array");
 
-        bool is_param = true;
-        std::map<DataPortalRepn::KeyTypes,DataPortalRepn::ParameterTypes> data;
+        if (v.value.HasMember("set_type")) {
+            std::vector<std::string> set_type = load_type(v.value["set_type"]);
+            if (v.value.HasMember("key_type")) {
+                // Indexed set
+                std::vector<std::string> key_type = load_type(v.value["key_type"]);
+                std::map<DataPortalRepn::KeyTypes,DataPortalRepn::SetTypes> data;
+                load_set_data(v.value["data"], data, key_type, set_type);
+                repn.indexed_set_data[name] = data;
+                }
+            else {
+                // Set
+                DataPortalRepn::SetTypes data;
+                load_set_data(v.value["data"], data, set_type);
+                repn.set_data[name] = data;
+                }
+            }
+        else {
+            // Indexed parameter
+            RUNTIME_ASSERT(v.value.HasMember("param_type"), "Missing 'set_type' and 'param_type' in indexed data representation");
+            RUNTIME_ASSERT(v.value.HasMember("key_type"), "Missing 'key_type' in indexed data representation");
 
-        std::map<DataPortalRepn::KeyTypes,DataPortalRepn::SetTypes> set_data;
+            std::vector<std::string> key_type = load_type(v.value["key_type"]);
+            std::vector<std::string> param_type = load_type(v.value["param_type"]);
+            std::map<DataPortalRepn::KeyTypes,DataPortalRepn::ParameterTypes> data;
+            load_param_data(v.value["data"], data, key_type, param_type);
+            repn.indexed_parameter_data[name] = data;
+            }
+
 #if 0
-        coek::DataPortalRepn::KeyTypes key;
-        coek::DataPortalRepn::SetTypes value;
-        //set_data.insert(key, value);
-
-        std::map<DataPortalRepn::KeyTypes,int> set_data2;
-        coek::DataPortalRepn::KeyTypes key2;
-        int value2;
-        set_data2.insert({key2, value2});
-#endif
         int ctr=0;
         for (auto& kv : v.value["data"].GetArray()) {
             RUNTIME_ASSERT(kv.HasMember("k"), "Missing 'key'");
             RUNTIME_ASSERT(kv.HasMember("v"), "Missing 'value'");
             if (kv["k"].IsArray()) {
                 if (kv["v"].IsString())
-                    data.emplace( get_tuple_repn(kv["k"], ctr), kv["v"].GetString() );
+                    data.emplace( get_tuple_key(kv["k"], ctr), kv["v"].GetString() );
                 else if (kv["v"].IsInt())
-                    data.emplace( get_tuple_repn(kv["k"], ctr), kv["v"].GetInt() );
+                    data.emplace( get_tuple_key(kv["k"], ctr), kv["v"].GetInt() );
+                else if (kv["v"].IsDouble())
+                    data.emplace( get_tuple_key(kv["k"], ctr), kv["v"].GetDouble() );
                 else if (kv["v"].IsArray()) {
                     is_param = false;
                     coek::DataPortalRepn::SetTypes value;
                     load_set_data(kv["v"], value);
-                    set_data.emplace(get_tuple_repn(kv["k"], ctr), value);
+                    set_data.emplace(get_tuple_key(kv["k"], ctr), value);
                     }
                 else
                     RUNTIME_ASSERT(false, "Unexpected value type");
@@ -168,6 +371,8 @@ for (auto& v : doc.GetObject()) {
                     data.emplace( kv["k"].GetString(), kv["v"].GetString() );
                 else if (kv["v"].IsInt())
                     data.emplace( kv["k"].GetString(), kv["v"].GetInt() );
+                else if (kv["v"].IsDouble())
+                    data.emplace( get_tuple_key(kv["k"], ctr), kv["v"].GetDouble() );
                 else if (kv["v"].IsArray()) {
                     is_param = false;
                     coek::DataPortalRepn::SetTypes value;
@@ -182,9 +387,10 @@ for (auto& v : doc.GetObject()) {
                     data.emplace( kv["k"].GetInt(), kv["v"].GetString() );
                 else if (kv["v"].IsInt())
                     data.emplace( kv["k"].GetInt(), kv["v"].GetInt() );
+                else if (kv["v"].IsDouble())
+                    data.emplace( get_tuple_key(kv["k"], ctr), kv["v"].GetDouble() );
                 else if (kv["v"].IsArray()) {
                     is_param = false;
-                    //coek::DataPortalRepn::KeyTypes key = kv["k"].GetInt();
                     coek::DataPortalRepn::SetTypes value;
                     load_set_data(kv["v"], value);
                     set_data.emplace(kv["k"].GetInt(), value);
@@ -202,6 +408,7 @@ for (auto& v : doc.GetObject()) {
             repn.indexed_parameter_data[name] = data;
         else
             repn.indexed_set_data[name] = set_data;
+#endif
         }
     }
 }

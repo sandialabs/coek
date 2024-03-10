@@ -17,7 +17,14 @@ TEST_CASE("DP_set", "[smoke]")
     SECTION("error2")
     {
         auto dp = coek::DataPortal();
-        dp.load_from_json_string("{ \"A\": [1,2,3] }");
+        dp.load_from_json_string(R"(
+{
+"A": {
+    "set_type": "i",
+    "data": [1, 2, 3]
+    }
+}
+)");
         std::set<std::string> data;
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == false );
@@ -26,7 +33,14 @@ TEST_CASE("DP_set", "[smoke]")
     SECTION("int-set")
     {
         auto dp = coek::DataPortal();
-        dp.load_from_json_string("{ \"A\": [1,2,3] }");
+        dp.load_from_json_string(R"(
+{
+"A": {
+    "set_type": "i",
+    "data": [1, 2, 3]
+    }
+}
+)");
         std::set<int> data;
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
@@ -34,10 +48,35 @@ TEST_CASE("DP_set", "[smoke]")
         REQUIRE( data == baseline );
     }
 
+    SECTION("double-set")
+    {
+        auto dp = coek::DataPortal();
+        dp.load_from_json_string(R"(
+{
+"A": {
+    "set_type": "d",
+    "data": [1.1, 2, 3]
+    }
+}
+)");
+        std::set<double> data;
+        REQUIRE( dp.get("unknown", data) == false );
+        REQUIRE( dp.get("A", data) == true );
+        std::set<double> baseline = {1.1,2,3};
+        REQUIRE( data == baseline );
+    }
+
     SECTION("string-set")
     {
         auto dp = coek::DataPortal();
-        dp.load_from_json_string("{ \"A\": [\"a\",\"b\",\"c\"] }");
+        dp.load_from_json_string(R"(
+{
+"A": {
+    "set_type": "s",
+    "data": ["a", "b", "c"]
+    }
+}
+)");
         std::set<std::string> data;
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
@@ -46,8 +85,35 @@ TEST_CASE("DP_set", "[smoke]")
     SECTION("int-tuple-set")
     {
         auto dp = coek::DataPortal();
-        dp.load_from_json_string("{ \"A\": [ [0, 0], [1,1], [2,2] ] }");
+        dp.load_from_json_string(R"(
+{
+"A": {
+    "set_type": ["i","i"],
+    "data": [   [0, 0],
+                [1, 1],
+                [2, 2]]
+    }
+}
+)");
         std::set<std::tuple<int,int>> data;
+        REQUIRE( dp.get("unknown", data) == false );
+        REQUIRE( dp.get("A", data) == true );
+    }
+
+    SECTION("double-tuple-set")
+    {
+        auto dp = coek::DataPortal();
+        dp.load_from_json_string(R"(
+{
+"A": {
+    "set_type": ["d","d"],
+    "data": [   [0, 0],
+                [1.2, 1],
+                [2.3, 2]]
+    }
+}
+)");
+        std::set<std::tuple<double,double>> data;
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
     }
@@ -55,7 +121,16 @@ TEST_CASE("DP_set", "[smoke]")
     SECTION("string-tuple-set")
     {
         auto dp = coek::DataPortal();
-        dp.load_from_json_string("{ \"A\": [ [\"a\", \"a\"], [\"b\",\"b\"], [\"c\",\"c\"] ] }");
+        dp.load_from_json_string(R"(
+{
+"A": {
+    "set_type": ["s","s"],
+    "data": [   ["a", "a"],
+                ["b", "b"],
+                ["c", "c"]]
+    }
+}
+)");
         std::set<std::tuple<std::string,std::string>> data;
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
@@ -64,8 +139,17 @@ TEST_CASE("DP_set", "[smoke]")
     SECTION("mixed-tuple-set")
     {
         auto dp = coek::DataPortal();
-        dp.load_from_json_string("{ \"A\": [ [\"a\", 0], [\"b\",1], [\"c\",2] ] }");
-        std::set<std::tuple<std::string,int>> data;
+        dp.load_from_json_string(R"(
+{
+"A": {
+    "set_type": ["s","i","d"],
+    "data": [   ["a", 0, 1],
+                ["b", 1, 2.2],
+                ["c", 2, 3.3]]
+    }
+}
+)");
+        std::set<std::tuple<std::string,int,double>> data;
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
     }
@@ -95,6 +179,26 @@ TEST_CASE("DP_param", "[smoke]")
         auto dp = coek::DataPortal();
         dp.load_from_json_string("{ \"A\": 1 }");
         int data = 0;
+        REQUIRE( dp.get("unknown", data) == false );
+        REQUIRE( dp.get("A", data) == true );
+        REQUIRE( data == 1 );
+    }
+
+    SECTION("double-param")
+    {
+        auto dp = coek::DataPortal();
+        dp.load_from_json_string("{ \"A\": 1.1 }");
+        double data = 0;
+        REQUIRE( dp.get("unknown", data) == false );
+        REQUIRE( dp.get("A", data) == true );
+        REQUIRE( data == 1.1 );
+    }
+
+    SECTION("double-param-from-int")
+    {
+        auto dp = coek::DataPortal();
+        dp.load_from_json_string("{ \"A\": 1 }");
+        double data = 0;
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data == 1 );
@@ -136,22 +240,13 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         dp.load_from_json_string(R"(
 {
 "A": {
-    "key_types": "i",
-    "value_types": "set_i",
-    "data": [
-            {
-                "k": 0,
-                "v": [1,1]
-            },
-            {
-                "k": 1,
-                "v": [2,2]
-            },
-            {
-                "k": 2,
-                "v": [3,3]
-            }
-            ]
+    "key_type": "i",
+    "set_type": "i",
+    "data":  [
+                [0, [1]],
+                [1, [1, 2]],
+                [2, [1, 2, 3]]
+             ]
     }
 }
 )");
@@ -160,7 +255,7 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data.size() == 3 );
-        std::set<int> baseline = {3,3};
+        std::set<int> baseline = {1,2,3};
         REQUIRE( data[2] == baseline );
     }
 
@@ -170,22 +265,13 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         dp.load_from_json_string(R"(
 {
 "A": {
-    "key_types": "i",
-    "value_types": "set_s",
-    "data": [
-            {
-                "k": 0,
-                "v": ["a","a"]
-            },
-            {
-                "k": 1,
-                "v": ["b","b"]
-            },
-            {
-                "k": 2,
-                "v": ["c","c"]
-            }
-            ]
+    "key_type": "i",
+    "set_type": "s",
+    "data":  [
+                [0, ["a"]],
+                [1, ["a", "b"]],
+                [2, ["a", "b", "c"]]
+             ]
     }
 }
 )");
@@ -194,7 +280,7 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data.size() == 3 );
-        std::set<std::string> baseline = {"c","c"};
+        std::set<std::string> baseline = {"a","b","c"};
         REQUIRE( data[2] == baseline );
     }
 
@@ -204,22 +290,13 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         dp.load_from_json_string(R"(
 {
 "A": {
-    "key_types": "s",
-    "value_types": "set_s",
-    "data": [
-            {
-                "k": "0",
-                "v": ["a","a"]
-            },
-            {
-                "k": "1",
-                "v": ["b","b"]
-            },
-            {
-                "k": "2",
-                "v": ["c","c"]
-            }
-            ]
+    "key_type": "s",
+    "set_type": "s",
+    "data":  [
+                ["0", ["a"]],
+                ["1", ["a", "b"]],
+                ["2", ["a", "b", "c"]]
+             ]
     }
 }
 )");
@@ -228,7 +305,7 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data.size() == 3 );
-        std::set<std::string> baseline = {"c","c"};
+        std::set<std::string> baseline = {"a","b","c"};
         REQUIRE( data["2"] == baseline );
     }
 
@@ -238,22 +315,13 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         dp.load_from_json_string(R"(
 {
 "A": {
-    "key_types": "i",
-    "value_types": "set_i",
-    "data": [
-            {
-                "k": "0",
-                "v": [0,0]
-            },
-            {
-                "k": "1",
-                "v": [1,1]
-            },
-            {
-                "k": "2",
-                "v": [2,2]
-            }
-            ]
+    "key_type": "s",
+    "set_type": "i",
+    "data":  [
+                ["0", [0]],
+                ["1", [0, 1]],
+                ["2", [0, 1, 2]]
+             ]
     }
 }
 )");
@@ -262,7 +330,7 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data.size() == 3 );
-        std::set<int> baseline = {2,2};
+        std::set<int> baseline = {0,1,2};
         REQUIRE( data["2"] == baseline );
     }
 
@@ -272,22 +340,13 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         dp.load_from_json_string(R"(
 {
 "A": {
-    "key_types": "i",
-    "value_types": "s",
-    "data": [
-            {
-                "k": ["0","1"],
-                "v": [0,1]
-            },
-            {
-                "k": ["1","2"],
-                "v": [1,2]
-            },
-            {
-                "k": ["2","3"],
-                "v": [2,3]
-            }
-            ]
+    "key_type": ["s", "s"],
+    "set_type": "i",
+    "data":  [
+                [["0", "1"], [0]],
+                [["1", "1"], [0, 1]],
+                [["2", "1"], [0, 1, 2]]
+             ]
     }
 }
 )");
@@ -296,8 +355,8 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data.size() == 3 );
-        std::set<int> baseline{2,3};
-        REQUIRE( data[std::make_tuple("2","3")] == baseline );
+        std::set<int> baseline{0,1,2};
+        REQUIRE( data[std::make_tuple("2","1")] == baseline );
     }
 
     SECTION("int-tuple-set-int")
@@ -306,22 +365,13 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         dp.load_from_json_string(R"(
 {
 "A": {
-    "key_types": "i",
-    "value_types": "s",
-    "data": [
-            {
-                "k": [0,1],
-                "v": [0,1]
-            },
-            {
-                "k": [1,2],
-                "v": [1,2]
-            },
-            {
-                "k": [2,3],
-                "v": [2,3]
-            }
-            ]
+    "key_type": ["i", "i"],
+    "set_type": "i",
+    "data":  [
+                [[0, 1], [0]],
+                [[1, 1], [0, 1]],
+                [[2, 1], [0, 1, 2]]
+             ]
     }
 }
 )");
@@ -330,8 +380,8 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data.size() == 3 );
-        std::set<int> baseline{2,3};
-        REQUIRE( data[std::make_tuple(2,3)] == baseline );
+        std::set<int> baseline{0,1,2};
+        REQUIRE( data[std::make_tuple(2,1)] == baseline );
     }
 
     SECTION("mixed-tuple-set-int")
@@ -340,22 +390,13 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         dp.load_from_json_string(R"(
 {
 "A": {
-    "key_types": "i",
-    "value_types": "s",
-    "data": [
-            {
-                "k": ["0",1],
-                "v": [0,1]
-            },
-            {
-                "k": ["1",2],
-                "v": [1,2]
-            },
-            {
-                "k": ["2",3],
-                "v": [2,3]
-            }
-            ]
+    "key_type": ["s", "i"],
+    "set_type": "i",
+    "data":  [
+                [["0", 1], [0]],
+                [["1", 1], [0, 1]],
+                [["2", 1], [0, 1, 2]]
+             ]
     }
 }
 )");
@@ -364,8 +405,8 @@ TEST_CASE("DP_indexed_set", "[smoke]")
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data.size() == 3 );
-        std::set<int> baseline{2,3};
-        REQUIRE( data[std::make_tuple("2",3)] == baseline );
+        std::set<int> baseline{0,1,2};
+        REQUIRE( data[std::make_tuple("2",1)] == baseline );
     }
 }
 
@@ -383,7 +424,11 @@ TEST_CASE("DP_indexed_param", "[smoke]")
     SECTION("error2")
     {
         auto dp = coek::DataPortal();
-        dp.load_from_json_string("{ \"A\": 1 }");
+        dp.load_from_json_string(R"(
+{
+"A": 1
+}
+)");
         std::map<int,int> data;
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == false );
@@ -395,22 +440,13 @@ TEST_CASE("DP_indexed_param", "[smoke]")
         dp.load_from_json_string(R"(
 {
 "A": {
-    "key_types": "i",
-    "value_types": "i",
-    "data": [
-            {
-                "k": 0,
-                "v": 1
-            },
-            {
-                "k": 1,
-                "v": 2
-            },
-            {
-                "k": 2,
-                "v": 3
-            }
-            ]
+    "key_type": "i",
+    "param_type": "i",
+    "data":  [
+                [0, 0],
+                [1, 1],
+                [2, 2]
+             ]
     }
 }
 )");
@@ -419,7 +455,7 @@ TEST_CASE("DP_indexed_param", "[smoke]")
         REQUIRE( dp.get("unknown", data) == false );
         REQUIRE( dp.get("A", data) == true );
         REQUIRE( data.size() == 3 );
-        REQUIRE( data[2] == 3 );
+        REQUIRE( data[2] == 2 );
     }
 
     SECTION("int-string-param")
@@ -428,22 +464,13 @@ TEST_CASE("DP_indexed_param", "[smoke]")
         dp.load_from_json_string(R"(
 {
 "A": {
-    "key_types": "i",
-    "value_types": "s",
-    "data": [
-            {
-                "k": 0,
-                "v": "a"
-            },
-            {
-                "k": 1,
-                "v": "b"
-            },
-            {
-                "k": 2,
-                "v": "c"
-            }
-            ]
+    "key_type": "i",
+    "param_type": "s",
+    "data":  [
+                [0, "a"],
+                [1, "b"],
+                [2, "c"]
+             ]
     }
 }
 )");
@@ -461,22 +488,13 @@ TEST_CASE("DP_indexed_param", "[smoke]")
         dp.load_from_json_string(R"(
 {
 "A": {
-    "key_types": "i",
-    "value_types": "s",
-    "data": [
-            {
-                "k": "0",
-                "v": "a"
-            },
-            {
-                "k": "1",
-                "v": "b"
-            },
-            {
-                "k": "2",
-                "v": "c"
-            }
-            ]
+    "key_type": "s",
+    "param_type": "s",
+    "data":  [
+                ["0", "a"],
+                ["1", "b"],
+                ["2", "c"]
+             ]
     }
 }
 )");
@@ -494,22 +512,13 @@ TEST_CASE("DP_indexed_param", "[smoke]")
         dp.load_from_json_string(R"(
 {
 "A": {
-    "key_types": "i",
-    "value_types": "s",
-    "data": [
-            {
-                "k": "0",
-                "v": 0 
-            },
-            {
-                "k": "1",
-                "v": 1 
-            },
-            {
-                "k": "2",
-                "v": 2
-            }
-            ]
+    "key_type": "s",
+    "param_type": "i",
+    "data":  [
+                ["0", 0],
+                ["1", 1],
+                ["2", 2]
+             ]
     }
 }
 )");
@@ -527,22 +536,13 @@ TEST_CASE("DP_indexed_param", "[smoke]")
         dp.load_from_json_string(R"(
 {
 "A": {
-    "key_types": "i",
-    "value_types": "s",
-    "data": [
-            {
-                "k": ["0","1"],
-                "v": 0 
-            },
-            {
-                "k": ["1","2"],
-                "v": 1 
-            },
-            {
-                "k": ["2","3"],
-                "v": 2
-            }
-            ]
+    "key_type": ["s", "s"],
+    "param_type": "i",
+    "data":  [
+                [["0", "1"], 0],
+                [["1", "2"], 1],
+                [["2", "3"], 2]
+             ]
     }
 }
 )");
@@ -560,22 +560,13 @@ TEST_CASE("DP_indexed_param", "[smoke]")
         dp.load_from_json_string(R"(
 {
 "A": {
-    "key_types": "i",
-    "value_types": "s",
-    "data": [
-            {
-                "k": [0,1],
-                "v": 0 
-            },
-            {
-                "k": [1,2],
-                "v": 1 
-            },
-            {
-                "k": [2,3],
-                "v": 2
-            }
-            ]
+    "key_type": ["i", "i"],
+    "param_type": "i",
+    "data":  [
+                [[0, 1], 0],
+                [[1, 2], 1],
+                [[2, 3], 2]
+             ]
     }
 }
 )");
@@ -593,22 +584,13 @@ TEST_CASE("DP_indexed_param", "[smoke]")
         dp.load_from_json_string(R"(
 {
 "A": {
-    "key_types": "i",
-    "value_types": "s",
-    "data": [
-            {
-                "k": ["0",1],
-                "v": 0 
-            },
-            {
-                "k": ["1",2],
-                "v": 1 
-            },
-            {
-                "k": ["2",3],
-                "v": 2
-            }
-            ]
+    "key_type": ["s", "i"],
+    "param_type": "i",
+    "data":  [
+                [["0", 1], 0],
+                [["1", 2], 1],
+                [["2", 3], 2]
+             ]
     }
 }
 )");
@@ -620,4 +602,3 @@ TEST_CASE("DP_indexed_param", "[smoke]")
         REQUIRE( data[std::make_tuple("2",3)] == 2 );
     }
 }
-
