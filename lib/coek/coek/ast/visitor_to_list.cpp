@@ -70,12 +70,7 @@ void visit_MonomialTerm(const expr_pointer_t& expr, std::list<std::string>& repr
     auto tmp = safe_pointer_cast<MonomialTerm>(expr);
     repr.push_back("[");
     repr.push_back("*");
-    {
-        //std::stringstream sstr;
-        //sstr << tmp->coef;
-        //repr.push_back(sstr.str());
-        repr.push_back(std::to_string(tmp->coef));
-    }
+    repr.push_back(std::to_string(tmp->coef));
     if (tmp->var->name.size() == 0) {
         // WEH - It's hard to test this logic, since the variable index is dynamically generated
         // GCOVR_EXCL_START
