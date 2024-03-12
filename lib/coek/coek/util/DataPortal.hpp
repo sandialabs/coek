@@ -421,6 +421,10 @@ class DataPortal {
     DataPortal()
         { repn = std::make_shared<DataPortalRepn>(); }
 
+    /** Empty the object data. */
+    void clear()
+        { repn->clear(); }
+
     /** Initialize a data portal from a file. */
     void load_from_file(const std::string& filename)
         { repn->load_from_file(filename); }

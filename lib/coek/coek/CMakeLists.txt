@@ -5,6 +5,7 @@ SET(sources
     util/index_vector.cpp
     util/option_cache.cpp
     util/DataPortal.cpp
+    util/tictoc.cpp
     ast/base_terms.cpp
     ast/constraint_terms.cpp
     ast/value_terms.cpp
@@ -229,6 +230,8 @@ install(FILES
         util/template_utils.hpp
         util/sequence.hpp
         util/option_cache.hpp
+        util/DataPortal.hpp
+        util/tictoc.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/util
         )
 install(FILES
