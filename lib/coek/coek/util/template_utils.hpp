@@ -28,34 +28,34 @@ struct has_nonintegral_args<T, Args...> {
 
 // is_std_set
 
-template<typename>
+template <typename>
 struct is_std_set : std::false_type {};
 
-template<typename T>
+template <typename T>
 struct is_std_set<std::set<T>> : std::true_type {};
 
 // is_std_map
 
-template<typename>
+template <typename>
 struct is_std_map : std::false_type {};
 
-template<typename K, typename V>
-struct is_std_map<std::map<K,V>> : std::true_type {};
+template <typename K, typename V>
+struct is_std_map<std::map<K, V>> : std::true_type {};
 
 // is_std_vector
 
-template<typename>
+template <typename>
 struct is_std_vector : std::false_type {};
 
-template<typename T>
+template <typename T>
 struct is_std_vector<std::vector<T>> : std::true_type {};
 
 // is_std_tuple
 
-template<typename>
+template <typename>
 struct is_std_tuple : std::false_type {};
 
-template<typename ...T>
+template <typename... T>
 struct is_std_tuple<std::tuple<T...>> : std::true_type {};
 
 }  // namespace coek
