@@ -379,8 +379,9 @@ TEST_CASE("symbolic_diff", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = exp(2 * w);
             auto e = f.diff(w);
-            static std::list<std::string> baseline
-                = {"[", "*", std::to_string(2.0), "[", "exp", "[", "*", std::to_string(2.0), "w", "]", "]", "]"};
+            static std::list<std::string> baseline = {"[", "*", std::to_string(2.0), "[", "exp",
+                                                      "[", "*", std::to_string(2.0), "w", "]",
+                                                      "]", "]"};
             REQUIRE(e.to_list() == baseline);
         }
         WHEN("log")
@@ -389,11 +390,10 @@ TEST_CASE("symbolic_diff", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = log(2 * w);
             auto e = f.diff(w);
-            static std::list<std::string> baseline = {"[", "*", std::to_string(2.0),
-                                                      "[", "/", std::to_string(1.0),
-                                                      "[", "*", std::to_string(2.0),
-                                                      "w", "]", "]",
-                                                      "]"};
+            static std::list<std::string> baseline
+                = {"[", "*", std::to_string(2.0), "[", "/", std::to_string(1.0),
+                   "[", "*", std::to_string(2.0), "w", "]", "]",
+                   "]"};
             REQUIRE(e.to_list() == baseline);
         }
         WHEN("log10")
@@ -427,8 +427,9 @@ TEST_CASE("symbolic_diff", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = sin(2 * w);
             auto e = f.diff(w);
-            static std::list<std::string> baseline
-                = {"[", "*", std::to_string(2.0), "[", "cos", "[", "*", std::to_string(2.0), "w", "]", "]", "]"};
+            static std::list<std::string> baseline = {"[", "*", std::to_string(2.0), "[", "cos",
+                                                      "[", "*", std::to_string(2.0), "w", "]",
+                                                      "]", "]"};
             REQUIRE(e.to_list() == baseline);
         }
         WHEN("cos")
@@ -437,9 +438,10 @@ TEST_CASE("symbolic_diff", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = cos(2 * w);
             auto e = f.diff(w);
-            static std::list<std::string> baseline = {
-                "[", "*", std::to_string(2.0), "[", "-", "[", "sin", "[", "*", std::to_string(2.0), "w", "]", "]",
-                "]", "]"};
+            static std::list<std::string> baseline
+                = {"[", "*", std::to_string(2.0), "[", "-", "[", "sin",
+                   "[", "*", std::to_string(2.0), "w", "]", "]", "]",
+                   "]"};
             REQUIRE(e.to_list() == baseline);
         }
         WHEN("tan")
@@ -476,8 +478,9 @@ TEST_CASE("symbolic_diff", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = sinh(2 * w);
             auto e = f.diff(w);
-            static std::list<std::string> baseline
-                = {"[", "*", std::to_string(2.0), "[", "cosh", "[", "*", std::to_string(2.0), "w", "]", "]", "]"};
+            static std::list<std::string> baseline = {"[", "*", std::to_string(2.0), "[", "cosh",
+                                                      "[", "*", std::to_string(2.0), "w", "]",
+                                                      "]", "]"};
             REQUIRE(e.to_list() == baseline);
         }
         WHEN("cosh")
@@ -486,8 +489,9 @@ TEST_CASE("symbolic_diff", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = cosh(2 * w);
             auto e = f.diff(w);
-            static std::list<std::string> baseline
-                = {"[", "*", std::to_string(2.0), "[", "sinh", "[", "*", std::to_string(2.0), "w", "]", "]", "]"};
+            static std::list<std::string> baseline = {"[", "*", std::to_string(2.0), "[", "sinh",
+                                                      "[", "*", std::to_string(2.0), "w", "]",
+                                                      "]", "]"};
             REQUIRE(e.to_list() == baseline);
         }
         WHEN("tanh")
@@ -609,14 +613,30 @@ TEST_CASE("symbolic_diff", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = atan(2 * w);
             auto e = f.diff(w);
-            static std::list<std::string> baseline = {"[", "*", std::to_string(2.0),
-                                                      "[", "/", std::to_string(1.0),
-                                                      "[", "+", std::to_string(1.0),
-                                                      "[", "*", "[",
-                                                      "*", std::to_string(2.0), "w",
-                                                      "]", "[", "*",
-                                                      std::to_string(2.0), "w", "]",
-                                                      "]", "]", "]",
+            static std::list<std::string> baseline = {"[",
+                                                      "*",
+                                                      std::to_string(2.0),
+                                                      "[",
+                                                      "/",
+                                                      std::to_string(1.0),
+                                                      "[",
+                                                      "+",
+                                                      std::to_string(1.0),
+                                                      "[",
+                                                      "*",
+                                                      "[",
+                                                      "*",
+                                                      std::to_string(2.0),
+                                                      "w",
+                                                      "]",
+                                                      "[",
+                                                      "*",
+                                                      std::to_string(2.0),
+                                                      "w",
+                                                      "]",
+                                                      "]",
+                                                      "]",
+                                                      "]",
                                                       "]"};
             REQUIRE(e.to_list() == baseline);
         }
@@ -662,16 +682,33 @@ TEST_CASE("symbolic_diff", "[smoke]")
             auto w = m.add_variable("w").lower(0).upper(1).value(0);
             coek::Expression f = acosh(2 * w);
             auto e = f.diff(w);
-            static std::list<std::string> baseline = {"[", "*",    std::to_string(2.0),
-                                                      "[", "/",    std::to_string(1.0),
-                                                      "[", "sqrt", "[",
-                                                      "+", "[",    "*",
-                                                      "[", "*",    
+            static std::list<std::string> baseline = {"[",
+                                                      "*",
                                                       std::to_string(2.0),
-                                                      "w", "]",    "[",
-                                                      "*", std::to_string(2.0),    "w",
-                                                      "]", "]",    std::to_string(-1.0),
-                                                      "]", "]",    "]",
+                                                      "[",
+                                                      "/",
+                                                      std::to_string(1.0),
+                                                      "[",
+                                                      "sqrt",
+                                                      "[",
+                                                      "+",
+                                                      "[",
+                                                      "*",
+                                                      "[",
+                                                      "*",
+                                                      std::to_string(2.0),
+                                                      "w",
+                                                      "]",
+                                                      "[",
+                                                      "*",
+                                                      std::to_string(2.0),
+                                                      "w",
+                                                      "]",
+                                                      "]",
+                                                      std::to_string(-1.0),
+                                                      "]",
+                                                      "]",
+                                                      "]",
                                                       "]"};
             REQUIRE(e.to_list() == baseline);
         }
