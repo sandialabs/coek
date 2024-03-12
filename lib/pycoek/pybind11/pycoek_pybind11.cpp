@@ -1115,7 +1115,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     py::class_<coek::Variable>(m, "variable_single")
         .def(py::init<>())
 #if 1
-    // TODO - Check with Mike
+        // TODO - Check with Mike
         .def(py::init<const coek::VariableRepn&>())
 #endif
         .def("get_name", [](const coek::Variable& x) { return x.name(); })
@@ -1687,7 +1687,8 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     py::class_<coek::Constraint>(m, "constraint")
         .def(py::init<>())
         .def_property_readonly("value", [](coek::Constraint& c) { return c.body().value(); })
-        .def("__call__", [](const coek::Constraint& c, py::kwargs kwargs) {return c.is_feasible();})
+        .def("__call__",
+             [](const coek::Constraint& c, py::kwargs kwargs) { return c.is_feasible(); })
         .def_property_readonly("lb", [](coek::Constraint& c) { return coek::constraint_lb(c); })
         .def_property_readonly("ub", [](coek::Constraint& c) { return coek::constraint_ub(c); })
         .def("lower", &coek::Constraint::lower)
@@ -1757,7 +1758,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
 
 #if 1
     py::class_<coek::VariableTerm>(m, "VariableTerm")
-	.def_readonly("index", &coek::VariableTerm::index);
+        .def_readonly("index", &coek::VariableTerm::index);
 #endif
 
     //
