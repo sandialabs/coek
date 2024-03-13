@@ -29,9 +29,12 @@ if(${with_python})
     # Targets for poek testing
     #
     if(${with_tests})
-        list(APPEND lib_test_targets test_poek test_pyomo)
+        list(APPEND lib_test_targets test_poek test_pyomo test_coek_utils)
         add_custom_target(test_poek
             COMMAND ${Python_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/poek/poek
+            )
+        add_custom_target(test_coek_utils
+            COMMAND ${Python_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/coek_utils/coek_utils
             )
         add_custom_target(test_pyomo
             COMMAND ${Python_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/pyomo_coek/pyomo_coek
