@@ -3,6 +3,9 @@
 #    include <rapidjson/document.h>
 #    include <rapidjson/error/en.h>
 #    include <rapidjson/filereadstream.h>
+#    include <rapidjson/filewritestream.h>
+#    include <rapidjson/writer.h>
+#    include <rapidjson/prettywriter.h>
 #endif
 
 #define RUNTIME_ASSERT(flag, msg) \
@@ -365,6 +368,246 @@ void initialize_from_dom(coek::DataPortalRepn& repn, rapidjson::Document& doc)
     }
 }
 
+template <typename AllocT>
+void value_tuple_to_array(const DataPortalRepn::TupleValueType& tvec, rapidjson::Value& array, rapidjson::Value& tuple_type, AllocT& allocator)
+{
+        bool first = tuple_type.Size() == 0;
+        for (const auto& v: tvec) {
+            if (std::holds_alternative<DataPortalRepn::StringType>(v)) {
+                if (first)
+                    tuple_type.PushBack("s", allocator);
+                const auto& val = std::get<DataPortalRepn::StringType>(v);
+                rapidjson::Value v_( val.c_str(), static_cast<rapidjson::SizeType>(val.size()), allocator );
+                array.PushBack( v_, allocator );
+                }
+            else if (std::holds_alternative<DataPortalRepn::IntegerType>(v)) {
+                if (first)
+                    tuple_type.PushBack("i", allocator);
+                int val = std::get<DataPortalRepn::IntegerType>(v);
+                rapidjson::Value v_( val );
+                array.PushBack( v_, allocator );
+                }
+            else if (std::holds_alternative<DataPortalRepn::DoubleType>(v)) {
+                if (first)
+                    tuple_type.PushBack("d", allocator);
+                double val = std::get<DataPortalRepn::DoubleType>(v);
+                rapidjson::Value v_( val );
+                array.PushBack( v_, allocator );
+                }
+            }
+}
+
+template <typename AllocT>
+void key_tuple_to_array(const DataPortalRepn::TupleKeyType& tvec, rapidjson::Value& array, rapidjson::Value& key_type, AllocT& allocator)
+{
+        bool first = key_type.Size() == 0;
+        for (const auto& v: tvec) {
+            if (std::holds_alternative<DataPortalRepn::StringType>(v)) {
+                if (first)
+                    key_type.PushBack("s", allocator);
+                const auto& val = std::get<DataPortalRepn::StringType>(v);
+                rapidjson::Value v_( val.c_str(), static_cast<rapidjson::SizeType>(val.size()), allocator );
+                array.PushBack( v_, allocator );
+                }
+            else if (std::holds_alternative<DataPortalRepn::IntegerType>(v)) {
+                if (first)
+                    key_type.PushBack("i", allocator);
+                int val = std::get<DataPortalRepn::IntegerType>(v);
+                rapidjson::Value v_( val );
+                array.PushBack( v_, allocator );
+                }
+            }
+}
+
+template <typename AllocT>
+void set_to_array(const DataPortalRepn::SetTypes& s, rapidjson::Value& array, rapidjson::Value& set_type, AllocT& allocator)
+{
+if (std::holds_alternative<DataPortalRepn::StringSetType>(s)) {
+    if (set_type.Size() == 0)
+        set_type.PushBack( "s", allocator );
+    const auto& set_ = std::get<DataPortalRepn::StringSetType>(s);
+    for (const std::string& sval: set_) {
+        rapidjson::Value v( sval.c_str(), static_cast<rapidjson::SizeType>(sval.size()), allocator );
+        array.PushBack( v, allocator );
+        }
+    }
+
+else if (std::holds_alternative<DataPortalRepn::IntegerSetType>(s)) {
+    if (set_type.Size() == 0)
+        set_type.PushBack( "i", allocator );
+    const auto& set_ = std::get<DataPortalRepn::IntegerSetType>(s);
+    for (const auto& sval: set_) {
+        rapidjson::Value v( sval );
+        array.PushBack( v, allocator );
+        }
+    }
+
+else if (std::holds_alternative<DataPortalRepn::DoubleSetType>(s)) {
+    if (set_type.Size() == 0)
+        set_type.PushBack( "d", allocator );
+    const auto& set_ = std::get<DataPortalRepn::DoubleSetType>(s);
+    for (const auto& sval: set_) {
+        rapidjson::Value v( sval );
+        array.PushBack( v, allocator );
+        }
+    }
+
+else if (std::holds_alternative<DataPortalRepn::TupleSetType>(s)) {
+    const auto& set_ = std::get<DataPortalRepn::TupleSetType>(s);
+    for (const auto& sval: set_) {
+        rapidjson::Value v(rapidjson::kArrayType);
+        value_tuple_to_array(sval, v, set_type, allocator);
+        array.PushBack(v, allocator);
+        }
+    }
+}
+
+template <typename AllocT>
+void param_to_value(const DataPortalRepn::ParameterTypes& p, rapidjson::Value& value, rapidjson::Value& param_type, AllocT& allocator)
+{
+    if (std::holds_alternative<DataPortalRepn::StringType>(p)) {
+        if (param_type.Size() == 0)
+            param_type.PushBack("s", allocator);
+        const auto& val = std::get<DataPortalRepn::StringType>(p);
+        value.SetString( val.c_str(), static_cast<rapidjson::SizeType>(val.size()), allocator );
+        }
+    else if (std::holds_alternative<DataPortalRepn::IntegerType>(p)) {
+        if (param_type.Size() == 0)
+            param_type.PushBack("i", allocator);
+        int val = std::get<DataPortalRepn::IntegerType>(p);
+        value.SetInt( val );
+        }
+    else if (std::holds_alternative<DataPortalRepn::DoubleType>(p)) {
+        if (param_type.Size() == 0)
+            param_type.PushBack("d", allocator);
+        double val = std::get<DataPortalRepn::DoubleType>(p);
+        value.SetDouble( val );
+        }
+    else if (std::holds_alternative<DataPortalRepn::TupleValueType>(p)) {
+        value.SetArray();
+        value_tuple_to_array( std::get<DataPortalRepn::TupleValueType>(p), value, param_type, allocator );
+        }
+}
+
+//
+// Create JSON DOM
+//
+void initialize_to(const coek::DataPortalRepn& repn, rapidjson::Document& doc)
+{
+// Top-level object
+doc.SetObject();
+
+// must pass an allocator when the object may need to allocate memory
+auto& allocator = doc.GetAllocator();
+
+for(const auto& s: repn.set_data) {
+    rapidjson::Value k( s.first.c_str(), static_cast<rapidjson::SizeType>(s.first.size()), allocator );
+    rapidjson::Value obj(rapidjson::kObjectType);
+    //
+    rapidjson::Value set_type(rapidjson::kArrayType);
+    rapidjson::Value array(rapidjson::kArrayType);
+    set_to_array(s.second, array, set_type, allocator);
+    obj.AddMember("set_type", set_type, allocator);
+    obj.AddMember("data", array, allocator);
+    //
+    doc.AddMember(k, obj, allocator);
+    }
+
+for(const auto& is: repn.indexed_set_data) {
+    rapidjson::Value k( is.first.c_str(), static_cast<rapidjson::SizeType>(is.first.size()), allocator );
+    rapidjson::Value obj(rapidjson::kObjectType);
+    //
+    rapidjson::Value key_type(rapidjson::kArrayType);
+    rapidjson::Value set_type(rapidjson::kArrayType);
+    rapidjson::Value data(rapidjson::kArrayType);
+
+    for (const auto& kv: is.second) {
+        rapidjson::Value kv_array(rapidjson::kArrayType);
+        if (std::holds_alternative<DataPortalRepn::StringType>(kv.first)) {
+            if (key_type.Size() == 0)
+                key_type.PushBack("s", allocator);
+            const auto& val = std::get<DataPortalRepn::StringType>(kv.first);
+            rapidjson::Value key( val.c_str(), static_cast<rapidjson::SizeType>(val.size()), allocator );
+            kv_array.PushBack(key, allocator);
+            }
+        else if (std::holds_alternative<DataPortalRepn::IntegerType>(kv.first)) {
+            if (key_type.Size() == 0)
+                key_type.PushBack("i", allocator);
+            int val = std::get<DataPortalRepn::IntegerType>(kv.first);
+            rapidjson::Value key( val );
+            kv_array.PushBack(key, allocator);
+            }
+        else if (std::holds_alternative<DataPortalRepn::TupleKeyType>(kv.first)) {
+            rapidjson::Value key(rapidjson::kArrayType);
+            key_tuple_to_array( std::get<DataPortalRepn::TupleKeyType>(kv.first), key, key_type, allocator );
+            kv_array.PushBack(key, allocator);
+            }
+
+        rapidjson::Value value(rapidjson::kArrayType);
+        set_to_array(kv.second, value, set_type, allocator);
+        kv_array.PushBack(value, allocator);
+        data.PushBack(kv_array, allocator);
+        }
+    obj.AddMember("key_type", key_type, allocator);
+    obj.AddMember("set_type", set_type, allocator);
+    obj.AddMember("data", data, allocator);
+    //
+    doc.AddMember(k, obj, allocator);
+    }
+
+for(const auto& p: repn.parameter_data) {
+    //std::cout << "PARAM " << p.first << std::endl;
+    rapidjson::Value k( p.first.c_str(), static_cast<rapidjson::SizeType>(p.first.size()), allocator );
+
+    rapidjson::Value param_type(rapidjson::kArrayType);
+    rapidjson::Value v;
+    param_to_value(p.second, v, param_type, allocator);
+    doc.AddMember(k, v, allocator);
+    }
+
+for(const auto& ip: repn.indexed_parameter_data) {
+    rapidjson::Value k( ip.first.c_str(), static_cast<rapidjson::SizeType>(ip.first.size()), allocator );
+    rapidjson::Value obj(rapidjson::kObjectType);
+    //
+    rapidjson::Value key_type(rapidjson::kArrayType);
+    rapidjson::Value param_type(rapidjson::kArrayType);
+    rapidjson::Value data(rapidjson::kArrayType);
+
+    for (const auto& kv: ip.second) {
+        rapidjson::Value kv_array(rapidjson::kArrayType);
+        if (std::holds_alternative<DataPortalRepn::StringType>(kv.first)) {
+            if (key_type.Size() == 0)
+                key_type.PushBack("s", allocator);
+            const auto& val = std::get<DataPortalRepn::StringType>(kv.first);
+            rapidjson::Value key( val.c_str(), static_cast<rapidjson::SizeType>(val.size()), allocator );
+            kv_array.PushBack(key, allocator);
+            }
+        else if (std::holds_alternative<DataPortalRepn::IntegerType>(kv.first)) {
+            if (key_type.Size() == 0)
+                key_type.PushBack("i", allocator);
+            int val = std::get<DataPortalRepn::IntegerType>(kv.first);
+            rapidjson::Value key( val );
+            kv_array.PushBack(key, allocator);
+            }
+        else if (std::holds_alternative<DataPortalRepn::TupleKeyType>(kv.first)) {
+            rapidjson::Value key(rapidjson::kArrayType);
+            key_tuple_to_array( std::get<DataPortalRepn::TupleKeyType>(kv.first), key, key_type, allocator );
+            kv_array.PushBack(key, allocator);
+            }
+
+        rapidjson::Value value;
+        param_to_value(kv.second, value, param_type, allocator);
+        kv_array.PushBack(value, allocator);
+        data.PushBack(kv_array, allocator);
+        }
+    obj.AddMember("key_type", key_type, allocator);
+    obj.AddMember("param_type", param_type, allocator);
+    obj.AddMember("data", data, allocator);
+    //
+    doc.AddMember(k, obj, allocator);
+    }
+}
+
 }  // namespace
 #endif
 
@@ -374,8 +617,8 @@ void DataPortalRepn::load_from_file(const std::string& fname)
     FILE* fp = fopen(fname.c_str(), "r");
     if (!fp) throw std::runtime_error("Unknown file: " + fname);
 
-    char readBuffer[65536];
-    rapidjson::FileReadStream is(fp, readBuffer, sizeof(readBuffer));
+    char buffer[65536];
+    rapidjson::FileReadStream is(fp, buffer, sizeof(buffer));
 
     rapidjson::Document d;
     d.ParseStream(is);
@@ -408,6 +651,56 @@ void DataPortalRepn::load_from_json_string(const std::string& json_string)
 #else
     // GCOVR_EXCL_START
     throw std::runtime_error("Must install RapidJSON to parse a JSON string.");
+// GCOVR_EXCL_STOP
+#endif
+}
+
+void DataPortalRepn::save_to_file(const std::string& fname, unsigned int indent)
+{
+#ifdef WITH_RAPIDJSON
+    rapidjson::Document d;
+    initialize_to(*this, d);
+
+    FILE* fp = fopen(fname.c_str(), "w");
+
+    char buffer[65536];
+    rapidjson::FileWriteStream os(fp, buffer, sizeof(buffer));
+    if (indent == 0) {
+        rapidjson::Writer<rapidjson::FileWriteStream> writer(os);
+        d.Accept(writer);
+        }
+    else {
+        rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(os);
+        writer.SetIndent(' ', indent);
+        d.Accept(writer);
+        }
+
+    fclose(fp);
+#else
+    throw std::runtime_error("Must install RapidJSON to save a DataPortal object.");
+#endif
+}
+
+std::string DataPortalRepn::to_string(unsigned int indent)
+{
+#ifdef WITH_RAPIDJSON
+    rapidjson::Document d;
+    initialize_to(*this, d);
+
+    rapidjson::StringBuffer buffer;
+    if (indent == 0) {
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        d.Accept(writer);
+        }
+    else {
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+        writer.SetIndent(' ', indent);
+        d.Accept(writer);
+        }
+    return buffer.GetString();
+#else
+    // GCOVR_EXCL_START
+    throw std::runtime_error("Must install RapidJSON to generate a JSON string for a DataPortal object.");
 // GCOVR_EXCL_STOP
 #endif
 }
