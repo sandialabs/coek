@@ -137,7 +137,7 @@ def list_to_tuple(obj):
     return obj
 
 
-def dump_to_json_data_portal(*args, **kwargs):
+def dump_to_json_file(*args, **kwargs):
     if kwargs.get('sort_keys',False):
         StructuredDict_JSONEncoder.sort_values = True
     kwargs['cls'] = StructuredDict_JSONEncoder
@@ -152,7 +152,7 @@ def dump_to_json_string(*args, **kwargs):
     kwargs['cls'] = StructuredDict_JSONEncoder
     return json.dumps(*args, **kwargs)
 
-def load_from_json_data_portal(*args, **kwargs):
+def load_from_json_file(*args, **kwargs):
     kwargs['cls'] = StructuredDict_JSONDecoder
     ans = json.load(*args, **kwargs)
     if kwargs.get('sort_keys',False):
