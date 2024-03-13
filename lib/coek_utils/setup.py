@@ -3,7 +3,7 @@ from distutils.core import Extension
 
 
 setup(
-    name="coek-utils",
+    name="coek_utils",
     version="0.1.0.dev0",
     packages=find_packages(),
     ext_modules=[],
