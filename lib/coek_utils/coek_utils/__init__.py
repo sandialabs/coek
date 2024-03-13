@@ -1,1 +1,1 @@
-from .json_DataPortal import dump_to_json_data_portal, load_from_json_data_portal
+from .json_DataPortal import dump_to_json_data_portal, load_from_json_data_portal, dump_to_json_string, load_from_json_string

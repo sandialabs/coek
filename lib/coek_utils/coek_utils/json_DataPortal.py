@@ -10,15 +10,23 @@ class StructuredDict_JSONEncoder(json.JSONEncoder):
     Top-level dictionaries are treated as named data that is not stored with explicit key and value types.
     """
 
+    sort_values=False
+
     def _encode(self, obj, depth=0):
 
         def kv_value(val):
             if isinstance(val,list):
-                return list(val)
+                if self.sort_values:
+                    return list(sorted(val))
+                else:
+                    return list(val)
             if isinstance(val,tuple):
                 return list(val)
             if isinstance(val,set):
-                return list(val)
+                if self.sort_values:
+                    return list(sorted(val))
+                else:
+                    return list(val)
             if type(val) in [float,int,str]:
                 return val
             raise RuntimeError("Unexpected type: {}".format(type(val)))
@@ -80,7 +88,11 @@ class StructuredDict_JSONEncoder(json.JSONEncoder):
                 return { "key_type": key_type(obj), "param_type": param_value_type(obj), "data": [[kv_value(k), kv_value(v)] for k, v in obj.items()]}
         elif isinstance(obj, list) or isinstance(obj, set):
             assert depth > 0, "Unexpected top-level list"
-            return { "set_type": set_value_type(obj), "data": [kv_value(v) for v in obj] }
+            if self.sort_values:
+                data = list(sorted(kv_value(v) for v in obj))
+            else:
+                data = list(kv_value(v) for v in obj)
+            return { "set_type": set_value_type(obj), "data": data }
         elif isinstance(obj, tuple):
             return [self._encode(v,depth+1) for v in obj]
         return obj
@@ -104,62 +116,50 @@ class StructuredDict_JSONDecoder(json.JSONDecoder):
 
     @staticmethod
     def from_dict(obj):
+        def as_set(vals):
+            return [tuple(v) if type(v) is list else v for v in vals]
+
         if "set_type" in obj:
             if "key_type" in obj:
-                return {tuple(item[0]) if type(item[0]) is list else item[0] : set(item[1]) for item in obj['data']}
+                return {tuple(item[0]) if type(item[0]) is list else item[0] : set(as_set(item[1])) for item in obj['data']}
             else:
-                return set(tuple(v) if type(v) is list else v for v in obj['data'])
+                return set(as_set(obj['data']))
+
         if "param_type" in obj:
             return {tuple(item[0]) if type(item[0]) is list else item[0] : tuple(item[1]) if type(item[1]) is list else item[1] for item in obj['data']}
+
         return obj
+
+def list_to_tuple(obj):
+    for k,v in list(obj.items()):
+        if type(v) is list:
+            obj[k] = tuple(v)
+    return obj
 
 
 def dump_to_json_data_portal(*args, **kwargs):
+    if kwargs.get('sort_keys',False):
+        StructuredDict_JSONEncoder.sort_values = True
     kwargs['cls'] = StructuredDict_JSONEncoder
-    return json.dump(*args, **kwargs)
+    ans = json.dump(*args, **kwargs)
+    if kwargs.get('sort_keys',False):
+        StructuredDict_JSONEncoder.sort_values = False
+    return ans
+
+def dump_to_json_string(*args, **kwargs):
+    if kwargs.get('sort_keys',False):
+        StructuredDict_JSONEncoder.sort_values = True
+    kwargs['cls'] = StructuredDict_JSONEncoder
+    return json.dumps(*args, **kwargs)
 
 def load_from_json_data_portal(*args, **kwargs):
     kwargs['cls'] = StructuredDict_JSONDecoder
-    return json.load(*args, **kwargs)
+    ans = json.load(*args, **kwargs)
+    if kwargs.get('sort_keys',False):
+        StructuredDict_JSONEncoder.sort_values = False
+    return list_to_tuple(ans)
 
-
-if __name__ == "__main__":
-    def test(data):
-        ans  = json.dumps(data, cls=StructuredDict_JSONEncoder)
-        print( type(ans), ans)
-        val = json.loads(ans, cls=StructuredDict_JSONDecoder)
-        print(data)
-        print( val, type(val))
-        print("")
-
-    # Parameter
-    test({"foo": 1.1})                                      # double
-    test({"foo": 1})                                        # int
-    test({"foo": "1"})                                      # string
-    test({"foo": ("bar",1.1)})                              # tuple
-
-    # Set
-    test({"foo": [1.1,2.1]})                                # set of doubles
-    test({"foo": set([1.1,2.1])})                           # set of doubles
-    test({"foo": [1,2]})                                    # set of ints
-    test({"foo": set([1,2])})                               # set of ints
-    test({"foo": ["bar","foo"]})                            # set of strings
-    test({"foo": set(["bar","foo"])})                       # set of strings
-    test({"foo": [(1,1), (2,2)]})                           # set of tuples
-    test({"foo": set([(1,1), (2,2)])})                      # set of tuples
-
-    # Indexed parameters
-    test({"foo": {1:1.1}})                                  # map from ints to doubles
-    test({"foo": {1:1}})                                    # map from ints to ints
-    test({"foo": {1:"1"}})                                  # map from ints to strings
-    test({"foo": {(1,"1"):(1,1.1,"1")}})                    # map from tuples to tuples
-    test({"foo": {(1,"1"):"1"}})                            # map from tuples to string
-    test({"foo": {1:(1,1.1,"1")}})                          # map from ints to tuples
-
-    # Indexed sets
-    test({"foo": {1:["1","2","3"]}})                        # map from ints to set of strings
-    test({"foo": {1:set(["1","2","3"])}})                   # map from ints to set of strings
-    test({"foo": {(1,"1"):["1","2","3"]}})                  # map from tuples to set of strings
-    test({"foo": {(1,"1"):set(["1","2","3"])}})             # map from tuples to set of strings
-    test({"foo": {1:["1","2","3"], 2:[]}})                  # map from ints to set of strings
+def load_from_json_string(*args, **kwargs):
+    kwargs['cls'] = StructuredDict_JSONDecoder
+    return list_to_tuple(json.loads(*args, **kwargs))
 
