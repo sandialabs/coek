@@ -89,6 +89,16 @@ else()
     message("Ignoring lib/pyomo_coek")
 endif()
 
+message("")
+if(${with_python})
+    message("Configuring lib/coek_utils install")
+    add_custom_target(pip_install_coek_utils ALL
+        COMMAND ${Python_EXECUTABLE} -m pip install -e ${CMAKE_CURRENT_SOURCE_DIR}/coek_utils
+        )
+else()
+    message("Ignoring lib/coek_utils")
+endif()
+
 #
 # Lib test targets
 #
