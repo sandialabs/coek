@@ -212,8 +212,6 @@ TEST_CASE("get_DP_param", "[smoke]")
         REQUIRE(data == "a");
     }
 
-#if 0
-// TODO
     SECTION("tuple-param")
     {
         auto dp = coek::DataPortal();
@@ -224,7 +222,6 @@ TEST_CASE("get_DP_param", "[smoke]")
         auto baseline = std::make_tuple("a",1);
         REQUIRE(data == baseline);
     }
-#endif
 }
 
 TEST_CASE("get_DP_indexed_set", "[smoke]")
@@ -420,8 +417,30 @@ TEST_CASE("get_DP_indexed_set", "[smoke]")
         REQUIRE(data[{"2", 1}] == baseline);
     }
 
-#if 0
-// TODO
+    SECTION("int-set-tuple-int")
+    {
+        auto dp = coek::DataPortal();
+        dp.load_from_json_string(R"(
+{
+"A": {
+    "key_type": "i",
+    "set_type": ["i", "i"],
+    "data":  [
+                [1, [[0,0]]],
+                [2, [[0,0], [1,1]]],
+                [3, [[0,0], [1,1], [2,2]]]
+             ]
+    }
+}
+)");
+
+        std::map<int, std::set<std::tuple<int,int>>> data;
+        REQUIRE(dp.get("unknown", data) == false);
+        REQUIRE(dp.get("A", data) == true);
+        REQUIRE(data.size() == 3);
+        std::set<std::tuple<int,int>> baseline{{0,0}, {1,1}, {2,2}};
+        REQUIRE(data[3] == baseline);
+    }
 
     SECTION("mixed-tuple-set-tuple-int")
     {
@@ -440,14 +459,13 @@ TEST_CASE("get_DP_indexed_set", "[smoke]")
 }
 )");
 
-        std::map<std::tuple<std::string, int>, std::set<int>> data;
+        std::map<std::tuple<std::string, int>, std::set<std::tuple<int,int>>> data;
         REQUIRE(dp.get("unknown", data) == false);
         REQUIRE(dp.get("A", data) == true);
         REQUIRE(data.size() == 3);
         std::set<std::tuple<int,int>> baseline{{0,0}, {1,1}, {2,2}};
         REQUIRE(data[{"2", 1}] == baseline);
     }
-#endif
 }
 
 TEST_CASE("get_DP_indexed_param", "[smoke]")
@@ -954,9 +972,19 @@ TEST_CASE("put_DP_param", "[smoke]")
 })");
     }
 
-#if 0
-// TODO - tuple param
-#endif
+    SECTION("tuple-param")
+    {
+        auto dp = coek::DataPortal();
+        auto data = std::make_tuple("abc",1,1.1);
+        REQUIRE(dp.put("A", data) == true);
+        REQUIRE( dp.to_string(4) == R"({
+    "A": [
+        "abc",
+        1,
+        1.1
+    ]
+})");
+    }
 }
 
 TEST_CASE("put_DP_indexed_set", "[smoke]")
@@ -1271,9 +1299,133 @@ TEST_CASE("put_DP_indexed_set", "[smoke]")
 })");
     }
 
-#if 0
-// TODO - indexed set of tuples
-#endif
+    SECTION("int-set-tuple-int")
+    {
+        auto dp = coek::DataPortal();
+        std::map<int,std::set<std::tuple<int,int>>> data = {{1,{{0,0}}}, {2,{{0,0},{1,1}}}, {3,{{0,0},{1,1},{2,2}}}};
+        REQUIRE(dp.put("A", data) == true);
+        REQUIRE( dp.to_string(4) == R"({
+    "A": {
+        "key_type": [
+            "i"
+        ],
+        "set_type": [
+            "i",
+            "i"
+        ],
+        "data": [
+            [
+                1,
+                [
+                    [
+                        0,
+                        0
+                    ]
+                ]
+            ],
+            [
+                2,
+                [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        1
+                    ]
+                ]
+            ],
+            [
+                3,
+                [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        2,
+                        2
+                    ]
+                ]
+            ]
+        ]
+    }
+})");
+    }
+
+    SECTION("mixed-tuple-set-tuple-int")
+    {
+        auto dp = coek::DataPortal();
+        std::map<std::tuple<std::string,int>,std::set<std::tuple<int,int>>> data = {{{"0",1},{{0,0}}}, {{"1",2},{{0,0},{1,1}}}, {{"2",3},{{0,0},{1,1},{2,2}}}};
+        REQUIRE(dp.put("A", data) == true);
+        REQUIRE( dp.to_string(4) == R"({
+    "A": {
+        "key_type": [
+            "s",
+            "i"
+        ],
+        "set_type": [
+            "i",
+            "i"
+        ],
+        "data": [
+            [
+                [
+                    "0",
+                    1
+                ],
+                [
+                    [
+                        0,
+                        0
+                    ]
+                ]
+            ],
+            [
+                [
+                    "1",
+                    2
+                ],
+                [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        1
+                    ]
+                ]
+            ],
+            [
+                [
+                    "2",
+                    3
+                ],
+                [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        2,
+                        2
+                    ]
+                ]
+            ]
+        ]
+    }
+})");
+    }
 }
 
 TEST_CASE("put_DP_indexed_param", "[smoke]")

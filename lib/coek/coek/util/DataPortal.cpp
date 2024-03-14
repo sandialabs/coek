@@ -307,8 +307,16 @@ void initialize_from_dom(coek::DataPortalRepn& repn, rapidjson::Document& doc)
         std::string name = v.name.GetString();
 
         if (v.value.IsArray()) {
-            throw std::runtime_error(
-                "Unexpected top-level array.  Set data must be specified with a dictionary.");
+            coek::DataPortalRepn::TupleValueType tmp;
+            for (auto& val : v.value.GetArray()) {
+                if (val.IsString())
+                    tmp.push_back(val.GetString());
+                else if (val.IsInt())
+                    tmp.push_back(val.GetInt());
+                else if (val.IsDouble())
+                    tmp.push_back(val.GetDouble());
+                }
+            repn.parameter_data[name] = tmp;
         }
 
         else if (v.value.IsString()) {
