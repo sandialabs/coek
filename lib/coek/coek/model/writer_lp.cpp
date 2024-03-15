@@ -590,9 +590,9 @@ void LPWriter::print_constraint(fmt::ostream& ostr, const Constraint& c, size_t 
     }
     else {
         print_repn(ostr, expr, vid);
-        //CALI_MARK_BEGIN("ELSE");
+        // CALI_MARK_BEGIN("ELSE");
         ostr.print(fmt::format(eq_fmt, lower.value() - tmp));
-        //CALI_MARK_END("ELSE");
+        // CALI_MARK_END("ELSE");
     }
 }
 

@@ -4,6 +4,7 @@
 SET(sources
     util/index_vector.cpp
     util/option_cache.cpp
+    util/tictoc.cpp
     ast/base_terms.cpp
     ast/constraint_terms.cpp
     ast/value_terms.cpp
@@ -45,6 +46,7 @@ if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
         api/variable_array.cpp
         api/constraint_map.cpp
         api/subexpression_map.cpp
+        util/DataPortal.cpp
         )
 endif()
 
@@ -228,6 +230,8 @@ install(FILES
         util/template_utils.hpp
         util/sequence.hpp
         util/option_cache.hpp
+        util/DataPortal.hpp
+        util/tictoc.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/util
         )
 install(FILES
