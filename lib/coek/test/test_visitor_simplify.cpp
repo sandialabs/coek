@@ -135,7 +135,7 @@ TEST_CASE("simplify_expr", "[smoke]")
                 auto v = coek::variable("v").lower(0).upper(1).value(3);
                 coek::Expression e = 2 * v;
 
-                static std::list<std::string> baseline = {"[", "*", std::to_string(2), "v", "]"};
+                static std::list<std::string> baseline = {"[", "*", std::to_string(2.0), "v", "]"};
                 REQUIRE(simplify_expr(e.repn)->to_list() == baseline);
             }
         }
@@ -215,7 +215,7 @@ TEST_CASE("simplify_expr", "[smoke]")
                                                           "+",
                                                           "[",
                                                           "*",
-                                                          std::to_string(-1),
+                                                          std::to_string(-1.0),
                                                           "v",
                                                           "]",
                                                           std::to_string(-2.0),
@@ -383,7 +383,7 @@ TEST_CASE("simplify_expr", "[smoke]")
             auto w = coek::variable("w").lower(0).upper(1).value(1);
             coek::Expression e = if_else(p, w, 2 * w);
 
-            static std::list<std::string> baseline = {"[", "*", std::to_string(2), "w", "]"};
+            static std::list<std::string> baseline = {"[", "*", std::to_string(2.0), "w", "]"};
             REQUIRE(simplify_expr(e.repn)->to_list() == baseline);
         }
         WHEN("cond variable 1")
@@ -392,7 +392,7 @@ TEST_CASE("simplify_expr", "[smoke]")
             coek::Expression e = if_else(w, w, 2 * w);
 
             static std::list<std::string> baseline
-                = {"[", "If", "w", "w", "[", "*", std::to_string(2), "w", "]", "]"};
+                = {"[", "If", "w", "w", "[", "*", std::to_string(2.0), "w", "]", "]"};
             REQUIRE(simplify_expr(e.repn)->to_list() == baseline);
         }
         WHEN("cond variable 2")

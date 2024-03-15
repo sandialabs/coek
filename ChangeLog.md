@@ -4,6 +4,17 @@ Here we list changes of Coek.  More detailed information
 about incremental changes can be found in the [commit
 history](https://github.com/sandialabs/coek/commits).
 
+## 1.5.dev
+
+* coek_utils: Python utilities that work with coek
+* coek: Added tictoc and DataPortals logic
+* coek: Added new template type utilities
+* coek: Using std::to_string to standardize coek tests
+* poek: Test updates based on standardized coek test outputs
+* pycoek: Various API additions to improve pyomo_coek compatibility with pyomo
+* pyomo_coek: Various changes to improve compatibility with pyomo
+* pyomo_coek: Added tests for compatibility with pyomo
+
 ## 1.4
 
 * Added support for multithreaded model creation.

@@ -1,7 +1,8 @@
 ---
   BasedOnStyle: Google
   AlignTrailingComments: 'true'
-  AllowAllParametersOfDeclarationOnNextLine: 'false'
+  AllowAllArgumentsOnNextLine: 'true'
+  AllowAllParametersOfDeclarationOnNextLine: 'true'
   AlwaysBreakTemplateDeclarations: 'Yes'
   BreakBeforeBraces: Stroustrup
   ColumnLimit: 100
