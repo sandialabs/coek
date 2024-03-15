@@ -12,7 +12,13 @@ history](https://github.com/sandialabs/coek/commits).
 * Added option to specify sparse Jacobian in CppAD interface
 * Added option to specify temporary directory for ASL AD interface
 * Added option to remove temporary NL file in ASL AD interface
+* Fixed model resolve logic to avoid explicit calls to reset()
+* Consolidated option management
+* Added if_else() function
+* Consolidated automatic differentiation tests
 * Generalized performance comparison graphs to use dates for the x-axis
+* Updated performance plots showing relative performance
+* Reworked expression walkers to remove use of visitor logic
 
 ## 1.3
 
