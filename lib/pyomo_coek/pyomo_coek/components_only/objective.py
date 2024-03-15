@@ -3,7 +3,6 @@ import logging
 from weakref import ref as weakref_ref
 from typing import overload
 
-import pyomo.environ as pyo
 from pyomo.common.log import is_debug_set
 from pyomo.common.modeling import NOTSET
 from pyomo.common.deprecation import RenamedClass
@@ -64,9 +63,7 @@ class _GeneralObjectiveData(ActiveComponentData):
     def set_value(self, expr):
         if expr is None:
             raise ValueError(_rule_returned_none_error % (self.name,))
-        elif type(expr) in [int, float]:
-            self._pe = expr
-        elif expr.is_variable_type():
+        if expr.is_variable_type():
             self._pe = expr._pe
         else:
             self._pe = expr
@@ -177,7 +174,7 @@ class Objective(ActiveIndexedComponent):
                 "Duplicate initialization: Objective() only " "accepts one of 'rule=' and 'expr='"
             )
 
-        kwargs.setdefault("ctype", pyo.Objective)
+        kwargs.setdefault("ctype", Objective)
         ActiveIndexedComponent.__init__(self, *args, **kwargs)
 
         self.rule = Initializer(_init)

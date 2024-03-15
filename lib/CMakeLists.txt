@@ -29,15 +29,9 @@ if(${with_python})
     # Targets for poek testing
     #
     if(${with_tests})
-        list(APPEND lib_test_targets test_poek test_pyomo test_coek_utils)
+        list(APPEND lib_test_targets "test_poek")
         add_custom_target(test_poek
             COMMAND ${Python_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/poek/poek
-            )
-        add_custom_target(test_coek_utils
-            COMMAND ${Python_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/coek_utils/coek_utils
-            )
-        add_custom_target(test_pyomo
-            COMMAND ${Python_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/pyomo_coek/pyomo_coek
             )
     endif()
     #
@@ -90,16 +84,6 @@ if(${with_python})
     add_dependencies(pip_install_pyomo_coek pip_install_poek)
 else()
     message("Ignoring lib/pyomo_coek")
-endif()
-
-message("")
-if(${with_python})
-    message("Configuring lib/coek_utils install")
-    add_custom_target(pip_install_coek_utils ALL
-        COMMAND ${Python_EXECUTABLE} -m pip install -e ${CMAKE_CURRENT_SOURCE_DIR}/coek_utils
-        )
-else()
-    message("Ignoring lib/coek_utils")
 endif()
 
 #

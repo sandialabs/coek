@@ -69,11 +69,11 @@ TEST_CASE("elementary_objective", "[smoke]")
         auto v = coek::variable("v");
         auto o = coek::objective().expr(2 * v);
 
-        static std::list<std::string> baseline1 = {"[", "*", std::to_string(2.0), "v", "]"};
+        static std::list<std::string> baseline1 = {"[", "*", "2", "v", "]"};
         REQUIRE(o.expr().to_list() == baseline1);
 
         o.expr(3 * v);
-        static std::list<std::string> baseline2 = {"[", "*", std::to_string(3.0), "v", "]"};
+        static std::list<std::string> baseline2 = {"[", "*", "3", "v", "]"};
         REQUIRE(o.expr().to_list() == baseline2);
     }
 
