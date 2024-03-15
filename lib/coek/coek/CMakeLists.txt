@@ -4,7 +4,6 @@
 SET(sources
     util/index_vector.cpp
     util/option_cache.cpp
-    util/DataPortal.cpp
     util/tictoc.cpp
     ast/base_terms.cpp
     ast/constraint_terms.cpp
@@ -47,6 +46,7 @@ if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
         api/variable_array.cpp
         api/constraint_map.cpp
         api/subexpression_map.cpp
+        util/DataPortal.cpp
         )
 endif()
 
