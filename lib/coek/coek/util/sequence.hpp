@@ -53,7 +53,7 @@ class SequentialValueGenerator {
 
     friend bool operator!=(const SequentialValueGenerator& a, const SequentialValueGenerator& b)
     {
-        return not(a == b);
+        return not(a.value == b.value);
     }
 };
 
