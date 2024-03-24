@@ -7,8 +7,7 @@ void invquad_array_resolve()
     coek::Model m;
 
     size_t N = 5;
-    auto p = coek::parameter("p", N);
-    for (auto& param : p) param.value(0.5);
+    auto p = coek::parameter("p", N).value(0.5);
 
     // Initialize variables and add them to the model
     auto x = coek::variable("x", N).bounds(-10, 10).value(0.0);
@@ -30,7 +29,7 @@ void invquad_array_resolve()
     for (size_t i : coek::range(N))
         std::cout << "Value of " << x(i).name() << ": " << x(i).value() << std::endl;
 
-    for (auto& param : p) param.value(-0.5);
+    p.value(-0.5);
     solver.resolve();
     // x^*_i = -10
     for (size_t i : coek::range(N))
