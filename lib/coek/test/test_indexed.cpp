@@ -889,7 +889,8 @@ TEST_CASE("expr_expand", "[smoke]")
                 repn.collect_terms(E);
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
-                static std::list<std::string> nonlinear = {"[", "/", std::to_string(1.0), "w", "]"};
+                static std::list<std::string> nonlinear
+                    = {"[", "If", "p", "w", "[", "/", std::to_string(1.0), "w", "]", "]"};
                 REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
@@ -908,7 +909,25 @@ TEST_CASE("expr_expand", "[smoke]")
                 repn.collect_terms(E);
 
                 static std::list<std::string> constval = {std::to_string(0.0)};
-                static std::list<std::string> nonlinear = {"[", "/", std::to_string(1.0), "w", "]"};
+                static std::list<std::string> nonlinear = {"[",
+                                                           "If",
+                                                           "[",
+                                                           "<",
+                                                           "-Inf",
+                                                           "[",
+                                                           "+",
+                                                           "p",
+                                                           std::to_string(1.0),
+                                                           "]",
+                                                           std::to_string(0.0),
+                                                           "]",
+                                                           "w",
+                                                           "[",
+                                                           "/",
+                                                           std::to_string(1.0),
+                                                           "w",
+                                                           "]",
+                                                           "]"};
                 REQUIRE(repn.constval->to_list() == constval);
                 REQUIRE(repn.linear_coefs.size() == 0);
                 REQUIRE(repn.quadratic_coefs.size() == 0);
@@ -917,7 +936,7 @@ TEST_CASE("expr_expand", "[smoke]")
         }
     }
 
-    SECTION("constriaints")
+    SECTION("constraints")
     {
         WHEN("inequality")
         {

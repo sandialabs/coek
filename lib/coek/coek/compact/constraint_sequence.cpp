@@ -4,10 +4,9 @@
 #include "coek/api/expression.hpp"
 #include "coek_sets.hpp"
 #include "sequence_context.hpp"
+#include "visitor_exprtemplate.hpp"
 
 namespace coek {
-
-std::shared_ptr<ConstraintTerm> convert_con_template(std::shared_ptr<ConstraintTerm> expr);
 
 //
 // ConstraintSequenceRepn

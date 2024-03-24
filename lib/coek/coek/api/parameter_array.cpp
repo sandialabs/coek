@@ -107,7 +107,7 @@ Parameter ParameterArray::index(const IndexVector& args)
     // We know that the args[i] values are nonnegative b.c. we have asserted that while
     // processing these arguments
     size_t ndx = static_cast<size_t>(args[0]);
-    for (size_t i = 1; i < args.size(); i++) ndx = ndx * shape[i] + args[i];
+    for (size_t i = 1; i < args.size(); i++) ndx = ndx * shape[i] + static_cast<size_t>(args[i]);
 
     if (ndx > size()) {
         // TODO - Can't we do better than this check?  Do we check if each index is in the correct

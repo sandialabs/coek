@@ -17,6 +17,7 @@ void simplelp1_solve()
     coek::Solver solver("gurobi");
     auto status = solver.solve(m);
 
+    std::cout << "Solve Status:" << status << std::endl;
     std::cout << "Value of " + x.name() + ": " << x.value() << std::endl;
     std::cout << "Value of " + y.name() + ": " << y.value() << std::endl;
 }

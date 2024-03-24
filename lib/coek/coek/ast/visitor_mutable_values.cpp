@@ -5,7 +5,7 @@
 #include "visitor.hpp"
 #include "visitor_fns.hpp"
 #include "../util/cast_utils.hpp"
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
 #    include "compact_terms.hpp"
 #endif
 
@@ -69,7 +69,7 @@ void visit_VariableTerm(const expr_pointer_t& expr, MutableValuesData& data)
     if (tmp->fixed) data.fixed_vars.insert(tmp);
 }
 
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
 void visit_ParameterRefTerm(const expr_pointer_t& /*expr*/, MutableValuesData& /*data*/) {}
 
 void visit_VariableRefTerm(const expr_pointer_t& /*expr*/, MutableValuesData& /*data*/) {}

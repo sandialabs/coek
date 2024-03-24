@@ -55,15 +55,34 @@ int main(int argc, char* argv[])
     if (debug)
         std::cout << "Filename: " << filename << " Model: " << model_name << " Data: " << data[0]
                   << std::endl;
+    bool constructed = false;
     coek::Model model;
     try {
-        create_instance(model, model_name, data);
+        constructed = create_instance(model, model_name, data);
     }
     catch (std::exception& e) {
         std::cout << "ERROR - " << e.what() << std::endl;
         return 1;
     }
-    model.write(filename);
+    if (constructed) {
+        model.write(filename);
+        return 0;
+    }
 
-    return 0;
+#ifdef COEK_WITH_COMPACT_MODEL
+    coek::CompactModel cmodel;
+    try {
+        constructed = create_instance(cmodel, model_name, data);
+    }
+    catch (std::exception& e) {
+        std::cout << "ERROR - " << e.what() << std::endl;
+        return 1;
+    }
+    if (constructed) {
+        cmodel.write(filename);
+        return 0;
+    }
+#endif
+
+    return 1;
 }

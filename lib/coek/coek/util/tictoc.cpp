@@ -23,7 +23,7 @@ void TicTocTimer::tic(const std::string& msg)
 double TicTocTimer::toc(const std::string& msg)
 {
     auto t_end = std::chrono::high_resolution_clock::now();
-    auto sec = (t_end - t_start).count() * 1E-9;
+    auto sec = static_cast<double>((t_end - t_start).count()) * 1E-9;
     std::cout << "[";
     std::cout.width(10);
     std::cout << std::fixed << std::setprecision(2) << sec << "] " << msg << std::endl;

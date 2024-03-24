@@ -5,10 +5,9 @@
 #include "coek_sets.hpp"
 #include "sequence_context.hpp"
 #include "objective_sequence.hpp"
+#include "visitor_exprtemplate.hpp"
 
 namespace coek {
-
-expr_pointer_t convert_expr_template(expr_pointer_t expr);
 
 //
 // ObjectiveSequenceRepn

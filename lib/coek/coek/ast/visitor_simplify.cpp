@@ -6,11 +6,9 @@
 #include "visitor.hpp"
 #include "visitor_fns.hpp"
 #include "../util/cast_utils.hpp"
-/*
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
 #    include "compact_terms.hpp"
 #endif
-*/
 
 namespace coek {
 
@@ -384,6 +382,12 @@ void visit_PowTerm(const expr_pointer_t& expr, VisitorData& data)
     }
 }
 
+void visit_SumExpressionTerm(const expr_pointer_t& expr, VisitorData& data)
+{
+    data.last_expr = expr;
+    data.is_value = false;
+}
+
 #define VISIT_CASE(TERM) \
     case TERM##_id:      \
         return visit_##TERM(expr, data);
@@ -429,6 +433,7 @@ void visit_expression(const expr_pointer_t& expr, VisitorData& data)
         VISIT_CASE(ACoshTerm);
         VISIT_CASE(ATanhTerm);
         VISIT_CASE(PowTerm);
+        VISIT_CASE(SumExpressionTerm);
 
         // GCOVR_EXCL_START
         default:
