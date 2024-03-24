@@ -4,7 +4,7 @@
 #include "value_terms.hpp"
 #include "visitor.hpp"
 #include "visitor_fns.hpp"
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
 #    include "compact_terms.hpp"
 #endif
 #include "coek/util/cast_utils.hpp"
@@ -48,7 +48,7 @@ void visit_VariableTerm(const expr_pointer_t& expr, std::ostream& ostr)
     }
 }
 
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
 void visit_ParameterRefTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
     auto tmp = safe_pointer_cast<ParameterRefTerm>(expr);

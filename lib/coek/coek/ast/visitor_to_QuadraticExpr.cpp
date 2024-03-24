@@ -60,9 +60,6 @@ void visit(std::shared_ptr<IndexParameterTerm>& /*expr*/, QuadraticExpr& /*repn*
 
 void visit(std::shared_ptr<VariableTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
-    // if (! expr.index)
-    //     throw std::runtime_error("Unexpected variable not owned by a model.");
-
     if (expr->fixed) {
         repn.constval += multiplier * expr->value->eval();
     }
@@ -82,9 +79,6 @@ void visit(std::shared_ptr<VariableRefTerm>& /*expr*/, QuadraticExpr& /*repn*/,
 
 void visit(std::shared_ptr<MonomialTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
-    // if (! expr.var->index)
-    //     throw std::runtime_error("Unexpected variable not owned by a model.");
-
     if (expr->var->fixed) {
         repn.constval += multiplier * expr->coef * expr->var->value->eval();
     }

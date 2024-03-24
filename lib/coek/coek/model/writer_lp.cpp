@@ -39,12 +39,13 @@ namespace {
 
 inline size_t get_vid_value(const std::unordered_map<size_t, size_t>& vid, size_t id)
 {
-    /* C++-17
-    if (auto it{ vid.find(id) };  it != vid.end() )
-        return it->second;
-    */
+#if __cplusplus >= 201703L
+    // C++-17
+    if (auto it{vid.find(id)}; it != vid.end()) return it->second;
+#else
     auto it = vid.find(id);
     if (it != vid.end()) return it->second;
+#endif
     throw std::runtime_error(
         "Model expressions contain variable that is not declared in the model.");
 }
@@ -62,17 +63,11 @@ void print_repn(std::ostream& ostr, const QuadraticExpr& repn,
         std::map<size_t, double> vval;
         size_t i = 0;
         for (auto& it : repn.linear_vars) {
-            size_t index = get_vid_value(vid, it->index);
-
-            auto curr = vval.find(index);
-            if (curr != vval.end())
-                vval[index] += repn.linear_coefs[i];
-            else
-                vval[index] = repn.linear_coefs[i];
+            vval[get_vid_value(vid, it->index)] += repn.linear_coefs[i];
             i++;
         }
 
-        for (auto& it : vval) {
+        for (const auto& it : vval) {
             double tmp = it.second;
             if (tmp > 0)
                 ostr << "+" << tmp << " x" << it.first << "\n";
@@ -87,34 +82,25 @@ void print_repn(std::ostream& ostr, const QuadraticExpr& repn,
             size_t lindex = get_vid_value(vid, repn.quadratic_lvars[ii]->index);
             size_t rindex = get_vid_value(vid, repn.quadratic_rvars[ii]->index);
 
-            std::pair<int, int> tmp;
             if (lindex < rindex)
-                tmp = std::pair<size_t, size_t>(lindex, rindex);
+                qval[{lindex, rindex}] += repn.quadratic_coefs[ii];
             else
-                tmp = std::pair<size_t, size_t>(rindex, lindex);
-
-            auto curr = qval.find(tmp);
-            if (curr != qval.end())
-                qval[tmp] += repn.quadratic_coefs[ii];
-            else
-                qval[tmp] = repn.quadratic_coefs[ii];
+                qval[{rindex, lindex}] += repn.quadratic_coefs[ii];
         }
 
         ostr << "+ [\n";
-        for (auto& it : qval) {
+        for (const auto& it : qval) {
             const std::pair<size_t, size_t>& tmp = it.first;
             double val = it.second;
-            if (tmp.first == tmp.second) {
-                if (val > 0)
-                    ostr << "+" << val << " x" << tmp.first << " ^ 2\n";
-                else if (val < 0)
+            if (val != 0) {
+                if (tmp.first == tmp.second) {
+                    if (val > 0) ostr << "+";
                     ostr << val << " x" << tmp.first << " ^ 2\n";
-            }
-            else {
-                if (val > 0)
-                    ostr << "+" << val << " x" << tmp.first << " * x" << tmp.second << "\n";
-                else if (val < 0)
+                }
+                else {
+                    if (val > 0) ostr << "+";
                     ostr << val << " x" << tmp.first << " * x" << tmp.second << "\n";
+                }
             }
         }
         ostr << "]\n";
@@ -135,17 +121,11 @@ void print_repn(fmt::ostream& ostr, const QuadraticExpr& repn,
         std::map<size_t, double> vval;
         size_t i = 0;
         for (auto& it : repn.linear_vars) {
-            size_t index = get_vid_value(vid, it->index);
-
-            auto curr = vval.find(index);
-            if (curr != vval.end())
-                curr->second += repn.linear_coefs[i];
-            else
-                vval[index] = repn.linear_coefs[i];
+            vval[get_vid_value(vid, it->index)] += repn.linear_coefs[i];
             i++;
         }
 
-        for (auto& it : vval) {
+        for (const auto& it : vval) {
             double tmp = it.second;
             if (tmp != 0) ostr.print(fmt::format(print_repn_fmt1, tmp, it.first));
         }
@@ -157,30 +137,21 @@ void print_repn(fmt::ostream& ostr, const QuadraticExpr& repn,
             size_t lindex = get_vid_value(vid, repn.quadratic_lvars[ii]->index);
             size_t rindex = get_vid_value(vid, repn.quadratic_rvars[ii]->index);
 
-            std::pair<int, int> tmp;
             if (lindex < rindex)
-                tmp = std::pair<size_t, size_t>(lindex, rindex);
+                qval[{lindex, rindex}] += repn.quadratic_coefs[ii];
             else
-                tmp = std::pair<size_t, size_t>(rindex, lindex);
-
-            auto curr = qval.find(tmp);
-            if (curr != qval.end())
-                curr->second += repn.quadratic_coefs[ii];
-            else
-                qval[tmp] = repn.quadratic_coefs[ii];
+                qval[{rindex, lindex}] += repn.quadratic_coefs[ii];
         }
 
         ostr.print("+ [\n");
-        for (auto& it : qval) {
+        for (const auto& it : qval) {
             const std::pair<int, int>& tmp = it.first;
             double val = it.second;
             if (val != 0) {
-                if (tmp.first == tmp.second) {
+                if (tmp.first == tmp.second)
                     ostr.print(fmt::format(print_repn_fmt_x2, val, tmp.first));
-                }
-                else {
+                else
                     ostr.print(fmt::format(print_repn_fmt_x_x, val, tmp.first, tmp.second));
-                }
             }
         }
         ostr.print("]\n");

@@ -9,7 +9,7 @@
 namespace coek {
 
 #ifdef COEK_WITH_COMPACT_MODEL
-expr_pointer_t convert_expr_template(expr_pointer_t expr);
+expr_pointer_t convert_expr_template(const expr_pointer_t& expr);
 #endif
 
 //

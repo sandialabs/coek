@@ -10,7 +10,7 @@
 namespace coek {
 
 #ifdef COEK_WITH_COMPACT_MODEL
-std::shared_ptr<ConstraintTerm> convert_con_template(std::shared_ptr<ConstraintTerm> con);
+std::shared_ptr<ConstraintTerm> convert_con_template(const std::shared_ptr<ConstraintTerm>& con);
 #endif
 
 //
