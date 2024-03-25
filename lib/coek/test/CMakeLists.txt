@@ -88,6 +88,12 @@ TARGET_LINK_LIBRARIES(jpof_demo PUBLIC coek ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(jpof_demo PUBLIC ${coek_compile_options})
 target_compile_definitions(jpof_demo PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 
+# coek_micro_test
+add_executable(coek_micro_test coek_micro_test.cpp)
+TARGET_LINK_LIBRARIES(coek_micro_test PUBLIC coek ${coek_link_libraries})
+TARGET_COMPILE_OPTIONS(coek_micro_test PUBLIC ${coek_compile_options})
+target_compile_definitions(coek_micro_test PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
+
 
 # testing
 add_custom_target(test_coek
