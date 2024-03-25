@@ -1,148 +1,245 @@
 import math
-import pyutilib.th as unittest
+import pytest
 
 from poek import *
 import poek
 
+try:
+    import numpy as np
 
-class TestValue(unittest.TestCase):
-    def test_var(self):
-        p = variable(value=2)
-        self.assertEqual(p.value, 2)
-        p.value = 3
-        self.assertEqual(p.value, 3)
+    numpy_available = True
+except:
+    numpy_available = False
 
-    def test_expr(self):
-        p = variable(value=2)
-        self.assertEqual(p.value, 2)
+#
+# Test fixtures
+#
+
+@pytest.fixture
+def var_a():
+    return variable(name="a")
+
+@pytest.fixture
+def var_b():
+    return variable(name="b")
+
+@pytest.fixture
+def var_c():
+    return variable(name="c")
+
+@pytest.fixture
+def var_d():
+    return variable(name="d")
+
+@pytest.fixture
+def var_v():
+    return variable(name="v")
+
+@pytest.fixture
+def param_p():
+    return variable(name="p", value=0)
+
+@pytest.fixture
+def param_q():
+    return variable(name="q", value=0)
+
+@pytest.fixture
+def param_r():
+    return variable(name="r", value=1)
+
+#
+# Value tests
+#
+
+def test_var_value():
+    p = variable(value=2)
+    assert p.value == 2
+    p.value = 3
+    assert p.value == 3
+
+def test_expr_value():
+    p = variable(value=2)
+    p.value == 2
+    e = p + 3
+    assert e.value ==  5
+
+    if numpy_available:
+        p.value == np.int32(2)
         e = p + 3
-        self.assertEqual(e.value, 5)
-        with self.assertRaisesRegex(AttributeError, "can't set attribute"):
-            e.value = 0
+        assert e.value ==  5
 
-    def test_constraint(self):
-        p = variable(value=2)
-        self.assertEqual(p.value, 2)
-        e = p < 3
-        self.assertEqual(e.value, 2)
-        with self.assertRaisesRegex(AttributeError, "can't set attribute"):
-            e.value = 0
+    with pytest.raises(AttributeError) as einfo:
+        e.value = 0
 
-    def test_param1(self):
-        p = parameter(value=-1)
-        self.assertEqual(p.value, -1)
-        p.value = 3
-        self.assertEqual(p.value, 3)
+def test_constraint_value():
+    p = variable(value=2)
+    assert p.value == 2
+    e = p < 3
+    assert p.value == 2
+    with pytest.raises(AttributeError) as einfo:
+        e.value = 0
 
-    def test_float(self):
-        p = parameter(value=-1)
-        with self.assertRaisesRegex(TypeError, "float\\(\\) argument must.*"):
-            float(p)
+    if numpy_available:
+        z = np.int32(3)
+        e = p < z
 
-    def test_int(self):
-        p = parameter(value=-1)
-        with self.assertRaisesRegex(TypeError, "int\\(\\) argument must.*"):
-            int(p)
+def test_param1_value():
+    p = parameter(value=-1)
+    assert p.value == -1
+    p.value = 3
+    assert p.value == 3
+
+def test_param_float():
+    p = parameter(value=-1)
+    with pytest.raises(TypeError) as einfo:
+        float(p)
+    if numpy_available:
+        z = np.float32(-1)
+        p = parameter(value=z)
+
+def test_param_int():
+    p = parameter(value=-1)
+    with pytest.raises(TypeError) as einfo:
+        int(p)
+    if numpy_available:
+        z = np.int32(-1)
+        p = parameter(value=z)
 
 
-class Test_SumExpression(unittest.TestCase):
-    def setUp(self):
-        self.a = variable(name="a")
-        self.b = variable(name="b")
-        self.c = variable(name="c")
-        self.d = variable(name="d")
-        self.p = parameter("p", value=0)
+def test_sum_error1(var_a):
+    a = var_a
 
-    def test_error1(self):
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__radd__\\(\\): incompatible function arguments.*"
-            ):
+    if poek.__using_pybind11__:
+        with pytest.raises(TypeError) as einfo:
+            class TMP(object):
+                pass
 
-                class TMP(object):
-                    pass
+            TMP() + a
+    elif poek.__using_cppyy__:
+        with pytest.raises(TypeError) as einfo:
+            class TMP(object):
+                pass
 
-                TMP() + self.a
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+            TMP() + a
 
-                class TMP(object):
-                    pass
+def test_sum_error2(var_a):
+    a = var_a
+    x = variable(10)
+    if poek.__using_pybind11__:
+        with pytest.raises(TypeError) as einfo:
+            a + x
+    elif poek.__using_cppyy__:
+        with pytest.raises(TypeError) as einfo:
+            a + x
 
-                TMP() + self.a
+def test_simpleSum(var_a, var_b):
+    # a + b
+    a,b = var_a,var_b
 
-    def test_error2(self):
-        x = variable(10)
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(TypeError, "unsupported operand type.*"):
-                self.a + x
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-                self.a + x
+    e = a + b
+    assert e.to_list() == ["+", "a", "b"]
 
-    def test_simpleSum(self):
-        # a + b
-        a = self.a
-        b = self.b
+    e = a
+    e += b
+    assert e.to_list() == ["+", "a", "b"]
 
+def test_simpleSum_API(var_a, var_b):
+    # a + b + 2*a
+    a,b = var_a,var_b
+
+    e = a + b
+    e += 2 * a
+    assert e.to_list() == ["+", "a", "b", ["*", "2.000000", "a"]]
+
+    if numpy_available:
         e = a + b
-        self.assertEqual(e.to_list(), ["+", "a", "b"])
+        e += np.int32(2) * a
+        assert e.to_list() == ["+", "a", "b", ["*", "2.000000", "a"]]
+
+def test_constSum(var_a):
+    # a + 5
+    a = var_a
+
+    e = a + 5
+    assert e.to_list() == ["+", "a", "5.000000"]
+
+    e = 5 + a
+    assert e.to_list() == ["+", "5.000000", "a"]
+
+    e = a
+    e += 5
+    assert e.to_list() == ["+", "a", "5.000000"]
+
+    e = a + 5.0
+    assert e.to_list() == ["+", "a", "5.000000"]
+
+    e = 5.0 + a
+    assert e.to_list() == ["+", "5.000000", "a"]
+
+    e = a
+    e += 5.0
+    assert e.to_list() == ["+", "a", "5.000000"]
+
+    if numpy_available:
+        z = np.int32(5)
+        e = a + z
+        assert e.to_list() == ["+", "a", "5.000000"]
+
+        e = z + a
+        assert e.to_list() == ["+", "5.000000", "a"]
 
         e = a
-        e += b
-        self.assertEqual(e.to_list(), ["+", "a", "b"])
+        e += z
+        assert e.to_list() == ["+", "a", "5.000000"]
 
-    def test_simpleSum_API(self):
-        # a + b + 2*a
-        a = self.a
-        b = self.b
-        e = a + b
-        e += 2 * a
-        #
-        self.assertEqual(e.to_list(), ["+", "a", "b", ["*", "2.000000", "a"]])
+        z = np.float32(5.0)
+        e = a + z
+        assert e.to_list() == ["+", "a", "5.000000"]
 
-    def test_constSum(self):
-        # a + 5
-        a = self.a
-
-        e = a + 5
-        self.assertEqual(e.to_list(), ["+", "a", "5.000000"])
-
-        e = 5 + a
-        self.assertEqual(e.to_list(), ["+", "5.000000", "a"])
+        e = z + a
+        assert e.to_list() == ["+", "5.000000", "a"]
 
         e = a
-        e += 5
-        self.assertEqual(e.to_list(), ["+", "a", "5.000000"])
+        e += z
+        assert e.to_list() == ["+", "a", "5.000000"]
 
-        e = a + 5.0
-        self.assertEqual(e.to_list(), ["+", "a", "5.000000"])
 
-        e = 5.0 + a
-        self.assertEqual(e.to_list(), ["+", "5.000000", "a"])
+def test_nestedSum(var_a, var_b, var_c, var_d):
+    #
+    # Check the structure of nested sums
+    #
+    a,b,c,d = var_a,var_b,var_c,var_d
 
-        e = a
-        e += 5.0
-        self.assertEqual(e.to_list(), ["+", "a", "5.000000"])
+    #           +
+    #          / \
+    #         +   5
+    #        / \
+    #       a   b
+    e1 = a + b
+    e = e1 + 5
+    #
+    assert e.to_list() == ["+", "a", "b", "5.000000"]
 
-    def test_nestedSum(self):
-        #
-        # Check the structure of nested sums
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
+    #       +
+    #      / \
+    #     5   +
+    #        / \
+    #       a   b
+    e1 = a + b
+    e = 5 + e1
+    #
+    assert e.to_list() == ["+", "5.000000", ["+", "a", "b"]]
 
+    if numpy_available:
         #           +
         #          / \
         #         +   5
         #        / \
         #       a   b
         e1 = a + b
-        e = e1 + 5
+        e = e1 + np.int32(5)
         #
-        self.assertEqual(e.to_list(), ["+", "a", "b", "5.000000"])
+        assert e.to_list() == ["+", "a", "b", "5.000000"]
 
         #       +
         #      / \
@@ -150,50 +247,74 @@ class Test_SumExpression(unittest.TestCase):
         #        / \
         #       a   b
         e1 = a + b
-        e = 5 + e1
+        e = np.int32(5) + e1
         #
-        self.assertEqual(e.to_list(), ["+", "5.000000", ["+", "a", "b"]])
+        assert e.to_list() == ["+", "5.000000", ["+", "a", "b"]]
 
-        #           +
-        #          / \
-        #         +   c
-        #        / \
-        #       a   b
-        e1 = a + b
-        e = e1 + c
-        #
-        self.assertEqual(e.to_list(), ["+", "a", "b", "c"])
+    #           +
+    #          / \
+    #         +   c
+    #        / \
+    #       a   b
+    e1 = a + b
+    e = e1 + c
+    #
+    assert e.to_list() == ["+", "a", "b", "c"]
 
-        #       +
-        #      / \
-        #     c   +
-        #        / \
-        #       a   b
-        e1 = a + b
-        e = c + e1
-        #
-        self.assertEqual(e.to_list(), ["+", "c", ["+", "a", "b"]])
+    #       +
+    #      / \
+    #     c   +
+    #        / \
+    #       a   b
+    e1 = a + b
+    e = c + e1
+    #
+    assert e.to_list() == ["+", "c", ["+", "a", "b"]]
 
-        #            +
-        #          /   \
-        #         +     +
-        #        / \   / \
-        #       a   b c   d
-        e1 = a + b
-        e2 = c + d
-        e = e1 + e2
-        #
-        self.assertEqual(e.to_list(), ["+", "a", "b", ["+", "c", "d"]])
+    #            +
+    #          /   \
+    #         +     +
+    #        / \   / \
+    #       a   b c   d
+    e1 = a + b
+    e2 = c + d
+    e = e1 + e2
+    #
+    assert e.to_list() == ["+", "a", "b", ["+", "c", "d"]]
 
-    def test_nestedSum2(self):
-        #
-        # Check the structure of nested sums
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
+def test_nestedSum2(var_a, var_b, var_c, var_d):
+    #
+    # Check the structure of nested sums
+    #
+    a,b,c,d = var_a,var_b,var_c,var_d
 
+    #           +
+    #          / \
+    #         *   c
+    #        / \
+    #       2   +
+    #          / \
+    #         a   b
+    e1 = a + b
+    e = 2 * e1 + c
+    #
+    assert e.to_list() == ["+", ["*", "2.000000", ["+", "a", "b"]], "c"]
+
+    #         *
+    #        / \
+    #       3   +
+    #          / \
+    #         *   c
+    #        / \
+    #       2   +
+    #          / \
+    #         a   b
+    e1 = a + b
+    e = 3 * (2 * e1 + c)
+    #
+    assert e.to_list() == ["*", "3.000000", ["+", ["*", "2.000000", ["+", "a", "b"]], "c"]]
+
+    if numpy_available:
         #           +
         #          / \
         #         *   c
@@ -202,9 +323,9 @@ class Test_SumExpression(unittest.TestCase):
         #          / \
         #         a   b
         e1 = a + b
-        e = 2 * e1 + c
+        e = np.int32(2) * e1 + c
         #
-        self.assertEqual(e.to_list(), ["+", ["*", "2.000000", ["+", "a", "b"]], "c"])
+        assert e.to_list() == ["+", ["*", "2.000000", ["+", "a", "b"]], "c"]
 
         #         *
         #        / \
@@ -216,54 +337,80 @@ class Test_SumExpression(unittest.TestCase):
         #          / \
         #         a   b
         e1 = a + b
-        e = 3 * (2 * e1 + c)
+        e = np.int32(3) * (np.int32(2) * e1 + c)
         #
-        self.assertEqual(
-            e.to_list(),
-            ["*", "3.000000", ["+", ["*", "2.000000", ["+", "a", "b"]], "c"]],
-        )
+        assert e.to_list() == ["*", "3.000000", ["+", ["*", "2.000000", ["+", "a", "b"]], "c"]]
 
-    def test_trivialSum(self):
-        #
-        # Check that adding zero doesn't change the expression
-        #
-        a = self.a
+def test_trivialSum(var_a):
+    #
+    # Check that adding zero doesn't change the expression
+    #
+    a = var_a
 
-        e = a + 0
-        self.assertEqual(e.to_list(), ["a"])
+    e = a + 0
+    assert e.to_list() == ["a"]
 
-        e = 0 + a
-        self.assertEqual(e.to_list(), ["a"])
+    e = 0 + a
+    assert e.to_list() == ["a"]
 
-        e = a + 0.0
-        self.assertEqual(e.to_list(), ["a"])
+    e = a + 0.0
+    assert e.to_list() == ["a"]
 
-        e = 0.0 + a
-        self.assertEqual(e.to_list(), ["a"])
+    e = 0.0 + a
+    assert e.to_list() == ["a"]
+
+    e = a
+    e += 0
+    assert e.to_list() == ["a"]
+
+    e = a
+    e += 0.0
+    assert e.to_list() == ["a"]
+
+    #
+    # Adding zero to a sum will not change the sum
+    #
+    e = a + a
+    f = e + 0
+    assert e.to_list() ==  ["+", "a", "a"]
+
+    if numpy_available:
+        z = np.int32(0)
+        e = a + z
+        assert e.to_list() == ["a"]
+
+        e = z + a
+        assert e.to_list() == ["a"]
 
         e = a
-        e += 0
-        self.assertEqual(e.to_list(), ["a"])
+        e += z
+        assert e.to_list() == ["a"]
+
+        z = np.float32(0)
+        e = a + z
+        assert e.to_list() == ["a"]
+
+        e = z + a
+        assert e.to_list() == ["a"]
 
         e = a
-        e += 0.0
-        self.assertEqual(e.to_list(), ["a"])
+        e += z
+        assert e.to_list() == ["a"]
 
         #
         # Adding zero to a sum will not change the sum
         #
         e = a + a
-        f = e + 0
-        self.assertEqual(e.to_list(), ["+", "a", "a"])
+        f = e + np.int32(0) 
+        assert e.to_list() ==  ["+", "a", "a"]
 
-    def test_sumOf_nestedTrivialProduct(self):
-        #
-        # Check sums with nested products
-        #
-        a = self.a
-        b = self.b
-        c = self.c
+def test_sumOf_nestedTrivialProduct(var_a,var_b,var_c):
+    #
+    # Check sums with nested products
+    #
+    a,b,c = var_a,var_b,var_c
 
+    if True:
         #       +
         #      / \
         #     *   b
@@ -272,7 +419,7 @@ class Test_SumExpression(unittest.TestCase):
         e1 = a * 5
         e = e1 + b
         #
-        self.assertEqual(e.to_list(), ["+", ["*", "5.000000", "a"], "b"])
+        assert e.to_list() == ["+", ["*", "5.000000", "a"], "b"] 
 
         #       +
         #      / \
@@ -281,7 +428,7 @@ class Test_SumExpression(unittest.TestCase):
         #       a   5
         e = b + e1
         #
-        self.assertEqual(e.to_list(), ["+", "b", ["*", "5.000000", "a"]])
+        assert e.to_list() == ["+", "b", ["*", "5.000000", "a"]] 
 
         #            +
         #          /   \
@@ -291,7 +438,7 @@ class Test_SumExpression(unittest.TestCase):
         e2 = b + c
         e = e1 + e2
         #
-        self.assertEqual(e.to_list(), ["+", ["*", "5.000000", "a"], ["+", "b", "c"]])
+        assert e.to_list() == ["+", ["*", "5.000000", "a"], ["+", "b", "c"]] 
 
         #            +
         #          /   \
@@ -301,140 +448,166 @@ class Test_SumExpression(unittest.TestCase):
         e2 = b + c
         e = e2 + e1
         #
-        self.assertEqual(e.to_list(), ["+", "b", "c", ["*", "5.000000", "a"]])
+        assert e.to_list() == ["+", "b", "c", ["*", "5.000000", "a"]] 
 
-    def test_affine(self):
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
-
-        e = affine_expression([1, 2, 3, 4], [a, b, c, d], 5)
-        #
-        self.assertEqual(
-            e.to_list(),
-            ["+", "5.000000", "a", ["*", "2.000000", "b"], ["*", "3.000000", "c"], ["*", "4.000000", "d"]],
-        )
-
-
-class TestDiffExpression(unittest.TestCase):
-    def setUp(self):
-        self.a = variable(name="a")
-        self.b = variable(name="b")
-        self.c = variable(name="c")
-        self.d = variable(name="d")
-        self.v = variable(name="v")
-        self.p = parameter("p", value=0)
-
-    def test_error1(self):
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__rsub__\\(\\): incompatible function arguments.*"
-            ):
-
-                class TMP(object):
-                    pass
-
-                TMP() - self.a
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-
-                class TMP(object):
-                    pass
-
-                TMP() - self.a
-
-    def test_error2(self):
-        x = variable(10)
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__sub__\\(\\): incompatible function arguments.*"
-            ):
-                self.a - x
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-                self.a - x
-
-    def test_simpleDiff(self):
-        #
-        # Check the structure of a simple difference with two variables
-        #
-        a = self.a
-        b = self.b
-
-        #    -
-        #   / \
-        #  a   b
-        e = a - b
-        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1.000000", "b"]])
-
-        e = a
-        e -= b
-        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1.000000", "b"]])
-
-    def test_constDiff(self):
-        a = self.a
-
-        e = a - 5
-        self.assertEqual(e.to_list(), ["+", "a", "-5.000000"])
-
-        e = 5 - a
-        self.assertEqual(e.to_list(), ["+", "5.000000", ["*", "-1.000000", "a"]])
-
-        e = a
-        e -= 5
-        self.assertEqual(e.to_list(), ["+", "a", "-5.000000"])
-
-        e = a - 5.0
-        self.assertEqual(e.to_list(), ["+", "a", "-5.000000"])
-
-        e = 5.0 - a
-        self.assertEqual(e.to_list(), ["+", "5.000000", ["*", "-1.000000", "a"]])
-
-        e = a
-        e -= 5.0
-        self.assertEqual(e.to_list(), ["+", "a", "-5.000000"])
-
-    def test_paramDiff(self):
-        # a - p
-        a = self.a
-        p = self.p
-        e = a - p
-        #
-        self.assertEqual(e.to_list(), ["+", "a", ["-", "p"]])
-
-        # p - a
-        e = p - a
-        #
-        self.assertEqual(e.to_list(), ["+", "p", ["*", "-1.000000", "a"]])
-
-    def test_termDiff(self):
-        #
-        # Check the structure of a simple difference with a term
-        #
-        a = self.a
-
-        #
-        #   -
-        #  / \
-        # 5   *
+    if numpy_available:
+        #       +
+        #      / \
+        #     *   b
         #    / \
-        #   2   a
+        #   a   5
+        e1 = a * np.int32(5)
+        e = e1 + b
         #
+        assert e.to_list() == ["+", ["*", "5.000000", "a"], "b"] 
 
+        #       +
+        #      / \
+        #     b   *
+        #        / \
+        #       a   5
+        e = b + e1
+        #
+        assert e.to_list() == ["+", "b", ["*", "5.000000", "a"]] 
+
+        #            +
+        #          /   \
+        #         *     +
+        #        / \   / \
+        #       a   5 b   c
+        e2 = b + c
+        e = e1 + e2
+        #
+        assert e.to_list() == ["+", ["*", "5.000000", "a"], ["+", "b", "c"]] 
+
+        #            +
+        #          /   \
+        #         +     *
+        #        / \   / \
+        #       b   c a   5
+        e2 = b + c
+        e = e2 + e1
+        #
+        assert e.to_list() == ["+", "b", "c", ["*", "5.000000", "a"]] 
+
+def test_sum_affine(var_a,var_b,var_c,var_d):
+    a,b,c,d = var_a,var_b,var_c,var_d
+
+    e = affine_expression([1, 2, 3, 4], [a, b, c, d], 5)
+    assert e.to_list() == ["+", "5.000000", "a", ["*", "2.000000", "b"], ["*", "3.000000", "c"], ["*", "4.000000", "d"]]
+
+    if numpy_available:
+        e = affine_expression([np.int32(1), np.int32(2), np.int32(3), np.int32(4)], [a, b, c, d], np.int32(5))
+        assert e.to_list() == ["+", "5.000000", "a", ["*", "2.000000", "b"], ["*", "3.000000", "c"], ["*", "4.000000", "d"]]
+
+def test_diff_error1(var_a):
+    a = var_a
+    if poek.__using_pybind11__:
+        with pytest.raises(TypeError) as einfo:
+            class TMP(object):
+                pass
+
+            TMP() - a
+    elif poek.__using_cppyy__:
+        with pytest.raises(TypeError) as einfo:
+            class TMP(object):
+                pass
+
+            TMP() - a
+
+def test_diff_error2(var_a):
+    a = var_a
+    x = variable(10)
+    if poek.__using_pybind11__:
+        with pytest.raises(TypeError) as einfo:
+            a - x
+    elif poek.__using_cppyy__:
+        with pytest.raises(TypeError) as einfo:
+            a - x
+
+def test_simpleDiff(var_a,var_b):
+    #
+    # Check the structure of a simple difference with two variables
+    #
+    a,b = var_a,var_b
+
+    #    -
+    #   / \
+    #  a   b
+    e = a - b
+    assert e.to_list() == ["+", "a", ["*", "-1.000000", "b"]]
+
+    e = a
+    e -= b
+    assert e.to_list() == ["+", "a", ["*", "-1.000000", "b"]]
+
+def test_constDiff(var_a):
+    a = var_a
+
+    z = np.int32(5)
+    e = a - z
+    assert e.to_list() == ["+", "a", "-5.000000"]
+
+    e = z - a
+    assert e.to_list() == ["+", "5.000000", ["*", "-1.000000", "a"]]
+
+    e = a
+    e -= z
+    assert e.to_list() == ["+", "a", "-5.000000"]
+
+    z = np.float32(5.0)
+    e = a - z
+    assert e.to_list() == ["+", "a", "-5.000000"]
+
+    e = z - a
+    assert e.to_list() == ["+", "5.000000", ["*", "-1.000000", "a"]]
+
+    e = a
+    e -= z
+    assert e.to_list() == ["+", "a", "-5.000000"]
+
+def test_paramDiff(var_a,param_p):
+    # a - p
+    a,p = var_a,param_p
+
+    e = a - p
+    #
+    assert e.to_list() == ["+", "a", ["*", "-1.000000", "p"]]
+
+    # p - a
+    e = p - a
+    #
+    assert e.to_list() == ["+", "p", ["*", "-1.000000", "a"]]
+
+def test_termDiff(var_a):
+    #
+    # Check the structure of a simple difference with a term
+    #
+    a = var_a
+
+    #
+    #   -
+    #  / \
+    # 5   *
+    #    / \
+    #   2   a
+    #
+
+    if True:
         e = 5 - 2 * a
-        #
-        self.assertEqual(e.to_list(), ["+", "5.000000", ["*", "-2.000000", "a"]])
+        assert e.to_list() == ["+", "5.000000", ["*", "-2.000000", "a"]]
 
-    def test_nestedDiff(self):
-        #
-        # Check the structure of nested differences
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
+    if numpy_available:
+        e = np.int32(5) - np.int32(2) * a
+        assert e.to_list() == ["+", "5.000000", ["*", "-2.000000", "a"]]
 
+def test_nestedDiff(var_a,var_b,var_c,var_d):
+    #
+    # Check the structure of nested differences
+    #
+    a,b,c,d = var_a,var_b,var_c,var_d
+
+    if True:
         #       -
         #      / \
         #     -   5
@@ -444,7 +617,7 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a - b
         e = e1 - 5
         #
-        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1.000000", "b"], "-5.000000"])
+        assert e.to_list() == ["+", "a", ["*", "-1.000000", "b"], "-5.000000"]
 
         #       -
         #      / \
@@ -455,125 +628,194 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a - b
         e = 5 - e1
         #
-        self.assertEqual(e.to_list(), ["+", "5.000000", ["-", ["+", "a", ["*", "-1.000000", "b"]]]])
+        assert e.to_list() == ["+", "5.000000", ["-", ["+", "a", ["*", "-1.000000", "b"]]]]
 
+    if numpy_available:
         #       -
         #      / \
-        #     -   c
+        #     -   5
         #    / \
         #   a   b
 
         e1 = a - b
-        e = e1 - c
+        e = e1 - np.int32(5)
         #
-        self.assertEqual(e.to_list(), ["+", "a", ["*", "-1.000000", "b"], ["*", "-1.000000", "c"]])
+        assert e.to_list() == ["+", "a", ["*", "-1.000000", "b"], "-5.000000"]
 
-        #            -
-        #          /   \
-        #         -     -
-        #        / \   / \
-        #       a   b c   d
+        #       -
+        #      / \
+        #     5   -
+        #        / \
+        #       a   b
 
         e1 = a - b
-        e2 = c - d
-        e = e1 - e2
+        e = np.int32(5) - e1
         #
-        self.assertEqual(
-            e.to_list(),
-            ["+", "a", ["*", "-1.000000", "b"], ["-", ["+", "c", ["*", "-1.000000", "d"]]]],
-        )
+        assert e.to_list() == ["+", "5.000000", ["-", ["+", "a", ["*", "-1.000000", "b"]]]]
 
-    def test_negation_param(self):
-        #
-        # Check logic for negations
-        #
+    #       -
+    #      / \
+    #     -   c
+    #    / \
+    #   a   b
 
-        p = self.p
-        e = -p
-        #
-        self.assertEqual(e.to_list(), ["-", "p"])
+    e1 = a - b
+    e = e1 - c
+    #
+    assert e.to_list() == ["+", "a", ["*", "-1.000000", "b"], ["*", "-1.000000", "c"]]
 
-        e = -e
-        #
-        # TODO: Can we detect negations of negations?
-        #
-        self.assertEqual(e.to_list(), ["-", ["-", "p"]])
+    #            -
+    #          /   \
+    #         -     -
+    #        / \   / \
+    #       a   b c   d
 
-    def test_negation_terms(self):
-        #
-        # Check logic for negations with terms
-        #
-        p = self.p
-        v = self.v
+    e1 = a - b
+    e2 = c - d
+    e = e1 - e2
+    #
+    assert e.to_list() == ["+", "a", ["*", "-1.000000", "b"], ["-", ["+", "c", ["*", "-1.000000", "d"]]]]
 
-        e = -p * v
-        self.assertEqual(e.to_list(), ["*", ["-", "p"], "v"])
+def test_negation_param(param_p):
+    #
+    # Check logic for negations
+    #
+    p = param_p
 
-        e = -e
-        self.assertEqual(e.to_list(), ["-", ["*", ["-", "p"], "v"]])
-        #
+    e = -p
+    #
+    assert e.to_list() == ["*", "-1.000000", "p"]
+
+    e = -e
+    #
+    # TODO: Can we detect negations of negations?
+    #
+    assert e.to_list() == ["*", "1.000000", "p"]
+
+def test_negation_terms(param_p, var_v):
+    #
+    # Check logic for negations with terms
+    #
+    p,v = param_p,var_v
+
+    e = -p * v
+    assert e.to_list() == ["*", ["*", "-1.000000", "p"], "v"]
+
+    e = -e
+    assert e.to_list() == ["-", ["*", ["*", "-1.000000", "p"], "v"]]
+    #
+    if True:
         e = -5 * v
-        self.assertEqual(e.to_list(), ["*", "-5.000000", "v"])
+        assert e.to_list() == ["*", "-5.000000", "v"]
         e = -e
-        self.assertEqual(e.to_list(), ["*", "5.000000", "v"])
+        assert e.to_list() == ["*", "5.000000", "v"]
 
-    def test_trivialDiff(self):
-        #
-        # Check that subtracting zero doesn't change the expression
-        #
-        a = self.a
-        p = self.p
+    if numpy_available:
+        e = np.int32(-5) * v
+        assert e.to_list() == ["*", "-5.000000", "v"]
+        e = -e
+        assert e.to_list() == ["*", "5.000000", "v"]
 
+def test_trivialDiff(var_a,param_p):
+    #
+    # Check that subtracting zero doesn't change the expression
+    #
+    a,p = var_a,param_p
+
+    if True:
         # a - 0
         e = a - 0
-        self.assertEqual(e.to_list(), ["a"])
+        assert e.to_list() == ["a"]
 
         e = a - 0.0
-        self.assertEqual(e.to_list(), ["a"])
+        assert e.to_list() == ["a"]
 
         e = a
         e -= 0
-        self.assertEqual(e.to_list(), ["a"])
+        assert e.to_list() == ["a"]
 
         e = a
         e -= 0.0
-        self.assertEqual(e.to_list(), ["a"])
+        assert e.to_list() == ["a"]
 
         # 0 - a
         e = 0 - a
-        self.assertEqual(e.to_list(), ["*", "-1.000000", "a"])
+        assert e.to_list() == ["*", "-1.000000", "a"]
 
         e = 0.0 - a
-        self.assertEqual(e.to_list(), ["*", "-1.000000", "a"])
+        assert e.to_list() == ["*", "-1.000000", "a"]
 
         # p - 0
         e = p - 0
-        self.assertEqual(e.to_list(), ["p"])
+        assert e.to_list() == ["p"]
 
         # 0 - p
         e = 0 - p
-        self.assertEqual(e.to_list(), ["-", "p"])
+        assert e.to_list() == ["*", "-1.000000", "p"]
 
         # 0 - 5*a
         e = 0 - 5 * a
-        self.assertEqual(e.to_list(), ["*", "-5.000000", "a"])
+        assert e.to_list() == ["*", "-5.000000", "a"]
 
         # 0 - p*a
         e = 0 - p * a
-        self.assertEqual(e.to_list(), ["-", ["*", "p", "a"]])
+        assert e.to_list() == ["-", ["*", "p", "a"]]
 
         # 0 - a*a
         e = 0 - a * a
-        self.assertEqual(e.to_list(), ["-", ["*", "a", "a"]])
+        assert e.to_list() == ["-", ["*", "a", "a"]]
 
-    def test_sumOf_nestedTrivialProduct2(self):
-        #
-        # Check the structure of sum of products
-        #
-        a = self.a
-        b = self.b
-        c = self.c
+    if numpy_available:
+        z = np.int32(0)
+        # 0 - 5*a
+        e = z - np.int32(5) * a
+        assert e.to_list() == ["*", "-5.000000", "a"]
 
+        # 0 - p*a
+        e = z - p * a
+        assert e.to_list() == ["-", ["*", "p", "a"]]
+
+        # 0 - a*a
+        e = z - a * a
+
+        # a - 0
+        e = a - z
+        assert e.to_list() == ["a"]
+
+        e = a
+        e -= z
+        assert e.to_list() == ["a"]
+
+        # 0 - a
+        e = z - a
+        assert e.to_list() == ["*", "-1.000000", "a"]
+
+        # p - 0
+        e = p - z
+        assert e.to_list() == ["p"]
+
+        # z - p
+        e = 0 - p
+        assert e.to_list() == ["*", "-1.000000", "p"]
+
+        z = np.float32(0.0)
+        e = a - z 
+        assert e.to_list() == ["a"]
+
+        e = a
+        e -= z
+        assert e.to_list() == ["a"]
+
+        e = z - a
+        assert e.to_list() == ["*", "-1.000000", "a"]
+
+def test_sumOf_nestedTrivialProduct2(var_a,var_b,var_c):
+    #
+    # Check the structure of sum of products
+    #
+    a,b,c = var_a,var_b,var_c
+
+    if True:
         #       -
         #      / \
         #     *   b
@@ -581,7 +823,7 @@ class TestDiffExpression(unittest.TestCase):
         #   a   5
         e1 = a * 5
         e = e1 - b
-        self.assertEqual(e.to_list(), ["+", ["*", "5.000000", "a"], ["*", "-1.000000", "b"]])
+        assert e.to_list() == ["+", ["*", "5.000000", "a"], ["*", "-1.000000", "b"]]
 
         #       -
         #      / \
@@ -590,7 +832,7 @@ class TestDiffExpression(unittest.TestCase):
         #       a   5
         e1 = a * 5
         e = b - e1
-        self.assertEqual(e.to_list(), ["+", "b", ["*", "-5.000000", "a"]])
+        assert e.to_list() == ["+", "b", ["*", "-5.000000", "a"]]
 
         #            -
         #          /   \
@@ -600,7 +842,7 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a * 5
         e2 = b - c
         e = e1 - e2
-        self.assertEqual(e.to_list(), ["+", ["*", "5.000000", "a"], ["-", ["+", "b", ["*", "-1.000000", "c"]]]])
+        assert e.to_list() == ["+", ["*", "5.000000", "a"], ["-", ["+", "b", ["*", "-1.000000", "c"]]]]
 
         #            -
         #          /   \
@@ -610,110 +852,162 @@ class TestDiffExpression(unittest.TestCase):
         e1 = a * 5
         e2 = b - c
         e = e2 - e1
-        self.assertEqual(e.to_list(), ["+", "b", ["*", "-1.000000", "c"], ["*", "-5.000000", "a"]])
+        assert e.to_list() == ["+", "b", ["*", "-1.000000", "c"], ["*", "-5.000000", "a"]]
 
+    if numpy_available:
+        #       -
+        #      / \
+        #     *   b
+        #    / \
+        #   a   5
+        e1 = a * np.int32(5)
+        e = e1 - b
+        assert e.to_list() == ["+", ["*", "5.000000", "a"], ["*", "-1.000000", "b"]]
 
-class Test_MulExpression(unittest.TestCase):
-    def setUp(self):
-        self.a = variable(name="a")
-        self.b = variable(name="b")
-        self.c = variable(name="c")
-        self.d = variable(name="d")
-        self.v = variable(name="v")
-        self.p = parameter("p", value=0)
-        self.q = parameter("q", value=0)
-        self.r = parameter("r", value=1)
+        #       -
+        #      / \
+        #     b   *
+        #        / \
+        #       a   5
+        e1 = a * np.int32(5)
+        e = b - e1
+        assert e.to_list() == ["+", "b", ["*", "-5.000000", "a"]]
 
-    def test_error1(self):
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__rmul__\\(\\): incompatible function arguments.*"
-            ):
+        #            -
+        #          /   \
+        #         *     -
+        #        / \   / \
+        #       a   5 b   c
+        e1 = a * np.int32(5)
+        e2 = b - c
+        e = e1 - e2
+        assert e.to_list() == ["+", ["*", "5.000000", "a"], ["-", ["+", "b", ["*", "-1.000000", "c"]]]]
 
-                class TMP(object):
-                    pass
+        #            -
+        #          /   \
+        #         -     *
+        #        / \   / \
+        #       b   c a   5
+        e1 = a * np.int32(5)
+        e2 = b - c
+        e = e2 - e1
+        assert e.to_list() == ["+", "b", ["*", "-1.000000", "c"], ["*", "-5.000000", "a"]]
 
-                TMP() * self.a
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+#
+# Multiply
+#
 
-                class TMP(object):
-                    pass
+def test_mul_error1(var_a):
+    a = var_a
+    if poek.__using_pybind11__:
+        with pytest.raises(TypeError) as einfo:
+            class TMP(object):
+                pass
 
-                TMP() * self.a
+            TMP() * a
+    elif poek.__using_cppyy__:
+        with pytest.raises(TypeError) as einfo:
+            class TMP(object):
+                pass
 
-    def test_error2(self):
-        x = variable(10)
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__mul__\\(\\): incompatible function arguments.*"
-            ):
-                self.a * x
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-                self.a * x
+            TMP() * a
 
-    def test_simpleProduct(self):
-        #
-        # Check the structure of a simple product of variables
-        #
-        a = self.a
-        b = self.b
+def test_mul_error2(var_a):
+    a = var_a
+    x = variable(10)
+    if poek.__using_pybind11__:
+        with pytest.raises(TypeError) as einfo:
+            a * x
+    elif poek.__using_cppyy__:
+        with pytest.raises(TypeError) as einfo:
+            a * x
 
-        #    *
-        #   / \
-        #  a   b
-        e = a * b
-        self.assertEqual(e.to_list(), ["*", "a", "b"])
+def test_simpleProduct(var_a, var_b):
+    #
+    # Check the structure of a simple product of variables
+    #
+    a,b = var_a,var_b
 
-        #    *
-        #   / \
-        #  a   b
-        e = a
-        e *= b
-        self.assertEqual(e.to_list(), ["*", "a", "b"])
+    #    *
+    #   / \
+    #  a   b
+    e = a * b
+    assert e.to_list() == ["*", "a", "b"] 
 
-    def test_constProduct(self):
-        #
-        # Check the structure of a simple product with a constant
-        #
-        a = self.a
+    #    *
+    #   / \
+    #  a   b
+    e = a
+    e *= b
+    assert e.to_list() == ["*", "a", "b"] 
 
+def test_constProduct(var_a):
+    #
+    # Check the structure of a simple product with a constant
+    #
+    a = var_a
+
+    if True:
         #    *
         #   / \
         #  a   5
         e = a * 5
-        self.assertEqual(e.to_list(), ["*", "5.000000", "a"])
+        assert e.to_list() == ["*", "5.000000", "a"] 
 
         e = a * 5.0
-        self.assertEqual(e.to_list(), ["*", "5.000000", "a"])
+        assert e.to_list() == ["*", "5.000000", "a"] 
 
         e = a
         e *= 5
-        self.assertEqual(e.to_list(), ["*", "5.000000", "a"])
+        assert e.to_list() == ["*", "5.000000", "a"] 
 
         #    *
         #   / \
         #  5   a
         e = 5.0 * a
-        self.assertEqual(e.to_list(), ["*", "5.000000", "a"])
+        assert e.to_list() == ["*", "5.000000", "a"] 
 
         e = a
         e *= 5.0
-        self.assertEqual(e.to_list(), ["*", "5.000000", "a"])
+        assert e.to_list() == ["*", "5.000000", "a"] 
 
         e = 5.0 * a
-        self.assertEqual(e.to_list(), ["*", "5.000000", "a"])
+        assert e.to_list() == ["*", "5.000000", "a"] 
 
-    def test_nestedProduct(self):
-        #
-        # Check the structure of nested products
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
+    if numpy_available:
+        #    *
+        #   / \
+        #  a   5
+        e = a * np.int32(5)
+        assert e.to_list() == ["*", "5.000000", "a"] 
 
+        e = a * np.float32(5.0)
+        assert e.to_list() == ["*", "5.000000", "a"] 
+
+        e = a
+        e *= np.int32(5)
+        assert e.to_list() == ["*", "5.000000", "a"] 
+
+        #    *
+        #   / \
+        #  5   a
+        e = np.float32(5.0) * a
+        assert e.to_list() == ["*", "5.000000", "a"] 
+
+        e = a
+        e *= np.float32(5.0)
+        assert e.to_list() == ["*", "5.000000", "a"] 
+
+        e = np.float32(5.0) * a
+        assert e.to_list() == ["*", "5.000000", "a"] 
+
+def test_nestedProduct(var_a, var_b, var_c, var_d):
+    #
+    # Check the structure of nested products
+    #
+    a,b,c,d = var_a,var_b,var_c,var_d
+
+    if True:
         #       *
         #      / \
         #     *   5
@@ -721,7 +1015,7 @@ class Test_MulExpression(unittest.TestCase):
         #   a   b
         e1 = a * b
         e = e1 * 5
-        self.assertEqual(e.to_list(), ["*", ["*", "a", "b"], "5.000000"])
+        assert e.to_list() == ["*", ["*", "a", "b"], "5.000000"] 
 
         #       *
         #      / \
@@ -730,88 +1024,101 @@ class Test_MulExpression(unittest.TestCase):
         #       a   b
         e1 = a * b
         e = 5 * e1
-        self.assertEqual(e.to_list(), ["*", "5.000000", ["*", "a", "b"]])
+        assert e.to_list() == ["*", "5.000000", ["*", "a", "b"]] 
 
+    if numpy_available:
         #       *
         #      / \
-        #     *   c
+        #     *   5
         #    / \
         #   a   b
         e1 = a * b
-        e = e1 * c
-        self.assertEqual(e.to_list(), ["*", ["*", "a", "b"], "c"])
+        e = e1 * np.int32(5)
+        assert e.to_list() == ["*", ["*", "a", "b"], "5.000000"] 
 
         #       *
         #      / \
-        #     c   *
+        #     5   *
         #        / \
         #       a   b
         e1 = a * b
-        e = c * e1
-        self.assertEqual(e.to_list(), ["*", "c", ["*", "a", "b"]])
+        e = np.int32(5) * e1
+        assert e.to_list() == ["*", "5.000000", ["*", "a", "b"]] 
 
-        #            *
-        #          /   \
-        #         *     *
-        #        / \   / \
-        #       a   b c   d
-        e1 = a * b
-        e2 = c * d
-        e = e1 * e2
-        self.assertEqual(e.to_list(), ["*", ["*", "a", "b"], ["*", "c", "d"]])
 
-    def test_nestedProduct2(self):
-        #
-        # Check the structure of nested products
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
+    #       *
+    #      / \
+    #     *   c
+    #    / \
+    #   a   b
+    e1 = a * b
+    e = e1 * c
+    assert e.to_list() == ["*", ["*", "a", "b"], "c"] 
 
-        #
-        # Check the structure of nested products
-        #
-        #            *
-        #          /   \
-        #         +     +
-        #        / \   / \
-        #       c    +    d
-        #           / \
-        #          a   b
-        e1 = a + b
-        e2 = c + e1
-        e3 = e1 + d
-        e = e2 * e3
-        self.assertEqual(e.to_list(), ["*", ["+", "c", ["+", "a", "b"]], ["+", "a", "b", "d"]])
+    #       *
+    #      / \
+    #     c   *
+    #        / \
+    #       a   b
+    e1 = a * b
+    e = c * e1
+    assert e.to_list() == ["*", "c", ["*", "a", "b"]] 
 
-        #
-        # Check the structure of nested products
-        #
-        #            *
-        #          /   \
-        #         *     *
-        #        / \   / \
-        #       c    +    d
-        #           / \
-        #          a   b
-        e1 = a + b
-        e2 = c * e1
-        e3 = e1 * d
-        e = e2 * e3
-        self.assertEqual(
-            e.to_list(), ["*", ["*", "c", ["+", "a", "b"]], ["*", ["+", "a", "b"], "d"]]
-        )
+    #            *
+    #          /   \
+    #         *     *
+    #        / \   / \
+    #       a   b c   d
+    e1 = a * b
+    e2 = c * d
+    e = e1 * e2
+    assert e.to_list() == ["*", ["*", "a", "b"], ["*", "c", "d"]] 
 
-    def test_nestedProduct3(self):
-        #
-        # Check the structure of nested products
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
+def test_nestedProduct2(var_a, var_b, var_c, var_d):
+    #
+    # Check the structure of nested products
+    #
+    a,b,c,d = var_a,var_b,var_c,var_d
 
+    #
+    # Check the structure of nested products
+    #
+    #            *
+    #          /   \
+    #         +     +
+    #        / \   / \
+    #       c    +    d
+    #           / \
+    #          a   b
+    e1 = a + b
+    e2 = c + e1
+    e3 = e1 + d
+    e = e2 * e3
+    assert e.to_list() == ["*", ["+", "c", ["+", "a", "b"]], ["+", "a", "b", "d"]]
+
+    #
+    # Check the structure of nested products
+    #
+    #            *
+    #          /   \
+    #         *     *
+    #        / \   / \
+    #       c    +    d
+    #           / \
+    #          a   b
+    e1 = a + b
+    e2 = c * e1
+    e3 = e1 * d
+    e = e2 * e3
+    assert e.to_list() == ["*", ["*", "c", ["+", "a", "b"]], ["*", ["+", "a", "b"], "d"]]
+
+def test_nestedProduct3(var_a,var_b,var_c,var_d):
+    #
+    # Check the structure of nested products
+    #
+    a,b,c,d = var_a,var_b,var_c,var_d
+
+    if True:
         #       *
         #      / \
         #     *   5
@@ -819,7 +1126,7 @@ class Test_MulExpression(unittest.TestCase):
         #   3   b
         e1 = 3 * b
         e = e1 * 5
-        self.assertEqual(e.to_list(), ["*", ["*", "3.000000", "b"], "5.000000"])
+        assert e.to_list() == ["*", ["*", "3.000000", "b"], "5.000000"]
 
         #       *
         #      / \
@@ -828,7 +1135,7 @@ class Test_MulExpression(unittest.TestCase):
         #   a   b
         e1 = a * b
         e = e1 * 5
-        self.assertEqual(e.to_list(), ["*", ["*", "a", "b"], "5.000000"])
+        assert e.to_list() == ["*", ["*", "a", "b"], "5.000000"]
 
         #       *
         #      / \
@@ -837,7 +1144,7 @@ class Test_MulExpression(unittest.TestCase):
         #       3   b
         e1 = 3 * b
         e = 5 * e1
-        self.assertEqual(e.to_list(), ["*", "5.000000", ["*", "3.000000", "b"]])
+        assert e.to_list() == ["*", "5.000000", ["*", "3.000000", "b"]]
 
         #       *
         #      / \
@@ -846,187 +1153,275 @@ class Test_MulExpression(unittest.TestCase):
         #       a   b
         e1 = a * b
         e = 5 * e1
-        self.assertEqual(e.to_list(), ["*", "5.000000", ["*", "a", "b"]])
+        assert e.to_list() == ["*", "5.000000", ["*", "a", "b"]]
+
+    if numpy_available:
+        #       *
+        #      / \
+        #     *   5
+        #    / \
+        #   3   b
+        e1 = np.int32(3) * b
+        e = e1 * np.int32(5)
+        assert e.to_list() == ["*", ["*", "3.000000", "b"], "5.000000"]
 
         #       *
         #      / \
-        #     *   c
+        #     *   5
         #    / \
         #   a   b
         e1 = a * b
-        e = e1 * c
-        self.assertEqual(e.to_list(), ["*", ["*", "a", "b"], "c"])
+        e = e1 * np.int32(5)
+        assert e.to_list() == ["*", ["*", "a", "b"], "5.000000"]
 
         #       *
         #      / \
-        #     c   *
+        #     5   *
+        #        / \
+        #       3   b
+        e1 = np.int32(3) * b
+        e = np.int32(5) * e1
+        assert e.to_list() == ["*", "5.000000", ["*", "3.000000", "b"]]
+
+        #       *
+        #      / \
+        #     5   *
         #        / \
         #       a   b
         e1 = a * b
-        e = c * e1
-        self.assertEqual(e.to_list(), ["*", "c", ["*", "a", "b"]])
+        e = np.int32(5) * e1
+        assert e.to_list() == ["*", "5.000000", ["*", "a", "b"]]
 
-        #            *
-        #          /   \
-        #         *     *
-        #        / \   / \
-        #       a   b c   d
-        e1 = a * b
-        e2 = c * d
-        e = e1 * e2
-        self.assertEqual(e.to_list(), ["*", ["*", "a", "b"], ["*", "c", "d"]])
+    #       *
+    #      / \
+    #     *   c
+    #    / \
+    #   a   b
+    e1 = a * b
+    e = e1 * c
+    assert e.to_list() == ["*", ["*", "a", "b"], "c"]
 
-    def test_trivialProduct(self):
-        #
-        # Check that multiplying by zero gives zero
-        #
-        a = self.a
-        p = self.p
-        q = self.q
-        r = self.r
+    #       *
+    #      / \
+    #     c   *
+    #        / \
+    #       a   b
+    e1 = a * b
+    e = c * e1
+    assert e.to_list() == ["*", "c", ["*", "a", "b"]]
 
+    #            *
+    #          /   \
+    #         *     *
+    #        / \   / \
+    #       a   b c   d
+    e1 = a * b
+    e2 = c * d
+    e = e1 * e2
+    assert e.to_list() == ["*", ["*", "a", "b"], ["*", "c", "d"]]
+
+def test_trivialProduct(var_a,param_p,param_q,param_r):
+    #
+    # Check that multiplying by zero gives zero
+    #
+    a,p,q,r = var_a,param_p,param_q,param_r
+
+    if True:
         e = a * 0
-        self.assertEqual(e.value, 0)
+        assert e.value == 0
 
         e = a * 0.0
-        self.assertEqual(e.value, 0.0)
+        assert e.value == 0.0
 
         e = a
         e *= 0
-        self.assertEqual(e.value, 0)
+        assert e.value == 0
 
         e = a
         e *= 0.0
-        self.assertEqual(e.value, 0.0)
+        assert e.value == 0.0
 
         e = 0 * a
-        self.assertEqual(e.value, 0)
+        assert e.value == 0
 
         e = 0.0 * a
-        self.assertEqual(e.value, 0)
+        assert e.value == 0
 
-        e = a * p
-        self.assertEqual(e.to_list(), ["*", "a", "p"])
+    if True:
+        z = np.int32(0)
+        e = a * z
+        assert e.value == 0
 
-        e = p * a
-        self.assertEqual(e.to_list(), ["*", "p", "a"])
+        e = a
+        e *= z
+        assert e.value == 0
 
-        #
-        # Check that multiplying by one gives the original expression
-        #
+        e = z * a
+        assert e.value == 0
+
+        z = np.float32(0.0)
+        e = a * z
+        assert e.value == 0.0
+
+        e = a
+        e *= z
+        assert e.value == 0.0
+
+        e = z * a
+        assert e.value == 0
+
+    e = a * p
+    assert e.to_list() == ["*", "a", "p"]
+
+    e = p * a
+    assert e.to_list() == ["*", "p", "a"]
+
+    #
+    # Check that multiplying by one gives the original expression
+    #
+    if True:
         e = a * 1
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = a * 1.0
-        self.assertEqual(e.to_list(), ["a"])
+        assert e.to_list() == ["a"]
 
         e = a
         e *= 1
-        self.assertEqual(e.to_list(), ["a"])
+        assert e.to_list() == ["a"]
+
+        e = 1 * a
+        assert e.to_list() == ["a"]
+
+        e = a * 1.0
+        assert e.to_list() == ["a"]
 
         e = a
         e *= 1.0
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = 1 * a
-        self.assertEqual(e.to_list(), ["a"])
+        assert e.to_list() == ["a"]
 
         e = 1.0 * a
-        self.assertEqual(e.to_list(), ["a"])
+        assert e.to_list() == ["a"]
 
-
-class Test_DivExpression(unittest.TestCase):
-    def setUp(self):
-        self.a = variable(name="a")
-        self.b = variable(name="b")
-        self.c = variable(name="c")
-        self.d = variable(name="d")
-        self.v = variable(name="v")
-        self.p = parameter("p", value=0)
-        self.q = parameter("q", value=0)
-        self.r = parameter("r", value=1)
-
-    def test_error1(self):
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__rtruediv__\\(\\): incompatible function arguments.*"
-            ):
-
-                class TMP(object):
-                    pass
-
-                TMP() / self.a
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-
-                class TMP(object):
-                    pass
-
-                TMP() / self.a
-
-    def test_error2(self):
-        x = variable(10)
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__truediv__\\(\\): incompatible function arguments.*"
-            ):
-                self.a / x
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-                self.a / x
-
-    def test_simpleDivision(self):
-        #
-        # Check the structure of a simple division with variables
-        #
-        a = self.a
-        b = self.b
-
-        #    /
-        #   / \
-        #  a   b
-        e = a / b
-        self.assertEqual(e.to_list(), ["/", "a", "b"])
+    if numpy_available:
+        z = np.int32(1)
+        e = a * z
+        assert e.to_list() == ["a"]
 
         e = a
-        e /= b
-        self.assertEqual(e.to_list(), ["/", "a", "b"])
+        e *= z
+        assert e.to_list() == ["a"]
 
-    def test_constDivision(self):
-        #
-        # Check the structure of a simple division with a constant
-        #
-        a = self.a
+        e = z * a
+        assert e.to_list() == ["a"]
 
+        z = np.float32(1.0)
+        e = a * z
+        assert e.to_list() == ["a"]
+
+        e = a
+        e *= z
+        assert e.to_list() == ["a"]
+
+        e = z * a
+        assert e.to_list() == ["a"]
+
+
+def test_div_error1(var_a):
+    a = var_a
+    if poek.__using_pybind11__:
+        with pytest.raises(TypeError) as einfo:
+            class TMP(object):
+                pass
+
+            TMP() / a
+    elif poek.__using_cppyy__:
+        with pytest.raises(TypeError) as einfo:
+            class TMP(object):
+                pass
+
+            TMP() / a
+
+def test_div_error2(var_a):
+    a = var_a
+    x = variable(10)
+    if poek.__using_pybind11__:
+        with pytest.raises(TypeError) as einfo:
+            a / x
+    elif poek.__using_cppyy__:
+        with pytest.raises(TypeError) as einfo:
+            a / x
+
+def test_simpleDivision(var_a,var_b):
+    #
+    # Check the structure of a simple division with variables
+    #
+    a,b = var_a,var_b
+
+    #    /
+    #   / \
+    #  a   b
+    e = a / b
+    assert e.to_list() == ["/", "a", "b"]
+
+    e = a
+    e /= b
+    assert e.to_list() == ["/", "a", "b"]
+
+def test_constDivision(var_a):
+    #
+    # Check the structure of a simple division with a constant
+    #
+    a = var_a
+
+    if True:
         e = a / 5
-        self.assertEqual(e.to_list(), ["*", "0.200000", "a"])
+        assert e.to_list() == ["*", "0.200000", "a"]
 
         e = 5 / a
-        self.assertEqual(e.to_list(), ["/", "5.000000", "a"])
+        assert e.to_list() == ["/", "5.000000", "a"]
 
         e = a
         e /= 5
-        self.assertEqual(e.to_list(), ["*", "0.200000", "a"])
+        assert e.to_list() == ["*", "0.200000", "a"]
 
         e = a / 5.0
-        self.assertEqual(e.to_list(), ["*", "0.200000", "a"])
+        assert e.to_list() == ["*", "0.200000", "a"]
 
         e = 5.0 / a
-        self.assertEqual(e.to_list(), ["/", "5.000000", "a"])
+        assert e.to_list() == ["/", "5.000000", "a"]
 
         e = a
         e /= 5.0
-        self.assertEqual(e.to_list(), ["*", "0.200000", "a"])
+        assert e.to_list() == ["*", "0.200000", "a"]
 
-    def test_nestedDivision(self):
-        #
-        # Check the structure of nested divisions
-        #
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
+    if numpy_available:
+        z = np.int32(5)
+        e = a / z
+        assert e.to_list() == ["*", "0.200000", "a"]
 
+        e = z / a
+        assert e.to_list() == ["/", "5.000000", "a"]
+
+        e = a
+        e /= z
+        assert e.to_list() == ["*", "0.200000", "a"]
+
+        z = np.float32(5.0)
+        e = a / z
+        assert e.to_list() == ["*", "0.200000", "a"]
+
+        e = z / a
+        assert e.to_list() == ["/", "5.000000", "a"]
+
+        e = a
+        e /= z
+        assert e.to_list() == ["*", "0.200000", "a"]
+
+def test_nestedDivision(var_a,var_b,var_c,var_d):
+    #
+    # Check the structure of nested divisions
+    #
+    a,b,c,d = var_a,var_b,var_c,var_d
+
+    if True:
         #       /
         #      / \
         #     *   5
@@ -1034,7 +1429,7 @@ class Test_DivExpression(unittest.TestCase):
         #   3   b
         e1 = 3 * b
         e = e1 / 5
-        self.assertEqual(e.to_list(), ["/", ["*", "3.000000", "b"], "5.000000"])
+        assert e.to_list() == ["/", ["*", "3.000000", "b"], "5.000000"]
 
         #       /
         #      / \
@@ -1043,7 +1438,7 @@ class Test_DivExpression(unittest.TestCase):
         #   a   b
         e1 = a / b
         e = e1 / 5
-        self.assertEqual(e.to_list(), ["/", ["/", "a", "b"], "5.000000"])
+        assert e.to_list() == ["/", ["/", "a", "b"], "5.000000"]
 
         #       /
         #      / \
@@ -1052,421 +1447,562 @@ class Test_DivExpression(unittest.TestCase):
         #       a   b
         e1 = a / b
         e = 5 / e1
-        self.assertEqual(e.to_list(), ["/", "5.000000", ["/", "a", "b"]])
+
+    if numpy_available:
+        #       /
+        #      / \
+        #     *   5
+        #    / \
+        #   3   b
+        e1 = 3 * b
+        e = e1 / np.int32(5)
+        assert e.to_list() == ["/", ["*", "3.000000", "b"], "5.000000"]
 
         #       /
         #      / \
-        #     /   c
+        #     /   5
         #    / \
         #   a   b
         e1 = a / b
-        e = e1 / c
-        self.assertEqual(e.to_list(), ["/", ["/", "a", "b"], "c"])
+        e = e1 / np.int32(5)
+        assert e.to_list() == ["/", ["/", "a", "b"], "5.000000"]
 
         #       /
         #      / \
-        #     c   /
+        #     5   /
         #        / \
         #       a   b
         e1 = a / b
-        e = c / e1
-        self.assertEqual(e.to_list(), ["/", "c", ["/", "a", "b"]])
+        e = np.int32(5) / e1
+        assert e.to_list() == ["/", "5.000000", ["/", "a", "b"]]
 
-        #            /
-        #          /   \
-        #         /     /
-        #        / \   / \
-        #       a   b c   d
-        e1 = a / b
-        e2 = c / d
-        e = e1 / e2
-        self.assertEqual(e.to_list(), ["/", ["/", "a", "b"], ["/", "c", "d"]])
+    #       /
+    #      / \
+    #     /   c
+    #    / \
+    #   a   b
+    e1 = a / b
+    e = e1 / c
+    assert e.to_list() == ["/", ["/", "a", "b"], "c"]
 
-    def test_trivialDivision(self):
-        #
-        # Check that dividing by zero generates an exception
-        #
-        a = self.a
-        p = self.p
-        q = self.q
-        r = self.r
+    #       /
+    #      / \
+    #     c   /
+    #        / \
+    #       a   b
+    e1 = a / b
+    e = c / e1
+    assert e.to_list() == ["/", "c", ["/", "a", "b"]]
 
-        if poek.__using_pybind11__:
-            self.assertRaises(ValueError, a.__truediv__, 0)
-            self.assertRaises(ValueError, a.__truediv__, 0.0)
-        else:
-            try:
-                a.__truediv__(0)
-                self.fail("Expected TypeError when dividing by zero.")
-                print("Y")
-            except TypeError:
-                pass
-            try:
-                a.__truediv__(0.0)
-                self.fail("Expected TypeError when dividing by zero.")
-                print("Y")
-            except TypeError:
-                pass
+    #            /
+    #          /   \
+    #         /     /
+    #        / \   / \
+    #       a   b c   d
+    e1 = a / b
+    e2 = c / d
+    e = e1 / e2
+    assert e.to_list() == ["/", ["/", "a", "b"], ["/", "c", "d"]]
 
-        #
-        # Check that dividing zero by anything non-zero gives zero
-        #
+def test_trivialDivision(var_a,param_p,param_q,param_r):
+    #
+    # Check that dividing by zero generates an exception
+    #
+    a,p,q,r = var_a,param_p,param_q,param_r
+
+    if poek.__using_pybind11__:
+        with pytest.raises(ValueError) as einfo:
+            a.__truediv__(0)
+        with pytest.raises(ValueError) as einfo:
+            a.__truediv__(0.0)
+    else:
+        try:
+            a.__truediv__(0)
+            pytest.fail("Expected TypeError when dividing by zero.")
+            print("Y")
+        except TypeError:
+            pass
+        try:
+            a.__truediv__(0.0)
+            pytest.fail("Expected TypeError when dividing by zero.")
+            print("Y")
+        except TypeError:
+            pass
+
+    #
+    # Check that dividing zero by anything non-zero gives zero
+    #
+    if True:
         e = 0 / a
-        self.assertEqual(e.to_list(), ["0.000000"])
-        self.assertAlmostEqual(e.value, 0.0)
+        assert e.to_list() == ["0.000000"]
+        assert e.value == pytest.approx(0.0)
 
         e = 0.0 / a
-        self.assertEqual(e.to_list(), ["0.000000"])
-        self.assertAlmostEqual(e.value, 0.0)
+        assert e.to_list() == ["0.000000"]
+        assert e.value == pytest.approx(0.0)
 
-        #
-        # Check that dividing by one 1 gives the original expression
-        #
+    if numpy_available:
+        e = np.int32(0) / a
+        assert e.to_list() == ["0.000000"]
+        assert e.value == pytest.approx(0.0)
+
+        e = np.float32(0.0) / a
+        assert e.to_list() == ["0.000000"]
+        assert e.value == pytest.approx(0.0)
+
+    #
+    # Check that dividing by one 1 gives the original expression
+    #
+    if True:
         e = a / 1
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = a / 1.0
-        self.assertEqual(e.to_list(), ["a"])
+        assert e.to_list() == ["a"]
 
         e = a
         e /= 1
-        self.assertEqual(e.to_list(), ["a"])
+        assert e.to_list() == ["a"]
+
+        e = a / 1.0
+        assert e.to_list() == ["a"]
 
         e = a
         e /= 1.0
-        self.assertEqual(e.to_list(), ["a"])
+        assert e.to_list() == ["a"]
 
-        e = a / r
-        self.assertEqual(e.to_list(), ["/", "a", "r"])
-
-        #
-        # Check the structure dividing 1 by an expression
-        #
-        e = 1 / a
-        self.assertEqual(e.to_list(), ["/", "1.000000", "a"])
-
-        e = 1.0 / a
-        self.assertEqual(e.to_list(), ["/", "1.000000", "a"])
-
-        #
-        # Check the structure dividing 1 by a mutable zero
-        #
-        e = 1 / p
-        self.assertEqual(e.to_list(), ["/", "1.000000", "p"])
-
-        e = 1.0 / p
-        self.assertEqual(e.to_list(), ["/", "1.000000", "p"])
-
-
-class Test_PowExpression(unittest.TestCase):
-    def setUp(self):
-        self.a = variable(name="a")
-        self.b = variable(name="b")
-        self.c = variable(name="c")
-        self.d = variable(name="d")
-        self.v = variable(name="v")
-        self.p = parameter("p", value=0)
-        self.q = parameter("q", value=0)
-        self.r = parameter("r", value=1)
-
-    def test_error1(self):
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__rpow__\\(\\): incompatible function arguments.*"
-            ):
-
-                class TMP(object):
-                    pass
-
-                TMP() ** self.a
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-
-                class TMP(object):
-                    pass
-
-                TMP() ** self.a
-
-    def test_error2(self):
-        x = variable(10)
-        if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__pow__\\(\\): incompatible function arguments.*"
-            ):
-                self.a**x
-        elif poek.__using_cppyy__:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
-                self.a**x
-
-    def test_simplePow(self):
-        a = self.a
-        b = self.b
-
-        e = a**b
-        self.assertEqual(e.to_list(), ["pow", "a", "b"])
+    if numpy_available:
+        z = np.int32(1)
+        e = a / z
+        assert e.to_list() == ["a"]
 
         e = a
-        e **= b
-        self.assertEqual(e.to_list(), ["pow", "a", "b"])
+        e /= z
+        assert e.to_list() == ["a"]
 
-    def test_constPow(self):
-        #
-        # Check the structure of a simple power with a constant
-        #
-        a = self.a
+        z = np.float32(1.0)
+        e = a / z
+        assert e.to_list() == ["a"]
 
+        e = a
+        e /= z
+        assert e.to_list() == ["a"]
+
+    e = a / r
+    assert e.to_list() == ["/", "a", "r"]
+
+    #
+    # Check the structure dividing 1 by an expression
+    #
+    if True:
+        e = 1 / a
+        assert e.to_list() == ["/", "1.000000", "a"]
+
+        e = 1.0 / a
+        assert e.to_list() == ["/", "1.000000", "a"]
+
+    if numpy_available:
+        e = np.int32(1) / a
+        assert e.to_list() == ["/", "1.000000", "a"]
+
+        e = np.float32(1.0) / a
+        assert e.to_list() == ["/", "1.000000", "a"]
+
+    #
+    # Check the structure dividing 1 by a mutable zero
+    #
+    if True:
+        e = 1 / p
+        assert e.to_list() == ["/", "1.000000", "p"]
+
+        e = 1.0 / p
+        assert e.to_list() == ["/", "1.000000", "p"]
+
+    if numpy_available:
+        e = np.int32(1) / p
+        assert e.to_list() == ["/", "1.000000", "p"]
+
+        e = np.float32(1.0) / p
+        assert e.to_list() == ["/", "1.000000", "p"]
+
+
+def test_pow_error1(var_a):
+    a = var_a
+    if poek.__using_pybind11__:
+        with pytest.raises(TypeError) as einfo:
+            class TMP(object):
+                pass
+
+            TMP() ** a
+    elif poek.__using_cppyy__:
+        with pytest.raises(TypeError) as einfo:
+            class TMP(object):
+                pass
+
+            TMP() ** a
+
+def test_pow_error2(var_a):
+    a = var_a
+    x = variable(10)
+    if poek.__using_pybind11__:
+        with pytest.raises(TypeError) as einfo:
+            a**x
+    elif poek.__using_cppyy__:
+        with pytest.raises(TypeError) as einfo:
+            a**x
+
+def test_simplePow(var_a,var_b):
+    a,b = var_a,var_b
+
+    e = a**b
+    assert e.to_list() == ["pow", "a", "b"]
+
+    e = a
+    e **= b
+    assert e.to_list() == ["pow", "a", "b"]
+
+def test_constPow(var_a):
+    #
+    # Check the structure of a simple power with a constant
+    #
+    a = var_a
+
+    if True:
         e = a**5
-        self.assertEqual(e.to_list(), ["pow", "a", "5.000000"])
+        assert e.to_list() == ["pow", "a", "5.000000"]
 
         e = 5**a
-        self.assertEqual(e.to_list(), ["pow", "5.000000", "a"])
+        assert e.to_list() == ["pow", "5.000000", "a"]
 
         e = a
         e **= 5
-        self.assertEqual(e.to_list(), ["pow", "a", "5.000000"])
+        assert e.to_list() == ["pow", "a", "5.000000"]
 
         e = a**5.0
-        self.assertEqual(e.to_list(), ["pow", "a", "5.000000"])
+        assert e.to_list() == ["pow", "a", "5.000000"]
 
         e = 5.0**a
-        self.assertEqual(e.to_list(), ["pow", "5.000000", "a"])
+        assert e.to_list() == ["pow", "5.000000", "a"]
 
         e = a
         e **= 5.0
-        self.assertEqual(e.to_list(), ["pow", "a", "5.000000"])
+        assert e.to_list() == ["pow", "a", "5.000000"]
 
-    def test_trivialPow(self):
-        #
-        a = self.a
-        p = self.p
-        q = self.q
-        r = self.r
+    if numpy_available:
+        z = np.int32(5)
+        e = a**z
+        assert e.to_list() == ["pow", "a", "5.000000"]
 
-        #
-        # Check that taking the first power returns the original object
-        #
+        e = z**a
+        assert e.to_list() == ["pow", "5.000000", "a"]
+
+        e = a
+        e **= z
+        assert e.to_list() == ["pow", "a", "5.000000"]
+
+        z = np.float32(5.0)
+        e = a**z
+        assert e.to_list() == ["pow", "a", "5.000000"]
+
+        e = z**a
+        assert e.to_list() == ["pow", "5.000000", "a"]
+
+        e = a
+        e **= z
+        assert e.to_list() == ["pow", "a", "5.000000"]
+
+def test_trivialPow(var_a,param_p,param_q,param_r):
+    #
+    a,p,q,r = var_a,param_p,param_q,param_r
+
+    #
+    # Check that taking the first power returns the original object
+    #
+    if True:
         e = a**1
-        self.assertEqual(e.to_list(), ["a"])
-
-        e = a**1.0
-        self.assertEqual(e.to_list(), ["a"])
+        assert e.to_list() == ["a"]
 
         e = a
         e **= 1
-        self.assertEqual(e.to_list(), ["a"])
+        assert e.to_list() == ["a"]
+
+        e = a**1.0
+        assert e.to_list() == ["a"]
 
         e = a
         e **= 1.0
-        self.assertEqual(e.to_list(), ["a"])
+        assert e.to_list() == ["a"]
 
-        e = a**r
-        self.assertEqual(e.to_list(), ["pow", "a", "r"])
+    if numpy_available:
+        z = np.int32(1)
+        e = a**z
+        assert e.to_list() == ["a"]
 
-        #
-        # Check that taking the zeroth power returns one
-        #
+        e = a
+        e **= z
+        assert e.to_list() == ["a"]
+
+        z = np.float32(1.0)
+        e = a**z
+        assert e.to_list() == ["a"]
+
+        e = a
+        e **= z
+        assert e.to_list() == ["a"]
+
+    e = a**r
+    assert e.to_list() == ["pow", "a", "r"]
+
+    #
+    # Check that taking the zeroth power returns one
+    #
+    if True:
         e = a**0
-        self.assertEqual(e.to_list(), ["1.000000"])
-
-        e = a**0.0
-        self.assertEqual(e.to_list(), ["1.000000"])
+        assert e.to_list() == ["1.000000"]
 
         e = a
         e **= 0
-        self.assertEqual(e.to_list(), ["1.000000"])
+        assert e.to_list() == ["1.000000"]
+
+        e = a**0.0
+        assert e.to_list() == ["1.000000"]
 
         e = a
         e **= 0.0
-        self.assertEqual(e.to_list(), ["1.000000"])
+        assert e.to_list() == ["1.000000"]
 
-        e = a**q
-        self.assertEqual(e.to_list(), ["pow", "a", "q"])
+    if numpy_available:
+        z = np.int32(0)
+        e = a**z
+        assert e.to_list() == ["1.000000"]
 
-        #
-        # Check that taking powers of 0 and 1 are easy
-        #
+        e = a
+        e **= z
+        assert e.to_list() == ["1.000000"]
+
+        z = np.float32(0.0)
+        e = a**z
+        assert e.to_list() == ["1.000000"]
+
+        e = a
+        e **= z
+        assert e.to_list() == ["1.000000"]
+
+    e = a**q
+    assert e.to_list() == ["pow", "a", "q"]
+
+    #
+    # Check that taking powers of 0 and 1 are easy
+    #
+    if True:
         e = 0**a
-        self.assertEqual(e.to_list(), ["0.000000"])
+        assert e.to_list() == ["0.000000"]
 
         e = 0.0**a
-        self.assertEqual(e.to_list(), ["0.000000"])
+        assert e.to_list() == ["0.000000"]
 
         e = 1**a
-        self.assertEqual(e.to_list(), ["1.000000"])
+        assert e.to_list() == ["1.000000"]
 
         e = 1.0**a
-        self.assertEqual(e.to_list(), ["1.000000"])
+        assert e.to_list() == ["1.000000"]
 
-    def test_trivialRPow(self):
-        #
-        a = self.a
-        p = self.p
-        q = self.q
-        r = self.r
+    if numpy_available:
+        e = np.int32(0)**a
+        assert e.to_list() == ["0.000000"]
 
-        #
-        # Check that taking any power of 1 is 1
-        #
+        e = np.float32(0.0)**a
+        assert e.to_list() == ["0.000000"]
+
+        e = np.int32(1)**a
+        assert e.to_list() == ["1.000000"]
+
+        e = np.float32(1.0)**a
+        assert e.to_list() == ["1.000000"]
+
+def test_trivialRPow(var_a,param_p,param_q,param_r):
+    #
+    a,p,q,r = var_a,param_p,param_q,param_r
+
+    #
+    # Check that taking any power of 1 is 1
+    #
+    if True:
         e = 1**a
-        self.assertEqual(e.to_list(), ["1.000000"])
+        assert e.to_list() == ["1.000000"]
 
         e = 1.0**a
-        self.assertEqual(e.to_list(), ["1.000000"])
+        assert e.to_list() == ["1.000000"]
 
-        e = r**a
-        self.assertEqual(e.to_list(), ["pow", "r", "a"])
+    if numpy_available:
+        e = np.int32(1)**a
+        assert e.to_list() == ["1.000000"]
 
-        #
-        # Check that taking the zeroth power returns one
-        #
+        e = np.float32(1.0)**a
+        assert e.to_list() == ["1.000000"]
+
+    e = r**a
+    assert e.to_list() == ["pow", "r", "a"]
+
+    #
+    # Check that taking the zeroth power returns one
+    #
+    if True:
         e = 0**a
-        self.assertEqual(e.to_list(), ["0.000000"])
+        assert e.to_list() == ["0.000000"]
 
         e = 0.0**a
-        self.assertEqual(e.to_list(), ["0.000000"])
+        assert e.to_list() == ["0.000000"]
 
-    def test_pow_expresions(self):
-        a = self.a
-        r = self.r
+    if numpy_available:
+        e = np.int32(0)**a
+        assert e.to_list() == ["0.000000"]
 
-        e = a**r
-        self.assertEqual(e.to_list(), ["pow", "a", "r"])
+        e = np.float32(0.0)**a
+        assert e.to_list() == ["0.000000"]
 
+def test_pow_expresions(var_a,param_r):
+    a,r = var_a,param_r
+
+    e = a**r
+    assert e.to_list() == ["pow", "a", "r"]
+
+    if True:
         e = a**2
-        self.assertEqual(e.to_list(), ["pow", "a", "2.000000"])
+        assert e.to_list() == ["pow", "a", "2.000000"]
 
         e = a**2.0
-        self.assertEqual(e.to_list(), ["pow", "a", "2.000000"])
+        assert e.to_list() == ["pow", "a", "2.000000"]
 
         e = 2**a
-        self.assertEqual(e.to_list(), ["pow", "2.000000", "a"])
+        assert e.to_list() == ["pow", "2.000000", "a"]
 
         e = 2.0**a
-        self.assertEqual(e.to_list(), ["pow", "2.000000", "a"])
+        assert e.to_list() == ["pow", "2.000000", "a"]
+
+    if numpy_available:
+        z = np.int32(2)
+        e = a**z
+        assert e.to_list() == ["pow", "a", "2.000000"]
+
+        e = z**a
+        assert e.to_list() == ["pow", "2.000000", "a"]
+
+        z = np.float32(2.0)
+        e = a**z
+        assert e.to_list() == ["pow", "a", "2.000000"]
+
+        e = z**a
+        assert e.to_list() == ["pow", "2.000000", "a"]
+
+#
+# Expression entanglement tests
+#
+
+def test_sumexpr_add_entangled(var_a):
+    a = var_a
+    e = a * 2 + 1
+    assert e.to_list() == ["+", ["*", "2.000000", "a"], "1.000000"]
+    e += 1
+    assert e.to_list() == ["+", ["*", "2.000000", "a"], "1.000000", "1.000000"]
+
+def test_entangled_test1(var_a,var_b,var_c,var_d):
+    a,b,c,d = var_a,var_b,var_c,var_d
+    e1 = a + b
+    e2 = c + e1
+    e3 = d + e1
+
+    assert e1.to_list() == ["+", "a", "b"]
+    assert e2.to_list() == ["+", "c", ["+", "a", "b"]]
+    assert e3.to_list() == ["+", "d", ["+", "a", "b"]]
+
+#
+# Variable Tests
+#
+
+def test_var_default_value():
+    v = variable(3, name="v")
+    assert math.isnan(v[0].value)
+    assert math.isnan(v[1].value)
+    assert math.isnan(v[2].value)
+
+def test_var_initialize():
+    v = variable(3, name="v", value=3)
+    assert v[0].value, 3
+    assert v[1].value, 3
+    assert v[2].value, 3
+
+def test_var_iterator():
+    v = variable(3, name="v")
+    for i in v:
+        assert math.isnan(v[i].value)
+
+def test_var_getitem1():
+    v = variable(3, name="v")
+    v1 = v[0]
+    v2 = v[0]
+    assert v1.name == v2.name
+
+def test_var_getitem2():
+    v = variable(3)
+    v1 = v[0]
+    v2 = v[0]
+    assert v1.name == v2.name
+
+def test_name1():
+    v = variable(3, name="v", value=3).generate_names()
+    assert v.name == "v"
+    assert v[0].name == "v[0]"
+
+def test_name2():
+    v = variable(3, value=3)
+    assert v.name == "X"
+    assert v[0].name[0] == "X"
+
+def test_name_single():
+    v = variable(value=3, name="y")
+    assert v.name == "y"
+    v = variable(value=3)
+    assert v.name[0] == "X"
 
 
-class EntangledExpressionErrors(unittest.TestCase):
-    def setUp(self):
-        self.a = variable(name="a")
-        self.b = variable(name="b")
-        self.c = variable(name="c")
-        self.d = variable(name="d")
-        self.v = variable(name="v")
-        self.p = parameter("p", value=0)
-        self.q = parameter("q", value=0)
-        self.r = parameter("r", value=1)
+#
+# ND Variable Tests
+#
+def test_ndvar_default_value():
+    v = variable((3, 2, 4), name="v")
+    assert math.isnan(v[0, 1, 3].value)
+    assert math.isnan(v[1, 0, 0].value)
+    assert math.isnan(v[2, 1, 2].value)
 
-    def test_sumexpr_add_entangled(self):
-        a = self.a
-        e = a * 2 + 1
-        self.assertEqual(e.to_list(), ["+", ["*", "2.000000", "a"], "1.000000"])
-        e += 1
-        self.assertEqual(e.to_list(), ["+", ["*", "2.000000", "a"], "1.000000", "1.000000"])
+def test_ndvar_initialize():
+    v = variable((3, 2, 4), name="v", value=3)
+    assert v[0, 1, 3].value == 3
+    assert v[1, 0, 0].value == 3
+    assert v[2, 1, 2].value == 3
 
-    def test_entangled_test1(self):
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
+def test_ndvar_iterator():
+    v = variable((3, 2, 4), name="v")
+    for i in v:
+        assert math.isnan(v[i].value)
 
-        e1 = a + b
-        e2 = c + e1
-        e3 = d + e1
+def test_ndvar_getitem1():
+    v = variable((3, 2, 4), name="v")
+    v1 = v[0, 0, 0]
+    v2 = v[0, 0, 0]
+    assert v1.name == v2.name
 
-        self.assertEqual(e1.to_list(), ["+", "a", "b"])
-        self.assertEqual(e2.to_list(), ["+", "c", ["+", "a", "b"]])
-        self.assertEqual(e3.to_list(), ["+", "d", ["+", "a", "b"]])
+def test_ndvar_getitem2():
+    v = variable((3, 2, 4))
+    v1 = v[0, 0, 0]
+    v2 = v[0, 0, 0]
+    assert v1.name == v2.name
 
+def test_ndvar_name1():
+    v = variable((3, 2, 4), name="v", value=3).generate_names()
+    assert v.name, "v"
+    assert v[2, 1, 3].name == "v[2,1,3]"
+    assert v[0, 0, 0].name == "v[0,0,0]"
 
-class TestVariables(unittest.TestCase):
-    def test_default_value(self):
-        v = variable(3, name="v")
-        self.assertTrue(math.isnan(v[0].value))
-        self.assertTrue(math.isnan(v[1].value))
-        self.assertTrue(math.isnan(v[2].value))
-
-    def test_initialize(self):
-        v = variable(3, name="v", value=3)
-        self.assertEqual(v[0].value, 3)
-        self.assertEqual(v[1].value, 3)
-        self.assertEqual(v[2].value, 3)
-
-    def test_iterator(self):
-        v = variable(3, name="v")
-        for i in v:
-            math.isnan(v[i].value)
-
-    def test_getitem1(self):
-        v = variable(3, name="v")
-        v1 = v[0]
-        v2 = v[0]
-        self.assertEqual(v1.name, v2.name)
-
-    def test_getitem2(self):
-        v = variable(3)
-        v1 = v[0]
-        v2 = v[0]
-        self.assertEqual(v1.name, v2.name)
-
-    def test_name1(self):
-        v = variable(3, name="v", value=3).generate_names()
-        self.assertEqual(v.name, "v")
-        self.assertEqual(v[0].name, "v[0]")
-
-    def test_name2(self):
-        v = variable(3, value=3)
-        self.assertEqual(v.name, "X")
-        self.assertEqual(v[0].name[0], "X")
-
-    def test_name_single(self):
-        v = variable(value=3, name="y")
-        self.assertEqual(v.name, "y")
-        v = variable(value=3)
-        self.assertEqual(v.name[0], "X")
-
-
-class TestNDVariables(unittest.TestCase):
-    def test_default_value(self):
-        v = variable((3, 2, 4), name="v")
-        self.assertTrue(math.isnan(v[0, 1, 3].value))
-        self.assertTrue(math.isnan(v[1, 0, 0].value))
-        self.assertTrue(math.isnan(v[2, 1, 2].value))
-
-    def test_initialize(self):
-        v = variable((3, 2, 4), name="v", value=3)
-        self.assertEqual(v[0, 1, 3].value, 3)
-        self.assertEqual(v[1, 0, 0].value, 3)
-        self.assertEqual(v[2, 1, 2].value, 3)
-
-    def test_iterator(self):
-        v = variable((3, 2, 4), name="v")
-        for i in v:
-            math.isnan(v[i].value)
-
-    def test_getitem1(self):
-        v = variable((3, 2, 4), name="v")
-        v1 = v[0, 0, 0]
-        v2 = v[0, 0, 0]
-        self.assertEqual(v1.name, v2.name)
-
-    def test_getitem2(self):
-        v = variable((3, 2, 4))
-        v1 = v[0, 0, 0]
-        v2 = v[0, 0, 0]
-        self.assertEqual(v1.name, v2.name)
-
-    def test_name1(self):
-        v = variable((3, 2, 4), name="v", value=3).generate_names()
-        self.assertEqual(v.name, "v")
-        self.assertEqual(v[2, 1, 3].name, "v[2,1,3]")
-        self.assertEqual(v[0, 0, 0].name, "v[0,0,0]")
-
-    def test_name2(self):
-        v = variable((3, 2, 4), value=3)
-        self.assertEqual(v.name, "X")
-        self.assertEqual(v[2, 1, 3].name[0], "X")
-        self.assertEqual(v[0, 0, 0].name[0], "X")
-
-
-if __name__ == "__main__":
-    unittest.main()
+def test_ndvar_name2():
+    v = variable((3, 2, 4), value=3)
+    assert v.name == "X"
+    assert v[2, 1, 3].name[0] == "X"
+    assert v[0, 0, 0].name[0] == "X"

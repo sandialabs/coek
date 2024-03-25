@@ -525,7 +525,8 @@ class ScalarVar(_GeneralVarData, Var):
 
     @_name.setter
     def _name(self, val):
-        self._pe.set_name(val)
+        if val is not None:
+            self._pe.set_name(val)
 
 
 @disable_methods(_VARDATA_API)
@@ -1371,7 +1372,8 @@ class ScalarParam(_ParamData, Param):
 
     @_name.setter
     def _name(self, val):
-        self._pe.set_name(val)
+        if val is not None:
+            self._pe.set_name(val)
 
     def set_value(self, value, index=NOTSET):
         if index is NOTSET:
