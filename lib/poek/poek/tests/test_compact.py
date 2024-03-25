@@ -15,7 +15,7 @@ except:
 
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_eseq_compact1(self):
+def test_eseq_compact1():
     m = compact_model()
     A = RangeSet(1, 4)
     y = variable(A, name="y").generate_names()
@@ -28,7 +28,7 @@ def test_eseq_compact1(self):
         i += 1
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_eseq_compact2(self):
+def test_eseq_compact2():
     m = compact_model()
     A = RangeSet(1, 4)
     y = variable(A, name="y").generate_names()
@@ -41,7 +41,7 @@ def test_eseq_compact2(self):
         i += 1
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_eseq_compact3(self):
+def test_eseq_compact3():
     m = compact_model()
     A = RangeSet(1, 4)
     y = variable(A, name="y").generate_names()
@@ -54,7 +54,7 @@ def test_eseq_compact3(self):
         i += 1
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_eseq_compact3(self):
+def test_eseq_compact3():
     m = compact_model()
     A = RangeSet(1, 4)
     B = RangeSet(1, 6)
@@ -77,7 +77,7 @@ def test_eseq_compact3(self):
         i += 1
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_eseq_compact4(self):
+def test_eseq_compact4():
     m = compact_model()
     A = RangeSet(1, 4)
     y = variable(A, name="y").generate_names()
@@ -88,7 +88,7 @@ def test_eseq_compact4(self):
     assert e.to_list() == ["+", "y[1]", "y[2]", "y[3]", "y[4]"]
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_eseq_compact5(self):
+def test_eseq_compact5():
     m = compact_model()
     A = RangeSet(1, 4)
     x = variable(A * A, name="x").generate_names()
@@ -99,7 +99,7 @@ def test_eseq_compact5(self):
     assert e.to_list() == ["+", "x[1,1]", "x[2,2]", "x[3,3]", "x[4,4]"]
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_eseq_compact6(self):
+def test_eseq_compact6():
     m = compact_model()
     A = RangeSet(1, 4)
     x = variable(A * A, name="x").generate_names()
@@ -130,7 +130,7 @@ def test_eseq_compact6(self):
         ]
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_eseq_compact7(self):
+def test_eseq_compact7():
     m = compact_model()
     A = RangeSet(1, 4)
     x = variable(A * A, name="x").generate_names()
@@ -161,7 +161,7 @@ def test_eseq_compact7(self):
         ]
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_eseq_compact8(self):
+def test_eseq_compact8():
     m = compact_model()
     A = RangeSet(1, 4)
     y = variable(A, name="y").generate_names()
@@ -181,7 +181,7 @@ def test_eseq_compact8(self):
         ]
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_eseq_compact9(self):
+def test_eseq_compact9():
     m = compact_model()
     A = RangeSet(1, 4)
     y = variable(A, name="y").generate_names()          # TODO - push this logic into the model
@@ -202,7 +202,7 @@ def test_eseq_compact9(self):
 
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_cseq_compact1(self):
+def test_cseq_compact1():
     m = compact_model()
     A = RangeSet(1, 4)
     y = variable(A, name="y").generate_names()
@@ -215,7 +215,7 @@ def test_cseq_compact1(self):
         i += 1
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_cseq_compact2(self):
+def test_cseq_compact2():
     m = compact_model()
     A = RangeSet(1, 4)
     y = variable(A, name="y").generate_names()
@@ -228,7 +228,7 @@ def test_cseq_compact2(self):
         i += 1
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_cseq_compact3(self):
+def test_cseq_compact3():
     m = compact_model()
     A = RangeSet(1, 4)
     y = variable(A, name="y").generate_names()
@@ -241,7 +241,7 @@ def test_cseq_compact3(self):
         i += 1
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_cseq_compact3(self):
+def test_cseq_compact3():
     m = compact_model()
     A = RangeSet(1, 4)
     B = RangeSet(1, 6)
@@ -260,7 +260,7 @@ def test_cseq_compact3(self):
         i += 1
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_cseq_compact4(self):
+def test_cseq_compact4():
     m = compact_model()
     A = RangeSet(1, 4)
     y = variable(A, name="y").generate_names()
@@ -271,7 +271,7 @@ def test_cseq_compact4(self):
     assert e.to_list() == ["==", ["+", "y[1]", "y[2]", "y[3]", "y[4]"], to_string(0.0)]
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_cseq_compact5(self):
+def test_cseq_compact5():
     m = compact_model()
     A = RangeSet(1, 4)
     x = variable(A * A, name="x").generate_names()
@@ -282,7 +282,7 @@ def test_cseq_compact5(self):
     assert e.to_list() == ["==", ["+", "x[1,1]", "x[2,2]", "x[3,3]", "x[4,4]"], to_string(0.0)]
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_cseq_compact6(self):
+def test_cseq_compact6():
     m = compact_model()
     A = RangeSet(1, 4)
     x = variable(A * A, name="x").generate_names()
@@ -317,7 +317,7 @@ def test_cseq_compact6(self):
         ]
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_cseq_compact7(self):
+def test_cseq_compact7():
     m = compact_model()
     A = RangeSet(1, 4)
     x = variable(A * A, name="x").generate_names()
@@ -352,7 +352,7 @@ def test_cseq_compact7(self):
         ]
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_cseq_compact8(self):
+def test_cseq_compact8():
     m = compact_model()
     A = RangeSet(1, 4)
     y = variable(A, name="y").generate_names()
@@ -376,7 +376,7 @@ def test_cseq_compact8(self):
         ]
 
 @pytest.mark.skipif(not compact_model_available, reason="pycoek not compiled with compact models")
-def test_cseq_compact9(self):
+def test_cseq_compact9():
     m = compact_model()
     A = RangeSet(1, 4)
     y = variable(A, name="y").generate_names()
