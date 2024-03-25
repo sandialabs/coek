@@ -70,6 +70,7 @@ int main(int argc, char** argv)
         std::cout << x.size() << " " << val << std::endl;
         }
 
+#ifdef __cpp_lib_variant
         {
         coek::tic();
         auto x = coek::variable(m);
@@ -87,6 +88,7 @@ int main(int argc, char** argv)
         coek::toc("Loop over indices of VariableArray");
         std::cout << x.size() << " " << val << std::endl;
         }
+#endif
         }
 
     return 0;
