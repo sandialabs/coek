@@ -136,7 +136,11 @@ int GurobiSolver::solve(Model& model)
 {
     auto _model = model.repn.get();
 
-    env = new GRBEnv();
+    env = new GRBEnv(true);
+    auto it = integer_options().find("OutputFlag");
+    if (it != integer_options().end())
+        env->set(GRB_IntParam_OutputFlag, it->second);
+    env->start();
     gmodel = new GRBModel(*env);
 
     assert(_model->objectives.size() == 1);
@@ -225,7 +229,11 @@ int GurobiSolver::solve(CompactModel& compact_model)
 {
     std::cout << "STARTING GUROBI" << std::endl << std::flush;
 
-    env = new GRBEnv();
+    env = new GRBEnv(true);
+    auto it = integer_options().find("OutputFlag");
+    if (it != integer_options().end())
+        env->set(GRB_IntParam_OutputFlag, it->second);
+    env->start();
     gmodel = new GRBModel(*env);
 
     std::cout << "BUILDING GUROBI MODEL" << std::endl << std::flush;
@@ -348,7 +356,11 @@ int GurobiSolver::resolve()
     auto _model = model.repn.get();
 
     if (initial_solve()) {
-        env = new GRBEnv();
+    env = new GRBEnv(true);
+    auto it = integer_options().find("OutputFlag");
+    if (it != integer_options().end())
+        env->set(GRB_IntParam_OutputFlag, it->second);
+    env->start();
         gmodel = new GRBModel(*env);
 
         assert(_model->objectives.size() == 1);
