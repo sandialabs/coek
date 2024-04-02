@@ -10,7 +10,8 @@ namespace std {
 template <typename TYPE>
 inline std::ostream& operator<<(std::ostream& ostr, const std::vector<TYPE>& vals)
 {
-    for (auto& v : vals) ostr << v << " ";
+    for (auto& v : vals)
+        ostr << v << " ";
     return ostr;
 }
 
@@ -19,7 +20,8 @@ inline std::ostream& operator<<(std::ostream& ostr, const std::list<TYPE>& vals)
 {
     auto it = vals.begin();
     auto end = vals.end();
-    if (it == end) return ostr;
+    if (it == end)
+        return ostr;
     ostr << *it;
     ++it;
 

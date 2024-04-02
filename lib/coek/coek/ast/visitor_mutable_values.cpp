@@ -66,7 +66,8 @@ void visit_IndexParameterTerm(const expr_pointer_t& /*expr*/, MutableValuesData&
 void visit_VariableTerm(const expr_pointer_t& expr, MutableValuesData& data)
 {
     auto tmp = safe_pointer_cast<VariableTerm>(expr);
-    if (tmp->fixed) data.fixed_vars.insert(tmp);
+    if (tmp->fixed)
+        data.fixed_vars.insert(tmp);
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -78,15 +79,18 @@ void visit_VariableRefTerm(const expr_pointer_t& /*expr*/, MutableValuesData& /*
 void visit_MonomialTerm(const expr_pointer_t& expr, MutableValuesData& data)
 {
     auto tmp = safe_pointer_cast<MonomialTerm>(expr);
-    if (tmp->var->fixed) data.fixed_vars.insert(tmp->var);
+    if (tmp->var->fixed)
+        data.fixed_vars.insert(tmp->var);
 }
 
 void visit_InequalityTerm(const expr_pointer_t& expr, MutableValuesData& data)
 {
     auto tmp = safe_pointer_cast<InequalityTerm>(expr);
-    if (tmp->lower) visit_expression(tmp->lower, data);
+    if (tmp->lower)
+        visit_expression(tmp->lower, data);
     visit_expression(tmp->body, data);
-    if (tmp->upper) visit_expression(tmp->upper, data);
+    if (tmp->upper)
+        visit_expression(tmp->upper, data);
 }
 
 void visit_EqualityTerm(const expr_pointer_t& expr, MutableValuesData& data)
@@ -115,7 +119,8 @@ void visit_PlusTerm(const expr_pointer_t& expr, MutableValuesData& data)
     auto tmp = safe_pointer_cast<PlusTerm>(expr);
     auto& vec = *(tmp->data);
     auto n = tmp->num_expressions();
-    for (size_t i = 0; i < n; i++) visit_expression(vec[i], data);
+    for (size_t i = 0; i < n; i++)
+        visit_expression(vec[i], data);
 }
 
 // clang-format off
@@ -225,7 +230,8 @@ void mutable_values_debug(
     num_visits = 0;
 
     // GCOVR_EXCL_START
-    if (not expr) return;
+    if (not expr)
+        return;
     // GCOVR_EXCL_STOP
 
     MutableValuesData data(fixed_vars, params, visited_subexpressions);
@@ -241,7 +247,8 @@ void mutable_values(const expr_pointer_t& expr,
                     std::unordered_set<std::shared_ptr<SubExpressionTerm>>& visited_subexpressions)
 {
     // GCOVR_EXCL_START
-    if (not expr) return;
+    if (not expr)
+        return;
     // GCOVR_EXCL_STOP
 
     MutableValuesData data(fixed_vars, params, visited_subexpressions);

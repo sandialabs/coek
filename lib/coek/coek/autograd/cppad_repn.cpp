@@ -37,7 +37,8 @@ void CppAD_Repn::set_variables(std::vector<double>& x)
     assert(x.size() == currx.size());
     auto cit = currx.begin();
     auto xit = x.begin();
-    for (; cit != currx.end(); ++cit, ++xit) *cit = *xit;
+    for (; cit != currx.end(); ++cit, ++xit)
+        *cit = *xit;
 
     invalid_fc = true;
 }
@@ -45,7 +46,8 @@ void CppAD_Repn::set_variables(std::vector<double>& x)
 void CppAD_Repn::set_variables(const double* x, size_t n)
 {
     assert(n == currx.size());
-    for (size_t i = 0; i < n; i++) currx[i] = x[i];
+    for (size_t i = 0; i < n; i++)
+        currx[i] = x[i];
 
     invalid_fc = true;
 }
@@ -96,7 +98,8 @@ void CppAD_Repn::compute_df(double& f, std::vector<double>& df, size_t i)
     fcw[i] = 1;
     auto dy = ADfc.Reverse(1, fcw);
     fcw[i] = 0;
-    for (size_t j = 0; j < df.size(); j++) df[j] = dy[j];
+    for (size_t j = 0; j < df.size(); j++)
+        df[j] = dy[j];
 }
 
 void CppAD_Repn::compute_c(std::vector<double>& c)
@@ -106,7 +109,8 @@ void CppAD_Repn::compute_c(std::vector<double>& c)
         fc_cache = ADfc.Forward(0, currx);
         invalid_fc = false;
     }
-    for (size_t i = 0; i < c.size(); i++) c[i] = fc_cache[nf + i];
+    for (size_t i = 0; i < c.size(); i++)
+        c[i] = fc_cache[nf + i];
 }
 
 void CppAD_Repn::compute_dc(std::vector<double>& dc, size_t i)
@@ -121,7 +125,8 @@ void CppAD_Repn::compute_dc(std::vector<double>& dc, size_t i)
     fcw[nf + i] = 1;
     auto dy = ADfc.Reverse(1, fcw);
     fcw[nf + i] = 0;
-    for (size_t j = 0; j < dc.size(); j++) dc[j] = dy[j];
+    for (size_t j = 0; j < dc.size(); j++)
+        dc[j] = dy[j];
 }
 
 void CppAD_Repn::compute_H(std::vector<double>& w, std::vector<double>& H)
@@ -182,7 +187,8 @@ void CppAD_Repn::compute_J(std::vector<double>& J)
         if (nx < nc) {
             // Forward
             std::vector<double> x1(nx), fg1(nf + nc);
-            for (size_t j = 0; j < nx; j++) x1[j] = 0.0;
+            for (size_t j = 0; j < nx; j++)
+                x1[j] = 0.0;
             // index in col_order_jac_ of next entry
             size_t ell = 0;
             size_t k = jac_col_order[ell];
@@ -197,7 +203,8 @@ void CppAD_Repn::compute_J(std::vector<double>& J)
                     CPPAD_ASSERT_UNKNOWN(i >= nf)
                     J[k] = fg1[i];
                     ell++;
-                    if (ell < nk) k = jac_col_order[ell];
+                    if (ell < nk)
+                        k = jac_col_order[ell];
                 }
                 x1[j] = 0.0;
             }
@@ -207,7 +214,8 @@ void CppAD_Repn::compute_J(std::vector<double>& J)
             size_t nfc = nf + nc;
             // user reverse mode
             std::vector<double> w(nfc), dw(nx);
-            for (size_t i = 0; i < nfc; i++) w[i] = 0.0;
+            for (size_t i = 0; i < nfc; i++)
+                w[i] = 0.0;
             // index in jac_row of next entry
             size_t k = 0;
             size_t nk = jac_row.size();
@@ -242,7 +250,8 @@ void CppAD_Repn::create_CppAD_function()
     // Create the CppAD function
     //
     std::unordered_map<VariableRepn, size_t> _used_variables;
-    for (auto& it : used_variables) _used_variables[it.second] = it.first;
+    for (auto& it : used_variables)
+        _used_variables[it.second] = it.first;
 
     std::vector<CppAD::AD<double> > ADvars(nx);
     std::vector<CppAD::AD<double> > ADrange(nf + nc);
@@ -368,10 +377,12 @@ void CppAD_Repn::initialize()
 
                 // fill in the corresponding columns of total_sparsity
                 for (size_t i = 0; i < nf; i++) {
-                    for (size_t j = 0; j < nx; j++) jac_pattern[i * nx + j] = 0;
+                    for (size_t j = 0; j < nx; j++)
+                        jac_pattern[i * nx + j] = 0;
                 }
                 for (size_t i = nf; i < nfc; i++) {
-                    for (size_t j = 0; j < nx; j++) jac_pattern[i * nx + j] = s[i * nx + j];
+                    for (size_t j = 0; j < nx; j++)
+                        jac_pattern[i * nx + j] = s[i * nx + j];
                 }
 #endif
             }
@@ -411,16 +422,20 @@ void CppAD_Repn::initialize()
                 CppAD::vectorBool r(nfc * nfc);  //, s(nx * nc);
 
                 // R is the identity matrix
-                for (size_t i = 0; i < nfc * nfc; i++) r[i] = false;
-                for (size_t i = nf; i < nfc; i++) r[i * nfc + i] = true;
+                for (size_t i = 0; i < nfc * nfc; i++)
+                    r[i] = false;
+                for (size_t i = nf; i < nfc; i++)
+                    r[i * nfc + i] = true;
                 auto s = ADfc.RevSparseJac(nfc, r);
 
                 // fill in correspoding rows of total sparsity
                 for (size_t i = 0; i < nf; i++) {
-                    for (size_t j = 0; j < nx; j++) jac_pattern[i * nx + j] = 0;
+                    for (size_t j = 0; j < nx; j++)
+                        jac_pattern[i * nx + j] = 0;
                 }
                 for (size_t i = nf; i < nfc; i++) {
-                    for (size_t j = 0; j < nx; j++) jac_pattern[i * nx + j] = s[i * nx + j];
+                    for (size_t j = 0; j < nx; j++)
+                        jac_pattern[i * nx + j] = s[i * nx + j];
                 }
 #endif
             }
@@ -518,14 +533,17 @@ void CppAD_Repn::initialize()
         bool transpose = true;
         // sparsity pattern for range space of function
         CppAD::vectorBool s(nfc);
-        for (size_t i = 0; i < nfc; i++) s[i] = true;
+        for (size_t i = 0; i < nfc; i++)
+            s[i] = true;
         auto h = ADfc.RevSparseHes(nx, s, transpose);
 
         // fill in the corresponding columns of total_sparsity
         for (size_t i = 0; i < nx; i++) {
-            for (size_t j = 0; j <= i; j++) hes_pattern[i * nx + j] = h[i * nx + j];
+            for (size_t j = 0; j <= i; j++)
+                hes_pattern[i * nx + j] = h[i * nx + j];
             // TODO - Why is CppAD looking at the pattern in a non-symmetric manner?
-            for (size_t j = i + 1; j < nx; j++) hes_pattern[i * nx + j] = 0;
+            for (size_t j = i + 1; j < nx; j++)
+                hes_pattern[i * nx + j] = 0;
         }
 #endif
         //
@@ -556,7 +574,8 @@ void CppAD_Repn::initialize()
         }
     }
 
-    if (sparse_JH) hes_work.color_method = "cppad.symmetric";
+    if (sparse_JH)
+        hes_work.color_method = "cppad.symmetric";
 
     reset();
 }
@@ -567,8 +586,10 @@ void CppAD_Repn::reset(void)
     // Initialize the CppAD dynamic parameters
     //
     if (not simplify_expressions) {
-        for (auto& it : fixed_variables) dynamic_param_vals[it.second] = it.first->value->eval();
-        for (auto& it : parameters) dynamic_param_vals[it.second] = it.first->value->eval();
+        for (auto& it : fixed_variables)
+            dynamic_param_vals[it.second] = it.first->value->eval();
+        for (auto& it : parameters)
+            dynamic_param_vals[it.second] = it.first->value->eval();
         ADfc.new_dynamic(dynamic_param_vals);
     }
     else {
@@ -646,7 +667,8 @@ void visit_expression(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
 void visit_ConstantTerm(expr_pointer_t& expr, VisitorData& /*data*/, CppAD::AD<double>& ans)
 {
     auto tmp = std::dynamic_pointer_cast<ConstantTerm>(expr);
-    if (tmp->value != 0) ans += tmp->value;
+    if (tmp->value != 0)
+        ans += tmp->value;
 }
 
 void visit_ParameterTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)

@@ -257,7 +257,8 @@ TEST_CASE("simple_finite", "[smoke]")
         WHEN("contains")
         {
             auto s = coek::SetOf(v);
-            for (auto it = v.begin(); it != v.end(); ++it) REQUIRE(s.contains(*it) == true);
+            for (auto it = v.begin(); it != v.end(); ++it)
+                REQUIRE(s.contains(*it) == true);
         }
 
         WHEN("index")
@@ -427,7 +428,8 @@ TEST_CASE("simple_finite", "[smoke]")
 
             auto i = coek::set_element("i");
             size_t ii = 0;
-            for (auto it = s.begin({i}); it != s.end(); ++it) i.get_value(vals[ii++]);
+            for (auto it = s.begin({i}); it != s.end(); ++it)
+                i.get_value(vals[ii++]);
             std::vector<int> v = {0, 2, 4, 6, 8, 10};
             REQUIRE(v == vals);
         }

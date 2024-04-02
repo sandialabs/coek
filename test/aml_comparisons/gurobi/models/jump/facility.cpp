@@ -71,7 +71,8 @@ void fac(GRBModel& model, size_t F)
     for (int i = 0; i <= G; i++) {
         for (int j = 0; j <= G; j++) {
             GRBLinExpr lhs;
-            for (int f = 0; f < F; f++) lhs += z[i][j][f];
+            for (int f = 0; f < F; f++)
+                lhs += z[i][j][f];
             model.addConstr(lhs, GRB_EQUAL, 1);
         }
     }

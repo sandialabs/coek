@@ -126,7 +126,8 @@ TEST_CASE("ipopt_examples", "[smoke]")
         SECTION("quad_vector")
         {
             std::vector<coek::Parameter> p(5);
-            for (auto& param : p) param.value(0.5);
+            for (auto& param : p)
+                param.value(0.5);
 
             WHEN("solve")
             {
@@ -144,9 +145,11 @@ TEST_CASE("ipopt_examples", "[smoke]")
                 coek::NLPModel nlp(m, adname);
                 solver.solve(nlp);
 
-                for (auto& param : p) param.value(-0.5);
+                for (auto& param : p)
+                    param.value(-0.5);
 
-                for (size_t i = 0; i < nlp.num_variables(); i++) nlp.get_variable(i).value(0);
+                for (size_t i = 0; i < nlp.num_variables(); i++)
+                    nlp.get_variable(i).value(0);
                 // solver.set_option("print_level", 0);
                 solver.resolve();
 
@@ -159,7 +162,8 @@ TEST_CASE("ipopt_examples", "[smoke]")
                 coek::NLPModel nlp(m, adname);
                 solver.solve(nlp);
 
-                for (auto& param : p) param.value(-0.5);
+                for (auto& param : p)
+                    param.value(-0.5);
 
                 solver.resolve();
 
@@ -170,7 +174,8 @@ TEST_CASE("ipopt_examples", "[smoke]")
         SECTION("invquad_vector")
         {
             std::vector<coek::Parameter> p(5);
-            for (auto& param : p) param.value(0.5);
+            for (auto& param : p)
+                param.value(0.5);
 
             WHEN("solve")
             {
@@ -188,9 +193,11 @@ TEST_CASE("ipopt_examples", "[smoke]")
                 coek::NLPModel nlp(m, adname);
                 solver.solve(nlp);
 
-                for (auto& param : p) param.value(-0.5);
+                for (auto& param : p)
+                    param.value(-0.5);
 
-                for (size_t i = 0; i < nlp.num_variables(); i++) nlp.get_variable(i).value(0);
+                for (size_t i = 0; i < nlp.num_variables(); i++)
+                    nlp.get_variable(i).value(0);
                 solver.set_option("print_level", 0);
                 solver.resolve();
 
@@ -204,7 +211,8 @@ TEST_CASE("ipopt_examples", "[smoke]")
                 coek::NLPModel nlp(m, adname);
                 solver.solve(nlp);
 
-                for (auto& param : p) param.value(0.5);
+                for (auto& param : p)
+                    param.value(0.5);
 
                 solver.resolve();
 
@@ -216,7 +224,8 @@ TEST_CASE("ipopt_examples", "[smoke]")
         SECTION("invquad_array")
         {
             std::vector<coek::Parameter> p(5);
-            for (auto& param : p) param.value(0.5);
+            for (auto& param : p)
+                param.value(0.5);
 
             WHEN("solve")
             {
@@ -234,9 +243,11 @@ TEST_CASE("ipopt_examples", "[smoke]")
                 coek::NLPModel nlp(m, adname);
                 solver.solve(nlp);
 
-                for (auto& param : p) param.value(-0.5);
+                for (auto& param : p)
+                    param.value(-0.5);
 
-                for (size_t i = 0; i < nlp.num_variables(); i++) nlp.get_variable(i).value(0);
+                for (size_t i = 0; i < nlp.num_variables(); i++)
+                    nlp.get_variable(i).value(0);
                 solver.set_option("print_level", 0);
                 solver.resolve();
 
@@ -250,7 +261,8 @@ TEST_CASE("ipopt_examples", "[smoke]")
                 coek::NLPModel nlp(m, adname);
                 solver.solve(nlp);
 
-                for (auto& param : p) param.value(0.5);
+                for (auto& param : p)
+                    param.value(0.5);
 
                 solver.resolve();
 

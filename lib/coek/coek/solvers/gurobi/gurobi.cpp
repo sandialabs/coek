@@ -128,8 +128,10 @@ void add_gurobi_constraint(GRBModel* gmodel, Constraint& con, std::unordered_map
 
 GurobiSolver::~GurobiSolver()
 {
-    if (gmodel) delete gmodel;
-    if (env) delete env;
+    if (gmodel)
+        delete gmodel;
+    if (env)
+        delete env;
 }
 
 int GurobiSolver::solve(Model& model)
@@ -356,11 +358,11 @@ int GurobiSolver::resolve()
     auto _model = model.repn.get();
 
     if (initial_solve()) {
-    env = new GRBEnv(true);
-    auto it = integer_options().find("OutputFlag");
-    if (it != integer_options().end())
-        env->set(GRB_IntParam_OutputFlag, it->second);
-    env->start();
+        env = new GRBEnv(true);
+        auto it = integer_options().find("OutputFlag");
+        if (it != integer_options().end())
+            env->set(GRB_IntParam_OutputFlag, it->second);
+        env->start();
         gmodel = new GRBModel(*env);
 
         assert(_model->objectives.size() == 1);
@@ -494,9 +496,12 @@ int GurobiSolver::resolve()
 void GurobiSolver::set_gurobi_options()
 {
     // All options are converted to strings for Gurobi
-    for (auto& it : string_options()) gmodel->set(it.first, it.second);
-    for (auto& it : integer_options()) gmodel->set(it.first, std::to_string(it.second));
-    for (auto& it : double_options()) gmodel->set(it.first, std::to_string(it.second));
+    for (auto& it : string_options())
+        gmodel->set(it.first, it.second);
+    for (auto& it : integer_options())
+        gmodel->set(it.first, std::to_string(it.second));
+    for (auto& it : double_options())
+        gmodel->set(it.first, std::to_string(it.second));
 }
 
 }  // namespace coek

@@ -362,8 +362,10 @@ TEST_CASE("1D_var_array", "[smoke]")
         WHEN("value 1")
         {
             auto vars = coek::variable(4).value(1);
-            for (size_t i = 0; i < 4; i++) REQUIRE(vars(i).value() == 1);
-            for (int i = 0; i < 4; i++) REQUIRE(vars(i).value() == 1);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(vars(i).value() == 1);
+            for (int i = 0; i < 4; i++)
+                REQUIRE(vars(i).value() == 1);
         }
 
         WHEN("value - q")
@@ -372,7 +374,8 @@ TEST_CASE("1D_var_array", "[smoke]")
             auto q = coek::parameter().value(2);
             for (size_t i = 0; i < 4; i++)
                 vars(i).value(q + (int)i);  // TODO - generalize API to include unsigned ints
-            for (size_t i = 0; i < 4; i++) REQUIRE(vars(i).value() == 2 + i);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(vars(i).value() == 2 + i);
         }
 
         WHEN("value all - q")
@@ -382,11 +385,13 @@ TEST_CASE("1D_var_array", "[smoke]")
 
             // Set value using template
             vars.value(q + (int)2);  // TODO - generalize API to include unsigned ints
-            for (size_t i = 0; i < 4; i++) REQUIRE(vars(i).value() == 4);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(vars(i).value() == 4);
 
             // Set value for all indices
             vars.value(q + (int)3);
-            for (size_t i = 0; i < 4; i++) REQUIRE(vars(i).value() == 5);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(vars(i).value() == 5);
         }
 
         WHEN("name")
@@ -395,32 +400,38 @@ TEST_CASE("1D_var_array", "[smoke]")
 
             vars.name("v");
             vars.generate_names();
-            for (int i = 0; i < 4; i++) REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
+            for (int i = 0; i < 4; i++)
+                REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
 
             // We don't need to call generate_names() again.  Names are automatically generated
             // after the first time.
             vars.name("w");
             REQUIRE(vars.name() == "w");
-            for (int i = 0; i < 4; i++) REQUIRE(vars(i).name() == "w[" + std::to_string(i) + "]");
+            for (int i = 0; i < 4; i++)
+                REQUIRE(vars(i).name() == "w[" + std::to_string(i) + "]");
 
             vars.name("");
             REQUIRE(vars.name() == "");
-            for (int i = 0; i < 4; i++) REQUIRE(vars(i).name()[0] == 'X');
+            for (int i = 0; i < 4; i++)
+                REQUIRE(vars(i).name()[0] == 'X');
         }
 
         WHEN("name")
         {
             auto vars = coek::variable(4).name("v").generate_names();
-            for (int i = 0; i < 4; i++) REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
+            for (int i = 0; i < 4; i++)
+                REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
         }
 
         WHEN("iter")
         {
             auto vars = coek::variable(4).value(1);
-            for (auto& v : vars) REQUIRE(v.value() == 1);
+            for (auto& v : vars)
+                REQUIRE(v.value() == 1);
 
             decltype(vars)::const_iterator it;
-            for (it = vars.cbegin(); it < vars.cend(); ++it) REQUIRE(it->value() == 1);
+            for (it = vars.cbegin(); it < vars.cend(); ++it)
+                REQUIRE(it->value() == 1);
         }
 
         WHEN("fixed")
@@ -456,13 +467,15 @@ TEST_CASE("1D_var_array", "[smoke]")
         WHEN("index")
         {
             auto vars = coek::variable(dim).value(1);
-            for (size_t i = 0; i < 4; i++) REQUIRE(vars(i).value() == 1);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(vars(i).value() == 1);
         }
 
         WHEN("name")
         {
             auto vars = coek::variable(dim).name("v").generate_names();
-            for (int i = 0; i < 4; i++) REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
+            for (int i = 0; i < 4; i++)
+                REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
         }
     }
 
@@ -483,13 +496,15 @@ TEST_CASE("1D_var_array", "[smoke]")
         WHEN("index")
         {
             auto vars = coek::variable({4}).value(1);
-            for (size_t i = 0; i < 4; i++) REQUIRE(vars(i).value() == 1);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(vars(i).value() == 1);
         }
 
         WHEN("name")
         {
             auto vars = coek::variable({4}).name("v").generate_names();
-            for (int i = 0; i < 4; i++) REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
+            for (int i = 0; i < 4; i++)
+                REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
         }
     }
 }
@@ -652,7 +667,8 @@ TEST_CASE("2D_var_array", "[smoke]")
         {
             std::vector<size_t> dim{4, 5};
             auto vars = coek::variable(dim).value(1);
-            for (size_t i = 0; i < 4; i++) REQUIRE(vars(i, i).value() == 1);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(vars(i, i).value() == 1);
         }
 
         WHEN("index error")
@@ -693,7 +709,8 @@ TEST_CASE("2D_var_array", "[smoke]")
         WHEN("index")
         {
             auto vars = coek::variable({4, 4}).value(1);
-            for (size_t i = 0; i < 4; i++) REQUIRE(vars(i, i).value() == 1);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(vars(i, i).value() == 1);
         }
 
         WHEN("index error")
@@ -750,7 +767,8 @@ TEST_CASE("3D_var_array", "[smoke]")
         {
             std::vector<size_t> dim{5, 4, 3};
             auto vars = coek::variable(dim).value(1);
-            for (size_t i = 0; i < 3; i++) REQUIRE(vars(i, i, i).value() == 1);
+            for (size_t i = 0; i < 3; i++)
+                REQUIRE(vars(i, i, i).value() == 1);
         }
 
         WHEN("index error")
@@ -793,7 +811,8 @@ TEST_CASE("3D_var_array", "[smoke]")
         WHEN("index")
         {
             auto vars = coek::variable({5, 4, 3}).value(1);
-            for (size_t i = 0; i < 3; i++) REQUIRE(vars(i, i, i).value() == 1);
+            for (size_t i = 0; i < 3; i++)
+                REQUIRE(vars(i, i, i).value() == 1);
         }
 
         WHEN("index error")

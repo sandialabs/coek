@@ -54,7 +54,8 @@ class BinaryTerm : public ExpressionTerm {
     size_t num_expressions() const { return 2; }
     expr_pointer_t expression(size_t i)
     {
-        if (i == 0) return lhs;
+        if (i == 0)
+            return lhs;
         return rhs;
     }
 };
@@ -134,7 +135,8 @@ class PlusTerm : public NAryPrefixTerm {
         // NOTE: Must limit this loop to 0..n-1.  The value 'n' defines the
         //      number of terms in the shared prefix term that are used here.
         double ans = 0;
-        for (size_t i = 0; i < n; i++) ans += (*data)[i]->_eval();
+        for (size_t i = 0; i < n; i++)
+            ans += (*data)[i]->_eval();
         return ans;
     }
 

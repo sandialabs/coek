@@ -155,7 +155,8 @@ void visit(std::shared_ptr<PlusTerm>& expr, MutableNLPExpr& repn, double multipl
 {
     std::vector<expr_pointer_t>& vec = *(expr->data.get());
     auto n = expr->num_expressions();
-    for (size_t i = 0; i < n; i++) visit_expression(vec[i], repn, multiplier);
+    for (size_t i = 0; i < n; i++)
+        visit_expression(vec[i], repn, multiplier);
 }
 
 void visit(std::shared_ptr<TimesTerm>& expr, MutableNLPExpr& repn, double multiplier)
@@ -292,7 +293,8 @@ void visit(std::shared_ptr<DivideTerm>& expr, MutableNLPExpr& repn, double multi
     visit_expression(expr->lhs, lhs_repn, multiplier);
     if (((lhs_repn.linear_coefs.size() + lhs_repn.quadratic_coefs.size()) == 0)
         and (lhs_repn.nonlinear == ZEROCONST)) {
-        if (lhs_repn.constval->is_constant() and (lhs_repn.constval->eval() == 0)) return;
+        if (lhs_repn.constval->is_constant() and (lhs_repn.constval->eval() == 0))
+            return;
     }
     repn.mutable_values = repn.mutable_values or lhs_repn.mutable_values or rhs_repn.mutable_values;
     repn.nonlinear = plus_(repn.nonlinear, expr);

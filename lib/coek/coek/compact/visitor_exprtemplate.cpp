@@ -52,7 +52,8 @@ expr_pointer_t visit_ObjectiveTerm(const expr_pointer_t& expr)
 {
     auto tmp = safe_pointer_cast<ObjectiveTerm>(expr);
     auto body = visit_expression(tmp->body);
-    if (body->id() == tmp->id()) return expr;
+    if (body->id() == tmp->id())
+        return expr;
     return std::make_shared<ObjectiveTerm>(body, tmp->sense);
 }
 
@@ -85,7 +86,8 @@ expr_pointer_t visit_NegateTerm(const expr_pointer_t& expr)
 {
     auto tmp = safe_pointer_cast<NegateTerm>(expr);
     auto body = visit_expression(tmp->body);
-    if (body->id() == tmp->body->id()) return expr;
+    if (body->id() == tmp->body->id())
+        return expr;
     return std::make_shared<NegateTerm>(body);
 }
 
@@ -97,7 +99,8 @@ expr_pointer_t visit_PlusTerm(const expr_pointer_t& expr)
     auto lhs = visit_expression(data[0]);
     auto curr = visit_expression(data[1]);
     if (tmp->n == 2) {
-        if ((lhs->id() == data[0]->id()) and (curr->id() == data[1]->id())) return expr;
+        if ((lhs->id() == data[0]->id()) and (curr->id() == data[1]->id()))
+            return expr;
         return std::make_shared<PlusTerm>(lhs, curr, false);
     }
 
@@ -109,7 +112,8 @@ expr_pointer_t visit_PlusTerm(const expr_pointer_t& expr)
         _curr->push_back(curr);
         flag = flag and (curr->id() == data[i]->id());
     }
-    if (flag) return expr;
+    if (flag)
+        return expr;
     return _curr;
 }
 
@@ -118,7 +122,8 @@ expr_pointer_t visit_TimesTerm(const expr_pointer_t& expr)
     auto tmp = safe_pointer_cast<TimesTerm>(expr);
     auto lhs = visit_expression(tmp->lhs);
     auto rhs = visit_expression(tmp->rhs);
-    if ((lhs->id() == tmp->lhs->id()) and (rhs->id() == tmp->rhs->id())) return expr;
+    if ((lhs->id() == tmp->lhs->id()) and (rhs->id() == tmp->rhs->id()))
+        return expr;
     return std::make_shared<TimesTerm>(lhs, rhs);
 }
 
@@ -127,7 +132,8 @@ expr_pointer_t visit_DivideTerm(const expr_pointer_t& expr)
     auto tmp = safe_pointer_cast<DivideTerm>(expr);
     auto lhs = visit_expression(tmp->lhs);
     auto rhs = visit_expression(tmp->rhs);
-    if ((lhs->id() == tmp->lhs->id()) and (rhs->id() == tmp->rhs->id())) return expr;
+    if ((lhs->id() == tmp->lhs->id()) and (rhs->id() == tmp->rhs->id()))
+        return expr;
     return std::make_shared<DivideTerm>(lhs, rhs);
 }
 
@@ -148,7 +154,8 @@ expr_pointer_t visit_IfThenElseTerm(const expr_pointer_t& expr)
     {                                                       \
         auto tmp = safe_pointer_cast<TERM>(expr);           \
         auto body = visit_expression(tmp->body);            \
-        if (body->id() == tmp->body->id()) return expr;     \
+        if (body->id() == tmp->body->id())                  \
+            return expr;                                    \
         return std::make_shared<TERM>(body);                \
     }
 
@@ -177,7 +184,8 @@ expr_pointer_t visit_PowTerm(const expr_pointer_t& expr)
     auto tmp = safe_pointer_cast<PowTerm>(expr);
     auto lhs = visit_expression(tmp->lhs);
     auto rhs = visit_expression(tmp->rhs);
-    if ((lhs->id() == tmp->lhs->id()) and (rhs->id() == tmp->rhs->id())) return expr;
+    if ((lhs->id() == tmp->lhs->id()) and (rhs->id() == tmp->rhs->id()))
+        return expr;
     return std::make_shared<PowTerm>(lhs, rhs);
 }
 
@@ -250,14 +258,16 @@ expr_pointer_t visit_expression(const expr_pointer_t& expr)
 
 expr_pointer_t convert_expr_template(const expr_pointer_t& expr)
 {
-    if (expr == 0) throw std::runtime_error("Unexpected null expression");
+    if (expr == 0)
+        throw std::runtime_error("Unexpected null expression");
 
     return convert_expr_visitor::visit_expression(expr);
 }
 
 std::shared_ptr<ConstraintTerm> convert_con_template(const std::shared_ptr<ConstraintTerm>& expr)
 {
-    if (expr == 0) throw std::runtime_error("Unexpected null constraint");
+    if (expr == 0)
+        throw std::runtime_error("Unexpected null constraint");
 
     auto ans = convert_expr_visitor::visit_expression(expr);
     return safe_pointer_cast<ConstraintTerm>(ans);

@@ -22,7 +22,8 @@ TEST_CASE("elementary_expression", "[smoke]")
     {
         auto e = coek::expression();
         auto x = coek::variable("z", 3).generate_names();
-        for (size_t i = 0; i < 3; i++) e += x(i);
+        for (size_t i = 0; i < 3; i++)
+            e += x(i);
         static std::list<std::string> baseline
             = {"[", "+", std::to_string(0.0), "z[0]", "z[1]", "z[2]", "]"};
         REQUIRE(e.to_list() == baseline);
@@ -32,7 +33,8 @@ TEST_CASE("elementary_expression", "[smoke]")
     {
         auto e = coek::expression(1);
         auto x = coek::variable("x", 3).generate_names();
-        for (size_t i = 0; i < 3; i++) e += x(i);
+        for (size_t i = 0; i < 3; i++)
+            e += x(i);
         static std::list<std::string> baseline
             = {"[", "+", std::to_string(1.0), "x[0]", "x[1]", "x[2]", "]"};
         REQUIRE(e.to_list() == baseline);
@@ -42,7 +44,8 @@ TEST_CASE("elementary_expression", "[smoke]")
     {
         auto e = coek::expression(1.3);
         auto x = coek::variable("x", 3).generate_names();
-        for (size_t i = 0; i < 3; i++) e += x(i);
+        for (size_t i = 0; i < 3; i++)
+            e += x(i);
         static std::list<std::string> baseline
             = {"[", "+", std::to_string(1.300), "x[0]", "x[1]", "x[2]", "]"};
         REQUIRE(e.to_list() == baseline);
@@ -53,7 +56,8 @@ TEST_CASE("elementary_expression", "[smoke]")
         auto p = coek::parameter("p");
         auto e = coek::expression(p);
         auto x = coek::variable("x", 3).generate_names();
-        for (size_t i = 0; i < 3; i++) e += x(i);
+        for (size_t i = 0; i < 3; i++)
+            e += x(i);
         static std::list<std::string> baseline = {"[", "+", "p", "x[0]", "x[1]", "x[2]", "]"};
         REQUIRE(e.to_list() == baseline);
     }
@@ -63,7 +67,8 @@ TEST_CASE("elementary_expression", "[smoke]")
         auto y = coek::variable("y");
         auto e = coek::expression(y);
         auto x = coek::variable("x", 3).generate_names();
-        for (size_t i = 0; i < 3; i++) e += x(i);
+        for (size_t i = 0; i < 3; i++)
+            e += x(i);
         static std::list<std::string> baseline = {"[", "+", "y", "x[0]", "x[1]", "x[2]", "]"};
         REQUIRE(e.to_list() == baseline);
     }
@@ -75,7 +80,8 @@ TEST_CASE("elementary_subexpression", "[smoke]")
     {
         auto e = coek::subexpression("e");
         auto x = coek::variable("z", 3).generate_names();
-        for (size_t i = 0; i < 3; i++) e += x(i);
+        for (size_t i = 0; i < 3; i++)
+            e += x(i);
         static std::list<std::string> baseline
             = {"[", "_", "[", "+", std::to_string(0.0), "z[0]", "z[1]", "z[2]", "]", "]"};
         REQUIRE(e.to_list() == baseline);
@@ -85,7 +91,8 @@ TEST_CASE("elementary_subexpression", "[smoke]")
     {
         auto e = coek::subexpression("e").value(1);
         auto x = coek::variable("x", 3).generate_names();
-        for (size_t i = 0; i < 3; i++) e += x(i);
+        for (size_t i = 0; i < 3; i++)
+            e += x(i);
         static std::list<std::string> baseline
             = {"[", "_", "[", "+", std::to_string(1.0), "x[0]", "x[1]", "x[2]", "]", "]"};
         REQUIRE(e.to_list() == baseline);
@@ -95,7 +102,8 @@ TEST_CASE("elementary_subexpression", "[smoke]")
     {
         auto e = coek::subexpression("e").value(1.3);
         auto x = coek::variable("x", 3).generate_names();
-        for (size_t i = 0; i < 3; i++) e += x(i);
+        for (size_t i = 0; i < 3; i++)
+            e += x(i);
         static std::list<std::string> baseline
             = {"[", "_", "[", "+", std::to_string(1.300), "x[0]", "x[1]", "x[2]", "]", "]"};
         REQUIRE(e.to_list() == baseline);
@@ -106,7 +114,8 @@ TEST_CASE("elementary_subexpression", "[smoke]")
         auto p = coek::parameter("p");
         auto e = coek::subexpression("e").value(p);
         auto x = coek::variable("x", 3).generate_names();
-        for (size_t i = 0; i < 3; i++) e += x(i);
+        for (size_t i = 0; i < 3; i++)
+            e += x(i);
         static std::list<std::string> baseline
             = {"[", "_", "[", "+", "p", "x[0]", "x[1]", "x[2]", "]", "]"};
         REQUIRE(e.to_list() == baseline);
@@ -117,7 +126,8 @@ TEST_CASE("elementary_subexpression", "[smoke]")
         auto y = coek::variable("y");
         auto e = coek::subexpression("e").value(y);
         auto x = coek::variable("x", 3).generate_names();
-        for (size_t i = 0; i < 3; i++) e += x(i);
+        for (size_t i = 0; i < 3; i++)
+            e += x(i);
         static std::list<std::string> baseline
             = {"[", "_", "[", "+", "y", "x[0]", "x[1]", "x[2]", "]", "]"};
         REQUIRE(e.to_list() == baseline);

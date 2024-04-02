@@ -81,16 +81,20 @@ class ExpressionSeqIteratorRepn {
 
     bool operator==(const ExpressionSeqIteratorRepn* other) const
     {
-        if (done != other->done) return false;
-        if (done) return true;
+        if (done != other->done)
+            return false;
+        if (done)
+            return true;
         // BAD - Other comparisons here?
         return true;
     }
 
     bool operator!=(const ExpressionSeqIteratorRepn* other) const
     {
-        if (done == other->done) return false;
-        if (other->done) return true;
+        if (done == other->done)
+            return false;
+        if (other->done)
+            return true;
         // BAD - Other comparisons here?
         return true;
     }

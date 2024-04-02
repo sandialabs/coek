@@ -64,7 +64,8 @@ void ASL_Repn::set_variables(std::vector<double>& x) { set_variables(&(x[0]), x.
 void ASL_Repn::set_variables(const double* x, size_t n)
 {
     assert(n == currx.size());
-    for (size_t i = 0; i < n; i++) currx[i] = x[i];
+    for (size_t i = 0; i < n; i++)
+        currx[i] = x[i];
 
     objval_called_with_current_x_ = false;
     conval_called_with_current_x_ = false;
@@ -170,7 +171,8 @@ void ASL_Repn::compute_df(double& f, std::vector<double>& df, size_t i)
 
     if (nf == 0) {
         f = 0.0;
-        for (double& df_x : df) df_x = 0.0;
+        for (double& df_x : df)
+            df_x = 0.0;
     }
     else {
         f = compute_f(i);
@@ -193,11 +195,13 @@ void ASL_Repn::compute_c(std::vector<double>& c)
             conval_called_with_current_x_ = true;
         else {
             conval_called_with_current_x_ = false;
-            for (size_t i : coek::range(nc)) c[i] = nan("");
+            for (size_t i : coek::range(nc))
+                c[i] = nan("");
             return;
         }
     }
-    for (size_t i : coek::range(nc)) c[i] = c_cache[i];
+    for (size_t i : coek::range(nc))
+        c[i] = c_cache[i];
 }
 
 void ASL_Repn::compute_dc(std::vector<double>& dc, size_t i)
@@ -208,7 +212,8 @@ void ASL_Repn::compute_dc(std::vector<double>& dc, size_t i)
     congrd(i, &(currx[0]), &(dc[0]), (fint*)nerror_);
     nerror_ok = check_asl_status(nerror_);
     if (not nerror_ok) {
-        for (size_t j : coek::indices(dc)) dc[j] = nan("");
+        for (size_t j : coek::indices(dc))
+            dc[j] = nan("");
     }
 }
 
@@ -304,7 +309,8 @@ void ASL_Repn::reset(void)
 
 bool ASL_Repn::check_asl_status(void* nerror)
 {
-    if (nerror == NULL || *((fint*)nerror) == 0) return true;
+    if (nerror == NULL || *((fint*)nerror) == 0)
+        return true;
 
     std::cerr << "Error in an ASL evaluation." << std::endl;
     std::cerr << "nerror = " << *((fint*)nerror) << std::endl;
@@ -335,7 +341,8 @@ void ASL_Repn::alloc_asl()
         std::map<size_t, size_t> invconmap;  // Ignore
         write_nl_problem(model, fname, invvarmap, invconmap);
         std::map<size_t, size_t> tmpvarmap;  // Var ID -> Coek index
-        for (auto& it : used_variables) tmpvarmap[it.second->index] = it.first;
+        for (auto& it : used_variables)
+            tmpvarmap[it.second->index] = it.first;
         for (auto& it : invvarmap)
             varmap[it.first] = tmpvarmap[it.second];  // ASL index -> Coek -> index
     }
@@ -364,12 +371,14 @@ void ASL_Repn::alloc_asl()
     //
     // Close and remove the file
     //
-    if (remove_nl_file) remove(fname.c_str());
+    if (remove_nl_file)
+        remove(fname.c_str());
 
     //
     // No errors, so return
     //
-    if ((retcode == ASL_readerr_none) or (retcode == ASL_readerr_nonlin)) return;
+    if ((retcode == ASL_readerr_none) or (retcode == ASL_readerr_nonlin))
+        return;
 
     free_asl();
     if (retcode == ASL_readerr_nofile)
@@ -478,12 +487,14 @@ bool ASL_Repn::get_option(const std::string& option, int& value) const
 
 void ASL_Repn::set_option(const std::string& option, const std::string value)
 {
-    if (option == "temp_directory") temp_directory = value;
+    if (option == "temp_directory")
+        temp_directory = value;
 }
 
 void ASL_Repn::set_option(const std::string& option, int value)
 {
-    if (option == "remove_nl_file") remove_nl_file = value;
+    if (option == "remove_nl_file")
+        remove_nl_file = value;
 }
 
 }  // namespace coek

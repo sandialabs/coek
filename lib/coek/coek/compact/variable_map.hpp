@@ -89,7 +89,8 @@ class VariableMap : public VariableAssocArray {
         const ARGTYPES&... args)
     {
         const size_t nargs = count_args(args...);
-        if (dim() != nargs) index_error(nargs);
+        if (dim() != nargs)
+            index_error(nargs);
         collect_refargs(static_cast<size_t>(0), args...);
         return create_varref(reftmp);
     }
@@ -99,21 +100,24 @@ class VariableMap : public VariableAssocArray {
         const ARGTYPES&... args)
     {
         const size_t nargs = count_args(args...);
-        if (dim() != nargs) index_error(nargs);
+        if (dim() != nargs)
+            index_error(nargs);
         collect_args(static_cast<size_t>(0), args...);
         return index(tmp);
     }
 
     Variable operator()(int i)
     {
-        if (dim() != 1) index_error(1);
+        if (dim() != 1)
+            index_error(1);
         tmp[0] = i;
         return index(tmp);
     }
 
     Variable operator()(int i, int j)
     {
-        if (dim() != 2) index_error(2);
+        if (dim() != 2)
+            index_error(2);
         tmp[0] = i;
         tmp[1] = j;
         return index(tmp);

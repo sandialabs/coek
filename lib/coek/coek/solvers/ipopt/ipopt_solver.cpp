@@ -26,7 +26,8 @@ int IpoptSolver::resolve_exec()
     auto start = std::chrono::high_resolution_clock::now();
 #endif
 
-    if (not initial_solve()) model->reset();
+    if (not initial_solve())
+        model->reset();
 
     repn->set_options(string_options(), integer_options(), double_options());
     auto it = string_options().find("warm_start_init_point");

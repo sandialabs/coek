@@ -297,7 +297,8 @@ void parse_varargs(py::kwargs kwargs, const char* name, TYPE& lb, TYPE _default)
     lb = _default;
     try {
         auto _lb = kwargs[name];
-        if (_lb.is_none()) return;
+        if (_lb.is_none())
+            return;
         lb = _lb.cast<TYPE>();
     }
     catch (std::exception& err) {
@@ -590,7 +591,8 @@ VariableArray variable_fn(std::vector<int>& dimen, py::kwargs kwargs)
 
 VariableArray variable_fn(int n, py::kwargs kwargs)
 {
-    if (n < 0) throw std::invalid_argument("Cannot initialize variable array with negative length");
+    if (n < 0)
+        throw std::invalid_argument("Cannot initialize variable array with negative length");
 
     VariableArray tmp(static_cast<size_t>(n));
     set_kwargs(tmp, kwargs);
@@ -612,7 +614,8 @@ py::object Array_getitem(T& x, py::tuple args)
     std::vector<coek::refarg_types>& refarg = x.reftmp;
     coek::IndexVector& setarg = x.tmp;
 
-    if (args.size() == 0) throw std::runtime_error("Missing index");
+    if (args.size() == 0)
+        throw std::runtime_error("Missing index");
 
     bool pytuple = false;
     try {
@@ -664,7 +667,8 @@ py::object Array_getitem(T& x, py::tuple args)
                     // std::cout << "INT ERROR " << e.what() << std::endl;
                 }
             }
-            if (!value) throw std::runtime_error("Unknown argument " + std::to_string(j));
+            if (!value)
+                throw std::runtime_error("Unknown argument " + std::to_string(j));
         }
     }
     else {
@@ -703,7 +707,8 @@ py::object Array_getitem(T& x, py::tuple args)
                 // std::cout << "INT ERROR " << e.what() << std::endl;
             }
         }
-        if (!value) throw std::runtime_error("Unknown argument " + std::to_string(j));
+        if (!value)
+            throw std::runtime_error("Unknown argument " + std::to_string(j));
     }
 
     // std::cout << "HERE " << refarg.size() << " " << setarg.size() << std::endl;
@@ -971,7 +976,8 @@ PYBIND11_MODULE(pycoek_pybind11, m)
              [](const coek::IndexParameter& x) {
                  double value = 0;
                  auto flag = x.get_value(value);
-                 if (flag) return (double)NAN;
+                 if (flag)
+                     return (double)NAN;
                  return value;
              })
         .def("set_value", [](coek::IndexParameter& x, double value) { x.value(value); })
@@ -1269,7 +1275,8 @@ PYBIND11_MODULE(pycoek_pybind11, m)
                  coek::IndexVector::vecdata_t* data
                      = new coek::IndexVector::vecdata_t[index.size()];
                  coek::IndexVector tmp(data, index.size());
-                 for (size_t i = 0; i < index.size(); ++i) tmp[i] = static_cast<size_t>(index[i]);
+                 for (size_t i = 0; i < index.size(); ++i)
+                     tmp[i] = static_cast<size_t>(index[i]);
                  return va.index(tmp);
              })
         .def_property_readonly("name",
@@ -1646,7 +1653,8 @@ PYBIND11_MODULE(pycoek_pybind11, m)
                  auto tmp = x.to_list();
                  auto begin = tmp.begin();
                  auto end = tmp.end();
-                 if (begin == end) return py::list();
+                 if (begin == end)
+                     return py::list();
                  if (tmp.size() == 1) {
                      auto ans = py::list();
                      ans.append(*begin);
@@ -1671,7 +1679,8 @@ PYBIND11_MODULE(pycoek_pybind11, m)
             auto tmp = x.to_list();
             auto begin = tmp.begin();
             auto end = tmp.end();
-            if (begin == end) return py::list();
+            if (begin == end)
+                return py::list();
             if (tmp.size() == 1) {
                 auto ans = py::list();
                 ans.append(*begin);
@@ -1687,8 +1696,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     py::class_<coek::Constraint>(m, "constraint")
         .def(py::init<>())
         .def_property_readonly("value", [](coek::Constraint& c) { return c.body().value(); })
-        .def("__call__",
-             [](const coek::Constraint& c, py::kwargs ) { return c.is_feasible(); })
+        .def("__call__", [](const coek::Constraint& c, py::kwargs) { return c.is_feasible(); })
         .def_property_readonly("lb", [](coek::Constraint& c) { return coek::constraint_lb(c); })
         .def_property_readonly("ub", [](coek::Constraint& c) { return coek::constraint_ub(c); })
         .def("lower", &coek::Constraint::lower)
@@ -1730,7 +1738,8 @@ PYBIND11_MODULE(pycoek_pybind11, m)
                  auto tmp = x.to_list();
                  auto begin = tmp.begin();
                  auto end = tmp.end();
-                 if (begin == end) return py::list();
+                 if (begin == end)
+                     return py::list();
                  if (tmp.size() == 1) {
                      auto ans = py::list();
                      ans.append(*begin);
@@ -1878,12 +1887,14 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def("get_objective", [](coek::Model& m) { return m.get_objective(); })
         .def("get_objective",
              [](coek::Model& m, int i) {
-                 if (i < 0) throw std::invalid_argument("Index to objective must be non-negative");
+                 if (i < 0)
+                     throw std::invalid_argument("Index to objective must be non-negative");
                  return m.get_objective(static_cast<size_t>(i));
              })
         .def("get_constraint",
              [](coek::Model& m, int i) {
-                 if (i < 0) throw std::invalid_argument("Index to objective must be non-negative");
+                 if (i < 0)
+                     throw std::invalid_argument("Index to objective must be non-negative");
                  return m.get_constraint(static_cast<size_t>(i));
              })
         .def("num_variables", [](coek::Model& m) { return m.num_variables(); })
@@ -1909,7 +1920,8 @@ PYBIND11_MODULE(pycoek_pybind11, m)
 
     m.def("Forall", [](py::args args) {
         std::vector<coek::IndexParameter> indices;
-        for (py::handle h : args) indices.push_back(h.cast<coek::IndexParameter>());
+        for (py::handle h : args)
+            indices.push_back(h.cast<coek::IndexParameter>());
         return coek::Forall(indices);
     });
     //
@@ -1919,7 +1931,8 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def("Forall",
              [](coek::SequenceContext& x, py::args args) {
                  std::vector<coek::IndexParameter> indices;
-                 for (py::handle h : args) indices.push_back(h.cast<coek::IndexParameter>());
+                 for (py::handle h : args)
+                     indices.push_back(h.cast<coek::IndexParameter>());
                  return x.Forall(indices);
              })
         .def("In",

@@ -64,7 +64,8 @@ void fac_scalar(coek::Model& model, size_t F)
     for (size_t i = 0; i <= G; i++) {
         for (size_t j = 0; j <= G; j++) {
             coek::Expression lhs;
-            for (size_t f = 0; f < F; f++) lhs += z[i][j][f];
+            for (size_t f = 0; f < F; f++)
+                lhs += z[i][j][f];
             model.add(lhs == 1);
         }
     }

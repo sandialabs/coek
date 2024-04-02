@@ -88,7 +88,8 @@ class IpoptModel {
     // default destructor
     virtual ~IpoptModel()
     {
-        if (app) (*FreeIpoptProblem_func_ptr)(app);
+        if (app)
+            (*FreeIpoptProblem_func_ptr)(app);
     }
 
     // initialize using the COEK model
@@ -262,7 +263,8 @@ bool IpoptModel::eval_g(Index n, const Number* x, bool new_x, Index /*m*/, Numbe
     //  return the value of the constraints: g(x)
     nlpmodel.compute_c(tmp_g);
     size_t i = 0;
-    for (double val : tmp_g) g[i++] = val;
+    for (double val : tmp_g)
+        g[i++] = val;
 
     // std::cout << "EVAL G - END" << std::endl << std::flush;
     return true;
@@ -295,7 +297,8 @@ bool IpoptModel::eval_jac_g(Index n, const Number* x, bool new_x, Index /*m*/, I
             nlpmodel.set_variable_view(x, static_cast<size_t>(n));
         }
         nlpmodel.compute_J(tmp_j);
-        for (size_t i = 0; i < tmp_j.size(); i++) values[i] = tmp_j[i];
+        for (size_t i = 0; i < tmp_j.size(); i++)
+            values[i] = tmp_j[i];
         // std::cout << "Do Eval - END" << std::endl << std::flush;
     }
 
@@ -328,10 +331,13 @@ bool IpoptModel::eval_h(Index n, const Number* x, bool new_x, Number obj_factor,
         size_t nf = nlpmodel.num_objectives();
         size_t nc = nlpmodel.num_constraints();
         // TODO - handle multiple objectives
-        for (size_t i = 0; i < nf; i++) tmp_hw[i] = obj_factor;
-        for (size_t i = 0; i < nc; i++) tmp_hw[i + nf] = lambda[i];
+        for (size_t i = 0; i < nf; i++)
+            tmp_hw[i] = obj_factor;
+        for (size_t i = 0; i < nc; i++)
+            tmp_hw[i + nf] = lambda[i];
         nlpmodel.compute_H(tmp_hw, tmp_h);
-        for (size_t i = 0; i < tmp_h.size(); i++) values[i] = tmp_h[i];
+        for (size_t i = 0; i < tmp_h.size(); i++)
+            values[i] = tmp_h[i];
 
 #if 0
         for (size_t i = 0; i < tmp_h.size(); i++)
@@ -344,7 +350,8 @@ bool IpoptModel::eval_h(Index n, const Number* x, bool new_x, Number obj_factor,
 
 Number* array_ptr(std::vector<Number>& v)
 {
-    if (v.size() == 0) return 0;
+    if (v.size() == 0)
+        return 0;
     return &(v[0]);
 }
 

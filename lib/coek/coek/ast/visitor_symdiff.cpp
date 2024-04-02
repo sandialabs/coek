@@ -342,13 +342,15 @@ void symbolic_diff_all(const expr_pointer_t& root,
 
     else if (root->is_variable()) {
         auto tmp = std::dynamic_pointer_cast<VariableTerm>(root);
-        if (!tmp->fixed) diff[tmp] = ONECONST;
+        if (!tmp->fixed)
+            diff[tmp] = ONECONST;
         return;
     }
 
     else if (root->is_monomial()) {
         auto tmp = std::dynamic_pointer_cast<MonomialTerm>(root);
-        if (!tmp->var->fixed) diff[tmp->var] = CREATE_POINTER(ConstantTerm, tmp->coef);
+        if (!tmp->var->fixed)
+            diff[tmp->var] = CREATE_POINTER(ConstantTerm, tmp->coef);
         return;
     }
 
