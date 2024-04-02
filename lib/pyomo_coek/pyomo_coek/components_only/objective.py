@@ -312,6 +312,23 @@ class ScalarObjective(_GeneralObjectiveData, Objective):
         Objective.__init__(self, *args, **kwd)
         self._index = UnindexedComponent_index
 
+    def __call__(self, exception=True):
+        if self._constructed:
+            if len(self._data) == 0:
+                raise ValueError(
+                    "Evaluating the expression of ScalarObjective "
+                    "'%s' before the Objective has been assigned "
+                    "a sense or expression (there is currently "
+                    "no value to return)." % (self.name)
+                )
+            # WEH - What does fget do???
+            return value(_GeneralObjectiveData.expr.fget(self))
+        raise ValueError(
+            "Evaluating the expression of objective '%s' "
+            "before the Objective has been constructed (there "
+            "is currently no value to return)." % (self.name)
+        )
+
     #
     # Since this class derives from Component and
     # Component.__getstate__ just packs up the entire __dict__ into

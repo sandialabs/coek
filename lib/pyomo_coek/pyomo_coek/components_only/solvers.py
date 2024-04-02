@@ -7,6 +7,7 @@ from pyomo.contrib.appsi.base import (
     Solver,
     SolverFactory,
 )
+from munch import Munch
 import poek as pk
 from typing import Tuple, Dict
 
@@ -24,6 +25,11 @@ _nlp_solvers = {
 }
 
 
+class MySolutionLoader(SolutionLoader):
+
+    def get_primals(self, vars_to_load=None):
+        return {}
+
 class HybridSolver(Solver):
     def __init__(self, solver_name):
         self._solver_name = solver_name
@@ -31,6 +37,7 @@ class HybridSolver(Solver):
         self._solver_options = dict()
         self._poek_model = None
         self._poek_nlp_model = None
+        self.solution_loader = MySolutionLoader(None, None, None, None)
 
     def available(self):
         if self._opt.available:
@@ -51,7 +58,7 @@ class HybridSolver(Solver):
 
     @property
     def symbol_map(self):
-        raise NotImplementedError("ToDo")
+        return Munch(byObject={}, bySymbol={}, aliases={}, default_labeler=None)
 
     def _construct_poek_model(self, model: _BlockData, timer: HierarchicalTimer) -> pk.model:
         timer.start("construct poek model")
@@ -105,7 +112,19 @@ class HybridSolver(Solver):
         self._opt.resolve()
         timer.stop("coek resolve")
 
+        # Update Pyomo var stale and is_none data
+        for v in model.component_data_objects(pyo.Var, descend_into=True):
+            v.reset_value();
+
+        # WARNING - This information needs to be pulled from the coek solver
         res = Results()
+        res.solution_loader = self.solution_loader
+        res.termination_condition = TerminationCondition.optimal
+        if self._poek_model:
+            res.best_feasible_objective = self._poek_model.get_objective().value
+            res.best_objective_bound = self._poek_model.get_objective().value
+        elif self._poek_nlp_model:
+            res.best_feasible_objective = self._poek_nlp_model.get_objective().value
         return res
 
     def solve(self, model: _BlockData, timer: HierarchicalTimer = None) -> Results:
@@ -127,7 +146,19 @@ class HybridSolver(Solver):
             _res = self._opt.solve(pm)
         timer.stop("coek solve")
 
+        # Update Pyomo var stale and is_none data
+        for v in model.component_data_objects(pyo.Var, descend_into=True):
+            v.reset_value();
+
+        # WARNING - This information needs to be pulled from the coek solver
         res = Results()
+        res.solution_loader = self.solution_loader
+        res.termination_condition = TerminationCondition.optimal
+        if self._poek_model:
+            res.best_feasible_objective = self._poek_model.get_objective().value
+            res.best_objective_bound = self._poek_model.get_objective().value
+        elif self._poek_nlp_model:
+            res.best_feasible_objective = self._poek_nlp_model.get_objective().value
         return res
 
     # WEH - This is a hack
@@ -141,6 +172,8 @@ class HybridSolver(Solver):
 
 
 class Gurobi(HybridSolver):
+    name = "appsi_coek_gurobi"
+
     def __init__(self):
         super().__init__("gurobi")
         self._config = MIPSolverConfig()
@@ -170,6 +203,8 @@ class Gurobi(HybridSolver):
 
 
 class Ipopt(HybridSolver):
+    name = "appsi_ipopt_gurobi"
+
     def __init__(self):
         super().__init__("ipopt")
         self._config = SolverConfig()
