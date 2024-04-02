@@ -112,6 +112,10 @@ class HybridSolver(Solver):
         self._opt.resolve()
         timer.stop("coek resolve")
 
+        # Update Pyomo var stale and is_none data
+        for v in model.component_data_objects(pyo.Var, descend_into=True):
+            v.reset_value();
+
         # WARNING - This information needs to be pulled from the coek solver
         res = Results()
         res.solution_loader = self.solution_loader
@@ -141,6 +145,10 @@ class HybridSolver(Solver):
             self._set_options()
             _res = self._opt.solve(pm)
         timer.stop("coek solve")
+
+        # Update Pyomo var stale and is_none data
+        for v in model.component_data_objects(pyo.Var, descend_into=True):
+            v.reset_value();
 
         # WARNING - This information needs to be pulled from the coek solver
         res = Results()

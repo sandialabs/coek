@@ -146,6 +146,10 @@ class _GeneralVarData(ComponentData):
     def __call__(self, exception=True):
         return self.value
 
+    def reset_value(self):
+        self._is_none = False
+        self._stale = StaleFlagManager.get_flag(self._stale)
+        
     def set_value(self, val, skip_validation=False):
         if val is None:
             self._is_none = True
@@ -162,6 +166,16 @@ class _GeneralVarData(ComponentData):
 
     @value.setter
     def value(self, val):
+        self.set_value(val)
+
+    @property
+    def _value(self):
+        if self._is_none:
+            return None
+        return self._pe.value
+
+    @value.setter
+    def _value(self, val):
         self.set_value(val)
 
     @property
@@ -324,9 +338,9 @@ class Var(IndexedComponent):
             _bounds_arg, treat_sequences_as_mappings=treat_bounds_sequences_as_mappings
         )
 
-    def flag_as_stale(self):
-        for v in self._data.values():
-            v.stale = True
+    #def flag_as_stale(self):
+        #for v in self._data.values():
+        #    v.stale = True
 
     def get_values(self, include_fixed_values=True):
         if include_fixed_values:
@@ -684,19 +698,27 @@ class _ImplicitAny(Any.__class__):
 
 class _ParamData(ComponentData):
 
-    __slots__ = ("_pe",)
+    __slots__ = ("_pe","_is_none")
 
     def __init__(self, component):
         super().__init__(component=component)
         self._pe = pk.parameter_single()
+        self._is_none = False
 
     def clear(self):
         self.value = 0
+        self._is_none = False
 
     def set_value(self, value, idx=NOTSET):
+        if value is None:
+            self._is_none = True
+            return
         self._pe.value = value
+        self._is_none = False
 
     def __call__(self, exception=True):
+        if self._is_none:
+            return None
         return self._pe.value
 
     @property
@@ -705,6 +727,14 @@ class _ParamData(ComponentData):
 
     @value.setter
     def value(self, val):
+        self.set_value(val)
+
+    @property
+    def _value(self):
+        return self()
+
+    @value.setter
+    def _value(self, val):
         self.set_value(val)
 
     @property
