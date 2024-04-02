@@ -17,7 +17,7 @@ std::mutex ConstraintTerm_mtx;
 //
 // ObjectiveTerm
 //
-unsigned int ObjectiveTerm::count = 0;
+size_t ObjectiveTerm::count = 0;
 
 ObjectiveTerm::ObjectiveTerm() : body(ZeroConstant), sense(true)
 {
@@ -37,7 +37,7 @@ ObjectiveTerm::ObjectiveTerm(const expr_pointer_t& _body, bool _sense) : body(_b
 // ConstraintTerm
 //
 
-unsigned int ConstraintTerm::count = 0;
+size_t ConstraintTerm::count = 0;
 
 ConstraintTerm::ConstraintTerm()
 {

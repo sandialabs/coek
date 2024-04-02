@@ -51,7 +51,7 @@ double BaseExpressionTerm::eval() const
 // ParameterTerm
 //
 
-unsigned int ParameterTerm::count = 0;
+size_t ParameterTerm::count = 0;
 
 ParameterTerm::ParameterTerm()
 {
@@ -157,7 +157,7 @@ const std::shared_ptr<ConstantTerm> VariableTerm::positive_infinity
     = std::make_shared<ConstantTerm>(COEK_INFINITY);
 const std::shared_ptr<ConstantTerm> VariableTerm::nan = std::make_shared<ConstantTerm>(COEK_NAN);
 
-unsigned int VariableTerm::count = 0;
+size_t VariableTerm::count = 0;
 
 VariableTerm::VariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub,
                            const expr_pointer_t& _value, bool _binary, bool _integer)

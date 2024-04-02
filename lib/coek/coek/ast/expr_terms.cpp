@@ -17,7 +17,7 @@ std::mutex SubExpressionTerm_mtx;
 // SubExpressionTerm
 //
 
-unsigned int SubExpressionTerm::count = 0;
+size_t SubExpressionTerm::count = 0;
 
 SubExpressionTerm::SubExpressionTerm(const expr_pointer_t& body) : UnaryTerm(body)
 {

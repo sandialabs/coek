@@ -85,10 +85,10 @@ class NAryPrefixTerm : public ExpressionTerm {
 
 class SubExpressionTerm : public UnaryTerm {
    public:
-    static unsigned int count;
+    static size_t count;
 
    public:
-    unsigned int index;
+    size_t index;
     std::string name;
 
    public:
@@ -267,9 +267,9 @@ class IfThenElseTerm : public ExpressionTerm {
 //
 class DefinedValueTerm : public BaseExpressionTerm {
    public:
-    unsigned int index = 0;
+    size_t index = 0;
 
-    DefinedValueTerm(unsigned int _index) : index(_index) {}
+    DefinedValueTerm(size_t _index) : index(_index) {}
 
     bool is_expression() const { return true; }
 
