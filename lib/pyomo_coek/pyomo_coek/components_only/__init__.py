@@ -10,6 +10,7 @@ from pyomo.core.base.PyomoModel import ConcreteModel
 from pyomo.core.base.set import RangeSet, Binary, Set, Reals, NonNegativeReals, Any
 from pyomo.core.base.objective import minimize, maximize
 from pyomo.opt.base.solvers import SolverFactory
+from pyomo.opt import SolutionStatus, TerminationCondition
 from pyomo.core.expr import value
 from .util import sum_product
 from .quicksum import quicksum, construct_linear_expression
