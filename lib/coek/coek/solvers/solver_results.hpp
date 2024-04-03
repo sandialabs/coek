@@ -7,6 +7,7 @@
 #include <variant>
 #include <tuple>
 #include <memory>
+#include <optional>
 #include <coek/util/tictoc.hpp>
 
 namespace coek {
