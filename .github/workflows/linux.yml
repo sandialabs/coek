@@ -3,9 +3,9 @@ name: Linux Build and Tests
 on:
   workflow_dispatch:
   push:
-    branches: [ main, dev, public, private ]
+    branches: [ main, dev, dev-weh, public, private ]
   pull_request:
-    branches: [ main, dev, public, private ]
+    branches: [ main, dev, dev-weh, public, private ]
 
 jobs:
 
