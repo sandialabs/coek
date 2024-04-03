@@ -6,6 +6,7 @@
 #include <vector>
 #include <variant>
 #include <tuple>
+#include <memory>
 #include <coek/util/tictoc.hpp>
 
 namespace coek {
@@ -103,7 +104,7 @@ class Solution {
     SolutionStatus solution_status = SolutionStatus::no_solution;
 
     // The value of the objective associted with the solution.
-    double objective_value = 0.0;
+    double objective_value = nan("");
 };
 
 class SolverResultsBase {
@@ -183,5 +184,9 @@ inline bool check_optimal_termination(const std::shared_ptr<MultiSolSolverResult
 {
     return check_optimal_termination(*results);
 }
+
+std::string to_string(TerminationCondition tc);
+std::string to_string(SolutionStatus ss);
+std::string to_string(const SolverResults& res);
 
 }  // namespace coek

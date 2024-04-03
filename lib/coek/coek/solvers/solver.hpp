@@ -20,6 +20,7 @@ class NLPSolverRepn;
 class Solver : public OptionCache {
    public:
     std::shared_ptr<SolverRepn> repn;
+    std::string name;
 
    public:
     /** Creates an empty solver */
@@ -61,6 +62,7 @@ class Solver : public OptionCache {
 class NLPSolver : public OptionCache {
    public:
     std::shared_ptr<NLPSolverRepn> repn;
+    std::string name;
 
    public:
     /** Creates an empty solver */

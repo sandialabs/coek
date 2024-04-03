@@ -7,6 +7,7 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
+#include <cmath>
 #include <iostream>
 #include <typeinfo>
 
@@ -2030,6 +2031,38 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         // std::map<int,int>& conmap){m.write(s,varmap,conmap);})
         .def("write", [](coek::CompactModel& m, const std::string& s) { m.write(s); });
 #endif
+
+    //
+    // SolverResults
+    //
+    py::class_<coek::SolverResults, std::shared_ptr<coek::SolverResults>>(m, "SolverResults")
+        .def("__str__", [](const coek::SolverResults& r) { return coek::to_string(r); })
+        .def_property_readonly("solver_name", [](coek::SolverResults& r) { return r.solver_name; })
+        .def_property_readonly("solver_version",
+                               [](coek::SolverResults& r) { return r.solver_version; })
+        .def_property_readonly("objective_bound",
+                               [](coek::SolverResults& r) {
+                                   if (r.objective_bound.has_value())
+                                       return r.objective_bound.value();
+                                   else
+                                       return nan("");
+                               })
+        .def_property_readonly(
+            "termination_condition",
+            [](coek::SolverResults& r) { return to_string(r.termination_condition); })
+        .def_property_readonly("solution_status",
+                               [](coek::SolverResults& r) { return to_string(r.solution_status); })
+        .def_property_readonly("iteration_count",
+                               [](coek::SolverResults& r) { return r.iteration_count; })
+        .def_property_readonly("error_message",
+                               [](coek::SolverResults& r) { return r.error_message; })
+        .def_property_readonly("system_time", [](coek::SolverResults& r) { return r.system_time; })
+        .def_property_readonly("objective_value",
+                               [](coek::SolverResults& r) { return r.objective_value; });
+
+    m.def("check_optimal_termination", [](const std::shared_ptr<coek::SolverResults>& x) {
+        return coek::check_optimal_termination(x);
+    });
 
     //
     // Solver

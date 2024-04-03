@@ -31,6 +31,7 @@ SET(sources
     model/writer_lp.cpp
     model/writer_nl.cpp
     model/reader_jpof.cpp
+    solvers/solver_results.cpp
     solvers/solver.cpp
     solvers/solver_repn.cpp
     solvers/testsolver.cpp

@@ -10,10 +10,11 @@ namespace coek {
 // Solver
 //
 
-void Solver::initialize(std::string name)
+void Solver::initialize(std::string name_)
 {
-    std::shared_ptr<SolverRepn> tmp(create_solver(name, *this));
+    std::shared_ptr<SolverRepn> tmp(create_solver(name_, *this));
     repn = tmp;
+    name = name_;
 }
 
 bool Solver::available() const { return repn.get(); }
@@ -22,6 +23,7 @@ std::shared_ptr<SolverResults> Solver::solve(Model& model)
 {
     if (not repn.get()) {
         auto res = std::make_shared<SolverResults>();
+        res->solver_name = name;
         res->termination_condition = TerminationCondition::solver_not_available;
         return res;
     }
@@ -35,6 +37,7 @@ std::shared_ptr<SolverResults> Solver::solve(CompactModel& model)
 {
     if (not repn.get()) {
         auto res = std::make_shared<SolverResults>();
+        res->solver_name = name;
         res->termination_condition = TerminationCondition::solver_not_available;
         return res;
     }
@@ -48,6 +51,7 @@ std::shared_ptr<SolverResults> Solver::resolve()
 {
     if (not repn.get()) {
         auto res = std::make_shared<SolverResults>();
+        res->solver_name = name;
         res->termination_condition = TerminationCondition::solver_not_available;
         return res;
     }
@@ -60,10 +64,11 @@ void Solver::reset() { repn->reset(); }
 // NLPSolver
 //
 
-void NLPSolver::initialize(std::string name)
+void NLPSolver::initialize(std::string name_)
 {
-    std::shared_ptr<NLPSolverRepn> tmp(create_nlpsolver(name, *this));
+    std::shared_ptr<NLPSolverRepn> tmp(create_nlpsolver(name_, *this));
     repn = tmp;
+    name = name_;
 }
 
 bool NLPSolver::available() const { return repn.get() && repn->available(); }
@@ -72,6 +77,7 @@ std::shared_ptr<SolverResults> NLPSolver::solve(NLPModel& model)
 {
     if (not repn.get() or not repn->available()) {
         auto res = std::make_shared<SolverResults>();
+        res->solver_name = name;
         res->termination_condition = TerminationCondition::solver_not_available;
         return res;
     }
@@ -84,6 +90,7 @@ std::shared_ptr<SolverResults> NLPSolver::resolve(bool reset_nlpmodel)
 {
     if (not repn.get() or not repn->available()) {
         auto res = std::make_shared<SolverResults>();
+        res->solver_name = name;
         res->termination_condition = TerminationCondition::solver_not_available;
         return res;
     }
