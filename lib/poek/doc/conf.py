@@ -64,9 +64,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # a list of builtin themes.
 #
 # html_theme = 'alabaster'
-#on_rtd = os.environ.get("READTHEDOCS", None) == "True"
+# on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 #
-#if not on_rtd:  # only import and set the theme if we're building docs locally
+# if not on_rtd:  # only import and set the theme if we're building docs locally
 #    import sphinx_rtd_theme
 #
 #    html_theme = "sphinx_rtd_theme"
@@ -79,7 +79,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 #            "_static/theme_overrides.css",
 #        ],
 #    }
-#else:
+# else:
 #    html_context = {
 #        "css_files": [
 #            "https://media.readthedocs.org/css/sphinx_rtd_theme.css",

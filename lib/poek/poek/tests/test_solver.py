@@ -7,6 +7,7 @@ def test_available():
     opt = solver("bad_coek_solvername")
     assert not opt.available
 
+
 def test_nlpsolver():
     m = model()
     v1 = m.add_variable(name="v1", value=1)
@@ -26,12 +27,13 @@ def test_nlpsolver():
     assert nlp.num_objectives() == 1
     assert nlp.num_constraints() == 5
 
+
 def test_rosenbr():
     m = model()
     x0 = m.add_variable(value=1)
     x1 = m.add_variable(value=2)
 
-    m.add_objective( 100*(x1 - x0**2)**2 + (x0 - 1)**2 )
+    m.add_objective(100 * (x1 - x0**2) ** 2 + (x0 - 1) ** 2)
 
     nlp = nlp_model(m, "cppad")
     opt = nlp_solver("ipopt")

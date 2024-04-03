@@ -15,41 +15,51 @@ except:
 # Test fixtures
 #
 
+
 @pytest.fixture
 def var_a():
     return variable(name="a")
+
 
 @pytest.fixture
 def var_b():
     return variable(name="b")
 
+
 @pytest.fixture
 def var_c():
     return variable(name="c")
+
 
 @pytest.fixture
 def var_d():
     return variable(name="d")
 
+
 @pytest.fixture
 def var_v():
     return variable(name="v")
+
 
 @pytest.fixture
 def param_p():
     return variable(name="p", value=0)
 
+
 @pytest.fixture
 def param_q():
     return variable(name="q", value=0)
+
 
 @pytest.fixture
 def param_r():
     return variable(name="r", value=1)
 
+
 #
 # Value tests
 #
+
 
 def test_var_value():
     p = variable(value=2)
@@ -57,19 +67,21 @@ def test_var_value():
     p.value = 3
     assert p.value == 3
 
+
 def test_expr_value():
     p = variable(value=2)
     p.value == 2
     e = p + 3
-    assert e.value ==  5
+    assert e.value == 5
 
     if numpy_available:
         p.value == np.int32(2)
         e = p + 3
-        assert e.value ==  5
+        assert e.value == 5
 
     with pytest.raises(AttributeError) as einfo:
         e.value = 0
+
 
 def test_constraint_value():
     p = variable(value=2)
@@ -83,11 +95,13 @@ def test_constraint_value():
         z = np.int32(3)
         e = p < z
 
+
 def test_param1_value():
     p = parameter(value=-1)
     assert p.value == -1
     p.value = 3
     assert p.value == 3
+
 
 def test_param_float():
     p = parameter(value=-1)
@@ -96,6 +110,7 @@ def test_param_float():
     if numpy_available:
         z = np.float32(-1)
         p = parameter(value=z)
+
 
 def test_param_int():
     p = parameter(value=-1)
@@ -111,16 +126,19 @@ def test_sum_error1(var_a):
 
     if poek.__using_pybind11__:
         with pytest.raises(TypeError) as einfo:
+
             class TMP(object):
                 pass
 
             TMP() + a
     elif poek.__using_cppyy__:
         with pytest.raises(TypeError) as einfo:
+
             class TMP(object):
                 pass
 
             TMP() + a
+
 
 def test_sum_error2(var_a):
     a = var_a
@@ -132,9 +150,10 @@ def test_sum_error2(var_a):
         with pytest.raises(TypeError) as einfo:
             a + x
 
+
 def test_simpleSum(var_a, var_b):
     # a + b
-    a,b = var_a,var_b
+    a, b = var_a, var_b
 
     e = a + b
     assert e.to_list() == ["+", "a", "b"]
@@ -143,9 +162,10 @@ def test_simpleSum(var_a, var_b):
     e += b
     assert e.to_list() == ["+", "a", "b"]
 
+
 def test_simpleSum_API(var_a, var_b):
     # a + b + 2*a
-    a,b = var_a,var_b
+    a, b = var_a, var_b
 
     e = a + b
     e += 2 * a
@@ -155,6 +175,7 @@ def test_simpleSum_API(var_a, var_b):
         e = a + b
         e += np.int32(2) * a
         assert e.to_list() == ["+", "a", "b", ["*", "2.000000", "a"]]
+
 
 def test_constSum(var_a):
     # a + 5
@@ -208,7 +229,7 @@ def test_nestedSum(var_a, var_b, var_c, var_d):
     #
     # Check the structure of nested sums
     #
-    a,b,c,d = var_a,var_b,var_c,var_d
+    a, b, c, d = var_a, var_b, var_c, var_d
 
     #           +
     #          / \
@@ -282,11 +303,12 @@ def test_nestedSum(var_a, var_b, var_c, var_d):
     #
     assert e.to_list() == ["+", "a", "b", ["+", "c", "d"]]
 
+
 def test_nestedSum2(var_a, var_b, var_c, var_d):
     #
     # Check the structure of nested sums
     #
-    a,b,c,d = var_a,var_b,var_c,var_d
+    a, b, c, d = var_a, var_b, var_c, var_d
 
     #           +
     #          / \
@@ -341,6 +363,7 @@ def test_nestedSum2(var_a, var_b, var_c, var_d):
         #
         assert e.to_list() == ["*", "3.000000", ["+", ["*", "2.000000", ["+", "a", "b"]], "c"]]
 
+
 def test_trivialSum(var_a):
     #
     # Check that adding zero doesn't change the expression
@@ -372,7 +395,7 @@ def test_trivialSum(var_a):
     #
     e = a + a
     f = e + 0
-    assert e.to_list() ==  ["+", "a", "a"]
+    assert e.to_list() == ["+", "a", "a"]
 
     if numpy_available:
         z = np.int32(0)
@@ -401,14 +424,15 @@ def test_trivialSum(var_a):
         # Adding zero to a sum will not change the sum
         #
         e = a + a
-        f = e + np.int32(0) 
-        assert e.to_list() ==  ["+", "a", "a"]
+        f = e + np.int32(0)
+        assert e.to_list() == ["+", "a", "a"]
 
-def test_sumOf_nestedTrivialProduct(var_a,var_b,var_c):
+
+def test_sumOf_nestedTrivialProduct(var_a, var_b, var_c):
     #
     # Check sums with nested products
     #
-    a,b,c = var_a,var_b,var_c
+    a, b, c = var_a, var_b, var_c
 
     if True:
         #       +
@@ -419,7 +443,7 @@ def test_sumOf_nestedTrivialProduct(var_a,var_b,var_c):
         e1 = a * 5
         e = e1 + b
         #
-        assert e.to_list() == ["+", ["*", "5.000000", "a"], "b"] 
+        assert e.to_list() == ["+", ["*", "5.000000", "a"], "b"]
 
         #       +
         #      / \
@@ -428,7 +452,7 @@ def test_sumOf_nestedTrivialProduct(var_a,var_b,var_c):
         #       a   5
         e = b + e1
         #
-        assert e.to_list() == ["+", "b", ["*", "5.000000", "a"]] 
+        assert e.to_list() == ["+", "b", ["*", "5.000000", "a"]]
 
         #            +
         #          /   \
@@ -438,7 +462,7 @@ def test_sumOf_nestedTrivialProduct(var_a,var_b,var_c):
         e2 = b + c
         e = e1 + e2
         #
-        assert e.to_list() == ["+", ["*", "5.000000", "a"], ["+", "b", "c"]] 
+        assert e.to_list() == ["+", ["*", "5.000000", "a"], ["+", "b", "c"]]
 
         #            +
         #          /   \
@@ -448,7 +472,7 @@ def test_sumOf_nestedTrivialProduct(var_a,var_b,var_c):
         e2 = b + c
         e = e2 + e1
         #
-        assert e.to_list() == ["+", "b", "c", ["*", "5.000000", "a"]] 
+        assert e.to_list() == ["+", "b", "c", ["*", "5.000000", "a"]]
 
     if numpy_available:
         #       +
@@ -459,7 +483,7 @@ def test_sumOf_nestedTrivialProduct(var_a,var_b,var_c):
         e1 = a * np.int32(5)
         e = e1 + b
         #
-        assert e.to_list() == ["+", ["*", "5.000000", "a"], "b"] 
+        assert e.to_list() == ["+", ["*", "5.000000", "a"], "b"]
 
         #       +
         #      / \
@@ -468,7 +492,7 @@ def test_sumOf_nestedTrivialProduct(var_a,var_b,var_c):
         #       a   5
         e = b + e1
         #
-        assert e.to_list() == ["+", "b", ["*", "5.000000", "a"]] 
+        assert e.to_list() == ["+", "b", ["*", "5.000000", "a"]]
 
         #            +
         #          /   \
@@ -478,7 +502,7 @@ def test_sumOf_nestedTrivialProduct(var_a,var_b,var_c):
         e2 = b + c
         e = e1 + e2
         #
-        assert e.to_list() == ["+", ["*", "5.000000", "a"], ["+", "b", "c"]] 
+        assert e.to_list() == ["+", ["*", "5.000000", "a"], ["+", "b", "c"]]
 
         #            +
         #          /   \
@@ -488,32 +512,53 @@ def test_sumOf_nestedTrivialProduct(var_a,var_b,var_c):
         e2 = b + c
         e = e2 + e1
         #
-        assert e.to_list() == ["+", "b", "c", ["*", "5.000000", "a"]] 
+        assert e.to_list() == ["+", "b", "c", ["*", "5.000000", "a"]]
 
-def test_sum_affine(var_a,var_b,var_c,var_d):
-    a,b,c,d = var_a,var_b,var_c,var_d
+
+def test_sum_affine(var_a, var_b, var_c, var_d):
+    a, b, c, d = var_a, var_b, var_c, var_d
 
     e = affine_expression([1, 2, 3, 4], [a, b, c, d], 5)
-    assert e.to_list() == ["+", "5.000000", "a", ["*", "2.000000", "b"], ["*", "3.000000", "c"], ["*", "4.000000", "d"]]
+    assert e.to_list() == [
+        "+",
+        "5.000000",
+        "a",
+        ["*", "2.000000", "b"],
+        ["*", "3.000000", "c"],
+        ["*", "4.000000", "d"],
+    ]
 
     if numpy_available:
-        e = affine_expression([np.int32(1), np.int32(2), np.int32(3), np.int32(4)], [a, b, c, d], np.int32(5))
-        assert e.to_list() == ["+", "5.000000", "a", ["*", "2.000000", "b"], ["*", "3.000000", "c"], ["*", "4.000000", "d"]]
+        e = affine_expression(
+            [np.int32(1), np.int32(2), np.int32(3), np.int32(4)], [a, b, c, d], np.int32(5)
+        )
+        assert e.to_list() == [
+            "+",
+            "5.000000",
+            "a",
+            ["*", "2.000000", "b"],
+            ["*", "3.000000", "c"],
+            ["*", "4.000000", "d"],
+        ]
+
 
 def test_diff_error1(var_a):
     a = var_a
     if poek.__using_pybind11__:
         with pytest.raises(TypeError) as einfo:
+
             class TMP(object):
                 pass
 
             TMP() - a
     elif poek.__using_cppyy__:
         with pytest.raises(TypeError) as einfo:
+
             class TMP(object):
                 pass
 
             TMP() - a
+
 
 def test_diff_error2(var_a):
     a = var_a
@@ -525,11 +570,12 @@ def test_diff_error2(var_a):
         with pytest.raises(TypeError) as einfo:
             a - x
 
-def test_simpleDiff(var_a,var_b):
+
+def test_simpleDiff(var_a, var_b):
     #
     # Check the structure of a simple difference with two variables
     #
-    a,b = var_a,var_b
+    a, b = var_a, var_b
 
     #    -
     #   / \
@@ -540,6 +586,7 @@ def test_simpleDiff(var_a,var_b):
     e = a
     e -= b
     assert e.to_list() == ["+", "a", ["*", "-1.000000", "b"]]
+
 
 def test_constDiff(var_a):
     a = var_a
@@ -566,9 +613,10 @@ def test_constDiff(var_a):
     e -= z
     assert e.to_list() == ["+", "a", "-5.000000"]
 
-def test_paramDiff(var_a,param_p):
+
+def test_paramDiff(var_a, param_p):
     # a - p
-    a,p = var_a,param_p
+    a, p = var_a, param_p
 
     e = a - p
     #
@@ -578,6 +626,7 @@ def test_paramDiff(var_a,param_p):
     e = p - a
     #
     assert e.to_list() == ["+", "p", ["*", "-1.000000", "a"]]
+
 
 def test_termDiff(var_a):
     #
@@ -601,11 +650,12 @@ def test_termDiff(var_a):
         e = np.int32(5) - np.int32(2) * a
         assert e.to_list() == ["+", "5.000000", ["*", "-2.000000", "a"]]
 
-def test_nestedDiff(var_a,var_b,var_c,var_d):
+
+def test_nestedDiff(var_a, var_b, var_c, var_d):
     #
     # Check the structure of nested differences
     #
-    a,b,c,d = var_a,var_b,var_c,var_d
+    a, b, c, d = var_a, var_b, var_c, var_d
 
     if True:
         #       -
@@ -674,7 +724,13 @@ def test_nestedDiff(var_a,var_b,var_c,var_d):
     e2 = c - d
     e = e1 - e2
     #
-    assert e.to_list() == ["+", "a", ["*", "-1.000000", "b"], ["-", ["+", "c", ["*", "-1.000000", "d"]]]]
+    assert e.to_list() == [
+        "+",
+        "a",
+        ["*", "-1.000000", "b"],
+        ["-", ["+", "c", ["*", "-1.000000", "d"]]],
+    ]
+
 
 def test_negation_param(param_p):
     #
@@ -692,11 +748,12 @@ def test_negation_param(param_p):
     #
     assert e.to_list() == ["*", "1.000000", "p"]
 
+
 def test_negation_terms(param_p, var_v):
     #
     # Check logic for negations with terms
     #
-    p,v = param_p,var_v
+    p, v = param_p, var_v
 
     e = -p * v
     assert e.to_list() == ["*", ["*", "-1.000000", "p"], "v"]
@@ -716,11 +773,12 @@ def test_negation_terms(param_p, var_v):
         e = -e
         assert e.to_list() == ["*", "5.000000", "v"]
 
-def test_trivialDiff(var_a,param_p):
+
+def test_trivialDiff(var_a, param_p):
     #
     # Check that subtracting zero doesn't change the expression
     #
-    a,p = var_a,param_p
+    a, p = var_a, param_p
 
     if True:
         # a - 0
@@ -799,7 +857,7 @@ def test_trivialDiff(var_a,param_p):
         assert e.to_list() == ["*", "-1.000000", "p"]
 
         z = np.float32(0.0)
-        e = a - z 
+        e = a - z
         assert e.to_list() == ["a"]
 
         e = a
@@ -809,11 +867,12 @@ def test_trivialDiff(var_a,param_p):
         e = z - a
         assert e.to_list() == ["*", "-1.000000", "a"]
 
-def test_sumOf_nestedTrivialProduct2(var_a,var_b,var_c):
+
+def test_sumOf_nestedTrivialProduct2(var_a, var_b, var_c):
     #
     # Check the structure of sum of products
     #
-    a,b,c = var_a,var_b,var_c
+    a, b, c = var_a, var_b, var_c
 
     if True:
         #       -
@@ -842,7 +901,11 @@ def test_sumOf_nestedTrivialProduct2(var_a,var_b,var_c):
         e1 = a * 5
         e2 = b - c
         e = e1 - e2
-        assert e.to_list() == ["+", ["*", "5.000000", "a"], ["-", ["+", "b", ["*", "-1.000000", "c"]]]]
+        assert e.to_list() == [
+            "+",
+            ["*", "5.000000", "a"],
+            ["-", ["+", "b", ["*", "-1.000000", "c"]]],
+        ]
 
         #            -
         #          /   \
@@ -881,7 +944,11 @@ def test_sumOf_nestedTrivialProduct2(var_a,var_b,var_c):
         e1 = a * np.int32(5)
         e2 = b - c
         e = e1 - e2
-        assert e.to_list() == ["+", ["*", "5.000000", "a"], ["-", ["+", "b", ["*", "-1.000000", "c"]]]]
+        assert e.to_list() == [
+            "+",
+            ["*", "5.000000", "a"],
+            ["-", ["+", "b", ["*", "-1.000000", "c"]]],
+        ]
 
         #            -
         #          /   \
@@ -893,24 +960,29 @@ def test_sumOf_nestedTrivialProduct2(var_a,var_b,var_c):
         e = e2 - e1
         assert e.to_list() == ["+", "b", ["*", "-1.000000", "c"], ["*", "-5.000000", "a"]]
 
+
 #
 # Multiply
 #
+
 
 def test_mul_error1(var_a):
     a = var_a
     if poek.__using_pybind11__:
         with pytest.raises(TypeError) as einfo:
+
             class TMP(object):
                 pass
 
             TMP() * a
     elif poek.__using_cppyy__:
         with pytest.raises(TypeError) as einfo:
+
             class TMP(object):
                 pass
 
             TMP() * a
+
 
 def test_mul_error2(var_a):
     a = var_a
@@ -922,24 +994,26 @@ def test_mul_error2(var_a):
         with pytest.raises(TypeError) as einfo:
             a * x
 
+
 def test_simpleProduct(var_a, var_b):
     #
     # Check the structure of a simple product of variables
     #
-    a,b = var_a,var_b
+    a, b = var_a, var_b
 
     #    *
     #   / \
     #  a   b
     e = a * b
-    assert e.to_list() == ["*", "a", "b"] 
+    assert e.to_list() == ["*", "a", "b"]
 
     #    *
     #   / \
     #  a   b
     e = a
     e *= b
-    assert e.to_list() == ["*", "a", "b"] 
+    assert e.to_list() == ["*", "a", "b"]
+
 
 def test_constProduct(var_a):
     #
@@ -952,60 +1026,61 @@ def test_constProduct(var_a):
         #   / \
         #  a   5
         e = a * 5
-        assert e.to_list() == ["*", "5.000000", "a"] 
+        assert e.to_list() == ["*", "5.000000", "a"]
 
         e = a * 5.0
-        assert e.to_list() == ["*", "5.000000", "a"] 
+        assert e.to_list() == ["*", "5.000000", "a"]
 
         e = a
         e *= 5
-        assert e.to_list() == ["*", "5.000000", "a"] 
+        assert e.to_list() == ["*", "5.000000", "a"]
 
         #    *
         #   / \
         #  5   a
         e = 5.0 * a
-        assert e.to_list() == ["*", "5.000000", "a"] 
+        assert e.to_list() == ["*", "5.000000", "a"]
 
         e = a
         e *= 5.0
-        assert e.to_list() == ["*", "5.000000", "a"] 
+        assert e.to_list() == ["*", "5.000000", "a"]
 
         e = 5.0 * a
-        assert e.to_list() == ["*", "5.000000", "a"] 
+        assert e.to_list() == ["*", "5.000000", "a"]
 
     if numpy_available:
         #    *
         #   / \
         #  a   5
         e = a * np.int32(5)
-        assert e.to_list() == ["*", "5.000000", "a"] 
+        assert e.to_list() == ["*", "5.000000", "a"]
 
         e = a * np.float32(5.0)
-        assert e.to_list() == ["*", "5.000000", "a"] 
+        assert e.to_list() == ["*", "5.000000", "a"]
 
         e = a
         e *= np.int32(5)
-        assert e.to_list() == ["*", "5.000000", "a"] 
+        assert e.to_list() == ["*", "5.000000", "a"]
 
         #    *
         #   / \
         #  5   a
         e = np.float32(5.0) * a
-        assert e.to_list() == ["*", "5.000000", "a"] 
+        assert e.to_list() == ["*", "5.000000", "a"]
 
         e = a
         e *= np.float32(5.0)
-        assert e.to_list() == ["*", "5.000000", "a"] 
+        assert e.to_list() == ["*", "5.000000", "a"]
 
         e = np.float32(5.0) * a
-        assert e.to_list() == ["*", "5.000000", "a"] 
+        assert e.to_list() == ["*", "5.000000", "a"]
+
 
 def test_nestedProduct(var_a, var_b, var_c, var_d):
     #
     # Check the structure of nested products
     #
-    a,b,c,d = var_a,var_b,var_c,var_d
+    a, b, c, d = var_a, var_b, var_c, var_d
 
     if True:
         #       *
@@ -1015,7 +1090,7 @@ def test_nestedProduct(var_a, var_b, var_c, var_d):
         #   a   b
         e1 = a * b
         e = e1 * 5
-        assert e.to_list() == ["*", ["*", "a", "b"], "5.000000"] 
+        assert e.to_list() == ["*", ["*", "a", "b"], "5.000000"]
 
         #       *
         #      / \
@@ -1024,7 +1099,7 @@ def test_nestedProduct(var_a, var_b, var_c, var_d):
         #       a   b
         e1 = a * b
         e = 5 * e1
-        assert e.to_list() == ["*", "5.000000", ["*", "a", "b"]] 
+        assert e.to_list() == ["*", "5.000000", ["*", "a", "b"]]
 
     if numpy_available:
         #       *
@@ -1034,7 +1109,7 @@ def test_nestedProduct(var_a, var_b, var_c, var_d):
         #   a   b
         e1 = a * b
         e = e1 * np.int32(5)
-        assert e.to_list() == ["*", ["*", "a", "b"], "5.000000"] 
+        assert e.to_list() == ["*", ["*", "a", "b"], "5.000000"]
 
         #       *
         #      / \
@@ -1043,8 +1118,7 @@ def test_nestedProduct(var_a, var_b, var_c, var_d):
         #       a   b
         e1 = a * b
         e = np.int32(5) * e1
-        assert e.to_list() == ["*", "5.000000", ["*", "a", "b"]] 
-
+        assert e.to_list() == ["*", "5.000000", ["*", "a", "b"]]
 
     #       *
     #      / \
@@ -1053,7 +1127,7 @@ def test_nestedProduct(var_a, var_b, var_c, var_d):
     #   a   b
     e1 = a * b
     e = e1 * c
-    assert e.to_list() == ["*", ["*", "a", "b"], "c"] 
+    assert e.to_list() == ["*", ["*", "a", "b"], "c"]
 
     #       *
     #      / \
@@ -1062,7 +1136,7 @@ def test_nestedProduct(var_a, var_b, var_c, var_d):
     #       a   b
     e1 = a * b
     e = c * e1
-    assert e.to_list() == ["*", "c", ["*", "a", "b"]] 
+    assert e.to_list() == ["*", "c", ["*", "a", "b"]]
 
     #            *
     #          /   \
@@ -1072,13 +1146,14 @@ def test_nestedProduct(var_a, var_b, var_c, var_d):
     e1 = a * b
     e2 = c * d
     e = e1 * e2
-    assert e.to_list() == ["*", ["*", "a", "b"], ["*", "c", "d"]] 
+    assert e.to_list() == ["*", ["*", "a", "b"], ["*", "c", "d"]]
+
 
 def test_nestedProduct2(var_a, var_b, var_c, var_d):
     #
     # Check the structure of nested products
     #
-    a,b,c,d = var_a,var_b,var_c,var_d
+    a, b, c, d = var_a, var_b, var_c, var_d
 
     #
     # Check the structure of nested products
@@ -1112,11 +1187,12 @@ def test_nestedProduct2(var_a, var_b, var_c, var_d):
     e = e2 * e3
     assert e.to_list() == ["*", ["*", "c", ["+", "a", "b"]], ["*", ["+", "a", "b"], "d"]]
 
-def test_nestedProduct3(var_a,var_b,var_c,var_d):
+
+def test_nestedProduct3(var_a, var_b, var_c, var_d):
     #
     # Check the structure of nested products
     #
-    a,b,c,d = var_a,var_b,var_c,var_d
+    a, b, c, d = var_a, var_b, var_c, var_d
 
     if True:
         #       *
@@ -1220,11 +1296,12 @@ def test_nestedProduct3(var_a,var_b,var_c,var_d):
     e = e1 * e2
     assert e.to_list() == ["*", ["*", "a", "b"], ["*", "c", "d"]]
 
-def test_trivialProduct(var_a,param_p,param_q,param_r):
+
+def test_trivialProduct(var_a, param_p, param_q, param_r):
     #
     # Check that multiplying by zero gives zero
     #
-    a,p,q,r = var_a,param_p,param_q,param_r
+    a, p, q, r = var_a, param_p, param_q, param_r
 
     if True:
         e = a * 0
@@ -1328,16 +1405,19 @@ def test_div_error1(var_a):
     a = var_a
     if poek.__using_pybind11__:
         with pytest.raises(TypeError) as einfo:
+
             class TMP(object):
                 pass
 
             TMP() / a
     elif poek.__using_cppyy__:
         with pytest.raises(TypeError) as einfo:
+
             class TMP(object):
                 pass
 
             TMP() / a
+
 
 def test_div_error2(var_a):
     a = var_a
@@ -1349,11 +1429,12 @@ def test_div_error2(var_a):
         with pytest.raises(TypeError) as einfo:
             a / x
 
-def test_simpleDivision(var_a,var_b):
+
+def test_simpleDivision(var_a, var_b):
     #
     # Check the structure of a simple division with variables
     #
-    a,b = var_a,var_b
+    a, b = var_a, var_b
 
     #    /
     #   / \
@@ -1364,6 +1445,7 @@ def test_simpleDivision(var_a,var_b):
     e = a
     e /= b
     assert e.to_list() == ["/", "a", "b"]
+
 
 def test_constDivision(var_a):
     #
@@ -1415,11 +1497,12 @@ def test_constDivision(var_a):
         e /= z
         assert e.to_list() == ["*", "0.200000", "a"]
 
-def test_nestedDivision(var_a,var_b,var_c,var_d):
+
+def test_nestedDivision(var_a, var_b, var_c, var_d):
     #
     # Check the structure of nested divisions
     #
-    a,b,c,d = var_a,var_b,var_c,var_d
+    a, b, c, d = var_a, var_b, var_c, var_d
 
     if True:
         #       /
@@ -1504,11 +1587,12 @@ def test_nestedDivision(var_a,var_b,var_c,var_d):
     e = e1 / e2
     assert e.to_list() == ["/", ["/", "a", "b"], ["/", "c", "d"]]
 
-def test_trivialDivision(var_a,param_p,param_q,param_r):
+
+def test_trivialDivision(var_a, param_p, param_q, param_r):
     #
     # Check that dividing by zero generates an exception
     #
-    a,p,q,r = var_a,param_p,param_q,param_r
+    a, p, q, r = var_a, param_p, param_q, param_r
 
     if poek.__using_pybind11__:
         with pytest.raises(ValueError) as einfo:
@@ -1627,16 +1711,19 @@ def test_pow_error1(var_a):
     a = var_a
     if poek.__using_pybind11__:
         with pytest.raises(TypeError) as einfo:
+
             class TMP(object):
                 pass
 
             TMP() ** a
     elif poek.__using_cppyy__:
         with pytest.raises(TypeError) as einfo:
+
             class TMP(object):
                 pass
 
             TMP() ** a
+
 
 def test_pow_error2(var_a):
     a = var_a
@@ -1648,8 +1735,9 @@ def test_pow_error2(var_a):
         with pytest.raises(TypeError) as einfo:
             a**x
 
-def test_simplePow(var_a,var_b):
-    a,b = var_a,var_b
+
+def test_simplePow(var_a, var_b):
+    a, b = var_a, var_b
 
     e = a**b
     assert e.to_list() == ["pow", "a", "b"]
@@ -1657,6 +1745,7 @@ def test_simplePow(var_a,var_b):
     e = a
     e **= b
     assert e.to_list() == ["pow", "a", "b"]
+
 
 def test_constPow(var_a):
     #
@@ -1708,9 +1797,10 @@ def test_constPow(var_a):
         e **= z
         assert e.to_list() == ["pow", "a", "5.000000"]
 
-def test_trivialPow(var_a,param_p,param_q,param_r):
+
+def test_trivialPow(var_a, param_p, param_q, param_r):
     #
-    a,p,q,r = var_a,param_p,param_q,param_r
+    a, p, q, r = var_a, param_p, param_q, param_r
 
     #
     # Check that taking the first power returns the original object
@@ -1805,21 +1895,22 @@ def test_trivialPow(var_a,param_p,param_q,param_r):
         assert e.to_list() == ["1.000000"]
 
     if numpy_available:
-        e = np.int32(0)**a
+        e = np.int32(0) ** a
         assert e.to_list() == ["0.000000"]
 
-        e = np.float32(0.0)**a
+        e = np.float32(0.0) ** a
         assert e.to_list() == ["0.000000"]
 
-        e = np.int32(1)**a
+        e = np.int32(1) ** a
         assert e.to_list() == ["1.000000"]
 
-        e = np.float32(1.0)**a
+        e = np.float32(1.0) ** a
         assert e.to_list() == ["1.000000"]
 
-def test_trivialRPow(var_a,param_p,param_q,param_r):
+
+def test_trivialRPow(var_a, param_p, param_q, param_r):
     #
-    a,p,q,r = var_a,param_p,param_q,param_r
+    a, p, q, r = var_a, param_p, param_q, param_r
 
     #
     # Check that taking any power of 1 is 1
@@ -1832,10 +1923,10 @@ def test_trivialRPow(var_a,param_p,param_q,param_r):
         assert e.to_list() == ["1.000000"]
 
     if numpy_available:
-        e = np.int32(1)**a
+        e = np.int32(1) ** a
         assert e.to_list() == ["1.000000"]
 
-        e = np.float32(1.0)**a
+        e = np.float32(1.0) ** a
         assert e.to_list() == ["1.000000"]
 
     e = r**a
@@ -1852,14 +1943,15 @@ def test_trivialRPow(var_a,param_p,param_q,param_r):
         assert e.to_list() == ["0.000000"]
 
     if numpy_available:
-        e = np.int32(0)**a
+        e = np.int32(0) ** a
         assert e.to_list() == ["0.000000"]
 
-        e = np.float32(0.0)**a
+        e = np.float32(0.0) ** a
         assert e.to_list() == ["0.000000"]
 
-def test_pow_expresions(var_a,param_r):
-    a,r = var_a,param_r
+
+def test_pow_expresions(var_a, param_r):
+    a, r = var_a, param_r
 
     e = a**r
     assert e.to_list() == ["pow", "a", "r"]
@@ -1892,9 +1984,11 @@ def test_pow_expresions(var_a,param_r):
         e = z**a
         assert e.to_list() == ["pow", "2.000000", "a"]
 
+
 #
 # Expression entanglement tests
 #
+
 
 def test_sumexpr_add_entangled(var_a):
     a = var_a
@@ -1903,8 +1997,9 @@ def test_sumexpr_add_entangled(var_a):
     e += 1
     assert e.to_list() == ["+", ["*", "2.000000", "a"], "1.000000", "1.000000"]
 
-def test_entangled_test1(var_a,var_b,var_c,var_d):
-    a,b,c,d = var_a,var_b,var_c,var_d
+
+def test_entangled_test1(var_a, var_b, var_c, var_d):
+    a, b, c, d = var_a, var_b, var_c, var_d
     e1 = a + b
     e2 = c + e1
     e3 = d + e1
@@ -1913,9 +2008,11 @@ def test_entangled_test1(var_a,var_b,var_c,var_d):
     assert e2.to_list() == ["+", "c", ["+", "a", "b"]]
     assert e3.to_list() == ["+", "d", ["+", "a", "b"]]
 
+
 #
 # Variable Tests
 #
+
 
 def test_var_default_value():
     v = variable(3, name="v")
@@ -1923,16 +2020,19 @@ def test_var_default_value():
     assert math.isnan(v[1].value)
     assert math.isnan(v[2].value)
 
+
 def test_var_initialize():
     v = variable(3, name="v", value=3)
     assert v[0].value, 3
     assert v[1].value, 3
     assert v[2].value, 3
 
+
 def test_var_iterator():
     v = variable(3, name="v")
     for i in v:
         assert math.isnan(v[i].value)
+
 
 def test_var_getitem1():
     v = variable(3, name="v")
@@ -1940,21 +2040,25 @@ def test_var_getitem1():
     v2 = v[0]
     assert v1.name == v2.name
 
+
 def test_var_getitem2():
     v = variable(3)
     v1 = v[0]
     v2 = v[0]
     assert v1.name == v2.name
 
+
 def test_name1():
     v = variable(3, name="v", value=3).generate_names()
     assert v.name == "v"
     assert v[0].name == "v[0]"
 
+
 def test_name2():
     v = variable(3, value=3)
     assert v.name == "X"
     assert v[0].name[0] == "X"
+
 
 def test_name_single():
     v = variable(value=3, name="y")
@@ -1972,16 +2076,19 @@ def test_ndvar_default_value():
     assert math.isnan(v[1, 0, 0].value)
     assert math.isnan(v[2, 1, 2].value)
 
+
 def test_ndvar_initialize():
     v = variable((3, 2, 4), name="v", value=3)
     assert v[0, 1, 3].value == 3
     assert v[1, 0, 0].value == 3
     assert v[2, 1, 2].value == 3
 
+
 def test_ndvar_iterator():
     v = variable((3, 2, 4), name="v")
     for i in v:
         assert math.isnan(v[i].value)
+
 
 def test_ndvar_getitem1():
     v = variable((3, 2, 4), name="v")
@@ -1989,17 +2096,20 @@ def test_ndvar_getitem1():
     v2 = v[0, 0, 0]
     assert v1.name == v2.name
 
+
 def test_ndvar_getitem2():
     v = variable((3, 2, 4))
     v1 = v[0, 0, 0]
     v2 = v[0, 0, 0]
     assert v1.name == v2.name
 
+
 def test_ndvar_name1():
     v = variable((3, 2, 4), name="v", value=3).generate_names()
     assert v.name, "v"
     assert v[2, 1, 3].name == "v[2,1,3]"
     assert v[0, 0, 0].name == "v[0,0,0]"
+
 
 def test_ndvar_name2():
     v = variable((3, 2, 4), value=3)

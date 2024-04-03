@@ -11,9 +11,9 @@ setup(
     author="coek developers",
     maintainer_email="wehart@sandia.gov",
     license="Revised BSD",
-    #install_requires=["pyomo>=6.4.1", "poek"],
-    #include_package_data=True,
-    #scripts=[],
+    # install_requires=["pyomo>=6.4.1", "poek"],
+    # include_package_data=True,
+    # scripts=[],
     python_requires=">=3.7",
     classifiers=[
         "Programming Language :: Python :: 3",

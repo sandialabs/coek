@@ -149,7 +149,7 @@ class _GeneralVarData(ComponentData):
     def reset_value(self):
         self._is_none = False
         self._stale = StaleFlagManager.get_flag(self._stale)
-        
+
     def set_value(self, val, skip_validation=False):
         if val is None:
             self._is_none = True
@@ -338,9 +338,9 @@ class Var(IndexedComponent):
             _bounds_arg, treat_sequences_as_mappings=treat_bounds_sequences_as_mappings
         )
 
-    #def flag_as_stale(self):
-        #for v in self._data.values():
-        #    v.stale = True
+    # def flag_as_stale(self):
+    # for v in self._data.values():
+    #    v.stale = True
 
     def get_values(self, include_fixed_values=True):
         if include_fixed_values:
@@ -698,7 +698,7 @@ class _ImplicitAny(Any.__class__):
 
 class _ParamData(ComponentData):
 
-    __slots__ = ("_pe","_is_none")
+    __slots__ = ("_pe", "_is_none")
 
     def __init__(self, component):
         super().__init__(component=component)
@@ -1274,8 +1274,8 @@ class Param(IndexedComponent):
             #
             val = self._default_val
             if type(val) in native_types and val is not None and val not in self.domain:
-                #print("HERE", type(val) in native_types, val not in self.domain, type(self.domain))
-                #self.domain.pprint()
+                # print("HERE", type(val) in native_types, val not in self.domain, type(self.domain))
+                # self.domain.pprint()
                 raise ValueError(
                     "Default value (%s) is not valid for Param %s domain %s"
                     % (str(val), self.name, self.domain.name)
@@ -1446,9 +1446,6 @@ class IndexedParam(Param):
                     continue
                 component_list.append(obj)
                 memo[id(obj)] = obj.__class__.__new__(obj.__class__)
-
-
-
 
 
 class _GeneralExpressionData(NumericValue, ComponentData):
@@ -1914,6 +1911,7 @@ class IndexedExpression(Expression):
         """Add an objective with a given index."""
         return self.__setitem__(index, expr)
 
+
 def _get_other_operand_float(operand):
     return operand
 
@@ -1992,4 +1990,3 @@ _var_eq_map[ScalarParam] = _get_var_eq_func_param
 _var_eq_map[_GeneralExpressionData] = _get_var_eq_func_var
 _var_eq_map[ScalarExpression] = _get_var_eq_func_var
 _var_eq_map[pk.expression] = _get_var_eq_func_expr
-
