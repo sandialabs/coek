@@ -104,7 +104,7 @@ std::string to_string(const SolverResults& res)
     ans << "solution_status: " << to_string(res.solution_status) << std::endl;
 
     ans << "objective_value: ";
-    if (isnan(res.objective_value))
+    if (std::isnan(res.objective_value))
         ans << "nan" << std::endl;
     else
         ans << res.objective_value << std::endl;
@@ -118,7 +118,7 @@ std::string to_string(const SolverResults& res)
     ans << "iteration_count: " << res.iteration_count << std::endl;
 
     ans << "system_time: ";
-    if (isnan(res.system_time))
+    if (std::isnan(res.system_time))
         ans << "nan" << std::endl;
     else
         ans << res.system_time << std::endl;
