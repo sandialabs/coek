@@ -47,9 +47,6 @@ void SolverCache::find_updated_values()
 
 void SolverCache::reset_cache()
 {
-    error_occurred = false;
-    error_message = "";
-    error_code = 0;
     initial = true;
     vcache.clear();
     pcache.clear();
@@ -82,7 +79,7 @@ NLPSolverRepn* create_nlpsolver(std::string& name, OptionCache& options)
     return 0;
 }
 
-int NLPSolverRepn::resolve(bool reset_nlpmodel)
+std::shared_ptr<SolverResults> NLPSolverRepn::resolve(bool reset_nlpmodel)
 {
     if (reset_nlpmodel)
         model->reset();

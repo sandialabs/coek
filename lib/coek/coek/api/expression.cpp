@@ -240,7 +240,7 @@ Variable& Variable::name(const std::string& name)
 
 std::string Variable::name() const { return repn->get_name(); }
 
-unsigned int Variable::id() const { return repn->index; }
+size_t Variable::id() const { return repn->index; }
 
 Variable& Variable::within(VariableTypes vtype)
 {

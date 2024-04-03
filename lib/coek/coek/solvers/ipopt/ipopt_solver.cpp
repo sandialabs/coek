@@ -9,22 +9,39 @@
 
 namespace coek {
 
-int IpoptSolver::solve(NLPModel& _model)
+std::shared_ptr<SolverResults> IpoptSolver::solve(NLPModel& _model)
 {
+    if (not available_) {
+        auto res = std::make_shared<SolverResults>();
+        res->solver_name = "ipopt";
+        res->termination_condition = TerminationCondition::solver_not_available;
+        res->error_message = error_message;
+        return res;
+    }
+
     load(_model);
     if (not initial_solve()) {
-        std::cout << "ERROR: must reset the model before solving" << std::endl;
-        return -1;
+        auto res = std::make_shared<SolverResults>();
+        res->solver_name = "ipopt";
+        res->termination_condition = TerminationCondition::error;
+        res->error_message
+            = "Ipopt Error: must call reset() to reset ipopt state before calling solve() a second "
+              "time.";
+        return res;
     }
     repn->set_options(string_options(), integer_options(), double_options());
     return repn->perform_solve();
 }
 
-int IpoptSolver::resolve_exec()
+std::shared_ptr<SolverResults> IpoptSolver::resolve_exec()
 {
-#ifdef DEBUG
-    auto start = std::chrono::high_resolution_clock::now();
-#endif
+    if (not available_) {
+        auto res = std::make_shared<SolverResults>();
+        res->solver_name = "ipopt";
+        res->termination_condition = TerminationCondition::solver_not_available;
+        res->error_message = error_message;
+        return res;
+    }
 
     if (not initial_solve())
         model->reset();
@@ -35,15 +52,8 @@ int IpoptSolver::resolve_exec()
         repn->set_start_from_last_x(true);
     else
         repn->set_start_from_last_x(false);
-    int status = repn->perform_solve();
 
-#ifdef DEBUG
-    auto curr = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> diff = curr - start;
-    std::cout << "Time to solve: " << diff.count() << " s\n";
-#endif
-
-    return status;
+    return repn->perform_solve();
 }
 
 }  // namespace coek

@@ -1,9 +1,11 @@
 #pragma once
 
+#include <memory>
 #include <coek/util/option_cache.hpp>
 #include <coek/model/compact_model.hpp>
 #include <coek/model/model.hpp>
 #include <coek/model/nlp_model.hpp>
+#include <coek/solvers/solver_results.hpp>
 
 namespace coek {
 
@@ -34,28 +36,21 @@ class Solver : public OptionCache {
     /** Optimize the specified model
      *
      * \returns an error code that is nonzero if an error occurs */
-    int solve(Model& model);
+    std::shared_ptr<SolverResults> solve(Model& model);
     /** Load a model */
     void load(Model& model);
 
 #ifdef COEK_WITH_COMPACT_MODEL
-    int solve(CompactModel& model);
+    std::shared_ptr<SolverResults> solve(CompactModel& model);
     void load(CompactModel& model);
 #endif
 
     /* Resolve a model that has been loaded
      *
      * \returns an error code that is nonzero if an error occurs */
-    int resolve();
+    std::shared_ptr<SolverResults> resolve();
     /** Resets the state of the optimizer */
     void reset();
-
-    /** Returns \c true if an error occurred */
-    bool error_status() const;
-    /** Returns the integer error code */
-    int error_code() const;
-    /** Returns a string error message*/
-    std::string error_message() const;
 };
 
 /**
@@ -82,23 +77,14 @@ class NLPSolver : public OptionCache {
     /** Optimize the specified model
      *
      * \returns an error code that is nonzero if an error occurs */
-    int solve(NLPModel& model);
+    std::shared_ptr<SolverResults> solve(NLPModel& model);
 
     /** Load a model */
     void load(NLPModel& model);
-    /* Resolve a model that has been loaded
-     *
-     * \returns an error code that is nonzero if an error occurs */
-    int resolve(bool reset_nlpmodel = true);
+    /* Resolve a model that has been loaded */
+    std::shared_ptr<SolverResults> resolve(bool reset_nlpmodel = true);
     /** Resets the state of the optimizer */
     void reset();
-
-    /** Returns \c true if an error occurred */
-    bool error_status() const;
-    /** Returns the integer error code */
-    int error_code() const;
-    /** Returns a string error message*/
-    std::string error_message() const;
 };
 
 }  // namespace coek

@@ -7,8 +7,9 @@
 #include "coek/api/objective.hpp"
 #include "coek/autograd/autograd.hpp"
 #include "coek/model/model_repn.hpp"
-#include "coek/solvers/loadlib.h"
+#include "coek/util/loadlib.h"
 #include "coek/util/sequence.hpp"
+#include "coek/util/tictoc.hpp"
 #include "ipopt_solver.hpp"
 
 extern "C" {
@@ -131,7 +132,7 @@ class IpoptModel {
                 const Number* lambda, bool new_lambda, Index nele_hess, Index* iRow, Index* jCol,
                 Number* values);
 
-    int perform_solve();
+    std::shared_ptr<SolverResults> perform_solve();
 
    private:
     // This method should not be used.
@@ -355,8 +356,12 @@ Number* array_ptr(std::vector<Number>& v)
     return &(v[0]);
 }
 
-int IpoptModel::perform_solve()
+std::shared_ptr<SolverResults> IpoptModel::perform_solve()
 {
+    auto res = std::make_shared<SolverResults>();
+    res->solver_name = "ipopt";
+    res->tic();
+
     enum ApplicationReturnStatus status;
 
     if (start_from_last_x) {
@@ -372,6 +377,7 @@ int IpoptModel::perform_solve()
         status = (*IpoptSolve_func_ptr)(app, array_ptr(last_x), array_ptr(last_g), &last_objval, 0,
                                         0, 0, this);
     }
+    res->iteration_count = static_cast<unsigned int>(last_iter_count);
 
     if ((status == Solve_Succeeded) || (status == Solved_To_Acceptable_Level)) {
 #ifdef DEBUG
@@ -383,20 +389,86 @@ int IpoptModel::perform_solve()
                   << "*** The final value of the objective function is " << last_objval << '.'
                   << std::endl;
 #endif
+        res->termination_condition = TerminationCondition::convergence_criteria_satisfied;
+        res->solution_status = SolutionStatus::optimal;
+        res->objective_value = last_objval;
 
         for (size_t i : coek::range(nlpmodel.num_variables())) {
             auto v = nlpmodel.get_variable(i);
             v.value(last_x[i]);
         }
     }
-    else {
-        std::cout << std::endl
-                  << std::endl
-                  << "*** The problem was not solved successfully.  Status = " << status
-                  << std::endl;
+    else if (status == Feasible_Point_Found) {
+        res->termination_condition = TerminationCondition::unknown;
+        res->solution_status = SolutionStatus::feasible;
+        res->objective_value = last_objval;
+
+        for (size_t i : coek::range(nlpmodel.num_variables())) {
+            auto v = nlpmodel.get_variable(i);
+            v.value(last_x[i]);
+        }
+    }
+    else if (status == Infeasible_Problem_Detected) {
+        res->termination_condition = TerminationCondition::locally_infeasible;
+    }
+    else if (status == Search_Direction_Becomes_Too_Small) {
+        res->termination_condition = TerminationCondition::min_step_length;
+    }
+    else if (status == User_Requested_Stop) {
+        res->termination_condition = TerminationCondition::interrupted;
+    }
+    else if (status == Maximum_Iterations_Exceeded) {
+        res->termination_condition = TerminationCondition::iteration_limit;
+    }
+    else if (status == Maximum_CpuTime_Exceeded) {
+        res->termination_condition = TerminationCondition::time_limit;
+    }
+    else if (status == Invalid_Problem_Definition) {
+        res->termination_condition = TerminationCondition::invalid_model_for_solver;
+    }
+    else if (status == Diverging_Iterates) {
+        res->termination_condition = TerminationCondition::error;
+        res->error_message = "Ipopt Error: diverging iterates";
+    }
+    else if (status == Restoration_Failed) {
+        res->termination_condition = TerminationCondition::error;
+        res->error_message = "Ipopt Error: restoration failed";
+    }
+    else if (status == Error_In_Step_Computation) {
+        res->termination_condition = TerminationCondition::error;
+        res->error_message = "Ipopt Error: error in step computation";
+    }
+    else if (status == Not_Enough_Degrees_Of_Freedom) {
+        res->termination_condition = TerminationCondition::error;
+        res->error_message = "Ipopt Error: not enough degrees of freedom";
+    }
+    else if (status == Invalid_Option) {
+        res->termination_condition = TerminationCondition::error;
+        res->error_message = "Ipopt Error: invalid option";
+    }
+    else if (status == Invalid_Number_Detected) {
+        res->termination_condition = TerminationCondition::error;
+        res->error_message = "Ipopt Error: invalid number detected";
+    }
+    else if (status == Unrecoverable_Exception) {
+        res->termination_condition = TerminationCondition::error;
+        res->error_message = "Ipopt Error: unrecoverable exception";
+    }
+    else if (status == NonIpopt_Exception_Thrown) {
+        res->termination_condition = TerminationCondition::error;
+        res->error_message = "Ipopt Error: non-ipopt exception thrown";
+    }
+    else if (status == Insufficient_Memory) {
+        res->termination_condition = TerminationCondition::error;
+        res->error_message = "Ipopt Error: insufficient memory";
+    }
+    else if (status == Internal_Error) {
+        res->termination_condition = TerminationCondition::error;
+        res->error_message = "Ipopt Error: unknown internal ipopt error";
     }
 
-    return (int)status;
+    res->toc();
+    return res;
 }
 
 }  // namespace coek
@@ -499,7 +571,7 @@ class IpoptSolverRepn_CAPI : public IpoptSolverRepn {
 
     IpoptSolverRepn_CAPI(NLPModel& nlpmodel) { nlp = std::make_shared<IpoptModel>(nlpmodel); }
 
-    int perform_solve() { return nlp->perform_solve(); }
+    std::shared_ptr<SolverResults> perform_solve() { return nlp->perform_solve(); }
 
     void set_start_from_last_x(bool flag) { nlp->start_from_last_x = flag; }
 
@@ -529,17 +601,20 @@ void IpoptSolverRepn_CAPI::set_options(const std::map<std::string, std::string>&
 
 void IpoptSolver::initialize()
 {
+    std::string tmp;
 #ifdef _MSC_VER
-    error_code = load_ipopt_library("libipopt-3.dll", error_message);
-#else
-    error_code = load_ipopt_library("libipopt.so", error_message);
-#endif
+    int error_code = load_ipopt_library("libipopt-3.dll", tmp);
     if (error_code == 1) {
-        error_code = load_ipopt_library("libipopt.dylib", error_message);
+        error_message = "Failed to load libipopt-3.dll: " + tmp;
+#else
+    int error_code = load_ipopt_library("libipopt.so", tmp);
+    if (error_code == 1) {
+        error_message = "Failed to load libipopt.so: " + tmp;
+#endif
+        error_code = load_ipopt_library("libipopt.dylib", tmp);
     }
     if (error_code == 1) {
-        error_code = NonIpopt_Exception_Thrown;
-        error_occurred = true;
+        error_message = error_message + "\nFailed to load libipopt.dylib: " + tmp;
     }
     available_ = error_code == 0;
 }

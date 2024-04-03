@@ -11,7 +11,7 @@ namespace coek {
 
 class IpoptSolverRepn {
    public:
-    virtual int perform_solve() = 0;
+    virtual std::shared_ptr<SolverResults> perform_solve() = 0;
     virtual void set_start_from_last_x(bool flag) = 0;
     virtual void set_options(const std::map<std::string, std::string>& string_options,
                              const std::map<std::string, int>& integer_options,
@@ -22,6 +22,7 @@ class IpoptSolverRepn {
 class IpoptSolver : public NLPSolverRepn {
    protected:
     bool available_;
+    std::string error_message;
     std::shared_ptr<IpoptSolverRepn> repn;
 
     void initialize();
@@ -31,9 +32,9 @@ class IpoptSolver : public NLPSolverRepn {
 
     void load(NLPModel& model);
 
-    int resolve_exec();
+    std::shared_ptr<SolverResults> resolve_exec();
 
-    int solve(NLPModel& model);
+    std::shared_ptr<SolverResults> solve(NLPModel& model);
 
     bool available() { return available_; }
 };
