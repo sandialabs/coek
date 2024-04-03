@@ -7,18 +7,22 @@ import pytest
 # Test fixtures
 #
 
+
 @pytest.fixture
 def model_M(pyomo_module):
     return pyomo_module.ConcreteModel()
+
 
 @pytest.fixture
 def M_v(model_M, pyomo_module):
     model_M.v = pyomo_module.Var()
     return model_M.v
 
+
 #
 # Var value
 #
+
 
 def test_var_uninitialized(pyomo_module):
     pe = pyomo_module
@@ -30,6 +34,7 @@ def test_var_uninitialized(pyomo_module):
     # Variable value can be set
     assert M.v.value == 1.0
 
+
 def test_var_initialized(pyomo_module):
     pe = pyomo_module
     M = pe.ConcreteModel()
@@ -37,9 +42,11 @@ def test_var_initialized(pyomo_module):
     # Uninitialized variable has value 1.0
     assert M.v.value == 1.0
 
+
 #
 # Var fixed
 #
+
 
 def test_var_fixed(pyomo_module):
     pe = pyomo_module
@@ -52,6 +59,7 @@ def test_var_fixed(pyomo_module):
     M.v.value = 1.0
     assert M.v.value == 1.0
 
+
 def test_var_fix1(pyomo_module):
     pe = pyomo_module
     M = pe.ConcreteModel()
@@ -60,7 +68,8 @@ def test_var_fix1(pyomo_module):
     assert M.v.value == 1.0
     M.v.fix()
     assert M.v.fixed == True
-    assert M.v.value == 1.0     # Q: Why not None?
+    assert M.v.value == 1.0  # Q: Why not None?
+
 
 def test_var_fix2(pyomo_module):
     pe = pyomo_module
@@ -73,6 +82,7 @@ def test_var_fix2(pyomo_module):
     assert M.v.fixed == True
     assert M.v.value == 0.0
 
+
 def test_var_fix3(pyomo_module):
     pe = pyomo_module
     M = pe.ConcreteModel()
@@ -83,6 +93,7 @@ def test_var_fix3(pyomo_module):
     M.v.unfix()
     assert M.v.fixed == False
     assert M.v.value == 1.0
+
 
 def test_var_fix4(pyomo_module):
     pe = pyomo_module
@@ -99,6 +110,7 @@ def test_var_fix4(pyomo_module):
 # Var bounds
 #
 
+
 def test_var_lb(pyomo_module):
     pe = pyomo_module
     M = pe.ConcreteModel()
@@ -106,6 +118,7 @@ def test_var_lb(pyomo_module):
     assert M.v.lb == None
     M.v.lb = 1.0
     assert M.v.lb == 1.0
+
 
 def test_var_ub(pyomo_module):
     pe = pyomo_module
@@ -115,24 +128,26 @@ def test_var_ub(pyomo_module):
     M.v.ub = 1.0
     assert M.v.ub == 1.0
 
+
 def test_var_bounds1(pyomo_module):
     pe = pyomo_module
     M = pe.ConcreteModel()
-    M.v = pe.Var(bounds=(1.0,2.0))
+    M.v = pe.Var(bounds=(1.0, 2.0))
     assert M.v.lb == 1.0
     assert M.v.ub == 2.0
+
 
 def test_var_bounds2(pyomo_module):
     pe = pyomo_module
     M = pe.ConcreteModel()
-    M.v = pe.Var(bounds=(1.0,None))
+    M.v = pe.Var(bounds=(1.0, None))
     assert M.v.lb == 1.0
     assert M.v.ub == None
+
 
 def test_var_bounds3(pyomo_module):
     pe = pyomo_module
     M = pe.ConcreteModel()
-    M.v = pe.Var(bounds=(None,1.0))
+    M.v = pe.Var(bounds=(None, 1.0))
     assert M.v.lb == None
     assert M.v.ub == 1.0
-

@@ -86,7 +86,8 @@ extern "C" void* parameter__add__parameter(void* arg, void* rhs)
 
 extern "C" void* parameter__add__int(void* arg, int rhs)
 {
-    if (rhs == 0) return arg;
+    if (rhs == 0)
+        return arg;
 
     coek::Parameter* arg_ = static_cast<coek::Parameter*>(arg);
     return new coek::Expression(*arg_ + rhs);
@@ -94,7 +95,8 @@ extern "C" void* parameter__add__int(void* arg, int rhs)
 
 extern "C" void* parameter__add__double(void* arg, double rhs)
 {
-    if (rhs == 0) return arg;
+    if (rhs == 0)
+        return arg;
 
     coek::Parameter* arg_ = static_cast<coek::Parameter*>(arg);
     return new coek::Expression(*arg_ + rhs);
@@ -102,7 +104,8 @@ extern "C" void* parameter__add__double(void* arg, double rhs)
 
 extern "C" void* parameter__radd__int(void* arg, int lhs)
 {
-    if (lhs == 0) return arg;
+    if (lhs == 0)
+        return arg;
 
     coek::Parameter* arg_ = static_cast<coek::Parameter*>(arg);
     return new coek::Expression(lhs + *arg_);
@@ -110,7 +113,8 @@ extern "C" void* parameter__radd__int(void* arg, int lhs)
 
 extern "C" void* parameter__radd__double(void* arg, double lhs)
 {
-    if (lhs == 0) return arg;
+    if (lhs == 0)
+        return arg;
 
     coek::Parameter* arg_ = static_cast<coek::Parameter*>(arg);
     return new coek::Expression(lhs + *arg_);
@@ -141,7 +145,8 @@ extern "C" void* parameter__sub__parameter(void* arg, void* rhs)
 
 extern "C" void* parameter__sub__int(void* arg, int rhs)
 {
-    if (rhs == 0) return arg;
+    if (rhs == 0)
+        return arg;
 
     coek::Parameter* arg_ = static_cast<coek::Parameter*>(arg);
     return new coek::Expression(*arg_ - rhs);
@@ -149,7 +154,8 @@ extern "C" void* parameter__sub__int(void* arg, int rhs)
 
 extern "C" void* parameter__sub__double(void* arg, double rhs)
 {
-    if (rhs == 0) return arg;
+    if (rhs == 0)
+        return arg;
 
     coek::Parameter* arg_ = static_cast<coek::Parameter*>(arg);
     return new coek::Expression(*arg_ - rhs);
@@ -192,7 +198,8 @@ extern "C" void* parameter__mul__parameter(void* arg, void* rhs)
 
 extern "C" void* parameter__mul__int(void* arg, int rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Parameter* arg_ = static_cast<coek::Parameter*>(arg);
     return new coek::Expression(*arg_ * rhs);
@@ -200,7 +207,8 @@ extern "C" void* parameter__mul__int(void* arg, int rhs)
 
 extern "C" void* parameter__mul__double(void* arg, double rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Parameter* arg_ = static_cast<coek::Parameter*>(arg);
     return new coek::Expression(*arg_ * rhs);
@@ -208,7 +216,8 @@ extern "C" void* parameter__mul__double(void* arg, double rhs)
 
 extern "C" void* parameter__rmul__int(void* arg, int lhs)
 {
-    if (lhs == 1) return arg;
+    if (lhs == 1)
+        return arg;
 
     coek::Parameter* arg_ = static_cast<coek::Parameter*>(arg);
     return new coek::Expression(lhs * *arg_);
@@ -216,7 +225,8 @@ extern "C" void* parameter__rmul__int(void* arg, int lhs)
 
 extern "C" void* parameter__rmul__double(void* arg, double lhs)
 {
-    if (lhs == 1) return arg;
+    if (lhs == 1)
+        return arg;
 
     coek::Parameter* arg_ = static_cast<coek::Parameter*>(arg);
     return new coek::Expression(lhs * *arg_);
@@ -247,7 +257,8 @@ extern "C" void* parameter__div__parameter(void* arg, void* rhs)
 
 extern "C" void* parameter__div__int(void* arg, int rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Parameter* arg_ = static_cast<coek::Parameter*>(arg);
     return new coek::Expression(*arg_ / rhs);
@@ -255,7 +266,8 @@ extern "C" void* parameter__div__int(void* arg, int rhs)
 
 extern "C" void* parameter__div__double(void* arg, double rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Parameter* arg_ = static_cast<coek::Parameter*>(arg);
     return new coek::Expression(*arg_ / rhs);
@@ -298,7 +310,8 @@ extern "C" void* parameter__pow__parameter(void* arg, void* rhs)
 
 extern "C" void* parameter__pow__int(void* arg, int rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Parameter* arg_ = static_cast<coek::Parameter*>(arg);
     return new coek::Expression(coek::pow(*arg_, rhs));
@@ -306,7 +319,8 @@ extern "C" void* parameter__pow__int(void* arg, int rhs)
 
 extern "C" void* parameter__pow__double(void* arg, double rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Parameter* arg_ = static_cast<coek::Parameter*>(arg);
     return new coek::Expression(coek::pow(*arg_, rhs));
@@ -624,7 +638,8 @@ extern "C" void* variable__add__parameter(void* arg, void* rhs)
 
 extern "C" void* variable__add__int(void* arg, int rhs)
 {
-    if (rhs == 0) return arg;
+    if (rhs == 0)
+        return arg;
 
     coek::Variable* arg_ = static_cast<coek::Variable*>(arg);
     return new coek::Expression(*arg_ + rhs);
@@ -632,7 +647,8 @@ extern "C" void* variable__add__int(void* arg, int rhs)
 
 extern "C" void* variable__add__double(void* arg, double rhs)
 {
-    if (rhs == 0) return arg;
+    if (rhs == 0)
+        return arg;
 
     coek::Variable* arg_ = static_cast<coek::Variable*>(arg);
     return new coek::Expression(*arg_ + rhs);
@@ -640,7 +656,8 @@ extern "C" void* variable__add__double(void* arg, double rhs)
 
 extern "C" void* variable__radd__int(void* arg, int lhs)
 {
-    if (lhs == 0) return arg;
+    if (lhs == 0)
+        return arg;
 
     coek::Variable* arg_ = static_cast<coek::Variable*>(arg);
     return new coek::Expression(lhs + *arg_);
@@ -648,7 +665,8 @@ extern "C" void* variable__radd__int(void* arg, int lhs)
 
 extern "C" void* variable__radd__double(void* arg, double lhs)
 {
-    if (lhs == 0) return arg;
+    if (lhs == 0)
+        return arg;
 
     coek::Variable* arg_ = static_cast<coek::Variable*>(arg);
     return new coek::Expression(lhs + *arg_);
@@ -679,7 +697,8 @@ extern "C" void* variable__sub__parameter(void* arg, void* rhs)
 
 extern "C" void* variable__sub__int(void* arg, int rhs)
 {
-    if (rhs == 0) return arg;
+    if (rhs == 0)
+        return arg;
 
     coek::Variable* arg_ = static_cast<coek::Variable*>(arg);
     return new coek::Expression(*arg_ - rhs);
@@ -687,7 +706,8 @@ extern "C" void* variable__sub__int(void* arg, int rhs)
 
 extern "C" void* variable__sub__double(void* arg, double rhs)
 {
-    if (rhs == 0) return arg;
+    if (rhs == 0)
+        return arg;
 
     coek::Variable* arg_ = static_cast<coek::Variable*>(arg);
     return new coek::Expression(*arg_ - rhs);
@@ -730,7 +750,8 @@ extern "C" void* variable__mul__parameter(void* arg, void* rhs)
 
 extern "C" void* variable__mul__int(void* arg, int rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Variable* arg_ = static_cast<coek::Variable*>(arg);
     return new coek::Expression(*arg_ * rhs);
@@ -738,7 +759,8 @@ extern "C" void* variable__mul__int(void* arg, int rhs)
 
 extern "C" void* variable__mul__double(void* arg, double rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Variable* arg_ = static_cast<coek::Variable*>(arg);
     return new coek::Expression(*arg_ * rhs);
@@ -746,7 +768,8 @@ extern "C" void* variable__mul__double(void* arg, double rhs)
 
 extern "C" void* variable__rmul__int(void* arg, int lhs)
 {
-    if (lhs == 1) return arg;
+    if (lhs == 1)
+        return arg;
 
     coek::Variable* arg_ = static_cast<coek::Variable*>(arg);
     return new coek::Expression(lhs * *arg_);
@@ -754,7 +777,8 @@ extern "C" void* variable__rmul__int(void* arg, int lhs)
 
 extern "C" void* variable__rmul__double(void* arg, double lhs)
 {
-    if (lhs == 1) return arg;
+    if (lhs == 1)
+        return arg;
 
     coek::Variable* arg_ = static_cast<coek::Variable*>(arg);
     return new coek::Expression(lhs * *arg_);
@@ -785,7 +809,8 @@ extern "C" void* variable__div__parameter(void* arg, void* rhs)
 
 extern "C" void* variable__div__int(void* arg, int rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Variable* arg_ = static_cast<coek::Variable*>(arg);
     return new coek::Expression(*arg_ / rhs);
@@ -793,7 +818,8 @@ extern "C" void* variable__div__int(void* arg, int rhs)
 
 extern "C" void* variable__div__double(void* arg, double rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Variable* arg_ = static_cast<coek::Variable*>(arg);
     return new coek::Expression(*arg_ / rhs);
@@ -836,7 +862,8 @@ extern "C" void* variable__pow__parameter(void* arg, void* rhs)
 
 extern "C" void* variable__pow__int(void* arg, int rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Variable* arg_ = static_cast<coek::Variable*>(arg);
     return new coek::Expression(coek::pow(*arg_, rhs));
@@ -844,7 +871,8 @@ extern "C" void* variable__pow__int(void* arg, int rhs)
 
 extern "C" void* variable__pow__double(void* arg, double rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Variable* arg_ = static_cast<coek::Variable*>(arg);
     return new coek::Expression(coek::pow(*arg_, rhs));
@@ -1098,7 +1126,8 @@ extern "C" void* expression__add__parameter(void* arg, void* rhs)
 
 extern "C" void* expression__add__int(void* arg, int rhs)
 {
-    if (rhs == 0) return arg;
+    if (rhs == 0)
+        return arg;
 
     coek::Expression* arg_ = static_cast<coek::Expression*>(arg);
     return new coek::Expression(*arg_ + rhs);
@@ -1106,7 +1135,8 @@ extern "C" void* expression__add__int(void* arg, int rhs)
 
 extern "C" void* expression__add__double(void* arg, double rhs)
 {
-    if (rhs == 0) return arg;
+    if (rhs == 0)
+        return arg;
 
     coek::Expression* arg_ = static_cast<coek::Expression*>(arg);
     return new coek::Expression(*arg_ + rhs);
@@ -1114,7 +1144,8 @@ extern "C" void* expression__add__double(void* arg, double rhs)
 
 extern "C" void* expression__radd__int(void* arg, int lhs)
 {
-    if (lhs == 0) return arg;
+    if (lhs == 0)
+        return arg;
 
     coek::Expression* arg_ = static_cast<coek::Expression*>(arg);
     return new coek::Expression(lhs + *arg_);
@@ -1122,7 +1153,8 @@ extern "C" void* expression__radd__int(void* arg, int lhs)
 
 extern "C" void* expression__radd__double(void* arg, double lhs)
 {
-    if (lhs == 0) return arg;
+    if (lhs == 0)
+        return arg;
 
     coek::Expression* arg_ = static_cast<coek::Expression*>(arg);
     return new coek::Expression(lhs + *arg_);
@@ -1153,7 +1185,8 @@ extern "C" void* expression__sub__parameter(void* arg, void* rhs)
 
 extern "C" void* expression__sub__int(void* arg, int rhs)
 {
-    if (rhs == 0) return arg;
+    if (rhs == 0)
+        return arg;
 
     coek::Expression* arg_ = static_cast<coek::Expression*>(arg);
     return new coek::Expression(*arg_ - rhs);
@@ -1161,7 +1194,8 @@ extern "C" void* expression__sub__int(void* arg, int rhs)
 
 extern "C" void* expression__sub__double(void* arg, double rhs)
 {
-    if (rhs == 0) return arg;
+    if (rhs == 0)
+        return arg;
 
     coek::Expression* arg_ = static_cast<coek::Expression*>(arg);
     return new coek::Expression(*arg_ - rhs);
@@ -1204,7 +1238,8 @@ extern "C" void* expression__mul__parameter(void* arg, void* rhs)
 
 extern "C" void* expression__mul__int(void* arg, int rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Expression* arg_ = static_cast<coek::Expression*>(arg);
     return new coek::Expression(*arg_ * rhs);
@@ -1212,7 +1247,8 @@ extern "C" void* expression__mul__int(void* arg, int rhs)
 
 extern "C" void* expression__mul__double(void* arg, double rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Expression* arg_ = static_cast<coek::Expression*>(arg);
     return new coek::Expression(*arg_ * rhs);
@@ -1220,7 +1256,8 @@ extern "C" void* expression__mul__double(void* arg, double rhs)
 
 extern "C" void* expression__rmul__int(void* arg, int lhs)
 {
-    if (lhs == 1) return arg;
+    if (lhs == 1)
+        return arg;
 
     coek::Expression* arg_ = static_cast<coek::Expression*>(arg);
     return new coek::Expression(lhs * *arg_);
@@ -1228,7 +1265,8 @@ extern "C" void* expression__rmul__int(void* arg, int lhs)
 
 extern "C" void* expression__rmul__double(void* arg, double lhs)
 {
-    if (lhs == 1) return arg;
+    if (lhs == 1)
+        return arg;
 
     coek::Expression* arg_ = static_cast<coek::Expression*>(arg);
     return new coek::Expression(lhs * *arg_);
@@ -1259,7 +1297,8 @@ extern "C" void* expression__div__parameter(void* arg, void* rhs)
 
 extern "C" void* expression__div__int(void* arg, int rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Expression* arg_ = static_cast<coek::Expression*>(arg);
     return new coek::Expression(*arg_ / rhs);
@@ -1267,7 +1306,8 @@ extern "C" void* expression__div__int(void* arg, int rhs)
 
 extern "C" void* expression__div__double(void* arg, double rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Expression* arg_ = static_cast<coek::Expression*>(arg);
     return new coek::Expression(*arg_ / rhs);
@@ -1310,7 +1350,8 @@ extern "C" void* expression__pow__parameter(void* arg, void* rhs)
 
 extern "C" void* expression__pow__int(void* arg, int rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Expression* arg_ = static_cast<coek::Expression*>(arg);
     return new coek::Expression(coek::pow(*arg_, rhs));
@@ -1318,7 +1359,8 @@ extern "C" void* expression__pow__int(void* arg, int rhs)
 
 extern "C" void* expression__pow__double(void* arg, double rhs)
 {
-    if (rhs == 1) return arg;
+    if (rhs == 1)
+        return arg;
 
     coek::Expression* arg_ = static_cast<coek::Expression*>(arg);
     return new coek::Expression(coek::pow(*arg_, rhs));

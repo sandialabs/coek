@@ -313,11 +313,13 @@ TEST_CASE("1D_param_array", "[smoke]")
 
             // Set value using template
             params.value(1);
-            for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 1);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(params(i).value() == 1);
 
             // Set value for all indices
             params.value(2);
-            for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 2);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(params(i).value() == 2);
         }
         WHEN("value - q")
         {
@@ -325,7 +327,8 @@ TEST_CASE("1D_param_array", "[smoke]")
             auto q = coek::parameter().value(2);
             for (size_t i = 0; i < 4; i++)
                 params(i).value(q + (int)i);  // TODO - generalize API to include unsigned ints
-            for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 2 + i);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(params(i).value() == 2 + i);
         }
         WHEN("value all - q")
         {
@@ -334,11 +337,13 @@ TEST_CASE("1D_param_array", "[smoke]")
 
             // Set value using template
             params.value(q + (int)2);  // TODO - generalize API to include unsigned ints
-            for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 4);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(params(i).value() == 4);
 
             // Set value for all indices
             params.value(q + (int)3);
-            for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 5);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(params(i).value() == 5);
         }
         WHEN("name")
         {
@@ -346,15 +351,18 @@ TEST_CASE("1D_param_array", "[smoke]")
 
             params.name("v");
             params.generate_names();
-            for (int i = 0; i < 4; i++) REQUIRE(params(i).name() == "v[" + std::to_string(i) + "]");
+            for (int i = 0; i < 4; i++)
+                REQUIRE(params(i).name() == "v[" + std::to_string(i) + "]");
 
             // We don't need to call generate_names() again.  Names are automatically generated
             // after the first time.
             params.name("w");
-            for (int i = 0; i < 4; i++) REQUIRE(params(i).name() == "w[" + std::to_string(i) + "]");
+            for (int i = 0; i < 4; i++)
+                REQUIRE(params(i).name() == "w[" + std::to_string(i) + "]");
 
             params.name("");
-            for (int i = 0; i < 4; i++) REQUIRE(params(i).name()[0] == 'P');
+            for (int i = 0; i < 4; i++)
+                REQUIRE(params(i).name()[0] == 'P');
         }
     }
 
@@ -377,13 +385,15 @@ TEST_CASE("1D_param_array", "[smoke]")
         WHEN("index")
         {
             auto params = coek::parameter(dim).value(1);
-            for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 1);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(params(i).value() == 1);
         }
 
         WHEN("name")
         {
             auto params = coek::parameter(dim).name("v").generate_names();
-            for (int i = 0; i < 4; i++) REQUIRE(params(i).name() == "v[" + std::to_string(i) + "]");
+            for (int i = 0; i < 4; i++)
+                REQUIRE(params(i).name() == "v[" + std::to_string(i) + "]");
         }
     }
 
@@ -404,13 +414,15 @@ TEST_CASE("1D_param_array", "[smoke]")
         WHEN("index")
         {
             auto params = coek::parameter({4}).value(1);
-            for (size_t i = 0; i < 4; i++) REQUIRE(params(i).value() == 1);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(params(i).value() == 1);
         }
 
         WHEN("name")
         {
             auto params = coek::parameter({4}).name("v").generate_names();
-            for (int i = 0; i < 4; i++) REQUIRE(params(i).name() == "v[" + std::to_string(i) + "]");
+            for (int i = 0; i < 4; i++)
+                REQUIRE(params(i).name() == "v[" + std::to_string(i) + "]");
         }
     }
 }
@@ -554,7 +566,8 @@ TEST_CASE("2D_param_array", "[smoke]")
         {
             std::vector<size_t> dim{4, 5};
             auto params = coek::parameter(dim).value(1);
-            for (size_t i = 0; i < 4; i++) REQUIRE(params(i, i).value() == 1);
+            for (size_t i = 0; i < 4; i++)
+                REQUIRE(params(i, i).value() == 1);
         }
 
         WHEN("index error")
@@ -595,7 +608,8 @@ TEST_CASE("2D_param_array", "[smoke]")
         WHEN("index")
         {
             auto params = coek::parameter({4, 3}).value(1);
-            for (size_t i = 0; i < 3; i++) REQUIRE(params(i, i).value() == 1);
+            for (size_t i = 0; i < 3; i++)
+                REQUIRE(params(i, i).value() == 1);
         }
 
         WHEN("index error")
@@ -652,7 +666,8 @@ TEST_CASE("3D_param_array", "[smoke]")
         {
             std::vector<size_t> dim{5, 4, 3};
             auto params = coek::parameter(dim).value(1);
-            for (size_t i = 0; i < 3; i++) REQUIRE(params(i, i, i).value() == 1);
+            for (size_t i = 0; i < 3; i++)
+                REQUIRE(params(i, i, i).value() == 1);
         }
 
         WHEN("index error")
@@ -695,7 +710,8 @@ TEST_CASE("3D_param_array", "[smoke]")
         WHEN("index")
         {
             auto params = coek::parameter({5, 4, 3}).value(1);
-            for (size_t i = 0; i < 3; i++) REQUIRE(params(i, i, i).value() == 1);
+            for (size_t i = 0; i < 3; i++)
+                REQUIRE(params(i, i, i).value() == 1);
         }
 
         WHEN("index error")

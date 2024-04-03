@@ -60,7 +60,7 @@ class Constraint {
     Constraint expand();
 
     /** \returns the unique integer constraint ID */
-    unsigned int id() const;
+    size_t id() const;
 
     /** \returns a list representation of the constraint */
     std::list<std::string> to_list() const;

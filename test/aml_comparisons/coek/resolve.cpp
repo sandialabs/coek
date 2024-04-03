@@ -59,13 +59,16 @@ void baseline_test(unsigned int N, const std::string& solver)
 
     std::vector<std::vector<double>> A(N, std::vector<double>(N));
     for (unsigned int n = 0; n < N; n++)
-        for (unsigned int m = 0; m < N; m++) A[n][m] = uniform();
+        for (unsigned int m = 0; m < N; m++)
+            A[n][m] = uniform();
 
     std::vector<double> c(N);
-    for (unsigned int n = 0; n < N; n++) c[n] = uniform();
+    for (unsigned int n = 0; n < N; n++)
+        c[n] = uniform();
 
     std::vector<double> b(N);
-    for (unsigned int n = 0; n < N; n++) b[n] = uniform();
+    for (unsigned int n = 0; n < N; n++)
+        b[n] = uniform();
 
     std::vector<coek::Variable> x(N);
     for (unsigned int n = 0; n < N; n++)
@@ -73,13 +76,15 @@ void baseline_test(unsigned int N, const std::string& solver)
 
     // obj
     coek::Expression obj;
-    for (unsigned int n = 0; n < N; n++) obj += c[n] * x[n];
+    for (unsigned int n = 0; n < N; n++)
+        obj += c[n] * x[n];
     auto obj_ = model.add_objective(obj).sense(coek::Model::maximize);
 
     // Ax <= b
     for (unsigned int n = 0; n < N; n++) {
         coek::Expression expr;
-        for (unsigned int m = 0; m < N; m++) expr += A[n][m] * x[m];
+        for (unsigned int m = 0; m < N; m++)
+            expr += A[n][m] * x[m];
         model.add_constraint(expr <= b[n]);
         break;
     }
@@ -111,13 +116,16 @@ void objective_test(unsigned int N, int nsolves, const std::string& solver)
 
     std::vector<std::vector<double>> A(N, std::vector<double>(N));
     for (unsigned int n = 0; n < N; n++)
-        for (unsigned int m = 0; m < N; m++) A[n][m] = uniform();
+        for (unsigned int m = 0; m < N; m++)
+            A[n][m] = uniform();
 
     std::vector<coek::Parameter> c(N);
-    for (unsigned int n = 0; n < N; n++) c[n] = coek::parameter().value(uniform());
+    for (unsigned int n = 0; n < N; n++)
+        c[n] = coek::parameter().value(uniform());
 
     std::vector<double> b(N);
-    for (unsigned int n = 0; n < N; n++) b[n] = uniform();
+    for (unsigned int n = 0; n < N; n++)
+        b[n] = uniform();
 
     std::vector<coek::Variable> x(N);
     for (unsigned int n = 0; n < N; n++)
@@ -125,13 +133,15 @@ void objective_test(unsigned int N, int nsolves, const std::string& solver)
 
     // obj
     coek::Expression obj;
-    for (unsigned int n = 0; n < N; n++) obj += c[n] * x[n];
+    for (unsigned int n = 0; n < N; n++)
+        obj += c[n] * x[n];
     auto obj_ = model.add_objective(obj).sense(coek::Model::maximize);
 
     // Ax <= b
     for (unsigned int n = 0; n < N; n++) {
         coek::Expression expr;
-        for (unsigned int m = 0; m < N; m++) expr += A[n][m] * x[m];
+        for (unsigned int m = 0; m < N; m++)
+            expr += A[n][m] * x[m];
         model.add_constraint(expr <= b[n]);
     }
 
@@ -142,7 +152,8 @@ void objective_test(unsigned int N, int nsolves, const std::string& solver)
             opt.resolve();
             std::cout << "Solve: " << i << "  Objective: " << obj_.value() << std::endl;
 
-            for (unsigned int n = 0; n < N; n++) c[n].value(uniform());
+            for (unsigned int n = 0; n < N; n++)
+                c[n].value(uniform());
             std::cout << std::endl;
         }
     }
@@ -167,7 +178,8 @@ void objective_test(unsigned int N, int nsolves, const std::string& solver)
 
             std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
-            for (unsigned int n = 0; n < N; n++) c[n].value(uniform());
+            for (unsigned int n = 0; n < N; n++)
+                c[n].value(uniform());
             std::cout << std::endl;
         }
     }
@@ -185,17 +197,21 @@ void row_test(unsigned int N, int nsolves, const std::string& solver)
     coek::Model model;
 
     std::vector<coek::Parameter> A_(N);
-    for (unsigned int m = 0; m < N; m++) A_[m] = coek::parameter().value(uniform());
+    for (unsigned int m = 0; m < N; m++)
+        A_[m] = coek::parameter().value(uniform());
 
     std::vector<std::vector<double>> A(N, std::vector<double>(N));
     for (unsigned int n = 0; n < N; n++)
-        for (unsigned int m = 0; m < N; m++) A[n][m] = uniform();
+        for (unsigned int m = 0; m < N; m++)
+            A[n][m] = uniform();
 
     std::vector<double> c(N);
-    for (unsigned int n = 0; n < N; n++) c[n] = uniform();
+    for (unsigned int n = 0; n < N; n++)
+        c[n] = uniform();
 
     std::vector<double> b(N);
-    for (unsigned int n = 0; n < N; n++) b[n] = uniform();
+    for (unsigned int n = 0; n < N; n++)
+        b[n] = uniform();
 
     std::vector<coek::Variable> x(N);
     for (unsigned int n = 0; n < N; n++)
@@ -203,17 +219,20 @@ void row_test(unsigned int N, int nsolves, const std::string& solver)
 
     // obj
     coek::Expression obj;
-    for (unsigned int n = 0; n < N; n++) obj += c[n] * x[n];
+    for (unsigned int n = 0; n < N; n++)
+        obj += c[n] * x[n];
     auto obj_ = model.add_objective(obj).sense(coek::Model::maximize);
 
     // Ax <= b
     for (unsigned int n = 0; n < N; n++) {
         coek::Expression expr;
         if (n != row) {
-            for (unsigned int m = 0; m < N; m++) expr += A[n][m] * x[m];
+            for (unsigned int m = 0; m < N; m++)
+                expr += A[n][m] * x[m];
         }
         else {
-            for (unsigned int m = 0; m < N; m++) expr += A_[m] * x[m];
+            for (unsigned int m = 0; m < N; m++)
+                expr += A_[m] * x[m];
         }
         model.add_constraint(expr <= b[n]);
     }
@@ -225,7 +244,8 @@ void row_test(unsigned int N, int nsolves, const std::string& solver)
             opt.resolve();
             std::cout << "Solve: " << i << "  Objective: " << obj_.value() << std::endl;
 
-            for (unsigned int m = 0; m < N; m++) A_[m].value(uniform());
+            for (unsigned int m = 0; m < N; m++)
+                A_[m].value(uniform());
             std::cout << std::endl;
         }
     }
@@ -238,7 +258,8 @@ void row_test(unsigned int N, int nsolves, const std::string& solver)
             opt.resolve();
             std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
-            for (unsigned int m = 0; m < N; m++) A_[m].value(uniform());
+            for (unsigned int m = 0; m < N; m++)
+                A_[m].value(uniform());
             std::cout << std::endl;
         }
     }
@@ -256,17 +277,21 @@ void col_test(unsigned int N, int nsolves, const std::string& solver)
     coek::Model model;
 
     std::vector<coek::Parameter> A_(N);
-    for (unsigned int n = 0; n < N; n++) A_[n] = coek::parameter().value(uniform());
+    for (unsigned int n = 0; n < N; n++)
+        A_[n] = coek::parameter().value(uniform());
 
     std::vector<std::vector<double>> A(N, std::vector<double>(N));
     for (unsigned int n = 0; n < N; n++)
-        for (unsigned int m = 0; m < N; m++) A[n][m] = uniform();
+        for (unsigned int m = 0; m < N; m++)
+            A[n][m] = uniform();
 
     std::vector<double> c(N);
-    for (unsigned int n = 0; n < N; n++) c[n] = uniform();
+    for (unsigned int n = 0; n < N; n++)
+        c[n] = uniform();
 
     std::vector<double> b(N);
-    for (unsigned int n = 0; n < N; n++) b[n] = uniform();
+    for (unsigned int n = 0; n < N; n++)
+        b[n] = uniform();
 
     std::vector<coek::Variable> x(N);
     for (unsigned int n = 0; n < N; n++)
@@ -274,7 +299,8 @@ void col_test(unsigned int N, int nsolves, const std::string& solver)
 
     // obj
     coek::Expression obj;
-    for (unsigned int n = 0; n < N; n++) obj += c[n] * x[n];
+    for (unsigned int n = 0; n < N; n++)
+        obj += c[n] * x[n];
     auto obj_ = model.add_objective(obj).sense(coek::Model::maximize);
 
     // Ax <= b
@@ -297,7 +323,8 @@ void col_test(unsigned int N, int nsolves, const std::string& solver)
             opt.resolve();
             std::cout << "Solve: " << i << "  Objective: " << obj_.value() << std::endl;
 
-            for (unsigned int n = 0; n < N; n++) A_[n].value(uniform());
+            for (unsigned int n = 0; n < N; n++)
+                A_[n].value(uniform());
             std::cout << std::endl;
         }
     }
@@ -310,7 +337,8 @@ void col_test(unsigned int N, int nsolves, const std::string& solver)
             opt.resolve();
             std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
-            for (unsigned int n = 0; n < N; n++) A_[n].value(uniform());
+            for (unsigned int n = 0; n < N; n++)
+                A_[n].value(uniform());
             std::cout << std::endl;
         }
     }
@@ -326,13 +354,16 @@ void rhs_test(unsigned int N, int nsolves, const std::string& solver)
 
     std::vector<std::vector<double>> A(N, std::vector<double>(N));
     for (unsigned int n = 0; n < N; n++)
-        for (unsigned int m = 0; m < N; m++) A[n][m] = uniform();
+        for (unsigned int m = 0; m < N; m++)
+            A[n][m] = uniform();
 
     std::vector<double> c(N);
-    for (unsigned int n = 0; n < N; n++) c[n] = uniform();
+    for (unsigned int n = 0; n < N; n++)
+        c[n] = uniform();
 
     std::vector<coek::Parameter> b(N);
-    for (unsigned int n = 0; n < N; n++) b[n] = coek::parameter().value(uniform());
+    for (unsigned int n = 0; n < N; n++)
+        b[n] = coek::parameter().value(uniform());
 
     std::vector<coek::Variable> x(N);
     for (unsigned int n = 0; n < N; n++)
@@ -340,13 +371,15 @@ void rhs_test(unsigned int N, int nsolves, const std::string& solver)
 
     // obj
     coek::Expression obj;
-    for (unsigned int n = 0; n < N; n++) obj += c[n] * x[n];
+    for (unsigned int n = 0; n < N; n++)
+        obj += c[n] * x[n];
     auto obj_ = model.add_objective(obj).sense(coek::Model::maximize);
 
     // Ax <= b
     for (unsigned int n = 0; n < N; n++) {
         coek::Expression expr;
-        for (unsigned int m = 0; m < N; m++) expr += A[n][m] * x[m];
+        for (unsigned int m = 0; m < N; m++)
+            expr += A[n][m] * x[m];
         model.add_constraint(expr <= b[n]);
     }
 
@@ -357,7 +390,8 @@ void rhs_test(unsigned int N, int nsolves, const std::string& solver)
             opt.resolve();
             std::cout << "Solve: " << i << "  Objective: " << obj_.value() << std::endl;
 
-            for (unsigned int n = 0; n < N; n++) b[n].value(uniform());
+            for (unsigned int n = 0; n < N; n++)
+                b[n].value(uniform());
             std::cout << std::endl;
         }
     }
@@ -370,7 +404,8 @@ void rhs_test(unsigned int N, int nsolves, const std::string& solver)
             opt.resolve();
             std::cout << "Solve: " << 0 << "  Objective: " << nlp.compute_f() << std::endl;
 
-            for (unsigned int n = 0; n < N; n++) b[n].value(uniform());
+            for (unsigned int n = 0; n < N; n++)
+                b[n].value(uniform());
             std::cout << std::endl;
         }
     }

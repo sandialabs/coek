@@ -20,10 +20,12 @@ void lqcp(GRBModel& model, size_t n)
 
     std::vector<std::vector<GRBVar> > y(m + 1, std::vector<GRBVar>(n + 1));
     for (int i = 0; i <= m; i++)
-        for (int j = 0; j <= n; j++) y[i][j] = model.addVar(0, 1, 0, GRB_CONTINUOUS);
+        for (int j = 0; j <= n; j++)
+            y[i][j] = model.addVar(0, 1, 0, GRB_CONTINUOUS);
 
     std::vector<GRBVar> u(m + 1);
-    for (int i = 1; i <= m; i++) u[i] = model.addVar(-1, 1, 0, GRB_CONTINUOUS);
+    for (int i = 1; i <= m; i++)
+        u[i] = model.addVar(-1, 1, 0, GRB_CONTINUOUS);
 
     model.update();
 
@@ -38,7 +40,8 @@ void lqcp(GRBModel& model, size_t n)
 
     // Second term
     GRBQuadExpr term2;
-    for (int i = 1; i <= m - 1; i++) term2 += 2 * u[i] * u[i];
+    for (int i = 1; i <= m - 1; i++)
+        term2 += 2 * u[i] * u[i];
     term2 += u[m] * u[m];
 
     model.setObjective(0.25 * dx * term1 + 0.25 * a * dt * term2);

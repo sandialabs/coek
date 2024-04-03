@@ -117,7 +117,8 @@ void visit(std::shared_ptr<PlusTerm>& expr, QuadraticExpr& repn, double multipli
 {
     std::vector<expr_pointer_t>& vec = *(expr->data.get());
     auto n = expr->num_expressions();
-    for (size_t i = 0; i < n; i++) visit_expression(vec[i], repn, multiplier);
+    for (size_t i = 0; i < n; i++)
+        visit_expression(vec[i], repn, multiplier);
 }
 
 void visit(std::shared_ptr<TimesTerm>& expr, QuadraticExpr& repn, double multiplier)
@@ -129,7 +130,8 @@ void visit(std::shared_ptr<TimesTerm>& expr, QuadraticExpr& repn, double multipl
         //
         // LHS is a constant
         //
-        if (lhs_repn.constval == 0.0) return;
+        if (lhs_repn.constval == 0.0)
+            return;
 
         visit_expression(expr->rhs, repn, lhs_repn.constval * multiplier);
         return;
@@ -142,7 +144,8 @@ void visit(std::shared_ptr<TimesTerm>& expr, QuadraticExpr& repn, double multipl
         //
         // RHS is a constant
         //
-        if (rhs_repn.constval == 0.0) return;
+        if (rhs_repn.constval == 0.0)
+            return;
 
         multiplier *= rhs_repn.constval;
 
@@ -209,11 +212,13 @@ void visit(std::shared_ptr<DivideTerm>& expr, QuadraticExpr& repn, double multip
     if ((rhs_repn.linear_coefs.size() + rhs_repn.quadratic_coefs.size()) > 0)
         throw std::runtime_error(
             "Non-constant expressions cannot appear in the denominator of quadratic expressions.");
-    if (rhs_repn.constval == 0.0) throw std::runtime_error("Division by zero error.");
+    if (rhs_repn.constval == 0.0)
+        throw std::runtime_error("Division by zero error.");
 
     // Divide the the rhs value
     repn.constval /= rhs_repn.constval;
-    for (size_t i = 0; i < repn.linear_coefs.size(); i++) repn.linear_coefs[i] /= rhs_repn.constval;
+    for (size_t i = 0; i < repn.linear_coefs.size(); i++)
+        repn.linear_coefs[i] /= rhs_repn.constval;
     for (size_t i = 0; i < repn.quadratic_coefs.size(); i++)
         repn.quadratic_coefs[i] /= rhs_repn.constval;
 }

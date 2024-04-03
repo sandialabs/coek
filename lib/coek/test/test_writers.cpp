@@ -399,10 +399,12 @@ bool compare_files(const std::string& fname1, const std::string& fname2)
     std::ifstream f2(fname2, std::ifstream::binary | std::ifstream::ate);
 
     // Problem opening files
-    if (f1.fail() || f2.fail()) return false;
+    if (f1.fail() || f2.fail())
+        return false;
 
     // Size mismatch
-    if (f1.tellg() != f2.tellg()) return false;
+    if (f1.tellg() != f2.tellg())
+        return false;
 
     // seek back to beginning and use std::equal to compare contents
     f1.seekg(0, std::ifstream::beg);
@@ -420,7 +422,8 @@ bool run_test(ModelType& model, const std::string& name, const std::string& suff
     auto same = compare_files(fname, baseline);
     // std::cout << "name " << name << " " << same << " " << fname << std::endl;
     if (same) {
-        if (std::remove(fname.c_str()) != 0) return false;
+        if (std::remove(fname.c_str()) != 0)
+            return false;
     }
     return same;
 }
@@ -570,109 +573,127 @@ TEST_CASE("model_writer", "[smoke]")
     SECTION("small1")
     {
         small1(model);
-        for (const std::string& suffix : linear) REQUIRE(run_test(model, "small1", suffix));
+        for (const std::string& suffix : linear)
+            REQUIRE(run_test(model, "small1", suffix));
     }
 
     SECTION("small2")
     {
         small2(model);
-        for (const std::string& suffix : linear) REQUIRE(run_test(model, "small2", suffix));
+        for (const std::string& suffix : linear)
+            REQUIRE(run_test(model, "small2", suffix));
     }
 
     SECTION("small3")
     {
         small3(model);
-        for (const std::string& suffix : linear) REQUIRE(run_test(model, "small3", suffix));
+        for (const std::string& suffix : linear)
+            REQUIRE(run_test(model, "small3", suffix));
     }
 
     SECTION("small4")
     {
         small4(model);
-        for (const std::string& suffix : linear) REQUIRE(run_test(model, "small4", suffix));
+        for (const std::string& suffix : linear)
+            REQUIRE(run_test(model, "small4", suffix));
     }
 
     SECTION("small5")
     {
         small5(model);
-        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small5", suffix));
+        for (const std::string& suffix : nonlinear)
+            REQUIRE(run_test(model, "small5", suffix));
     }
 
     SECTION("small6")
     {
         small6(model);
-        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small6", suffix));
+        for (const std::string& suffix : nonlinear)
+            REQUIRE(run_test(model, "small6", suffix));
     }
 
     SECTION("small7")
     {
         small7(model);
-        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small7", suffix));
+        for (const std::string& suffix : nonlinear)
+            REQUIRE(run_test(model, "small7", suffix));
     }
 
     SECTION("small8")
     {
         small8(model);
-        for (const std::string& suffix : linear) REQUIRE(run_test(model, "small8", suffix));
+        for (const std::string& suffix : linear)
+            REQUIRE(run_test(model, "small8", suffix));
     }
 
     SECTION("small9")
     {
         small9(model);
-        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small9", suffix));
+        for (const std::string& suffix : nonlinear)
+            REQUIRE(run_test(model, "small9", suffix));
     }
 
     SECTION("small12")
     {
         small12(model);
-        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small12", suffix));
+        for (const std::string& suffix : nonlinear)
+            REQUIRE(run_test(model, "small12", suffix));
     }
 
     SECTION("small13")
     {
         small13(model);
-        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small13", suffix));
+        for (const std::string& suffix : nonlinear)
+            REQUIRE(run_test(model, "small13", suffix));
     }
 
     SECTION("small14")
     {
         small14(model);
-        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "small14", suffix));
+        for (const std::string& suffix : nonlinear)
+            REQUIRE(run_test(model, "small14", suffix));
     }
 
     SECTION("testing1")
     {
         testing1(model);
-        for (const std::string& suffix : linear) REQUIRE(run_test(model, "testing1", suffix));
+        for (const std::string& suffix : linear)
+            REQUIRE(run_test(model, "testing1", suffix));
     }
 
     SECTION("testing2")
     {
         testing2(model);
-        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "testing2", suffix));
+        for (const std::string& suffix : nonlinear)
+            REQUIRE(run_test(model, "testing2", suffix));
     }
 
     SECTION("testing3")
     {
         testing3(model);
-        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "testing3", suffix));
+        for (const std::string& suffix : nonlinear)
+            REQUIRE(run_test(model, "testing3", suffix));
     }
 
     SECTION("testing4")
     {
         testing4(model);
-        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "testing4", suffix));
+        for (const std::string& suffix : nonlinear)
+            REQUIRE(run_test(model, "testing4", suffix));
     }
 
     SECTION("testing5")
     {
         testing5(model);
-        for (const std::string& suffix : linear) REQUIRE(run_test(model, "testing5", suffix));
+        for (const std::string& suffix : linear)
+            REQUIRE(run_test(model, "testing5", suffix));
     }
 
     SECTION("testing6")
     {
         testing6(model);
-        for (const std::string& suffix : nonlinear) REQUIRE(run_test(model, "testing6", suffix));
+        for (const std::string& suffix : nonlinear)
+            REQUIRE(run_test(model, "testing6", suffix));
     }
 
     // TODO - Add separate NLP writer tests to confirm the variable mappings
@@ -680,7 +701,8 @@ TEST_CASE("model_writer", "[smoke]")
     {
         testing1(model);
         coek::NLPModel nlp(model, "cppad");
-        for (const std::string& suffix : linear) REQUIRE(run_test(nlp, "testing1", suffix));
+        for (const std::string& suffix : linear)
+            REQUIRE(run_test(nlp, "testing1", suffix));
     }
 }
 

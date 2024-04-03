@@ -15,7 +15,8 @@ void invquad_array_solve()
 
     // Create objective and add it to the model
     auto e = coek::expression();
-    for (size_t i : coek::range(N)) e -= (x(i) - p(i)) * (x(i) - p(i));
+    for (size_t i : coek::range(N))
+        e -= (x(i) - p(i)) * (x(i) - p(i));
     m.add_objective(e);
 
     // Optimize the model

@@ -79,37 +79,43 @@ extern "C" libSymbol_t getsym_approx(libHandle_t handle, const char* symname, ch
     std::string tmp;
     // 1. original
     s = getsym(handle, symname, buf, len);
-    if (s != NULL) return s;
+    if (s != NULL)
+        return s;
     // 2. lower_
     tmp = symname;
     std::transform(tmp.begin(), tmp.end(), tmp.begin(),
                    [](unsigned char c) { return std::tolower(c); });
     tmp += "_";
     s = getsym(handle, tmp.c_str(), buf, len);
-    if (s != NULL) return s;
+    if (s != NULL)
+        return s;
     // 3. upper_
     tmp = symname;
     std::transform(tmp.begin(), tmp.end(), tmp.begin(),
                    [](unsigned char c) { return std::toupper(c); });
     tmp += "_";
     s = getsym(handle, tmp.c_str(), buf, len);
-    if (s != NULL) return s;
+    if (s != NULL)
+        return s;
     // 4. original_
     tmp = symname;
     tmp += "_";
     s = getsym(handle, tmp.c_str(), buf, len);
-    if (s != NULL) return s;
+    if (s != NULL)
+        return s;
     // 5. lower
     tmp = symname;
     std::transform(tmp.begin(), tmp.end(), tmp.begin(),
                    [](unsigned char c) { return std::tolower(c); });
     s = getsym(handle, tmp.c_str(), buf, len);
-    if (s != NULL) return s;
+    if (s != NULL)
+        return s;
     // 6. upper
     tmp = symname;
     std::transform(tmp.begin(), tmp.end(), tmp.begin(),
                    [](unsigned char c) { return std::toupper(c); });
     s = getsym(handle, tmp.c_str(), buf, len);
-    if (s != NULL) return s;
+    if (s != NULL)
+        return s;
     return NULL;
 }

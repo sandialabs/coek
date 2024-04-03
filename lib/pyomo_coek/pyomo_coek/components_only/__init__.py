@@ -15,5 +15,6 @@ from pyomo.core.expr import value
 from .util import sum_product
 from .quicksum import quicksum, construct_linear_expression
 
+
 def to_list(e):
     return e.to_list()

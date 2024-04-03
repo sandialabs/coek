@@ -24,15 +24,18 @@ void knapsack_scalar(GRBModel& model, size_t N)
     }
 
     std::vector<GRBVar> x(N);
-    for (size_t n = 0; n < N; n++) x[n] = model.addVar(0, 1, 0, GRB_CONTINUOUS);
+    for (size_t n = 0; n < N; n++)
+        x[n] = model.addVar(0, 1, 0, GRB_CONTINUOUS);
 
     // obj
     GRBLinExpr obj;
-    for (size_t n = 0; n < N; n++) obj += v[n] * x[n];
+    for (size_t n = 0; n < N; n++)
+        obj += v[n] * x[n];
     model.setObjective(obj);
 
     // con
     GRBLinExpr con;
-    for (size_t n = 0; n < N; n++) con += w[n] * x[n];
+    for (size_t n = 0; n < N; n++)
+        con += w[n] * x[n];
     model.addConstr(con <= W);
 }

@@ -11,12 +11,12 @@ namespace coek {
 
 class ObjectiveTerm : public BaseExpressionTerm {
    public:
-    static unsigned int count;
+    static size_t count;
 
    public:
     expr_pointer_t body;
     bool sense;
-    unsigned int index;
+    size_t index;
     std::string name;
 
    public:
@@ -43,10 +43,10 @@ class ObjectiveTerm : public BaseExpressionTerm {
 
 class ConstraintTerm : public BaseExpressionTerm {
    public:
-    static unsigned int count;
+    static size_t count;
 
    public:
-    unsigned int index;
+    size_t index;
     expr_pointer_t lower;
     expr_pointer_t body;
     expr_pointer_t upper;

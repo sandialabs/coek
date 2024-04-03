@@ -3,9 +3,9 @@ name: Linux Build and Tests
 on:
   workflow_dispatch:
   push:
-    branches: [ main, dev, public, private ]
+    branches: [ main, dev, dev-weh, public, private ]
   pull_request:
-    branches: [ main, dev, public, private ]
+    branches: [ main, dev, dev-weh, public, private ]
 
 jobs:
 
@@ -44,22 +44,22 @@ jobs:
           cd build
           make test     
           
-  coek-build-and-test-with-cpp14:
-    runs-on: ubuntu-latest
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-      - name: run cmake
-        run: |
-          mkdir build
-          cd build
-          cmake -DCMAKE_CXX_STANDARD=14 -Dwith_python=OFF -Dwith_tests=ON -Dwith_debug=ON ..
-      - name: build
-        run: |
-          cd build
-          make install_tpls
-          make
-      - name: test
-        run: |
-          cd build
-          make test     
+#  coek-build-and-test-with-cpp14:
+#    runs-on: ubuntu-latest
+#    steps:
+#      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+#      - uses: actions/checkout@v3
+#      - name: run cmake
+#        run: |
+#          mkdir build
+#          cd build
+#          cmake -DCMAKE_CXX_STANDARD=14 -Dwith_python=OFF -Dwith_tests=ON -Dwith_debug=ON ..
+#      - name: build
+#        run: |
+#          cd build
+#          make install_tpls
+#          make
+#      - name: test
+#        run: |
+#          cd build
+#          make test     

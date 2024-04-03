@@ -3,6 +3,8 @@
   AlignTrailingComments: 'true'
   AllowAllArgumentsOnNextLine: 'true'
   AllowAllParametersOfDeclarationOnNextLine: 'true'
+  AllowShortLoopsOnASingleLine : 'false'
+  AllowShortIfStatementsOnASingleLine: 'false'
   AlwaysBreakTemplateDeclarations: 'Yes'
   BreakBeforeBraces: Stroustrup
   ColumnLimit: 100

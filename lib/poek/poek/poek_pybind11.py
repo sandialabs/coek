@@ -57,8 +57,9 @@ def model_variable(self, *args, **kwds):
 
 setattr(model, "add_variable", model_variable)
 
+
 def constraint_is_numeric_type(self, *args, **kwds):
     return True
 
-setattr(constraint, "is_numeric_type", constraint_is_numeric_type)
 
+setattr(constraint, "is_numeric_type", constraint_is_numeric_type)

@@ -29,7 +29,7 @@ Constraint& Constraint::operator=(const Constraint& expr)
     return *this;
 }
 
-unsigned int Constraint::id() const { return repn->index; }
+size_t Constraint::id() const { return repn->index; }
 
 bool Constraint::is_inequality() const { return repn->is_inequality(); }
 

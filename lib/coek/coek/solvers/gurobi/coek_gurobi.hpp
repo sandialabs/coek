@@ -16,14 +16,17 @@ class GurobiSolver : public SolverRepn {
     GurobiSolver() : SolverRepn() {}
     ~GurobiSolver();
 
-    int resolve();
-    int solve(Model&);
+    std::shared_ptr<SolverResults> resolve();
+    std::shared_ptr<SolverResults> solve(Model&);
 #ifdef COEK_WITH_COMPACT_MODEL
-    int solve(CompactModel&);
+    std::shared_ptr<SolverResults> solve(CompactModel&);
 #endif
 
    public:
     void set_gurobi_options();
+
+   protected:
+    void collect_results(Model& model, std::shared_ptr<SolverResults>& results);
 };
 
 }  // namespace coek

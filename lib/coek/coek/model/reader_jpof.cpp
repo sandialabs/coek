@@ -21,7 +21,8 @@
 #include "coek/model/model.hpp"
 
 #define RUNTIME_ASSERT(flag, msg) \
-    if (not(flag)) throw std::runtime_error(msg)
+    if (not(flag))                \
+    throw std::runtime_error(msg)
 
 namespace coek {
 
@@ -157,7 +158,8 @@ Expression create_expression(const std::string& expr, std::map<size_t, Variable>
             size_t n = nargs.top();  // # of arguments to collect from the end of args
             nargs.pop();
 
-            if (estack.size() == 0) break;
+            if (estack.size() == 0)
+                break;
             std::string& op = tokens[estack.top()];
             estack.pop();
 
@@ -220,7 +222,8 @@ Expression create_expression(const std::string& expr, std::map<size_t, Variable>
                         arg[n - 1 - i] = a.as_expression();
                     }
                     Expression e = arg[0];
-                    for (size_t i = 1; i < n; i++) e += arg[i];
+                    for (size_t i = 1; i < n; i++)
+                        e += arg[i];
                     args.push(e);
                 }
 #endif
@@ -365,7 +368,8 @@ void process_jpof_v20210301(rapidjson::Document& doc, Model& model,
         for (auto& param : mdoc["param"].GetArray()) {
             double value = 0.0;
             if (param.HasMember("value")) {
-                if (param["value"].IsDouble()) value = param["value"].GetDouble();
+                if (param["value"].IsDouble())
+                    value = param["value"].GetDouble();
                 // WEH - Pyomo/POEK parameters are always double values.  Checking for integer
                 // values just to be complete. GCOVR_EXCL_START
                 else if (param["value"].IsInt())
@@ -619,7 +623,8 @@ Model read_problem_from_jpof_file(const std::string& fname,
 {
 #ifdef WITH_RAPIDJSON
     FILE* fp = fopen(fname.c_str(), "r");
-    if (!fp) throw std::runtime_error("Unknown file: " + fname);
+    if (!fp)
+        throw std::runtime_error("Unknown file: " + fname);
 
     char readBuffer[65536];
     rapidjson::FileReadStream is(fp, readBuffer, sizeof(readBuffer));

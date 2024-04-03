@@ -19,5 +19,6 @@ from pyomo.opt.base.solvers import SolverFactory
 from pyomo.core.base.objective import minimize, maximize
 from pyomo.core.expr import value
 
+
 def to_list(e):
     return e.to_list()

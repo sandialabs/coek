@@ -107,7 +107,7 @@ class _GeneralConstraintData(_ConstraintData):
                         self._pe = pk.inequality(expr[0], expr[1]._pe, expr[2])
                     else:
                         self._pe = pk.inequality(expr[0], expr[1], expr[2])
-                    #raise NotImplementedError("Ranged inequalities are not supported yet")
+                    # raise NotImplementedError("Ranged inequalities are not supported yet")
             else:
                 raise ValueError(
                     f"expected 2 or 3 arguments for tuple expressions; got {len(expr)}"

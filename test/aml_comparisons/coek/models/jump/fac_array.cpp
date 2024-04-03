@@ -36,7 +36,8 @@ void fac_array(coek::Model& model, size_t F)
         for (size_t j : coek::range<size_t>(G + 1)) {
             auto lhs = coek::expression();
             // for (size_t f = 0; f < F; f++)
-            for (size_t f : coek::range<size_t>(F)) lhs += z(i, j, f);
+            for (size_t f : coek::range<size_t>(F))
+                lhs += z(i, j, f);
             model.add(lhs == 1);
         }
     }
