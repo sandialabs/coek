@@ -1,3 +1,4 @@
+#include <optional>
 #include <sstream>
 #include <coek/solvers/solver_results.hpp>
 
