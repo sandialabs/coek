@@ -84,45 +84,45 @@ std::string to_string(SolutionStatus ss)
 
 std::string to_string(const SolverResults& res)
 {
-std::stringstream ans;
+    std::stringstream ans;
 
-ans << "solver_name: " << res.solver_name << std::endl;
+    ans << "solver_name: " << res.solver_name << std::endl;
 
-// ans << "solver_options: "
+    // ans << "solver_options: "
 
-// ans << "solver_version: "
+    // ans << "solver_version: "
 
-ans << "termination_condition: " << to_string(res.termination_condition) << std::endl;
+    ans << "termination_condition: " << to_string(res.termination_condition) << std::endl;
 
-ans << "error_message: ";
-if (res.error_message.find("\n") == std::string::npos)
-    ans << res.error_message << std::endl;
-else
-    ans << "\"" << res.error_message << "\"" << std::endl;
+    ans << "error_message: ";
+    if (res.error_message.find("\n") == std::string::npos)
+        ans << res.error_message << std::endl;
+    else
+        ans << "\"" << res.error_message << "\"" << std::endl;
 
-ans << "solution_status: " << to_string(res.solution_status) << std::endl;
+    ans << "solution_status: " << to_string(res.solution_status) << std::endl;
 
-ans << "objective_value: ";
-if (isnan(res.objective_value))
-    ans  << "nan" << std::endl;
-else
-    ans << res.objective_value << std::endl;
+    ans << "objective_value: ";
+    if (isnan(res.objective_value))
+        ans << "nan" << std::endl;
+    else
+        ans << res.objective_value << std::endl;
 
-ans << "objective_bound: ";
-if (res.objective_bound.has_value())
-    ans << res.objective_bound.value() << std::endl;
-else
-    ans  << "nan" << std::endl;
+    ans << "objective_bound: ";
+    if (res.objective_bound.has_value())
+        ans << res.objective_bound.value() << std::endl;
+    else
+        ans << "nan" << std::endl;
 
-ans << "iteration_count: " << res.iteration_count << std::endl;
+    ans << "iteration_count: " << res.iteration_count << std::endl;
 
-ans << "system_time: ";
-if (isnan(res.system_time))
-    ans  << "nan" << std::endl;
-else
-    ans << res.system_time << std::endl;
+    ans << "system_time: ";
+    if (isnan(res.system_time))
+        ans << "nan" << std::endl;
+    else
+        ans << res.system_time << std::endl;
 
-return ans.str();
+    return ans.str();
 }
 
 }  // namespace coek
