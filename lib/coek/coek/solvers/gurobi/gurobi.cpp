@@ -142,7 +142,7 @@ void GurobiSolver::collect_results(Model& model, std::shared_ptr<SolverResults>&
             results->termination_condition = TerminationCondition::convergence_criteria_satisfied;
             results->solution_status = SolutionStatus::optimal;
             results->objective_value = gmodel->getObjective().getValue();
-            results->objective_bound = results->objective_value;
+            results->objective_bound = gmodel->get(GRB_DoubleAttr_ObjBound);
 
             // Collect values of Gurobi variables
             for (auto& var : model.repn->variables) {
@@ -155,6 +155,8 @@ void GurobiSolver::collect_results(Model& model, std::shared_ptr<SolverResults>&
         else if (status == GRB_SUBOPTIMAL) {
             results->termination_condition = TerminationCondition::other_termination_limit;
             results->solution_status = SolutionStatus::feasible;
+            results->objective_value = gmodel->getObjective().getValue();
+            results->objective_bound = gmodel->get(GRB_DoubleAttr_ObjBound);
             results->error_message
                 = "Unable to satisfy optimality tolerances; a sub-optimal solution is available";
 

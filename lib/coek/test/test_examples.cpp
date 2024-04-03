@@ -303,6 +303,8 @@ TEST_CASE("gurobi_examples", "[smoke]")
             auto res = solver.solve(m);
             REQUIRE(coek::check_optimal_termination(res));
 
+            REQUIRE(res->objective_value == Approx(28750.0));
+            REQUIRE(res->objective_bound == Approx(28750.0));
             check(m.get_variables(), simplelp1_soln);
         }
         // SECTION("simplelp1_solve") { simplelp1_solve(); }
