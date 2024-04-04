@@ -27,33 +27,31 @@ _nlp_solvers = {
     "ipopt",
 }
 
-poek2pyomo_termination_condition =  \
-{
-"convergence_criteria_satisfied": TerminationCondition.optimal,
-"time_limit": TerminationCondition.maxTimeLimit,
-"iteration_limit": TerminationCondition.maxIterations,
-"objective_limit": TerminationCondition.objectiveLimit,
-"min_step_length": TerminationCondition.minStepLength,
-"other_termination_limit": TerminationCondition.unknown,
-"unbounded": TerminationCondition.unbounded,
-"proven_infeasible": TerminationCondition.infeasible,
-"locally_infeasible": TerminationCondition.infeasible,
-"infeasible_or_unbounded": TerminationCondition.infeasibleOrUnbounded,
-"error": TerminationCondition.error,
-"interrupted": TerminationCondition.interrupted,
-"licensing_problems": TerminationCondition.licensingProblems,
-"solver_not_available":  TerminationCondition.unknown,
-"empty_model":  TerminationCondition.unknown,
-"invalid_model_for_solver": TerminationCondition.unknown,
-"unknown": TerminationCondition.unknown
+poek2pyomo_termination_condition = {
+    "convergence_criteria_satisfied": TerminationCondition.optimal,
+    "time_limit": TerminationCondition.maxTimeLimit,
+    "iteration_limit": TerminationCondition.maxIterations,
+    "objective_limit": TerminationCondition.objectiveLimit,
+    "min_step_length": TerminationCondition.minStepLength,
+    "other_termination_limit": TerminationCondition.unknown,
+    "unbounded": TerminationCondition.unbounded,
+    "proven_infeasible": TerminationCondition.infeasible,
+    "locally_infeasible": TerminationCondition.infeasible,
+    "infeasible_or_unbounded": TerminationCondition.infeasibleOrUnbounded,
+    "error": TerminationCondition.error,
+    "interrupted": TerminationCondition.interrupted,
+    "licensing_problems": TerminationCondition.licensingProblems,
+    "solver_not_available": TerminationCondition.unknown,
+    "empty_model": TerminationCondition.unknown,
+    "invalid_model_for_solver": TerminationCondition.unknown,
+    "unknown": TerminationCondition.unknown,
 }
-poek2pyomo_solution_status = \
-{
-"unknown": SolutionStatus.unknown,
-"no_solution": SolutionStatus.other,
-"infeasible": SolutionStatus.infeasible,
-"feasible": SolutionStatus.feasible,
-"optimal": SolutionStatus.optimal
+poek2pyomo_solution_status = {
+    "unknown": SolutionStatus.unknown,
+    "no_solution": SolutionStatus.other,
+    "infeasible": SolutionStatus.infeasible,
+    "feasible": SolutionStatus.feasible,
+    "optimal": SolutionStatus.optimal,
 }
 
 
@@ -195,10 +193,10 @@ class HybridSolver(Solver):
         # Update Pyomo var stale and is_none data
         for v in model.component_data_objects(pyo.Var, descend_into=True):
             v.reset_value()
-            #print("OPT",v,v._pe.value,v._pe.id)
-        #print("ObjValue", _res.objective_value, self._poek_model.get_objective().value)
-        #print("ObjBound", _res.objective_bound)
-        #print("Status", _res.termination_condition, _res.solution_status, pk.check_optimal_termination(_res))
+            # print("OPT",v,v._pe.value,v._pe.id)
+        # print("ObjValue", _res.objective_value, self._poek_model.get_objective().value)
+        # print("ObjBound", _res.objective_bound)
+        # print("Status", _res.termination_condition, _res.solution_status, pk.check_optimal_termination(_res))
 
         res = Results()
         res.solution_loader = self.solution_loader
