@@ -46,7 +46,8 @@ const std::map<std::string, double>& OptionCache::double_options() const
 bool OptionCache::get_option(const std::string& option, int& value) const
 {
     auto it = options->integer_options.find(option);
-    if (it == options->integer_options.end()) return false;
+    if (it == options->integer_options.end())
+        return false;
     value = it->second;
     return true;
 }
@@ -54,7 +55,8 @@ bool OptionCache::get_option(const std::string& option, int& value) const
 bool OptionCache::get_option(const std::string& option, double& value) const
 {
     auto it = options->double_options.find(option);
-    if (it == options->double_options.end()) return false;
+    if (it == options->double_options.end())
+        return false;
     value = it->second;
     return true;
 }
@@ -62,7 +64,8 @@ bool OptionCache::get_option(const std::string& option, double& value) const
 bool OptionCache::get_option(const std::string& option, std::string& value) const
 {
     auto it = options->string_options.find(option);
-    if (it == options->string_options.end()) return false;
+    if (it == options->string_options.end())
+        return false;
     value = it->second;
     return true;
 }

@@ -122,7 +122,8 @@ double visit_PlusTerm(const expr_pointer_t& expr, VariableData& data)
     auto& vec = *(tmp->data);
     auto n = tmp->num_expressions();
     double value = 0.0;
-    for (size_t i = 0; i < n; i++) value += visit_expression(vec[i], data);
+    for (size_t i = 0; i < n; i++)
+        value += visit_expression(vec[i], data);
     return value;
 }
 
@@ -130,7 +131,8 @@ double visit_TimesTerm(const expr_pointer_t& expr, VariableData& data)
 {
     auto tmp = safe_pointer_cast<TimesTerm>(expr);
     double lhs = visit_expression(tmp->lhs, data);
-    if (lhs == 0.0) return 0.0;
+    if (lhs == 0.0)
+        return 0.0;
     return lhs * visit_expression(tmp->rhs, data);
 }
 
@@ -138,7 +140,8 @@ double visit_DivideTerm(const expr_pointer_t& expr, VariableData& data)
 {
     auto tmp = safe_pointer_cast<DivideTerm>(expr);
     double lhs = visit_expression(tmp->lhs, data);
-    if (lhs == 0.0) return 0.0;
+    if (lhs == 0.0)
+        return 0.0;
     return lhs / visit_expression(tmp->rhs, data);
 }
 
@@ -251,7 +254,8 @@ double evaluate_expr_debug(const expr_pointer_t& expr,
 {
     num_visits = 0;
     // GCOVR_EXCL_START
-    if (not expr) return 0.0;
+    if (not expr)
+        return 0.0;
     // GCOVR_EXCL_STOP
 
     VariableData data(subexpr_value);
@@ -265,7 +269,8 @@ double evaluate_expr(const expr_pointer_t& expr,
                      std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value)
 {
     // GCOVR_EXCL_START
-    if (not expr) return 0.0;
+    if (not expr)
+        return 0.0;
     // GCOVR_EXCL_STOP
 
     VariableData data(subexpr_value);
@@ -275,7 +280,8 @@ double evaluate_expr(const expr_pointer_t& expr,
 double evaluate_expr(const expr_pointer_t& expr)
 {
     // GCOVR_EXCL_START
-    if (not expr) return 0.0;
+    if (not expr)
+        return 0.0;
     // GCOVR_EXCL_STOP
 
     std::map<std::shared_ptr<SubExpressionTerm>, double> subexpr_value;
@@ -287,7 +293,8 @@ double evaluate_expr(const BaseExpressionTerm* expr,
                      std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value)
 {
     // GCOVR_EXCL_START
-    if (not expr) return 0.0;
+    if (not expr)
+        return 0.0;
     // GCOVR_EXCL_STOP
 
     struct DeleterFunc {

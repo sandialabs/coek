@@ -13,7 +13,8 @@ namespace coek {
 inline expr_pointer_t plus_(const expr_pointer_t& lhs, const expr_pointer_t& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == ZeroConstant) tmp = rhs;
+    if (lhs == ZeroConstant)
+        tmp = rhs;
     /* WEH - Not seen in practice
     if (rhs == ZEROCONST)
     if (lhs->is_constant() and (lhs->eval() == 0))
@@ -261,7 +262,8 @@ expr_pointer_t divide(const LHS& lhs, const RHS& rhs)
 template <typename LHS>
 expr_pointer_t divide(const LHS& lhs, double rhs)
 {
-    if (rhs == 0.0) throw std::domain_error("Division by zero.");
+    if (rhs == 0.0)
+        throw std::domain_error("Division by zero.");
     expr_pointer_t tmp;
     if (rhs == 1.0)
         tmp = lhs;
@@ -284,7 +286,8 @@ expr_pointer_t divide(double lhs, const RHS& rhs)
 template <typename LHS>
 expr_pointer_t divide(const LHS& lhs, int rhs)
 {
-    if (rhs == 0) throw std::domain_error("Division by zero.");
+    if (rhs == 0)
+        throw std::domain_error("Division by zero.");
 
     expr_pointer_t tmp;
     if (rhs == 1)

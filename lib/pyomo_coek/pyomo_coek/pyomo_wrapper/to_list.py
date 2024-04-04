@@ -15,7 +15,8 @@ from pyomo.common.numeric_types import (
     value,
 )
 
-namemap = {'sum':'+', 'mon':'*', 'prod':'*', 'neg':'-', 'div':'/'}
+namemap = {"sum": "+", "mon": "*", "prod": "*", "neg": "-", "div": "/"}
+
 
 class _ToListVisitor(ExpressionValueVisitor):
     _expression_handlers = None
@@ -31,7 +32,7 @@ class _ToListVisitor(ExpressionValueVisitor):
             arg = node._args_[i]
 
             if arg is None:
-                values[i] = 'Undefined'
+                values[i] = "Undefined"
             elif arg.__class__ in native_numeric_types:
                 pass
             elif arg.__class__ in nonpyomo_leaf_types:
@@ -40,19 +41,19 @@ class _ToListVisitor(ExpressionValueVisitor):
                 values[i] = val
 
         if self._expression_handlers and node.__class__ in self._expression_handlers:
-            return [ self._expression_handlers[node.__class__](self, node, values) ]
+            return [self._expression_handlers[node.__class__](self, node, values)]
 
-        #print("HERE", values, self.verbose, self.smap)
-        #print("HERE", node._to_string(values, self.verbose, self.smap))
+        # print("HERE", values, self.verbose, self.smap)
+        # print("HERE", node._to_string(values, self.verbose, self.smap))
         name = node.getname()
-        if name == 'mon' and values[0] == "1.000000":
+        if name == "mon" and values[0] == "1.000000":
             return values[1]
-        elif name == 'prod' and values[0] == "1.000000":
+        elif name == "prod" and values[0] == "1.000000":
             return values[1]
-        elif name == '*' and values[0] == "1.000000":
+        elif name == "*" and values[0] == "1.000000":
             return values[1]
-        name = namemap.get(name,name)
-        return [ name ] + values
+        name = namemap.get(name, name)
+        return [name] + values
 
     def visiting_potential_leaf(self, node):
         """
@@ -69,15 +70,13 @@ class _ToListVisitor(ExpressionValueVisitor):
         if node.is_expression_type():
             return False, None
 
-        if hasattr(node, 'to_string'):
+        if hasattr(node, "to_string"):
             return True, node.to_string(verbose=self.verbose, smap=self.smap)
         else:
             return True, f"{node:.6f}"
 
 
-def to_list(
-    expr, verbose=None, labeler=None, smap=None, compute_values=False
-):
+def to_list(expr, verbose=None, labeler=None, smap=None, compute_values=False):
     """Return a string representation of an expression.
 
     Parameters
@@ -129,8 +128,7 @@ def to_list(
     #
     # NOTE: Does this make sense?  Maybe to_list() should return a non-list for numbers and variables.
     #
-    #return val
+    # return val
     if type(val) is not list:
         return [val]
     return val
-

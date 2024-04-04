@@ -9,7 +9,8 @@
 #endif
 
 #define RUNTIME_ASSERT(flag, msg) \
-    if (not(flag)) throw std::runtime_error(msg)
+    if (not(flag))                \
+    throw std::runtime_error(msg)
 
 namespace coek {
 
@@ -383,20 +384,23 @@ void value_tuple_to_array(const DataPortalRepn::TupleValueType& tvec, rapidjson:
     bool first = tuple_type.Size() == 0;
     for (const auto& v : tvec) {
         if (std::holds_alternative<DataPortalRepn::StringType>(v)) {
-            if (first) tuple_type.PushBack("s", allocator);
+            if (first)
+                tuple_type.PushBack("s", allocator);
             const auto& val = std::get<DataPortalRepn::StringType>(v);
             rapidjson::Value v_(val.c_str(), static_cast<rapidjson::SizeType>(val.size()),
                                 allocator);
             array.PushBack(v_, allocator);
         }
         else if (std::holds_alternative<DataPortalRepn::IntegerType>(v)) {
-            if (first) tuple_type.PushBack("i", allocator);
+            if (first)
+                tuple_type.PushBack("i", allocator);
             int val = std::get<DataPortalRepn::IntegerType>(v);
             rapidjson::Value v_(val);
             array.PushBack(v_, allocator);
         }
         else if (std::holds_alternative<DataPortalRepn::DoubleType>(v)) {
-            if (first) tuple_type.PushBack("d", allocator);
+            if (first)
+                tuple_type.PushBack("d", allocator);
             double val = std::get<DataPortalRepn::DoubleType>(v);
             rapidjson::Value v_(val);
             array.PushBack(v_, allocator);
@@ -411,14 +415,16 @@ void key_tuple_to_array(const DataPortalRepn::TupleKeyType& tvec, rapidjson::Val
     bool first = key_type.Size() == 0;
     for (const auto& v : tvec) {
         if (std::holds_alternative<DataPortalRepn::StringType>(v)) {
-            if (first) key_type.PushBack("s", allocator);
+            if (first)
+                key_type.PushBack("s", allocator);
             const auto& val = std::get<DataPortalRepn::StringType>(v);
             rapidjson::Value v_(val.c_str(), static_cast<rapidjson::SizeType>(val.size()),
                                 allocator);
             array.PushBack(v_, allocator);
         }
         else if (std::holds_alternative<DataPortalRepn::IntegerType>(v)) {
-            if (first) key_type.PushBack("i", allocator);
+            if (first)
+                key_type.PushBack("i", allocator);
             int val = std::get<DataPortalRepn::IntegerType>(v);
             rapidjson::Value v_(val);
             array.PushBack(v_, allocator);
@@ -431,7 +437,8 @@ void set_to_array(const DataPortalRepn::SetTypes& s, rapidjson::Value& array,
                   rapidjson::Value& set_type, AllocT& allocator)
 {
     if (std::holds_alternative<DataPortalRepn::StringSetType>(s)) {
-        if (set_type.Size() == 0) set_type.PushBack("s", allocator);
+        if (set_type.Size() == 0)
+            set_type.PushBack("s", allocator);
         const auto& set_ = std::get<DataPortalRepn::StringSetType>(s);
         for (const std::string& sval : set_) {
             rapidjson::Value v(sval.c_str(), static_cast<rapidjson::SizeType>(sval.size()),
@@ -441,7 +448,8 @@ void set_to_array(const DataPortalRepn::SetTypes& s, rapidjson::Value& array,
     }
 
     else if (std::holds_alternative<DataPortalRepn::IntegerSetType>(s)) {
-        if (set_type.Size() == 0) set_type.PushBack("i", allocator);
+        if (set_type.Size() == 0)
+            set_type.PushBack("i", allocator);
         const auto& set_ = std::get<DataPortalRepn::IntegerSetType>(s);
         for (const auto& sval : set_) {
             rapidjson::Value v(sval);
@@ -450,7 +458,8 @@ void set_to_array(const DataPortalRepn::SetTypes& s, rapidjson::Value& array,
     }
 
     else if (std::holds_alternative<DataPortalRepn::DoubleSetType>(s)) {
-        if (set_type.Size() == 0) set_type.PushBack("d", allocator);
+        if (set_type.Size() == 0)
+            set_type.PushBack("d", allocator);
         const auto& set_ = std::get<DataPortalRepn::DoubleSetType>(s);
         for (const auto& sval : set_) {
             rapidjson::Value v(sval);
@@ -473,17 +482,20 @@ void param_to_value(const DataPortalRepn::ParameterTypes& p, rapidjson::Value& v
                     rapidjson::Value& param_type, AllocT& allocator)
 {
     if (std::holds_alternative<DataPortalRepn::StringType>(p)) {
-        if (param_type.Size() == 0) param_type.PushBack("s", allocator);
+        if (param_type.Size() == 0)
+            param_type.PushBack("s", allocator);
         const auto& val = std::get<DataPortalRepn::StringType>(p);
         value.SetString(val.c_str(), static_cast<rapidjson::SizeType>(val.size()), allocator);
     }
     else if (std::holds_alternative<DataPortalRepn::IntegerType>(p)) {
-        if (param_type.Size() == 0) param_type.PushBack("i", allocator);
+        if (param_type.Size() == 0)
+            param_type.PushBack("i", allocator);
         int val = std::get<DataPortalRepn::IntegerType>(p);
         value.SetInt(val);
     }
     else if (std::holds_alternative<DataPortalRepn::DoubleType>(p)) {
-        if (param_type.Size() == 0) param_type.PushBack("d", allocator);
+        if (param_type.Size() == 0)
+            param_type.PushBack("d", allocator);
         double val = std::get<DataPortalRepn::DoubleType>(p);
         value.SetDouble(val);
     }
@@ -531,14 +543,16 @@ void initialize_to(const coek::DataPortalRepn& repn, rapidjson::Document& doc)
         for (const auto& kv : is.second) {
             rapidjson::Value kv_array(rapidjson::kArrayType);
             if (std::holds_alternative<DataPortalRepn::StringType>(kv.first)) {
-                if (key_type.Size() == 0) key_type.PushBack("s", allocator);
+                if (key_type.Size() == 0)
+                    key_type.PushBack("s", allocator);
                 const auto& val = std::get<DataPortalRepn::StringType>(kv.first);
                 rapidjson::Value key(val.c_str(), static_cast<rapidjson::SizeType>(val.size()),
                                      allocator);
                 kv_array.PushBack(key, allocator);
             }
             else if (std::holds_alternative<DataPortalRepn::IntegerType>(kv.first)) {
-                if (key_type.Size() == 0) key_type.PushBack("i", allocator);
+                if (key_type.Size() == 0)
+                    key_type.PushBack("i", allocator);
                 int val = std::get<DataPortalRepn::IntegerType>(kv.first);
                 rapidjson::Value key(val);
                 kv_array.PushBack(key, allocator);
@@ -585,14 +599,16 @@ void initialize_to(const coek::DataPortalRepn& repn, rapidjson::Document& doc)
         for (const auto& kv : ip.second) {
             rapidjson::Value kv_array(rapidjson::kArrayType);
             if (std::holds_alternative<DataPortalRepn::StringType>(kv.first)) {
-                if (key_type.Size() == 0) key_type.PushBack("s", allocator);
+                if (key_type.Size() == 0)
+                    key_type.PushBack("s", allocator);
                 const auto& val = std::get<DataPortalRepn::StringType>(kv.first);
                 rapidjson::Value key(val.c_str(), static_cast<rapidjson::SizeType>(val.size()),
                                      allocator);
                 kv_array.PushBack(key, allocator);
             }
             else if (std::holds_alternative<DataPortalRepn::IntegerType>(kv.first)) {
-                if (key_type.Size() == 0) key_type.PushBack("i", allocator);
+                if (key_type.Size() == 0)
+                    key_type.PushBack("i", allocator);
                 int val = std::get<DataPortalRepn::IntegerType>(kv.first);
                 rapidjson::Value key(val);
                 kv_array.PushBack(key, allocator);
@@ -624,7 +640,8 @@ void DataPortalRepn::load_from_file(const std::string& fname)
 {
 #ifdef WITH_RAPIDJSON
     FILE* fp = fopen(fname.c_str(), "r");
-    if (!fp) throw std::runtime_error("Unknown file: " + fname);
+    if (!fp)
+        throw std::runtime_error("Unknown file: " + fname);
 
     char buffer[65536];
     rapidjson::FileReadStream is(fp, buffer, sizeof(buffer));

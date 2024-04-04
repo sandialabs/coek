@@ -98,9 +98,6 @@ TEST_CASE("ipopt_examples", "[smoke]")
 
     coek::NLPSolver solver("ipopt");
     if (solver.available()) {
-        REQUIRE(not solver.error_status());
-        REQUIRE(solver.error_code() == 0);
-
         solver.set_option("print_level", 0);
 
         SECTION("rosenbr")
@@ -108,7 +105,8 @@ TEST_CASE("ipopt_examples", "[smoke]")
             auto m = rosenbr();
 
             coek::NLPModel nlp(m, adname);
-            solver.solve(nlp);
+            auto res = solver.solve(nlp);
+            REQUIRE(coek::check_optimal_termination(res));
 
             check(m.get_variables(), rosenbr_soln);
         }
@@ -118,7 +116,8 @@ TEST_CASE("ipopt_examples", "[smoke]")
             auto m = check_bounds();
 
             coek::NLPModel nlp(m, adname);
-            solver.solve(nlp);
+            auto res = solver.solve(nlp);
+            REQUIRE(coek::check_optimal_termination(res));
 
             check(m.get_variables(), check_bounds_soln);
         }
@@ -126,14 +125,16 @@ TEST_CASE("ipopt_examples", "[smoke]")
         SECTION("quad_vector")
         {
             std::vector<coek::Parameter> p(5);
-            for (auto& param : p) param.value(0.5);
+            for (auto& param : p)
+                param.value(0.5);
 
             WHEN("solve")
             {
                 auto m = quad_vector(p);
 
                 coek::NLPModel nlp(m, adname);
-                solver.solve(nlp);
+                auto res = solver.solve(nlp);
+                REQUIRE(coek::check_optimal_termination(res));
 
                 check(m.get_variables(), quad_soln1);
             }
@@ -142,13 +143,17 @@ TEST_CASE("ipopt_examples", "[smoke]")
                 auto m = quad_vector(p);
 
                 coek::NLPModel nlp(m, adname);
-                solver.solve(nlp);
+                auto res = solver.solve(nlp);
+                REQUIRE(coek::check_optimal_termination(res));
 
-                for (auto& param : p) param.value(-0.5);
+                for (auto& param : p)
+                    param.value(-0.5);
 
-                for (size_t i = 0; i < nlp.num_variables(); i++) nlp.get_variable(i).value(0);
+                for (size_t i = 0; i < nlp.num_variables(); i++)
+                    nlp.get_variable(i).value(0);
                 // solver.set_option("print_level", 0);
-                solver.resolve();
+                res = solver.resolve();
+                REQUIRE(coek::check_optimal_termination(res));
 
                 check(m.get_variables(), quad_soln2);
             }
@@ -157,11 +162,14 @@ TEST_CASE("ipopt_examples", "[smoke]")
                 auto m = quad_vector(p);
 
                 coek::NLPModel nlp(m, adname);
-                solver.solve(nlp);
+                auto res = solver.solve(nlp);
+                REQUIRE(coek::check_optimal_termination(res));
 
-                for (auto& param : p) param.value(-0.5);
+                for (auto& param : p)
+                    param.value(-0.5);
 
-                solver.resolve();
+                res = solver.resolve();
+                REQUIRE(coek::check_optimal_termination(res));
 
                 check(m.get_variables(), quad_soln2);
             }
@@ -170,14 +178,16 @@ TEST_CASE("ipopt_examples", "[smoke]")
         SECTION("invquad_vector")
         {
             std::vector<coek::Parameter> p(5);
-            for (auto& param : p) param.value(0.5);
+            for (auto& param : p)
+                param.value(0.5);
 
             WHEN("solve")
             {
                 auto m = invquad_vector(p);
 
                 coek::NLPModel nlp(m, adname);
-                solver.solve(nlp);
+                auto res = solver.solve(nlp);
+                REQUIRE(coek::check_optimal_termination(res));
 
                 check(m.get_variables(), invquad_soln_5);
             }
@@ -186,13 +196,17 @@ TEST_CASE("ipopt_examples", "[smoke]")
                 auto m = invquad_vector(p);
 
                 coek::NLPModel nlp(m, adname);
-                solver.solve(nlp);
+                auto res = solver.solve(nlp);
+                REQUIRE(coek::check_optimal_termination(res));
 
-                for (auto& param : p) param.value(-0.5);
+                for (auto& param : p)
+                    param.value(-0.5);
 
-                for (size_t i = 0; i < nlp.num_variables(); i++) nlp.get_variable(i).value(0);
+                for (size_t i = 0; i < nlp.num_variables(); i++)
+                    nlp.get_variable(i).value(0);
                 solver.set_option("print_level", 0);
-                solver.resolve();
+                res = solver.resolve();
+                REQUIRE(coek::check_optimal_termination(res));
 
                 std::vector<double> invquad_resolve_5{10, 10, 10, 10, 10};
                 check(m.get_variables(), invquad_resolve_5);
@@ -202,11 +216,14 @@ TEST_CASE("ipopt_examples", "[smoke]")
                 auto m = invquad_vector(p);
 
                 coek::NLPModel nlp(m, adname);
-                solver.solve(nlp);
+                auto res = solver.solve(nlp);
+                REQUIRE(coek::check_optimal_termination(res));
 
-                for (auto& param : p) param.value(0.5);
+                for (auto& param : p)
+                    param.value(0.5);
 
-                solver.resolve();
+                res = solver.resolve();
+                REQUIRE(coek::check_optimal_termination(res));
 
                 check(m.get_variables(), invquad_soln_5);
             }
@@ -216,14 +233,16 @@ TEST_CASE("ipopt_examples", "[smoke]")
         SECTION("invquad_array")
         {
             std::vector<coek::Parameter> p(5);
-            for (auto& param : p) param.value(0.5);
+            for (auto& param : p)
+                param.value(0.5);
 
             WHEN("solve")
             {
                 auto m = invquad_array(p);
 
                 coek::NLPModel nlp(m, adname);
-                solver.solve(nlp);
+                auto res = solver.solve(nlp);
+                REQUIRE(coek::check_optimal_termination(res));
 
                 check(m.get_variables(), invquad_soln_5);
             }
@@ -232,13 +251,17 @@ TEST_CASE("ipopt_examples", "[smoke]")
                 auto m = invquad_array(p);
 
                 coek::NLPModel nlp(m, adname);
-                solver.solve(nlp);
+                auto res = solver.solve(nlp);
+                REQUIRE(coek::check_optimal_termination(res));
 
-                for (auto& param : p) param.value(-0.5);
+                for (auto& param : p)
+                    param.value(-0.5);
 
-                for (size_t i = 0; i < nlp.num_variables(); i++) nlp.get_variable(i).value(0);
+                for (size_t i = 0; i < nlp.num_variables(); i++)
+                    nlp.get_variable(i).value(0);
                 solver.set_option("print_level", 0);
-                solver.resolve();
+                res = solver.resolve();
+                REQUIRE(coek::check_optimal_termination(res));
 
                 std::vector<double> invquad_resolve_5{10, 10, 10, 10, 10};
                 check(m.get_variables(), invquad_resolve_5);
@@ -248,11 +271,14 @@ TEST_CASE("ipopt_examples", "[smoke]")
                 auto m = invquad_array(p);
 
                 coek::NLPModel nlp(m, adname);
-                solver.solve(nlp);
+                auto res = solver.solve(nlp);
+                REQUIRE(coek::check_optimal_termination(res));
 
-                for (auto& param : p) param.value(0.5);
+                for (auto& param : p)
+                    param.value(0.5);
 
-                solver.resolve();
+                res = solver.resolve();
+                REQUIRE(coek::check_optimal_termination(res));
 
                 check(m.get_variables(), invquad_soln_5);
             }
@@ -263,9 +289,13 @@ TEST_CASE("ipopt_examples", "[smoke]")
 #    endif
     }
     else {
-        REQUIRE(solver.error_status());
-        REQUIRE(solver.error_code() != 0);
-        std::cerr << solver.error_message() << std::endl;
+        SECTION("rosenbr")
+        {
+            auto m = rosenbr();
+            coek::NLPModel nlp(m, adname);
+            auto res = solver.solve(nlp);
+            REQUIRE(res->termination_condition == coek::TerminationCondition::solver_not_available);
+        }
     }
 #endif
 }
@@ -277,12 +307,21 @@ TEST_CASE("gurobi_examples", "[smoke]")
         SECTION("simplelp1")
         {
             auto m = simplelp1();
-
             solver.set_option("OutputFlag", 0);
-            solver.solve(m);
+            auto res = solver.solve(m);
+            REQUIRE(coek::check_optimal_termination(res));
 
+            REQUIRE(res->objective_value == Approx(28750.0));
+            REQUIRE(res->objective_bound == Approx(28750.0));
             check(m.get_variables(), simplelp1_soln);
         }
-        // SECTION("simplelp1_solve") { simplelp1_solve(); }
+    }
+    else {
+        SECTION("simplelp1")
+        {
+            auto m = simplelp1();
+            auto res = solver.solve(m);
+            REQUIRE(res->termination_condition == coek::TerminationCondition::solver_not_available);
+        }
     }
 }

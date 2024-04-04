@@ -99,7 +99,8 @@ class RangeSet : public IndexSet {
     bool next()
     {
         i++;
-        if (i == N) return false;
+        if (i == N)
+            return false;
         index[0]->set_value(i);
         return true;
     }

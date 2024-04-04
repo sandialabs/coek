@@ -40,7 +40,8 @@ int main(int argc, char* argv[])
         else {
             solver_name = args[i++];
             model_name = args[i++];
-            while (i < args.size()) data.push_back(std::stoul(args[i++]));
+            while (i < args.size())
+                data.push_back(std::stoul(args[i++]));
         }
     }
 
@@ -56,29 +57,30 @@ int main(int argc, char* argv[])
     if (solver_name == "gurobi") {
         coek::Solver solver;
         solver.initialize(solver_name);
-        if (not solver.available()) {
-            std::cout << "ERROR - solver '" << solver_name << "' is not available" << std::endl;
-            std::cout << "MESSAGE - " << solver.error_message() << std::endl;
-            return 2;
-        }
         solver.set_option("OutputFlag", debug);
         solver.set_option("TimeLimit", 0.0);
 
-        solver.solve(model);
+        auto res = solver.solve(model);
+        if (not check_optimal_termination(res)) {
+            std::cout << "ERROR - failed to execute solver '" << solver_name << "'" << std::endl;
+            std::cout << "MESSAGE - " << res->error_message << std::endl;
+            return 2;
+        }
     }
     else if (solver_name == "ipopt") {
         coek::NLPModel Model(model, "cppad");
         coek::NLPSolver solver;
         solver.initialize(solver_name);
-        if (not solver.available()) {
-            std::cout << "ERROR - solver '" << solver_name << "' is not available" << std::endl;
-            std::cout << "MESSAGE - " << solver.error_message() << std::endl;
-            return 2;
-        }
+
         solver.set_option("max_iter", 1);
         solver.set_option("print_level", 1);
 
-        solver.solve(Model);
+        auto res = solver.solve(Model);
+        if (not check_optimal_termination(res)) {
+            std::cout << "ERROR - failed to execute solver '" << solver_name << "'" << std::endl;
+            std::cout << "MESSAGE - " << res->error_message << std::endl;
+            return 2;
+        }
     }
 
     return 0;

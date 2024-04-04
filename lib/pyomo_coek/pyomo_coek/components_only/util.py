@@ -1,8 +1,6 @@
-
 from .variable import Var
 from pyomo.core.base.expression import Expression
 from pyomo.core.expr.numeric_expr import mutable_expression
-
 
 
 def sum_product(*args, **kwds):
@@ -28,7 +26,7 @@ def sum_product(*args, **kwds):
     Returns:
         The value of the sum.
     """
-    denom = kwds.pop('denom', tuple())
+    denom = kwds.pop("denom", tuple())
     if type(denom) not in (list, tuple):
         denom = [denom]
     nargs = len(args)
@@ -36,12 +34,11 @@ def sum_product(*args, **kwds):
 
     if nargs == 0 and ndenom == 0:
         raise ValueError(
-            "The sum_product() command requires at least an "
-            + "argument or a denominator term"
+            "The sum_product() command requires at least an " + "argument or a denominator term"
         )
 
-    if 'index' in kwds:
-        index = kwds['index']
+    if "index" in kwds:
+        index = kwds["index"]
     else:
         if nargs > 0:
             iarg = args[-1]
@@ -87,10 +84,6 @@ def sum_product(*args, **kwds):
         # Sum of fractions
         #
         return quicksum(
-            (
-                prod(arg[i] for arg in args) / prod(den[i] for den in denom)
-                for i in index
-            ),
+            (prod(arg[i] for arg in args) / prod(den[i] for den in denom) for i in index),
             start,
         )
-

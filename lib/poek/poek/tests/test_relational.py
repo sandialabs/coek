@@ -64,7 +64,7 @@ class Test_ConditionalValue(object):
         #
         # Check that the expression evaluates correctly
         #
-        assert exp.is_feasible() ==  val
+        assert exp.is_feasible() == val
         #
         # Check that the expression evaluates correctly in a Boolean context
         #
@@ -213,7 +213,6 @@ class Test_VarValue(Test_ConditionalValue):
 
 
 class Test_Expr(object):
-
     @pytest.fixture
     def var_a(self):
         return variable(name="a")
@@ -227,8 +226,8 @@ class Test_Expr(object):
         return variable(10, name="x")
 
     def X__init(self):
-        #self.a = variable(name="a")
-        #self.b = variable(name="b")
+        # self.a = variable(name="a")
+        # self.b = variable(name="b")
         self.c = variable(name="c")
         self.x = variable(10, name="x")
 
@@ -236,7 +235,7 @@ class Test_Expr(object):
         #
         # Check the structure of a simple equality statement
         #
-        a,b = var_a,var_b
+        a, b = var_a, var_b
 
         e = a == b
         assert e.to_list() == ["==", ["+", "a", ["*", "-1.000000", "b"]], "0.000000"]
@@ -245,7 +244,7 @@ class Test_Expr(object):
         #
         # Confirm problems with chained relational operators
         #
-        a,b = var_a,var_b
+        a, b = var_a, var_b
 
         #       =
         #      / \
@@ -277,7 +276,7 @@ class Test_Expr(object):
         #
         # Check errors in nested relational expressions
         #
-        a,b,x = var_a,var_b,var_x
+        a, b, x = var_a, var_b, var_x
 
         e = a == b
         if poek.__using_pybind11__:
@@ -306,7 +305,7 @@ class Test_Expr(object):
         #
         # Verify that constraints are not allow to be nested.
         #
-        a,b = var_a,var_b
+        a, b = var_a, var_b
 
         e = a == b
         E = a
@@ -426,7 +425,7 @@ class Test_Expr(object):
         #
         # Verify that constraints are not allow to be nested.
         #
-        a,b = var_a,var_b
+        a, b = var_a, var_b
 
         e = a == b
 

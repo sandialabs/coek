@@ -17,7 +17,8 @@ class VariableArrayRepn : public VariableAssocArrayRepn {
 
     VariableArrayRepn(const std::vector<size_t>& _shape) : shape(_shape), _size(1)
     {
-        for (auto n : shape) _size *= n;
+        for (auto n : shape)
+            _size *= n;
         cache.resize((size() + 1) * (dim() + 1));
     }
 
@@ -33,7 +34,8 @@ class VariableArrayRepn : public VariableAssocArrayRepn {
 
     VariableArrayRepn(const std::initializer_list<size_t>& _shape) : shape(_shape), _size(1)
     {
-        for (auto n : shape) _size *= n;
+        for (auto n : shape)
+            _size *= n;
         cache.resize((size() + 1) * (dim() + 1));
     }
 
@@ -62,7 +64,8 @@ std::string VariableArrayRepn::get_name(std::string name, size_t index)
             index = index / shape[j];
         }
         name += std::to_string(tmp[0]);
-        for (size_t i = 1; i < shape.size(); ++i) name += "," + std::to_string(tmp[i]);
+        for (size_t i = 1; i < shape.size(); ++i)
+            name += "," + std::to_string(tmp[i]);
     }
 
     name += "]";
@@ -75,12 +78,14 @@ void VariableArrayRepn::generate_names()
     // then we do not try to generate names.  The default/simple
     // variable names will be used.
     std::string name = variable_template.name();
-    if (name == "") return;
+    if (name == "")
+        return;
 
     setup();
 
     size_t ctr = 0;
-    for (auto& var : values) var.name(get_name(name, ctr++));
+    for (auto& var : values)
+        var.name(get_name(name, ctr++));
 }
 
 //
@@ -128,12 +133,14 @@ Variable VariableArray::index(const IndexVector& args)
     // We know that the args[i] values are nonnegative b.c. we have asserted that while
     // processing these arguments
     size_t ndx = static_cast<size_t>(args[0]);
-    for (size_t i = 1; i < args.size(); i++) ndx = ndx * shape[i] + static_cast<size_t>(args[i]);
+    for (size_t i = 1; i < args.size(); i++)
+        ndx = ndx * shape[i] + static_cast<size_t>(args[i]);
 
     if (ndx > size()) {
         std::string err = "Unknown index value: " + _repn->variable_template.name() + "[";
         for (size_t i = 0; i < args.size(); i++) {
-            if (i > 0) err += ",";
+            if (i > 0)
+                err += ",";
             err += std::to_string(args[i]);
         }
         err += "]";
@@ -267,7 +274,8 @@ VariableArray& Model::add_variable(VariableArray& vars)
         vars.generate_names();
     else if (repn->name_generation_policy == Model::NameGeneration::lazy)
         repn->variable_arrays.push_back(vars);
-    for (auto& var : vars.repn->values) add_variable(var);
+    for (auto& var : vars.repn->values)
+        add_variable(var);
     return vars;
 }
 

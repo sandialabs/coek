@@ -19,7 +19,7 @@ Objective& Objective::operator=(const Objective& expr)
     return *this;
 }
 
-unsigned int Objective::id() const { return repn->index; }
+size_t Objective::id() const { return repn->index; }
 
 double Objective::value() const { return repn->eval(); }
 

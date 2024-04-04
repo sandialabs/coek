@@ -159,7 +159,8 @@ void visit_PlusTerm(const expr_pointer_t& expr, std::list<std::string>& repr)
     repr.push_back("[");
     repr.push_back("+");
     std::vector<expr_pointer_t>& vec = *(tmp->data);
-    for (size_t i = 0; i < tmp->num_expressions(); i++) visit_expression(vec[i], repr);
+    for (size_t i = 0; i < tmp->num_expressions(); i++)
+        visit_expression(vec[i], repr);
     repr.push_back("]");
 }
 

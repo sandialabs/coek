@@ -20,7 +20,8 @@ void eval_model(size_t thread_id, size_t niters, coek::NLPModel& nlp, double& f_
     f_min = std::numeric_limits<double>::max();
     for (auto i : coek::range(niters)) {
         std::ignore = i;
-        for (double& val : x) val = urand(gen);
+        for (double& val : x)
+            val = urand(gen);
 
         nlp.set_variable_view(x);
         nlp.compute_df(f, df);
@@ -56,7 +57,8 @@ double test_srosenbr_vector_threadeval(const std::string& asl_type, size_t nthre
     //
     // Join the threads
     //
-    for (auto& t : threads) t.join();
+    for (auto& t : threads)
+        t.join();
 
     return *min_element(f_min.begin(), f_min.end());
 }

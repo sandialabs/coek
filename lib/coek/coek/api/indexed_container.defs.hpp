@@ -17,7 +17,8 @@ class IndexedComponentRepn_multiarray : public IndexedComponentRepn<TYPE> {
         : IndexedComponentRepn<TYPE>(_shape.size()), shape(_shape)
     {
         size_t _size = 1;
-        for (auto n : shape) _size *= n;
+        for (auto n : shape)
+            _size *= n;
         this->cache.resize((_size + 1) * (_shape.size() + 1));
     }
 
@@ -25,7 +26,8 @@ class IndexedComponentRepn_multiarray : public IndexedComponentRepn<TYPE> {
         : IndexedComponentRepn<TYPE>(_shape.size()), shape(_shape)
     {
         size_t _size = 1;
-        for (auto n : shape) _size *= n;
+        for (auto n : shape)
+            _size *= n;
         this->cache.resize((_size + 1) * (_shape.size() + 1));
     }
 
@@ -33,7 +35,8 @@ class IndexedComponentRepn_multiarray : public IndexedComponentRepn<TYPE> {
     {
         for (size_t i = 0; i < this->_dim; ++i) {
             size_t tmp = static_cast<size_t>(args[i]);
-            if ((tmp < 0) or (tmp >= shape[i])) return false;
+            if ((tmp < 0) or (tmp >= shape[i]))
+                return false;
         }
         return true;
     }
@@ -48,13 +51,15 @@ void IndexedComponentRepn_multiarray<TYPE>::generate_names()
     // then we do not try to generate names.  The default/simple
     // names will be used.
     auto name = this->_name;
-    if (name.size() == 0) return;
+    if (name.size() == 0)
+        return;
 
     for (auto& component : this->value) {
         name += "[";
 
         auto shape_size = shape.size();
-        if (shape_size >= 1) name += std::to_string(component.first[0]);
+        if (shape_size >= 1)
+            name += std::to_string(component.first[0]);
 
         if (shape_size > 1) {
             for (size_t i = 1; i < shape_size; ++i) {
@@ -89,7 +94,8 @@ class IndexedComponentRepn_setindex : public IndexedComponentRepn<TYPE> {
         if (tmp.size() == 1)
             return this->concrete_set.contains(args[0]);
         else {
-            for (size_t i = 0; i < tmp.size(); i++) tmp[i] = args[i];
+            for (size_t i = 0; i < tmp.size(); i++)
+                tmp[i] = args[i];
             return this->concrete_set.contains(tmp);
         }
     }
@@ -104,13 +110,15 @@ void IndexedComponentRepn_setindex<TYPE>::generate_names()
     // then we do not try to generate names.  The default/simple
     // names will be used.
     auto name = this->_name;
-    if (name == "") return;
+    if (name == "")
+        return;
 
     size_t _dim = this->dim();
     std::vector<int> x_data(_dim);
     IndexVector x(&(x_data[0]), _dim);
     for (auto& indices : concrete_set) {
-        for (size_t j = 0; j < _dim; j++) x[j] = indices[j];
+        for (size_t j = 0; j < _dim; j++)
+            x[j] = indices[j];
         if (indices.size() == 1) {
             auto tmp = indices[0];
             this->value[x].name(name + "[" + std::to_string(tmp) + "]");
@@ -132,7 +140,8 @@ void IndexedComponentRepn_setindex<TYPE>::generate_names()
 template <class TYPE>
 TYPE& IndexedComponent_Map<TYPE>::operator()(int i)
 {
-    if (this->dim() != 1) index_error(1);
+    if (this->dim() != 1)
+        index_error(1);
     this->tmp[0] = i;
     return index(this->tmp);
 }
@@ -140,7 +149,8 @@ TYPE& IndexedComponent_Map<TYPE>::operator()(int i)
 template <class TYPE>
 TYPE& IndexedComponent_Map<TYPE>::operator()(int i, int j)
 {
-    if (this->dim() != 2) index_error(2);
+    if (this->dim() != 2)
+        index_error(2);
     this->tmp[0] = i;
     this->tmp[1] = j;
     return index(this->tmp);
@@ -184,7 +194,8 @@ TYPE& IndexedComponent_Map<TYPE>::index(const IndexVector& args)
     if (!(this->repn->valid_index(this->tmp))) {
         std::string err = "Unexpected index value: " + this->repn->_name + "(";
         for (size_t i = 0; i < args.size(); i++) {
-            if (i > 0) err += ",";
+            if (i > 0)
+                err += ",";
             err += std::to_string(args[i]);
         }
         err += ")";
