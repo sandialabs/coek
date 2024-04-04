@@ -288,6 +288,15 @@ TEST_CASE("ipopt_examples", "[smoke]")
         }
 #    endif
     }
+    else {
+        SECTION("rosenbr")
+        {
+            auto m = rosenbr();
+            coek::NLPModel nlp(m, adname);
+            auto res = solver.solve(nlp);
+            REQUIRE(res->termination_condition == coek::TerminationCondition::solver_not_available);
+        }
+    }
 #endif
 }
 
@@ -298,7 +307,6 @@ TEST_CASE("gurobi_examples", "[smoke]")
         SECTION("simplelp1")
         {
             auto m = simplelp1();
-
             solver.set_option("OutputFlag", 0);
             auto res = solver.solve(m);
             REQUIRE(coek::check_optimal_termination(res));
@@ -307,6 +315,13 @@ TEST_CASE("gurobi_examples", "[smoke]")
             REQUIRE(res->objective_bound == Approx(28750.0));
             check(m.get_variables(), simplelp1_soln);
         }
-        // SECTION("simplelp1_solve") { simplelp1_solve(); }
+    }
+    else {
+        SECTION("simplelp1")
+        {
+            auto m = simplelp1();
+            auto res = solver.solve(m);
+            REQUIRE(res->termination_condition == coek::TerminationCondition::solver_not_available);
+        }
     }
 }

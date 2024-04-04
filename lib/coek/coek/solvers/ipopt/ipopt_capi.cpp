@@ -30,8 +30,8 @@ namespace coek {
 
 int load_ipopt_library(const char* libname, std::string& error_message)
 {
-    char buf[256];
-    ipopt_handle = loadlib(libname, buf, 256);
+    char buf[1024];
+    ipopt_handle = loadlib(libname, buf, 1024);
     if (ipopt_handle == NULL) {
         error_message = buf;
         return 1;
