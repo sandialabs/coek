@@ -145,12 +145,15 @@ void GurobiSolver::collect_results(Model& model, std::shared_ptr<SolverResults>&
             try {
                 double value = gmodel->get(GRB_DoubleAttr_ObjBound);
                 results->objective_bound = value;
-            } catch (GRBException ) { }
+            }
+            catch (GRBException) {
+            }
             if (not results->objective_bound.has_value()) {
                 try {
                     double value = gmodel->get(GRB_DoubleAttr_ObjBoundC);
                     results->objective_bound = value;
-                } catch (GRBException ) { 
+                }
+                catch (GRBException) {
                 }
             }
 
@@ -169,12 +172,15 @@ void GurobiSolver::collect_results(Model& model, std::shared_ptr<SolverResults>&
             try {
                 double value = gmodel->get(GRB_DoubleAttr_ObjBound);
                 results->objective_bound = value;
-            } catch (GRBException ) { }
+            }
+            catch (GRBException) {
+            }
             if (not results->objective_bound.has_value()) {
                 try {
                     double value = gmodel->get(GRB_DoubleAttr_ObjBoundC);
                     results->objective_bound = value;
-                } catch (GRBException ) { 
+                }
+                catch (GRBException) {
                 }
             }
             results->error_message
