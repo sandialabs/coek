@@ -142,7 +142,17 @@ void GurobiSolver::collect_results(Model& model, std::shared_ptr<SolverResults>&
             results->termination_condition = TerminationCondition::convergence_criteria_satisfied;
             results->solution_status = SolutionStatus::optimal;
             results->objective_value = gmodel->getObjective().getValue();
-            results->objective_bound = gmodel->get(GRB_DoubleAttr_ObjBound);
+            try {
+                double value = gmodel->get(GRB_DoubleAttr_ObjBound);
+                results->objective_bound = value;
+            } catch (GRBException ) { }
+            if (not results->objective_bound.has_value()) {
+                try {
+                    double value = gmodel->get(GRB_DoubleAttr_ObjBoundC);
+                    results->objective_bound = value;
+                } catch (GRBException ) { 
+                }
+            }
 
             // Collect values of Gurobi variables
             for (auto& var : model.repn->variables) {
@@ -156,7 +166,17 @@ void GurobiSolver::collect_results(Model& model, std::shared_ptr<SolverResults>&
             results->termination_condition = TerminationCondition::other_termination_limit;
             results->solution_status = SolutionStatus::feasible;
             results->objective_value = gmodel->getObjective().getValue();
-            results->objective_bound = gmodel->get(GRB_DoubleAttr_ObjBound);
+            try {
+                double value = gmodel->get(GRB_DoubleAttr_ObjBound);
+                results->objective_bound = value;
+            } catch (GRBException ) { }
+            if (not results->objective_bound.has_value()) {
+                try {
+                    double value = gmodel->get(GRB_DoubleAttr_ObjBoundC);
+                    results->objective_bound = value;
+                } catch (GRBException ) { 
+                }
+            }
             results->error_message
                 = "Unable to satisfy optimality tolerances; a sub-optimal solution is available";
 
@@ -225,6 +245,7 @@ void GurobiSolver::collect_results(Model& model, std::shared_ptr<SolverResults>&
         }
     }
     catch (GRBException e) {
+        results->termination_condition = TerminationCondition::unknown;
         results->error_message = "GUROBI Exception: (results) " + e.getMessage();
     }
 }
@@ -291,9 +312,8 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
         return results;
     }
 
-    set_gurobi_options();
-
     try {
+        set_gurobi_options();
         gmodel->optimize();
     }
     catch (GRBException e) {
