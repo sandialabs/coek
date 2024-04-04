@@ -1,3 +1,5 @@
+import sys
+
 from pyomo.contrib.appsi.base import (
     TerminationCondition,
     SolverConfig,
@@ -20,7 +22,6 @@ from pyomo_coek.components_only.constraint import Constraint
 from pyomo_coek.components_only.variable import Var
 
 from pyomo.opt.results.solution import SolutionStatus
-from pyomo.opt.results.solver import TerminationCondition 
 
 _nlp_solvers = {
     "ipopt",
@@ -31,7 +32,7 @@ poek2pyomo_termination_condition =  \
 "convergence_criteria_satisfied": TerminationCondition.optimal,
 "time_limit": TerminationCondition.maxTimeLimit,
 "iteration_limit": TerminationCondition.maxIterations,
-"objective_limit": TerminationCondition.minFunctionValue,
+"objective_limit": TerminationCondition.objectiveLimit,
 "min_step_length": TerminationCondition.minStepLength,
 "other_termination_limit": TerminationCondition.unknown,
 "unbounded": TerminationCondition.unbounded,
@@ -39,7 +40,7 @@ poek2pyomo_termination_condition =  \
 "locally_infeasible": TerminationCondition.infeasible,
 "infeasible_or_unbounded": TerminationCondition.infeasibleOrUnbounded,
 "error": TerminationCondition.error,
-"interrupted": TerminationCondition.resourceInterrupt,
+"interrupted": TerminationCondition.interrupted,
 "licensing_problems": TerminationCondition.licensingProblems,
 "solver_not_available":  TerminationCondition.unknown,
 "empty_model":  TerminationCondition.unknown,
@@ -48,11 +49,11 @@ poek2pyomo_termination_condition =  \
 }
 poek2pyomo_solution_status = \
 {
-"unknown": SolutionStatus.unknown,              # 
-"no_solution": SolutionStatus.other,            # SolutionStatus.noSolution
-"infeasible": SolutionStatus.infeasible,        # SolutionStatus.infeasible
-"feasible": SolutionStatus.feasible,            # SolutionStatus.feasible
-"optimal": SolutionStatus.optimal               # SolutionStatus.optimal
+"unknown": SolutionStatus.unknown,
+"no_solution": SolutionStatus.other,
+"infeasible": SolutionStatus.infeasible,
+"feasible": SolutionStatus.feasible,
+"optimal": SolutionStatus.optimal
 }
 
 
@@ -163,6 +164,16 @@ class HybridSolver(Solver):
             timer = HierarchicalTimer()
 
         pm = self._construct_poek_model(model, timer)
+        if False:
+            sys.stdout.flush()
+            sys.stderr.flush()
+            pm.print_equations()
+            sys.stdout.flush()
+            sys.stderr.flush()
+
+        if self.config.stream_solver:
+            sys.stdout.flush()
+            sys.stderr.flush()
 
         timer.start("coek solve")
         if self._solver_name in _nlp_solvers:
@@ -177,17 +188,24 @@ class HybridSolver(Solver):
             _res = self._opt.solve(pm)
         timer.stop("coek solve")
 
+        if self.config.stream_solver:
+            sys.stdout.flush()
+            sys.stderr.flush()
+
         # Update Pyomo var stale and is_none data
         for v in model.component_data_objects(pyo.Var, descend_into=True):
             v.reset_value()
+            #print("OPT",v,v._pe.value,v._pe.id)
+        #print("ObjValue", _res.objective_value, self._poek_model.get_objective().value)
+        #print("ObjBound", _res.objective_bound)
+        #print("Status", _res.termination_condition, _res.solution_status, pk.check_optimal_termination(_res))
 
-        # WARNING - This information needs to be pulled from the coek solver
         res = Results()
         res.solution_loader = self.solution_loader
         res.termination_condition = poek2pyomo_termination_condition[_res.termination_condition]
         res.solution_status = poek2pyomo_solution_status[_res.solution_status]
         if pk.check_optimal_termination(_res):
-            res.best_feasible_objective = self._poek_model.get_objective().value
+            res.best_feasible_objective = _res.objective_value
             if self._poek_model:
                 res.best_objective_bound = _res.objective_bound
             elif self._poek_nlp_model:
