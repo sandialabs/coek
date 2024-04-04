@@ -591,27 +591,51 @@ def test_simpleDiff(var_a, var_b):
 def test_constDiff(var_a):
     a = var_a
 
-    z = np.int32(5)
-    e = a - z
-    assert e.to_list() == ["+", "a", "-5.000000"]
+    if True:
+        z = 5
+        e = a - z
+        assert e.to_list() == ["+", "a", "-5.000000"]
 
-    e = z - a
-    assert e.to_list() == ["+", "5.000000", ["*", "-1.000000", "a"]]
+        e = z - a
+        assert e.to_list() == ["+", "5.000000", ["*", "-1.000000", "a"]]
 
-    e = a
-    e -= z
-    assert e.to_list() == ["+", "a", "-5.000000"]
+        e = a
+        e -= z
+        assert e.to_list() == ["+", "a", "-5.000000"]
 
-    z = np.float32(5.0)
-    e = a - z
-    assert e.to_list() == ["+", "a", "-5.000000"]
+        z = 5.0
+        e = a - z
+        assert e.to_list() == ["+", "a", "-5.000000"]
 
-    e = z - a
-    assert e.to_list() == ["+", "5.000000", ["*", "-1.000000", "a"]]
+        e = z - a
+        assert e.to_list() == ["+", "5.000000", ["*", "-1.000000", "a"]]
 
-    e = a
-    e -= z
-    assert e.to_list() == ["+", "a", "-5.000000"]
+        e = a
+        e -= z
+        assert e.to_list() == ["+", "a", "-5.000000"]
+
+    if numpy_available:
+        z = np.int32(5)
+        e = a - z
+        assert e.to_list() == ["+", "a", "-5.000000"]
+
+        e = z - a
+        assert e.to_list() == ["+", "5.000000", ["*", "-1.000000", "a"]]
+
+        e = a
+        e -= z
+        assert e.to_list() == ["+", "a", "-5.000000"]
+
+        z = np.float32(5.0)
+        e = a - z
+        assert e.to_list() == ["+", "a", "-5.000000"]
+
+        e = z - a
+        assert e.to_list() == ["+", "5.000000", ["*", "-1.000000", "a"]]
+
+        e = a
+        e -= z
+        assert e.to_list() == ["+", "a", "-5.000000"]
 
 
 def test_paramDiff(var_a, param_p):
@@ -1324,7 +1348,7 @@ def test_trivialProduct(var_a, param_p, param_q, param_r):
         e = 0.0 * a
         assert e.value == 0
 
-    if True:
+    if numpy_available:
         z = np.int32(0)
         e = a * z
         assert e.value == 0
