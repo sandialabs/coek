@@ -31,6 +31,7 @@ SET(sources
     model/writer_lp.cpp
     model/writer_nl.cpp
     model/reader_jpof.cpp
+    solvers/solver_results.cpp
     solvers/solver.cpp
     solvers/solver_repn.cpp
     solvers/testsolver.cpp
@@ -64,6 +65,14 @@ if(with_compact)
         compact/variable_map.cpp
         compact/visitor_exprtemplate.cpp
         )
+endif()
+
+# Dynamic linking options
+list(APPEND sources util/loadlib.cpp)
+if(WIN32)
+else()
+    list(APPEND coek_compile_options -DUSING_DL)
+    list(APPEND coek_link_libraries dl)
 endif()
 
 # fmtlib LIBRARY
@@ -156,12 +165,6 @@ endif()
 #
 # IPOPT LIBRARY
 #
-if(WIN32)
-else()
-    list(APPEND coek_compile_options -DUSING_DL)
-    list(APPEND coek_link_libraries dl)
-endif()
-list(APPEND sources solvers/loadlib.cpp)
 list(APPEND sources
         solvers/ipopt/ipopt_capi.cpp
         solvers/ipopt/ipopt_solver.cpp)
@@ -270,6 +273,7 @@ install(FILES
         )
 install(FILES
         solvers/solver.hpp
+        solvers/solver_results.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/solvers
         )
 

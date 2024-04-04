@@ -45,7 +45,7 @@ class Objective {
     std::string name() const;
 
     /** \returns the unique integer objective ID */
-    unsigned int id() const;
+    size_t id() const;
 
     /** \returns a list representation of the objective */
     std::list<std::string> to_list() const;

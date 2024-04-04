@@ -27,10 +27,12 @@ void check_that_expression_variables_are_declared(
 NLPModelRepn* create_NLPModelRepn(Model& model, const std::string& name)
 {
 #ifdef WITH_CPPAD
-    if (name == "cppad") return new CppAD_Repn(model);
+    if (name == "cppad")
+        return new CppAD_Repn(model);
 #endif
 #ifdef WITH_ASL
-    if (name == "asl") return new ASL_Repn(model);
+    if (name == "asl")
+        return new ASL_Repn(model);
 #endif
 
     throw std::runtime_error("Unexpected NLP model type: " + name);
@@ -53,7 +55,8 @@ void NLPModelRepn::find_used_variables()
     check_that_expression_variables_are_declared(model, vars);
 
     std::map<size_t, std::shared_ptr<VariableTerm>> tmp;
-    for (auto& it : vars) tmp[it->index] = it;
+    for (auto& it : vars)
+        tmp[it->index] = it;
 
     used_variables.clear();
     size_t i = 0;
@@ -66,8 +69,10 @@ void NLPModelRepn::find_used_variables()
     fixed_variables.clear();
     parameters.clear();
     size_t j = 0;
-    for (auto& it : fixed_vars) fixed_variables[it] = j++;
-    for (auto& it : params) parameters[it] = j++;
+    for (auto& it : fixed_vars)
+        fixed_variables[it] = j++;
+    for (auto& it : params)
+        parameters[it] = j++;
 }
 
 VariableRepn NLPModelRepn::get_variable(size_t i) { return used_variables[i]; }

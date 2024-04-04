@@ -23,9 +23,12 @@ void NLPModel::initialize(Model& model, std::string type)
     std::shared_ptr<NLPModelRepn> tmp(create_NLPModelRepn(model, type));
     repn = tmp;
 
-    for (const auto& ioption : integer_options()) repn->set_option(ioption.first, ioption.second);
-    for (const auto& doption : double_options()) repn->set_option(doption.first, doption.second);
-    for (const auto& soption : string_options()) repn->set_option(soption.first, soption.second);
+    for (const auto& ioption : integer_options())
+        repn->set_option(ioption.first, ioption.second);
+    for (const auto& doption : double_options())
+        repn->set_option(doption.first, doption.second);
+    for (const auto& soption : string_options())
+        repn->set_option(soption.first, soption.second);
 
     repn->initialize();
 }

@@ -44,7 +44,8 @@ int main(int argc, char* argv[])
         else {
             filename = args[i++];
             model_name = args[i++];
-            while (i < args.size()) data.push_back(std::stoul(args[i++]));
+            while (i < args.size())
+                data.push_back(std::stoul(args[i++]));
         }
     }
 

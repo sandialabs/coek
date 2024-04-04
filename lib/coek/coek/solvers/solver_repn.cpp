@@ -47,9 +47,6 @@ void SolverCache::find_updated_values()
 
 void SolverCache::reset_cache()
 {
-    error_occurred = false;
-    error_message = "";
-    error_code = 0;
     initial = true;
     vcache.clear();
     pcache.clear();
@@ -57,7 +54,8 @@ void SolverCache::reset_cache()
 
 SolverRepn* create_solver(std::string& name, OptionCache& options)
 {
-    if (name == "test") return new TestSolver();
+    if (name == "test")
+        return new TestSolver();
 
 #ifdef WITH_GUROBI
     if (name == "gurobi") {
@@ -81,9 +79,10 @@ NLPSolverRepn* create_nlpsolver(std::string& name, OptionCache& options)
     return 0;
 }
 
-int NLPSolverRepn::resolve(bool reset_nlpmodel)
+std::shared_ptr<SolverResults> NLPSolverRepn::resolve(bool reset_nlpmodel)
 {
-    if (reset_nlpmodel) model->reset();
+    if (reset_nlpmodel)
+        model->reset();
     return this->resolve_exec();
 }
 
@@ -130,7 +129,8 @@ void SolverRepn::load(Model& _model)
     int nmutable = 0;
     for (size_t j = 0; j < repn.size(); j++) {
         MutableNLPExpr& _repn = repn[j];
-        if (!_repn.is_mutable()) continue;
+        if (!_repn.is_mutable())
+            continue;
 
         nmutable++;
         std::unordered_set<std::shared_ptr<VariableTerm>> fixed_vars;
@@ -138,8 +138,10 @@ void SolverRepn::load(Model& _model)
         std::unordered_set<std::shared_ptr<SubExpressionTerm>> visited_subexpressions;
 
         mutable_values(_repn.constval, fixed_vars, params, visited_subexpressions);
-        for (auto& it : fixed_vars) GetWithDef(vconstvals, it.get()).insert(j);
-        for (auto& it : params) GetWithDef(pconstvals, it.get()).insert(j);
+        for (auto& it : fixed_vars)
+            GetWithDef(vconstvals, it.get()).insert(j);
+        for (auto& it : params)
+            GetWithDef(pconstvals, it.get()).insert(j);
 
         for (size_t i = 0; i < _repn.linear_coefs.size(); i++) {
             fixed_vars.clear();
@@ -164,8 +166,10 @@ void SolverRepn::load(Model& _model)
         fixed_vars.clear();
         params.clear();
         mutable_values(_repn.nonlinear, fixed_vars, params, visited_subexpressions);
-        for (auto& it : fixed_vars) GetWithDef(vnonlvals, it.get()).insert(j);
-        for (auto& it : params) GetWithDef(pnonlvals, it.get()).insert(j);
+        for (auto& it : fixed_vars)
+            GetWithDef(vnonlvals, it.get()).insert(j);
+        for (auto& it : params)
+            GetWithDef(pnonlvals, it.get()).insert(j);
     }
 
 #ifdef DEBUG

@@ -18,11 +18,11 @@ class BaseParameterTerm : public BaseExpressionTerm {};
 
 class ParameterTerm : public BaseParameterTerm {
    public:
-    static unsigned int count;
+    static size_t count;
 
    public:
     expr_pointer_t value;
-    unsigned int index;
+    size_t index;
     std::string name;
 
    public:
@@ -97,13 +97,13 @@ class BaseVariableTerm : public BaseExpressionTerm {};
 
 class VariableTerm : public BaseVariableTerm {
    public:
-    static unsigned int count;
+    static size_t count;
     static const std::shared_ptr<ConstantTerm> negative_infinity;
     static const std::shared_ptr<ConstantTerm> positive_infinity;
     static const std::shared_ptr<ConstantTerm> nan;
 
    public:
-    unsigned int index;
+    size_t index;
     expr_pointer_t value;
     expr_pointer_t lb;
     expr_pointer_t ub;

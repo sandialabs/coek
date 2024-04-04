@@ -93,7 +93,8 @@ void visit_VariableRefTerm(const expr_pointer_t& expr, std::ostream& ostr)
 void visit_MonomialTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
     auto tmp = safe_pointer_cast<MonomialTerm>(expr);
-    if (!(tmp->coef == 1.0)) ostr << tmp->coef << "*";
+    if (!(tmp->coef == 1.0))
+        ostr << tmp->coef << "*";
     visit_expression(tmp->var, ostr);
 }
 

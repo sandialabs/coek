@@ -261,7 +261,7 @@ class Variable {
     bool is_integer() const;
 
     /** \returns the unique integer variable ID */
-    unsigned int id() const;
+    size_t id() const;
 
     /** \returns \c false because this is not a constant expression */
     bool is_constant() const { return false; }

@@ -110,7 +110,8 @@ class IndexedComponent_Map : public IndexedComponent<TYPE> {
     TYPE& operator()(const ARGTYPES&... args)
     {
         const size_t nargs = count_args(args...);
-        if (this->dim() != nargs) index_error(nargs);
+        if (this->dim() != nargs)
+            index_error(nargs);
         collect_args(static_cast<size_t>(0), args...);
         return index(this->tmp);
     }

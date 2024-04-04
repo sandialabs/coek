@@ -25,11 +25,13 @@ void knapsack_array(coek::Model& model, size_t N)
 
     // obj
     auto obj = coek::expression();
-    for (size_t n : coek::range(N)) obj += v[n] * x(n);
+    for (size_t n : coek::range(N))
+        obj += v[n] * x(n);
     model.add_objective(obj);
 
     // con
     auto con = coek::expression();
-    for (size_t n : coek::range(N)) con += w[n] * x(n);
+    for (size_t n : coek::range(N))
+        con += w[n] * x(n);
     model.add(con <= W);
 }

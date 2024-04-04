@@ -51,7 +51,7 @@ double BaseExpressionTerm::eval() const
 // ParameterTerm
 //
 
-unsigned int ParameterTerm::count = 0;
+size_t ParameterTerm::count = 0;
 
 ParameterTerm::ParameterTerm()
 {
@@ -97,8 +97,10 @@ double IndexParameterTerm::as_double_value() const
 {
     if (type == 0)
         throw std::runtime_error("Accessing the value of an uninitialized abstract parameter");
-    if (type == 1) return double_value;
-    if (type == 2) return int_value;
+    if (type == 1)
+        return double_value;
+    if (type == 2)
+        return int_value;
     throw std::runtime_error("Accessing the value of a non-numeric abstract parameter: "
                              + string_value);
 }
@@ -123,21 +125,24 @@ void IndexParameterTerm::set_value(const std::string& value)
 
 bool IndexParameterTerm::get_value(double& value)
 {
-    if (type != 1) return false;
+    if (type != 1)
+        return false;
     value = double_value;
     return true;
 }
 
 bool IndexParameterTerm::get_value(int& value)
 {
-    if (type != 2) return false;
+    if (type != 2)
+        return false;
     value = int_value;
     return true;
 }
 
 bool IndexParameterTerm::get_value(std::string& value)
 {
-    if (type != 3) return false;
+    if (type != 3)
+        return false;
     value = string_value;
     return true;
 }
@@ -152,7 +157,7 @@ const std::shared_ptr<ConstantTerm> VariableTerm::positive_infinity
     = std::make_shared<ConstantTerm>(COEK_INFINITY);
 const std::shared_ptr<ConstantTerm> VariableTerm::nan = std::make_shared<ConstantTerm>(COEK_NAN);
 
-unsigned int VariableTerm::count = 0;
+size_t VariableTerm::count = 0;
 
 VariableTerm::VariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub,
                            const expr_pointer_t& _value, bool _binary, bool _integer)

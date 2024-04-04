@@ -46,7 +46,8 @@ void VariableAssocArrayRepn::value(double value)
 {
     variable_template.value(value);
     if (values.size() > 0) {
-        for (auto& var : values) var.value(value);
+        for (auto& var : values)
+            var.value(value);
     }
 }
 
@@ -54,7 +55,8 @@ void VariableAssocArrayRepn::value(const Expression& value)
 {
     variable_template.value(value);
     if (values.size() > 0) {
-        for (auto& var : values) var.value(value);
+        for (auto& var : values)
+            var.value(value);
     }
 }
 
@@ -62,7 +64,8 @@ void VariableAssocArrayRepn::lower(double value)
 {
     variable_template.lower(value);
     if (values.size() > 0) {
-        for (auto& var : values) var.lower(value);
+        for (auto& var : values)
+            var.lower(value);
     }
 }
 
@@ -70,7 +73,8 @@ void VariableAssocArrayRepn::lower(const Expression& value)
 {
     variable_template.lower(value);
     if (values.size() > 0) {
-        for (auto& var : values) var.lower(value);
+        for (auto& var : values)
+            var.lower(value);
     }
 }
 
@@ -78,7 +82,8 @@ void VariableAssocArrayRepn::upper(double value)
 {
     variable_template.upper(value);
     if (values.size() > 0) {
-        for (auto& var : values) var.upper(value);
+        for (auto& var : values)
+            var.upper(value);
     }
 }
 
@@ -86,7 +91,8 @@ void VariableAssocArrayRepn::upper(const Expression& value)
 {
     variable_template.upper(value);
     if (values.size() > 0) {
-        for (auto& var : values) var.upper(value);
+        for (auto& var : values)
+            var.upper(value);
     }
 }
 
@@ -94,7 +100,8 @@ void VariableAssocArrayRepn::bounds(double lb, double ub)
 {
     variable_template.bounds(lb, ub);
     if (values.size() > 0) {
-        for (auto& var : values) var.bounds(lb, ub);
+        for (auto& var : values)
+            var.bounds(lb, ub);
     }
 }
 
@@ -102,7 +109,8 @@ void VariableAssocArrayRepn::bounds(const Expression& lb, double ub)
 {
     variable_template.bounds(lb, ub);
     if (values.size() > 0) {
-        for (auto& var : values) var.bounds(lb, ub);
+        for (auto& var : values)
+            var.bounds(lb, ub);
     }
 }
 
@@ -110,7 +118,8 @@ void VariableAssocArrayRepn::bounds(double lb, const Expression& ub)
 {
     variable_template.bounds(lb, ub);
     if (values.size() > 0) {
-        for (auto& var : values) var.bounds(lb, ub);
+        for (auto& var : values)
+            var.bounds(lb, ub);
     }
 }
 
@@ -118,7 +127,8 @@ void VariableAssocArrayRepn::bounds(const Expression& lb, const Expression& ub)
 {
     variable_template.bounds(lb, ub);
     if (values.size() > 0) {
-        for (auto& var : values) var.bounds(lb, ub);
+        for (auto& var : values)
+            var.bounds(lb, ub);
     }
 }
 
@@ -126,7 +136,8 @@ void VariableAssocArrayRepn::fixed(bool value)
 {
     variable_template.fixed(value);
     if (values.size() > 0) {
-        for (auto& var : values) var.fixed(value);
+        for (auto& var : values)
+            var.fixed(value);
     }
 }
 
@@ -136,7 +147,8 @@ void VariableAssocArrayRepn::name(const std::string& name)
     if (values.size() > 0) {
         // If the string is empty, then we reset the names of all variables
         if (name.size() == 0) {
-            for (auto& var : values) var.name(name);
+            for (auto& var : values)
+                var.name(name);
         }
         // Otherwise, we re-generate the names
         else
@@ -148,7 +160,8 @@ void VariableAssocArrayRepn::within(VariableTypes vtype)
 {
     variable_template.within(vtype);
     if (values.size() > 0) {
-        for (auto& var : values) var.within(vtype);
+        for (auto& var : values)
+            var.within(vtype);
     }
 }
 
@@ -194,7 +207,8 @@ expr_pointer_t get_concrete_var(VariableRefTerm& varref)
     }
 
     IndexVector& tmp = var->tmp;
-    for (size_t i = 0; i < index.size(); i++) tmp[i] = index[i];
+    for (size_t i = 0; i < index.size(); i++)
+        tmp[i] = index[i];
 
     Expression e = var->index(tmp);
     return e.repn;

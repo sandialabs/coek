@@ -349,7 +349,8 @@ void visit_PowTerm(const expr_pointer_t& expr, VisitorData& data)
     auto tmp = safe_pointer_cast<PowTerm>(expr);
     visit_expression(tmp->lhs, data);
     if (data.is_value) {
-        if ((data.last_value == 0.0) or (data.last_value == 1.0)) return;
+        if ((data.last_value == 0.0) or (data.last_value == 1.0))
+            return;
 
         double val = data.last_value;
         visit_expression(tmp->rhs, data);
@@ -451,7 +452,8 @@ expr_pointer_t simplify_expr(
     std::map<std::shared_ptr<SubExpressionTerm>, expr_pointer_t>& subexpr_value)
 {
     // GCOVR_EXCL_START
-    if (not expr) return expr;
+    if (not expr)
+        return expr;
     // GCOVR_EXCL_STOP
 
     VisitorData data(subexpr_value);

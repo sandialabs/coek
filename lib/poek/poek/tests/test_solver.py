@@ -3,9 +3,33 @@ import pytest
 from poek import *
 
 
-def test_available():
+def test_available1():
     opt = solver("bad_coek_solvername")
     assert not opt.available
+
+
+def test_available2():
+    m = model()
+    x0 = m.add_variable(lower=0)
+    x1 = m.add_variable(lower=0)
+    m.add_objective(x0 + x1)
+
+    opt = solver("bad_coek_solvername")
+    res = opt.solve(m)
+    assert res.termination_condition == "solver_not_available"
+
+
+def test_available3():
+    m = model()
+    x0 = m.add_variable(lower=0)
+    x1 = m.add_variable(lower=0)
+    m.add_objective(x0 + x1)
+    nlp = nlp_model(m, "cppad")
+
+    opt = nlp_solver("bad_coek_solvername")
+    res = opt.solve(nlp)
+    assert res.termination_condition == "solver_not_available"
+
 
 def test_nlpsolver():
     m = model()
@@ -25,3 +49,22 @@ def test_nlpsolver():
     assert nlp.num_variables() == 3
     assert nlp.num_objectives() == 1
     assert nlp.num_constraints() == 5
+
+
+def test_rosenbr():
+    m = model()
+    x0 = m.add_variable(value=1)
+    x1 = m.add_variable(value=2)
+
+    m.add_objective(100 * (x1 - x0**2) ** 2 + (x0 - 1) ** 2)
+
+    nlp = nlp_model(m, "cppad")
+    opt = nlp_solver("ipopt")
+    res = opt.solve(nlp)
+    assert res.solver_name == "ipopt"
+    if opt.available:
+        assert check_optimal_termination(res)
+        assert x0.value == pytest.approx(1.0)
+        assert x1.value == pytest.approx(1.0)
+    else:
+        assert res.termination_condition == "solver_not_available"

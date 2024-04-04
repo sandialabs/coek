@@ -38,7 +38,8 @@ void ParameterMapRepn::generate_names()
     // then we do not try to generate names.  The default/simple
     // parameter names will be used.
     auto name = parameter_template.name();
-    if (name == "") return;
+    if (name == "")
+        return;
 
     setup();
 
@@ -46,7 +47,8 @@ void ParameterMapRepn::generate_names()
     std::vector<int> x_data(_dim);
     IndexVector x(&(x_data[0]), _dim);
     for (auto& indices : concrete_set) {
-        for (size_t j = 0; j < _dim; j++) x[j] = indices[j];
+        for (size_t j = 0; j < _dim; j++)
+            x[j] = indices[j];
         if (indices.size() == 1) {
             auto tmp = indices[0];
             values[index[x]].name(name + "[" + std::to_string(tmp) + "]");
@@ -73,7 +75,8 @@ void ParameterMapRepn::setup()
         size_t i = 0;
         for (auto& vec : concrete_set) {
             auto x = cache.alloc(_dim);
-            for (size_t j = 0; j < _dim; j++) x[j] = vec[j];
+            for (size_t j = 0; j < _dim; j++)
+                x[j] = vec[j];
             index[x] = i++;
         }
     }
@@ -102,7 +105,8 @@ Parameter ParameterMap::index(const IndexVector& args)
     if (curr == _repn->index.end()) {
         std::string err = "Unknown index value: " + _repn->parameter_template.name() + "[";
         for (size_t i = 0; i < args.size(); i++) {
-            if (i > 0) err += ",";
+            if (i > 0)
+                err += ",";
             err += std::to_string(args[i]);
         }
         err += "]";

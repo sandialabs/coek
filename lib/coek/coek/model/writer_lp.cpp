@@ -41,10 +41,12 @@ inline size_t get_vid_value(const std::unordered_map<size_t, size_t>& vid, size_
 {
 #if __cplusplus >= 201703L
     // C++-17
-    if (auto it{vid.find(id)}; it != vid.end()) return it->second;
+    if (auto it{vid.find(id)}; it != vid.end())
+        return it->second;
 #else
     auto it = vid.find(id);
-    if (it != vid.end()) return it->second;
+    if (it != vid.end())
+        return it->second;
 #endif
     throw std::runtime_error(
         "Model expressions contain variable that is not declared in the model.");
@@ -94,11 +96,13 @@ void print_repn(std::ostream& ostr, const QuadraticExpr& repn,
             double val = it.second;
             if (val != 0) {
                 if (tmp.first == tmp.second) {
-                    if (val > 0) ostr << "+";
+                    if (val > 0)
+                        ostr << "+";
                     ostr << val << " x" << tmp.first << " ^ 2\n";
                 }
                 else {
-                    if (val > 0) ostr << "+";
+                    if (val > 0)
+                        ostr << "+";
                     ostr << val << " x" << tmp.first << " * x" << tmp.second << "\n";
                 }
             }
@@ -127,7 +131,8 @@ void print_repn(fmt::ostream& ostr, const QuadraticExpr& repn,
 
         for (const auto& it : vval) {
             double tmp = it.second;
-            if (tmp != 0) ostr.print(fmt::format(print_repn_fmt1, tmp, it.first));
+            if (tmp != 0)
+                ostr.print(fmt::format(print_repn_fmt1, tmp, it.first));
         }
     }
 
@@ -299,8 +304,10 @@ void LPWriter::collect_variables(Model& model)
         if (v->fixed)  // Don't report fixed binary or integer variables
             continue;
         variables.push_back(it);
-        if (v->binary) bvars[vid[v->index]] = v;
-        if (v->integer) ivars[vid[v->index]] = v;
+        if (v->binary)
+            bvars[vid[v->index]] = v;
+        if (v->integer)
+            ivars[vid[v->index]] = v;
     }
 }
 
@@ -310,7 +317,8 @@ void LPWriter::collect_variables(CompactModel& model)
     size_t ctr = 0;
     for (auto& val : model.repn->variables) {
         if (auto eval = std::get_if<Variable>(&val)) {
-            if (eval->fixed()) continue;
+            if (eval->fixed())
+                continue;
             Expression lb = eval->lower_expression().expand();
             Expression ub = eval->upper_expression().expand();
             Expression value = eval->value_expression().expand();
@@ -320,8 +328,10 @@ void LPWriter::collect_variables(CompactModel& model)
                            .value(value.value())
                            .within(eval->within());
             variables.push_back(tmp);
-            if (tmp.is_binary()) bvars[vid[tmp.id()]] = tmp.repn;
-            if (tmp.is_integer()) ivars[vid[tmp.id()]] = tmp.repn;
+            if (tmp.is_binary())
+                bvars[vid[tmp.id()]] = tmp.repn;
+            if (tmp.is_integer())
+                ivars[vid[tmp.id()]] = tmp.repn;
 
             vid[eval->id()] = ctr;
             invvarmap[ctr] = variables.size();
@@ -330,10 +340,13 @@ void LPWriter::collect_variables(CompactModel& model)
         else {
             auto& seq = std::get<VariableSequence>(val);
             for (auto& jt : seq) {
-                if (jt.fixed()) continue;
+                if (jt.fixed())
+                    continue;
                 variables.push_back(jt);
-                if (jt.is_binary()) bvars[vid[jt.id()]] = jt.repn;
-                if (jt.is_integer()) ivars[vid[jt.id()]] = jt.repn;
+                if (jt.is_binary())
+                    bvars[vid[jt.id()]] = jt.repn;
+                if (jt.is_integer())
+                    ivars[vid[jt.id()]] = jt.repn;
 
                 vid[jt.id()] = ctr;
                 invvarmap[ctr] = variables.size();
@@ -401,7 +414,8 @@ void LPWriter::print_objective(std::ostream& ostr, const Objective& obj)
     double tmp = expr.constval;
     if (tmp != 0) {
         one_var_constant = true;
-        if (tmp > 0) ostr << "+";
+        if (tmp > 0)
+            ostr << "+";
         ostr << tmp << " ONE_VAR_CONSTANT\n";
     }
 }
@@ -480,12 +494,14 @@ void LPWriter::print_bounds(std::ostream& ostr)
 
     if (bvars.size() > 0) {
         ostr << "\nbinary\n";
-        for (auto& it : bvars) ostr << "x" << it.first << "\n";
+        for (auto& it : bvars)
+            ostr << "x" << it.first << "\n";
     }
 
     if (ivars.size() > 0) {
         ostr << "\ninteger\n";
-        for (auto& it : ivars) ostr << "x" << it.first << "\n";
+        for (auto& it : ivars)
+            ostr << "x" << it.first << "\n";
     }
 
     ostr << "\nend\n";
@@ -600,12 +616,14 @@ void LPWriter::print_bounds(fmt::ostream& ostr)
 
     if (bvars.size() > 0) {
         ostr.print("\nbinary\n");
-        for (auto& it : bvars) ostr.print(fmt::format(_fmt_xval, it.first));
+        for (auto& it : bvars)
+            ostr.print(fmt::format(_fmt_xval, it.first));
     }
 
     if (ivars.size() > 0) {
         ostr.print("\ninteger\n");
-        for (auto& it : ivars) ostr.print(fmt::format(_fmt_xval, it.first));
+        for (auto& it : ivars)
+            ostr.print(fmt::format(_fmt_xval, it.first));
     }
 
     ostr.print("\nend\n");  // << std::endl;

@@ -23,27 +23,25 @@ def test_model1():
     assert nlp.num_constraints() == 5
 
     e = m.get_objective()
-    assert e.to_list() == \
+    assert e.to_list() == [
+        "min",
         [
-            "min",
-            [
-                "+",
-                "1.000000",
-                ["-", ["+", "v1", "v2"]],
-                ["*", "3.000000", ["+", "v1", "v2"]],
-                ["*", ["+", "v1", "v2"], ["+", "v1", "v2"]],
-                "v3",
-            ],
-        ]
+            "+",
+            "1.000000",
+            ["-", ["+", "v1", "v2"]],
+            ["*", "3.000000", ["+", "v1", "v2"]],
+            ["*", ["+", "v1", "v2"], ["+", "v1", "v2"]],
+            "v3",
+        ],
+    ]
 
     e = m.get_constraint(0)
-    assert e.to_list() == \
-        [
-            "<=",
-            "-Inf",
-            ["+", ["*", "v1", "v1"], "1.000000", ["*", "-3.000000", "v2"]],
-            "0.000000",
-        ]
+    assert e.to_list() == [
+        "<=",
+        "-Inf",
+        ["+", ["*", "v1", "v1"], "1.000000", ["*", "-3.000000", "v2"]],
+        "0.000000",
+    ]
     assert e.value == -4
     e = m.get_constraint(1)
     assert e.value == 5
@@ -63,20 +61,24 @@ def test_model1():
     assert nlp.compute_dc(3) == [1, 0, 0]
     assert nlp.compute_dc(4) == [1, -3, 0]
 
+
 def test_constant_obj1():
     m = model()
     p = parameter(value=2)
     m.add_objective(p)
 
+
 def test_constant_obj2():
     m = model()
     m.add_objective(2)
+
 
 def test_variable_obj():
     m = model()
     v = variable(name="v")
     m.add_variable(v)
     m.add_objective(v)
+
 
 def test_write_nl():
     m = model()

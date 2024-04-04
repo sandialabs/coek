@@ -11,7 +11,7 @@
 
 namespace coek {
 
-int TestSolver::solve(Model& model)
+std::shared_ptr<SolverResults> TestSolver::solve(Model& model)
 {
     assert(initial_solve());
     // std::cout << "COLLECTING REPNS/VARS" << std::endl << std::flush;
@@ -24,18 +24,18 @@ int TestSolver::solve(Model& model)
     for (size_t i = 0; i < model.repn->constraints.size(); i++)
         crepn[i].collect_terms(model.repn->constraints[i]);
 
-    return 0;
+    return std::make_shared<SolverResults>();
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-int TestSolver::solve(CompactModel& _model)
+std::shared_ptr<SolverResults> TestSolver::solve(CompactModel& _model)
 {
     Model model = _model.expand();
     return solve(model);
 }
 #endif
 
-int TestSolver::resolve()
+std::shared_ptr<SolverResults> TestSolver::resolve()
 {
     if (initial_solve()) {
         // Setup the model the first time here
@@ -49,7 +49,7 @@ int TestSolver::resolve()
     // NOTE: nothing is done to 'solve' a problem in this test
     // solver.
 
-    return 0;
+    return std::make_shared<SolverResults>();
 }
 
 }  // namespace coek
