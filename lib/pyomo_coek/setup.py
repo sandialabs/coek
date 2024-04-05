@@ -11,7 +11,7 @@ setup(
     author="pyomo_coek developers",
     maintainer_email="wehart@sandia.gov",
     license="Revised BSD",
-    install_requires=["pyomo>=6.4.1", "poek"],
+    install_requires=["pyomo>=6.4.1", "poek", "munch"],
     include_package_data=True,
     scripts=[],
     python_requires=">=3.7",
