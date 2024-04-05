@@ -191,3 +191,13 @@ std::string to_string(SolutionStatus ss);
 std::string to_string(const SolverResults& res);
 
 }  // namespace coek
+
+namespace std {
+
+inline ostream& operator<<(const coek::SolverResults& res, ostream& os)
+{
+    os << coek::to_string(res);
+    return os;
+}
+
+}  // namespace std
