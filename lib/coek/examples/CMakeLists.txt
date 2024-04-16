@@ -29,7 +29,7 @@ endif()
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 # build library
-if (build_shared_libs)
+if (BUILD_SHARED_LIBS)
     add_library(coekexamples SHARED ${sources})
     message("-- Building shared libcoekexamples library")
     set_target_properties(coekexamples PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})

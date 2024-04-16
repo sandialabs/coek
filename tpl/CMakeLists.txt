@@ -16,7 +16,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/lib/cmake;${CMAKE_MODULE_PATH})
 option(insecure_downloads "If enabled, then downloads third party software without verifying the SSL connection" OFF)
 
 # Build options
-option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+#option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
 # Install options
 option(install_asl "Install the ASL library" OFF)

@@ -182,7 +182,7 @@ list(APPEND sources
 # Build object library
 #
 # this is the "object library" target: compiles the sources only once
-if (build_shared_libs)
+if (BUILD_SHARED_LIBS)
     add_library(coek SHARED ${sources})
     message("-- Building shared libcoek library")
     set_target_properties(coek PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})

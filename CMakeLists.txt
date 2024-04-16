@@ -29,6 +29,7 @@ endif()
 set(INCLUDE_INSTALL_DIR "include/" CACHE STRING "Where to install headers relative to prefix")
 set(LIBRARY_INSTALL_DIR "lib/" CACHE STRING "Where to install libraries relative to prefix")
 
+option(BUILD_SHARED_LIBS "Build a shared library" ON)
 
 ##################### TPL Configuration #####################
 #
@@ -44,7 +45,6 @@ option(with_rapidjson "Add support for reading JSON/JPOF files" OFF)
 
 option(with_spack "Build with spack" OFF)
 if (NOT ${with_spack})
-else()
 message("")
 add_subdirectory(tpl)
 
@@ -60,7 +60,6 @@ endif()
 
 ##################### Options #####################
 
-option(BUILD_SHARED_LIBS "Build a shared library" ON)
 
 # Build options
 option(with_debug "Debug build" OFF)
