@@ -16,7 +16,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/lib/cmake;${CMAKE_MODULE_PATH})
 option(insecure_downloads "If enabled, then downloads third party software without verifying the SSL connection" OFF)
 
 # Build options
-option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+#option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
 # Install options
 option(install_asl "Install the ASL library" OFF)
@@ -46,13 +46,13 @@ if (install_catch2 OR install_cppad OR install_fmtlib OR install_pybind11 OR ins
 endif()
 
 # Configuration options
-option(with_asl "Use the ASL autograd library" OFF)
-option(with_catch2 "Add tests using Catch2" OFF)
-option(with_cppad "Use the CppAD autograd library" OFF)
-option(with_cppyy "Use the cppyy library" OFF)
-option(with_fmtlib "Use the fmtlib library" OFF)
-option(with_pybind11 "Use the pybind11 library" OFF)
-option(with_rapidjson "Add support for reading JSON/JPOF files" OFF)
+#option(with_asl "Use the ASL autograd library" OFF)
+#option(with_catch2 "Add tests using Catch2" OFF)
+#option(with_cppad "Use the CppAD autograd library" OFF)
+#option(with_cppyy "Use the cppyy library" OFF)
+#option(with_fmtlib "Use the fmtlib library" OFF)
+#option(with_pybind11 "Use the pybind11 library" OFF)
+#option(with_rapidjson "Add support for reading JSON/JPOF files" OFF)
 
 
 include(download_dir)

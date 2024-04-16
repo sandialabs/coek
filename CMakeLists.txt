@@ -29,11 +29,22 @@ endif()
 set(INCLUDE_INSTALL_DIR "include/" CACHE STRING "Where to install headers relative to prefix")
 set(LIBRARY_INSTALL_DIR "lib/" CACHE STRING "Where to install libraries relative to prefix")
 
+option(BUILD_SHARED_LIBS "Build a shared library" ON)
 
 ##################### TPL Configuration #####################
 #
 # Installation options for TPLs define default values of configuration options.
 #
+option(with_asl "Use the ASL autograd library" OFF)
+option(with_catch2 "Add tests using Catch2" OFF)
+option(with_cppad "Use the CppAD autograd library" OFF)
+option(with_cppyy "Use the cppyy library" OFF)
+option(with_fmtlib "Use the fmtlib library" OFF)
+option(with_pybind11 "Use the pybind11 library" OFF)
+option(with_rapidjson "Add support for reading JSON/JPOF files" OFF)
+
+option(with_spack "Build with spack" OFF)
+if (NOT ${with_spack})
 message("")
 add_subdirectory(tpl)
 
@@ -45,10 +56,10 @@ add_custom_target(install_tpl
         DEPENDS _install_tpls
         COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON -Dwith_asl=ON ${PROJECT_SOURCE_DIR}
         )
+endif()
 
 ##################### Options #####################
 
-option(build_shared_libs "Build a shared library" ON)
 
 # Build options
 option(with_debug "Debug build" OFF)
