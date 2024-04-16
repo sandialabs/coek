@@ -56,12 +56,11 @@ add_custom_target(install_tpl
         DEPENDS _install_tpls
         COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON -Dwith_asl=ON ${PROJECT_SOURCE_DIR}
         )
-#option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 endif()
 
 ##################### Options #####################
 
-option(build_shared_libs "Build a shared library" ON)
+option(BUILD_SHARED_LIBS "Build a shared library" ON)
 
 # Build options
 option(with_debug "Debug build" OFF)
