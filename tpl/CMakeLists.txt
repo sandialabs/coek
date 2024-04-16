@@ -46,13 +46,13 @@ if (install_catch2 OR install_cppad OR install_fmtlib OR install_pybind11 OR ins
 endif()
 
 # Configuration options
-option(with_asl "Use the ASL autograd library" OFF)
-option(with_catch2 "Add tests using Catch2" OFF)
-option(with_cppad "Use the CppAD autograd library" OFF)
-option(with_cppyy "Use the cppyy library" OFF)
-option(with_fmtlib "Use the fmtlib library" OFF)
-option(with_pybind11 "Use the pybind11 library" OFF)
-option(with_rapidjson "Add support for reading JSON/JPOF files" OFF)
+#option(with_asl "Use the ASL autograd library" OFF)
+#option(with_catch2 "Add tests using Catch2" OFF)
+#option(with_cppad "Use the CppAD autograd library" OFF)
+#option(with_cppyy "Use the cppyy library" OFF)
+#option(with_fmtlib "Use the fmtlib library" OFF)
+#option(with_pybind11 "Use the pybind11 library" OFF)
+#option(with_rapidjson "Add support for reading JSON/JPOF files" OFF)
 
 
 include(download_dir)
