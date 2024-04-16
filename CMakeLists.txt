@@ -34,6 +34,9 @@ set(LIBRARY_INSTALL_DIR "lib/" CACHE STRING "Where to install libraries relative
 #
 # Installation options for TPLs define default values of configuration options.
 #
+option(with_spack "Build with spack" OFF)
+if (NOT ${with_spack})
+else()
 message("")
 add_subdirectory(tpl)
 
@@ -45,6 +48,8 @@ add_custom_target(install_tpl
         DEPENDS _install_tpls
         COMMAND ${CMAKE_COMMAND} -Dwith_pybind11=ON -Dwith_catch2=ON -Dwith_fmtlib=ON -Dwith_cppad=ON -Dwith_rapidjson=ON -Dwith_asl=ON ${PROJECT_SOURCE_DIR}
         )
+#option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+endif()
 
 ##################### Options #####################
 
