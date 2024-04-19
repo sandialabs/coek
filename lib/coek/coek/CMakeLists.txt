@@ -123,6 +123,7 @@ if(with_cppad)
     list(APPEND sources
                 autograd/cppad_repn.cpp)
     list(APPEND coek_compile_options "-DWITH_CPPAD")
+    list(APPEND coek_link_libraries ${CPPAD_LIBRARIES})
     #list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
@@ -135,11 +136,12 @@ if(with_asl)
     #list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include/asl)
     #list(APPEND coek_link_directories ${CMAKE_INSTALL_PREFIX}/lib)
     if (${with_openmp})
-        list(APPEND coek_link_libraries asl-mt)
+        get_property(asllib TARGET asl-mt PROPERTY IMPORTED_LOCATION_RELEASE)
         list(APPEND coek_link_libraries OpenMP::OpenMP_CXX)
     else()
-        list(APPEND coek_link_libraries asl)
+        get_property(asllib TARGET asl PROPERTY IMPORTED_LOCATION_RELEASE)
     endif()
+    list(APPEND coek_link_libraries ${asllib})
 endif()
 
 #

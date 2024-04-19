@@ -24,7 +24,6 @@ coek::Model knapsack(size_t N)
     
     auto model = coek::Model();
 
-#if __cpp_lib_variant
     auto x = coek::variable(N).bounds(0, 1).value(0);
     model.add(x);
     
@@ -37,7 +36,6 @@ coek::Model knapsack(size_t N)
     auto con = coek::expression();
     for (size_t n : coek::range(N)) con += w[n] * x(n);
     model.add(con <= W);
-#endif
 
     return model;
 }
@@ -58,7 +56,7 @@ int main(int argc, char* argv[])
     if (solver_name == "gurobi") {
         coek::Solver solver;
         solver.initialize(solver_name);
-        //solver.set_option("OutputFlag", debug);
+        solver.set_option("OutputFlag", 1);
         //solver.set_option("TimeLimit", 0.0);
 
         auto res = solver.solve(model);
