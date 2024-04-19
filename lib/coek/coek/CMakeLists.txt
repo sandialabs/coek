@@ -80,7 +80,7 @@ if(with_fmtlib)
     find_package(fmt REQUIRED)
     list(APPEND coek_compile_options -DWITH_FMTLIB -Wextra -Wconversion -Wpedantic -Wsign-conversion)
     list(APPEND coek_link_libraries fmt::fmt)
-    list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
+    #list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
 # Caliper LIBRARY
@@ -94,7 +94,7 @@ endif()
 if(with_rapidjson)
     find_package(RapidJSON REQUIRED)
     list(APPEND coek_compile_options -DWITH_RAPIDJSON)
-    list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
+    #list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
 # gcov
@@ -119,19 +119,21 @@ endif()
 
 # CppAD LIBRARY
 if(with_cppad)
+    find_package(CppAD REQUIRED)
     list(APPEND sources
                 autograd/cppad_repn.cpp)
     list(APPEND coek_compile_options "-DWITH_CPPAD")
-    list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
+    #list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
 # ASL LIBRARY
 if(with_asl)
+    find_package(ampl-asl REQUIRED)
     list(APPEND sources
                 autograd/asl_repn.cpp)
     list(APPEND coek_compile_options "-DWITH_ASL")
-    list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include/asl)
-    list(APPEND coek_link_directories ${CMAKE_INSTALL_PREFIX}/lib)
+    #list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include/asl)
+    #list(APPEND coek_link_directories ${CMAKE_INSTALL_PREFIX}/lib)
     if (${with_openmp})
         list(APPEND coek_link_libraries asl-mt)
         list(APPEND coek_link_libraries OpenMP::OpenMP_CXX)
