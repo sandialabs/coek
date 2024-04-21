@@ -1,7 +1,9 @@
 
 #include <iostream>
 
-#include "catch2/catch.hpp"
+#include "catch2/catch_test_macros.hpp"
+#include "catch2/catch_approx.hpp"
+#include "catch2/generators/catch_generators.hpp"
 #include "coek/ast/base_terms.hpp"
 #include "coek/coek.hpp"
 
@@ -72,7 +74,7 @@ void check(std::vector<coek::Variable>& variables, std::vector<double>& soln)
     REQUIRE(variables.size() == soln.size());
     for (size_t i = 0; i < variables.size(); i++) {
         // CAPTURE(i);
-        REQUIRE(variables[i].value() == Approx(soln[i]));
+        REQUIRE(variables[i].value() == Catch::Approx(soln[i]));
     }
 }
 
@@ -311,8 +313,8 @@ TEST_CASE("gurobi_examples", "[smoke]")
             auto res = solver.solve(m);
             REQUIRE(coek::check_optimal_termination(res));
 
-            REQUIRE(res->objective_value == Approx(28750.0));
-            REQUIRE(res->objective_bound == Approx(28750.0));
+            REQUIRE(res->objective_value == Catch::Approx(28750.0));
+            REQUIRE(res->objective_bound == Catch::Approx(28750.0));
             check(m.get_variables(), simplelp1_soln);
         }
     }

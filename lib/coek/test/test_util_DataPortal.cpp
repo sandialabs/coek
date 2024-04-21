@@ -1,7 +1,7 @@
 #include <iostream>
 #include <tuple>
 
-#include "catch2/catch.hpp"
+#include "catch2/catch_test_macros.hpp"
 #include "coek/util/DataPortal.hpp"
 
 TEST_CASE("get_DP_set", "[smoke]")

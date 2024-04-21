@@ -1,6 +1,9 @@
 #include <iostream>
 
-#include "catch2/catch.hpp"
+#include "catch2/catch_test_macros.hpp"
+#include "catch2/catch_approx.hpp"
+#include "catch2/matchers/catch_matchers.hpp"
+#include "catch2/generators/catch_generators.hpp"
 #include "coek/ast/base_terms.hpp"
 #include "coek/coek.hpp"
 
@@ -1081,7 +1084,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{-2};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
         }
         // REPN_INTRINSIC_TEST1(ceil)
         // REPN_INTRINSIC_TEST1(floor)
@@ -1097,7 +1100,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{2 * pow(E, 2.0)};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
         }
         WHEN("log")
         {
@@ -1111,7 +1114,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{0.5};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
         }
         WHEN("log10")
         {
@@ -1125,7 +1128,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{0.5 / log(10.0)};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
         }
         WHEN("sqrt")
         {
@@ -1139,7 +1142,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{0.5};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
         }
         WHEN("sin")
         {
@@ -1153,7 +1156,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{2 * cos(4)};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
         }
         WHEN("cos")
         {
@@ -1167,7 +1170,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{-2 * sin(4)};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
         }
         WHEN("tan")
         {
@@ -1181,7 +1184,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{2 / pow(cos(4), 2)};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
         }
         WHEN("sinh")
         {
@@ -1195,7 +1198,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{2 * cosh(4)};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
             // static std::list<std::string> baseline = { "[", "*", "2.000", "[", "cosh", "[", "*",
             // "2", "w", "]", "]", "]" };
         }
@@ -1211,7 +1214,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{2 * sinh(4)};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
             // static std::list<std::string> baseline = { "[", "*", "2.000", "[", "sinh", "[", "*",
             // "2", "w", "]", "]", "]" };
         }
@@ -1227,7 +1230,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{2 * (1 - pow(tanh(4), 2))};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
             // static std::list<std::string> baseline = { "[", "*", "2.000", "[", "+", "1.000", "[",
             // "*", "-1.000", "[", "pow", "[", "tan", "[", "*", "2", "w", "]", "]", "2.000", "]",
             // "]", "]", "]" };
@@ -1244,7 +1247,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{2 / sqrt(3.0 / 4.0)};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
             // static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[",
             // "sqrt", "[", "+", "1.000", "[", "-", "[", "*", "[", "*", "2", "w", "]", "[", "*",
             // "2", "w", "]", "]", "]", "]", "]", "]", "]" };
@@ -1261,7 +1264,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{-2 / sqrt(3.0 / 4.0)};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
 
             // static std::list<std::string> baseline = { "[", "*", "2.000", "[", "-", "[", "/",
             // "1.000", "[", "sqrt", "[", "+", "1.000", "[", "-", "[", "*", "[", "*", "2", "w", "]",
@@ -1279,7 +1282,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{2 / (5.0 / 4.0)};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
             // static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[",
             // "+", "1.000", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "]",
             // "]", "]" };
@@ -1296,7 +1299,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{2 / sqrt(5.0 / 4.0)};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
 
             // static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[",
             // "sqrt", "[", "+", "1.000", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w",
@@ -1314,7 +1317,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{2 / sqrt(3.0)};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
 
             // static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[",
             // "sqrt", "[", "+", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]",
@@ -1332,7 +1335,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{2 / (3.0 / 4.0)};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
 
             // static std::list<std::string> baseline = { "[", "*", "2.000", "[", "/", "1.000", "[",
             // "+", "[", "*", "[", "*", "2", "w", "]", "[", "*", "2", "w", "]", "]", "-1.000", "]",
@@ -1350,7 +1353,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{3 * 4};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
 
             // static std::list<std::string> baseline = { "[", "*", "2.000", "[", "*", "3.000", "[",
             // "pow", "[", "*", "2", "w", "]", "[", "+", "3.000", "-1.000", "]", "]", "]", "]" };
@@ -1367,7 +1370,7 @@ TEST_CASE("autograd_diff_tests", "[smoke]")
             std::vector<double> baseline{2 * log(3) * pow(3, 4)};
             std::vector<double> ans(1);
             nlp.compute_df(x, ans);
-            REQUIRE(ans[0] == Approx(baseline[0]));
+            REQUIRE(ans[0] == Catch::Approx(baseline[0]));
 
             // static std::list<std::string> baseline = { "[", "*", "2.000", "[", "*", "1.099", "[",
             // "pow", "3.000", "[", "*", "2", "w", "]", "]", "]", "]" };
@@ -1392,9 +1395,9 @@ TEST_CASE("autograd_mt", "[smoke]")
     SECTION("srosenbr")
     {
         double tmp = test_srosenbr_vector_threadeval("asl", 10, 100, 30);
-        // REQUIRE(tmp == Approx(262080.5003334123));   nthreads = 2
+        // REQUIRE(tmp == Catch::Approx(262080.5003334123));   nthreads = 2
         CAPTURE(tmp);
-        REQUIRE(tmp == Approx(260040.0242064819));  // nthreads=2 niters=100
+        REQUIRE(tmp == Catch::Approx(260040.0242064819));  // nthreads=2 niters=100
     }
 #endif
 }

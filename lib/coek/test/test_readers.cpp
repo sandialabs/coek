@@ -1,6 +1,8 @@
 #include <cmath>
 
-#include "catch2/catch.hpp"
+#include "catch2/catch_test_macros.hpp"
+#include "catch2/catch_approx.hpp"
+#include "catch2/matchers/catch_matchers.hpp"
 #include "coek/ast/base_terms.hpp"
 #include "coek/coek.hpp"
 
@@ -111,9 +113,9 @@ void test_var(coek::Model& model, unsigned int i, const std::string& name, doubl
 {
     auto v = model.get_variable(i);
     REQUIRE(v.name() == name);
-    REQUIRE(v.value() == Approx(value));
-    REQUIRE(v.lower() == Approx(lb));
-    REQUIRE(v.upper() == Approx(ub));
+    REQUIRE(v.value() == Catch::Approx(value));
+    REQUIRE(v.lower() == Catch::Approx(lb));
+    REQUIRE(v.upper() == Catch::Approx(ub));
     REQUIRE(v.fixed() == fixed);
     if (vtype == "R")
         REQUIRE(v.is_continuous());

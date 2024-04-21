@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "catch2/catch.hpp"
+#include "catch2/catch_test_macros.hpp"
 #include "coek/ast/base_terms.hpp"
 #include "coek/ast/constraint_terms.hpp"
 #include "coek/ast/value_terms.hpp"
