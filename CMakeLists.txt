@@ -73,7 +73,7 @@ option(with_openmp "Compiled with openmp enabled" ON)
 option(with_tests "Build tests" OFF)
 option(with_apps "Build apps" ON)
 option(with_docs "Build documentation" OFF)
-option(with_python "Build/Install Python libs" ${Python_FOUND})
+option(with_python "Build/Install Python libs" OFF)
 
 ##################### Checks for compiler #####################
 
