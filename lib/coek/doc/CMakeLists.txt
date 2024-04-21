@@ -99,7 +99,8 @@ endif()
 add_custom_target(coek_html DEPENDS ${SPHINX_INDEX_FILE})
 add_custom_target(coek_pdf DEPENDS ${LATEX_BUILD}/coek.pdf)
 
-add_custom_target(doc_coek DEPENDS coek_doxygen coek_html coek_pdf)
+#add_custom_target(doc_coek DEPENDS coek_doxygen coek_html coek_pdf)
+add_custom_target(doc_coek DEPENDS coek_doxygen coek_html)
 
 # Add an install target to install the docs
 include(GNUInstallDirs)
