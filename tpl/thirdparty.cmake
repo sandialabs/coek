@@ -9,9 +9,9 @@
 # endif()
 
 add_revision(catch2
-  SRC Catch2-2.13.6
-  URL "https://github.com/catchorg/Catch2/archive/refs/tags/v2.13.6.tar.gz"
-  URL_HASH SHA256=48dfbb77b9193653e4e72df9633d2e0383b9b625a47060759668480fdf24fbd4
+  SRC Catch2-3.4.0
+  URL "https://github.com/catchorg/Catch2/archive/refs/tags/v3.4.0.tar.gz"
+  URL_HASH SHA256=122928b814b75717316c71af69bd2b43387643ba076a6ec16e7882bfb2dfacbb
   )
 
 add_revision(cppad

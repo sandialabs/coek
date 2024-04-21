@@ -1,7 +1,8 @@
 #include <iostream>
 #include <vector>
 
-#include "catch2/catch.hpp"
+#include "catch2/catch_test_macros.hpp"
+#include "catch2/matchers/catch_matchers.hpp"
 #include "coek/ast/base_terms.hpp"
 #include "coek/coek.hpp"
 

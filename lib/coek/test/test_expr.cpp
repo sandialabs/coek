@@ -4,7 +4,9 @@
 #include <memory>
 #include <sstream>
 
-#include "catch2/catch.hpp"
+#include "catch2/catch_test_macros.hpp"
+#include "catch2/matchers/catch_matchers.hpp"
+#include "catch2/catch_approx.hpp"
 #include "coek/ast/base_terms.hpp"
 #include "coek/ast/value_terms.hpp"
 #include "coek/ast/constraint_terms.hpp"
@@ -3620,7 +3622,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = exp(v);
             v.value(1);
-            REQUIRE(e.value() == Approx(E));
+            REQUIRE(e.value() == Catch::Approx(E));
             v.value(0);
             REQUIRE(e.value() == 1.0);
 
@@ -3632,7 +3634,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(1);
             coek::Expression e = exp(constant);
-            REQUIRE(e.value() == Approx(E));
+            REQUIRE(e.value() == Catch::Approx(E));
 
             static std::list<std::string> baseline = {std::to_string(e.value())};
             REQUIRE(e.to_list() == baseline);
@@ -3642,7 +3644,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = log(v);
             v.value(1);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
             v.value(exp(1.0));
             REQUIRE(e.value() == 1.0);
 
@@ -3654,7 +3656,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(1);
             coek::Expression e = log(constant);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
 
             static std::list<std::string> baseline = {std::to_string(0.0)};
             REQUIRE(e.to_list() == baseline);
@@ -3664,7 +3666,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = log10(v);
             v.value(1);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
             v.value(10);
             REQUIRE(e.value() == 1.0);
 
@@ -3676,7 +3678,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(1);
             coek::Expression e = log(constant);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
 
             static std::list<std::string> baseline = {std::to_string(0.0)};
             REQUIRE(e.to_list() == baseline);
@@ -3689,34 +3691,34 @@ TEST_CASE("intrinsics", "[smoke]")
                 auto p = coek::parameter("p");
                 coek::Expression e = pow(constant0, p);
                 p.value(1);
-                REQUIRE(p.value() == Approx(1.0));
-                REQUIRE(e.value() == Approx(0.0));
+                REQUIRE(p.value() == Catch::Approx(1.0));
+                REQUIRE(e.value() == Catch::Approx(0.0));
             }
             {
                 coek::Expression constant1(1);
                 coek::Expression e = pow(constant1, p);
                 p.value(1);
-                REQUIRE(e.value() == Approx(1.0));
+                REQUIRE(e.value() == Catch::Approx(1.0));
             }
             {
                 coek::Expression constant2(2);
                 coek::Expression constant1(1);
                 coek::Expression e = pow(constant2, constant1);
-                REQUIRE(e.value() == Approx(2.0));
+                REQUIRE(e.value() == Catch::Approx(2.0));
             }
             {
                 v.value(2);
                 coek::Expression constant1(1);
                 coek::Expression e = pow(v, constant1);
-                REQUIRE(e.value() == Approx(2.0));
+                REQUIRE(e.value() == Catch::Approx(2.0));
             }
 
             coek::Expression e = pow(v, p);
             v.value(2);
             p.value(0);
-            REQUIRE(e.value() == Approx(1.0));
+            REQUIRE(e.value() == Catch::Approx(1.0));
             p.value(1);
-            REQUIRE(e.value() == Approx(2.0));
+            REQUIRE(e.value() == Catch::Approx(2.0));
 
             static std::list<std::string> baseline = {"[", "pow", "v", "p", "]"};
             REQUIRE(e.to_list() == baseline);
@@ -3726,7 +3728,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(0);
             coek::Expression e = pow(v, constant);
-            REQUIRE(e.value() == Approx(1.0));
+            REQUIRE(e.value() == Catch::Approx(1.0));
 
             static std::list<std::string> baseline = {std::to_string(1.0)};
             REQUIRE(e.to_list() == baseline);
@@ -3736,7 +3738,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = sqrt(v);
             v.value(1);
-            REQUIRE(e.value() == Approx(1.0));
+            REQUIRE(e.value() == Catch::Approx(1.0));
             v.value(4);
             REQUIRE(e.value() == 2.0);
 
@@ -3748,7 +3750,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(1);
             coek::Expression e = sqrt(constant);
-            REQUIRE(e.value() == Approx(1.0));
+            REQUIRE(e.value() == Catch::Approx(1.0));
 
             static std::list<std::string> baseline = {std::to_string(1.0)};
             REQUIRE(e.to_list() == baseline);
@@ -3758,9 +3760,9 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = sin(v);
             v.value(0);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
             v.value(PI / 2.0);
-            REQUIRE(e.value() == Approx(1.0));
+            REQUIRE(e.value() == Catch::Approx(1.0));
 
             static std::list<std::string> baseline = {"[", "sin", "v", "]"};
             REQUIRE(e.to_list() == baseline);
@@ -3770,7 +3772,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(0);
             coek::Expression e = sqrt(constant);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
 
             static std::list<std::string> baseline = {std::to_string(0.0)};
             REQUIRE(e.to_list() == baseline);
@@ -3780,9 +3782,9 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = cos(v);
             v.value(0);
-            REQUIRE(e.value() == Approx(1.0));
+            REQUIRE(e.value() == Catch::Approx(1.0));
             v.value(PI / 2.0);
-            REQUIRE(e.value() == Approx(0.0).margin(1e-7));
+            REQUIRE(e.value() == Catch::Approx(0.0).margin(1e-7));
 
             static std::list<std::string> baseline = {"[", "cos", "v", "]"};
             REQUIRE(e.to_list() == baseline);
@@ -3792,7 +3794,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(0);
             coek::Expression e = cos(constant);
-            REQUIRE(e.value() == Approx(1.0));
+            REQUIRE(e.value() == Catch::Approx(1.0));
 
             static std::list<std::string> baseline = {std::to_string(1.0)};
             REQUIRE(e.to_list() == baseline);
@@ -3802,9 +3804,9 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = tan(v);
             v.value(0);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
             v.value(PI / 4.0);
-            REQUIRE(e.value() == Approx(1.0));
+            REQUIRE(e.value() == Catch::Approx(1.0));
 
             static std::list<std::string> baseline = {"[", "tan", "v", "]"};
             REQUIRE(e.to_list() == baseline);
@@ -3814,7 +3816,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(0);
             coek::Expression e = tan(constant);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
 
             static std::list<std::string> baseline = {std::to_string(0.0)};
             REQUIRE(e.to_list() == baseline);
@@ -3824,9 +3826,9 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = asin(v);
             v.value(0);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
             v.value(1);
-            REQUIRE(e.value() == Approx(PI / 2.0));
+            REQUIRE(e.value() == Catch::Approx(PI / 2.0));
 
             static std::list<std::string> baseline = {"[", "asin", "v", "]"};
             REQUIRE(e.to_list() == baseline);
@@ -3836,7 +3838,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(0);
             coek::Expression e = asin(constant);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
 
             static std::list<std::string> baseline = {std::to_string(0.0)};
             REQUIRE(e.to_list() == baseline);
@@ -3846,9 +3848,9 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = acos(v);
             v.value(1);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
             v.value(0);
-            REQUIRE(e.value() == Approx(PI / 2.0));
+            REQUIRE(e.value() == Catch::Approx(PI / 2.0));
 
             static std::list<std::string> baseline = {"[", "acos", "v", "]"};
             REQUIRE(e.to_list() == baseline);
@@ -3858,7 +3860,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(1);
             coek::Expression e = acos(constant);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
 
             static std::list<std::string> baseline = {std::to_string(0.0)};
             REQUIRE(e.to_list() == baseline);
@@ -3868,9 +3870,9 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = atan(v);
             v.value(0);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
             v.value(1);
-            REQUIRE(e.value() == Approx(PI / 4.0));
+            REQUIRE(e.value() == Catch::Approx(PI / 4.0));
 
             static std::list<std::string> baseline = {"[", "atan", "v", "]"};
             REQUIRE(e.to_list() == baseline);
@@ -3880,7 +3882,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(0);
             coek::Expression e = atan(constant);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
 
             static std::list<std::string> baseline = {std::to_string(0.0)};
             REQUIRE(e.to_list() == baseline);
@@ -3890,9 +3892,9 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = sinh(v);
             v.value(0);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
             v.value(1);
-            REQUIRE(e.value() == Approx((E - 1 / E) / 2.0));
+            REQUIRE(e.value() == Catch::Approx((E - 1 / E) / 2.0));
 
             static std::list<std::string> baseline = {"[", "sinh", "v", "]"};
             REQUIRE(e.to_list() == baseline);
@@ -3902,7 +3904,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(0);
             coek::Expression e = sinh(constant);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
 
             static std::list<std::string> baseline = {std::to_string(0.0)};
             REQUIRE(e.to_list() == baseline);
@@ -3912,9 +3914,9 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = cosh(v);
             v.value(0);
-            REQUIRE(e.value() == Approx(1.0));
+            REQUIRE(e.value() == Catch::Approx(1.0));
             v.value(1);
-            REQUIRE(e.value() == Approx((E + 1 / E) / 2.0));
+            REQUIRE(e.value() == Catch::Approx((E + 1 / E) / 2.0));
 
             static std::list<std::string> baseline = {"[", "cosh", "v", "]"};
             REQUIRE(e.to_list() == baseline);
@@ -3924,7 +3926,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(0);
             coek::Expression e = cosh(constant);
-            REQUIRE(e.value() == Approx(1.0));
+            REQUIRE(e.value() == Catch::Approx(1.0));
 
             static std::list<std::string> baseline = {std::to_string(1.0)};
             REQUIRE(e.to_list() == baseline);
@@ -3934,9 +3936,9 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = tanh(v);
             v.value(0);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
             v.value(1);
-            REQUIRE(e.value() == Approx((E - 1 / E) / (E + 1 / E)));
+            REQUIRE(e.value() == Catch::Approx((E - 1 / E) / (E + 1 / E)));
 
             static std::list<std::string> baseline = {"[", "tanh", "v", "]"};
             REQUIRE(e.to_list() == baseline);
@@ -3946,7 +3948,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(0);
             coek::Expression e = tanh(constant);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
 
             static std::list<std::string> baseline = {std::to_string(0.0)};
             REQUIRE(e.to_list() == baseline);
@@ -3956,9 +3958,9 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = asinh(v);
             v.value(0);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
             v.value((E - 1 / E) / 2.0);
-            REQUIRE(e.value() == Approx(1.0));
+            REQUIRE(e.value() == Catch::Approx(1.0));
 
             static std::list<std::string> baseline = {"[", "asinh", "v", "]"};
             REQUIRE(e.to_list() == baseline);
@@ -3968,7 +3970,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(0);
             coek::Expression e = asinh(constant);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
 
             static std::list<std::string> baseline = {std::to_string(0.0)};
             REQUIRE(e.to_list() == baseline);
@@ -3978,9 +3980,9 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = acosh(v);
             v.value(1);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
             v.value((E + 1 / E) / 2.0);
-            REQUIRE(e.value() == Approx(1.0));
+            REQUIRE(e.value() == Catch::Approx(1.0));
 
             static std::list<std::string> baseline = {"[", "acosh", "v", "]"};
             REQUIRE(e.to_list() == baseline);
@@ -3990,7 +3992,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(1);
             coek::Expression e = acosh(constant);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
 
             static std::list<std::string> baseline = {std::to_string(0.0)};
             REQUIRE(e.to_list() == baseline);
@@ -4000,9 +4002,9 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression e = atanh(v);
             v.value(0);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
             v.value((E - 1 / E) / (E + 1 / E));
-            REQUIRE(e.value() == Approx(1.0));
+            REQUIRE(e.value() == Catch::Approx(1.0));
 
             static std::list<std::string> baseline = {"[", "atanh", "v", "]"};
             REQUIRE(e.to_list() == baseline);
@@ -4012,7 +4014,7 @@ TEST_CASE("intrinsics", "[smoke]")
         {
             coek::Expression constant(0);
             coek::Expression e = atanh(constant);
-            REQUIRE(e.value() == Approx(0.0));
+            REQUIRE(e.value() == Catch::Approx(0.0));
 
             static std::list<std::string> baseline = {std::to_string(0.0)};
             REQUIRE(e.to_list() == baseline);

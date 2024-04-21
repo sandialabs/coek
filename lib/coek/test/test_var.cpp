@@ -5,7 +5,9 @@
 #include <sstream>
 #include <typeinfo>
 
-#include "catch2/catch.hpp"
+#include "catch2/catch_test_macros.hpp"
+#include "catch2/catch_approx.hpp"
+#include "catch2/matchers/catch_matchers.hpp"
 #include "coek/ast/base_terms.hpp"
 #include "coek/ast/value_terms.hpp"
 #include "coek/coek.hpp"
@@ -43,7 +45,7 @@ TEST_CASE("elementary_variable", "[smoke]")
             REQUIRE(a.lower() == 0);
             REQUIRE(a.upper() == 1);
             p.value(1);
-            REQUIRE(a.value() == Approx(2.84147098));
+            REQUIRE(a.value() == Catch::Approx(2.84147098));
             REQUIRE(a.lower() == 1);
             REQUIRE(a.upper() == 2);
         }
@@ -56,7 +58,7 @@ TEST_CASE("elementary_variable", "[smoke]")
             REQUIRE(a.lower() == 0);
             REQUIRE(a.upper() == 1);
             p.value(1);
-            REQUIRE(a.value() == Approx(2.84147098));
+            REQUIRE(a.value() == Catch::Approx(2.84147098));
             REQUIRE(a.lower() == 1);
             REQUIRE(a.upper() == 2);
         }
@@ -74,7 +76,7 @@ TEST_CASE("elementary_variable", "[smoke]")
             REQUIRE(upper.value() == 1);
 
             p.value(1);
-            REQUIRE(value.value() == Approx(2.84147098));
+            REQUIRE(value.value() == Catch::Approx(2.84147098));
             REQUIRE(lower.value() == 1);
             REQUIRE(upper.value() == 2);
         }
