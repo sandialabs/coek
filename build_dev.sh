@@ -16,7 +16,7 @@ else
     echo ""
     echo "Installing Coek dependencies using Spack"
     echo ""
-    git clone git@github.com:or-fusion/spack.git
+    git clone https://github.com/or-fusion/spack.git
     . ${SPACK_HOME}/share/spack/setup-env.sh
     spack external find python
     spack external find gurobi
