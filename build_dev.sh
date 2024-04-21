@@ -5,6 +5,29 @@
 #
 # This uses Spack to install third-party dependencies in the `spack` directory.
 #
+with_python="OFF"
+for arg ; do
+    case "$arg" in
+        --help)
+                    echo "build_dev.sh [--python] [--help]"
+                    exit 
+        ;;
+        --python)
+                    with_python="ON"
+        ;;
+        *)
+                    echo "unknown option: ${arg}"
+                    exit 
+        ;;
+    esac
+done
+
+if [-n "${GUROBI_HOME}"]; then
+    with_gurobi="ON"
+else
+    with_gurobi="OFF"
+fi
+   
 export SPACK_HOME=`pwd`/spack
 echo "SPACK_HOME=${SPACK_HOME}"
 
@@ -18,8 +41,6 @@ else
     echo ""
     git clone https://github.com/or-fusion/spack.git
     . ${SPACK_HOME}/share/spack/setup-env.sh
-    spack external find python
-    spack external find gurobi
     spack env create coekenv
     spack env activate coekenv
     spack add asl cppad fmt rapidjson catch2
@@ -32,5 +53,5 @@ echo ""
 \rm -Rf build
 mkdir build
 cd build
-cmake -DCMAKE_PREFIX_PATH=${SPACK_HOME}/var/spack/environments/coekenv/.spack-env/view -Dwith_python=ON -Dwith_gurobi=ON -Dwith_cppad=ON -Dwith_fmtlib=ON -Dwith_rapidjson=ON -Dwith_catch2=ON -Dwith_tests=ON -Dwith_asl=ON -Dwith_openmp=OFF ..
+cmake -DCMAKE_PREFIX_PATH=${SPACK_HOME}/var/spack/environments/coekenv/.spack-env/view -Dwith_python=${with_python} -Dwith_gurobi=${with_gurobi} -Dwith_cppad=ON -Dwith_fmtlib=ON -Dwith_rapidjson=ON -Dwith_catch2=ON -Dwith_tests=ON -Dwith_asl=ON -Dwith_openmp=OFF ..
 make -j20
