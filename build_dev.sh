@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 # This scripts builds Coek in the `build` directory to support local
 # development and debugging.
