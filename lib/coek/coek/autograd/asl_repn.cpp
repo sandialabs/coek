@@ -8,9 +8,9 @@
 #include "coek/ast/value_terms.hpp"
 
 // AMPL includes
-#include "asl.h"
-#include "asl_pfgh.h"
-#include "getstub.h"
+#include "asl/asl.h"
+#include "asl/asl_pfgh.h"
+#include "asl/getstub.h"
 #ifdef range
 #    undef range
 #endif
