@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
     if (solver_name == "gurobi") {
         coek::Solver solver;
         solver.initialize(solver_name);
-        solver.set_option("OutputFlag", 1);
+        //solver.set_option("OutputFlag", 1);
         //solver.set_option("TimeLimit", 0.0);
 
         auto res = solver.solve(model);
