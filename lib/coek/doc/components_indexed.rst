@@ -185,6 +185,18 @@ over indices, there may be slight computational advantages for using
 multi-dimensional arrays, which are stored compactly and thus are more
 cache-efficient data structures for iteration.
 
+.. note::
+
+    Coek confirms that expressions used to index variables do not
+    contain a variable unless it is fixed.  Thus, the following creates
+    a runtime error:
+
+    .. code:: C++
+
+        auto x = coek::variable(100);
+        auto y = coek::variable();
+        auto v = x(y+3).value();
+
 
 Parameters
 ----------
