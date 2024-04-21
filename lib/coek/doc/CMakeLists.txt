@@ -23,6 +23,8 @@ set(SPHINX_BUILD ${CMAKE_CURRENT_BINARY_DIR}/sphinx)
 set(SPHINX_INDEX_FILE ${SPHINX_BUILD}/index.html)
 set(SPHINX_DEPENDS
             ${CMAKE_CURRENT_SOURCE_DIR}/index.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/install.rst
+            ${CMAKE_CURRENT_SOURCE_DIR}/overview.rst
             ${CMAKE_CURRENT_SOURCE_DIR}/reference.rst
             ${CMAKE_CURRENT_SOURCE_DIR}/parameter.rst
             ${CMAKE_CURRENT_SOURCE_DIR}/variable.rst
