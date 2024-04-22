@@ -505,8 +505,7 @@ TEST_CASE("find_vars_and_params", "[smoke]")
         FVP_INTRINSIC_TEST1(asinh)
         FVP_INTRINSIC_TEST1(acosh)
         FVP_INTRINSIC_TEST1(atanh)
-        FVP_INTRINSIC_TEST2(pow)}
-    // clang-format on
+        FVP_INTRINSIC_TEST2(pow)}  // clang-format on
 
     SECTION("objective")
     {
