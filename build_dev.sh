@@ -32,6 +32,11 @@ done
 
 export SPACK_HOME=`pwd`/spack
 echo "SPACK_HOME=${SPACK_HOME}"
+if [[ -z "${GUROBI_HOME}" ]]; then
+    with_gurobi="OFF"
+else
+    with_gurobi="ON"
+fi
 
 if [[ "${spack_reinstall}" -eq 1 ]]; then
     rm -Rf ${SPACK_HOME}
@@ -53,9 +58,6 @@ else
     spack env create coekenv
     spack env activate coekenv
     spack add asl cppad fmt rapidjson catch2
-    if [[ -z "${GUROBI_HOME}" ]]; then
-        spack add gurobi
-    fi
     spack install
     spack env deactivate
 fi
@@ -65,5 +67,5 @@ echo ""
 \rm -Rf build
 mkdir build
 cd build
-cmake -DCMAKE_PREFIX_PATH=${SPACK_HOME}/var/spack/environments/coekenv/.spack-env/view -Dwith_python=${with_python} -Dwith_gurobi=ON -Dwith_cppad=ON -Dwith_fmtlib=ON -Dwith_rapidjson=ON -Dwith_catch2=ON -Dwith_tests=ON -Dwith_asl=ON -Dwith_openmp=OFF ..
+cmake -DCMAKE_PREFIX_PATH=${SPACK_HOME}/var/spack/environments/coekenv/.spack-env/view -Dwith_python=${with_python} -Dwith_gurobi=$with_gurobi -Dwith_cppad=ON -Dwith_fmtlib=ON -Dwith_rapidjson=ON -Dwith_catch2=ON -Dwith_tests=ON -Dwith_asl=ON -Dwith_openmp=OFF ..
 make -j20
