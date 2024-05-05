@@ -18,6 +18,8 @@
 
 namespace coek {
 
+SolverRepn* create_gurobi_solver() { return new GurobiSolver(); }
+
 namespace {
 
 auto add_gurobi_variable(GRBModel* gmodel, double lb, double ub, const Variable& eval)
@@ -620,6 +622,8 @@ void GurobiSolver::set_gurobi_options()
     // All options are converted to strings for Gurobi
     for (auto& it : string_options())
         gmodel->set(it.first, it.second);
+    for (auto& it : boolean_options())
+        gmodel->set(it.first, std::to_string(it.second));
     for (auto& it : integer_options())
         gmodel->set(it.first, std::to_string(it.second));
     for (auto& it : double_options())

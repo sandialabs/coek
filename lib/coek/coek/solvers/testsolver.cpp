@@ -11,6 +11,8 @@
 
 namespace coek {
 
+SolverRepn* create_coektest_solver() { return new TestSolver(); }
+
 std::shared_ptr<SolverResults> TestSolver::solve(Model& model)
 {
     assert(initial_solve());

@@ -194,10 +194,16 @@ std::string to_string(const SolverResults& res);
 
 namespace std {
 
-inline ostream& operator<<(const coek::SolverResults& res, ostream& os)
+inline std::ostream& operator<<(std::ostream& os, const coek::SolverResults& res)
 {
     os << coek::to_string(res);
     return os;
 }
 
-}  // namespace std
+inline ostream& operator<<(ostream& os, const std::shared_ptr<coek::SolverResults>& res)
+{
+    os << coek::to_string(*res);
+    return os;
+}
+
+} // namespace std

@@ -6,6 +6,7 @@
 #include "catch2/generators/catch_generators.hpp"
 #include "coek/ast/base_terms.hpp"
 #include "coek/coek.hpp"
+#include "coek/solvers/solver_results.hpp"
 
 //
 // EXAMPLES
@@ -311,6 +312,33 @@ TEST_CASE("gurobi_examples", "[smoke]")
             auto m = simplelp1();
             solver.set_option("OutputFlag", 0);
             auto res = solver.solve(m);
+            REQUIRE(coek::check_optimal_termination(res));
+
+            REQUIRE(res->objective_value == Catch::Approx(28750.0));
+            REQUIRE(res->objective_bound == Catch::Approx(28750.0));
+            check(m.get_variables(), simplelp1_soln);
+        }
+    }
+    else {
+        SECTION("simplelp1")
+        {
+            auto m = simplelp1();
+            auto res = solver.solve(m);
+            REQUIRE(res->termination_condition == coek::TerminationCondition::solver_not_available);
+        }
+    }
+}
+
+TEST_CASE("highs_examples", "[smoke]")
+{
+    coek::Solver solver("highs");
+    if (solver.available()) {
+        SECTION("simplelp1")
+        {
+            auto m = simplelp1();
+            solver.set_option("output_flag", false);
+            auto res = solver.solve(m);
+            //std::cout << res << std::endl;
             REQUIRE(coek::check_optimal_termination(res));
 
             REQUIRE(res->objective_value == Catch::Approx(28750.0));

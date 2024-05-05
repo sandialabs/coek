@@ -9,11 +9,16 @@
 #include "coek/model/model_repn.hpp"
 #include "coek/model/nlp_model.hpp"
 #include "coek/solvers/solver_repn.hpp"
+/*
 #include "coek/solvers/ipopt/ipopt_solver.hpp"
 #include "testsolver.hpp"
 #ifdef WITH_GUROBI
 #    include "coek/solvers/gurobi/coek_gurobi.hpp"
 #endif
+#ifdef WITH_GUROBI
+#    include "coek/solvers/gurobi/coek_highs.hpp"
+#endif
+*/
 
 namespace coek {
 
@@ -52,6 +57,7 @@ void SolverCache::reset_cache()
     pcache.clear();
 }
 
+/*
 SolverRepn* create_solver(std::string& name, OptionCache& options)
 {
     if (name == "test")
@@ -78,6 +84,7 @@ NLPSolverRepn* create_nlpsolver(std::string& name, OptionCache& options)
 
     return 0;
 }
+*/
 
 std::shared_ptr<SolverResults> NLPSolverRepn::resolve(bool reset_nlpmodel)
 {

@@ -5,6 +5,18 @@
 
 namespace coek {
 
+class ParameterTerm;
+class IndexParameterTerm;
+class VariableTerm;
+class BaseExpressionTerm;
+class SubExpressionTerm;
+
+typedef std::shared_ptr<ParameterTerm> ParameterRepn;
+typedef std::shared_ptr<IndexParameterTerm> IndexParameterRepn;
+typedef std::shared_ptr<VariableTerm> VariableRepn;
+typedef std::shared_ptr<BaseExpressionTerm> ExpressionRepn;
+typedef std::shared_ptr<SubExpressionTerm> SubExpressionRepn;
+
 class VariableTerm;
 class Expression;
 class Objective;

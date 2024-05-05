@@ -9,6 +9,7 @@ namespace coek {
 class OptionCacheRepn {
    public:
     std::map<std::string, std::string> string_options;
+    std::map<std::string, bool> boolean_options;
     std::map<std::string, int> integer_options;
     std::map<std::string, double> double_options;
 };
@@ -29,6 +30,13 @@ const std::map<std::string, std::string>& OptionCache::string_options() const
     return options->string_options;
 }
 
+std::map<std::string, bool>& OptionCache::boolean_options() { return options->boolean_options; }
+
+const std::map<std::string, bool>& OptionCache::boolean_options() const
+{
+    return options->boolean_options;
+}
+
 std::map<std::string, int>& OptionCache::integer_options() { return options->integer_options; }
 
 const std::map<std::string, int>& OptionCache::integer_options() const
@@ -41,6 +49,15 @@ std::map<std::string, double>& OptionCache::double_options() { return options->d
 const std::map<std::string, double>& OptionCache::double_options() const
 {
     return options->double_options;
+}
+
+bool OptionCache::get_option(const std::string& option, bool& value) const
+{
+    auto it = options->boolean_options.find(option);
+    if (it == options->boolean_options.end())
+        return false;
+    value = it->second;
+    return true;
 }
 
 bool OptionCache::get_option(const std::string& option, int& value) const
@@ -68,6 +85,11 @@ bool OptionCache::get_option(const std::string& option, std::string& value) cons
         return false;
     value = it->second;
     return true;
+}
+
+void OptionCache::set_option(const std::string& option, bool value)
+{
+    options->boolean_options[option] = value;
 }
 
 void OptionCache::set_option(const std::string& option, int value)

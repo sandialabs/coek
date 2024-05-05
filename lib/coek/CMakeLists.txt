@@ -28,6 +28,7 @@ option(with_asl "Use the ASL autograd library" OFF)
 # Solver Dependencies
 option(with_gurobi "Use the Gurobi solver" OFF)
 set(GUROBI_HOME "" CACHE FILEPATH "Set the path to gurobi")
+option(with_highs "Use the Highs solver" OFF)
 
 
 ##################### Other Config #####################
@@ -42,8 +43,13 @@ endif()
 
 MESSAGE("-- With Gurobi Solver: ${with_gurobi}")
 if(with_gurobi)
-  find_package(GUROBI)
-  list(APPEND solver_flags "-DWITH_GUROBI")
+  find_package(GUROBI REQUIRED)
+endif()
+
+MESSAGE("-- With Highs Solver: ${with_highs}")
+if(with_highs)
+  find_package(HIGHS REQUIRED)
+  find_package(Threads REQUIRED)
 endif()
 
 
