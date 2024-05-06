@@ -8,36 +8,36 @@ endif()
 
 
 SET(sources
-    test_model.cpp
-    test_visitor_simplify.cpp
-    test_visitor_mutable.cpp
-    test_visitor_writer.cpp
-    test_visitor_quadexpr.cpp
-    test_visitor_nlpexpr.cpp
-    test_visitor_symdiff.cpp
-    test_visitor_findvarparam.cpp
-    test_visitor_eval.cpp
-    test_testsolver.cpp
-    test_examples.cpp
-    test_writers.cpp
-    test_readers.cpp
-    test_sets.cpp
-    test_indexed.cpp
-    test_var.cpp
-    test_param.cpp
-    test_expr.cpp
-    test_obj.cpp
-    test_con.cpp
-    test_subexpression.cpp
-    test_autograd_unknown.cpp
-    test_autograd_all.cpp
-    test_util_sequence.cpp
+    smoke/test_model.cpp
+    smoke/test_visitor_simplify.cpp
+    smoke/test_visitor_mutable.cpp
+    smoke/test_visitor_writer.cpp
+    smoke/test_visitor_quadexpr.cpp
+    smoke/test_visitor_nlpexpr.cpp
+    smoke/test_visitor_symdiff.cpp
+    smoke/test_visitor_findvarparam.cpp
+    smoke/test_visitor_eval.cpp
+    smoke/test_testsolver.cpp
+    smoke/test_writers.cpp
+    smoke/test_readers.cpp
+    smoke/test_sets.cpp
+    smoke/test_indexed.cpp
+    smoke/test_var.cpp
+    smoke/test_param.cpp
+    smoke/test_expr.cpp
+    smoke/test_obj.cpp
+    smoke/test_con.cpp
+    smoke/test_subexpression.cpp
+    smoke/test_autograd_unknown.cpp
+    smoke/test_autograd_all.cpp
+    smoke/test_util_sequence.cpp
     mt_funcs.cpp
+    solver/test_examples.cpp
    )
 
 if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
     list(APPEND sources
-        test_util_DataPortal.cpp
+        smoke/test_util_DataPortal.cpp
         )
 endif()
 
@@ -47,14 +47,14 @@ set(coek_test_libraries)
 if(with_cppad)
   MESSAGE("-- Building Test with AD:        CppAd")
   list(APPEND sources
-    test_autograd_cppad.cpp)
+    smoke/test_autograd_cppad.cpp)
 endif()
 
 # ASL LIBRARY
 if(with_asl)
   MESSAGE("-- Building Test with AD:        ASL")
   list(APPEND sources
-    test_autograd_asl.cpp)
+    smoke/test_autograd_asl.cpp)
 endif()
 
 # Thread tests

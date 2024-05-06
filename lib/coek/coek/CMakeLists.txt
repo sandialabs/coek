@@ -81,7 +81,6 @@ if(with_fmtlib)
     find_package(fmt REQUIRED)
     list(APPEND coek_compile_options -DWITH_FMTLIB -Wextra -Wconversion -Wpedantic -Wsign-conversion)
     list(APPEND coek_link_libraries fmt::fmt)
-    #list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
 # Caliper LIBRARY
@@ -164,6 +163,7 @@ endif()
 # HIGHS LIBRARY
 #
 if(with_highs)
+    find_package(highs REQUIRED)
     list(APPEND sources
                 solvers/highs/highs.cpp)
     list(APPEND coek_compile_options -DWITH_HIGHS)
@@ -207,10 +207,10 @@ target_include_directories(coek
                            "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
                            )
 target_include_directories(coek
-                           PUBLIC
+                           PRIVATE
                            ${coek_include_directories})
-target_link_libraries(coek PUBLIC ${coek_link_libraries})
-target_link_directories(coek PUBLIC ${coek_link_directories})
+target_link_libraries(coek PRIVATE ${coek_link_libraries})
+target_link_directories(coek PRIVATE ${coek_link_directories})
 set_property(TARGET coek PROPERTY INTERFACE_LINK_LIBRARIES ${coek_link_libraries})
 
 #if (WIN32)
