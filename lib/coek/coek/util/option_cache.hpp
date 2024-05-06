@@ -17,10 +17,27 @@ class OptionCache {
 
     std::map<std::string, std::string>& string_options();
     const std::map<std::string, std::string>& string_options() const;
+
+    std::map<std::string, bool>& boolean_options();
+    const std::map<std::string, bool>& boolean_options() const;
+
     std::map<std::string, int>& integer_options();
     const std::map<std::string, int>& integer_options() const;
+
     std::map<std::string, double>& double_options();
     const std::map<std::string, double>& double_options() const;
+
+    /** Get the value of a boolean option
+     *
+     * The option value is returned by reference if it has
+     * a value.
+     *
+     * \param option  the option name
+     * \param value   a boolean value that is passed by reference
+     *
+     * \returns \c true if the option is found
+     */
+    virtual bool get_option(const std::string& option, bool& value) const;
 
     /** Get the value of an integer option
      *
@@ -58,6 +75,13 @@ class OptionCache {
      */
     virtual bool get_option(const std::string& option, std::string& value) const;
 
+    /** Set a boolean option
+     *
+     * \param option  the option name
+     * \param value   the boolean value
+     */
+    virtual void set_option(const std::string& option, bool value);
+
     /** Set an integer option
      *
      * \param option  the option name
@@ -77,7 +101,14 @@ class OptionCache {
      * \param option  the option name
      * \param value   the string value
      */
-    virtual void set_option(const std::string& option, const std::string value);
+    virtual void set_option(const std::string& option, const std::string& value);
+
+    /** Set a string option
+     *
+     * \param option  the option name
+     * \param value   the string value
+     */
+    virtual void set_option(const std::string& option, const char* value);
 };
 
 }  // namespace coek

@@ -18,6 +18,8 @@
 
 namespace coek {
 
+SolverRepn* create_gurobi_solver() { return new GurobiSolver(); }
+
 namespace {
 
 auto add_gurobi_variable(GRBModel* gmodel, double lb, double ub, const Variable& eval)
@@ -340,9 +342,12 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-int GurobiSolver::solve(CompactModel& compact_model)
+std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
 {
-    std::cout << "STARTING GUROBI" << std::endl << std::flush;
+    auto results = std::make_shared<SolverResults>();
+    results->solver_name = "gurobi";
+    results->termination_condition = TerminationCondition::error;
+    results->tic();
 
     env = new GRBEnv(true);
     auto it = integer_options().find("OutputFlag");
@@ -350,8 +355,6 @@ int GurobiSolver::solve(CompactModel& compact_model)
         env->set(GRB_IntParam_OutputFlag, it->second);
     env->start();
     gmodel = new GRBModel(*env);
-
-    std::cout << "BUILDING GUROBI MODEL" << std::endl << std::flush;
 
     // Add Gurobi variables
     for (auto& val : compact_model.repn->variables) {
@@ -385,7 +388,7 @@ int GurobiSolver::solve(CompactModel& compact_model)
             else {
                 auto& seq = std::get<ObjectiveSequence>(val);
                 for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
-                    model.repn->objectives.push_back(*jt);
+                    // model.repn->objectives.push_back(*jt);
                     Expression tmp = jt->expr();
                     add_gurobi_objective(gmodel, tmp, jt->sense(), x, orepn);
                     nobj++;
@@ -394,15 +397,15 @@ int GurobiSolver::solve(CompactModel& compact_model)
         }
     }
     catch (GRBException e) {
-        std::cerr << "GUROBI Exception: (objective) " << e.getMessage() << std::endl;
-        throw;
+        results->error_message
+            = "Gurobi Error: Caught gurobi exception while creating objectives " + e.getMessage();
+        return results;
     }
     if (nobj > 1) {
-        //
         // TODO - is this an error?
-        //
-        std::cerr << "Error initializing Gurobi: More than one objective defined!" << std::endl;
-        return -1;
+        results->termination_condition = TerminationCondition::invalid_model_for_solver;
+        results->error_message = "Error initializing Gurobi: More than one objective defined!";
+        return results;
     }
 
     // Add Gurobi constraints
@@ -422,47 +425,30 @@ int GurobiSolver::solve(CompactModel& compact_model)
         }
     }
     catch (GRBException e) {
-        std::cerr << "GUROBI Exception: (constraint) " << e.getMessage() << std::endl;
-        throw;
+        results->error_message
+            = "Gurobi Error: Caught gurobi exception while creating constraints " + e.getMessage();
+        return results;
     }
 
-    std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
-
-    set_gurobi_options();
     try {
+        set_gurobi_options();
         gmodel->optimize();
-
-        int status = gmodel->get(GRB_IntAttr_Status);
-        if (status == GRB_OPTIMAL) {
-            // TODO: Are there other conditions where the variables have valid values?
-            // TODO: If we do not update the COEK variable values, should we set them to NAN?
-            // TODO: We need to cache the optimization status in COEK somewhere
-            // TODO: Is there a string description of the solver status?
-
-#    if 0
-
-WEH - What is the 'results object' for compact models?  This is not defined yet.
-
-            // Collect values of Gurobi variables
-            for (auto& var : model.variables) {
-                var.set_value(x[var.index].get(GRB_DoubleAttr_X));
-            }
-#    endif
-        }
     }
     catch (GRBException e) {
-        std::cerr << "GUROBI Exception: (solver) " << e.getMessage() << std::endl;
-        // TODO: We should raise a CoekException object, to ensure that COEK can manage exceptions
-        // in a uniform manner.
-        throw;
+        results->error_message
+            = "Gurobi Error: Caught gurobi exception while optimizing " + e.getMessage();
+        return results;
     }
+
+    collect_results(model, results);
 
     delete gmodel;
     gmodel = 0;
     delete env;
     env = 0;
 
-    return 0;
+    results->toc();
+    return results;
 }
 #endif
 
@@ -620,6 +606,8 @@ void GurobiSolver::set_gurobi_options()
     // All options are converted to strings for Gurobi
     for (auto& it : string_options())
         gmodel->set(it.first, it.second);
+    for (auto& it : boolean_options())
+        gmodel->set(it.first, std::to_string(it.second));
     for (auto& it : integer_options())
         gmodel->set(it.first, std::to_string(it.second));
     for (auto& it : double_options())

@@ -34,6 +34,7 @@ SET(sources
     solvers/solver_results.cpp
     solvers/solver.cpp
     solvers/solver_repn.cpp
+    solvers/create_solver.cpp
     solvers/testsolver.cpp
     autograd/autograd.cpp
     abstract/expr_rule.cpp
@@ -154,16 +155,19 @@ endif()
 if(with_gurobi)
     list(APPEND sources
                 solvers/gurobi/gurobi.cpp)
-    #if(NOT "$ENV{GUROBI_HOME}" STREQUAL "")
-    #    MESSAGE("-- GUROBI_HOME $ENV{GUROBI_HOME}")
-    #    list(APPEND coek_link_directories $ENV{GUROBI_HOME}/lib)
-    #else()
-    #    MESSAGE("-- GUROBI_HOME Not provided")
-    #endif()
     list(APPEND coek_compile_options -DWITH_GUROBI)
     list(APPEND coek_link_libraries ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARY})
     list(APPEND coek_include_directories ${GUROBI_INCLUDE_DIRS})
-#gurobi_g++5.2 gurobi90)
+endif()
+
+#
+# HIGHS LIBRARY
+#
+if(with_highs)
+    list(APPEND sources
+                solvers/highs/highs.cpp)
+    list(APPEND coek_compile_options -DWITH_HIGHS)
+    list(APPEND coek_link_libraries highs::highs)
 endif()
 
 #
