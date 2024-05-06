@@ -8,7 +8,7 @@ namespace coek {
 class HighsSolver : public SolverRepn {
    public:
     Highs highs;
-    HighsModel model;
+    HighsModel hmodel;
     HighsStatus return_status;
     std::unordered_map<size_t, size_t> x;
 

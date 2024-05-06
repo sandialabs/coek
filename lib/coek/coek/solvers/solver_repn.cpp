@@ -194,7 +194,7 @@ void SolverRepn::load(CompactModel& _model)
     load(model);
 }
 
-int SolverRepn::solve(CompactModel& _model)
+std::shared_ptr<SolverResults> SolverRepn::solve(CompactModel& _model)
 {
     model = _model.expand();
     return solve(model);

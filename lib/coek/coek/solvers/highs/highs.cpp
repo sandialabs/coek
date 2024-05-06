@@ -26,7 +26,6 @@ bool add_variable(HighsModel& model, std::unordered_map<size_t, size_t>& x, doub
                   double upper, const Variable& var)
 {
     x[var.id()] = model.lp_.col_lower_.size();
-    // std::cout << "x " << var.id() << " " << x[var.id()] << std::endl;
 
     if (var.is_binary() or var.is_integer()) {
         model.lp_.col_lower_.push_back(lower);
@@ -55,17 +54,11 @@ void add_objective(HighsModel& model, Expression& expr, bool sense,
     model.lp_.col_cost_.resize(x.size());
 
     if (orepn.linear_coefs.size() + orepn.quadratic_coefs.size() > 0) {
-#if 0
-        auto iv = orepn.linear_vars.begin();
-        for (auto it = orepn.linear_coefs.begin(); it != orepn.linear_coefs.end(); ++it, ++iv)
-            model.lp_.col_cost_[ x[(*iv)->index] ] = *it;
-#else
         auto it = orepn.linear_coefs.begin();
         for (auto& var : orepn.linear_vars) {
             model.lp_.col_cost_[x[var->index]] = *it;
             ++it;
         }
-#endif
         model.lp_.offset_ = orepn.constval;
 
 #if 0
@@ -108,20 +101,13 @@ void add_constraint(HighsModel& model, Constraint& con, std::unordered_map<size_
         tmp += static_cast<HighsInt>(repn.linear_coefs.size());
         model.lp_.a_matrix_.start_.push_back(tmp);
     }
-    // std::cout << "XX start: " << model.lp_.a_matrix_.start_ << std::endl;
     //  Row coefs
-#if 0
-        for (size_t i : indices(repn.linear_coefs))
-            model.lp_.a_matrix_.index_.push_back( x[repn.linear_vars[i]->index );
-            model.lp_.a_matrix_.value_.push_back( x[repn.linear_coefs[i] );
-#else
     auto it = repn.linear_coefs.begin();
     for (auto& var : repn.linear_vars) {
         model.lp_.a_matrix_.index_.push_back(static_cast<HighsInt>(x[var->index]));
         model.lp_.a_matrix_.value_.push_back(*it);
         ++it;
     }
-#endif
 
     // Row lower/upper
     double lower = -1.0e30;
@@ -156,16 +142,16 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
     auto _coek_model = coek_model.repn.get();
     assert(_coek_model->objectives.size() == 1);
 
-    model.clear();
+    hmodel.clear();
 
     // Add variables
     bool continuous = true;
     for (auto& var : _coek_model->variables) {
         if (not var.fixed())
-            continuous = continuous and add_variable(model, x, var.lower(), var.upper(), var);
+            continuous = continuous and add_variable(hmodel, x, var.lower(), var.upper(), var);
     }
     if (continuous)
-        model.lp_.integrality_.resize(0);
+        hmodel.lp_.integrality_.resize(0);
 
     // Add objective
     unsigned int nobj = 0;
@@ -173,7 +159,7 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
         coek::QuadraticExpr orepn;
         for (auto& obj : _coek_model->objectives) {
             Expression tmp = obj.expr();
-            add_objective(model, tmp, obj.sense(), x, orepn);
+            add_objective(hmodel, tmp, obj.sense(), x, orepn);
             nobj++;
         }
     }
@@ -190,12 +176,11 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
     }
 
     // Add constraints
-    model.lp_.a_matrix_.format_ = MatrixFormat::kRowwise;
-    // std::cout << "YY start: " << model.lp_.a_matrix_.start_ << std::endl;
+    hmodel.lp_.a_matrix_.format_ = MatrixFormat::kRowwise;
     try {
         coek::QuadraticExpr repn;
         for (auto& con : _coek_model->constraints) {
-            add_constraint(model, con, x, repn);
+            add_constraint(hmodel, con, x, repn);
         }
     }
     catch (const std::exception& e) {
@@ -204,27 +189,27 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
         return results;
     }
 
-    model.lp_.num_col_ = model.lp_.col_cost_.size();
-    model.lp_.num_row_ = model.lp_.row_lower_.size();
+    hmodel.lp_.num_col_ = hmodel.lp_.col_cost_.size();
+    hmodel.lp_.num_row_ = hmodel.lp_.row_lower_.size();
 
 #if 0
-    std::cout << "Ncol: " << model.lp_.num_col_ << std::endl;
-    std::cout << "Nrow: " << model.lp_.num_row_ << std::endl;
-    std::cout << "ColCost: " << model.lp_.col_cost_ << std::endl;
-    std::cout << "Offset: " << model.lp_.offset_ << std::endl;
+    std::cout << "Ncol: " << hmodel.lp_.num_col_ << std::endl;
+    std::cout << "Nrow: " << hmodel.lp_.num_row_ << std::endl;
+    std::cout << "ColCost: " << hmodel.lp_.col_cost_ << std::endl;
+    std::cout << "Offset: " << hmodel.lp_.offset_ << std::endl;
     std::cout << "Integrality: ";
-    for (auto& val : model.lp_.integrality_)
+    for (auto& val : hmodel.lp_.integrality_)
         std::cout << (int)val << " ";
     std::cout << std::endl;
-    std::cout << "Lower: " << model.lp_.row_lower_ << std::endl;
-    std::cout << "Upper: " << model.lp_.row_upper_ << std::endl;
-    std::cout << "Start: " << model.lp_.a_matrix_.start_ << std::endl;
-    std::cout << "Index: " << model.lp_.a_matrix_.index_ << std::endl;
-    std::cout << "Value: " << model.lp_.a_matrix_.value_ << std::endl;
+    std::cout << "Lower: " << hmodel.lp_.row_lower_ << std::endl;
+    std::cout << "Upper: " << hmodel.lp_.row_upper_ << std::endl;
+    std::cout << "Start: " << hmodel.lp_.a_matrix_.start_ << std::endl;
+    std::cout << "Index: " << hmodel.lp_.a_matrix_.index_ << std::endl;
+    std::cout << "Value: " << hmodel.lp_.a_matrix_.value_ << std::endl;
 #endif
 
     set_solver_options();
-    return_status = highs.passModel(model);
+    return_status = highs.passModel(hmodel);
     if (return_status != HighsStatus::kOk) {
         results->error_message = "Highs Error: Error initializing model";
         return results;
@@ -246,37 +231,34 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-int HighsSolver::solve(CompactModel& compact_model)
+std::shared_ptr<SolverResults> HighsSolver::solve(CompactModel& compact_model)
 {
-    std::cout << "STARTING HIGHS" << std::endl << std::flush;
-
-    env = new GRBEnv(true);
-    auto it = integer_options().find("OutputFlag");
-    if (it != integer_options().end())
-        env->set(GRB_IntParam_OutputFlag, it->second);
-    env->start();
-    gmodel = new GRBModel(*env);
-
-    std::cout << "BUILDING GUROBI MODEL" << std::endl << std::flush;
+    auto results = std::make_shared<SolverResults>();
+    results->solver_name = "highs";
+    results->termination_condition = TerminationCondition::error;
+    results->tic();
 
     // Add variables
+    bool continuous = true;
     for (auto& val : compact_model.repn->variables) {
         if (auto eval = std::get_if<Variable>(&val)) {
             Expression lb = eval->lower_expression().expand();
             auto lb_ = lb.value();
             Expression ub = eval->upper_expression().expand();
             auto ub_ = ub.value();
-            x[eval->id()] = add_variable(gmodel, lb_, ub_, *eval);
+            continuous = continuous and add_variable(hmodel, x, lb_, ub_, *eval);
+            model.add(*eval);
         }
         else {
             auto& seq = std::get<VariableSequence>(val);
             for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
-                x[jt->id()] = add_variable(gmodel, jt->lower(), jt->upper(), *jt);
+                continuous = continuous and add_variable(hmodel, x, jt->lower(), jt->upper(), *jt);
+                model.add(*jt);
             }
         }
     }
-
-    gmodel->update();
+    if (continuous)
+        hmodel.lp_.integrality_.resize(0);
 
     // Add objective
     unsigned int nobj = 0;
@@ -285,90 +267,78 @@ int HighsSolver::solve(CompactModel& compact_model)
         for (auto& val : compact_model.repn->objectives) {
             if (auto eval = std::get_if<Objective>(&val)) {
                 Expression tmp = eval->expr().expand();
-                add_objective(gmodel, tmp, eval->sense(), x, orepn);
+                add_objective(hmodel, tmp, eval->sense(), x, orepn);
                 nobj++;
             }
             else {
                 auto& seq = std::get<ObjectiveSequence>(val);
                 for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
-                    model.repn->objectives.push_back(*jt);
+                    // model.repn->objectives.push_back(*jt);
                     Expression tmp = jt->expr();
-                    add_objective(gmodel, tmp, jt->sense(), x, orepn);
+                    add_objective(hmodel, tmp, jt->sense(), x, orepn);
                     nobj++;
                 }
             }
         }
     }
     catch (const std::exception& e) {
-        std::cerr << "GUROBI Exception: (objective) " << std::string(e.what()) << std::endl;
-        throw;
+        results->error_message = "Highs Error: Caught highs exception while creating objectives "
+                                 + std::string(e.what());
+        return results;
     }
     if (nobj > 1) {
-        //
         // TODO - is this an error?
-        //
-        std::cerr << "Error initializing Highs: More than one objective defined!" << std::endl;
-        return -1;
+        results->termination_condition = TerminationCondition::invalid_model_for_solver;
+        results->error_message = "Error initializing Highs: More than one objective defined!";
+        return results;
     }
 
     // Add constraints
+    hmodel.lp_.a_matrix_.format_ = MatrixFormat::kRowwise;
     try {
         coek::QuadraticExpr repn;
         for (auto& val : compact_model.repn->constraints) {
             if (auto cval = std::get_if<Constraint>(&val)) {
                 Constraint c = cval->expand();
-                add_constraint(gmodel, c, x, repn);
+                add_constraint(hmodel, c, x, repn);
             }
             else {
                 auto& seq = std::get<ConstraintSequence>(val);
                 for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
-                    add_constraint(gmodel, *jt, x, repn);
+                    add_constraint(hmodel, *jt, x, repn);
                 }
             }
         }
     }
     catch (const std::exception& e) {
-        std::cerr << "GUROBI Exception: (constraint) " << std::string(e.what()) << std::endl;
-        throw;
+        results->error_message
+            = "Highs Error: Caught exception while creating constraints " + std::string(e.what());
+        return results;
     }
 
-    std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
+    hmodel.lp_.num_col_ = hmodel.lp_.col_cost_.size();
+    hmodel.lp_.num_row_ = hmodel.lp_.row_lower_.size();
 
     set_solver_options();
+    return_status = highs.passModel(hmodel);
+    if (return_status != HighsStatus::kOk) {
+        results->error_message = "Highs Error: Error initializing model";
+        return results;
+    }
+
     try {
-        gmodel->optimize();
-
-        int status = gmodel->get(GRB_IntAttr_Status);
-        if (status == GRB_OPTIMAL) {
-            // TODO: Are there other conditions where the variables have valid values?
-            // TODO: If we do not update the COEK variable values, should we set them to NAN?
-            // TODO: We need to cache the optimization status in COEK somewhere
-            // TODO: Is there a string description of the solver status?
-
-#    if 0
-
-WEH - What is the 'results object' for compact models?  This is not defined yet.
-
-            // Collect values of variables
-            for (auto& var : model.variables) {
-                var.set_value(x[var.index].get(GRB_DoubleAttr_X));
-            }
-#    endif
-        }
+        return_status = highs.run();
     }
     catch (const std::exception& e) {
-        std::cerr << "GUROBI Exception: (solver) " << std::string(e.what()) << std::endl;
-        // TODO: We should raise a CoekException object, to ensure that COEK can manage exceptions
-        // in a uniform manner.
-        throw;
+        results->error_message
+            = "Highs Error: Caught highs exception while optimizing " + std::string(e.what());
+        return results;
     }
 
-    delete gmodel;
-    gmodel = 0;
-    delete env;
-    env = 0;
+    collect_results(model, results);
 
-    return 0;
+    results->toc();
+    return results;
 }
 #endif
 
