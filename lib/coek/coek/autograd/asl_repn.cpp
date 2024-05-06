@@ -467,10 +467,10 @@ void ASL_Repn::call_hesset()
     nnz_lag_h = static_cast<size_t>(sphsetup(-1, coeff_obj, mult_supplied, uptri));
 }
 
-bool ASL_Repn::get_option(const std::string& option, std::string& value) const
+bool ASL_Repn::get_option(const std::string& option, bool& value) const
 {
-    if (option == "temp_directory") {
-        value = temp_directory;
+    if (option == "remove_nl_file") {
+        value = remove_nl_file;
         return true;
     }
     return false;
@@ -485,16 +485,31 @@ bool ASL_Repn::get_option(const std::string& option, int& value) const
     return false;
 }
 
-void ASL_Repn::set_option(const std::string& option, const std::string value)
+bool ASL_Repn::get_option(const std::string& option, std::string& value) const
 {
-    if (option == "temp_directory")
-        temp_directory = value;
+    if (option == "temp_directory") {
+        value = temp_directory;
+        return true;
+    }
+    return false;
+}
+
+void ASL_Repn::set_option(const std::string& option, bool value)
+{
+    if (option == "remove_nl_file")
+        remove_nl_file = value;
 }
 
 void ASL_Repn::set_option(const std::string& option, int value)
 {
     if (option == "remove_nl_file")
-        remove_nl_file = value;
+        remove_nl_file = (value == 1);
+}
+
+void ASL_Repn::set_option(const std::string& option, const std::string value)
+{
+    if (option == "temp_directory")
+        temp_directory = value;
 }
 
 }  // namespace coek

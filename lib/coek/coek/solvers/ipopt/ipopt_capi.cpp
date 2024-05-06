@@ -576,11 +576,13 @@ class IpoptSolverRepn_CAPI : public IpoptSolverRepn {
     void set_start_from_last_x(bool flag) { nlp->start_from_last_x = flag; }
 
     void set_options(const std::map<std::string, std::string>& string_options,
+                     const std::map<std::string, bool>& boolean_options,
                      const std::map<std::string, int>& integer_options,
                      const std::map<std::string, double>& double_options);
 };
 
 void IpoptSolverRepn_CAPI::set_options(const std::map<std::string, std::string>& string_options,
+                                       const std::map<std::string, bool>& boolean_options,
                                        const std::map<std::string, int>& integer_options,
                                        const std::map<std::string, double>& double_options)
 {
@@ -588,6 +590,10 @@ void IpoptSolverRepn_CAPI::set_options(const std::map<std::string, std::string>&
         char* tmp1 = const_cast<char*>(it->first.c_str());
         char* tmp2 = const_cast<char*>(it->second.c_str());
         (*AddIpoptStrOption_func_ptr)(nlp->app, tmp1, tmp2);
+    }
+    for (auto it = boolean_options.begin(); it != boolean_options.end(); ++it) {
+        char* tmp1 = const_cast<char*>(it->first.c_str());
+        (*AddIpoptIntOption_func_ptr)(nlp->app, tmp1, it->second);
     }
     for (auto it = integer_options.begin(); it != integer_options.end(); ++it) {
         char* tmp1 = const_cast<char*>(it->first.c_str());
