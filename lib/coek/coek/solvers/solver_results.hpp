@@ -206,4 +206,4 @@ inline ostream& operator<<(ostream& os, const std::shared_ptr<coek::SolverResult
     return os;
 }
 
-} // namespace std
+}  // namespace std

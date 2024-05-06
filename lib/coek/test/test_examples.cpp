@@ -338,7 +338,7 @@ TEST_CASE("highs_examples", "[smoke]")
             auto m = simplelp1();
             solver.set_option("output_flag", false);
             auto res = solver.solve(m);
-            //std::cout << res << std::endl;
+            // std::cout << res << std::endl;
             REQUIRE(coek::check_optimal_termination(res));
 
             REQUIRE(res->objective_value == Catch::Approx(28750.0));

@@ -22,11 +22,11 @@ SolverRepn* create_highs_solver() { return new HighsSolver(); }
 
 namespace {
 
-bool add_variable(HighsModel& model, std::unordered_map<size_t, size_t>& x, double lower, double upper,
-                  const Variable& var)
+bool add_variable(HighsModel& model, std::unordered_map<size_t, size_t>& x, double lower,
+                  double upper, const Variable& var)
 {
     x[var.id()] = model.lp_.col_lower_.size();
-    //std::cout << "x " << var.id() << " " << x[var.id()] << std::endl;
+    // std::cout << "x " << var.id() << " " << x[var.id()] << std::endl;
 
     if (var.is_binary() or var.is_integer()) {
         model.lp_.col_lower_.push_back(lower);
@@ -97,50 +97,51 @@ void add_constraint(HighsModel& model, Constraint& con, std::unordered_map<size_
     if (repn.quadratic_coefs.size() > 0)
         throw std::runtime_error("Highs cannot handle nonlinear expressions in constraints");
 
-    if (repn.linear_coefs.size() == 0) return;
+    if (repn.linear_coefs.size() == 0)
+        return;
 
-        if ( model.lp_.a_matrix_.start_.size() == 1) {
-            model.lp_.a_matrix_.start_.push_back( repn.linear_coefs.size() );
-            }
-        else {
-            HighsInt tmp = model.lp_.a_matrix_.start_.back();
-            tmp += static_cast<HighsInt>(repn.linear_coefs.size());
-            model.lp_.a_matrix_.start_.push_back(tmp);
-        }
-        //std::cout << "XX start: " << model.lp_.a_matrix_.start_ << std::endl;
-        // Row coefs
+    if (model.lp_.a_matrix_.start_.size() == 1) {
+        model.lp_.a_matrix_.start_.push_back(repn.linear_coefs.size());
+    }
+    else {
+        HighsInt tmp = model.lp_.a_matrix_.start_.back();
+        tmp += static_cast<HighsInt>(repn.linear_coefs.size());
+        model.lp_.a_matrix_.start_.push_back(tmp);
+    }
+    // std::cout << "XX start: " << model.lp_.a_matrix_.start_ << std::endl;
+    //  Row coefs
 #if 0
         for (size_t i : indices(repn.linear_coefs))
             model.lp_.a_matrix_.index_.push_back( x[repn.linear_vars[i]->index );
             model.lp_.a_matrix_.value_.push_back( x[repn.linear_coefs[i] );
 #else
-        auto it = repn.linear_coefs.begin();
-        for (auto& var : repn.linear_vars) {
-            model.lp_.a_matrix_.index_.push_back(static_cast<HighsInt>(x[var->index]));
-            model.lp_.a_matrix_.value_.push_back(*it);
-            ++it;
-        }
+    auto it = repn.linear_coefs.begin();
+    for (auto& var : repn.linear_vars) {
+        model.lp_.a_matrix_.index_.push_back(static_cast<HighsInt>(x[var->index]));
+        model.lp_.a_matrix_.value_.push_back(*it);
+        ++it;
+    }
 #endif
 
-        // Row lower/upper
-        double lower = -1.0e30;
-        double upper = 1.0e30;
-        if (con.is_inequality()) {
-            if (con.lower().repn) {
-                double tmp = con.lower().value();
-                if (tmp > -COEK_INFINITY)
-                    lower = -repn.constval + tmp;
-            }
-            if (con.upper().repn) {
-                double tmp = con.upper().value();
-                if (tmp < COEK_INFINITY)
-                    upper = -repn.constval + tmp;
-            }
+    // Row lower/upper
+    double lower = -1.0e30;
+    double upper = 1.0e30;
+    if (con.is_inequality()) {
+        if (con.lower().repn) {
+            double tmp = con.lower().value();
+            if (tmp > -COEK_INFINITY)
+                lower = -repn.constval + tmp;
         }
-        else
-            lower = upper = -repn.constval + con.lower().value();
-        model.lp_.row_lower_.push_back(lower);
-        model.lp_.row_upper_.push_back(upper);
+        if (con.upper().repn) {
+            double tmp = con.upper().value();
+            if (tmp < COEK_INFINITY)
+                upper = -repn.constval + tmp;
+        }
+    }
+    else
+        lower = upper = -repn.constval + con.lower().value();
+    model.lp_.row_lower_.push_back(lower);
+    model.lp_.row_upper_.push_back(upper);
 }
 
 }  // namespace
@@ -158,14 +159,13 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
     model.clear();
 
     // Add variables
-    bool continuous=true;
+    bool continuous = true;
     for (auto& var : _coek_model->variables) {
         if (not var.fixed())
             continuous = continuous and add_variable(model, x, var.lower(), var.upper(), var);
     }
     if (continuous)
         model.lp_.integrality_.resize(0);
-        
 
     // Add objective
     unsigned int nobj = 0;
@@ -191,7 +191,7 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
 
     // Add constraints
     model.lp_.a_matrix_.format_ = MatrixFormat::kRowwise;
-    //std::cout << "YY start: " << model.lp_.a_matrix_.start_ << std::endl;
+    // std::cout << "YY start: " << model.lp_.a_matrix_.start_ << std::endl;
     try {
         coek::QuadraticExpr repn;
         for (auto& con : _coek_model->constraints) {
@@ -552,18 +552,18 @@ void HighsSolver::collect_results(Model& model, std::shared_ptr<SolverResults>& 
                 results->objective_value = info.mip_dual_bound;
             else
                 results->objective_bound = results->objective_value;
-            //highs.getOptionValue("objective_bound", results->objective_value);
+            // highs.getOptionValue("objective_bound", results->objective_value);
 
             // Collect values of variables
             const bool has_primal = info.primal_solution_status;
             if (has_primal) {
                 for (auto& var : model.repn->variables) {
                     if (not var.fixed()) {
-                        var.value( solution.col_value[ x[var.id()] ] );
+                        var.value(solution.col_value[x[var.id()]]);
                     }
                 }
 
-            // TODO: collect duals and basis if the user requests this information
+                // TODO: collect duals and basis if the user requests this information
             }
         }
         else if (model_status == HighsModelStatus::kNotset) {
