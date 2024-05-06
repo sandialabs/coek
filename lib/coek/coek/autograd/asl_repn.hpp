@@ -22,8 +22,8 @@ class ASL_Repn : public NLPModelRepn {
     ASL_pfgh* asl_;
     // The temporary file directory used to write the NL file
     std::string temp_directory;
-    // If set to 1, then the NL file is removed
-    int remove_nl_file = 1;
+    // If true, then the NL file is removed
+    bool remove_nl_file = true;
 
     // ----------------------------------------------------------------------
     // Problem information
@@ -103,10 +103,12 @@ class ASL_Repn : public NLPModelRepn {
     void compute_J(std::vector<double>& J);
 
    public:
-    bool get_option(const std::string& option, std::string& value) const;
+    bool get_option(const std::string& option, bool& value) const;
     bool get_option(const std::string& option, int& value) const;
-    void set_option(const std::string& option, const std::string value);
+    bool get_option(const std::string& option, std::string& value) const;
+    void set_option(const std::string& option, bool value);
     void set_option(const std::string& option, int value);
+    void set_option(const std::string& option, const std::string value);
 
    protected:
     void* nerror_;

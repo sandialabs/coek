@@ -101,7 +101,14 @@ class OptionCache {
      * \param option  the option name
      * \param value   the string value
      */
-    virtual void set_option(const std::string& option, const std::string value);
+    virtual void set_option(const std::string& option, const std::string& value);
+
+    /** Set a string option
+     *
+     * \param option  the option name
+     * \param value   the string value
+     */
+    virtual void set_option(const std::string& option, const char* value);
 };
 
 }  // namespace coek

@@ -102,7 +102,12 @@ void OptionCache::set_option(const std::string& option, double value)
     options->double_options[option] = value;
 }
 
-void OptionCache::set_option(const std::string& option, const std::string value)
+void OptionCache::set_option(const std::string& option, const std::string& value)
+{
+    options->string_options[option] = value;
+}
+
+void OptionCache::set_option(const std::string& option, const char* value)
 {
     options->string_options[option] = value;
 }
