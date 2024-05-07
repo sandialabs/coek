@@ -37,6 +37,10 @@ void NLPModel::initialize(Model& model, std::string type)
 
 void NLPModel::reset() { repn->reset(); }
 
+std::string NLPModel::name() const { return repn->model.name(); }
+
+void NLPModel::name(const std::string& name) { repn->model.name(name); }
+
 size_t NLPModel::num_variables() const { return repn->num_variables(); }
 
 size_t NLPModel::num_objectives() const { return repn->num_objectives(); }

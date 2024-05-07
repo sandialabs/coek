@@ -43,6 +43,8 @@ class ModelRepn {
     std::vector<ConstraintMap> constraint_maps;
 #endif
 
+    std::string name = "unknown";
+
     std::map<std::string, Objective> objectives_by_name;
     std::map<std::string, Constraint> constraints_by_name;
     std::map<std::string, Variable> variables_by_name;
@@ -125,6 +127,7 @@ class CompactConstraintMap {
 //
 class CompactModelRepn {
    public:
+    std::string name;
     std::vector<std::variant<Objective, ObjectiveSequence>> objectives;
     std::vector<std::string> objective_names;
     std::vector<std::variant<Constraint, ConstraintSequence>> constraints;

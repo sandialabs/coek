@@ -1,5 +1,4 @@
 // #define _GLIBCXX_USE_CxX11_ABI 0
-#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
@@ -260,27 +259,22 @@ void GurobiSolver::collect_results(Model& model, std::shared_ptr<SolverResults>&
 
 std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
 {
-    auto results = std::make_shared<SolverResults>();
-    results->solver_name = "gurobi";
-    results->termination_condition = TerminationCondition::error;
-    results->tic();
-
+    pre_solve();
     auto _model = model.repn.get();
-
-    env = new GRBEnv(true);
-    auto it = integer_options().find("OutputFlag");
-    if (it != integer_options().end())
-        env->set(GRB_IntParam_OutputFlag, it->second);
-    env->start();
-    gmodel = new GRBModel(*env);
-
-    assert(_model->objectives.size() == 1);
+    results->model_name = _model->name;
 
     // Add Gurobi variables
+    size_t nv = 0;
     for (auto& var : _model->variables) {
         if (not var.fixed()) {
             x[var.id()] = add_gurobi_variable(gmodel, var.lower(), var.upper(), var);
+            nv++;
         }
+    }
+    if (nv == 0) {
+        results->termination_condition = TerminationCondition::empty_model;
+        post_solve();
+        return results;
     }
 
     gmodel->update();
@@ -298,12 +292,14 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
     catch (GRBException e) {
         results->error_message
             = "Gurobi Error: Caught gurobi exception while creating objectives " + e.getMessage();
+        post_solve();
         return results;
     }
     if (nobj > 1) {
         // TODO - is this an error?
         results->termination_condition = TerminationCondition::invalid_model_for_solver;
         results->error_message = "Error initializing Gurobi: More than one objective defined!";
+        post_solve();
         return results;
     }
 
@@ -317,6 +313,7 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
     catch (GRBException e) {
         results->error_message
             = "Gurobi Error: Caught gurobi exception while creating constraints " + e.getMessage();
+        post_solve();
         return results;
     }
 
@@ -327,36 +324,51 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
     catch (GRBException e) {
         results->error_message
             = "Gurobi Error: Caught gurobi exception while optimizing " + e.getMessage();
+        post_solve();
         return results;
     }
 
     collect_results(model, results);
 
+    post_solve();
+    return results;
+}
+
+void GurobiSolver::pre_solve()
+{
+    results = std::make_shared<SolverResults>();
+    results->solver_name = "gurobi";
+    results->termination_condition = TerminationCondition::error;
+    results->tic();
+
+    if (initial_solve()) {
+        env = new GRBEnv(true);
+        auto it = integer_options().find("OutputFlag");
+        if (it != integer_options().end())
+            env->set(GRB_IntParam_OutputFlag, it->second);
+        env->start();
+        gmodel = new GRBModel(*env);
+    }
+}
+
+void GurobiSolver::post_solve()
+{
     delete gmodel;
     gmodel = 0;
     delete env;
     env = 0;
 
     results->toc();
-    return results;
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
 std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
 {
-    auto results = std::make_shared<SolverResults>();
-    results->solver_name = "gurobi";
-    results->termination_condition = TerminationCondition::error;
-    results->tic();
-
-    env = new GRBEnv(true);
-    auto it = integer_options().find("OutputFlag");
-    if (it != integer_options().end())
-        env->set(GRB_IntParam_OutputFlag, it->second);
-    env->start();
-    gmodel = new GRBModel(*env);
+    pre_solve();
+    results->model_name = compact_model.name();
 
     // Add Gurobi variables
+    size_t nv = 0;
     for (auto& val : compact_model.repn->variables) {
         if (auto eval = std::get_if<Variable>(&val)) {
             Expression lb = eval->lower_expression().expand();
@@ -364,13 +376,20 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
             Expression ub = eval->upper_expression().expand();
             auto ub_ = ub.value();
             x[eval->id()] = add_gurobi_variable(gmodel, lb_, ub_, *eval);
+            nv++;
         }
         else {
             auto& seq = std::get<VariableSequence>(val);
             for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
                 x[jt->id()] = add_gurobi_variable(gmodel, jt->lower(), jt->upper(), *jt);
+                nv++;
             }
         }
+    }
+    if (nv == 0) {
+        results->termination_condition = TerminationCondition::empty_model;
+        post_solve();
+        return results;
     }
 
     gmodel->update();
@@ -399,12 +418,14 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
     catch (GRBException e) {
         results->error_message
             = "Gurobi Error: Caught gurobi exception while creating objectives " + e.getMessage();
+        post_solve();
         return results;
     }
     if (nobj > 1) {
         // TODO - is this an error?
         results->termination_condition = TerminationCondition::invalid_model_for_solver;
         results->error_message = "Error initializing Gurobi: More than one objective defined!";
+        post_solve();
         return results;
     }
 
@@ -427,6 +448,7 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
     catch (GRBException e) {
         results->error_message
             = "Gurobi Error: Caught gurobi exception while creating constraints " + e.getMessage();
+        post_solve();
         return results;
     }
 
@@ -437,29 +459,23 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
     catch (GRBException e) {
         results->error_message
             = "Gurobi Error: Caught gurobi exception while optimizing " + e.getMessage();
+        post_solve();
         return results;
     }
 
     collect_results(model, results);
 
-    delete gmodel;
-    gmodel = 0;
-    delete env;
-    env = 0;
-
-    results->toc();
+    post_solve();
     return results;
 }
 #endif
 
 std::shared_ptr<SolverResults> GurobiSolver::resolve()
 {
-    auto results = std::make_shared<SolverResults>();
-    results->solver_name = "gurobi";
-    results->termination_condition = TerminationCondition::error;
-    results->tic();
+    pre_solve();
 
     auto _model = model.repn.get();
+    results->model_name = _model->name;
 
     if (initial_solve()) {
         env = new GRBEnv(true);
@@ -468,8 +484,6 @@ std::shared_ptr<SolverResults> GurobiSolver::resolve()
             env->set(GRB_IntParam_OutputFlag, it->second);
         env->start();
         gmodel = new GRBModel(*env);
-
-        assert(_model->objectives.size() == 1);
 
         // Add Gurobi variables
         for (auto& var : _model->variables) {

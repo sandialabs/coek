@@ -1,7 +1,6 @@
 #pragma once
 
 #include "gurobi_c++.h"
-// #include "coek/solvers/solver.hpp"
 #include "coek/solvers/solver_repn.hpp"
 
 namespace coek {
@@ -11,6 +10,7 @@ class GurobiSolver : public SolverRepn {
     GRBEnv* env;
     GRBModel* gmodel;
     std::unordered_map<int, GRBVar> x;
+    std::shared_ptr<SolverResults> results;
 
    public:
     GurobiSolver() : SolverRepn() {}
@@ -27,6 +27,8 @@ class GurobiSolver : public SolverRepn {
 
    protected:
     void collect_results(Model& model, std::shared_ptr<SolverResults>& results);
+    void pre_solve();
+    void post_solve();
 };
 
 }  // namespace coek

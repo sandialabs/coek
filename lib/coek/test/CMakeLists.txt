@@ -33,6 +33,10 @@ SET(sources
     smoke/test_util_sequence.cpp
     mt_funcs.cpp
     solver/test_examples.cpp
+    solver/test_examples.cpp
+    solver/test_gurobi.cpp
+    solver/test_highs.cpp
+    solver/TestModels.cpp
    )
 
 if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)

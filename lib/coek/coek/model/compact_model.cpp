@@ -31,6 +31,10 @@ CompactModel::CompactModel(const CompactModel& other) { repn = other.repn; }
 
 CompactModel::~CompactModel() {}
 
+std::string CompactModel::name() const { return repn->name; }
+
+void CompactModel::name(const std::string& name) { repn->name = name; }
+
 Variable CompactModel::add_variable()
 {
     Variable tmp;

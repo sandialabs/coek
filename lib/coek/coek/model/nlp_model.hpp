@@ -57,6 +57,11 @@ class NLPModel : public OptionCache {
      */
     void reset();
 
+    /** Get the name of the model */
+    std::string name() const;
+    /** Set the name of the model */
+    void name(const std::string& name);
+
     /** \returns the number of variables in the model */
     size_t num_variables() const;
     /** \returns the number of objectives in the model */
