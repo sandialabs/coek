@@ -9,7 +9,7 @@
 // Highs Checks
 //
 
-TEST_CASE("highs_checks", "[solver][highs]")
+TEST_CASE("highs_checks", "[solvers][highs]")
 {
     coek::Solver solver("highs");
     solver.set_option("output_flag", false);
@@ -32,11 +32,35 @@ TEST_CASE("highs_checks", "[solver][highs]")
             auto res = solver.solve(m);
             REQUIRE(test->check_results(m, res) == true);
         }
-        SECTION("lp_bounds")
+        SECTION("simpleqp1")
         {
-            auto test = test::model("lp_bounds");
+            auto test = test::model("simpleqp1");
             auto m = test->model;
-            REQUIRE(m.name() == "lp_bounds");
+            REQUIRE(m.name() == "simpleqp1");
+            auto res = solver.solve(m);
+            REQUIRE(test->check_results(m, res) == true);
+        }
+        SECTION("simpleqp2")
+        {
+            auto test = test::model("simpleqp2");
+            auto m = test->model;
+            REQUIRE(m.name() == "simpleqp2");
+            auto res = solver.solve(m);
+            REQUIRE(test->check_results(m, res) == true);
+        }
+        SECTION("lp_bounds1")
+        {
+            auto test = test::model("lp_bounds1");
+            auto m = test->model;
+            REQUIRE(m.name() == "lp_bounds1");
+            auto res = solver.solve(m);
+            REQUIRE(test->check_results(m, res) == true);
+        }
+        SECTION("lp_bounds2")
+        {
+            auto test = test::model("lp_bounds2");
+            auto m = test->model;
+            REQUIRE(m.name() == "lp_bounds2");
             auto res = solver.solve(m);
             REQUIRE(test->check_results(m, res) == true);
         }
@@ -46,8 +70,7 @@ TEST_CASE("highs_checks", "[solver][highs]")
             auto m = test->model;
             REQUIRE(m.name() == "qp_bounds");
             auto res = solver.solve(m);
-            REQUIRE(test->check_results(m, res)
-                    == false);  // Expected failure (Our HIGHS interface doesn't yet support QIPs)
+            REQUIRE(test->check_results(m, res) == true);
         }
     }
     else {

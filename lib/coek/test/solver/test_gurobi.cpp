@@ -11,7 +11,7 @@
 // Gurobi Checks
 //
 
-TEST_CASE("gurobi_checks", "[solver][gurobi]")
+TEST_CASE("gurobi_checks", "[solvers][gurobi]")
 {
     coek::Solver solver("gurobi");
     solver.set_option("OutputFlag", 0);
@@ -25,7 +25,6 @@ TEST_CASE("gurobi_checks", "[solver][gurobi]")
             auto res = solver.solve(m);
             REQUIRE(res->termination_condition == coek::TerminationCondition::empty_model);
         }
-
         SECTION("simplelp1")
         {
             auto test = test::model("simplelp1");
@@ -34,11 +33,35 @@ TEST_CASE("gurobi_checks", "[solver][gurobi]")
             auto res = solver.solve(m);
             REQUIRE(test->check_results(m, res) == true);
         }
-        SECTION("lp_bounds")
+        SECTION("simpleqp1")
         {
-            auto test = test::model("lp_bounds");
+            auto test = test::model("simpleqp1");
             auto m = test->model;
-            REQUIRE(m.name() == "lp_bounds");
+            REQUIRE(m.name() == "simpleqp1");
+            auto res = solver.solve(m);
+            REQUIRE(test->check_results(m, res) == true);
+        }
+        SECTION("simpleqp2")
+        {
+            auto test = test::model("simpleqp2");
+            auto m = test->model;
+            REQUIRE(m.name() == "simpleqp2");
+            auto res = solver.solve(m);
+            REQUIRE(test->check_results(m, res) == true);
+        }
+        SECTION("lp_bounds1")
+        {
+            auto test = test::model("lp_bounds1");
+            auto m = test->model;
+            REQUIRE(m.name() == "lp_bounds1");
+            auto res = solver.solve(m);
+            REQUIRE(test->check_results(m, res) == true);
+        }
+        SECTION("lp_bounds2")
+        {
+            auto test = test::model("lp_bounds2");
+            auto m = test->model;
+            REQUIRE(m.name() == "lp_bounds2");
             auto res = solver.solve(m);
             REQUIRE(test->check_results(m, res) == true);
         }

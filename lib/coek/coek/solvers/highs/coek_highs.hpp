@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "Highs.h"
 #include "coek/solvers/solver_repn.hpp"
 
@@ -10,6 +11,7 @@ class HighsSolver : public SolverRepn {
     Highs highs;
     HighsModel hmodel;
     HighsStatus return_status;
+    std::shared_ptr<SolverResults> results;
     std::unordered_map<size_t, size_t> x;
 
    public:
@@ -26,6 +28,8 @@ class HighsSolver : public SolverRepn {
 
    protected:
     void collect_results(Model& model, std::shared_ptr<SolverResults>& results);
+    void pre_solve();
+    void post_solve();
 };
 
 }  // namespace coek
