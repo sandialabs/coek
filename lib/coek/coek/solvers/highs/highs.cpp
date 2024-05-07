@@ -83,18 +83,18 @@ void add_objective(HighsModel& model, Expression& expr, bool sense,
             for (auto& it : value) {
                 auto [i, j] = it.first;
                 if (j != prev) {
-                    hessian.start_.push_back(hessian.index_.size());
+                    hessian.start_.push_back(static_cast<HighsInt>(hessian.index_.size()));
                     prev = j;
                 }
-                hessian.index_.push_back(i);
+                hessian.index_.push_back(static_cast<HighsInt>(i));
                 if (i == j)
                     hessian.value_.push_back(2 * it.second);
                 else
                     hessian.value_.push_back(it.second);
             }
             // hessian.dim_ = hessian.index_.size();
-            hessian.dim_ = model.lp_.col_lower_.size();
-            hessian.start_.push_back(hessian.index_.size());
+            hessian.dim_ = static_cast<HighsInt>(model.lp_.col_lower_.size());
+            hessian.start_.push_back(static_cast<HighsInt>(hessian.index_.size()));
             hessian.format_ = HessianFormat::kTriangular;
         }
     }
@@ -118,7 +118,7 @@ void add_constraint(HighsModel& model, Constraint& con, std::unordered_map<size_
         return;
 
     if (model.lp_.a_matrix_.start_.size() == 1) {
-        model.lp_.a_matrix_.start_.push_back(repn.linear_coefs.size());
+        model.lp_.a_matrix_.start_.push_back(static_cast<HighsInt>(repn.linear_coefs.size()));
     }
     else {
         HighsInt tmp = model.lp_.a_matrix_.start_.back();
@@ -233,8 +233,8 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
         return results;
     }
 
-    hmodel.lp_.num_col_ = hmodel.lp_.col_cost_.size();
-    hmodel.lp_.num_row_ = hmodel.lp_.row_lower_.size();
+    hmodel.lp_.num_col_ = static_cast<HighsInt>(hmodel.lp_.col_cost_.size());
+    hmodel.lp_.num_row_ = static_cast<HighsInt>(hmodel.lp_.row_lower_.size());
 
 #if 0
     std::cout << "Ncol: " << hmodel.lp_.num_col_ << std::endl;

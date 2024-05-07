@@ -9,7 +9,7 @@ class GurobiSolver : public SolverRepn {
    public:
     GRBEnv* env;
     GRBModel* gmodel;
-    std::unordered_map<int, GRBVar> x;
+    std::unordered_map<size_t, GRBVar> x;
     std::shared_ptr<SolverResults> results;
 
    public:

@@ -44,7 +44,7 @@ auto add_gurobi_variable(GRBModel* gmodel, double lb, double ub, const Variable&
 }
 
 void add_gurobi_objective(GRBModel* gmodel, Expression& expr, bool sense,
-                          std::unordered_map<int, GRBVar>& x, coek::QuadraticExpr& orepn)
+                          std::unordered_map<size_t, GRBVar>& x, coek::QuadraticExpr& orepn)
 {
     orepn.reset();
     orepn.collect_terms(expr);
@@ -74,7 +74,7 @@ void add_gurobi_objective(GRBModel* gmodel, Expression& expr, bool sense,
         gmodel->set(GRB_IntAttr_ModelSense, GRB_MAXIMIZE);
 }
 
-void add_gurobi_constraint(GRBModel* gmodel, Constraint& con, std::unordered_map<int, GRBVar>& x,
+void add_gurobi_constraint(GRBModel* gmodel, Constraint& con, std::unordered_map<size_t, GRBVar>& x,
                            coek::QuadraticExpr& repn)
 {
     repn.reset();
@@ -455,23 +455,25 @@ std::shared_ptr<SolverResults> GurobiSolver::resolve()
     }
 
     else {
-        for (auto it = updated_coefs.begin(); it != updated_coefs.end(); ++it) {
-            size_t i = std::get<0>(*it);
-            size_t where = std::get<1>(*it);
-            size_t j = std::get<2>(*it);
+        for (auto& it : updated_coefs) {
+            auto [i, where, j] = it;
 
             switch (where) {
                 case 0:  // Constant Value
-                    if (i > 0)
-                        gmodel->getConstr(i - 1).set(GRB_DoubleAttr_RHS, -repn[i].constval->eval());
+                    if (i > 0) {
+                        int prev = static_cast<int>(i) - 1;
+                        gmodel->getConstr(prev).set(GRB_DoubleAttr_RHS, -repn[i].constval->eval());
+                    }
                     else
                         gmodel->set(GRB_DoubleAttr_ObjCon, repn[0].constval->eval());
                     break;
 
                 case 1:  // Linear Coef
-                    if (i > 0)
-                        gmodel->chgCoeff(gmodel->getConstr(i - 1), x[repn[i].linear_vars[j]->index],
+                    if (i > 0) {
+                        int prev = static_cast<int>(i) - 1;
+                        gmodel->chgCoeff(gmodel->getConstr(prev), x[repn[i].linear_vars[j]->index],
                                          repn[i].linear_coefs[j]->eval());
+                    }
                     else
                         x[repn[0].linear_vars[j]->index].set(GRB_DoubleAttr_Obj,
                                                              repn[0].linear_coefs[j]->eval());
