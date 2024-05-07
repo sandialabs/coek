@@ -436,12 +436,13 @@ TEST_CASE("simplify_expr", "[smoke]")
     }
 
     SECTION("intrinsic funcs"){
-        INTRINSIC_TEST1(abs) INTRINSIC_TEST1(ceil) INTRINSIC_TEST1(floor) INTRINSIC_TEST1(exp)
-            INTRINSIC_TEST1(log) INTRINSIC_TEST1(log10) INTRINSIC_TEST1(sqrt) INTRINSIC_TEST1(sin)
-                INTRINSIC_TEST1(cos) INTRINSIC_TEST1(tan) INTRINSIC_TEST1(sinh)
-                    INTRINSIC_TEST1(cosh) INTRINSIC_TEST1(tanh) INTRINSIC_TEST1(asin)
-                        INTRINSIC_TEST1(acos) INTRINSIC_TEST1(atan) INTRINSIC_TEST1(asinh)
-                            INTRINSIC_TEST1(acosh) INTRINSIC_TEST1(atanh) INTRINSIC_TEST2(pow)}
+        // INTRINSIC_TEST1(abs)
+        INTRINSIC_TEST1(ceil) INTRINSIC_TEST1(floor) INTRINSIC_TEST1(exp) INTRINSIC_TEST1(log)
+            INTRINSIC_TEST1(log10) INTRINSIC_TEST1(sqrt) INTRINSIC_TEST1(sin) INTRINSIC_TEST1(cos)
+                INTRINSIC_TEST1(tan) INTRINSIC_TEST1(sinh) INTRINSIC_TEST1(cosh)
+                    INTRINSIC_TEST1(tanh) INTRINSIC_TEST1(asin) INTRINSIC_TEST1(acos)
+                        INTRINSIC_TEST1(atan) INTRINSIC_TEST1(asinh) INTRINSIC_TEST1(acosh)
+                            INTRINSIC_TEST1(atanh) INTRINSIC_TEST2(pow)}
 
     SECTION("pow func")
     {

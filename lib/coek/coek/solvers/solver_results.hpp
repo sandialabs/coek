@@ -149,6 +149,7 @@ class SolverResultsBase {
 class SolverResults : public SolverResultsBase, public Solution {};
 
 class MOSolverResults : public SolverResultsBase {
+   public:
     SolutionStatus solution_status = SolutionStatus::no_solution;
     std::vector<double> objective_value;
 };

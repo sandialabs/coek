@@ -123,7 +123,7 @@ class ParameterMap : public ParameterAssocArray {
 
    public:
     explicit ParameterMap(const ConcreteSet& arg);
-    ~ParameterMap() {}
+    virtual ~ParameterMap() {}
 
     /** Set the initial parameter value. \returns the parameter object. */
     ParameterMap& value(double value);

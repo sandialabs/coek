@@ -93,9 +93,9 @@ TEST_CASE("ipopt_examples", "[solvers][ipopt]")
 {
     INFO("TEST_CASE ipopt_examples");
 
-// TODO - use SKIP after upgrading to Catch2 v3
-#if defined(WITH_ASL) | defined(WITH_CPPAD)
+    // TODO - use SKIP after upgrading to Catch2 v3
     auto adname = GENERATE(values(adnames));
+#if defined(WITH_ASL) | defined(WITH_CPPAD)
     CAPTURE(adname);
 
     coek::NLPSolver solver("ipopt");

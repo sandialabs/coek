@@ -30,6 +30,8 @@ class VariableMapRepn : public VariableAssocArrayRepn {
         cache.resize((size() + 1) * (dim() + 1));
     }
 
+    virtual ~VariableMapRepn() {}
+
     void setup();
 
     // TODO - evaluate whether it is reasonable to use const_cast here

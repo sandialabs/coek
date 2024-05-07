@@ -31,6 +31,8 @@ class IndexedComponentRepn_multiarray : public IndexedComponentRepn<TYPE> {
         this->cache.resize((_size + 1) * (_shape.size() + 1));
     }
 
+    virtual ~IndexedComponentRepn_multiarray() {}
+
     bool valid_index(const IndexVector& args)
     {
         for (size_t i = 0; i < this->_dim; ++i) {
@@ -88,6 +90,8 @@ class IndexedComponentRepn_setindex : public IndexedComponentRepn<TYPE> {
         this->cache.resize((this->dim() + 1) * (_arg.size() + 1));
         this->tmp.resize(this->dim());
     }
+
+    virtual ~IndexedComponentRepn_setindex() {}
 
     bool valid_index(const IndexVector& args)
     {

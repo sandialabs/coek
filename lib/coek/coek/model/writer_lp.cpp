@@ -19,8 +19,8 @@
 
 #include "../ast/value_terms.hpp"
 #include "../ast/visitor_fns.hpp"
-#include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek/api/expression_visitor.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/model/model.hpp"

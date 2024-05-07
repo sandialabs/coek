@@ -10,7 +10,6 @@
 #include "coek/ast/value_terms.hpp"
 #include "coek/coek.hpp"
 
-const double PI = 3.141592653589793238463;
 const double E = exp(1.0);
 
 TEST_CASE("elementary_param", "[smoke]")

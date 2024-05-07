@@ -928,7 +928,7 @@ TEST_CASE("put_DP_param", "[smoke]")
     SECTION("error1")
     {
         auto dp = coek::DataPortal();
-        int data;
+        int data = 0;
         dp.put("unknown", data);
         REQUIRE(dp.put("A", data) == true);
     }

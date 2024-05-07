@@ -55,6 +55,7 @@ bool TestModel::check_results(coek::Model& model, std::shared_ptr<coek::SolverRe
 class EmptyModel : public TestModel {
    public:
     EmptyModel() { model.name("empty"); }
+    virtual ~EmptyModel() {}
 };
 
 class Rosenbrock : public TestModel {
@@ -71,6 +72,7 @@ class Rosenbrock : public TestModel {
 
         model.add_objective(100 * pow(x1 - pow(x0, 2), 2) + pow(x0 - 1, 2));
     }
+    virtual ~Rosenbrock() {}
 };
 
 class SimpleLP1 : public TestModel {
@@ -90,6 +92,7 @@ class SimpleLP1 : public TestModel {
         m.add_constraint(2 * x + 3 * y <= 1500);
         m.add_constraint(2 * x + y <= 1000);
     }
+    virtual ~SimpleLP1() {}
 };
 
 class SimpleQP1 : public TestModel {
@@ -109,6 +112,7 @@ class SimpleQP1 : public TestModel {
         m.add_constraint(2 * x + 3 * y >= 1500);
         m.add_constraint(2 * x + y >= 1000);
     }
+    virtual ~SimpleQP1() {}
 };
 
 class SimpleQP2 : public TestModel {
@@ -128,6 +132,7 @@ class SimpleQP2 : public TestModel {
         m.add_constraint(2 * x + 3 * y >= 1500);
         m.add_constraint(2 * x + y >= 1000);
     }
+    virtual ~SimpleQP2() {}
 };
 
 class LP_bounds1 : public TestModel {
@@ -164,6 +169,7 @@ class LP_bounds1 : public TestModel {
         model.add(e == 1);
         model.add(ee - 1 == 0);
     }
+    virtual ~LP_bounds1() {}
 };
 
 class LP_bounds2 : public TestModel {
@@ -203,6 +209,7 @@ class LP_bounds2 : public TestModel {
         model.add(e + x == 1);
         model.add(ee + x - 1 == 0);
     }
+    virtual ~LP_bounds2() {}
 };
 
 class QP_bounds : public TestModel {
@@ -240,6 +247,7 @@ class QP_bounds : public TestModel {
         model.add(e == 1);
         model.add(ee - 1 == 0);
     }
+    virtual ~QP_bounds() {}
 };
 
 std::shared_ptr<TestModel> model(const std::string& name)

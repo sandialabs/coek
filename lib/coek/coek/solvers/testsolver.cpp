@@ -1,8 +1,8 @@
 #include <cassert>
 #include <iostream>
 
-#include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/model/compact_model.hpp"
 #include "coek/model/model.hpp"

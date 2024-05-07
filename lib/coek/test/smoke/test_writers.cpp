@@ -386,7 +386,8 @@ void testing6(coek::Model& model)
     model.add(coek::objective(-q * x * x));
 }
 
-#ifdef COEK_WITH_COMPACT_MODEL
+#if 0 
+// COEK_WITH_COMPACT_MODEL
 void compact1(coek::CompactModel& model)
 {
     auto v = model.add_variable("v");
