@@ -365,7 +365,7 @@ void GurobiSolver::post_solve()
 std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
 {
     pre_solve();
-    results->model_name = compact_model.name;
+    results->model_name = compact_model.name();
 
     // Add Gurobi variables
     size_t nv = 0;

@@ -259,7 +259,7 @@ void visit_expression(const expr_pointer_t& expr, std::list<std::string>& repr)
         VISIT_CASE(ParameterTerm);
         VISIT_CASE(IndexParameterTerm);
         VISIT_CASE(VariableTerm);
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(VariableRefTerm);
         VISIT_CASE(ParameterRefTerm);
 #endif
