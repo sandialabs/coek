@@ -1,4 +1,3 @@
-#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
@@ -140,7 +139,6 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
     results->tic();
 
     auto _coek_model = coek_model.repn.get();
-    assert(_coek_model->objectives.size() == 1);
 
     hmodel.clear();
 
@@ -359,8 +357,6 @@ std::shared_ptr<SolverResults> HighsSolver::resolve()
             env->set(GRB_IntParam_OutputFlag, it->second);
         env->start();
         gmodel = new GRBModel(*env);
-
-        assert(_model->objectives.size() == 1);
 
         // Add variables
         for (auto& var : _model->variables) {

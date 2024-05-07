@@ -5,6 +5,7 @@ SET(sources
     util/index_vector.cpp
     util/option_cache.cpp
     util/tictoc.cpp
+    util/string_utils.cpp
     ast/base_terms.cpp
     ast/constraint_terms.cpp
     ast/value_terms.cpp

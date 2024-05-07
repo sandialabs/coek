@@ -4,9 +4,8 @@
 #include "catch2/catch_test_macros.hpp"
 #include "catch2/catch_approx.hpp"
 #include "catch2/generators/catch_generators.hpp"
-#include "coek/ast/base_terms.hpp"
+
 #include "coek/coek.hpp"
-#include "coek/solvers/solver_results.hpp"
 
 //
 // EXAMPLES
@@ -90,7 +89,7 @@ std::initializer_list<const char*> adnames{
 };
 }  // namespace
 
-TEST_CASE("ipopt_examples", "[smoke]")
+TEST_CASE("ipopt_examples", "[solver][ipopt]")
 {
     INFO("TEST_CASE ipopt_examples");
 
@@ -303,14 +302,15 @@ TEST_CASE("ipopt_examples", "[smoke]")
 #endif
 }
 
-TEST_CASE("gurobi_examples", "[smoke]")
+TEST_CASE("gurobi_examples", "[solver][gurobi]")
 {
     coek::Solver solver("gurobi");
+    solver.set_option("OutputFlag", 0);
+
     if (solver.available()) {
         SECTION("simplelp1")
         {
             auto m = simplelp1();
-            solver.set_option("OutputFlag", 0);
             auto res = solver.solve(m);
             REQUIRE(coek::check_optimal_termination(res));
 
@@ -329,16 +329,16 @@ TEST_CASE("gurobi_examples", "[smoke]")
     }
 }
 
-TEST_CASE("highs_examples", "[smoke]")
+TEST_CASE("highs_examples", "[solver][highs]")
 {
     coek::Solver solver("highs");
+    solver.set_option("output_flag", false);
+
     if (solver.available()) {
         SECTION("simplelp1")
         {
             auto m = simplelp1();
-            solver.set_option("output_flag", false);
             auto res = solver.solve(m);
-            // std::cout << res << std::endl;
             REQUIRE(coek::check_optimal_termination(res));
 
             REQUIRE(res->objective_value == Catch::Approx(28750.0));

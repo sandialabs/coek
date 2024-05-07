@@ -113,6 +113,9 @@ class SolverResultsBase {
     TicTocTimer timer;
 
    public:
+    // The name of the model
+    std::string model_name;
+
     // The name of the solver
     std::string solver_name;
 
@@ -188,7 +191,7 @@ inline bool check_optimal_termination(const std::shared_ptr<MultiSolSolverResult
 
 std::string to_string(TerminationCondition tc);
 std::string to_string(SolutionStatus ss);
-std::string to_string(const SolverResults& res);
+std::string to_string(const SolverResults& res, unsigned int indent = 0);
 
 }  // namespace coek
 
