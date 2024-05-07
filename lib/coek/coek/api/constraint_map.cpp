@@ -1,3 +1,4 @@
+#include "coek/api/expression.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL
 #    include "coek/api/constraint.hpp"
 #    include "coek/api/objective.hpp"

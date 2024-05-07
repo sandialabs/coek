@@ -20,6 +20,9 @@ class TestModel {
 
     coek::Model model;
 
+   public:
+    virtual ~TestModel() {}
+
     virtual bool check_results(coek::Model& model, std::shared_ptr<coek::SolverResults>& results);
 };
 

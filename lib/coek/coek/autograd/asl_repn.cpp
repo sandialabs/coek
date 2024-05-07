@@ -104,8 +104,8 @@ void ASL_Repn::get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jc
     size_t curr_nz = 0;
     for (size_t i : coek::range(nc)) {
         for (cgrad* cg = Cgrad[i]; cg; cg = cg->next) {
-            jrow[cg->goff] = i;
-            jcol[cg->goff] = cg->varno;
+            jrow[static_cast<size_t>(cg->goff)] = i;
+            jcol[static_cast<size_t>(cg->goff)] = static_cast<size_t>(cg->varno);
             curr_nz++;
         }
     }
@@ -122,9 +122,10 @@ void ASL_Repn::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hc
     hcol.resize(nnz_lag_h);
     size_t curr_nz = 0;
     for (size_t i : coek::range(nx)) {
-        for (size_t j = sputinfo->hcolstarts[i]; j < sputinfo->hcolstarts[i + 1]; j++) {
+        for (size_t j = static_cast<size_t>(sputinfo->hcolstarts[i]);
+             j < static_cast<size_t>(sputinfo->hcolstarts[i + 1]); j++) {
             hrow[curr_nz] = i;
-            hcol[curr_nz] = sputinfo->hrownos[j];
+            hcol[curr_nz] = static_cast<size_t>(sputinfo->hrownos[j]);
             curr_nz++;
         }
     }
@@ -209,7 +210,7 @@ void ASL_Repn::compute_dc(std::vector<double>& dc, size_t i)
     assert(dc.size() == nx);
 
     ASL_pfgh* asl = asl_;
-    congrd(i, &(currx[0]), &(dc[0]), (fint*)nerror_);
+    congrd(static_cast<int>(i), &(currx[0]), &(dc[0]), (fint*)nerror_);
     nerror_ok = check_asl_status(nerror_);
     if (not nerror_ok) {
         for (size_t j : coek::indices(dc))

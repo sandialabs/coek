@@ -39,6 +39,8 @@ class VariableArrayRepn : public VariableAssocArrayRepn {
         cache.resize((size() + 1) * (dim() + 1));
     }
 
+    virtual ~VariableArrayRepn() {}
+
     size_t dim() const { return shape.size(); }
 
     size_t size() const { return _size; }

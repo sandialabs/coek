@@ -49,9 +49,9 @@ class ModelRepn {
     std::map<std::string, Constraint> constraints_by_name;
     std::map<std::string, Variable> variables_by_name;
 
-    std::map<std::string, std::unordered_map<unsigned int, double>> vsuffix;
-    std::map<std::string, std::unordered_map<unsigned int, double>> csuffix;
-    std::map<std::string, std::unordered_map<unsigned int, double>> osuffix;
+    std::map<std::string, std::unordered_map<size_t, double>> vsuffix;
+    std::map<std::string, std::unordered_map<size_t, double>> csuffix;
+    std::map<std::string, std::unordered_map<size_t, double>> osuffix;
     std::map<std::string, double> msuffix;
 
     Model::NameGeneration name_generation_policy = Model::NameGeneration::simple;

@@ -140,7 +140,7 @@ class ParameterArray : public ParameterAssocArray {
     ParameterArray(size_t n);
     ParameterArray(const std::vector<size_t>& shape);
     ParameterArray(const std::initializer_list<size_t>& shape);
-    ~ParameterArray() {}
+    virtual ~ParameterArray() {}
 
     /** Set the initial parameter value. \returns the parameter object. */
     ParameterArray& value(double value);

@@ -25,6 +25,9 @@ class NLPModel : public OptionCache {
      */
     NLPModel(Model& model, std::string type);
 
+    /** Destructor */
+    virtual ~NLPModel() {}
+
     /** Initialize the NLP model view.
      *
      * This method sets up the NLP model representation for a

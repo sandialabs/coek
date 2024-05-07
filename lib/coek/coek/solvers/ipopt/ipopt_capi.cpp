@@ -2,8 +2,8 @@
 #include <memory>
 
 #include "IpStdCInterfaceTypes.h"
-#include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/autograd/autograd.hpp"
 #include "coek/model/model_repn.hpp"
@@ -570,6 +570,8 @@ class IpoptSolverRepn_CAPI : public IpoptSolverRepn {
     std::shared_ptr<IpoptModel> nlp;
 
     IpoptSolverRepn_CAPI(NLPModel& nlpmodel) { nlp = std::make_shared<IpoptModel>(nlpmodel); }
+
+    virtual ~IpoptSolverRepn_CAPI() {}
 
     std::shared_ptr<SolverResults> perform_solve() { return nlp->perform_solve(); }
 

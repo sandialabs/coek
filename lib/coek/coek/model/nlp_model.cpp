@@ -1,4 +1,5 @@
 #include "coek/model/nlp_model.hpp"
+#include "coek/api/expression.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/autograd/autograd.hpp"

@@ -27,6 +27,8 @@ class ConstraintMap : public IndexedComponent_Map<Constraint> {
     explicit ConstraintMap(ConcreteSet& arg) : IndexedComponent_Map<Constraint>(arg) {}
 #endif
 
+    virtual ~ConstraintMap() {}
+
     const std::string& name() const { return repn->_name; }
 
     ConstraintMap& name(const std::string& str)

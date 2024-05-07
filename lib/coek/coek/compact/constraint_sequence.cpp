@@ -1,7 +1,7 @@
 #include "constraint_sequence.hpp"
 
-#include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek_sets.hpp"
 #include "sequence_context.hpp"
 #include "visitor_exprtemplate.hpp"
