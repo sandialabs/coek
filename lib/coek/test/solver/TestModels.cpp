@@ -18,14 +18,6 @@ bool TestModel::check_results(coek::Model& model, std::shared_ptr<coek::SolverRe
         return false;
     }
 
-    if (std::fabs(results->objective_value - optimal_objective) > 1e-7) {
-        std::cout << fmt::format("TEST ERROR: Unexpected objective values ({} != {})",
-                                 results->objective_value, optimal_objective)
-                  << std::endl;
-        std::cout << to_string(*results, 4) << std::endl;
-        return false;
-    }
-
     std::vector<double> primal;
     for (auto& v : model.get_variables())
         primal.push_back(v.value());
@@ -47,6 +39,14 @@ bool TestModel::check_results(coek::Model& model, std::shared_ptr<coek::SolverRe
             std::cout << to_string(*results, 4) << std::endl;
             return false;
         }
+    }
+
+    if (std::fabs(results->objective_value - optimal_objective) > 1e-7) {
+        std::cout << fmt::format("TEST ERROR: Unexpected objective values ({} != {})",
+                                 results->objective_value, optimal_objective)
+                  << std::endl;
+        std::cout << to_string(*results, 4) << std::endl;
+        return false;
     }
 
     return true;
@@ -92,15 +92,53 @@ class SimpleLP1 : public TestModel {
     }
 };
 
-class LP_bounds : public TestModel {
+class SimpleQP1 : public TestModel {
    public:
-    LP_bounds()
+    SimpleQP1()
+    {
+        primal_solution = {375, 250};
+        optimal_objective = 9531250;
+
+        // Model
+        model.name("simpleqp1");
+        auto& m = model;
+        auto x = m.add(coek::variable("x").bounds(0, m.inf));
+        auto y = m.add(coek::variable("y").bounds(0, m.inf));
+
+        m.add_objective(50 * x * x + 40 * y * y);
+        m.add_constraint(2 * x + 3 * y >= 1500);
+        m.add_constraint(2 * x + y >= 1000);
+    }
+};
+
+class SimpleQP2 : public TestModel {
+   public:
+    SimpleQP2()
+    {
+        primal_solution = {375, 250};
+        optimal_objective = 2875000;
+
+        // Model
+        model.name("simpleqp2");
+        auto& m = model;
+        auto x = m.add(coek::variable("x").bounds(0, m.inf));
+        auto y = m.add(coek::variable("y").bounds(0, m.inf));
+
+        m.add_objective(10 * x * x + 5 * x * y + 4 * y * x + 10 * y * y);
+        m.add_constraint(2 * x + 3 * y >= 1500);
+        m.add_constraint(2 * x + y >= 1000);
+    }
+};
+
+class LP_bounds1 : public TestModel {
+   public:
+    LP_bounds1()
     {
         primal_solution = {1, -1, 1, -1, 1, 1, -1, 1, -1, 1};
         optimal_objective = 10.0;
 
         // Model
-        model.name("lp_bounds");
+        model.name("lp_bounds1");
         auto a = model.add_variable().value(2.0);
         auto b = model.add_variable().value(-2.0);
         auto c = model.add_variable().value(2.0);
@@ -125,6 +163,45 @@ class LP_bounds : public TestModel {
         model.add(inequality(-2, dd + 1, 0));
         model.add(e == 1);
         model.add(ee - 1 == 0);
+    }
+};
+
+class LP_bounds2 : public TestModel {
+   public:
+    LP_bounds2()
+    {
+        primal_solution = {0, -2, 0, -2, 0, 0, -2, 0, -2, 0, 1};
+        optimal_objective = 8.0;
+
+        // Model
+        model.name("lp_bounds2");
+        auto a = model.add_variable().value(2.0);
+        auto b = model.add_variable().value(-2.0);
+        auto c = model.add_variable().value(2.0);
+        auto d = model.add_variable().value(-2.0);
+        auto e = model.add_variable().value(2.0);
+
+        auto aa = model.add_variable().value(2.0);
+        auto bb = model.add_variable().value(-2.0);
+        auto cc = model.add_variable().value(2.0);
+        auto dd = model.add_variable().value(-2.0);
+        auto ee = model.add_variable().value(2.0);
+
+        auto x = model.add_variable().value(1.0);
+        x.fix();
+
+        model.add_objective(a - b + c - d + e + aa - bb + cc - dd + ee);
+
+        model.add(a + x >= 1);
+        model.add(b + x <= -1);
+        model.add(aa + x - 1 >= 0);
+        model.add(bb + x + 1 <= 0);
+        model.add(inequality(1, c + x, 3));
+        model.add(inequality(-3, d + x, -1));
+        model.add(inequality(0, cc + x - 1, 2));
+        model.add(inequality(-2, dd + x + 1, 0));
+        model.add(e + x == 1);
+        model.add(ee + x - 1 == 0);
     }
 };
 
@@ -171,10 +248,16 @@ std::shared_ptr<TestModel> model(const std::string& name)
         return std::make_shared<Rosenbrock>();
     if (name == "simplelp1")
         return std::make_shared<SimpleLP1>();
+    if (name == "simpleqp1")
+        return std::make_shared<SimpleQP1>();
+    if (name == "simpleqp2")
+        return std::make_shared<SimpleQP2>();
     if (name == "qp_bounds")
         return std::make_shared<QP_bounds>();
-    if (name == "lp_bounds")
-        return std::make_shared<LP_bounds>();
+    if (name == "lp_bounds1")
+        return std::make_shared<LP_bounds1>();
+    if (name == "lp_bounds2")
+        return std::make_shared<LP_bounds2>();
 
     return std::make_shared<EmptyModel>();
 }

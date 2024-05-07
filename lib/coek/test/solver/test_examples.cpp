@@ -89,7 +89,7 @@ std::initializer_list<const char*> adnames{
 };
 }  // namespace
 
-TEST_CASE("ipopt_examples", "[solver][ipopt]")
+TEST_CASE("ipopt_examples", "[solvers][ipopt]")
 {
     INFO("TEST_CASE ipopt_examples");
 
@@ -302,7 +302,7 @@ TEST_CASE("ipopt_examples", "[solver][ipopt]")
 #endif
 }
 
-TEST_CASE("gurobi_examples", "[solver][gurobi]")
+TEST_CASE("gurobi_examples", "[solvers][gurobi]")
 {
     coek::Solver solver("gurobi");
     solver.set_option("OutputFlag", 0);
@@ -329,7 +329,7 @@ TEST_CASE("gurobi_examples", "[solver][gurobi]")
     }
 }
 
-TEST_CASE("highs_examples", "[solver][highs]")
+TEST_CASE("highs_examples", "[solvers][highs]")
 {
     coek::Solver solver("highs");
     solver.set_option("output_flag", false);

@@ -12,6 +12,7 @@
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
 #include "coek/util/io_utils.hpp"
+#include "coek/util/sequence.hpp"
 
 #include "coek_highs.hpp"
 
@@ -52,26 +53,50 @@ void add_objective(HighsModel& model, Expression& expr, bool sense,
     orepn.collect_terms(expr);
     model.lp_.col_cost_.resize(x.size());
 
-    if (orepn.linear_coefs.size() + orepn.quadratic_coefs.size() > 0) {
+    model.lp_.offset_ = orepn.constval;
+
+    if (orepn.linear_coefs.size()) {
         auto it = orepn.linear_coefs.begin();
         for (auto& var : orepn.linear_vars) {
             model.lp_.col_cost_[x[var->index]] = *it;
             ++it;
         }
-        model.lp_.offset_ = orepn.constval;
+    }
 
-#if 0
-        if (orepn.quadratic_coefs.size() == 0)
-            gmodel->setObjective(term1);
-        else {
-            GRBQuadExpr quadexpr;
-            for (size_t i = 0; i < orepn.quadratic_coefs.size(); i++)
-                quadexpr.addTerm(orepn.quadratic_coefs[i], x[orepn.quadratic_lvars[i]->index],
-                                 x[orepn.quadratic_rvars[i]->index]);
-            quadexpr.add(term1);
-            gmodel->setObjective(quadexpr);
+    if (orepn.quadratic_coefs.size() > 0) {
+        std::map<std::tuple<size_t, size_t>, double> value;
+        bool nz = false;
+
+        for (size_t i : indices(orepn.quadratic_coefs)) {
+            auto& lvar = orepn.quadratic_lvars[i];
+            auto& rvar = orepn.quadratic_rvars[i];
+            nz = true;
+            if (x[rvar->index] >= x[lvar->index])
+                value[{x[rvar->index], x[lvar->index]}] += orepn.quadratic_coefs[i];
+            else
+                value[{x[lvar->index], x[rvar->index]}] += orepn.quadratic_coefs[i];
         }
-#endif
+
+        if (nz) {
+            HighsHessian& hessian = model.hessian_;
+            size_t prev = 0;
+            for (auto& it : value) {
+                auto [i, j] = it.first;
+                if (j != prev) {
+                    hessian.start_.push_back(hessian.index_.size());
+                    prev = j;
+                }
+                hessian.index_.push_back(i);
+                if (i == j)
+                    hessian.value_.push_back(2 * it.second);
+                else
+                    hessian.value_.push_back(it.second);
+            }
+            // hessian.dim_ = hessian.index_.size();
+            hessian.dim_ = model.lp_.col_lower_.size();
+            hessian.start_.push_back(hessian.index_.size());
+            hessian.format_ = HessianFormat::kTriangular;
+        }
     }
 
     if (sense)
@@ -131,13 +156,31 @@ void add_constraint(HighsModel& model, Constraint& con, std::unordered_map<size_
 
 }  // namespace
 
-std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
+void HighsSolver::set_solver_options()
 {
-    auto results = std::make_shared<SolverResults>();
+    for (auto& it : string_options())
+        highs.setOptionValue(it.first, it.second);
+    for (auto& it : boolean_options())
+        highs.setOptionValue(it.first, it.second);
+    for (auto& it : integer_options())
+        highs.setOptionValue(it.first, it.second);
+    for (auto& it : double_options())
+        highs.setOptionValue(it.first, it.second);
+}
+
+void HighsSolver::pre_solve()
+{
+    results = std::make_shared<SolverResults>();
     results->solver_name = "highs";
     results->termination_condition = TerminationCondition::error;
     results->tic();
+}
 
+void HighsSolver::post_solve() { results->toc(); }
+
+std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
+{
+    pre_solve();
     auto _coek_model = coek_model.repn.get();
 
     hmodel.clear();
@@ -164,12 +207,14 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
     catch (const std::exception& e) {
         results->error_message = "Highs Error: Caught highs exception while creating objectives "
                                  + std::string(e.what());
+        post_solve();
         return results;
     }
     if (nobj > 1) {
         // TODO - is this an error?
         results->termination_condition = TerminationCondition::invalid_model_for_solver;
         results->error_message = "Error initializing Highs: More than one objective defined!";
+        results->toc();
         return results;
     }
 
@@ -184,6 +229,7 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
     catch (const std::exception& e) {
         results->error_message
             = "Highs Error: Caught exception while creating constraints " + std::string(e.what());
+        results->toc();
         return results;
     }
 
@@ -204,12 +250,17 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
     std::cout << "Start: " << hmodel.lp_.a_matrix_.start_ << std::endl;
     std::cout << "Index: " << hmodel.lp_.a_matrix_.index_ << std::endl;
     std::cout << "Value: " << hmodel.lp_.a_matrix_.value_ << std::endl;
+    std::cout << "Hessian Dim:   " << hmodel.hessian_.dim_ << std::endl;
+    std::cout << "Hessian Start: " << hmodel.hessian_.start_ << std::endl;
+    std::cout << "Hessian Row:   " << hmodel.hessian_.index_ << std::endl;
+    std::cout << "Hessian Value: " << hmodel.hessian_.value_ << std::endl;
 #endif
 
     set_solver_options();
     return_status = highs.passModel(hmodel);
     if (return_status != HighsStatus::kOk) {
         results->error_message = "Highs Error: Error initializing model";
+        results->toc();
         return results;
     }
 
@@ -219,12 +270,13 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
     catch (const std::exception& e) {
         results->error_message
             = "Highs Error: Caught highs exception while optimizing " + std::string(e.what());
+        results->toc();
         return results;
     }
 
     collect_results(coek_model, results);
 
-    results->toc();
+    post_solve();
     return results;
 }
 
@@ -282,12 +334,14 @@ std::shared_ptr<SolverResults> HighsSolver::solve(CompactModel& compact_model)
     catch (const std::exception& e) {
         results->error_message = "Highs Error: Caught highs exception while creating objectives "
                                  + std::string(e.what());
+        results->toc();
         return results;
     }
     if (nobj > 1) {
         // TODO - is this an error?
         results->termination_condition = TerminationCondition::invalid_model_for_solver;
         results->error_message = "Error initializing Highs: More than one objective defined!";
+        results->toc();
         return results;
     }
 
@@ -311,16 +365,18 @@ std::shared_ptr<SolverResults> HighsSolver::solve(CompactModel& compact_model)
     catch (const std::exception& e) {
         results->error_message
             = "Highs Error: Caught exception while creating constraints " + std::string(e.what());
+        results->toc();
         return results;
     }
 
-    hmodel.lp_.num_col_ = hmodel.lp_.col_cost_.size();
-    hmodel.lp_.num_row_ = hmodel.lp_.row_lower_.size();
+    hmodel.lp_.num_col_ = static_cast<HighsInt>(hmodel.lp_.col_cost_.size());
+    hmodel.lp_.num_row_ = static_cast<HighsInt>(hmodel.lp_.row_lower_.size());
 
     set_solver_options();
     return_status = highs.passModel(hmodel);
     if (return_status != HighsStatus::kOk) {
         results->error_message = "Highs Error: Error initializing model";
+        results->toc();
         return results;
     }
 
@@ -330,12 +386,13 @@ std::shared_ptr<SolverResults> HighsSolver::solve(CompactModel& compact_model)
     catch (const std::exception& e) {
         results->error_message
             = "Highs Error: Caught highs exception while optimizing " + std::string(e.what());
+        results->toc();
         return results;
     }
 
     collect_results(model, results);
 
-    results->toc();
+    post_solve();
     return results;
 }
 #endif
@@ -402,12 +459,14 @@ std::shared_ptr<SolverResults> HighsSolver::resolve()
             results->error_message
                 = "Highs Error: Caught highs exception while creating objectives "
                   + std::string(e.what());
+            results->toc();
             return results;
         }
         if (nobj > 1) {
             // TODO - is this an error?
             results->termination_condition = TerminationCondition::invalid_model_for_solver;
             results->error_message = "Error initializing Highs: More than one objective defined!";
+            results->toc();
             return results;
         }
 
@@ -422,6 +481,7 @@ std::shared_ptr<SolverResults> HighsSolver::resolve()
             results->error_message
                 = "Highs Error: Caught highs exception while creating constraints "
                   + std::string(e.what());
+            results->toc();
             return results;
         }
 
@@ -432,6 +492,7 @@ std::shared_ptr<SolverResults> HighsSolver::resolve()
         catch (const std::exception& e) {
             results->error_message
                 = "Highs Error: Caught highs exception while optimizing " + std::string(e.what());
+            results->toc();
             return results;
         }
     }
@@ -466,6 +527,7 @@ std::shared_ptr<SolverResults> HighsSolver::resolve()
                     results->termination_condition = TerminationCondition::invalid_model_for_solver;
                     results->error_message
                         = "Error initializing Highs: Cannot optimize models with nonlinear terms.";
+                    results->toc();
                     return results;
                     break;
             };
@@ -477,6 +539,7 @@ std::shared_ptr<SolverResults> HighsSolver::resolve()
         catch (const std::exception& e) {
             results->error_message
                 = "Highs Error: Caught highs exception while optimizing " + std::string(e.what());
+            results->toc();
             return results;
         }
     }
@@ -485,20 +548,8 @@ std::shared_ptr<SolverResults> HighsSolver::resolve()
     collect_results(model, results);
 
 #endif
-    results->toc();
+    post_solve();
     return results;
-}
-
-void HighsSolver::set_solver_options()
-{
-    for (auto& it : string_options())
-        highs.setOptionValue(it.first, it.second);
-    for (auto& it : boolean_options())
-        highs.setOptionValue(it.first, it.second);
-    for (auto& it : integer_options())
-        highs.setOptionValue(it.first, it.second);
-    for (auto& it : double_options())
-        highs.setOptionValue(it.first, it.second);
 }
 
 void HighsSolver::collect_results(Model& model, std::shared_ptr<SolverResults>& results)

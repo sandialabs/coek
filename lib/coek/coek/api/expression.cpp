@@ -224,6 +224,12 @@ Variable& Variable::fix(double value)
     return *this;
 }
 
+Variable& Variable::fix()
+{
+    repn->fixed = true;
+    return *this;
+}
+
 Variable& Variable::fixed(bool _flag)
 {
     repn->fixed = _flag;

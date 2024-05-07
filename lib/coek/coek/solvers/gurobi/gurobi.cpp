@@ -47,8 +47,8 @@ void add_gurobi_objective(GRBModel* gmodel, Expression& expr, bool sense,
                           std::unordered_map<int, GRBVar>& x, coek::QuadraticExpr& orepn)
 {
     orepn.reset();
-    // coek::QuadraticExpr orepn;
     orepn.collect_terms(expr);
+
     if (orepn.linear_coefs.size() + orepn.quadratic_coefs.size() > 0) {
         GRBLinExpr term1;
         auto iv = orepn.linear_vars.begin();
@@ -135,126 +135,44 @@ GurobiSolver::~GurobiSolver()
         delete env;
 }
 
-void GurobiSolver::collect_results(Model& model, std::shared_ptr<SolverResults>& results)
+void GurobiSolver::set_gurobi_options()
 {
-    try {
-        int status = gmodel->get(GRB_IntAttr_Status);
-        if (status == GRB_OPTIMAL) {
-            results->termination_condition = TerminationCondition::convergence_criteria_satisfied;
-            results->solution_status = SolutionStatus::optimal;
-            results->objective_value = gmodel->getObjective().getValue();
-            try {
-                double value = gmodel->get(GRB_DoubleAttr_ObjBound);
-                results->objective_bound = value;
-            }
-            catch (GRBException) {
-            }
-            if (not results->objective_bound.has_value()) {
-                try {
-                    double value = gmodel->get(GRB_DoubleAttr_ObjBoundC);
-                    results->objective_bound = value;
-                }
-                catch (GRBException) {
-                }
-            }
+    // All options are converted to strings for Gurobi
+    for (auto& it : string_options())
+        gmodel->set(it.first, it.second);
+    for (auto& it : boolean_options())
+        gmodel->set(it.first, std::to_string(it.second));
+    for (auto& it : integer_options())
+        gmodel->set(it.first, std::to_string(it.second));
+    for (auto& it : double_options())
+        gmodel->set(it.first, std::to_string(it.second));
+}
 
-            // Collect values of Gurobi variables
-            for (auto& var : model.repn->variables) {
-                std::shared_ptr<coek::VariableTerm>& v = var.repn;
-                if (not v->fixed) {
-                    v->set_value(x[v->index].get(GRB_DoubleAttr_X));
-                }
-            }
-        }
-        else if (status == GRB_SUBOPTIMAL) {
-            results->termination_condition = TerminationCondition::other_termination_limit;
-            results->solution_status = SolutionStatus::feasible;
-            results->objective_value = gmodel->getObjective().getValue();
-            try {
-                double value = gmodel->get(GRB_DoubleAttr_ObjBound);
-                results->objective_bound = value;
-            }
-            catch (GRBException) {
-            }
-            if (not results->objective_bound.has_value()) {
-                try {
-                    double value = gmodel->get(GRB_DoubleAttr_ObjBoundC);
-                    results->objective_bound = value;
-                }
-                catch (GRBException) {
-                }
-            }
-            results->error_message
-                = "Unable to satisfy optimality tolerances; a sub-optimal solution is available";
+void GurobiSolver::pre_solve()
+{
+    results = std::make_shared<SolverResults>();
+    results->solver_name = "gurobi";
+    results->termination_condition = TerminationCondition::error;
+    results->tic();
 
-            // Collect values of Gurobi variables
-            for (auto& var : model.repn->variables) {
-                std::shared_ptr<coek::VariableTerm>& v = var.repn;
-                if (not v->fixed) {
-                    v->set_value(x[v->index].get(GRB_DoubleAttr_X));
-                }
-            }
-        }
-        else if (status == GRB_INFEASIBLE) {
-            results->termination_condition = TerminationCondition::proven_infeasible;
-            results->solution_status = SolutionStatus::infeasible;
-        }
-        else if (status == GRB_UNBOUNDED) {
-            results->termination_condition = TerminationCondition::unbounded;
-        }
-        else if (status == GRB_ITERATION_LIMIT) {
-            results->termination_condition = TerminationCondition::iteration_limit;
-        }
-        else if (status == GRB_TIME_LIMIT) {
-            results->termination_condition = TerminationCondition::time_limit;
-        }
-        else if (status == GRB_INTERRUPTED) {
-            results->termination_condition = TerminationCondition::interrupted;
-        }
-        else if (status == GRB_USER_OBJ_LIMIT) {
-            results->termination_condition = TerminationCondition::objective_limit;
-        }
-        else if (status == GRB_WORK_LIMIT) {
-            results->termination_condition = TerminationCondition::other_termination_limit;
-            results->error_message
-                = "Gurobi terminated because the work expended exceeded the value specified in the "
-                  "WorkLimit parameter.";
-        }
-        else if (status == GRB_MEM_LIMIT) {
-            results->termination_condition = TerminationCondition::other_termination_limit;
-            results->error_message
-                = "Gurobi terminated because the total amount of allocated memory exceeded the "
-                  "value specified in the SoftMemLimit parameter.";
-        }
-        else if (status == GRB_NODE_LIMIT) {
-            results->termination_condition = TerminationCondition::other_termination_limit;
-            results->error_message
-                = "Gurobi terminated because the total number of branch-and-cut nodes explored "
-                  "exceeded the value specified in the NodeLimit parameter.";
-        }
-        else if (status == GRB_SOLUTION_LIMIT) {
-            results->termination_condition = TerminationCondition::other_termination_limit;
-            results->error_message
-                = "Gurobi terminated because the number of solutions found reached the value "
-                  "specified in the SolutionLimit parameter.";
-        }
-        else if (status == GRB_CUTOFF) {
-            results->termination_condition = TerminationCondition::other_termination_limit;
-            results->error_message
-                = "Gurobi terminated because optimal objective for model was proven to be worse "
-                  "than the value specified in the Cutoff parameter.";
-        }
-        else if (status == GRB_NUMERIC) {
-            results->termination_condition = TerminationCondition::unknown;
-            results->error_message
-                = "Gurobi Error: Optimization was terminated due to unrecoverable numerical "
-                  "difficulties.";
-        }
+    if (initial_solve()) {
+        env = new GRBEnv(true);
+        auto it = integer_options().find("OutputFlag");
+        if (it != integer_options().end())
+            env->set(GRB_IntParam_OutputFlag, it->second);
+        env->start();
+        gmodel = new GRBModel(*env);
     }
-    catch (GRBException e) {
-        results->termination_condition = TerminationCondition::unknown;
-        results->error_message = "GUROBI Exception: (results) " + e.getMessage();
-    }
+}
+
+void GurobiSolver::post_solve()
+{
+    delete gmodel;
+    gmodel = 0;
+    delete env;
+    env = 0;
+
+    results->toc();
 }
 
 std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
@@ -332,33 +250,6 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
 
     post_solve();
     return results;
-}
-
-void GurobiSolver::pre_solve()
-{
-    results = std::make_shared<SolverResults>();
-    results->solver_name = "gurobi";
-    results->termination_condition = TerminationCondition::error;
-    results->tic();
-
-    if (initial_solve()) {
-        env = new GRBEnv(true);
-        auto it = integer_options().find("OutputFlag");
-        if (it != integer_options().end())
-            env->set(GRB_IntParam_OutputFlag, it->second);
-        env->start();
-        gmodel = new GRBModel(*env);
-    }
-}
-
-void GurobiSolver::post_solve()
-{
-    delete gmodel;
-    gmodel = 0;
-    delete env;
-    env = 0;
-
-    results->toc();
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -615,17 +506,126 @@ std::shared_ptr<SolverResults> GurobiSolver::resolve()
     return results;
 }
 
-void GurobiSolver::set_gurobi_options()
+void GurobiSolver::collect_results(Model& model, std::shared_ptr<SolverResults>& results)
 {
-    // All options are converted to strings for Gurobi
-    for (auto& it : string_options())
-        gmodel->set(it.first, it.second);
-    for (auto& it : boolean_options())
-        gmodel->set(it.first, std::to_string(it.second));
-    for (auto& it : integer_options())
-        gmodel->set(it.first, std::to_string(it.second));
-    for (auto& it : double_options())
-        gmodel->set(it.first, std::to_string(it.second));
+    try {
+        int status = gmodel->get(GRB_IntAttr_Status);
+        if (status == GRB_OPTIMAL) {
+            results->termination_condition = TerminationCondition::convergence_criteria_satisfied;
+            results->solution_status = SolutionStatus::optimal;
+            results->objective_value = gmodel->getObjective().getValue();
+            try {
+                double value = gmodel->get(GRB_DoubleAttr_ObjBound);
+                results->objective_bound = value;
+            }
+            catch (GRBException) {
+            }
+            if (not results->objective_bound.has_value()) {
+                try {
+                    double value = gmodel->get(GRB_DoubleAttr_ObjBoundC);
+                    results->objective_bound = value;
+                }
+                catch (GRBException) {
+                }
+            }
+
+            // Collect values of Gurobi variables
+            for (auto& var : model.repn->variables) {
+                std::shared_ptr<coek::VariableTerm>& v = var.repn;
+                if (not v->fixed) {
+                    v->set_value(x[v->index].get(GRB_DoubleAttr_X));
+                }
+            }
+        }
+        else if (status == GRB_SUBOPTIMAL) {
+            results->termination_condition = TerminationCondition::other_termination_limit;
+            results->solution_status = SolutionStatus::feasible;
+            results->objective_value = gmodel->getObjective().getValue();
+            try {
+                double value = gmodel->get(GRB_DoubleAttr_ObjBound);
+                results->objective_bound = value;
+            }
+            catch (GRBException) {
+            }
+            if (not results->objective_bound.has_value()) {
+                try {
+                    double value = gmodel->get(GRB_DoubleAttr_ObjBoundC);
+                    results->objective_bound = value;
+                }
+                catch (GRBException) {
+                }
+            }
+            results->error_message
+                = "Unable to satisfy optimality tolerances; a sub-optimal solution is available";
+
+            // Collect values of Gurobi variables
+            for (auto& var : model.repn->variables) {
+                std::shared_ptr<coek::VariableTerm>& v = var.repn;
+                if (not v->fixed) {
+                    v->set_value(x[v->index].get(GRB_DoubleAttr_X));
+                }
+            }
+        }
+        else if (status == GRB_INFEASIBLE) {
+            results->termination_condition = TerminationCondition::proven_infeasible;
+            results->solution_status = SolutionStatus::infeasible;
+        }
+        else if (status == GRB_UNBOUNDED) {
+            results->termination_condition = TerminationCondition::unbounded;
+        }
+        else if (status == GRB_ITERATION_LIMIT) {
+            results->termination_condition = TerminationCondition::iteration_limit;
+        }
+        else if (status == GRB_TIME_LIMIT) {
+            results->termination_condition = TerminationCondition::time_limit;
+        }
+        else if (status == GRB_INTERRUPTED) {
+            results->termination_condition = TerminationCondition::interrupted;
+        }
+        else if (status == GRB_USER_OBJ_LIMIT) {
+            results->termination_condition = TerminationCondition::objective_limit;
+        }
+        else if (status == GRB_WORK_LIMIT) {
+            results->termination_condition = TerminationCondition::other_termination_limit;
+            results->error_message
+                = "Gurobi terminated because the work expended exceeded the value specified in the "
+                  "WorkLimit parameter.";
+        }
+        else if (status == GRB_MEM_LIMIT) {
+            results->termination_condition = TerminationCondition::other_termination_limit;
+            results->error_message
+                = "Gurobi terminated because the total amount of allocated memory exceeded the "
+                  "value specified in the SoftMemLimit parameter.";
+        }
+        else if (status == GRB_NODE_LIMIT) {
+            results->termination_condition = TerminationCondition::other_termination_limit;
+            results->error_message
+                = "Gurobi terminated because the total number of branch-and-cut nodes explored "
+                  "exceeded the value specified in the NodeLimit parameter.";
+        }
+        else if (status == GRB_SOLUTION_LIMIT) {
+            results->termination_condition = TerminationCondition::other_termination_limit;
+            results->error_message
+                = "Gurobi terminated because the number of solutions found reached the value "
+                  "specified in the SolutionLimit parameter.";
+        }
+        else if (status == GRB_CUTOFF) {
+            results->termination_condition = TerminationCondition::other_termination_limit;
+            results->error_message
+                = "Gurobi terminated because optimal objective for model was proven to be worse "
+                  "than the value specified in the Cutoff parameter.";
+        }
+        else if (status == GRB_NUMERIC) {
+            results->termination_condition = TerminationCondition::unknown;
+            results->error_message
+                = "Gurobi Error: Optimization was terminated due to unrecoverable numerical "
+                  "difficulties.";
+        }
+    }
+    catch (GRBException e) {
+        results->termination_condition = TerminationCondition::unknown;
+        results->error_message = "GUROBI Exception: (results) " + e.getMessage();
+    }
 }
 
 }  // namespace coek
