@@ -45,9 +45,6 @@ def compare(source_dir, test_type):
                 continue
             created = os.path.getctime(running_fname)
             with open(running_fname, "r") as f:
-                print(running_fname)
-                print(f.read())
-                f.seek(0)
                 reader = csv.DictReader(f)
                 for row in reader:
                     row.pop("build_number", 0)

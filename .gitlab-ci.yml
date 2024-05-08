@@ -63,8 +63,6 @@ performance-tests:
     - source /root/.profile
     - echo $CI_COMMIT_SHA
     - echo $CI_COMMIT_TITLE
-    - tree /coek_performance_results/
-    - cat /coek_performance_results/dev-public/build_number.txt
     - cd build
     - make coek_solve0
     - make coek_writer
