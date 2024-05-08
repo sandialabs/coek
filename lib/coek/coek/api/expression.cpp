@@ -16,11 +16,11 @@ expr_pointer_t convert_expr_template(const expr_pointer_t& expr);
 // Parameter
 //
 
-Parameter::Parameter() { repn = CREATE_POINTER(ParameterTerm); }
+Parameter::Parameter() { repn = std::make_shared<ParameterTerm>(); }
 
 Parameter::Parameter(const std::string& name)
 {
-    repn = CREATE_POINTER(ParameterTerm);
+    repn = std::make_shared<ParameterTerm>();
     repn->name = name;
 }
 

@@ -4,8 +4,8 @@
 #include <unordered_map>
 
 #include "../../ast/value_terms.hpp"
-#include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/compact/constraint_sequence.hpp"
 #include "coek/compact/expression_sequence.hpp"

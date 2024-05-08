@@ -328,7 +328,7 @@ TEST_CASE("1D_param_array", "[smoke]")
             for (size_t i = 0; i < 4; i++)
                 params(i).value(q + (int)i);  // TODO - generalize API to include unsigned ints
             for (size_t i = 0; i < 4; i++)
-                REQUIRE(params(i).value() == 2 + i);
+                REQUIRE(params(i).value() == 2 + (int)i);
         }
         WHEN("value all - q")
         {
