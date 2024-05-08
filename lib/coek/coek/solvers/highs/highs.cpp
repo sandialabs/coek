@@ -188,8 +188,10 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
     // Add variables
     bool continuous = true;
     for (auto& var : _coek_model->variables) {
-        if (not var.fixed())
-            continuous = continuous and add_variable(hmodel, x, var.lower(), var.upper(), var);
+        if (not var.fixed()) {
+            auto tmp = add_variable(hmodel, x, var.lower(), var.upper(), var);
+            continuous = continuous and tmp;
+        }
     }
     if (continuous)
         hmodel.lp_.integrality_.resize(0);
@@ -233,10 +235,10 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
         return results;
     }
 
-    hmodel.lp_.num_col_ = static_cast<HighsInt>(hmodel.lp_.col_cost_.size());
+    hmodel.lp_.num_col_ = static_cast<HighsInt>(x.size());
     hmodel.lp_.num_row_ = static_cast<HighsInt>(hmodel.lp_.row_lower_.size());
 
-#if 0
+#if 1
     std::cout << "Ncol: " << hmodel.lp_.num_col_ << std::endl;
     std::cout << "Nrow: " << hmodel.lp_.num_row_ << std::endl;
     std::cout << "ColCost: " << hmodel.lp_.col_cost_ << std::endl;
@@ -259,7 +261,7 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
     set_solver_options();
     return_status = highs.passModel(hmodel);
     if (return_status != HighsStatus::kOk) {
-        results->error_message = "Highs Error: Error initializing model";
+        results->error_message = "Highs Error: Error passing model";
         results->toc();
         return results;
     }
@@ -296,13 +298,15 @@ std::shared_ptr<SolverResults> HighsSolver::solve(CompactModel& compact_model)
             auto lb_ = lb.value();
             Expression ub = eval->upper_expression().expand();
             auto ub_ = ub.value();
-            continuous = continuous and add_variable(hmodel, x, lb_, ub_, *eval);
+            auto tmp = add_variable(hmodel, x, lb_, ub_, *eval);
+            continuous = continuous and tmp;
             model.add(*eval);
         }
         else {
             auto& seq = std::get<VariableSequence>(val);
             for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
-                continuous = continuous and add_variable(hmodel, x, jt->lower(), jt->upper(), *jt);
+                auto tmp = add_variable(hmodel, x, jt->lower(), jt->upper(), *jt);
+                continuous = continuous and tmp;
                 model.add(*jt);
             }
         }
