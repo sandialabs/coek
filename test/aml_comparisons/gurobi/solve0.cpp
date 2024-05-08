@@ -46,28 +46,21 @@ int main(int argc, char* argv[])
         }
     }
 
-    GRBEnv env;
-    GRBModel model(env);
     try {
+        GRBEnv env;
+        GRBModel model(env);
         create_instance(model, model_name, data);
-    }
-    catch (std::exception& e) {
-        std::cout << "ERROR - " << e.what() << std::endl;
-        return 1;
-    }
-
-    try {
         model.set(GRB_IntParam_OutputFlag, debug);
         model.set(GRB_DoubleParam_TimeLimit, 0.0);
         model.optimize();
     }
     catch (std::exception& e) {
         std::cout << "ERROR - " << e.what() << std::endl;
-        return 2;
+        return 1;
     }
     catch (GRBException& e) {
         std::cout << "ERROR - " << e.getMessage() << std::endl;
-        return 3;
+        return 2;
     }
 
     return 0;
