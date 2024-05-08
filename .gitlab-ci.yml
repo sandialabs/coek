@@ -86,12 +86,6 @@ performance-tests:
     - python ../scripts/to_csv.py --dirname /coek_performance_results/${BRANCH_NAME} --branch_name ${BRANCH_NAME} --ci_commit_sha ${CI_COMMIT_SHA} --ci_commit_title ${CI_COMMIT_TITLE_MOD}
     - python ../scripts/compare.py --artifact_dir=/coek_performance_results --branch_name=${BRANCH_NAME}
     - tar -czvf perf_archive.tgz /coek_performance_results
-  cache:
-    key: perf-cache
-    paths:
-      - /coek_performance_results/*/*/*.csv
-      - /coek_performance_results/*/*/*.json
-      - /coek_performance_results/*/*.txt
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "dev-public" && $CI_PIPELINE_SOURCE == "push"
