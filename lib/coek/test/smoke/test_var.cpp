@@ -376,7 +376,7 @@ TEST_CASE("1D_var_array", "[smoke]")
             for (size_t i = 0; i < 4; i++)
                 vars(i).value(q + (int)i);  // TODO - generalize API to include unsigned ints
             for (size_t i = 0; i < 4; i++)
-                REQUIRE(vars(i).value() == 2 + i);
+                REQUIRE(vars(i).value() == 2 + (int)i);
         }
 
         WHEN("value all - q")

@@ -73,7 +73,7 @@ TEST_CASE("indexed_subexpression", "[smoke]")
             v.generate_names();
             auto e = coek::subexpression("e", 10);
             for (size_t i = 0; i < 10; ++i) {
-                e(i) = v(i) + 1.0 * i;
+                e(i) = v(i) + static_cast<double>(i);
             }
 
             static std::list<std::string> baseline
@@ -174,7 +174,7 @@ TEST_CASE("indexed_subexpression", "[smoke]")
             auto v = coek::variable({10, 10});
             auto e = coek::subexpression("e", {10, 10});
             for (size_t i = 0; i < 10; ++i) {
-                e(i, i) = v(i, i) + 1.0 * i;
+                e(i, i) = v(i, i) + static_cast<double>(i);
             }
             REQUIRE(e.size() == 10);
         }

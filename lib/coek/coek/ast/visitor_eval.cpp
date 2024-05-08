@@ -148,7 +148,7 @@ double visit_DivideTerm(const expr_pointer_t& expr, VariableData& data)
 double visit_IfThenElseTerm(const expr_pointer_t& expr, VariableData& data)
 {
     auto tmp = safe_pointer_cast<IfThenElseTerm>(expr);
-    if (visit_expression(tmp->cond_expr, data))
+    if (visit_expression(tmp->cond_expr, data) > (1.0 - 1e-7))
         return visit_expression(tmp->then_expr, data);
     else
         return visit_expression(tmp->else_expr, data);

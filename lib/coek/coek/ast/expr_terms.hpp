@@ -247,7 +247,10 @@ class IfThenElseTerm : public ExpressionTerm {
     IfThenElseTerm(const expr_pointer_t& _cond, const expr_pointer_t& _then,
                    const expr_pointer_t& _else);
 
-    double _eval() const { return cond_expr->_eval() ? then_expr->_eval() : else_expr->_eval(); }
+    double _eval() const
+    {
+        return cond_expr->_eval() > (1.0 - 1e-7) ? then_expr->_eval() : else_expr->_eval();
+    }
 
     term_id id() { return IfThenElseTerm_id; }
 

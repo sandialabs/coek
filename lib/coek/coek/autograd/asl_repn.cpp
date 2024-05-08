@@ -359,12 +359,12 @@ void ASL_Repn::alloc_asl()
     //
     // allocate space for data read in by pfgh_read()
     //
-    X0 = new real[n_var];
-    LUv = new real[2 * n_var];
-    // Uvx = new real[n_var];
-    LUrhs = new real[n_con];
-    Urhsx = new real[n_con];
-    havex0 = new char[n_var];
+    X0 = new real[static_cast<size_t>(n_var)];
+    LUv = new real[2 * static_cast<size_t>(n_var)];
+    // Uvx = new real[static_cast<size_t>(n_var)];
+    LUrhs = new real[static_cast<size_t>(n_con)];
+    Urhsx = new real[static_cast<size_t>(n_con)];
+    havex0 = new char[static_cast<size_t>(n_var)];
     //
     // Load model expressions
     //
@@ -507,7 +507,7 @@ void ASL_Repn::set_option(const std::string& option, int value)
         remove_nl_file = (value == 1);
 }
 
-void ASL_Repn::set_option(const std::string& option, const std::string value)
+void ASL_Repn::set_option(const std::string& option, const std::string& value)
 {
     if (option == "temp_directory")
         temp_directory = value;

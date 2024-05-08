@@ -8,14 +8,18 @@
 with_python="OFF"
 spack_reinstall=0
 spack_dev=0
+clang=0
 for arg ; do
     case "$arg" in
         --help)
-                    echo "build_dev.sh [--python] [--spack-reinstall] [--spack-dev] [--help]"
+                    echo "build_dev.sh [--python] [--clang] [--spack-reinstall] [--spack-dev] [--help]"
                     exit 
         ;;
         --python)
                     with_python="ON"
+        ;;
+        --clang)
+                    clang=1
         ;;
         --spack-reinstall)
                     spack_reinstall=1
@@ -36,6 +40,11 @@ if [[ -z "${GUROBI_HOME}" ]]; then
     with_gurobi="OFF"
 else
     with_gurobi="ON"
+fi
+
+if [[ $clang -eq 1 ]]; then
+   export CXX=clang++
+   export CC=clang
 fi
 
 if [[ "${spack_reinstall}" -eq 1 ]]; then

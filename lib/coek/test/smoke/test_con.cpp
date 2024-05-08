@@ -1755,7 +1755,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
             v.generate_names();
             auto c = coek::constraint(10);
             for (size_t i = 0; i < 10; ++i) {
-                c(i) = v(i) == 1.0 * i;
+                c(i) = v(i) == static_cast<double>(i);
             }
             m.add(c);
 
@@ -1770,7 +1770,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
             auto v = coek::variable(10);
             auto c = coek::constraint(10);
             for (int i = 0; i < 10; ++i) {
-                c(i) = v(i) == 1.0 * i;
+                c(i) = v(i) == static_cast<double>(i);
             }
             m.add(c);
         }
@@ -1783,7 +1783,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
             auto c = coek::constraint(10);
             for (int i = 0; i < 10; ++i) {
                 p.value(i);
-                c(p) = v(p) == 1.0 * i;
+                c(p) = v(p) == i;
             }
             m.add(c);
         }
@@ -1798,7 +1798,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
             auto c = coek::constraint(10);
             for (int i=0; i<10; ++i) {
                 p.value(i+1);
-                c(p-1) = v(p+1) == 1.0*i;
+                c(p-1) = v(p+1) == i;
                 }
             m.add(c);
             }
@@ -1858,7 +1858,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
             auto v = coek::variable({10, 10});
             auto c = coek::constraint({10, 10});
             for (size_t i = 0; i < 10; ++i) {
-                auto tmp = v(i, i) == 1.0 * i;
+                auto tmp = v(i, i) == static_cast<double>(i);
                 c(i, i) = tmp;
             }
             REQUIRE(c.size() == 10);
@@ -1870,7 +1870,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
             auto v = coek::variable({10, 10, 10});
             auto c = coek::constraint({10, 10, 10});
             for (int i = 0; i < 10; ++i) {
-                auto tmp = v(i, i, i) == 1.0 * i;
+                auto tmp = v(i, i, i) == i;
                 c(i, i, i) = tmp;
             }
             REQUIRE(c.size() == 10);
@@ -1925,7 +1925,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
             auto v = coek::variable(A);
             auto c = coek::constraint(A);
             for (size_t i = 0; i < 10; ++i) {
-                auto tmp = v(i, i) == 1.0 * i;
+                auto tmp = v(i, i) == i;
                 c(i, i) = tmp;
             }
             REQUIRE(c.size() == 10);
@@ -1938,7 +1938,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
             auto v = coek::variable(A);
             auto c = coek::constraint(A);
             for (int i = 0; i < 10; ++i) {
-                auto tmp = v(i, i, i) == 1.0 * i;
+                auto tmp = v(i, i, i) == i;
                 c(i, i, i) = tmp;
             }
             REQUIRE(c.size() == 10);
