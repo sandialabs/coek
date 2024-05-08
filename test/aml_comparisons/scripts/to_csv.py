@@ -63,9 +63,11 @@ def write_csv(source_dir, test_type, increase_build_number):
         s = d["size"]
         t = d["data"]["real"]["mean"]
         gs, gt = gurobi_times[m]
+        print(k, m, s, t, gs, gt)
         assert s == gs
         ratio = t / gt
         row[k] = ratio
+    print(row)
 
     dest_dir = os.path.join(args.dirname, str(build_number))
     if not os.path.exists(dest_dir):
