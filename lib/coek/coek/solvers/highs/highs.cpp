@@ -238,7 +238,7 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
     hmodel.lp_.num_col_ = static_cast<HighsInt>(x.size());
     hmodel.lp_.num_row_ = static_cast<HighsInt>(hmodel.lp_.row_lower_.size());
 
-#if 1
+#if 0
     std::cout << "Ncol: " << hmodel.lp_.num_col_ << std::endl;
     std::cout << "Nrow: " << hmodel.lp_.num_row_ << std::endl;
     std::cout << "ColCost: " << hmodel.lp_.col_cost_ << std::endl;
