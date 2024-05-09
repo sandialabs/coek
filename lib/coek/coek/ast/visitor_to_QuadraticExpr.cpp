@@ -232,7 +232,7 @@ void visit(std::shared_ptr<IfThenElseTerm>& expr, QuadraticExpr& repn, double mu
             "Non-constant expressions in the condition of an if-then-else expression are "
             "non-quadratic.");
 
-    if (cond_repn.constval)
+    if (cond_repn.constval > (1.0 - 1e-7))
         visit_expression(expr->then_expr, repn, multiplier);
     else
         visit_expression(expr->else_expr, repn, multiplier);

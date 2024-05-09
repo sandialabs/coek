@@ -33,6 +33,8 @@ class DefaultProductSetIteratorRepn : public SetIteratorRepnBase<std::vector<set
             initialize();
     }
 
+    virtual ~DefaultProductSetIteratorRepn() {}
+
     void initialize()
     {
         for (auto it = ref->simple_sets.begin(); it != ref->simple_sets.end(); ++it)
@@ -302,6 +304,8 @@ class FiniteProductSetIteratorRepn : public SetIteratorRepnBase<std::vector<set_
         : iterator(_iterator)
     {
     }
+
+    virtual ~FiniteProductSetIteratorRepn() {}
 
     void next() { iterator++; }
 

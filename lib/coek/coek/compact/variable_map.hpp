@@ -126,7 +126,7 @@ class VariableMap : public VariableAssocArray {
    public:
     explicit VariableMap(const ConcreteSet& arg);
     explicit VariableMap(const SequenceContext& arg);
-    ~VariableMap() {}
+    virtual ~VariableMap() {}
 
     /** Set the initial variable value. \returns the variable object. */
     VariableMap& value(double value);

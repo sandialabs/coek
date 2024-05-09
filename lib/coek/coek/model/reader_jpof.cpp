@@ -14,8 +14,8 @@
 #    include <rapidjson/filereadstream.h>
 #endif
 
-#include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek/api/intrinsic_fn.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/model/model.hpp"

@@ -2,8 +2,8 @@
 #include <memory>
 
 #include "IpStdCInterfaceTypes.h"
-#include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/autograd/autograd.hpp"
 #include "coek/model/model_repn.hpp"
@@ -571,16 +571,20 @@ class IpoptSolverRepn_CAPI : public IpoptSolverRepn {
 
     IpoptSolverRepn_CAPI(NLPModel& nlpmodel) { nlp = std::make_shared<IpoptModel>(nlpmodel); }
 
+    virtual ~IpoptSolverRepn_CAPI() {}
+
     std::shared_ptr<SolverResults> perform_solve() { return nlp->perform_solve(); }
 
     void set_start_from_last_x(bool flag) { nlp->start_from_last_x = flag; }
 
     void set_options(const std::map<std::string, std::string>& string_options,
+                     const std::map<std::string, bool>& boolean_options,
                      const std::map<std::string, int>& integer_options,
                      const std::map<std::string, double>& double_options);
 };
 
 void IpoptSolverRepn_CAPI::set_options(const std::map<std::string, std::string>& string_options,
+                                       const std::map<std::string, bool>& boolean_options,
                                        const std::map<std::string, int>& integer_options,
                                        const std::map<std::string, double>& double_options)
 {
@@ -588,6 +592,10 @@ void IpoptSolverRepn_CAPI::set_options(const std::map<std::string, std::string>&
         char* tmp1 = const_cast<char*>(it->first.c_str());
         char* tmp2 = const_cast<char*>(it->second.c_str());
         (*AddIpoptStrOption_func_ptr)(nlp->app, tmp1, tmp2);
+    }
+    for (auto it = boolean_options.begin(); it != boolean_options.end(); ++it) {
+        char* tmp1 = const_cast<char*>(it->first.c_str());
+        (*AddIpoptIntOption_func_ptr)(nlp->app, tmp1, it->second);
     }
     for (auto it = integer_options.begin(); it != integer_options.end(); ++it) {
         char* tmp1 = const_cast<char*>(it->first.c_str());

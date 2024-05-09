@@ -154,7 +154,7 @@ class VariableArray : public VariableAssocArray {
     VariableArray(const std::vector<size_t>& shape);
     // VariableArray(const std::vector<int>& shape);
     VariableArray(const std::initializer_list<size_t>& shape);
-    ~VariableArray() {}
+    virtual ~VariableArray() {}
 
     /** Set the initial variable value. \returns the variable object. */
     VariableArray& value(double value);

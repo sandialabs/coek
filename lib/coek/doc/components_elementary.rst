@@ -24,13 +24,6 @@ object is returned.  This supports a concise declaration of variables,
 and it enables the user to directly reference the variable object.
 Further, this enables functional chaining to configure the variable.
 
-.. admonition:: Question
-
-    Should we include an `Model::add_variable()` method that replicates
-    the API of the `coek::variable()` method?  This would be redundant
-    in the API, but it would allow for shorter end-user code.
-
-
 A minimal variable specification may include the name:
 
 .. code:: C++
@@ -105,18 +98,6 @@ The variable object is initialized with the expression object, which is evaluate
 
     Maybe these types (or class instances) should be defined within a
     separate namespace?  Something like 'coek::types::Integers'?
-
-.. note::
-
-    Coek confirms that expressions used to index variables do not
-    contain a variable unless it is fixed.  Thus, the following creates
-    a runtime error:
-
-    .. code:: C++
-
-        auto x = coek::variable(100);
-        auto y = coek::variable();
-        auto v = x(y+3).value();
 
 
 Parameters

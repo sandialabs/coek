@@ -1,6 +1,7 @@
 #include <optional>
 #include <sstream>
 #include <coek/solvers/solver_results.hpp>
+#include <coek/util/string_utils.hpp>
 
 namespace coek {
 
@@ -83,9 +84,11 @@ std::string to_string(SolutionStatus ss)
     }
 }
 
-std::string to_string(const SolverResults& res)
+std::string to_string(const SolverResults& res, unsigned int indent)
 {
     std::stringstream ans;
+
+    ans << "model_name: " << res.model_name << std::endl;
 
     ans << "solver_name: " << res.solver_name << std::endl;
 
@@ -123,7 +126,7 @@ std::string to_string(const SolverResults& res)
     else
         ans << res.system_time << std::endl;
 
-    return ans.str();
+    return indent_string(ans.str(), ' ', indent);
 }
 
 }  // namespace coek

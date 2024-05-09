@@ -295,7 +295,7 @@ void visit_IfThenElseTerm(const expr_pointer_t& expr, VisitorData& data)
     auto tmp = safe_pointer_cast<IfThenElseTerm>(expr);
     visit_expression(tmp->cond_expr, data);
     if (data.is_value) {
-        if (data.last_value)
+        if (data.last_value > (1.0 - 1e-7))
             visit_expression(tmp->then_expr, data);
         else
             visit_expression(tmp->else_expr, data);

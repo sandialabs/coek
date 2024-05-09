@@ -5,6 +5,7 @@
 #include "../ast/expr_terms.hpp"
 #include "../ast/value_terms.hpp"
 #include "../ast/visitor_fns.hpp"
+#include "coek/api/expression.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/model/model.hpp"
@@ -610,6 +611,19 @@ void CppAD_Repn::reset(void)
     set_variables(currx);
 }
 
+bool CppAD_Repn::get_option(const std::string& option, bool& value) const
+{
+    if (option == "sparse_JH") {
+        value = sparse_JH;
+        return true;
+    }
+    else if (option == "simplify_expressions") {
+        value = simplify_expressions;
+        return true;
+    }
+    return false;
+}
+
 bool CppAD_Repn::get_option(const std::string& option, int& value) const
 {
     if (option == "sparse_JH") {
@@ -621,6 +635,14 @@ bool CppAD_Repn::get_option(const std::string& option, int& value) const
         return true;
     }
     return false;
+}
+
+void CppAD_Repn::set_option(const std::string& option, bool value)
+{
+    if (option == "sparse_JH")
+        sparse_JH = value;
+    else if (option == "simplify_expressions")
+        simplify_expressions = value;
 }
 
 void CppAD_Repn::set_option(const std::string& option, int value)

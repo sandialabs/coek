@@ -241,6 +241,8 @@ class Variable {
     Variable& fixed(bool flag);
     /** Set the variable value and declare the variable fixed. \returns the variable object. */
     Variable& fix(double value);
+    /** Set the variable value and declare the variable fixed. \returns the variable object. */
+    Variable& fix();
     /** \returns \c true if the variable is fixed */
     bool fixed() const;
 

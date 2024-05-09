@@ -2,18 +2,23 @@
 
 #include "../ast/value_terms.hpp"
 #include "../ast/visitor_fns.hpp"
-#include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
 #include "coek/model/nlp_model.hpp"
 #include "coek/solvers/solver_repn.hpp"
+/*
 #include "coek/solvers/ipopt/ipopt_solver.hpp"
 #include "testsolver.hpp"
 #ifdef WITH_GUROBI
 #    include "coek/solvers/gurobi/coek_gurobi.hpp"
 #endif
+#ifdef WITH_GUROBI
+#    include "coek/solvers/gurobi/coek_highs.hpp"
+#endif
+*/
 
 namespace coek {
 
@@ -52,6 +57,7 @@ void SolverCache::reset_cache()
     pcache.clear();
 }
 
+/*
 SolverRepn* create_solver(std::string& name, OptionCache& options)
 {
     if (name == "test")
@@ -78,6 +84,7 @@ NLPSolverRepn* create_nlpsolver(std::string& name, OptionCache& options)
 
     return 0;
 }
+*/
 
 std::shared_ptr<SolverResults> NLPSolverRepn::resolve(bool reset_nlpmodel)
 {
@@ -187,7 +194,7 @@ void SolverRepn::load(CompactModel& _model)
     load(model);
 }
 
-int SolverRepn::solve(CompactModel& _model)
+std::shared_ptr<SolverResults> SolverRepn::solve(CompactModel& _model)
 {
     model = _model.expand();
     return solve(model);

@@ -25,6 +25,9 @@ class NLPModel : public OptionCache {
      */
     NLPModel(Model& model, std::string type);
 
+    /** Destructor */
+    virtual ~NLPModel() {}
+
     /** Initialize the NLP model view.
      *
      * This method sets up the NLP model representation for a
@@ -56,6 +59,11 @@ class NLPModel : public OptionCache {
      * is passed to suppress this step.
      */
     void reset();
+
+    /** Get the name of the model */
+    std::string name() const;
+    /** Set the name of the model */
+    void name(const std::string& name);
 
     /** \returns the number of variables in the model */
     size_t num_variables() const;

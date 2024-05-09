@@ -1,4 +1,5 @@
 #include "coek/model/nlp_model.hpp"
+#include "coek/api/expression.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/autograd/autograd.hpp"
@@ -23,6 +24,8 @@ void NLPModel::initialize(Model& model, std::string type)
     std::shared_ptr<NLPModelRepn> tmp(create_NLPModelRepn(model, type));
     repn = tmp;
 
+    for (const auto& ioption : boolean_options())
+        repn->set_option(ioption.first, ioption.second);
     for (const auto& ioption : integer_options())
         repn->set_option(ioption.first, ioption.second);
     for (const auto& doption : double_options())
@@ -34,6 +37,10 @@ void NLPModel::initialize(Model& model, std::string type)
 }
 
 void NLPModel::reset() { repn->reset(); }
+
+std::string NLPModel::name() const { return repn->model.name(); }
+
+void NLPModel::name(const std::string& name) { repn->model.name(name); }
 
 size_t NLPModel::num_variables() const { return repn->num_variables(); }
 

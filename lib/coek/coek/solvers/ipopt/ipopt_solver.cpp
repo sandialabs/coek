@@ -1,13 +1,15 @@
 // #include <memory>
 #include <chrono>
 
-#include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/autograd/autograd.hpp"
 #include "ipopt_solver.hpp"
 
 namespace coek {
+
+NLPSolverRepn* create_ipopt_solver() { return new IpoptSolver(); }
 
 std::shared_ptr<SolverResults> IpoptSolver::solve(NLPModel& _model)
 {
@@ -29,7 +31,7 @@ std::shared_ptr<SolverResults> IpoptSolver::solve(NLPModel& _model)
               "time.";
         return res;
     }
-    repn->set_options(string_options(), integer_options(), double_options());
+    repn->set_options(string_options(), boolean_options(), integer_options(), double_options());
     return repn->perform_solve();
 }
 
@@ -46,7 +48,7 @@ std::shared_ptr<SolverResults> IpoptSolver::resolve_exec()
     if (not initial_solve())
         model->reset();
 
-    repn->set_options(string_options(), integer_options(), double_options());
+    repn->set_options(string_options(), boolean_options(), integer_options(), double_options());
     auto it = string_options().find("warm_start_init_point");
     if ((it != string_options().end()) and (it->second == "yes"))
         repn->set_start_from_last_x(true);

@@ -1,8 +1,8 @@
 #include "../ast/base_terms.hpp"
 #include "../ast/constraint_terms.hpp"
 #include "../ast/value_terms.hpp"
-#include "constraint.hpp"
 #include "expression.hpp"
+#include "constraint.hpp"
 #include "objective.hpp"
 #include "expression_visitor.hpp"
 

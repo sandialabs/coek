@@ -28,6 +28,8 @@ class ParameterArrayRepn : public ParameterAssocArrayRepn {
         cache.resize((size() + 1) * (dim() + 1));
     }
 
+    virtual ~ParameterArrayRepn() {}
+
     size_t dim() { return shape.size(); }
 
     size_t size() { return _size; }

@@ -1,6 +1,6 @@
 #include "coek/solvers/solver.hpp"
-#include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/solvers/solver_repn.hpp"
 

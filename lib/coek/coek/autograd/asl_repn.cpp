@@ -8,9 +8,9 @@
 #include "coek/ast/value_terms.hpp"
 
 // AMPL includes
-#include "asl.h"
-#include "asl_pfgh.h"
-#include "getstub.h"
+#include "asl/asl.h"
+#include "asl/asl_pfgh.h"
+#include "asl/getstub.h"
 #ifdef range
 #    undef range
 #endif
@@ -104,8 +104,8 @@ void ASL_Repn::get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jc
     size_t curr_nz = 0;
     for (size_t i : coek::range(nc)) {
         for (cgrad* cg = Cgrad[i]; cg; cg = cg->next) {
-            jrow[cg->goff] = i;
-            jcol[cg->goff] = cg->varno;
+            jrow[static_cast<size_t>(cg->goff)] = i;
+            jcol[static_cast<size_t>(cg->goff)] = static_cast<size_t>(cg->varno);
             curr_nz++;
         }
     }
@@ -122,9 +122,10 @@ void ASL_Repn::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hc
     hcol.resize(nnz_lag_h);
     size_t curr_nz = 0;
     for (size_t i : coek::range(nx)) {
-        for (size_t j = sputinfo->hcolstarts[i]; j < sputinfo->hcolstarts[i + 1]; j++) {
+        for (size_t j = static_cast<size_t>(sputinfo->hcolstarts[i]);
+             j < static_cast<size_t>(sputinfo->hcolstarts[i + 1]); j++) {
             hrow[curr_nz] = i;
-            hcol[curr_nz] = sputinfo->hrownos[j];
+            hcol[curr_nz] = static_cast<size_t>(sputinfo->hrownos[j]);
             curr_nz++;
         }
     }
@@ -209,7 +210,7 @@ void ASL_Repn::compute_dc(std::vector<double>& dc, size_t i)
     assert(dc.size() == nx);
 
     ASL_pfgh* asl = asl_;
-    congrd(i, &(currx[0]), &(dc[0]), (fint*)nerror_);
+    congrd(static_cast<int>(i), &(currx[0]), &(dc[0]), (fint*)nerror_);
     nerror_ok = check_asl_status(nerror_);
     if (not nerror_ok) {
         for (size_t j : coek::indices(dc))
@@ -358,12 +359,12 @@ void ASL_Repn::alloc_asl()
     //
     // allocate space for data read in by pfgh_read()
     //
-    X0 = new real[n_var];
-    LUv = new real[2 * n_var];
-    // Uvx = new real[n_var];
-    LUrhs = new real[n_con];
-    Urhsx = new real[n_con];
-    havex0 = new char[n_var];
+    X0 = new real[static_cast<size_t>(n_var)];
+    LUv = new real[2 * static_cast<size_t>(n_var)];
+    // Uvx = new real[static_cast<size_t>(n_var)];
+    LUrhs = new real[static_cast<size_t>(n_con)];
+    Urhsx = new real[static_cast<size_t>(n_con)];
+    havex0 = new char[static_cast<size_t>(n_var)];
     //
     // Load model expressions
     //
@@ -467,10 +468,10 @@ void ASL_Repn::call_hesset()
     nnz_lag_h = static_cast<size_t>(sphsetup(-1, coeff_obj, mult_supplied, uptri));
 }
 
-bool ASL_Repn::get_option(const std::string& option, std::string& value) const
+bool ASL_Repn::get_option(const std::string& option, bool& value) const
 {
-    if (option == "temp_directory") {
-        value = temp_directory;
+    if (option == "remove_nl_file") {
+        value = remove_nl_file;
         return true;
     }
     return false;
@@ -485,16 +486,31 @@ bool ASL_Repn::get_option(const std::string& option, int& value) const
     return false;
 }
 
-void ASL_Repn::set_option(const std::string& option, const std::string value)
+bool ASL_Repn::get_option(const std::string& option, std::string& value) const
 {
-    if (option == "temp_directory")
-        temp_directory = value;
+    if (option == "temp_directory") {
+        value = temp_directory;
+        return true;
+    }
+    return false;
+}
+
+void ASL_Repn::set_option(const std::string& option, bool value)
+{
+    if (option == "remove_nl_file")
+        remove_nl_file = value;
 }
 
 void ASL_Repn::set_option(const std::string& option, int value)
 {
     if (option == "remove_nl_file")
-        remove_nl_file = value;
+        remove_nl_file = (value == 1);
+}
+
+void ASL_Repn::set_option(const std::string& option, const std::string& value)
+{
+    if (option == "temp_directory")
+        temp_directory = value;
 }
 
 }  // namespace coek

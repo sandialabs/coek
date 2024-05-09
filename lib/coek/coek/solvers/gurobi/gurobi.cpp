@@ -1,12 +1,11 @@
 // #define _GLIBCXX_USE_CxX11_ABI 0
-#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
 
 #include "../../ast/value_terms.hpp"
-#include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/compact/constraint_sequence.hpp"
 #include "coek/compact/expression_sequence.hpp"
@@ -17,6 +16,8 @@
 #include "gurobi_c++.h"
 
 namespace coek {
+
+SolverRepn* create_gurobi_solver() { return new GurobiSolver(); }
 
 namespace {
 
@@ -43,11 +44,11 @@ auto add_gurobi_variable(GRBModel* gmodel, double lb, double ub, const Variable&
 }
 
 void add_gurobi_objective(GRBModel* gmodel, Expression& expr, bool sense,
-                          std::unordered_map<int, GRBVar>& x, coek::QuadraticExpr& orepn)
+                          std::unordered_map<size_t, GRBVar>& x, coek::QuadraticExpr& orepn)
 {
     orepn.reset();
-    // coek::QuadraticExpr orepn;
     orepn.collect_terms(expr);
+
     if (orepn.linear_coefs.size() + orepn.quadratic_coefs.size() > 0) {
         GRBLinExpr term1;
         auto iv = orepn.linear_vars.begin();
@@ -73,7 +74,7 @@ void add_gurobi_objective(GRBModel* gmodel, Expression& expr, bool sense,
         gmodel->set(GRB_IntAttr_ModelSense, GRB_MAXIMIZE);
 }
 
-void add_gurobi_constraint(GRBModel* gmodel, Constraint& con, std::unordered_map<int, GRBVar>& x,
+void add_gurobi_constraint(GRBModel* gmodel, Constraint& con, std::unordered_map<size_t, GRBVar>& x,
                            coek::QuadraticExpr& repn)
 {
     repn.reset();
@@ -132,6 +133,379 @@ GurobiSolver::~GurobiSolver()
         delete gmodel;
     if (env)
         delete env;
+}
+
+void GurobiSolver::set_gurobi_options()
+{
+    // All options are converted to strings for Gurobi
+    for (auto& it : string_options())
+        gmodel->set(it.first, it.second);
+    for (auto& it : boolean_options())
+        gmodel->set(it.first, std::to_string(it.second));
+    for (auto& it : integer_options())
+        gmodel->set(it.first, std::to_string(it.second));
+    for (auto& it : double_options())
+        gmodel->set(it.first, std::to_string(it.second));
+}
+
+void GurobiSolver::pre_solve()
+{
+    results = std::make_shared<SolverResults>();
+    results->solver_name = "gurobi";
+    results->termination_condition = TerminationCondition::error;
+    results->tic();
+
+    if (initial_solve()) {
+        env = new GRBEnv(true);
+        auto it = integer_options().find("OutputFlag");
+        if (it != integer_options().end())
+            env->set(GRB_IntParam_OutputFlag, it->second);
+        env->start();
+        gmodel = new GRBModel(*env);
+    }
+}
+
+void GurobiSolver::post_solve()
+{
+    delete gmodel;
+    gmodel = 0;
+    delete env;
+    env = 0;
+
+    results->toc();
+}
+
+std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
+{
+    pre_solve();
+    auto _model = model.repn.get();
+    results->model_name = _model->name;
+
+    // Add Gurobi variables
+    size_t nv = 0;
+    for (auto& var : _model->variables) {
+        if (not var.fixed()) {
+            x[var.id()] = add_gurobi_variable(gmodel, var.lower(), var.upper(), var);
+            nv++;
+        }
+    }
+    if (nv == 0) {
+        results->termination_condition = TerminationCondition::empty_model;
+        post_solve();
+        return results;
+    }
+
+    gmodel->update();
+
+    // Add Gurobi objective
+    int nobj = 0;
+    try {
+        coek::QuadraticExpr orepn;
+        for (auto& obj : model.repn->objectives) {
+            Expression tmp = obj.expr();
+            add_gurobi_objective(gmodel, tmp, obj.sense(), x, orepn);
+            nobj++;
+        }
+    }
+    catch (GRBException e) {
+        results->error_message
+            = "Gurobi Error: Caught gurobi exception while creating objectives " + e.getMessage();
+        post_solve();
+        return results;
+    }
+    if (nobj > 1) {
+        // TODO - is this an error?
+        results->termination_condition = TerminationCondition::invalid_model_for_solver;
+        results->error_message = "Error initializing Gurobi: More than one objective defined!";
+        post_solve();
+        return results;
+    }
+
+    // Add Gurobi constraints
+    try {
+        coek::QuadraticExpr repn;
+        for (auto& con : _model->constraints) {
+            add_gurobi_constraint(gmodel, con, x, repn);
+        }
+    }
+    catch (GRBException e) {
+        results->error_message
+            = "Gurobi Error: Caught gurobi exception while creating constraints " + e.getMessage();
+        post_solve();
+        return results;
+    }
+
+    try {
+        set_gurobi_options();
+        gmodel->optimize();
+    }
+    catch (GRBException e) {
+        results->error_message
+            = "Gurobi Error: Caught gurobi exception while optimizing " + e.getMessage();
+        post_solve();
+        return results;
+    }
+
+    collect_results(model, results);
+
+    post_solve();
+    return results;
+}
+
+#ifdef COEK_WITH_COMPACT_MODEL
+std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
+{
+    pre_solve();
+    results->model_name = compact_model.name();
+
+    // Add Gurobi variables
+    size_t nv = 0;
+    for (auto& val : compact_model.repn->variables) {
+        if (auto eval = std::get_if<Variable>(&val)) {
+            Expression lb = eval->lower_expression().expand();
+            auto lb_ = lb.value();
+            Expression ub = eval->upper_expression().expand();
+            auto ub_ = ub.value();
+            x[eval->id()] = add_gurobi_variable(gmodel, lb_, ub_, *eval);
+            nv++;
+        }
+        else {
+            auto& seq = std::get<VariableSequence>(val);
+            for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
+                x[jt->id()] = add_gurobi_variable(gmodel, jt->lower(), jt->upper(), *jt);
+                nv++;
+            }
+        }
+    }
+    if (nv == 0) {
+        results->termination_condition = TerminationCondition::empty_model;
+        post_solve();
+        return results;
+    }
+
+    gmodel->update();
+
+    // Add Gurobi objective
+    int nobj = 0;
+    try {
+        coek::QuadraticExpr orepn;
+        for (auto& val : compact_model.repn->objectives) {
+            if (auto eval = std::get_if<Objective>(&val)) {
+                Expression tmp = eval->expr().expand();
+                add_gurobi_objective(gmodel, tmp, eval->sense(), x, orepn);
+                nobj++;
+            }
+            else {
+                auto& seq = std::get<ObjectiveSequence>(val);
+                for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
+                    // model.repn->objectives.push_back(*jt);
+                    Expression tmp = jt->expr();
+                    add_gurobi_objective(gmodel, tmp, jt->sense(), x, orepn);
+                    nobj++;
+                }
+            }
+        }
+    }
+    catch (GRBException e) {
+        results->error_message
+            = "Gurobi Error: Caught gurobi exception while creating objectives " + e.getMessage();
+        post_solve();
+        return results;
+    }
+    if (nobj > 1) {
+        // TODO - is this an error?
+        results->termination_condition = TerminationCondition::invalid_model_for_solver;
+        results->error_message = "Error initializing Gurobi: More than one objective defined!";
+        post_solve();
+        return results;
+    }
+
+    // Add Gurobi constraints
+    try {
+        coek::QuadraticExpr repn;
+        for (auto& val : compact_model.repn->constraints) {
+            if (auto cval = std::get_if<Constraint>(&val)) {
+                Constraint c = cval->expand();
+                add_gurobi_constraint(gmodel, c, x, repn);
+            }
+            else {
+                auto& seq = std::get<ConstraintSequence>(val);
+                for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
+                    add_gurobi_constraint(gmodel, *jt, x, repn);
+                }
+            }
+        }
+    }
+    catch (GRBException e) {
+        results->error_message
+            = "Gurobi Error: Caught gurobi exception while creating constraints " + e.getMessage();
+        post_solve();
+        return results;
+    }
+
+    try {
+        set_gurobi_options();
+        gmodel->optimize();
+    }
+    catch (GRBException e) {
+        results->error_message
+            = "Gurobi Error: Caught gurobi exception while optimizing " + e.getMessage();
+        post_solve();
+        return results;
+    }
+
+    collect_results(model, results);
+
+    post_solve();
+    return results;
+}
+#endif
+
+std::shared_ptr<SolverResults> GurobiSolver::resolve()
+{
+    pre_solve();
+
+    auto _model = model.repn.get();
+    results->model_name = _model->name;
+
+    if (initial_solve()) {
+        env = new GRBEnv(true);
+        auto it = integer_options().find("OutputFlag");
+        if (it != integer_options().end())
+            env->set(GRB_IntParam_OutputFlag, it->second);
+        env->start();
+        gmodel = new GRBModel(*env);
+
+        // Add Gurobi variables
+        for (auto& var : _model->variables) {
+            std::shared_ptr<coek::VariableTerm> v = var.repn;
+            if (not v->fixed) {
+                double lb = v->lb->eval();
+                double ub = v->ub->eval();
+                if (v->binary)
+                    x[v->index] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
+                else if (v->integer)
+                    x[v->index] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
+                else {
+                    if (ub >= 1e19) {
+                        if (lb <= -1e19)
+                            x[v->index]
+                                = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
+                        else
+                            x[v->index] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
+                    }
+                    else {
+                        if (lb <= -1e19)
+                            x[v->index] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
+                        else
+                            x[v->index] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
+                    }
+                }
+            }
+        }
+
+        gmodel->update();
+
+        // Add Gurobi objective
+        int nobj = 0;
+        try {
+            coek::QuadraticExpr orepn;
+            for (auto& obj : model.repn->objectives) {
+                Expression tmp = obj.expr();
+                add_gurobi_objective(gmodel, tmp, obj.sense(), x, orepn);
+                nobj++;
+            }
+        }
+        catch (GRBException e) {
+            results->error_message
+                = "Gurobi Error: Caught gurobi exception while creating objectives "
+                  + e.getMessage();
+            return results;
+        }
+        if (nobj > 1) {
+            // TODO - is this an error?
+            results->termination_condition = TerminationCondition::invalid_model_for_solver;
+            results->error_message = "Error initializing Gurobi: More than one objective defined!";
+            return results;
+        }
+
+        // Add Gurobi constraints
+        try {
+            coek::QuadraticExpr repn;
+            for (auto& con : model.repn->constraints) {
+                add_gurobi_constraint(gmodel, con, x, repn);
+            }
+        }
+        catch (GRBException e) {
+            results->error_message
+                = "Gurobi Error: Caught gurobi exception while creating constraints "
+                  + e.getMessage();
+            return results;
+        }
+
+        set_gurobi_options();
+        try {
+            gmodel->optimize();
+        }
+        catch (GRBException e) {
+            results->error_message
+                = "Gurobi Error: Caught gurobi exception while optimizing " + e.getMessage();
+            return results;
+        }
+    }
+
+    else {
+        for (auto& it : updated_coefs) {
+            auto [i, where, j] = it;
+
+            switch (where) {
+                case 0:  // Constant Value
+                    if (i > 0) {
+                        int prev = static_cast<int>(i) - 1;
+                        gmodel->getConstr(prev).set(GRB_DoubleAttr_RHS, -repn[i].constval->eval());
+                    }
+                    else
+                        gmodel->set(GRB_DoubleAttr_ObjCon, repn[0].constval->eval());
+                    break;
+
+                case 1:  // Linear Coef
+                    if (i > 0) {
+                        int prev = static_cast<int>(i) - 1;
+                        gmodel->chgCoeff(gmodel->getConstr(prev), x[repn[i].linear_vars[j]->index],
+                                         repn[i].linear_coefs[j]->eval());
+                    }
+                    else
+                        x[repn[0].linear_vars[j]->index].set(GRB_DoubleAttr_Obj,
+                                                             repn[0].linear_coefs[j]->eval());
+                    break;
+
+                case 2:  // Quadratic Coef
+                    break;
+
+                case 3:  // Nonlinear terms
+                    results->termination_condition = TerminationCondition::invalid_model_for_solver;
+                    results->error_message
+                        = "Error initializing Gurobi: Cannot optimize models with nonlinear terms.";
+                    return results;
+                    break;
+            };
+        }
+
+        try {
+            gmodel->optimize();
+        }
+        catch (GRBException e) {
+            results->error_message
+                = "Gurobi Error: Caught gurobi exception while optimizing " + e.getMessage();
+            return results;
+        }
+    }
+
+    // Collect values of Gurobi variables
+    collect_results(model, results);
+
+    results->toc();
+    return results;
 }
 
 void GurobiSolver::collect_results(Model& model, std::shared_ptr<SolverResults>& results)
@@ -254,376 +628,6 @@ void GurobiSolver::collect_results(Model& model, std::shared_ptr<SolverResults>&
         results->termination_condition = TerminationCondition::unknown;
         results->error_message = "GUROBI Exception: (results) " + e.getMessage();
     }
-}
-
-std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
-{
-    auto results = std::make_shared<SolverResults>();
-    results->solver_name = "gurobi";
-    results->termination_condition = TerminationCondition::error;
-    results->tic();
-
-    auto _model = model.repn.get();
-
-    env = new GRBEnv(true);
-    auto it = integer_options().find("OutputFlag");
-    if (it != integer_options().end())
-        env->set(GRB_IntParam_OutputFlag, it->second);
-    env->start();
-    gmodel = new GRBModel(*env);
-
-    assert(_model->objectives.size() == 1);
-
-    // Add Gurobi variables
-    for (auto& var : _model->variables) {
-        if (not var.fixed()) {
-            x[var.id()] = add_gurobi_variable(gmodel, var.lower(), var.upper(), var);
-        }
-    }
-
-    gmodel->update();
-
-    // Add Gurobi objective
-    int nobj = 0;
-    try {
-        coek::QuadraticExpr orepn;
-        for (auto& obj : model.repn->objectives) {
-            Expression tmp = obj.expr();
-            add_gurobi_objective(gmodel, tmp, obj.sense(), x, orepn);
-            nobj++;
-        }
-    }
-    catch (GRBException e) {
-        results->error_message
-            = "Gurobi Error: Caught gurobi exception while creating objectives " + e.getMessage();
-        return results;
-    }
-    if (nobj > 1) {
-        // TODO - is this an error?
-        results->termination_condition = TerminationCondition::invalid_model_for_solver;
-        results->error_message = "Error initializing Gurobi: More than one objective defined!";
-        return results;
-    }
-
-    // Add Gurobi constraints
-    try {
-        coek::QuadraticExpr repn;
-        for (auto& con : _model->constraints) {
-            add_gurobi_constraint(gmodel, con, x, repn);
-        }
-    }
-    catch (GRBException e) {
-        results->error_message
-            = "Gurobi Error: Caught gurobi exception while creating constraints " + e.getMessage();
-        return results;
-    }
-
-    try {
-        set_gurobi_options();
-        gmodel->optimize();
-    }
-    catch (GRBException e) {
-        results->error_message
-            = "Gurobi Error: Caught gurobi exception while optimizing " + e.getMessage();
-        return results;
-    }
-
-    collect_results(model, results);
-
-    delete gmodel;
-    gmodel = 0;
-    delete env;
-    env = 0;
-
-    results->toc();
-    return results;
-}
-
-#ifdef COEK_WITH_COMPACT_MODEL
-int GurobiSolver::solve(CompactModel& compact_model)
-{
-    std::cout << "STARTING GUROBI" << std::endl << std::flush;
-
-    env = new GRBEnv(true);
-    auto it = integer_options().find("OutputFlag");
-    if (it != integer_options().end())
-        env->set(GRB_IntParam_OutputFlag, it->second);
-    env->start();
-    gmodel = new GRBModel(*env);
-
-    std::cout << "BUILDING GUROBI MODEL" << std::endl << std::flush;
-
-    // Add Gurobi variables
-    for (auto& val : compact_model.repn->variables) {
-        if (auto eval = std::get_if<Variable>(&val)) {
-            Expression lb = eval->lower_expression().expand();
-            auto lb_ = lb.value();
-            Expression ub = eval->upper_expression().expand();
-            auto ub_ = ub.value();
-            x[eval->id()] = add_gurobi_variable(gmodel, lb_, ub_, *eval);
-        }
-        else {
-            auto& seq = std::get<VariableSequence>(val);
-            for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
-                x[jt->id()] = add_gurobi_variable(gmodel, jt->lower(), jt->upper(), *jt);
-            }
-        }
-    }
-
-    gmodel->update();
-
-    // Add Gurobi objective
-    int nobj = 0;
-    try {
-        coek::QuadraticExpr orepn;
-        for (auto& val : compact_model.repn->objectives) {
-            if (auto eval = std::get_if<Objective>(&val)) {
-                Expression tmp = eval->expr().expand();
-                add_gurobi_objective(gmodel, tmp, eval->sense(), x, orepn);
-                nobj++;
-            }
-            else {
-                auto& seq = std::get<ObjectiveSequence>(val);
-                for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
-                    model.repn->objectives.push_back(*jt);
-                    Expression tmp = jt->expr();
-                    add_gurobi_objective(gmodel, tmp, jt->sense(), x, orepn);
-                    nobj++;
-                }
-            }
-        }
-    }
-    catch (GRBException e) {
-        std::cerr << "GUROBI Exception: (objective) " << e.getMessage() << std::endl;
-        throw;
-    }
-    if (nobj > 1) {
-        //
-        // TODO - is this an error?
-        //
-        std::cerr << "Error initializing Gurobi: More than one objective defined!" << std::endl;
-        return -1;
-    }
-
-    // Add Gurobi constraints
-    try {
-        coek::QuadraticExpr repn;
-        for (auto& val : compact_model.repn->constraints) {
-            if (auto cval = std::get_if<Constraint>(&val)) {
-                Constraint c = cval->expand();
-                add_gurobi_constraint(gmodel, c, x, repn);
-            }
-            else {
-                auto& seq = std::get<ConstraintSequence>(val);
-                for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
-                    add_gurobi_constraint(gmodel, *jt, x, repn);
-                }
-            }
-        }
-    }
-    catch (GRBException e) {
-        std::cerr << "GUROBI Exception: (constraint) " << e.getMessage() << std::endl;
-        throw;
-    }
-
-    std::cout << "OPTIMIZING GUROBI MODEL" << std::endl << std::flush;
-
-    set_gurobi_options();
-    try {
-        gmodel->optimize();
-
-        int status = gmodel->get(GRB_IntAttr_Status);
-        if (status == GRB_OPTIMAL) {
-            // TODO: Are there other conditions where the variables have valid values?
-            // TODO: If we do not update the COEK variable values, should we set them to NAN?
-            // TODO: We need to cache the optimization status in COEK somewhere
-            // TODO: Is there a string description of the solver status?
-
-#    if 0
-
-WEH - What is the 'results object' for compact models?  This is not defined yet.
-
-            // Collect values of Gurobi variables
-            for (auto& var : model.variables) {
-                var.set_value(x[var.index].get(GRB_DoubleAttr_X));
-            }
-#    endif
-        }
-    }
-    catch (GRBException e) {
-        std::cerr << "GUROBI Exception: (solver) " << e.getMessage() << std::endl;
-        // TODO: We should raise a CoekException object, to ensure that COEK can manage exceptions
-        // in a uniform manner.
-        throw;
-    }
-
-    delete gmodel;
-    gmodel = 0;
-    delete env;
-    env = 0;
-
-    return 0;
-}
-#endif
-
-std::shared_ptr<SolverResults> GurobiSolver::resolve()
-{
-    auto results = std::make_shared<SolverResults>();
-    results->solver_name = "gurobi";
-    results->termination_condition = TerminationCondition::error;
-    results->tic();
-
-    auto _model = model.repn.get();
-
-    if (initial_solve()) {
-        env = new GRBEnv(true);
-        auto it = integer_options().find("OutputFlag");
-        if (it != integer_options().end())
-            env->set(GRB_IntParam_OutputFlag, it->second);
-        env->start();
-        gmodel = new GRBModel(*env);
-
-        assert(_model->objectives.size() == 1);
-
-        // Add Gurobi variables
-        for (auto& var : _model->variables) {
-            std::shared_ptr<coek::VariableTerm> v = var.repn;
-            if (not v->fixed) {
-                double lb = v->lb->eval();
-                double ub = v->ub->eval();
-                if (v->binary)
-                    x[v->index] = gmodel->addVar(lb, ub, 0, GRB_BINARY);
-                else if (v->integer)
-                    x[v->index] = gmodel->addVar(lb, ub, 0, GRB_INTEGER);
-                else {
-                    if (ub >= 1e19) {
-                        if (lb <= -1e19)
-                            x[v->index]
-                                = gmodel->addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS);
-                        else
-                            x[v->index] = gmodel->addVar(lb, GRB_INFINITY, 0, GRB_CONTINUOUS);
-                    }
-                    else {
-                        if (lb <= -1e19)
-                            x[v->index] = gmodel->addVar(-GRB_INFINITY, ub, 0, GRB_CONTINUOUS);
-                        else
-                            x[v->index] = gmodel->addVar(lb, ub, 0, GRB_CONTINUOUS);
-                    }
-                }
-            }
-        }
-
-        gmodel->update();
-
-        // Add Gurobi objective
-        int nobj = 0;
-        try {
-            coek::QuadraticExpr orepn;
-            for (auto& obj : model.repn->objectives) {
-                Expression tmp = obj.expr();
-                add_gurobi_objective(gmodel, tmp, obj.sense(), x, orepn);
-                nobj++;
-            }
-        }
-        catch (GRBException e) {
-            results->error_message
-                = "Gurobi Error: Caught gurobi exception while creating objectives "
-                  + e.getMessage();
-            return results;
-        }
-        if (nobj > 1) {
-            // TODO - is this an error?
-            results->termination_condition = TerminationCondition::invalid_model_for_solver;
-            results->error_message = "Error initializing Gurobi: More than one objective defined!";
-            return results;
-        }
-
-        // Add Gurobi constraints
-        try {
-            coek::QuadraticExpr repn;
-            for (auto& con : model.repn->constraints) {
-                add_gurobi_constraint(gmodel, con, x, repn);
-            }
-        }
-        catch (GRBException e) {
-            results->error_message
-                = "Gurobi Error: Caught gurobi exception while creating constraints "
-                  + e.getMessage();
-            return results;
-        }
-
-        set_gurobi_options();
-        try {
-            gmodel->optimize();
-        }
-        catch (GRBException e) {
-            results->error_message
-                = "Gurobi Error: Caught gurobi exception while optimizing " + e.getMessage();
-            return results;
-        }
-    }
-
-    else {
-        for (auto it = updated_coefs.begin(); it != updated_coefs.end(); ++it) {
-            size_t i = std::get<0>(*it);
-            size_t where = std::get<1>(*it);
-            size_t j = std::get<2>(*it);
-
-            switch (where) {
-                case 0:  // Constant Value
-                    if (i > 0)
-                        gmodel->getConstr(i - 1).set(GRB_DoubleAttr_RHS, -repn[i].constval->eval());
-                    else
-                        gmodel->set(GRB_DoubleAttr_ObjCon, repn[0].constval->eval());
-                    break;
-
-                case 1:  // Linear Coef
-                    if (i > 0)
-                        gmodel->chgCoeff(gmodel->getConstr(i - 1), x[repn[i].linear_vars[j]->index],
-                                         repn[i].linear_coefs[j]->eval());
-                    else
-                        x[repn[0].linear_vars[j]->index].set(GRB_DoubleAttr_Obj,
-                                                             repn[0].linear_coefs[j]->eval());
-                    break;
-
-                case 2:  // Quadratic Coef
-                    break;
-
-                case 3:  // Nonlinear terms
-                    results->termination_condition = TerminationCondition::invalid_model_for_solver;
-                    results->error_message
-                        = "Error initializing Gurobi: Cannot optimize models with nonlinear terms.";
-                    return results;
-                    break;
-            };
-        }
-
-        try {
-            gmodel->optimize();
-        }
-        catch (GRBException e) {
-            results->error_message
-                = "Gurobi Error: Caught gurobi exception while optimizing " + e.getMessage();
-            return results;
-        }
-    }
-
-    // Collect values of Gurobi variables
-    collect_results(model, results);
-
-    results->toc();
-    return results;
-}
-
-void GurobiSolver::set_gurobi_options()
-{
-    // All options are converted to strings for Gurobi
-    for (auto& it : string_options())
-        gmodel->set(it.first, it.second);
-    for (auto& it : integer_options())
-        gmodel->set(it.first, std::to_string(it.second));
-    for (auto& it : double_options())
-        gmodel->set(it.first, std::to_string(it.second));
 }
 
 }  // namespace coek

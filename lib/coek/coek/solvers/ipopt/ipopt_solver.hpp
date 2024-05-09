@@ -14,6 +14,7 @@ class IpoptSolverRepn {
     virtual std::shared_ptr<SolverResults> perform_solve() = 0;
     virtual void set_start_from_last_x(bool flag) = 0;
     virtual void set_options(const std::map<std::string, std::string>& string_options,
+                             const std::map<std::string, bool>& boolean_options,
                              const std::map<std::string, int>& integer_options,
                              const std::map<std::string, double>& double_options)
         = 0;

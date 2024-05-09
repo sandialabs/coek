@@ -68,6 +68,10 @@ void Model::print_values(std::ostream& ostr)
 
 Model::Model() { repn = std::make_shared<ModelRepn>(); }
 
+std::string Model::name() const { return repn->name; }
+
+void Model::name(const std::string& name) { repn->name = name; }
+
 #if __cpp_lib_variant
 ParameterArray& Model::add(ParameterArray& param) { return add_parameter(param); }
 ParameterArray& Model::add(ParameterArray&& param) { return add_parameter(param); }

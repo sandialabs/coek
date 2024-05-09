@@ -512,7 +512,7 @@ inline expr_pointer_t if_then_else(const expr_pointer_t& cond_expr, const expr_p
                                    const expr_pointer_t& else_expr)
 {
     if (cond_expr->is_constant()) {
-        if (cond_expr->eval())
+        if (cond_expr->eval() > (1.0 - 1e-7))
             return then_expr;
         else
             return else_expr;

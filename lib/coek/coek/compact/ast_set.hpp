@@ -325,6 +325,8 @@ class FiniteSetIteratorRepn : public SetIteratorRepnBase<TYPE> {
     {
     }
 
+    virtual ~FiniteSetIteratorRepn() {}
+
     void next()
     {
         iterator++;
@@ -380,6 +382,8 @@ class FiniteNDSetIteratorRepn : public SetIteratorRepnBase<std::vector<set_types
     {
         vec.resize(1);
     }
+
+    virtual ~FiniteNDSetIteratorRepn() {}
 
     void next()
     {
@@ -739,6 +743,8 @@ class RangeSetIteratorRepn : public SetIteratorRepnBase<TYPE> {
         _value = start;
     }
 
+    virtual ~RangeSetIteratorRepn() {}
+
     void next()
     {
         _value += step;
@@ -789,6 +795,8 @@ class RangeNDSetIteratorRepn : public SetIteratorRepnBase<std::vector<set_types>
         _value = start;
         vec.resize(1);
     }
+
+    virtual ~RangeNDSetIteratorRepn() {}
 
     void next()
     {

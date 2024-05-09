@@ -206,10 +206,8 @@ expr_pointer_t visit_expression(const expr_pointer_t& expr)
             // VISIT_CASE(ParameterTerm);
             VISIT_CASE(IndexParameterTerm);
             // VISIT_CASE(VariableTerm);
-#ifdef COEK_WITH_COMPACT_MODEL
             VISIT_CASE(VariableRefTerm);
             VISIT_CASE(ParameterRefTerm);
-#endif
             // VISIT_CASE(MonomialTerm);
             VISIT_CASE(InequalityTerm);
             VISIT_CASE(EqualityTerm);

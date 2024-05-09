@@ -66,6 +66,11 @@ class Model {
     /** Constructs an empty optimization model */
     Model();
 
+    /** Get the name of the model */
+    std::string name() const;
+    /** Set the name of the model */
+    void name(const std::string& name);
+
 #if __cpp_lib_variant
     ParameterArray& add_parameter(ParameterArray& param);
     ParameterArray& add(ParameterArray& param);

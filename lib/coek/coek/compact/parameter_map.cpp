@@ -21,6 +21,8 @@ class ParameterMapRepn : public ParameterAssocArrayRepn {
         cache.resize((size() + 1) * (dim() + 1));
     }
 
+    virtual ~ParameterMapRepn() {}
+
     void setup();
 
     size_t dim() { return concrete_set.dim(); }

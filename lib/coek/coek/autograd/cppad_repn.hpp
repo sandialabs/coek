@@ -127,8 +127,10 @@ class CppAD_Repn : public NLPModelRepn {
     void compute_J(std::vector<double>& J);
 
    public:
+    bool get_option(const std::string& option, bool& value) const;
     bool get_option(const std::string& option, int& value) const;
 
+    void set_option(const std::string& option, bool value);
     void set_option(const std::string& option, int value);
 
    public:
