@@ -14,18 +14,20 @@ compile:
     - mkdir build
     - cd build
     - cmake
+      -DPython_EXECUTABLE=$PYTHON_DIR/python
+      -Dwith_compact=OFF
+      -Dwith_docs=OFF ..
+    - make install_tpls
+    #-DGUROBI_LIBRARY=$GUROBI_LIBRARY/libgurobi100.so
+    #-DGUROBI_INCLUDE_DIRS=$GUROBI_HOME/include
+    #-DGUROBI_CXX_LIBRARY=$GUROBI_LIBRARY/libgurobi_g++5.2.a
+    - cmake
       -Dwith_asl=ON
       -Dwith_pybind11=ON
       -Dwith_cppad=ON
       -Dwith_tests=ON
       -Dwith_gurobi=ON
-      -DPython_EXECUTABLE=$PYTHON_DIR/python
-      -Dwith_compact=OFF
-      -Dwith_docs=OFF ..
-    #-DGUROBI_LIBRARY=$GUROBI_LIBRARY/libgurobi100.so
-    #-DGUROBI_INCLUDE_DIRS=$GUROBI_HOME/include
-    #-DGUROBI_CXX_LIBRARY=$GUROBI_LIBRARY/libgurobi_g++5.2.a
-    - make install_tpls
+      ..
     - make -j8
     - make install
   rules:
