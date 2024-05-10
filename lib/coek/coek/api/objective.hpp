@@ -44,6 +44,13 @@ class Objective {
     /** \returns the objective name */
     std::string name() const;
 
+    /** \returns the active state */
+    bool active() const;
+    /** Sets the active state to true */
+    void activate();
+    /** Sets the active state to false */
+    void deactivate();
+
     /** \returns the unique integer objective ID */
     size_t id() const;
 

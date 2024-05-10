@@ -19,6 +19,12 @@ Objective& Objective::operator=(const Objective& expr)
     return *this;
 }
 
+bool Objective::active() const { return repn->active; }
+
+void Objective::activate() { repn->active = true; }
+
+void Objective::deactivate() { repn->active = false; }
+
 size_t Objective::id() const { return repn->index; }
 
 double Objective::value() const { return repn->eval(); }

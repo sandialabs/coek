@@ -28,7 +28,7 @@ class HighsSolver : public SolverRepn {
 
    protected:
     void collect_results(Model& model, std::shared_ptr<SolverResults>& results);
-    void pre_solve();
+    void pre_solve(Model& coek_model);
     void post_solve();
 };
 

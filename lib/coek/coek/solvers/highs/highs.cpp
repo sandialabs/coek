@@ -72,19 +72,22 @@ void add_objective(HighsModel& model, Expression& expr, bool sense,
             auto& rvar = orepn.quadratic_rvars[i];
             nz = true;
             if (x[rvar->index] >= x[lvar->index])
-                value[{x[rvar->index], x[lvar->index]}] += orepn.quadratic_coefs[i];
-            else
                 value[{x[lvar->index], x[rvar->index]}] += orepn.quadratic_coefs[i];
+            else
+                value[{x[rvar->index], x[lvar->index]}] += orepn.quadratic_coefs[i];
         }
 
         if (nz) {
             HighsHessian& hessian = model.hessian_;
             size_t prev = 0;
             for (auto& it : value) {
-                auto [i, j] = it.first;
+                auto [j, i] = it.first;
                 if (j != prev) {
-                    hessian.start_.push_back(static_cast<HighsInt>(hessian.index_.size()));
-                    prev = j;
+                    assert(prev < j);
+                    while (j != prev) {
+                        hessian.start_.push_back(static_cast<HighsInt>(hessian.index_.size()));
+                        prev++;
+                    }
                 }
                 hessian.index_.push_back(static_cast<HighsInt>(i));
                 if (i == j)
@@ -92,10 +95,13 @@ void add_objective(HighsModel& model, Expression& expr, bool sense,
                 else
                     hessian.value_.push_back(it.second);
             }
-            // hessian.dim_ = hessian.index_.size();
+            while (prev < model.lp_.col_lower_.size()) {
+                hessian.start_.push_back(static_cast<HighsInt>(hessian.index_.size()));
+                prev++;
+            }
             hessian.dim_ = static_cast<HighsInt>(model.lp_.col_lower_.size());
             hessian.start_.push_back(static_cast<HighsInt>(hessian.index_.size()));
-            hessian.format_ = HessianFormat::kTriangular;
+            hessian.format_ = HessianFormat::kTriangular;  // Lower triangular representation
         }
     }
 
@@ -168,9 +174,10 @@ void HighsSolver::set_solver_options()
         highs.setOptionValue(it.first, it.second);
 }
 
-void HighsSolver::pre_solve()
+void HighsSolver::pre_solve(Model& coek_model)
 {
     results = std::make_shared<SolverResults>();
+    results->model_name = coek_model.name();
     results->solver_name = "highs";
     results->termination_condition = TerminationCondition::error;
     results->tic();
@@ -180,7 +187,7 @@ void HighsSolver::post_solve() { results->toc(); }
 
 std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
 {
-    pre_solve();
+    pre_solve(coek_model);
     auto _coek_model = coek_model.repn.get();
 
     hmodel.clear();
@@ -201,9 +208,11 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
     try {
         coek::QuadraticExpr orepn;
         for (auto& obj : _coek_model->objectives) {
-            Expression tmp = obj.expr();
-            add_objective(hmodel, tmp, obj.sense(), x, orepn);
-            nobj++;
+            if (obj.active()) {
+                Expression tmp = obj.expr();
+                add_objective(hmodel, tmp, obj.sense(), x, orepn);
+                nobj++;
+            }
         }
     }
     catch (const std::exception& e) {
@@ -225,7 +234,8 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
     try {
         coek::QuadraticExpr repn;
         for (auto& con : _coek_model->constraints) {
-            add_constraint(hmodel, con, x, repn);
+            if (con.active())
+                add_constraint(hmodel, con, x, repn);
         }
     }
     catch (const std::exception& e) {
@@ -320,14 +330,16 @@ std::shared_ptr<SolverResults> HighsSolver::solve(CompactModel& compact_model)
         coek::QuadraticExpr orepn;
         for (auto& val : compact_model.repn->objectives) {
             if (auto eval = std::get_if<Objective>(&val)) {
-                Expression tmp = eval->expr().expand();
-                add_objective(hmodel, tmp, eval->sense(), x, orepn);
-                nobj++;
+                if (eval.active()) {
+                    Expression tmp = eval->expr().expand();
+                    add_objective(hmodel, tmp, eval->sense(), x, orepn);
+                    nobj++;
+                }
             }
             else {
                 auto& seq = std::get<ObjectiveSequence>(val);
+                // TODO - add 'active' semantics to ObjectiveSequence objects!
                 for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
-                    // model.repn->objectives.push_back(*jt);
                     Expression tmp = jt->expr();
                     add_objective(hmodel, tmp, jt->sense(), x, orepn);
                     nobj++;
@@ -355,11 +367,14 @@ std::shared_ptr<SolverResults> HighsSolver::solve(CompactModel& compact_model)
         coek::QuadraticExpr repn;
         for (auto& val : compact_model.repn->constraints) {
             if (auto cval = std::get_if<Constraint>(&val)) {
-                Constraint c = cval->expand();
-                add_constraint(hmodel, c, x, repn);
+                if (cval.active()) {
+                    Constraint c = cval->expand();
+                    add_constraint(hmodel, c, x, repn);
+                }
             }
             else {
                 auto& seq = std::get<ConstraintSequence>(val);
+                // TODO - add active semantics for ConstraintSequence objects
                 for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
                     add_constraint(hmodel, *jt, x, repn);
                 }
@@ -588,7 +603,8 @@ void HighsSolver::collect_results(Model& model, std::shared_ptr<SolverResults>& 
             }
         }
         else if (model_status == HighsModelStatus::kNotset) {
-            results->termination_condition = TerminationCondition::empty_model;
+            results->termination_condition = TerminationCondition::unknown;
+            results->error_message = "Highs Error: Unknown error state kNotset.";
         }
         else if (model_status == HighsModelStatus::kLoadError) {
             results->termination_condition = TerminationCondition::invalid_model_for_solver;

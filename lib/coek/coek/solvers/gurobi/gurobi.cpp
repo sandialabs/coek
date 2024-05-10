@@ -202,9 +202,11 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
     try {
         coek::QuadraticExpr orepn;
         for (auto& obj : model.repn->objectives) {
-            Expression tmp = obj.expr();
-            add_gurobi_objective(gmodel, tmp, obj.sense(), x, orepn);
-            nobj++;
+            if (obj.active()) {
+                Expression tmp = obj.expr();
+                add_gurobi_objective(gmodel, tmp, obj.sense(), x, orepn);
+                nobj++;
+            }
         }
     }
     catch (GRBException e) {
@@ -225,7 +227,8 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
     try {
         coek::QuadraticExpr repn;
         for (auto& con : _model->constraints) {
-            add_gurobi_constraint(gmodel, con, x, repn);
+            if (con.active())
+                add_gurobi_constraint(gmodel, con, x, repn);
         }
     }
     catch (GRBException e) {
@@ -291,14 +294,16 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
         coek::QuadraticExpr orepn;
         for (auto& val : compact_model.repn->objectives) {
             if (auto eval = std::get_if<Objective>(&val)) {
-                Expression tmp = eval->expr().expand();
-                add_gurobi_objective(gmodel, tmp, eval->sense(), x, orepn);
-                nobj++;
+                if (eval.active()) {
+                    Expression tmp = eval->expr().expand();
+                    add_gurobi_objective(gmodel, tmp, eval->sense(), x, orepn);
+                    nobj++;
+                }
             }
             else {
                 auto& seq = std::get<ObjectiveSequence>(val);
+                // TODO - active()
                 for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
-                    // model.repn->objectives.push_back(*jt);
                     Expression tmp = jt->expr();
                     add_gurobi_objective(gmodel, tmp, jt->sense(), x, orepn);
                     nobj++;
@@ -325,11 +330,14 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
         coek::QuadraticExpr repn;
         for (auto& val : compact_model.repn->constraints) {
             if (auto cval = std::get_if<Constraint>(&val)) {
-                Constraint c = cval->expand();
-                add_gurobi_constraint(gmodel, c, x, repn);
+                if (cval.active()) {
+                    Constraint c = cval->expand();
+                    add_gurobi_constraint(gmodel, c, x, repn);
+                }
             }
             else {
                 auto& seq = std::get<ConstraintSequence>(val);
+                // TODO - active()
                 for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
                     add_gurobi_constraint(gmodel, *jt, x, repn);
                 }
@@ -411,9 +419,11 @@ std::shared_ptr<SolverResults> GurobiSolver::resolve()
         try {
             coek::QuadraticExpr orepn;
             for (auto& obj : model.repn->objectives) {
-                Expression tmp = obj.expr();
-                add_gurobi_objective(gmodel, tmp, obj.sense(), x, orepn);
-                nobj++;
+                if (obj.active()) {
+                    Expression tmp = obj.expr();
+                    add_gurobi_objective(gmodel, tmp, obj.sense(), x, orepn);
+                    nobj++;
+                }
             }
         }
         catch (GRBException e) {
@@ -433,7 +443,8 @@ std::shared_ptr<SolverResults> GurobiSolver::resolve()
         try {
             coek::QuadraticExpr repn;
             for (auto& con : model.repn->constraints) {
-                add_gurobi_constraint(gmodel, con, x, repn);
+                if (con.active())
+                    add_gurobi_constraint(gmodel, con, x, repn);
             }
         }
         catch (GRBException e) {
