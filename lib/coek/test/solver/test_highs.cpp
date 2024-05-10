@@ -48,6 +48,22 @@ TEST_CASE("highs_checks", "[solvers][highs]")
             auto res = solver.solve(m);
             REQUIRE(test->check_results(m, res) == true);
         }
+        SECTION("simpleqp3")
+        {
+            auto test = test::model("simpleqp3");
+            auto m = test->model;
+            REQUIRE(m.name() == "simpleqp3");
+            auto res = solver.solve(m);
+            REQUIRE(test->check_results(m, res) == true);
+        }
+        SECTION("simpleqp4")
+        {
+            auto test = test::model("simpleqp4");
+            auto m = test->model;
+            REQUIRE(m.name() == "simpleqp4");
+            auto res = solver.solve(m);
+            REQUIRE(test->check_results(m, res) == true);
+        }
         SECTION("lp_bounds1")
         {
             auto test = test::model("lp_bounds1");

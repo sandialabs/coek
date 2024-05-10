@@ -285,8 +285,10 @@ TEST_CASE("ipopt_examples", "[solvers][ipopt]")
                 check(m.get_variables(), invquad_soln_5);
             }
 
+#        ifdef WITH_CPPAD
             WHEN("invquad_solve") { invquad_array_solve(); }
             WHEN("invquad_resolve") { invquad_array_resolve(); }
+#        endif
         }
 #    endif
     }

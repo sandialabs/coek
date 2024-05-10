@@ -120,7 +120,7 @@ class SimpleQP2 : public TestModel {
     SimpleQP2()
     {
         primal_solution = {375, 250};
-        optimal_objective = 2875000;
+        optimal_objective = 2781250;
 
         // Model
         model.name("simpleqp2");
@@ -128,11 +128,53 @@ class SimpleQP2 : public TestModel {
         auto x = m.add(coek::variable("x").bounds(0, m.inf));
         auto y = m.add(coek::variable("y").bounds(0, m.inf));
 
-        m.add_objective(10 * x * x + 5 * x * y + 4 * y * x + 10 * y * y);
+        m.add_objective(10 * x * x + 5 * x * y + 3 * y * x + 10 * y * y);
         m.add_constraint(2 * x + 3 * y >= 1500);
         m.add_constraint(2 * x + y >= 1000);
     }
     virtual ~SimpleQP2() {}
+};
+
+class SimpleQP3 : public TestModel {
+   public:
+    SimpleQP3()
+    {
+        primal_solution = {375, 250, 1};
+        optimal_objective = 2781876;
+
+        // Model
+        model.name("simpleqp3");
+        auto& m = model;
+        auto x = m.add(coek::variable("x").bounds(0, m.inf));
+        auto y = m.add(coek::variable("y").bounds(0, m.inf));
+        auto z = m.add(coek::variable("z").bounds(1, m.inf));
+
+        m.add_objective(10 * x * x + 5 * x * y + 3 * y * x + x * z + y * z + 10 * y * y + z * z);
+        m.add_constraint(2 * x + 3 * y >= 1500);
+        m.add_constraint(2 * x + y >= 1000);
+    }
+    virtual ~SimpleQP3() {}
+};
+
+class SimpleQP4 : public TestModel {
+   public:
+    SimpleQP4()
+    {
+        primal_solution = {375, 250, 1};
+        optimal_objective = 2781251;
+
+        // Model
+        model.name("simpleqp4");
+        auto& m = model;
+        auto x = m.add(coek::variable("x").bounds(0, m.inf));
+        auto y = m.add(coek::variable("y").bounds(0, m.inf));
+        auto z = m.add(coek::variable("z").bounds(1, m.inf));
+
+        m.add_objective(10 * x * x + 5 * x * y + 3 * y * x + 10 * y * y + z);
+        m.add_constraint(2 * x + 3 * y >= 1500);
+        m.add_constraint(2 * x + y >= 1000);
+    }
+    virtual ~SimpleQP4() {}
 };
 
 class LP_bounds1 : public TestModel {
@@ -260,6 +302,10 @@ std::shared_ptr<TestModel> model(const std::string& name)
         return std::make_shared<SimpleQP1>();
     if (name == "simpleqp2")
         return std::make_shared<SimpleQP2>();
+    if (name == "simpleqp3")
+        return std::make_shared<SimpleQP3>();
+    if (name == "simpleqp4")
+        return std::make_shared<SimpleQP4>();
     if (name == "qp_bounds")
         return std::make_shared<QP_bounds>();
     if (name == "lp_bounds1")

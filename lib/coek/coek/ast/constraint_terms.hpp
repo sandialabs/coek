@@ -16,6 +16,7 @@ class ObjectiveTerm : public BaseExpressionTerm {
    public:
     expr_pointer_t body;
     bool sense;
+    bool active;
     size_t index;
     std::string name;
 
@@ -46,6 +47,7 @@ class ConstraintTerm : public BaseExpressionTerm {
     static size_t count;
 
    public:
+    bool active;
     size_t index;
     expr_pointer_t lower;
     expr_pointer_t body;

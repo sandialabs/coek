@@ -29,6 +29,12 @@ Constraint& Constraint::operator=(const Constraint& expr)
     return *this;
 }
 
+bool Constraint::active() const { return repn->active; }
+
+void Constraint::activate() { repn->active = true; }
+
+void Constraint::deactivate() { repn->active = false; }
+
 size_t Constraint::id() const { return repn->index; }
 
 bool Constraint::is_inequality() const { return repn->is_inequality(); }

@@ -276,9 +276,9 @@ class Model {
     void write(const std::string& filename, std::map<size_t, size_t>& varmap,
                std::map<size_t, size_t>& conmap);
     /** Print the equations in the model to \c std::cout */
-    void print_equations() const;
+    void print_equations(bool active = true) const;
     /** Print the equations in the model to the specified output stream */
-    void print_equations(std::ostream& ostr) const;
+    void print_equations(std::ostream& ostr, bool active = true) const;
     /** Print the values in the model to \c std::cout */
     void print_values();
     /** Print the values in the model to the specified output stream */

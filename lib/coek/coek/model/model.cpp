@@ -31,23 +31,27 @@ std::ostream& operator<<(std::ostream& ostr, const Model& arg)
 }
 
 // GCOVR_EXCL_START
-void Model::print_equations() const { print_equations(std::cout); }
+void Model::print_equations(bool active) const { print_equations(std::cout, active); }
 
 void Model::print_values() { print_values(std::cout); }
 // GCOVR_EXCL_STOP
 
-void Model::print_equations(std::ostream& ostr) const
+void Model::print_equations(std::ostream& ostr, bool active) const
 {
     ostr << "MODEL" << std::endl;
     size_t ctr = 0;
     ostr << "  Objectives" << std::endl;
-    for (auto it = repn->objectives.begin(); it != repn->objectives.end(); ++it) {
-        ostr << "    " << ctr++ << ":  " << *it << std::endl;
+    for (auto& obj : repn->objectives) {
+        if (not active or obj.active())
+            ostr << "    " << ctr << ":  " << obj << std::endl;
+        ctr++;
     }
     ctr = 0;
     ostr << "  Constraints" << std::endl;
-    for (auto it = repn->constraints.begin(); it != repn->constraints.end(); ++it) {
-        ostr << "    " << ctr++ << ":  " << *it << std::endl;
+    for (auto& con : repn->constraints) {
+        if (not active or con.active())
+            ostr << "    " << ctr << ":  " << con << std::endl;
+        ctr++;
     }
 }
 
