@@ -59,6 +59,13 @@ class Constraint {
 
     Constraint expand();
 
+    /** \returns the active state */
+    bool active() const;
+    /** Sets the active state to true */
+    void activate();
+    /** Sets the active state to false */
+    void deactivate();
+
     /** \returns the unique integer constraint ID */
     size_t id() const;
 

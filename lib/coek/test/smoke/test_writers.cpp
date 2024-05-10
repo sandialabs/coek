@@ -698,6 +698,7 @@ TEST_CASE("model_writer", "[smoke]")
             REQUIRE(run_test(model, "testing6", suffix));
     }
 
+#ifdef WITH_CPPAD
     // TODO - Add separate NLP writer tests to confirm the variable mappings
     SECTION("testing1-nlp")
     {
@@ -706,6 +707,7 @@ TEST_CASE("model_writer", "[smoke]")
         for (const std::string& suffix : linear)
             REQUIRE(run_test(nlp, "testing1", suffix));
     }
+#endif
 }
 
 #if 0
@@ -812,6 +814,7 @@ TEST_CASE("model_io", "[smoke]")
 ");
         }
 
+#ifdef WITH_CPPAD
         WHEN("nlp - cppad")
         {
             coek::NLPModel nlp(model, "cppad");
@@ -837,6 +840,7 @@ MODEL\n\
     2:  0 <= 3*b + q <= 1\n\
     3:  2 < 3*b + q < 3\n\n");
         }
+#endif
     }
 
     SECTION("Model values")
@@ -861,6 +865,7 @@ MODEL\n\
    1:  b 0.5 0 1 0\n");
         }
 
+#ifdef WITH_CPPAD
         WHEN("nlp - cppad")
         {
             coek::NLPModel nlp(model, "cppad");
@@ -872,5 +877,6 @@ MODEL\n\
    0: a 0 0 1 0\n\
    1: b 0.5 0 1 0\n");
         }
+#endif
     }
 }
