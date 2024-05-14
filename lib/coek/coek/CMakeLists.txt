@@ -244,6 +244,7 @@ install(FILES
         util/option_cache.hpp
         util/DataPortal.hpp
         util/tictoc.hpp
+        util/io_utils.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/util
         )
 install(FILES
