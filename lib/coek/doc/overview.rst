@@ -38,7 +38,8 @@ Capabilities
 * Solvers
 
   * Ipopt - Coek can dynamically load the Ipopt C interface.
-  * Gurobi - Coek links with the Gurobi C++ interface
+  * Gurobi - Coek compiles with the Gurobi C++ interface
+  * Highs - Coek compiles with the Highs C++ interface
 
 * Automatic Differentiation
 
