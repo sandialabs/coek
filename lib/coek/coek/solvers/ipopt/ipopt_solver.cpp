@@ -15,15 +15,24 @@ std::shared_ptr<SolverResults> IpoptSolver::solve(NLPModel& _model)
 {
     if (not available_) {
         auto res = std::make_shared<SolverResults>();
+        res->model_name = _model.name();
         res->solver_name = "ipopt";
         res->termination_condition = TerminationCondition::solver_not_available;
-        res->error_message = error_message;
+        return res;
+    }
+
+    if (_model.num_variables() == 0) {
+        auto res = std::make_shared<SolverResults>();
+        res->model_name = _model.name();
+        res->solver_name = "ipopt";
+        res->termination_condition = TerminationCondition::empty_model;
         return res;
     }
 
     load(_model);
     if (not initial_solve()) {
         auto res = std::make_shared<SolverResults>();
+        res->model_name = _model.name();
         res->solver_name = "ipopt";
         res->termination_condition = TerminationCondition::error;
         res->error_message
@@ -39,9 +48,17 @@ std::shared_ptr<SolverResults> IpoptSolver::resolve_exec()
 {
     if (not available_) {
         auto res = std::make_shared<SolverResults>();
+        res->model_name = model->name();
         res->solver_name = "ipopt";
         res->termination_condition = TerminationCondition::solver_not_available;
         res->error_message = error_message;
+        return res;
+    }
+    if (model->num_variables() == 0) {
+        auto res = std::make_shared<SolverResults>();
+        res->model_name = model->name();
+        res->solver_name = "ipopt";
+        res->termination_condition = TerminationCondition::empty_model;
         return res;
     }
 

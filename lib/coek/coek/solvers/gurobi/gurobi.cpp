@@ -12,6 +12,7 @@
 #include "coek/compact/objective_sequence.hpp"
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
+#include "coek/api/exceptions.hpp"
 #include "coek_gurobi.hpp"
 #include "gurobi_c++.h"
 
@@ -211,7 +212,15 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
     }
     catch (GRBException e) {
         results->error_message
-            = "Gurobi Error: Caught gurobi exception while creating objectives " + e.getMessage();
+            = "Gurobi Error: Caught gurobi exception while creating objectives - " + e.getMessage();
+        post_solve();
+        return results;
+    }
+    catch (const exceptions::NonquadraticExpression& e) {
+        results->termination_condition = TerminationCondition::invalid_model_for_solver;
+        results->error_message
+            = "Gurobi Error: Attempting to solve gurobi with a non-quadratic objective - "
+              + std::to_string(e);
         post_solve();
         return results;
     }
@@ -233,7 +242,16 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
     }
     catch (GRBException e) {
         results->error_message
-            = "Gurobi Error: Caught gurobi exception while creating constraints " + e.getMessage();
+            = "Gurobi Error: Caught gurobi exception while creating constraints - "
+              + e.getMessage();
+        post_solve();
+        return results;
+    }
+    catch (const exceptions::NonquadraticExpression& e) {
+        results->termination_condition = TerminationCondition::invalid_model_for_solver;
+        results->error_message
+            = "Gurobi Error: Attempting to solve gurobi with a non-quadratic constraint - "
+              + std::to_string(e);
         post_solve();
         return results;
     }
@@ -244,7 +262,7 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
     }
     catch (GRBException e) {
         results->error_message
-            = "Gurobi Error: Caught gurobi exception while optimizing " + e.getMessage();
+            = "Gurobi Error: Caught gurobi exception while optimizing - " + e.getMessage();
         post_solve();
         return results;
     }
@@ -294,7 +312,7 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
         coek::QuadraticExpr orepn;
         for (auto& val : compact_model.repn->objectives) {
             if (auto eval = std::get_if<Objective>(&val)) {
-                if (eval.active()) {
+                if (eval->active()) {
                     Expression tmp = eval->expr().expand();
                     add_gurobi_objective(gmodel, tmp, eval->sense(), x, orepn);
                     nobj++;
@@ -313,7 +331,7 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
     }
     catch (GRBException e) {
         results->error_message
-            = "Gurobi Error: Caught gurobi exception while creating objectives " + e.getMessage();
+            = "Gurobi Error: Caught gurobi exception while creating objectives - " + e.getMessage();
         post_solve();
         return results;
     }
@@ -330,7 +348,7 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
         coek::QuadraticExpr repn;
         for (auto& val : compact_model.repn->constraints) {
             if (auto cval = std::get_if<Constraint>(&val)) {
-                if (cval.active()) {
+                if (cval->active()) {
                     Constraint c = cval->expand();
                     add_gurobi_constraint(gmodel, c, x, repn);
                 }
@@ -346,7 +364,8 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
     }
     catch (GRBException e) {
         results->error_message
-            = "Gurobi Error: Caught gurobi exception while creating constraints " + e.getMessage();
+            = "Gurobi Error: Caught gurobi exception while creating constraints - "
+              + e.getMessage();
         post_solve();
         return results;
     }
@@ -357,7 +376,7 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
     }
     catch (GRBException e) {
         results->error_message
-            = "Gurobi Error: Caught gurobi exception while optimizing " + e.getMessage();
+            = "Gurobi Error: Caught gurobi exception while optimizing - " + e.getMessage();
         post_solve();
         return results;
     }
@@ -428,7 +447,7 @@ std::shared_ptr<SolverResults> GurobiSolver::resolve()
         }
         catch (GRBException e) {
             results->error_message
-                = "Gurobi Error: Caught gurobi exception while creating objectives "
+                = "Gurobi Error: Caught gurobi exception while creating objectives - "
                   + e.getMessage();
             return results;
         }
@@ -449,7 +468,7 @@ std::shared_ptr<SolverResults> GurobiSolver::resolve()
         }
         catch (GRBException e) {
             results->error_message
-                = "Gurobi Error: Caught gurobi exception while creating constraints "
+                = "Gurobi Error: Caught gurobi exception while creating constraints - "
                   + e.getMessage();
             return results;
         }
@@ -460,7 +479,7 @@ std::shared_ptr<SolverResults> GurobiSolver::resolve()
         }
         catch (GRBException e) {
             results->error_message
-                = "Gurobi Error: Caught gurobi exception while optimizing " + e.getMessage();
+                = "Gurobi Error: Caught gurobi exception while optimizing - " + e.getMessage();
             return results;
         }
     }
@@ -507,7 +526,7 @@ std::shared_ptr<SolverResults> GurobiSolver::resolve()
         }
         catch (GRBException e) {
             results->error_message
-                = "Gurobi Error: Caught gurobi exception while optimizing " + e.getMessage();
+                = "Gurobi Error: Caught gurobi exception while optimizing - " + e.getMessage();
             return results;
         }
     }
@@ -637,7 +656,7 @@ void GurobiSolver::collect_results(Model& model, std::shared_ptr<SolverResults>&
     }
     catch (GRBException e) {
         results->termination_condition = TerminationCondition::unknown;
-        results->error_message = "GUROBI Exception: (results) " + e.getMessage();
+        results->error_message = "GUROBI Exception: (results) - " + e.getMessage();
     }
 }
 

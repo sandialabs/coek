@@ -359,6 +359,7 @@ Number* array_ptr(std::vector<Number>& v)
 std::shared_ptr<SolverResults> IpoptModel::perform_solve()
 {
     auto res = std::make_shared<SolverResults>();
+    res->model_name = nlpmodel.name();
     res->solver_name = "ipopt";
     res->tic();
 
@@ -391,7 +392,7 @@ std::shared_ptr<SolverResults> IpoptModel::perform_solve()
 #endif
         res->termination_condition = TerminationCondition::convergence_criteria_satisfied;
         res->solution_status = SolutionStatus::optimal;
-        res->objective_value = last_objval;
+        res->objective_value = objsign * last_objval;
 
         for (size_t i : coek::range(nlpmodel.num_variables())) {
             auto v = nlpmodel.get_variable(i);
@@ -401,7 +402,7 @@ std::shared_ptr<SolverResults> IpoptModel::perform_solve()
     else if (status == Feasible_Point_Found) {
         res->termination_condition = TerminationCondition::unknown;
         res->solution_status = SolutionStatus::feasible;
-        res->objective_value = last_objval;
+        res->objective_value = objsign * last_objval;
 
         for (size_t i : coek::range(nlpmodel.num_variables())) {
             auto v = nlpmodel.get_variable(i);

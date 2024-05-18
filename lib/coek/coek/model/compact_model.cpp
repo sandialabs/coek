@@ -67,34 +67,45 @@ Variable& CompactModel::add_variable(Variable&& var)
 
 void CompactModel::add_variable(PythonVariableArray& varray)
 {
-    repn->variables.insert(repn->variables.end(), varray.variables.begin(), varray.variables.end());
+    for (auto& var : varray.variables)
+        repn->variables.push_back(var);
+    // repn->variables.insert(repn->variables.end(), varray.variables.begin(),
+    // varray.variables.end());
     repn->variable_names.insert(repn->variable_names.end(), varray.variables.size(), "");
 }
 
 VariableMap& CompactModel::add_variable(VariableMap& vars)
 {
-    repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
+    for (auto& var : vars)
+        repn->variables.push_back(var);
+    // repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
     repn->variable_names.insert(repn->variable_names.end(), vars.size(), "");
     return vars;
 }
 
 VariableMap& CompactModel::add_variable(VariableMap&& vars)
 {
-    repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
+    for (auto& var : vars)
+        repn->variables.push_back(var);
+    // repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
     repn->variable_names.insert(repn->variable_names.end(), vars.size(), "");
     return vars;
 }
 
 VariableArray& CompactModel::add_variable(VariableArray& vars)
 {
-    repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
+    for (auto& var : vars)
+        repn->variables.push_back(var);
+    // repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
     repn->variable_names.insert(repn->variable_names.end(), vars.size(), "");
     return vars;
 }
 
 VariableArray& CompactModel::add_variable(VariableArray&& vars)
 {
-    repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
+    for (auto& var : vars)
+        repn->variables.push_back(var);
+    // repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
     repn->variable_names.insert(repn->variable_names.end(), vars.size(), "");
     return vars;
 }

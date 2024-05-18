@@ -253,8 +253,9 @@ void ASL_Repn::initialize()
     alloc_asl();
     ASL_pfgh* asl = asl_;
 
-    // Must have at least one continuous variable.
-    assert(n_var > 0);
+    if (nx == 0)
+        return;
+
     // API does not support discrete variables
     assert((nbv == 0 && niv == 0 && nlvbi == 0 && nlvci == 0 && nlvoi == 0));
     // API does not support complementary constraints
@@ -278,11 +279,6 @@ void ASL_Repn::initialize()
     //
     // Resize and initialize the ASL_Repn data
     //
-    nx = static_cast<size_t>(n_var);
-    nf = static_cast<size_t>(n_obj);
-    nc = static_cast<size_t>(n_con);
-    nnz_jac_g = static_cast<size_t>(nzc);
-
     currx.resize(nx);
     xlb.resize(nx);
     xub.resize(nx);
@@ -353,9 +349,15 @@ void ASL_Repn::alloc_asl()
     return_nofile = 1;  // A hack to prevent the ASL from calling exit()
     FILE* nlfile = jac0dim(&(fname[0]), static_cast<fint>(fname.length()));
     if (!nlfile) {
-        throw std::runtime_error(
-            "ASL_Repn::alloc_asl - Cannot create ASL interface for model with no variables.");
+        // The model has no variables, but we don't treat this as an error here.
+        nx = 0;
+        return;
     }
+    nx = static_cast<size_t>(n_var);
+    nf = static_cast<size_t>(n_obj);
+    nc = static_cast<size_t>(n_con);
+    nnz_jac_g = static_cast<size_t>(nzc);
+
     //
     // allocate space for data read in by pfgh_read()
     //

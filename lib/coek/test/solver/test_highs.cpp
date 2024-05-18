@@ -23,7 +23,15 @@ TEST_CASE("highs_checks", "[solvers][highs]")
             auto res = solver.solve(m);
             REQUIRE(res->termination_condition == coek::TerminationCondition::empty_model);
         }
-
+        SECTION("rosenbr")
+        {
+            auto test = test::model("rosenbr");
+            auto m = test->model;
+            REQUIRE(m.name() == "rosenbr");
+            auto res = solver.solve(m);
+            REQUIRE(res->termination_condition
+                    == coek::TerminationCondition::invalid_model_for_solver);
+        }
         SECTION("simplelp1")
         {
             auto test = test::model("simplelp1");
@@ -90,6 +98,7 @@ TEST_CASE("highs_checks", "[solvers][highs]")
         }
     }
     else {
+        // GCOVR_EXCL_START
         SECTION("simplelp1")
         {
             auto test = test::model("simplelp1");
@@ -98,5 +107,6 @@ TEST_CASE("highs_checks", "[solvers][highs]")
             auto res = solver.solve(m);
             REQUIRE(res->termination_condition == coek::TerminationCondition::solver_not_available);
         }
+        // GCOVR_EXCL_STOP
     }
 }

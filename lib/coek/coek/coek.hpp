@@ -9,6 +9,7 @@
 #    include <variant>
 #endif
 
+#include "coek/api/exceptions.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/expression_visitor.hpp"

@@ -36,10 +36,12 @@ TEMPLATE_TEST_CASE("model_add", "[smoke]", coek::Model)
         WHEN("array")
         {
             auto w = model.add(coek::variable(3));
-            auto x = model.add(coek::variable(3).value(1));
-            auto y = model.add(coek::variable(3)).value(1);
             REQUIRE(w.size() == 3);
+
+            auto x = model.add(coek::variable(3).value(1));
             REQUIRE(x.size() == 3);
+
+            auto y = model.add(coek::variable(3)).value(1);
             REQUIRE(y.size() == 3);
         }
 
@@ -469,6 +471,27 @@ TEST_CASE("model_setup", "[smoke]")
             REQUIRE(model.num_objectives() == 1);
         }
 
+        WHEN("deactivate")
+        {
+            REQUIRE(model.num_objectives() == 0);
+            coek::Expression e1 = 3 * b + q;
+            auto o1 = model.add_objective(e1);
+            coek::Expression e2 = 2 * b + q;
+            auto o2 = model.add_objective(e2);
+            REQUIRE(model.num_objectives() == 2);
+            REQUIRE(model.num_active_objectives() == 2);
+            o1.deactivate();
+            REQUIRE(o1.active() == false);
+            REQUIRE(o2.active() == true);
+            REQUIRE(model.num_objectives() == 2);
+            REQUIRE(model.num_active_objectives() == 1);
+            o1.activate();
+            REQUIRE(o1.active() == true);
+            REQUIRE(o2.active() == true);
+            REQUIRE(model.num_objectives() == 2);
+            REQUIRE(model.num_active_objectives() == 2);
+        }
+
         WHEN("error1")
         {
             model.add_objective(3 * b + q);
@@ -532,6 +555,27 @@ TEST_CASE("model_setup", "[smoke]")
             REQUIRE(model.get_suffix("conval", c) == 2.0);
             static std::set<std::string> names = {"conval"};
             REQUIRE(model.constraint_suffix_names() == names);
+        }
+
+        WHEN("deactivate")
+        {
+            REQUIRE(model.num_constraints() == 0);
+            coek::Expression e1 = 3 * b + q;
+            auto c1 = model.add_constraint(e1 == 1);
+            coek::Expression e2 = 2 * b + q;
+            auto c2 = model.add_constraint(e2 == 1);
+            REQUIRE(model.num_constraints() == 2);
+            REQUIRE(model.num_active_constraints() == 2);
+            c1.deactivate();
+            REQUIRE(c1.active() == false);
+            REQUIRE(c2.active() == true);
+            REQUIRE(model.num_constraints() == 2);
+            REQUIRE(model.num_active_constraints() == 1);
+            c1.activate();
+            REQUIRE(c1.active() == true);
+            REQUIRE(c2.active() == true);
+            REQUIRE(model.num_constraints() == 2);
+            REQUIRE(model.num_active_constraints() == 2);
         }
     }
 

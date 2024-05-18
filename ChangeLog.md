@@ -4,12 +4,21 @@ Here we list changes of Coek.  More detailed information
 about incremental changes can be found in the [commit
 history](https://github.com/sandialabs/coek/commits).
 
-## 1.5.dev
+## 2.0
 
+* Adding support for builds with Spack
+* Rework of CMake specification of coek::coek to account for subpackage dependencies
 * coek_utils: Python utilities that work with coek
+* coek: Fixes for clang compiler
+* coek: Adding support for activate/deactivate in objectives and constraints
 * coek: Added tictoc and DataPortals logic
 * coek: Added new template type utilities
 * coek: Using std::to_string to standardize coek tests
+* coek: Suppress Gurobi license server output by default
+* coek: Added interface to Highs solver
+* coek: Added support for detailed solver results information
+* coek: Using size_t for unsigned integer values
+* coek: Deprecating C++14 tests (for now)
 * poek: Test updates based on standardized coek test outputs
 * pycoek: Various API additions to improve pyomo_coek compatibility with pyomo
 * pyomo_coek: Various changes to improve compatibility with pyomo

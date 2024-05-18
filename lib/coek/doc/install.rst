@@ -3,11 +3,30 @@ Installing Coek
 
 There are several options for installing Coek:
 
+* Installing with the top-level ``build_dev.sh`` script.
 * Install the latest release or development branch using Spack
 * Install from source using CMake
 
+Installing with ``build_dev.sh``
+--------------------------------
+
 Developers will find the top-level ``build_dev.sh`` script useful for setting up a
-build environment after cloning the Coek repository.
+build environment after cloning the Coek repository.  Thus, Coek can be installed as follows:
+
+.. code-block:: bash
+
+    git clone git@github.com:sandialabs/coek.git
+    ./build_dev.sh
+
+This script combines many elements of the detailed installation procedures documented below:
+
+* Dependent packages are installed using Spack into the ``spack`` directory
+
+* Coek is configured to build with Gurobi if the ``GUROBI_HOME`` environment variable is specified
+
+* Coek is configured to build with Highs and Ipopt.  Ipopt is dynamically linked at runtime.
+
+* Coek is built within the ``build`` directory
 
 Installing with Spack
 ---------------------
@@ -79,7 +98,7 @@ Similarly, you can see the packages installed with Spack with the *find* command
 
 .. code-block:: bash
 
-    spack find coek@dev
+    spack find
 
 .. note::
 
@@ -103,7 +122,9 @@ Coek includes a variety of configuration options that can be used to customize a
     * - python
       - Build pycoek and install coek python libraries
     * - gurobi
-      - Build with Gurobi optimization library
+      - Build with the Gurobi optimization library
+    * - highs
+      - Build with the Highs optimization library
     * - cppad
       - Build with the CppAD library
     * - asl
@@ -185,7 +206,9 @@ are configured with the following CMake options:
     * - with_python
       - Build pycoek and install coek python libraries
     * - with_gurobi
-      - Build with Gurobi optimization library
+      - Build with the Gurobi optimization library
+    * - with_highs
+      - Build with the Highs optimization library
     * - with_cppad
       - Build with the CppAD library
     * - with_asl

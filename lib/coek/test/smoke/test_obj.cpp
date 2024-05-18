@@ -15,6 +15,15 @@ TEST_CASE("elementary_objective", "[smoke]")
 {
     SECTION("constructors")
     {
+        WHEN("empty")
+        {
+            auto v = coek::variable("v");
+            auto o = coek::objective("test").expr(v);
+            REQUIRE(o.name() == "test");
+            static std::list<std::string> baseline = {"v"};
+            REQUIRE(o.expr().to_list() == baseline);
+        }
+
         WHEN("repn")
         {
             auto v = coek::variable("v");

@@ -244,6 +244,7 @@ install(FILES
         util/option_cache.hpp
         util/DataPortal.hpp
         util/tictoc.hpp
+        util/io_utils.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/util
         )
 install(FILES
@@ -251,6 +252,7 @@ install(FILES
         api/subexpression_map.hpp
         api/constants.hpp
         api/constraint.hpp
+        api/exceptions.hpp
         api/expression.hpp
         api/expression_visitor.hpp
         api/intrinsic_fn.hpp

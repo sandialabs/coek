@@ -9,6 +9,7 @@
 #    include "compact_terms.hpp"
 #endif
 
+#include "coek/api/exceptions.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/expression_visitor.hpp"
 
@@ -191,10 +192,10 @@ void visit(std::shared_ptr<TimesTerm>& expr, QuadraticExpr& repn, double multipl
 
     if ((lhs_repn.quadratic_coefs.size() > 0)
         and ((rhs_repn.linear_coefs.size() + rhs_repn.quadratic_coefs.size()) > 0))
-        throw std::runtime_error(
+        throw exceptions::NonquadraticExpression(
             "Non-quadratic expressions cannot be expressed in a QuadraticExpr object.");
     if ((rhs_repn.quadratic_coefs.size() > 0) and (lhs_repn.linear_coefs.size() > 0))
-        throw std::runtime_error(
+        throw exceptions::NonquadraticExpression(
             "Non-quadratic expressions cannot be expressed in a QuadraticExpr object.");
 }
 
@@ -210,7 +211,7 @@ void visit(std::shared_ptr<DivideTerm>& expr, QuadraticExpr& repn, double multip
     visit_expression(expr->rhs, rhs_repn, 1.0);
 
     if ((rhs_repn.linear_coefs.size() + rhs_repn.quadratic_coefs.size()) > 0)
-        throw std::runtime_error(
+        throw exceptions::NonquadraticExpression(
             "Non-constant expressions cannot appear in the denominator of quadratic expressions.");
     if (rhs_repn.constval == 0.0)
         throw std::runtime_error("Division by zero error.");
@@ -228,7 +229,7 @@ void visit(std::shared_ptr<IfThenElseTerm>& expr, QuadraticExpr& repn, double mu
     QuadraticExpr cond_repn;
     visit_expression(expr->cond_expr, cond_repn, 1.0);
     if ((cond_repn.linear_coefs.size() + cond_repn.quadratic_coefs.size()) > 0)
-        throw std::runtime_error(
+        throw exceptions::NonquadraticExpression(
             "Non-constant expressions in the condition of an if-then-else expression are "
             "non-quadratic.");
 
@@ -238,17 +239,18 @@ void visit(std::shared_ptr<IfThenElseTerm>& expr, QuadraticExpr& repn, double mu
         visit_expression(expr->else_expr, repn, multiplier);
 }
 
-#define UNARY_VISITOR(TERM, FN)                                                                    \
-    void visit(std::shared_ptr<TERM>& expr, QuadraticExpr& repn, double multiplier)                \
-    {                                                                                              \
-        QuadraticExpr body_repn;                                                                   \
-        visit_expression(expr->body, body_repn, 1.0);                                              \
-                                                                                                   \
-        if ((body_repn.linear_coefs.size() + body_repn.quadratic_coefs.size()) > 0)                \
-            throw std::runtime_error("Nonlinear expressions are not supported for QuadraticExpr: " \
-                                     + std::string(#FN) + " term.");                               \
-                                                                                                   \
-        repn.constval += multiplier * ::FN(body_repn.constval);                                    \
+#define UNARY_VISITOR(TERM, FN)                                                                  \
+    void visit(std::shared_ptr<TERM>& expr, QuadraticExpr& repn, double multiplier)              \
+    {                                                                                            \
+        QuadraticExpr body_repn;                                                                 \
+        visit_expression(expr->body, body_repn, 1.0);                                            \
+                                                                                                 \
+        if ((body_repn.linear_coefs.size() + body_repn.quadratic_coefs.size()) > 0)              \
+            throw exceptions::NonquadraticExpression(                                            \
+                "Nonlinear expressions are not supported for QuadraticExpr: " + std::string(#FN) \
+                + " term.");                                                                     \
+                                                                                                 \
+        repn.constval += multiplier * ::FN(body_repn.constval);                                  \
     }
 
 // clang-format off
@@ -273,22 +275,24 @@ UNARY_VISITOR(ACoshTerm, acosh)
 UNARY_VISITOR(ATanhTerm, atanh)
 // clang-format on
 
-#define BINARY_VISITOR(TERM, FN)                                                                   \
-    void visit(std::shared_ptr<TERM>& expr, QuadraticExpr& repn, double multiplier)                \
-    {                                                                                              \
-        QuadraticExpr lhs_repn;                                                                    \
-        visit_expression(expr.lhs, lhs_repn, 1.0);                                                 \
-        if ((lhs_repn.linear_coefs.size() + lhs_repn.quadratic_coefs.size()) > 0)                  \
-            throw std::runtime_error("Nonlinear expressions are not supported for QuadraticExpr: " \
-                                     + std::string(#FN) + " term.");                               \
-                                                                                                   \
-        QuadraticExpr rhs_repn;                                                                    \
-        visit_expression(expr.rhs, rhs_repn, 1.0);                                                 \
-        if ((rhs_repn.linear_coefs.size() + rhs_repn.quadratic_coefs.size()) > 0)                  \
-            throw std::runtime_error("Nonlinear expressions are not supported for QuadraticExpr: " \
-                                     + std::string(#FN) + " term.");                               \
-                                                                                                   \
-        repn.constval += multiplier * ::FN(lhs_repn.constval, rhs_repn.constval);                  \
+#define BINARY_VISITOR(TERM, FN)                                                                 \
+    void visit(std::shared_ptr<TERM>& expr, QuadraticExpr& repn, double multiplier)              \
+    {                                                                                            \
+        QuadraticExpr lhs_repn;                                                                  \
+        visit_expression(expr.lhs, lhs_repn, 1.0);                                               \
+        if ((lhs_repn.linear_coefs.size() + lhs_repn.quadratic_coefs.size()) > 0)                \
+            throw exceptions::NonquadraticExpression(                                            \
+                "Nonlinear expressions are not supported for QuadraticExpr: " + std::string(#FN) \
+                + " term.");                                                                     \
+                                                                                                 \
+        QuadraticExpr rhs_repn;                                                                  \
+        visit_expression(expr.rhs, rhs_repn, 1.0);                                               \
+        if ((rhs_repn.linear_coefs.size() + rhs_repn.quadratic_coefs.size()) > 0)                \
+            throw exceptions::NonquadraticExpression(                                            \
+                "Nonlinear expressions are not supported for QuadraticExpr: " + std::string(#FN) \
+                + " term.");                                                                     \
+                                                                                                 \
+        repn.constval += multiplier * ::FN(lhs_repn.constval, rhs_repn.constval);                \
     }
 
 void visit(std::shared_ptr<PowTerm>& expr, QuadraticExpr& repn, double multiplier)
@@ -296,7 +300,7 @@ void visit(std::shared_ptr<PowTerm>& expr, QuadraticExpr& repn, double multiplie
     QuadraticExpr rhs_repn;
     visit_expression(expr->rhs, rhs_repn, 1.0);
     if (not rhs_repn.is_constant())
-        throw std::runtime_error(
+        throw exceptions::NonquadraticExpression(
             "Nonlinear expressions are not supported for QuadraticExpr: pow term with non-constant "
             "exponent.");
 
@@ -336,7 +340,7 @@ void visit(std::shared_ptr<PowTerm>& expr, QuadraticExpr& repn, double multiplie
         }
 
         else {
-            throw std::runtime_error(
+            throw exceptions::NonquadraticExpression(
                 "Nonlinear expressions are not supported for QuadraticExpr: pow term with "
                 "nonlinear base or constant exponent other than 2.");
         }
