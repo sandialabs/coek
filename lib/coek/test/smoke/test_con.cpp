@@ -1925,7 +1925,7 @@ TEMPLATE_TEST_CASE("indexed_constraint", "[smoke]", MODEL_TYPES)
             auto v = coek::variable(A);
             auto c = coek::constraint(A);
             for (size_t i = 0; i < 10; ++i) {
-                auto tmp = v(i, i) == i;
+                auto tmp = v(i, i) == static_cast<double>(i);
                 c(i, i) = tmp;
             }
             REQUIRE(c.size() == 10);

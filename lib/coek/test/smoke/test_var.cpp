@@ -424,15 +424,37 @@ TEST_CASE("1D_var_array", "[smoke]")
                 REQUIRE(vars(i).name() == "v[" + std::to_string(i) + "]");
         }
 
-        WHEN("iter")
+        WHEN("iter0")
         {
             auto vars = coek::variable(4).value(1);
-            for (auto& v : vars)
-                REQUIRE(v.value() == 1);
-
-            decltype(vars)::const_iterator it;
-            for (it = vars.cbegin(); it < vars.cend(); ++it)
+            unsigned int n_var = 0;
+            for (auto it = vars.cbegin(); it < vars.cend(); ++it) {
                 REQUIRE(it->value() == 1);
+                n_var++;
+            }
+            REQUIRE(n_var == 4);
+        }
+
+        WHEN("iter1")
+        {
+            auto vars = coek::variable(4).value(1);
+            unsigned int n_var = 0;
+            for (auto it = vars.begin(); it < vars.end(); ++it) {
+                REQUIRE(it->value() == 1);
+                n_var++;
+            }
+            REQUIRE(n_var == 4);
+        }
+
+        WHEN("iter2")
+        {
+            auto vars = coek::variable(4).value(1);
+            unsigned int n_var = 0;
+            for (auto& v : vars) {
+                REQUIRE(v.value() == 1);
+                n_var++;
+            }
+            REQUIRE(n_var == 4);
         }
 
         WHEN("fixed")

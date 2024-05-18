@@ -198,7 +198,25 @@ size_t Model::num_variables() const { return repn->variables.size(); }
 
 size_t Model::num_objectives() const { return repn->objectives.size(); }
 
+size_t Model::num_active_objectives() const
+{
+    size_t ans = 0;
+    for (auto& o : repn->objectives)
+        if (o.active())
+            ++ans;
+    return ans;
+}
+
 size_t Model::num_constraints() const { return repn->constraints.size(); }
+
+size_t Model::num_active_constraints() const
+{
+    size_t ans = 0;
+    for (auto& c : repn->constraints)
+        if (c.active())
+            ++ans;
+    return ans;
+}
 
 Variable Model::get_variable(size_t i)
 {

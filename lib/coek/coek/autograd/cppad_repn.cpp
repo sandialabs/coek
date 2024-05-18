@@ -267,29 +267,37 @@ void CppAD_Repn::create_CppAD_function()
 
             size_t nb = 0;
             for (auto& it : model.repn->objectives) {
-                build_expression(simplify_expr(it.repn, cache), ADvars, ADrange[nb],
-                                 _used_variables);
-                nb++;
+                if (it.active()) {
+                    build_expression(simplify_expr(it.repn, cache), ADvars, ADrange[nb],
+                                     _used_variables);
+                    nb++;
+                }
             }
 
             nb = 0;
             for (auto& it : model.repn->constraints) {
-                build_expression(simplify_expr(it.repn, cache), ADvars, ADrange[nf + nb],
-                                 _used_variables);
-                nb++;
+                if (it.active()) {
+                    build_expression(simplify_expr(it.repn, cache), ADvars, ADrange[nf + nb],
+                                     _used_variables);
+                    nb++;
+                }
             }
         }
         else {
             size_t nb = 0;
             for (auto& it : model.repn->objectives) {
-                build_expression(it.repn, ADvars, ADrange[nb], _used_variables);
-                nb++;
+                if (it.active()) {
+                    build_expression(it.repn, ADvars, ADrange[nb], _used_variables);
+                    nb++;
+                }
             }
 
             nb = 0;
             for (auto& it : model.repn->constraints) {
-                build_expression(it.repn, ADvars, ADrange[nf + nb], _used_variables);
-                nb++;
+                if (it.active()) {
+                    build_expression(it.repn, ADvars, ADrange[nf + nb], _used_variables);
+                    nb++;
+                }
             }
         }
     }
@@ -308,8 +316,11 @@ void CppAD_Repn::initialize()
     //
     find_used_variables();
     nx = used_variables.size();
-    nf = model.repn->objectives.size();
-    nc = model.repn->constraints.size();
+    nf = model.num_active_objectives();
+    nc = model.num_active_constraints();
+
+    if (nx == 0)
+        return;
 
     create_CppAD_function();
 
@@ -583,6 +594,9 @@ void CppAD_Repn::initialize()
 
 void CppAD_Repn::reset(void)
 {
+    if (nx == 0)
+        return;
+
     //
     // Initialize the CppAD dynamic parameters
     //

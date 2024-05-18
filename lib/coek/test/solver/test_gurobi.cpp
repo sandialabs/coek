@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "catch2/catch_test_macros.hpp"
 #include "catch2/catch_approx.hpp"
 #include "catch2/generators/catch_generators.hpp"
@@ -24,6 +22,15 @@ TEST_CASE("gurobi_checks", "[solvers][gurobi]")
             REQUIRE(m.name() == "empty");
             auto res = solver.solve(m);
             REQUIRE(res->termination_condition == coek::TerminationCondition::empty_model);
+        }
+        SECTION("rosenbr")
+        {
+            auto test = test::model("rosenbr");
+            auto m = test->model;
+            REQUIRE(m.name() == "rosenbr");
+            auto res = solver.solve(m);
+            REQUIRE(res->termination_condition
+                    == coek::TerminationCondition::invalid_model_for_solver);
         }
         SECTION("simplelp1")
         {
@@ -91,6 +98,7 @@ TEST_CASE("gurobi_checks", "[solvers][gurobi]")
         }
     }
     else {
+        // GCOVR_EXCL_START
         SECTION("simplelp1")
         {
             auto test = test::model("simplelp1");
@@ -99,5 +107,6 @@ TEST_CASE("gurobi_checks", "[solvers][gurobi]")
             auto res = solver.solve(m);
             REQUIRE(res->termination_condition == coek::TerminationCondition::solver_not_available);
         }
+        // GCOVR_EXCL_STOP
     }
 }

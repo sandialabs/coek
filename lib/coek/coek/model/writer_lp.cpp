@@ -222,8 +222,19 @@ void LPWriter::print_objectives(StreamType& ostr, Model& model)
 {
     CALI_CXX_MARK_FUNCTION;
 
-    auto obj = model.get_objective(0);
-    print_objective(ostr, obj);
+    unsigned int n_obj = 0;
+    for (auto& obj : model.repn->objectives) {
+        if (obj.active()) {
+            print_objective(ostr, obj);
+            ++n_obj;
+        }
+    }
+    if (n_obj == 0) {
+        throw std::runtime_error("Error writing LP file: No objectives specified!");
+    }
+    if (n_obj > 1) {
+        throw std::runtime_error("Error writing LP file: More than one objective defined!");
+    }
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
@@ -232,23 +243,26 @@ void LPWriter::print_objectives(StreamType& ostr, CompactModel& model)
 {
     CALI_CXX_MARK_FUNCTION;
 
-    int nobj = 0;
+    unsigned int n_obj = 0;
     for (auto& val : model.repn->objectives) {
         if (auto eval = std::get_if<Objective>(&val)) {
             auto obj = objective().expr(eval->expr().expand()).sense(eval->sense());
             print_objective(ostr, obj);
-            ++nobj;
+            ++n_obj;
         }
         else {
             auto& seq = std::get<ObjectiveSequence>(val);
             for (auto& jt : seq) {
                 print_objective(ostr, jt);
-                ++nobj;
+                ++n_obj;
             }
         }
     }
-    if (nobj > 1) {
-        throw std::runtime_error("More than one objective defined!");
+    if (n_obj == 0) {
+        throw std::runtime_error("Error writing LP file: No objectives specified!");
+    }
+    if (n_obj > 1) {
+        throw std::runtime_error("Error writing LP file: More than one objective defined!");
     }
 }
 #endif
@@ -365,13 +379,6 @@ template <class StreamType, class ModelType>
 void LPWriter::write(StreamType& ostr, ModelType& model)
 {
     CALI_CXX_MARK_FUNCTION;
-
-    if (model.repn->objectives.size() == 0) {
-        throw std::runtime_error("Error writing LP file: No objectives specified!");
-    }
-    if (model.repn->objectives.size() > 1) {
-        throw std::runtime_error("Error writing LP file: More than one objective defined!");
-    }
 
     // Create variable ID map
     collect_variables(model);

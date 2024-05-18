@@ -163,12 +163,17 @@ void VariableArray::index_error(size_t i)
 
 VariableArray::const_iterator VariableArray::cbegin() const noexcept
 {
+    repn->setup();
     return repn->values.begin();
 }
 
 VariableArray::const_iterator VariableArray::cend() const noexcept { return repn->values.end(); }
 
-VariableArray::iterator VariableArray::begin() noexcept { return repn->values.begin(); }
+VariableArray::iterator VariableArray::begin() noexcept
+{
+    repn->setup();
+    return repn->values.begin();
+}
 
 VariableArray::iterator VariableArray::end() noexcept { return repn->values.end(); }
 

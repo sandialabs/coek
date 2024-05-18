@@ -252,6 +252,7 @@ install(FILES
         api/subexpression_map.hpp
         api/constants.hpp
         api/constraint.hpp
+        api/exceptions.hpp
         api/expression.hpp
         api/expression_visitor.hpp
         api/intrinsic_fn.hpp
