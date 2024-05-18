@@ -293,6 +293,7 @@ TEST_CASE("ipopt_examples", "[solvers][ipopt]")
 #    endif
     }
     else {
+        // GCOVR_EXCL_START
         SECTION("rosenbr")
         {
             auto m = rosenbr();
@@ -300,6 +301,7 @@ TEST_CASE("ipopt_examples", "[solvers][ipopt]")
             auto res = solver.solve(nlp);
             REQUIRE(res->termination_condition == coek::TerminationCondition::solver_not_available);
         }
+        // GCOVR_EXCL_STOP
     }
 #endif
 }
@@ -322,12 +324,14 @@ TEST_CASE("gurobi_examples", "[solvers][gurobi]")
         }
     }
     else {
+        // GCOVR_EXCL_START
         SECTION("simplelp1")
         {
             auto m = simplelp1();
             auto res = solver.solve(m);
             REQUIRE(res->termination_condition == coek::TerminationCondition::solver_not_available);
         }
+        // GCOVR_EXCL_STOP
     }
 }
 
@@ -349,11 +353,13 @@ TEST_CASE("highs_examples", "[solvers][highs]")
         }
     }
     else {
+        // GCOVR_EXCL_START
         SECTION("simplelp1")
         {
             auto m = simplelp1();
             auto res = solver.solve(m);
             REQUIRE(res->termination_condition == coek::TerminationCondition::solver_not_available);
         }
+        // GCOVR_EXCL_STOP
     }
 }

@@ -720,10 +720,10 @@ class NLWriter {
 void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap,
                                std::map<size_t, size_t>& invconmap)
 {
-    o_expr.resize(model.repn->objectives.size());
-    c_expr.resize(model.repn->constraints.size());
-    r.resize(model.repn->constraints.size());
-    rval.resize(2 * model.repn->constraints.size());
+    o_expr.resize(model.num_active_objectives());
+    c_expr.resize(model.num_active_constraints());
+    r.resize(c_expr.size());
+    rval.resize(2 * c_expr.size());
 
     std::map<std::shared_ptr<SubExpressionTerm>, expr_pointer_t> simplified_subexpressions;
 
@@ -738,6 +738,9 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
             nnz_gradient = 0;
             size_t ctr = 0;
             for (auto& obj : model.repn->objectives) {
+                if (not obj.active())
+                    continue;
+
                 to_MutableNLPExpr(simplify_expr(obj.repn, simplified_subexpressions), o_expr[ctr]);
                 if ((o_expr[ctr].quadratic_coefs.size() > 0)
                     or (not o_expr[ctr].nonlinear->is_constant()))
@@ -784,10 +787,11 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
         // Constraints
         {
             size_t ctr = 0;
-            for (auto jt = model.repn->constraints.begin(); jt != model.repn->constraints.end();
-                 ++jt, ++ctr) {
+            for (auto& Con : model.repn->constraints) {
+                if (not Con.active())
+                    continue;
+
                 auto& Expr = c_expr[ctr];
-                auto& Con = *jt;
 
                 invconmap[ctr] = Con.id();
 
@@ -870,6 +874,8 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
 
                 // Add Jacobian terms for each constraint
                 nnz_Jacobian += curr_vars.size();
+
+                ++ctr;
             }
 
             for (auto& lv : all_linear_vars) {
@@ -1160,12 +1166,11 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
         // "r" section - bounds on constraints
         //
 
-        if (model.repn->constraints.size() > 0) {
+        if (r.size() > 0) {
             ostr << "r\n";
             ctr = 0;
-            for (auto it = model.repn->constraints.begin(); it != model.repn->constraints.end();
-                 ++it, ++ctr) {
-                switch (r[ctr]) {
+            for (auto it = r.begin(); it != r.end(); ++it, ++ctr) {
+                switch (*it) {
                     case 0:
                         ostr << "0 ";
                         format(ostr, rval[2 * ctr]);
@@ -1390,7 +1395,7 @@ void NLWriter::write_fmtlib(Model& model, const std::string& fname)
     // "r" section - bounds on constraints
     //
     CALI_MARK_BEGIN("r");
-    if (model.repn->constraints.size() > 0) {
+    if (r.size() > 0) {
         constexpr auto _fmtstr_r0 = FMT_COMPILE("0 {} {}\n");
         constexpr auto _fmtstr_r1 = FMT_COMPILE("1 {}\n");
         constexpr auto _fmtstr_r2 = FMT_COMPILE("2 {}\n");

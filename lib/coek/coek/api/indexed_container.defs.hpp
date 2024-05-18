@@ -57,22 +57,21 @@ void IndexedComponentRepn_multiarray<TYPE>::generate_names()
         return;
 
     for (auto& component : this->value) {
-        name += "[";
+        std::string tmp = "[";
 
+        bool comma = false;
         auto shape_size = shape.size();
-        if (shape_size >= 1)
-            name += std::to_string(component.first[0]);
-
-        if (shape_size > 1) {
-            for (size_t i = 1; i < shape_size; ++i) {
-                name += ",";
-                name += std::to_string(component.first[i]);
-            }
+        for (size_t i = 0; i < shape_size; ++i) {
+            if (comma)
+                tmp += ",";
+            else
+                comma = true;
+            tmp += std::to_string(component.first[i]);
         }
 
-        name += "]";
+        tmp += "]";
 
-        component.second.name(name);
+        component.second.name(name + tmp);
     }
 }
 

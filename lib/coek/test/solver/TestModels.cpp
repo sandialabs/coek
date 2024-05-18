@@ -5,7 +5,66 @@
 
 namespace test {
 
-bool TestModel::check_results(coek::Model& model, std::shared_ptr<coek::SolverResults>& results)
+// TODO - Add tests for dual, slack, etc
+bool TestModel::check_results(coek::Model& model, std::shared_ptr<coek::SolverResults>& results,
+                              double tol)
+{
+    if (results->termination_condition
+        != coek::TerminationCondition::convergence_criteria_satisfied) {
+        // GCOVR_EXCL_START
+        std::cout << fmt::format(
+            "TEST ERROR: Unexpected termination condition ({} != {})",
+            to_string(results->termination_condition),
+            to_string(coek::TerminationCondition::convergence_criteria_satisfied))
+                  << std::endl;
+        std::cout << to_string(*results, 4) << std::endl;
+        return false;
+        // GCOVR_EXCL_STOP
+    }
+
+    std::vector<double> primal;
+    for (auto& v : model.get_variables())
+        primal.push_back(v.value());
+    if (primal_solution.size() != primal.size()) {
+        // GCOVR_EXCL_START
+        std::cout << "TEST ERROR: Difference in number of primal variables" << std::endl;
+        std::cout << "\t" << primal << std::endl;
+        std::cout << "\t" << primal_solution << std::endl;
+        std::cout << to_string(*results, 4) << std::endl;
+        return false;
+        // GCOVR_EXCL_STOP
+    }
+
+    for (size_t i = 0; i < primal.size(); i++) {
+        if (std::fabs(primal[i] - primal_solution[i]) > tol) {
+            // GCOVR_EXCL_START
+            std::cout << fmt::format("TEST ERROR: Difference primal solution at {} ({} != {})", i,
+                                     primal[i], primal_solution[i])
+                      << std::endl;
+            std::cout << "\t" << primal << std::endl;
+            std::cout << "\t" << primal_solution << std::endl;
+            std::cout << to_string(*results, 4) << std::endl;
+            return false;
+            // GCOVR_EXCL_STOP
+        }
+    }
+
+    if (std::fabs(results->objective_value - optimal_objective) / (optimal_objective + 1e-7)
+        > tol) {
+        // GCOVR_EXCL_START
+        std::cout << fmt::format("TEST ERROR: Unexpected objective values ({} != {})",
+                                 results->objective_value, optimal_objective)
+                  << std::endl;
+        std::cout << to_string(*results, 4) << std::endl;
+        return false;
+        // GCOVR_EXCL_STOP
+    }
+
+    return true;
+}
+
+#if 0
+bool TestModel::check_results(coek::NLPModel& model, std::shared_ptr<coek::SolverResults>& results, double tol)
 {
     if (results->termination_condition
         != coek::TerminationCondition::convergence_criteria_satisfied) {
@@ -19,8 +78,9 @@ bool TestModel::check_results(coek::Model& model, std::shared_ptr<coek::SolverRe
     }
 
     std::vector<double> primal;
-    for (auto& v : model.get_variables())
-        primal.push_back(v.value());
+    // NOTE: This ignores fixed variables
+    for (size_t i: coek::range(model.num_variables()))
+        primal.push_back(model.get_variable(i).value());
     if (primal_solution.size() != primal.size()) {
         std::cout << "TEST ERROR: Difference in number of primal variables" << std::endl;
         std::cout << "\t" << primal << std::endl;
@@ -30,7 +90,7 @@ bool TestModel::check_results(coek::Model& model, std::shared_ptr<coek::SolverRe
     }
 
     for (size_t i = 0; i < primal.size(); i++) {
-        if (std::fabs(primal[i] - primal_solution[i]) > 1e-7) {
+        if (std::fabs(primal[i] - primal_solution[i]) > tol) {
             std::cout << fmt::format("TEST ERROR: Difference primal solution at {} ({} != {})", i,
                                      primal[i], primal_solution[i])
                       << std::endl;
@@ -41,9 +101,9 @@ bool TestModel::check_results(coek::Model& model, std::shared_ptr<coek::SolverRe
         }
     }
 
-    if (std::fabs(results->objective_value - optimal_objective) > 1e-7) {
-        std::cout << fmt::format("TEST ERROR: Unexpected objective values ({} != {})",
-                                 results->objective_value, optimal_objective)
+    if (std::fabs(results->objective_value - optimal_objective)/optimal_objective > tol) {
+        std::cout << fmt::format("TEST ERROR: Unexpected objective values ({} != {}) diff={} tol={}",
+                                 results->objective_value, optimal_objective, std::fabs(results->objective_value - optimal_objective), tol)
                   << std::endl;
         std::cout << to_string(*results, 4) << std::endl;
         return false;
@@ -51,6 +111,7 @@ bool TestModel::check_results(coek::Model& model, std::shared_ptr<coek::SolverRe
 
     return true;
 }
+#endif
 
 class EmptyModel : public TestModel {
    public:
@@ -85,8 +146,8 @@ class SimpleLP1 : public TestModel {
         // Model
         model.name("simplelp1");
         auto& m = model;
-        auto x = m.add(coek::variable("x").bounds(0, m.inf));
-        auto y = m.add(coek::variable("y").bounds(0, m.inf));
+        auto x = m.add(coek::variable("x").bounds(0, m.inf).value(0));
+        auto y = m.add(coek::variable("y").bounds(0, m.inf).value(0));
 
         m.add_objective(50 * x + 40 * y).sense(m.maximize);
         m.add_constraint(2 * x + 3 * y <= 1500);
@@ -105,8 +166,8 @@ class SimpleQP1 : public TestModel {
         // Model
         model.name("simpleqp1");
         auto& m = model;
-        auto x = m.add(coek::variable("x").bounds(0, m.inf));
-        auto y = m.add(coek::variable("y").bounds(0, m.inf));
+        auto x = m.add(coek::variable("x").bounds(0, m.inf).value(1000));
+        auto y = m.add(coek::variable("y").bounds(0, m.inf).value(1000));
 
         m.add_objective(50 * x * x + 40 * y * y);
         m.add_constraint(2 * x + 3 * y >= 1500);
@@ -125,8 +186,8 @@ class SimpleQP2 : public TestModel {
         // Model
         model.name("simpleqp2");
         auto& m = model;
-        auto x = m.add(coek::variable("x").bounds(0, m.inf));
-        auto y = m.add(coek::variable("y").bounds(0, m.inf));
+        auto x = m.add(coek::variable("x").bounds(0, m.inf).value(1000));
+        auto y = m.add(coek::variable("y").bounds(0, m.inf).value(1000));
 
         m.add_objective(10 * x * x + 5 * x * y + 3 * y * x + 10 * y * y);
         m.add_constraint(2 * x + 3 * y >= 1500);
@@ -145,9 +206,9 @@ class SimpleQP3 : public TestModel {
         // Model
         model.name("simpleqp3");
         auto& m = model;
-        auto x = m.add(coek::variable("x").bounds(0, m.inf));
-        auto y = m.add(coek::variable("y").bounds(0, m.inf));
-        auto z = m.add(coek::variable("z").bounds(1, m.inf));
+        auto x = m.add(coek::variable("x").bounds(0, m.inf).value(1000));
+        auto y = m.add(coek::variable("y").bounds(0, m.inf).value(1000));
+        auto z = m.add(coek::variable("z").bounds(1, m.inf).value(1000));
 
         m.add_objective(10 * x * x + 5 * x * y + 3 * y * x + x * z + y * z + 10 * y * y + z * z);
         m.add_constraint(2 * x + 3 * y >= 1500);
@@ -166,9 +227,9 @@ class SimpleQP4 : public TestModel {
         // Model
         model.name("simpleqp4");
         auto& m = model;
-        auto x = m.add(coek::variable("x").bounds(0, m.inf));
-        auto y = m.add(coek::variable("y").bounds(0, m.inf));
-        auto z = m.add(coek::variable("z").bounds(1, m.inf));
+        auto x = m.add(coek::variable("x").bounds(0, m.inf).value(1000));
+        auto y = m.add(coek::variable("y").bounds(0, m.inf).value(1000));
+        auto z = m.add(coek::variable("z").bounds(1, m.inf).value(1000));
 
         m.add_objective(10 * x * x + 5 * x * y + 3 * y * x + 10 * y * y + z);
         m.add_constraint(2 * x + 3 * y >= 1500);
@@ -314,6 +375,13 @@ std::shared_ptr<TestModel> model(const std::string& name)
         return std::make_shared<LP_bounds2>();
 
     return std::make_shared<EmptyModel>();
+}
+
+std::shared_ptr<TestModel> nlp_model(const std::string& name, const std::string& adname)
+{
+    auto tmp = model(name);
+    tmp->nlp_model.initialize(tmp->model, adname);
+    return tmp;
 }
 
 }  // namespace test

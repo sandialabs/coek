@@ -4,6 +4,7 @@
 
 #include "../../ast/value_terms.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/exceptions.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/compact/constraint_sequence.hpp"
@@ -215,8 +216,15 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
             }
         }
     }
+    catch (const exceptions::NonquadraticExpression& e) {
+        results->termination_condition = TerminationCondition::invalid_model_for_solver;
+        results->error_message = "Highs Error: Cannot solve model with a nonquadratic objective - "
+                                 + std::string(e.what());
+        post_solve();
+        return results;
+    }
     catch (const std::exception& e) {
-        results->error_message = "Highs Error: Caught highs exception while creating objectives "
+        results->error_message = "Highs Error: Caught highs exception while creating objectives - "
                                  + std::string(e.what());
         post_solve();
         return results;
@@ -238,9 +246,16 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
                 add_constraint(hmodel, con, x, repn);
         }
     }
+    catch (const exceptions::NonquadraticExpression& e) {
+        results->termination_condition = TerminationCondition::invalid_model_for_solver;
+        results->error_message = "Highs Error: Cannot solve model with a nonquadratic constraint - "
+                                 + std::string(e.what());
+        post_solve();
+        return results;
+    }
     catch (const std::exception& e) {
         results->error_message
-            = "Highs Error: Caught exception while creating constraints " + std::string(e.what());
+            = "Highs Error: Caught exception while creating constraints - " + std::string(e.what());
         results->toc();
         return results;
     }
@@ -281,7 +296,7 @@ std::shared_ptr<SolverResults> HighsSolver::solve(Model& coek_model)
     }
     catch (const std::exception& e) {
         results->error_message
-            = "Highs Error: Caught highs exception while optimizing " + std::string(e.what());
+            = "Highs Error: Caught highs exception while optimizing - " + std::string(e.what());
         results->toc();
         return results;
     }
@@ -330,7 +345,7 @@ std::shared_ptr<SolverResults> HighsSolver::solve(CompactModel& compact_model)
         coek::QuadraticExpr orepn;
         for (auto& val : compact_model.repn->objectives) {
             if (auto eval = std::get_if<Objective>(&val)) {
-                if (eval.active()) {
+                if (eval->active()) {
                     Expression tmp = eval->expr().expand();
                     add_objective(hmodel, tmp, eval->sense(), x, orepn);
                     nobj++;
@@ -348,7 +363,7 @@ std::shared_ptr<SolverResults> HighsSolver::solve(CompactModel& compact_model)
         }
     }
     catch (const std::exception& e) {
-        results->error_message = "Highs Error: Caught highs exception while creating objectives "
+        results->error_message = "Highs Error: Caught highs exception while creating objectives - "
                                  + std::string(e.what());
         results->toc();
         return results;
@@ -367,7 +382,7 @@ std::shared_ptr<SolverResults> HighsSolver::solve(CompactModel& compact_model)
         coek::QuadraticExpr repn;
         for (auto& val : compact_model.repn->constraints) {
             if (auto cval = std::get_if<Constraint>(&val)) {
-                if (cval.active()) {
+                if (cval->active()) {
                     Constraint c = cval->expand();
                     add_constraint(hmodel, c, x, repn);
                 }
@@ -383,7 +398,7 @@ std::shared_ptr<SolverResults> HighsSolver::solve(CompactModel& compact_model)
     }
     catch (const std::exception& e) {
         results->error_message
-            = "Highs Error: Caught exception while creating constraints " + std::string(e.what());
+            = "Highs Error: Caught exception while creating constraints - " + std::string(e.what());
         results->toc();
         return results;
     }
@@ -404,7 +419,7 @@ std::shared_ptr<SolverResults> HighsSolver::solve(CompactModel& compact_model)
     }
     catch (const std::exception& e) {
         results->error_message
-            = "Highs Error: Caught highs exception while optimizing " + std::string(e.what());
+            = "Highs Error: Caught highs exception while optimizing - " + std::string(e.what());
         results->toc();
         return results;
     }
@@ -476,7 +491,7 @@ std::shared_ptr<SolverResults> HighsSolver::resolve()
         }
         catch (const std::exception& e) {
             results->error_message
-                = "Highs Error: Caught highs exception while creating objectives "
+                = "Highs Error: Caught highs exception while creating objectives - "
                   + std::string(e.what());
             results->toc();
             return results;
@@ -498,7 +513,7 @@ std::shared_ptr<SolverResults> HighsSolver::resolve()
         }
         catch (const std::exception& e) {
             results->error_message
-                = "Highs Error: Caught highs exception while creating constraints "
+                = "Highs Error: Caught highs exception while creating constraints - "
                   + std::string(e.what());
             results->toc();
             return results;
@@ -510,7 +525,7 @@ std::shared_ptr<SolverResults> HighsSolver::resolve()
         }
         catch (const std::exception& e) {
             results->error_message
-                = "Highs Error: Caught highs exception while optimizing " + std::string(e.what());
+                = "Highs Error: Caught highs exception while optimizing - " + std::string(e.what());
             results->toc();
             return results;
         }
@@ -557,7 +572,7 @@ std::shared_ptr<SolverResults> HighsSolver::resolve()
         }
         catch (const std::exception& e) {
             results->error_message
-                = "Highs Error: Caught highs exception while optimizing " + std::string(e.what());
+                = "Highs Error: Caught highs exception while optimizing - " + std::string(e.what());
             results->toc();
             return results;
         }
@@ -674,7 +689,7 @@ void HighsSolver::collect_results(Model& model, std::shared_ptr<SolverResults>& 
     }
     catch (const std::exception& e) {
         results->termination_condition = TerminationCondition::unknown;
-        results->error_message = "HIGHS Exception: (results) " + std::string(e.what());
+        results->error_message = "HIGHS Exception: (results) - " + std::string(e.what());
     }
 }
 

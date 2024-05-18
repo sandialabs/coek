@@ -145,6 +145,8 @@ class Model {
     //
     /** \returns the number of objecives in the model */
     size_t num_objectives() const;
+    /** \returns the number of active objecives in the model */
+    size_t num_active_objectives() const;
     /** \returns a list of objective names in the model */
     std::set<std::string> objective_names();
 
@@ -180,6 +182,8 @@ class Model {
     //
     /** \returns the number of constraints in the model */
     size_t num_constraints() const;
+    /** \returns the number of constraints in the model */
+    size_t num_active_constraints() const;
     /** \returns a list of constraint names in the model */
     std::set<std::string> constraint_names();
 

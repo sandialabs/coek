@@ -33,9 +33,9 @@ SET(sources
     smoke/test_util_sequence.cpp
     mt_funcs.cpp
     solver/test_examples.cpp
-    solver/test_examples.cpp
     solver/test_gurobi.cpp
     solver/test_highs.cpp
+    solver/test_ipopt.cpp
     solver/TestModels.cpp
    )
 
