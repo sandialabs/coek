@@ -1169,8 +1169,8 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
         if (r.size() > 0) {
             ostr << "r\n";
             ctr = 0;
-            for (auto it = r.begin(); it != r.end(); ++it, ++ctr) {
-                switch (*it) {
+            for (auto val : r) {
+                switch (val) {
                     case 0:
                         ostr << "0 ";
                         format(ostr, rval[2 * ctr]);
@@ -1194,8 +1194,12 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
                         ostr << "4 ";
                         format(ostr, rval[2 * ctr]);
                         break;
+                    default:
+                        // ERROR
+                        break;
                 };
                 ostr << '\n';
+                ++ctr;
             }
         }
 
@@ -1203,8 +1207,8 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
         // "b" section - bounds on variables
         //
         ostr << "b\n";
-        for (auto it = vars.begin(); it != vars.end(); ++it) {
-            auto var = varobj[*it];
+        for (auto& var_ : vars) {
+            auto var = varobj[var_];
             double lb = var.lower();
             double ub = var.upper();
             if (lb == -COEK_INFINITY) {
@@ -1421,6 +1425,9 @@ void NLWriter::write_fmtlib(Model& model, const std::string& fname)
                     // GCOVR_EXCL_STOP
                 case 4:
                     ostr.print(fmt::format(_fmtstr_r4, rval[2 * ctr]));  // FORMAT
+                    break;
+                default:
+                    // ERROR
                     break;
             };
         }

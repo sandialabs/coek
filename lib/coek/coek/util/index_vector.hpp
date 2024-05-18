@@ -31,6 +31,9 @@ class IndexVector {
 
     IndexVector& operator=(const IndexVector& other)
     {
+        if (this == &other)
+            return *this;
+
         len = other.len;
         data = other.data;
         return *this;
@@ -129,8 +132,9 @@ struct hash<coek::IndexVector> {
 
 inline std::ostream& operator<<(std::ostream& ostr, const coek::IndexVector& vec)
 {
-    for (size_t i = 0; i < vec.size(); i++)
+    for (size_t i = 0; i < vec.size(); i++) {
         ostr << vec[i] << " ";
+    }
     return ostr;
 }
 

@@ -23,7 +23,7 @@ class VisitorData {
     bool is_value;
 
     VisitorData(std::map<std::shared_ptr<SubExpressionTerm>, expr_pointer_t>& _subexpr_value)
-        : subexpr_value(_subexpr_value)
+        : subexpr_value(_subexpr_value), last_value(0.0), is_value(true)
     {
     }
 };

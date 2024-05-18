@@ -237,17 +237,9 @@ expr_pointer_t times(int lhs, const RHS& rhs)
 inline expr_pointer_t divide_(const expr_pointer_t& lhs, const expr_pointer_t& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == ZEROCONST)
+    if ((lhs == ZEROCONST)
+        or (lhs->is_constant() and (safe_pointer_cast<ConstantTerm>(lhs)->value == 0)))
         tmp = ZEROCONST;
-    else if (lhs->is_constant() and (safe_pointer_cast<ConstantTerm>(lhs)->value == 0))
-        tmp = ZEROCONST;
-    /* WEH - Not used in practice
-    if (rhs == ONECONST)
-    if (rhs == NEGATIVEONECONST)
-    if (rhs == ZEROCONST)
-    if (rhs->is_constant()) {
-    if (lhs->is_constant() and rhs->is_constant()) {
-    */
     else
         tmp = CREATE_POINTER(DivideTerm, lhs, rhs);
     return tmp;
