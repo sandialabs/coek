@@ -159,9 +159,9 @@ const std::shared_ptr<ConstantTerm> VariableTerm::nan = std::make_shared<Constan
 
 size_t VariableTerm::count = 0;
 
-VariableTerm::VariableTerm(const expr_pointer_t& _lb, const expr_pointer_t& _ub,
-                           const expr_pointer_t& _value, bool _binary, bool _integer)
-    : value(_value), lb(_lb), ub(_ub), binary(_binary), integer(_integer), fixed(false)
+VariableTerm::VariableTerm(const expr_pointer_t& lb_, const expr_pointer_t& ub_,
+                           const expr_pointer_t& value_, bool binary_, bool integer_)
+    : binary(binary_), integer(integer_), fixed(false), value(value_), lb(lb_), ub(ub_)
 {
     VariableTerm_mtx.lock();
     index = count++;
@@ -195,7 +195,7 @@ void VariableTerm::set_value(const expr_pointer_t val) { value = val; }
 //
 
 MonomialTerm::MonomialTerm(double lhs, const std::shared_ptr<VariableTerm>& rhs)
-    : coef(lhs), var(rhs)
+    : var(rhs), coef(lhs)
 {
 }
 
