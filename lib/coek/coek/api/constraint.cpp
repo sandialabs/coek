@@ -574,8 +574,11 @@ Constraint operator==(const Expression& lhs, const Expression& rhs)
 Constraint inequality(const Expression& lower, const Expression& body, const Expression& upper,
                       bool strict)
 {
-    std::shared_ptr<ConstraintTerm> tmp
-        = CREATE_POINTER(InequalityTerm, lower.repn, body.repn, upper.repn, strict);
+    std::shared_ptr<ConstraintTerm> tmp;
+    if (strict)
+        tmp = CREATE_POINTER(StrictInequalityTerm, lower.repn, body.repn, upper.repn);
+    else
+        tmp = CREATE_POINTER(InequalityTerm, lower.repn, body.repn, upper.repn);
     return tmp;
 }
 

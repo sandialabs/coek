@@ -684,16 +684,16 @@ class VisitorData {
     std::map<ParameterRepn, size_t>& parameters;
     std::vector<CppAD::AD<double> >& dynamic_params;
 
-    VisitorData(std::vector<CppAD::AD<double> >& _ADvars,
-                std::unordered_map<VariableRepn, size_t>& _used_variables,
-                std::map<VariableRepn, size_t>& _fixed_variables,
-                std::map<ParameterRepn, size_t>& _parameters,
-                std::vector<CppAD::AD<double> >& _dynamic_params)
-        : ADvars(_ADvars),
-          used_variables(_used_variables),
-          fixed_variables(_fixed_variables),
-          parameters(_parameters),
-          dynamic_params(_dynamic_params)
+    VisitorData(std::vector<CppAD::AD<double> >& ADvars_,
+                std::unordered_map<VariableRepn, size_t>& used_variables_,
+                std::map<VariableRepn, size_t>& fixed_variables_,
+                std::map<ParameterRepn, size_t>& parameters_,
+                std::vector<CppAD::AD<double> >& dynamic_params_)
+        : ADvars(ADvars_),
+          used_variables(used_variables_),
+          fixed_variables(fixed_variables_),
+          parameters(parameters_),
+          dynamic_params(dynamic_params_)
     {
     }
 };
@@ -739,6 +739,7 @@ void visit_MonomialTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<doubl
     }
 
 FROM_BODY(InequalityTerm)
+FROM_BODY(StrictInequalityTerm)
 FROM_BODY(EqualityTerm)
 FROM_BODY(ObjectiveTerm)
 
@@ -871,6 +872,7 @@ void visit_expression(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
         VISIT_CASE(VariableTerm);
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(NegateTerm);

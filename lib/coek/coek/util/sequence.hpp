@@ -155,7 +155,7 @@ seq::StepSubrange<T> sequence(T start, T stop, T step)
 }
 
 // 0, ..., obj.size()-1
-template <typename T, typename = typename std::enable_if<seq::has_size<T>::value>>
+template <typename T, typename = typename std::enable_if<seq::has_size<T>::value>::type>
 auto indices(const T& obj) -> seq::Subrange<decltype(obj.size())>
 {
     return {static_cast<decltype(obj.size())>(0), obj.size()};

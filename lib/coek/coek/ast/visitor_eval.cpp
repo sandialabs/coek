@@ -93,6 +93,7 @@ double visit_MonomialTerm(const expr_pointer_t& expr, VariableData& data)
 
 // clang-format off
 FROM_BODY(InequalityTerm)
+FROM_BODY(StrictInequalityTerm)
 FROM_BODY(EqualityTerm)
 FROM_BODY(ObjectiveTerm)
 // clang-format on
@@ -207,6 +208,7 @@ double visit_expression(const expr_pointer_t& expr, VariableData& data)
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);

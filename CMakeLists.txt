@@ -74,6 +74,7 @@ option(with_tests "Build tests" OFF)
 option(with_apps "Build apps" ON)
 option(with_docs "Build documentation" OFF)
 option(with_python "Build/Install Python libs" OFF)
+option(with_clangtidy "Use clang-tidy to critique code" OFF)
 
 ##################### Checks for compiler #####################
 
@@ -131,7 +132,6 @@ if (NOT ${OpenMP_FOUND})
 endif()
 
 message("Initial Configuration Options")
-# Options defined here
 message("-- with_debug: ${with_debug}")
 message("-- with_verbose: ${with_verbose}")
 message("-- with_gcov: ${with_gcov}")
@@ -142,7 +142,7 @@ message("-- with_docs: ${with_docs}")
 message("-- with_python: ${with_python}")
 message("-- with_threads: ${with_threads}")
 message("-- with_openmp: ${with_openmp}")
-# Options defined in tpl
+message("-- with_clangtidy: ${with_clangtidy}")
 message("-- with_asl: ${with_asl}")
 message("-- with_catch2: ${with_catch2}")
 message("-- with_cppad: ${with_cppad}")
@@ -202,6 +202,9 @@ if(${with_docs})
     add_custom_target(docs DEPENDS doc_lib)
 endif()
 
+if(with_clangtidy)
+set(CMAKE_CXX_CLANG_TIDY clang-tidy -config-file=${CMAKE_SOURCE_DIR}/.clang-tidy -header-filter=${CMAKE_CURRENT_SOURCE_DIR})
+endif()
 
 ##################### Monorepo Subpackages #####################
 

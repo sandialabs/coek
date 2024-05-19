@@ -518,6 +518,12 @@ std::shared_ptr<SolverResults> GurobiSolver::resolve()
                         = "Error initializing Gurobi: Cannot optimize models with nonlinear terms.";
                     return results;
                     break;
+
+                default:  // Error
+                    results->termination_condition = TerminationCondition::error;
+                    results->error_message = "Error initializing Gurobi: Unexpected error.";
+                    return results;
+                    break;
             };
         }
 
@@ -577,14 +583,16 @@ void GurobiSolver::collect_results(Model& model, std::shared_ptr<SolverResults>&
                 double value = gmodel->get(GRB_DoubleAttr_ObjBound);
                 results->objective_bound = value;
             }
-            catch (GRBException) {
+            catch (GRBException e) {
+                throw;
             }
             if (not results->objective_bound.has_value()) {
                 try {
                     double value = gmodel->get(GRB_DoubleAttr_ObjBoundC);
                     results->objective_bound = value;
                 }
-                catch (GRBException) {
+                catch (GRBException e) {
+                    throw;
                 }
             }
             results->error_message

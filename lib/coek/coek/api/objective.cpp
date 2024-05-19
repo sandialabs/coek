@@ -7,7 +7,7 @@
 
 namespace coek {
 
-Objective::Objective() { repn = CREATE_POINTER(ObjectiveTerm); }
+Objective::Objective() { repn = std::make_shared<ObjectiveTerm>(); }
 
 Objective::Objective(const ObjectiveRepn& _repn) : repn(_repn) {}
 
