@@ -23,7 +23,7 @@ class VisitorData {
     bool is_value;
 
     VisitorData(std::map<std::shared_ptr<SubExpressionTerm>, expr_pointer_t>& _subexpr_value)
-        : subexpr_value(_subexpr_value)
+        : subexpr_value(_subexpr_value), last_value(0.0), is_value(true)
     {
     }
 };
@@ -125,6 +125,18 @@ void visit_InequalityTerm(const expr_pointer_t& expr, VisitorData& data)
             tmp->lower, std::make_shared<ConstantTerm>(data.last_value), tmp->upper);
     else
         data.last_expr = std::make_shared<InequalityTerm>(tmp->lower, data.last_expr, tmp->upper);
+}
+
+void visit_StrictInequalityTerm(const expr_pointer_t& expr, VisitorData& data)
+{
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr);
+    visit_expression(tmp->body, data);
+    if (data.is_value)
+        // TODO - ignore constraints with a constant body
+        data.last_expr = std::make_shared<StrictInequalityTerm>(
+            tmp->lower, std::make_shared<ConstantTerm>(data.last_value), tmp->upper);
+    else
+        data.last_expr = std::make_shared<StrictInequalityTerm>(tmp->lower, data.last_expr, tmp->upper);
 }
 
 void visit_EqualityTerm(const expr_pointer_t& expr, VisitorData& data)
@@ -406,6 +418,7 @@ void visit_expression(const expr_pointer_t& expr, VisitorData& data)
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);

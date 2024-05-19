@@ -27,18 +27,18 @@ void SolverCache::find_updated_values()
     vupdates.clear();
     pupdates.clear();
 
-    for (auto it = vcache.begin(); it != vcache.end(); ++it) {
-        auto value = it->first->value->eval();
-        if (fabs(it->second - value) > tolerance) {
-            vupdates.insert(it->first);
-            it->second = value;
+    for (auto& [var, oldval] : vcache) {
+        auto value = var->value->eval();
+        if (fabs(oldval - value) > tolerance) {
+            vupdates.insert(var);
+            oldval = value;
         }
     }
-    for (auto it = pcache.begin(); it != pcache.end(); ++it) {
-        auto value = it->first->eval();
-        if (fabs(it->second - value) > tolerance) {
-            pupdates.insert(it->first);
-            it->second = value;
+    for (auto& [param, oldval] : pcache) {
+        auto value = param->eval();
+        if (fabs(oldval - value) > tolerance) {
+            pupdates.insert(param);
+            oldval = value;
         }
     }
 
@@ -56,35 +56,6 @@ void SolverCache::reset_cache()
     vcache.clear();
     pcache.clear();
 }
-
-/*
-SolverRepn* create_solver(std::string& name, OptionCache& options)
-{
-    if (name == "test")
-        return new TestSolver();
-
-#ifdef WITH_GUROBI
-    if (name == "gurobi") {
-        auto tmp = new GurobiSolver();
-        tmp->set_options(options);
-        return tmp;
-    }
-#endif
-
-    return 0;
-}
-
-NLPSolverRepn* create_nlpsolver(std::string& name, OptionCache& options)
-{
-    if (name == "ipopt") {
-        auto tmp = new IpoptSolver();
-        tmp->set_options(options);
-        return tmp;
-    }
-
-    return 0;
-}
-*/
 
 std::shared_ptr<SolverResults> NLPSolverRepn::resolve(bool reset_nlpmodel)
 {
@@ -204,25 +175,25 @@ std::shared_ptr<SolverResults> SolverRepn::solve(CompactModel& _model)
 bool SolverRepn::initial_solve()
 {
     if (initial) {
-        for (auto it = vconstvals.begin(); it != vconstvals.end(); ++it)
-            vcache[it->first] = it->first->eval();
-        for (auto it = pconstvals.begin(); it != pconstvals.end(); ++it)
-            pcache[it->first] = it->first->eval();
+        for (auto& [vconst, _] : vconstvals)
+            vcache[vconst] = vconst->eval();
+        for (auto& [pconst, _] : pconstvals)
+            pcache[pconst] = pconst->eval();
 
-        for (auto it = vlinvals.begin(); it != vlinvals.end(); ++it)
-            vcache[it->first] = it->first->eval();
-        for (auto it = plinvals.begin(); it != plinvals.end(); ++it)
-            pcache[it->first] = it->first->eval();
+        for (auto& [vlin, _] : vlinvals)
+            vcache[vlin] = vlin->eval();
+        for (auto& [plin, _] : plinvals)
+            pcache[plin] = plin->eval();
 
-        for (auto it = vquadvals.begin(); it != vquadvals.end(); ++it)
-            vcache[it->first] = it->first->eval();
-        for (auto it = pquadvals.begin(); it != pquadvals.end(); ++it)
-            pcache[it->first] = it->first->eval();
+        for (auto& [vquad, _] : vquadvals)
+            vcache[vquad] = vquad->eval();
+        for (auto& [pquad, _] : pquadvals)
+            pcache[pquad] = pquad->eval();
 
-        for (auto it = vnonlvals.begin(); it != vnonlvals.end(); ++it)
-            vcache[it->first] = it->first->eval();
-        for (auto it = pnonlvals.begin(); it != pnonlvals.end(); ++it)
-            pcache[it->first] = it->first->eval();
+        for (auto& [vnonl, _] : vnonlvals)
+            vcache[vnonl] = vnonl->eval();
+        for (auto& [pnonl, _] : pnonlvals)
+            pcache[pnonl] = pnonl->eval();
 
         vupdates.clear();
         pupdates.clear();
@@ -243,35 +214,33 @@ void SolverRepn::find_updated_coefs()
 
     for (auto it = vupdates.begin(); it != vupdates.end(); ++it) {
         try {
-            std::set<size_t>& expr = vconstvals[*it];
-            for (auto jt = expr.begin(); jt != expr.end(); ++jt)
-                updated_coefs.insert(std::tuple<size_t, size_t, size_t>(*jt, 0, 0));
+            // std::set<size_t>& expr = vconstvals[*it];
+            for (size_t j : vconstvals[*it])
+                updated_coefs.insert({j, 0, 0});
         }
         catch (...) {
             // TODO
         }
         try {
-            std::set<std::tuple<size_t, size_t>>& expr = vlinvals[*it];
-            for (auto jt = expr.begin(); jt != expr.end(); ++jt)
-                updated_coefs.insert(
-                    std::tuple<size_t, size_t, size_t>(std::get<0>(*jt), 1, std::get<1>(*jt)));
+            // std::set<std::tuple<size_t, size_t>>& expr = vlinvals[*it];
+            for (auto& [i, j] : vlinvals[*it])
+                updated_coefs.insert({i, 1, j});
         }
         catch (...) {
             // TODO
         }
         try {
-            std::set<std::tuple<size_t, size_t>>& expr = vquadvals[*it];
-            for (auto jt = expr.begin(); jt != expr.end(); ++jt)
-                updated_coefs.insert(
-                    std::tuple<size_t, size_t, size_t>(std::get<0>(*jt), 2, std::get<1>(*jt)));
+            // std::set<std::tuple<size_t, size_t>>& expr = vquadvals[*it];
+            for (auto& [i, j] : vquadvals[*it])
+                updated_coefs.insert({i, 2, j});
         }
         catch (...) {
             // TODO
         }
         try {
-            std::set<size_t>& expr = vnonlvals[*it];
-            for (auto jt = expr.begin(); jt != expr.end(); ++jt)
-                updated_coefs.insert(std::tuple<size_t, size_t, size_t>(*jt, 3, 0));
+            // std::set<size_t>& expr = vnonlvals[*it];
+            for (size_t j : vnonlvals[*it])
+                updated_coefs.insert({j, 3, 0});
         }
         catch (...) {
             // TODO
@@ -280,35 +249,33 @@ void SolverRepn::find_updated_coefs()
 
     for (auto it = pupdates.begin(); it != pupdates.end(); ++it) {
         try {
-            std::set<size_t>& expr = pconstvals[*it];
-            for (auto jt = expr.begin(); jt != expr.end(); ++jt)
-                updated_coefs.insert(std::tuple<size_t, size_t, size_t>(*jt, 0, 0));
+            // std::set<size_t>& expr = pconstvals[*it];
+            for (size_t j : pconstvals[*it])
+                updated_coefs.insert({j, 0, 0});
         }
         catch (...) {
             // TODO
         }
         try {
-            std::set<std::tuple<size_t, size_t>>& expr = plinvals[*it];
-            for (auto jt = expr.begin(); jt != expr.end(); ++jt)
-                updated_coefs.insert(
-                    std::tuple<size_t, size_t, size_t>(std::get<0>(*jt), 1, std::get<1>(*jt)));
+            // std::set<std::tuple<size_t, size_t>>& expr = plinvals[*it];
+            for (auto& [i, j] : plinvals[*it])
+                updated_coefs.insert({i, 1, j});
         }
         catch (...) {
             // TODO
         }
         try {
-            std::set<std::tuple<size_t, size_t>>& expr = pquadvals[*it];
-            for (auto jt = expr.begin(); jt != expr.end(); ++jt)
-                updated_coefs.insert(
-                    std::tuple<size_t, size_t, size_t>(std::get<0>(*jt), 2, std::get<1>(*jt)));
+            // std::set<std::tuple<size_t, size_t>>& expr = pquadvals[*it];
+            for (auto& [i, j] : pquadvals[*it])
+                updated_coefs.insert({i, 2, j});
         }
         catch (...) {
             // TODO
         }
         try {
-            std::set<size_t>& expr = pnonlvals[*it];
-            for (auto jt = expr.begin(); jt != expr.end(); ++jt)
-                updated_coefs.insert(std::tuple<size_t, size_t, size_t>(*jt, 3, 0));
+            // std::set<size_t>& expr = pnonlvals[*it];
+            for (size_t j : pnonlvals[*it])
+                updated_coefs.insert({j, 3, 0});
         }
         catch (...) {
             // TODO

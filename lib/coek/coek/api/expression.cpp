@@ -76,7 +76,8 @@ IndexParameter::IndexParameter(const IndexParameter& expr) : repn(expr.repn) {}
 
 IndexParameter& IndexParameter::operator=(const IndexParameter& expr)
 {
-    repn = expr.repn;
+    if (this != &expr)
+        repn = expr.repn;
     return *this;
 }
 

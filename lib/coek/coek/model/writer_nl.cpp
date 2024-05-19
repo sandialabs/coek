@@ -70,6 +70,7 @@ void visit_expression(const expr_pointer_t& expr, VisitorType& data)
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);
@@ -213,19 +214,32 @@ inline void visit_InequalityTerm(const expr_pointer_t& expr, OStreamVisitorData&
         data.ostr << "o21" << '\n';  // and
 
     if (tmp->lower) {
-        if (tmp->strict)
-            data.ostr << "o22" << '\n';  // lt
-        else
-            data.ostr << "o23" << '\n';  // le
+        data.ostr << "o23" << '\n';  // le
         visit_expression(tmp->lower, data);
         visit_expression(tmp->body, data);
     }
 
     if (tmp->upper) {
-        if (tmp->strict)
-            data.ostr << "o22" << '\n';  // lt
-        else
-            data.ostr << "o23" << '\n';  // le
+        data.ostr << "o23" << '\n';  // le
+        visit_expression(tmp->body, data);
+        visit_expression(tmp->upper, data);
+    }
+}
+
+inline void visit_StrictInequalityTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
+{
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr).get();
+    if (tmp->lower and tmp->upper)
+        data.ostr << "o21" << '\n';  // and
+
+    if (tmp->lower) {
+        data.ostr << "o22" << '\n';  // lt
+        visit_expression(tmp->lower, data);
+        visit_expression(tmp->body, data);
+    }
+
+    if (tmp->upper) {
+        data.ostr << "o22" << '\n';  // lt
         visit_expression(tmp->body, data);
         visit_expression(tmp->upper, data);
     }
@@ -404,19 +418,32 @@ inline void visit_InequalityTerm(const expr_pointer_t& expr, FMTVisitorData& dat
         data.ostr.print("o21\n");  // and
 
     if (tmp->lower) {
-        if (tmp->strict)
-            data.ostr.print("o22\n");  // lt
-        else
-            data.ostr.print("o23\n");  // le
+        data.ostr.print("o23\n");  // le
         visit_expression(tmp->lower, data);
         visit_expression(tmp->body, data);
     }
 
     if (tmp->upper) {
-        if (tmp->strict)
-            data.ostr.print("o22\n");  // lt
-        else
-            data.ostr.print("o23\n");  // le
+        data.ostr.print("o23\n");  // le
+        visit_expression(tmp->body, data);
+        visit_expression(tmp->upper, data);
+    }
+}
+
+inline void visit_StrictInequalityTerm(const expr_pointer_t& expr, FMTVisitorData& data)
+{
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr).get();
+    if (tmp->lower and tmp->upper)
+        data.ostr.print("o21\n");  // and
+
+    if (tmp->lower) {
+        data.ostr.print("o22\n");  // lt
+        visit_expression(tmp->lower, data);
+        visit_expression(tmp->body, data);
+    }
+
+    if (tmp->upper) {
+        data.ostr.print("o22\n");  // lt
         visit_expression(tmp->body, data);
         visit_expression(tmp->upper, data);
     }
@@ -1169,8 +1196,8 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
         if (r.size() > 0) {
             ostr << "r\n";
             ctr = 0;
-            for (auto it = r.begin(); it != r.end(); ++it, ++ctr) {
-                switch (*it) {
+            for (auto val : r) {
+                switch (val) {
                     case 0:
                         ostr << "0 ";
                         format(ostr, rval[2 * ctr]);
@@ -1194,8 +1221,12 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
                         ostr << "4 ";
                         format(ostr, rval[2 * ctr]);
                         break;
+                    default:
+                        // ERROR
+                        break;
                 };
                 ostr << '\n';
+                ++ctr;
             }
         }
 
@@ -1203,8 +1234,8 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
         // "b" section - bounds on variables
         //
         ostr << "b\n";
-        for (auto it = vars.begin(); it != vars.end(); ++it) {
-            auto var = varobj[*it];
+        for (auto& var_ : vars) {
+            auto var = varobj[var_];
             double lb = var.lower();
             double ub = var.upper();
             if (lb == -COEK_INFINITY) {
@@ -1421,6 +1452,9 @@ void NLWriter::write_fmtlib(Model& model, const std::string& fname)
                     // GCOVR_EXCL_STOP
                 case 4:
                     ostr.print(fmt::format(_fmtstr_r4, rval[2 * ctr]));  // FORMAT
+                    break;
+                default:
+                    // ERROR
                     break;
             };
         }

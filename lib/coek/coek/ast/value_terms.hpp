@@ -22,8 +22,8 @@ class ParameterTerm : public BaseParameterTerm {
 
    public:
     expr_pointer_t value;
-    size_t index;
     std::string name;
+    size_t index;
 
    public:
     ParameterTerm();
@@ -57,10 +57,10 @@ class ParameterTerm : public BaseParameterTerm {
 class IndexParameterTerm : public BaseExpressionTerm {
    public:
     std::string name;
-    int type;
-    double double_value;
-    int int_value;
     std::string string_value;
+    double double_value;
+    int type;
+    int int_value;
 
    public:
     explicit IndexParameterTerm(const std::string& _name) : name(_name), type(0)
@@ -103,14 +103,14 @@ class VariableTerm : public BaseVariableTerm {
     static const std::shared_ptr<ConstantTerm> nan;
 
    public:
-    size_t index;
-    expr_pointer_t value;
-    expr_pointer_t lb;
-    expr_pointer_t ub;
     bool binary;
     bool integer;
     bool fixed;
+    expr_pointer_t value;
+    expr_pointer_t lb;
+    expr_pointer_t ub;
     std::string name;
+    size_t index;
 
    public:
     VariableTerm(const expr_pointer_t& lb, const expr_pointer_t& ub, const expr_pointer_t& value,
@@ -150,8 +150,8 @@ class VariableTerm : public BaseVariableTerm {
 
 class MonomialTerm : public BaseExpressionTerm {
    public:
-    double coef;
     std::shared_ptr<VariableTerm> var;
+    double coef;
 
    public:
     MonomialTerm(double lhs, const std::shared_ptr<VariableTerm>& rhs);

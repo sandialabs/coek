@@ -69,6 +69,18 @@ expr_pointer_t visit_InequalityTerm(const expr_pointer_t& expr)
     return std::make_shared<InequalityTerm>(lower, body, upper);
 }
 
+expr_pointer_t visit_StrictInequalityTerm(const expr_pointer_t& expr)
+{
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr);
+    auto lower = tmp->lower ? visit_expression(tmp->lower) : tmp->lower;
+    auto body = visit_expression(tmp->body);
+    auto upper = tmp->upper ? visit_expression(tmp->upper) : tmp->upper;
+    if ((not tmp->lower or (lower->id() == tmp->lower->id())) and (body->id() == tmp->body->id())
+        and (not tmp->upper or (upper->id() == tmp->upper->id())))
+        return expr;
+    return std::make_shared<StrictInequalityTerm>(lower, body, upper);
+}
+
 expr_pointer_t visit_EqualityTerm(const expr_pointer_t& expr)
 {
     auto tmp = safe_pointer_cast<EqualityTerm>(expr);
@@ -210,6 +222,7 @@ expr_pointer_t visit_expression(const expr_pointer_t& expr)
             VISIT_CASE(ParameterRefTerm);
             // VISIT_CASE(MonomialTerm);
             VISIT_CASE(InequalityTerm);
+            VISIT_CASE(StrictInequalityTerm);
             VISIT_CASE(EqualityTerm);
             VISIT_CASE(ObjectiveTerm);
             VISIT_CASE(SubExpressionTerm);

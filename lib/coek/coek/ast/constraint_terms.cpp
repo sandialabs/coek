@@ -19,15 +19,15 @@ std::mutex ConstraintTerm_mtx;
 //
 size_t ObjectiveTerm::count = 0;
 
-ObjectiveTerm::ObjectiveTerm() : body(ZeroConstant), sense(true), active(true)
+ObjectiveTerm::ObjectiveTerm() : sense(true), active(true), body(ZeroConstant)
 {
     ObjectiveTerm_mtx.lock();
     index = count++;
     ObjectiveTerm_mtx.unlock();
 }
 
-ObjectiveTerm::ObjectiveTerm(const expr_pointer_t& _body, bool _sense)
-    : body(_body), sense(_sense), active(true)
+ObjectiveTerm::ObjectiveTerm(const expr_pointer_t& body_, bool sense_)
+    : sense(sense_), active(true), body(body_)
 {
     ObjectiveTerm_mtx.lock();
     index = count++;
