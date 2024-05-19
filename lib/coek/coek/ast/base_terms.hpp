@@ -33,8 +33,6 @@ class BaseExpressionTerm {
     virtual bool is_monomial() const { return false; }
     virtual bool is_expression() const { return false; }
 
-    virtual bool constains_vars() const { return false; }
-
     virtual expr_pointer_t const_mult(double coef, const expr_pointer_t& repn);
     virtual expr_pointer_t negate(const expr_pointer_t& repn);
     virtual term_id id() = 0;
