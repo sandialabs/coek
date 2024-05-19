@@ -70,6 +70,7 @@ void visit_expression(const expr_pointer_t& expr, VisitorType& data)
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);
@@ -213,19 +214,32 @@ inline void visit_InequalityTerm(const expr_pointer_t& expr, OStreamVisitorData&
         data.ostr << "o21" << '\n';  // and
 
     if (tmp->lower) {
-        if (tmp->strict)
-            data.ostr << "o22" << '\n';  // lt
-        else
-            data.ostr << "o23" << '\n';  // le
+        data.ostr << "o23" << '\n';  // le
         visit_expression(tmp->lower, data);
         visit_expression(tmp->body, data);
     }
 
     if (tmp->upper) {
-        if (tmp->strict)
-            data.ostr << "o22" << '\n';  // lt
-        else
-            data.ostr << "o23" << '\n';  // le
+        data.ostr << "o23" << '\n';  // le
+        visit_expression(tmp->body, data);
+        visit_expression(tmp->upper, data);
+    }
+}
+
+inline void visit_StrictInequalityTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
+{
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr).get();
+    if (tmp->lower and tmp->upper)
+        data.ostr << "o21" << '\n';  // and
+
+    if (tmp->lower) {
+        data.ostr << "o22" << '\n';  // lt
+        visit_expression(tmp->lower, data);
+        visit_expression(tmp->body, data);
+    }
+
+    if (tmp->upper) {
+        data.ostr << "o22" << '\n';  // lt
         visit_expression(tmp->body, data);
         visit_expression(tmp->upper, data);
     }
@@ -404,19 +418,32 @@ inline void visit_InequalityTerm(const expr_pointer_t& expr, FMTVisitorData& dat
         data.ostr.print("o21\n");  // and
 
     if (tmp->lower) {
-        if (tmp->strict)
-            data.ostr.print("o22\n");  // lt
-        else
-            data.ostr.print("o23\n");  // le
+        data.ostr.print("o23\n");  // le
         visit_expression(tmp->lower, data);
         visit_expression(tmp->body, data);
     }
 
     if (tmp->upper) {
-        if (tmp->strict)
-            data.ostr.print("o22\n");  // lt
-        else
-            data.ostr.print("o23\n");  // le
+        data.ostr.print("o23\n");  // le
+        visit_expression(tmp->body, data);
+        visit_expression(tmp->upper, data);
+    }
+}
+
+inline void visit_StrictInequalityTerm(const expr_pointer_t& expr, FMTVisitorData& data)
+{
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr).get();
+    if (tmp->lower and tmp->upper)
+        data.ostr.print("o21\n");  // and
+
+    if (tmp->lower) {
+        data.ostr.print("o22\n");  // lt
+        visit_expression(tmp->lower, data);
+        visit_expression(tmp->body, data);
+    }
+
+    if (tmp->upper) {
+        data.ostr.print("o22\n");  // lt
         visit_expression(tmp->body, data);
         visit_expression(tmp->upper, data);
     }

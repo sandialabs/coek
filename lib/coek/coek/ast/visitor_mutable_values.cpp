@@ -93,6 +93,16 @@ void visit_InequalityTerm(const expr_pointer_t& expr, MutableValuesData& data)
         visit_expression(tmp->upper, data);
 }
 
+void visit_StrictInequalityTerm(const expr_pointer_t& expr, MutableValuesData& data)
+{
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr);
+    if (tmp->lower)
+        visit_expression(tmp->lower, data);
+    visit_expression(tmp->body, data);
+    if (tmp->upper)
+        visit_expression(tmp->upper, data);
+}
+
 void visit_EqualityTerm(const expr_pointer_t& expr, MutableValuesData& data)
 {
     auto tmp = safe_pointer_cast<EqualityTerm>(expr);
@@ -176,6 +186,7 @@ void visit_expression(const expr_pointer_t& expr, MutableValuesData& data)
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);

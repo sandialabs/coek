@@ -111,6 +111,8 @@ int main(int argc, char** argv)
 
         coek::Constraint c;
         std::cout << "sizeof Constraint=" << sizeof(coek::Constraint) << " repn=" << sizeof(c.repn) << " ConstraintTerm=" << sizeof(coek::ConstraintTerm) << std::endl;
+        std::cout << "sizeof Constraint=" << sizeof(coek::Constraint) << " repn=" << sizeof(c.repn) << " InequalityTerm=" << sizeof(coek::InequalityTerm) << std::endl;
+        std::cout << "sizeof Constraint=" << sizeof(coek::Constraint) << " repn=" << sizeof(c.repn) << " EqualityTerm=" << sizeof(coek::EqualityTerm) << std::endl;
     }
 
     return 0;

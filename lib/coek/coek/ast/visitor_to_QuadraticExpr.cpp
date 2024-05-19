@@ -94,6 +94,11 @@ void visit(std::shared_ptr<InequalityTerm>& expr, QuadraticExpr& repn, double mu
     visit_expression(expr->body, repn, multiplier);
 }
 
+void visit(std::shared_ptr<StrictInequalityTerm>& expr, QuadraticExpr& repn, double multiplier)
+{
+    visit_expression(expr->body, repn, multiplier);
+}
+
 void visit(std::shared_ptr<EqualityTerm>& expr, QuadraticExpr& repn, double multiplier)
 {
     visit_expression(expr->body, repn, multiplier);
@@ -367,6 +372,7 @@ void visit_expression(const expr_pointer_t& expr, QuadraticExpr& repn, double mu
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);

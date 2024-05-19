@@ -131,6 +131,11 @@ void visit(std::shared_ptr<InequalityTerm>& expr, MutableNLPExpr& repn, double m
     visit_expression(expr->body, repn, multiplier);
 }
 
+void visit(std::shared_ptr<StrictInequalityTerm>& expr, MutableNLPExpr& repn, double multiplier)
+{
+    visit_expression(expr->body, repn, multiplier);
+}
+
 void visit(std::shared_ptr<EqualityTerm>& expr, MutableNLPExpr& repn, double multiplier)
 {
     visit_expression(expr->body, repn, multiplier);
@@ -436,6 +441,7 @@ void visit_expression(const expr_pointer_t& expr, MutableNLPExpr& repn, double m
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);

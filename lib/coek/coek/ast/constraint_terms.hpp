@@ -80,23 +80,19 @@ class ConstraintTerm : public BaseExpressionTerm {
 
 class InequalityTerm : public ConstraintTerm {
    public:
-    bool strict;
-
     InequalityTerm(const expr_pointer_t& lower, const expr_pointer_t& body,
-                   const expr_pointer_t& upper, bool _strict = false)
-        : ConstraintTerm(lower, body, upper), strict(_strict)
+                   const expr_pointer_t& upper)
+        : ConstraintTerm(lower, body, upper)
     {
     }
 
-    InequalityTerm(const expr_pointer_t& lower, const expr_pointer_t& body, int upper,
-                   bool _strict = false)
-        : ConstraintTerm(lower, body, upper), strict(_strict)
+    InequalityTerm(const expr_pointer_t& lower, const expr_pointer_t& body, int upper)
+        : ConstraintTerm(lower, body, upper)
     {
     }
 
-    InequalityTerm(int lower, const expr_pointer_t& body, const expr_pointer_t& upper,
-                   bool _strict = false)
-        : ConstraintTerm(lower, body, upper), strict(_strict)
+    InequalityTerm(int lower, const expr_pointer_t& body, const expr_pointer_t& upper)
+        : ConstraintTerm(lower, body, upper)
     {
     }
 
@@ -104,19 +100,43 @@ class InequalityTerm : public ConstraintTerm {
     bool is_feasible() const
     {
         double bodyval = body->eval();
-        if (strict) {
-            bool lhs = (not lower or (lower->eval() < bodyval));
-            bool rhs = (not upper or (upper->eval() > bodyval));
-            return lhs and rhs;
-        }
-        else {
-            bool lhs = (not lower or (lower->eval() <= bodyval));
-            bool rhs = (not upper or (upper->eval() >= bodyval));
-            return lhs and rhs;
-        }
+        bool lhs = (not lower or (lower->eval() <= bodyval));
+        bool rhs = (not upper or (upper->eval() >= bodyval));
+        return lhs and rhs;
     }
 
     term_id id() { return InequalityTerm_id; }
+};
+
+class StrictInequalityTerm : public ConstraintTerm
+{
+public:
+    StrictInequalityTerm(const expr_pointer_t& lower, const expr_pointer_t& body,
+                   const expr_pointer_t& upper)
+        : ConstraintTerm(lower, body, upper)
+    {
+    }
+
+    StrictInequalityTerm(const expr_pointer_t& lower, const expr_pointer_t& body, int upper)
+        : ConstraintTerm(lower, body, upper)
+    {
+    }
+
+    StrictInequalityTerm(int lower, const expr_pointer_t& body, const expr_pointer_t& upper)
+        : ConstraintTerm(lower, body, upper)
+    {
+    }
+
+    bool is_inequality() const { return true; }
+    bool is_feasible() const
+    {
+        double bodyval = body->eval();
+        bool lhs = (not lower or (lower->eval() < bodyval));
+        bool rhs = (not upper or (upper->eval() > bodyval));
+        return lhs and rhs;
+    }
+
+    term_id id() { return StrictInequalityTerm_id; }
 };
 
 class EqualityTerm : public ConstraintTerm {

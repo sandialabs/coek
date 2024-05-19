@@ -89,10 +89,24 @@ void visit_InequalityTerm(const expr_pointer_t& expr, std::list<std::string>& re
 {
     auto tmp = safe_pointer_cast<InequalityTerm>(expr);
     repr.push_back("[");
-    if (tmp->strict)
-        repr.push_back("<");
+    repr.push_back("<=");
+    if (tmp->lower)
+        visit_expression(tmp->lower, repr);
     else
-        repr.push_back("<=");
+        repr.push_back("-Inf");
+    visit_expression(tmp->body, repr);
+    if (tmp->upper)
+        visit_expression(tmp->upper, repr);
+    else
+        repr.push_back("Inf");
+    repr.push_back("]");
+}
+
+void visit_StrictInequalityTerm(const expr_pointer_t& expr, std::list<std::string>& repr)
+{
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr);
+    repr.push_back("[");
+    repr.push_back("<");
     if (tmp->lower)
         visit_expression(tmp->lower, repr);
     else
@@ -265,6 +279,7 @@ void visit_expression(const expr_pointer_t& expr, std::list<std::string>& repr)
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);

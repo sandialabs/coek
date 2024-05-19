@@ -82,6 +82,8 @@ void visit_MonomialTerm(const expr_pointer_t& expr, PartialData& data)
 
 void visit_InequalityTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
 
+void visit_StrictInequalityTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
+
 void visit_EqualityTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
 
 void visit_ObjectiveTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
@@ -279,6 +281,7 @@ expr_pointer_t compute_partial(const expr_pointer_t& expr, size_t i, PartialData
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);

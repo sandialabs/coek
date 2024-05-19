@@ -739,6 +739,7 @@ void visit_MonomialTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<doubl
     }
 
 FROM_BODY(InequalityTerm)
+FROM_BODY(StrictInequalityTerm)
 FROM_BODY(EqualityTerm)
 FROM_BODY(ObjectiveTerm)
 
@@ -871,6 +872,7 @@ void visit_expression(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
         VISIT_CASE(VariableTerm);
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(NegateTerm);
