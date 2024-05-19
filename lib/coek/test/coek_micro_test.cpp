@@ -6,6 +6,8 @@
 #include <map>
 #include <vector>
 #include <coek/util/tictoc.hpp>
+#include "../coek/ast/value_terms.hpp"
+#include "../coek/ast/constraint_terms.hpp"
 
 const std::string currdir = COEK_TEST_DIR;
 
@@ -13,6 +15,9 @@ int main(int argc, char** argv)
 {
     if (argc == 1) {
         std::cout << "coek_micro_test <n>" << std::endl;
+        std::cout << "  0 - benchmark loops" << std::endl;
+        std::cout << "  1 - benchmark var initialization" << std::endl;
+        std::cout << "  2 - coek object sizes" << std::endl;
         return 0;
     }
 
@@ -89,6 +94,23 @@ int main(int argc, char** argv)
             std::cout << x.size() << " " << val << std::endl;
         }
 #endif
+    }
+
+    else if (n == 2) {
+        coek::Parameter p;
+        std::cout << "sizeof Parameter=" << sizeof(coek::Parameter) << " repn=" << sizeof(p.repn) << " ParameterTerm=" << sizeof(coek::ParameterTerm) << std::endl;
+
+        coek::IndexParameter ip;
+        std::cout << "sizeof IndexParameter=" << sizeof(coek::IndexParameter) << " repn=" << sizeof(ip.repn) << " IndexParameterTerm=" << sizeof(coek::IndexParameterTerm) << std::endl;
+
+        coek::Variable v;
+        std::cout << "sizeof Variable=" << sizeof(coek::Variable) << " repn=" << sizeof(v.repn) << " VariableTerm=" << sizeof(coek::VariableTerm) << std::endl;
+
+        coek::Objective o;
+        std::cout << "sizeof Objective=" << sizeof(coek::Objective) << " repn=" << sizeof(o.repn) << " ObjectiveTerm=" << sizeof(coek::ObjectiveTerm) << std::endl;
+
+        coek::Constraint c;
+        std::cout << "sizeof Constraint=" << sizeof(coek::Constraint) << " repn=" << sizeof(c.repn) << " ConstraintTerm=" << sizeof(coek::ConstraintTerm) << std::endl;
     }
 
     return 0;
