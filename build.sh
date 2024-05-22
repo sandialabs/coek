@@ -1,9 +1,9 @@
 #!/bin/bash -e
 #
-# This scripts builds Coek in the `build` directory to support local
+# This scripts builds Coek in the `_build` directory to support local
 # development and debugging.
 #
-# This uses Spack to install third-party dependencies in the `spack` directory.
+# This uses Spack to install third-party dependencies in the `_spack` directory.
 #
 with_python="OFF"
 spack_reinstall=0
@@ -12,7 +12,7 @@ clang=0
 for arg ; do
     case "$arg" in
         --help)
-                    echo "build_dev.sh [--python] [--clang] [--spack-reinstall] [--spack-dev] [--help]"
+                    echo "build.sh [--python] [--clang] [--spack-reinstall] [--spack-dev] [--help]"
                     exit 
         ;;
         --python)
