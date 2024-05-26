@@ -1,9 +1,9 @@
 #!/bin/bash -e
 #
-# This scripts builds Coek in the `build` directory to support local
+# This scripts builds Coek in the `_build` directory to support local
 # development and debugging.
 #
-# This uses Spack to install third-party dependencies in the `spack` directory.
+# This uses Spack to install third-party dependencies in the `_spack` directory.
 #
 with_python="OFF"
 spack_reinstall=0
@@ -12,7 +12,7 @@ clang=0
 for arg ; do
     case "$arg" in
         --help)
-                    echo "build_dev.sh [--python] [--clang] [--spack-reinstall] [--spack-dev] [--help]"
+                    echo "build.sh [--python] [--clang] [--spack-reinstall] [--spack-dev] [--help]"
                     exit 
         ;;
         --python)
@@ -34,22 +34,33 @@ for arg ; do
     esac
 done
 
-export SPACK_HOME=`pwd`/spack
+#
+# Setup directories
+#
+export SPACK_HOME=`pwd`/_spack
 echo "SPACK_HOME=${SPACK_HOME}"
+if [[ "${spack_reinstall}" -eq 1 ]]; then
+    rm -Rf ${SPACK_HOME}
+fi
+\rm -Rf _build
+#
+# Configure gurobi
+#
 if [[ -z "${GUROBI_HOME}" ]]; then
     with_gurobi="OFF"
 else
     with_gurobi="ON"
 fi
-
+#
+# Configure clang
+#
 if [[ $clang -eq 1 ]]; then
    export CXX=clang++
    export CC=clang
 fi
-
-if [[ "${spack_reinstall}" -eq 1 ]]; then
-    rm -Rf ${SPACK_HOME}
-fi
+#
+# Install spack
+#
 if test -d ${SPACK_HOME}; then
     echo ""
     echo "WARNING: Spack directory exists."
@@ -59,9 +70,9 @@ else
     echo "Installing Coek dependencies using Spack"
     echo ""
     if [[ "$spack_dev" -eq 0 ]]; then
-        git clone https://github.com/or-fusion/spack.git
+        git clone https://github.com/or-fusion/spack.git _spack
     else
-        git clone git@github.com:or-fusion/spack.git
+        git clone git@github.com:or-fusion/spack.git _spack
     fi
     . ${SPACK_HOME}/share/spack/setup-env.sh
     spack env create coekenv
@@ -70,11 +81,12 @@ else
     spack install
     spack env deactivate
 fi
-
+#
+# Install coek
+#
 echo "Building Coek"
 echo ""
-\rm -Rf build
-mkdir build
-cd build
+mkdir _build
+cd _build
 cmake -DCMAKE_PREFIX_PATH=${SPACK_HOME}/var/spack/environments/coekenv/.spack-env/view -Dwith_python=${with_python} -Dwith_gurobi=$with_gurobi -Dwith_highs=ON -Dwith_cppad=ON -Dwith_fmtlib=ON -Dwith_rapidjson=ON -Dwith_catch2=ON -Dwith_tests=ON -Dwith_asl=ON -Dwith_openmp=OFF ..
 make -j20

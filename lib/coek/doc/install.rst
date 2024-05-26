@@ -3,30 +3,30 @@ Installing Coek
 
 There are several options for installing Coek:
 
-* Installing with the top-level ``build_dev.sh`` script.
+* Installing with the top-level ``build.sh`` script.
 * Install the latest release or development branch using Spack
 * Install from source using CMake
 
-Installing with ``build_dev.sh``
+Installing with ``build.sh``
 --------------------------------
 
-Developers will find the top-level ``build_dev.sh`` script useful for setting up a
+Developers will find the top-level ``build.sh`` script useful for setting up a
 build environment after cloning the Coek repository.  Thus, Coek can be installed as follows:
 
 .. code-block:: bash
 
     git clone git@github.com:sandialabs/coek.git
-    ./build_dev.sh
+    ./build.sh
 
 This script combines many elements of the detailed installation procedures documented below:
 
-* Dependent packages are installed using Spack into the ``spack`` directory
+* Dependent packages are installed using Spack into the ``_spack`` directory
 
 * Coek is configured to build with Gurobi if the ``GUROBI_HOME`` environment variable is specified
 
 * Coek is configured to build with Highs and Ipopt.  Ipopt is dynamically linked at runtime.
 
-* Coek is built within the ``build`` directory
+* Coek is built within the ``_build`` directory
 
 Installing with Spack
 ---------------------
@@ -44,13 +44,13 @@ Coek can be installed using the OR-Fusion clone of Spack:
 
 .. code-block:: bash
 
-    git clone git@github.com:or-fusion/spack.git
+    git clone git@github.com:or-fusion/spack.git _spack
 
 Spack includes scripts that configure the user's shell environment to use Spack commands.  For example, you can configure a BASH environment after cloning Spack:
 
 .. code-block:: bash
 
-    . spack/share/spack/setup-env.sh
+    . _spack/share/spack/setup-env.sh
 
 Creating a Spack Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,7 +73,7 @@ be further customized by the user either directly or via Spack commands.
 
 .. code-block:: bash
 
-    spack/var/spack/environments/coekenv/spack.yaml
+    _spack/var/spack/environments/coekenv/spack.yaml
 
 When done using a Spack environment, you can deactivate the environment with:
 
@@ -177,8 +177,9 @@ with the standard CMake build steps:
 .. code-block:: bash
 
     git clone git@github.com:sandialabs/coek.git
-    mkdir build
-    cd build
+    cd coek
+    mkdir _build
+    cd _build
     cmake ..
     make
 
@@ -224,9 +225,9 @@ Coek's CMake configuration includes a deprecated ``install_tpls`` target to buil
 
 .. code-block:: bash
 
-    git clone git@github.com:or-fusion/spack.git
-    cd spack
-    . spack/share/spack/setup-env.sh
+    git clone git@github.com:or-fusion/spack.git _spack
+    cd _spack
+    . share/spack/setup-env.sh
     spack env create coekenv
     spack env activate coekenv
     spack add cppad fmt rapidjson catch2
@@ -236,12 +237,12 @@ Coek's CMake configuration includes a deprecated ``install_tpls`` target to buil
 
     git clone git@github.com:sandialabs/coek.git
     cd coek
-    mkdir build
-    cd build
-    cmake -DCMAKE_PREFIX_PATH=`pwd`/../spack/var/spack/environments/coekenv/.spack-env/view -Dwith_python=ON -Dwith_gurobi=ON -Dwith_cppad=ON -Dwith_fmtlib=ON -Dwith_rapidjson=ON -Dwith_tests=ON ..
+    mkdir _build
+    cd _build
+    cmake -DCMAKE_PREFIX_PATH=`pwd`/../_spack/var/spack/environments/coekenv/.spack-env/view -Dwith_python=ON -Dwith_gurobi=ON -Dwith_cppad=ON -Dwith_fmtlib=ON -Dwith_rapidjson=ON -Dwith_tests=ON ..
     make -j20
     
-Coek includes a ``build_dev.sh`` script that executes a variant of this script.
+Coek includes a ``build.sh`` script that executes a variant of this script.
 
 .. note::
 
