@@ -337,22 +337,10 @@ if __name__ == "__main__":
     else:
         ntrials = 1
 
-    build_dir = None
-    if os.path.exists("coek/coek_writer"):
-        build_dir = "."
-    elif os.path.exists(
-        os.path.join(currdir, "../../../_build/test/aml_comparisons/coek/coek_writer")
-    ):
-        build_dir = os.path.join(currdir, "../../../_build")
-    if build_dir is None:
-        print("Cannot find Coek build directory")
-        print(
-            os.path.join(
-                currdir, "../../../_build/test/aml_comparisons/coek/coek_writer"
-            )
-        )
+    if not os.path.exists("test/aml_comparisons/coek/coek_writer"):
+        print("Must execute 'run' in the coek build directory")
         sys.exit(1)
-    build_dir = os.path.abspath(build_dir)
+    build_dir = os.path.abspath(".")
 
     errors = []
 
