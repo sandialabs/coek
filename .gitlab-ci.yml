@@ -73,8 +73,8 @@ performance-tests:
   artifacts:
     expose_as: 'performance-trend'
     paths:
-      - perf_trend.html
-      - perf_archive.tgz
+      - _build/perf_trend.html
+      - _build/perf_archive.tgz
     expire_in: 4 weeks
 
 pages:
