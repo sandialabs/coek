@@ -398,6 +398,9 @@ def collect_data(directory):
         collect_solve0_summary(directory)
 
 if __name__ == "__main__":
+    print("")
+    print("DOG", " ".join(sys.argv))
+    print("")
     directory = "results"
 
     parser = argparse.ArgumentParser()
