@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
         solver.set_option("TimeLimit", 0.0);
 
         auto res = solver.solve(model);
-        if (not check_optimal_termination(res)) {
+        if (res->termination_condition != coek::TerminationCondition::time_limit) {
             std::cout << "ERROR - failed to execute solver '" << solver_name << "'" << std::endl;
             std::cout << "MESSAGE - " << res->error_message << std::endl;
             return 2;
@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
         solver.set_option("print_level", 1);
 
         auto res = solver.solve(Model);
-        if (not check_optimal_termination(res)) {
+        if (res->termination_condition != coek::TerminationCondition::time_limit) {
             std::cout << "ERROR - failed to execute solver '" << solver_name << "'" << std::endl;
             std::cout << "MESSAGE - " << res->error_message << std::endl;
             return 2;
