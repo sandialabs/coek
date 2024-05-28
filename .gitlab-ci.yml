@@ -73,8 +73,8 @@ performance-tests:
   artifacts:
     expose_as: 'performance-trend'
     paths:
-      - test/aml_comparisons/build/perf_trend.html
-      - test/aml_comparisons/build/perf_archive.tgz
+      - perf_trend.html
+      - perf_archive.tgz
     expire_in: 4 weeks
 
 pages:
@@ -82,7 +82,7 @@ pages:
   tags: ["docker"]
   script:
     - mkdir public
-    - mv test/aml_comparisons/build/perf_trend.html public/index.html
+    - mv perf_trend.html public/index.html
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "dev-public" && $CI_PIPELINE_SOURCE == "push"
