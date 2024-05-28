@@ -13,9 +13,9 @@ void pmedian_array(coek::Model& model, size_t N, size_t P)
             d[n][m] = 1.0 + 1.0 / (n + m + 1);
     }
 
-    auto x = model.add(coek::variable("x", {N, M})).bounds(0, 1).value(0);
+    auto x = model.add(coek::variable("x", {N, M}).bounds(0, 1).value(0));
 
-    auto y = model.add(coek::variable("y", N)).bounds(0, 1).value(0);
+    auto y = model.add(coek::variable("y", N).bounds(0, 1).value(0));
 
     // obj
     auto obj = coek::expression();
