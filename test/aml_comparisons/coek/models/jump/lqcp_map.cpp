@@ -24,8 +24,8 @@ void lqcp_map(coek::Model& model, size_t n)
 
     auto M = coek::RangeSet(0, m);
     auto N = coek::RangeSet(0, n);
-    auto y = model.add(coek::variable("y", M * N)).bounds(0, 1).value(0);
-    auto u = model.add(coek::variable("u", coek::RangeSet(1, m))).bounds(-1, 1).value(0);
+    auto y = model.add(coek::variable("y", M * N).bounds(0, 1).value(0));
+    auto u = model.add(coek::variable("u", coek::RangeSet(1, m)).bounds(-1, 1).value(0));
 
     // OBJECTIVE
     // First term

@@ -20,8 +20,8 @@ void lqcp_array(coek::Model& model, size_t n)
     // double h2 = dx*dx;
     double a = 0.001;
 
-    auto y = model.add(coek::variable("y", {m + 1, n + 1})).bounds(0, 1).value(0);
-    auto u = model.add(coek::variable("u", m + 1)).bounds(-1, 1).value(0);
+    auto y = model.add(coek::variable("y", {m + 1, n + 1}).bounds(0, 1).value(0));
+    auto u = model.add(coek::variable("u", m + 1).bounds(-1, 1).value(0));
 
     // OBJECTIVE
     // First term

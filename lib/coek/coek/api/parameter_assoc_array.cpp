@@ -36,8 +36,9 @@ void ParameterAssocArrayRepn::value(double value)
 {
     parameter_template.value(value);
     if (values.size() > 0) {
+        Expression e(value);
         for (auto& var : values)
-            var.value(value);
+            var.value(e);
     }
 }
 
