@@ -46,8 +46,9 @@ void VariableAssocArrayRepn::value(double value)
 {
     variable_template.value(value);
     if (values.size() > 0) {
+        coek::Expression e(value);
         for (auto& var : values)
-            var.value(value);
+            var.value(e);
     }
 }
 
@@ -64,8 +65,9 @@ void VariableAssocArrayRepn::lower(double value)
 {
     variable_template.lower(value);
     if (values.size() > 0) {
+        coek::Expression e(value);
         for (auto& var : values)
-            var.lower(value);
+            var.lower(e);
     }
 }
 
@@ -82,8 +84,9 @@ void VariableAssocArrayRepn::upper(double value)
 {
     variable_template.upper(value);
     if (values.size() > 0) {
+        coek::Expression e(value);
         for (auto& var : values)
-            var.upper(value);
+            var.upper(e);
     }
 }
 
@@ -100,8 +103,10 @@ void VariableAssocArrayRepn::bounds(double lb, double ub)
 {
     variable_template.bounds(lb, ub);
     if (values.size() > 0) {
+        coek::Expression lower(lb);
+        coek::Expression upper(ub);
         for (auto& var : values)
-            var.bounds(lb, ub);
+            var.bounds(lower,upper);
     }
 }
 
@@ -109,8 +114,9 @@ void VariableAssocArrayRepn::bounds(const Expression& lb, double ub)
 {
     variable_template.bounds(lb, ub);
     if (values.size() > 0) {
+        coek::Expression upper(ub);
         for (auto& var : values)
-            var.bounds(lb, ub);
+            var.bounds(lb,upper);
     }
 }
 
@@ -118,8 +124,9 @@ void VariableAssocArrayRepn::bounds(double lb, const Expression& ub)
 {
     variable_template.bounds(lb, ub);
     if (values.size() > 0) {
+        coek::Expression lower(lb);
         for (auto& var : values)
-            var.bounds(lb, ub);
+            var.bounds(lower,ub);
     }
 }
 
