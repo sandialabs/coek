@@ -11,32 +11,14 @@ compile:
   tags: ["docker"]
   script:
     - source /root/.profile
-    - mkdir build
-    - cd build
-    - cmake
-      -DPython_EXECUTABLE=$PYTHON_DIR/python
-      -Dwith_compact=OFF
-      -Dwith_docs=OFF ..
-    - make install_tpls
-    #-DGUROBI_LIBRARY=$GUROBI_LIBRARY/libgurobi100.so
-    #-DGUROBI_INCLUDE_DIRS=$GUROBI_HOME/include
-    #-DGUROBI_CXX_LIBRARY=$GUROBI_LIBRARY/libgurobi_g++5.2.a
-    - cmake
-      -Dwith_asl=ON
-      -Dwith_pybind11=ON
-      -Dwith_cppad=ON
-      -Dwith_tests=ON
-      -Dwith_gurobi=ON
-      ..
-    - make -j8
-    - make install
+    - ./build.sh --python --python-exe $PYTHON_DIR/python
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "dev-public" && $CI_PIPELINE_SOURCE == "push"
     - if: $CI_PIPELINE_SOURCE == "schedule"
   artifacts:
     paths:
-      - build
+      - _build
     expire_in: 1 hour
 
 unit-tests:
@@ -44,7 +26,7 @@ unit-tests:
   tags: ["docker"]
   script:
     - source /root/.profile
-    - cd build
+    - cd _build
     - make test
   allow_failure: true
   rules:
@@ -63,7 +45,7 @@ performance-tests:
             export BRANCH_NAME=$CI_COMMIT_BRANCH
           fi
     - source /root/.profile
-    - cd build
+    - cd _build
     - ../test/aml_comparisons/scripts/bench_gurobi.sh
     - tar -czvf perf_archive.tgz /coek_performance_results
   rules:
@@ -82,7 +64,7 @@ pages:
   tags: ["docker"]
   script:
     - mkdir public
-    - mv perf_trend.html public/index.html
+    - mv _build/perf_trend.html public/index.html
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "dev-public" && $CI_PIPELINE_SOURCE == "push"
