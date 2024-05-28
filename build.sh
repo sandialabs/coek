@@ -9,26 +9,36 @@ with_python="OFF"
 spack_reinstall=0
 spack_dev=0
 clang=0
-for arg ; do
-    case "$arg" in
+spack_home=`pwd`/_spack
+while [[ $# -gt 0 ]]; do
+    case $1 in
         --help)
-                    echo "build.sh [--python] [--clang] [--spack-reinstall] [--spack-dev] [--help]"
+                    echo "build.sh [--python] [--clang] [--spack-reinstall] [--spack-dev] [--spack-home <dir>] [--help]"
                     exit 
         ;;
         --python)
                     with_python="ON"
+                    shift
         ;;
         --clang)
                     clang=1
+                    shift
         ;;
         --spack-reinstall)
                     spack_reinstall=1
+                    shift
         ;;
         --spack-dev)
                     spack_dev=1
+                    shift
+        ;;
+        --spack-home)
+                    spack_home="$2"
+                    shift
+                    shift
         ;;
         *)
-                    echo "unknown option: ${arg}"
+                    echo "unknown option: $1"
                     exit 
         ;;
     esac
@@ -37,10 +47,10 @@ done
 #
 # Setup directories
 #
-export SPACK_HOME=`pwd`/_spack
+export SPACK_HOME=${spack_home}
 echo "SPACK_HOME=${SPACK_HOME}"
 if [[ "${spack_reinstall}" -eq 1 ]]; then
-    rm -Rf ${SPACK_HOME}
+    \rm -Rf ${SPACK_HOME}
 fi
 \rm -Rf _build
 #
@@ -70,9 +80,9 @@ else
     echo "Installing Coek dependencies using Spack"
     echo ""
     if [[ "$spack_dev" -eq 0 ]]; then
-        git clone https://github.com/or-fusion/spack.git _spack
+        git clone https://github.com/or-fusion/spack.git ${SPACK_HOME}
     else
-        git clone git@github.com:or-fusion/spack.git _spack
+        git clone git@github.com:or-fusion/spack.git ${SPACK_HOME}
     fi
     . ${SPACK_HOME}/share/spack/setup-env.sh
     spack env create coekenv
@@ -80,6 +90,10 @@ else
     spack add asl cppad fmt rapidjson catch2 highs
     spack install
     spack env deactivate
+fi
+if test -d ${SPACK_HOME}; then
+    export SPACK_HOME=$(cd ${SPACK_HOME}; pwd)
+    echo "SPACK_HOME=${SPACK_HOME}"
 fi
 #
 # Install coek
