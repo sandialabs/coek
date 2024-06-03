@@ -12,7 +12,6 @@ spack_dev=0
 clang=0
 debug="OFF"
 spack_home=`pwd`/_spack
-python_exe=""
 with_valgrind=""
 while [[ $# -gt 0 ]]; do
     case $1 in
