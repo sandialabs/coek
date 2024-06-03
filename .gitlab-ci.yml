@@ -45,10 +45,8 @@ unit-tests:
   script:
     - source /root/.profile
     - cd _build
-    - export LD_LIBRARY_PATH="`pwd`/install;$LD_LIBRARY_PATH"
+    - export LD_LIBRARY_PATH="`pwd`/install/lib;`pwd`/install/lib64$LD_LIBRARY_PATH"
     - echo $LD_LIBRARY_PATH
-    - ls -R install
-    - ldd lib/coek/test/runner
     - make test
   allow_failure: true
   rules:
