@@ -9,6 +9,11 @@ history](https://github.com/sandialabs/coek/commits).
 * Adding support for builds with Spack
 * Rework of CMake specification of coek::coek to account for subpackage dependencies
 * coek_utils: Python utilities that work with coek
+* coek: Made strict inequalities a special case, to simplify core objects
+* coek: Reduced size of several core objects
+* coek: Optimized initialization of associative array objects
+* coek: Added support for model names
+* coek: Added coek-specific exceptions to tailor use of coek visitors
 * coek: Fixes for clang compiler
 * coek: Adding support for activate/deactivate in objectives and constraints
 * coek: Added tictoc and DataPortals logic
