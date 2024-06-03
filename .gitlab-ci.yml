@@ -45,10 +45,10 @@ unit-tests:
   script:
     - source /root/.profile
     - cd _build
-    - export LD_LIBRARY_PATH="`pwd`/install/lib;`pwd`/install/lib64$LD_LIBRARY_PATH"
+    - export LD_LIBRARY_PATH="`pwd`/install/lib;`pwd`/install/lib64;$LD_LIBRARY_PATH"
     - echo $LD_LIBRARY_PATH
     - make test
-  allow_failure: true
+  allow_failure: false
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "dev-public" && $CI_PIPELINE_SOURCE == "push"
