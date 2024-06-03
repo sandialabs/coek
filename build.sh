@@ -19,15 +19,6 @@ while [[ $# -gt 0 ]]; do
                     echo "build.sh [--help] [--clang] [--debug] [--python] [--python-exe <file>] [--spack-dev] [--spack-home <dir>] [--spack-reinstall] [--valgrind]"
                     exit 
         ;;
-        --python)
-                    with_python="ON"
-                    shift
-        ;;
-        --python-exe)
-                    python_exe="-DPython_EXECUTABLE=$2"
-                    shift
-                    shift
-        ;;
         --clang)
                     clang=1
                     shift
@@ -36,12 +27,12 @@ while [[ $# -gt 0 ]]; do
                     debug="ON"
                     shift
         ;;
-        --valgrind)
-                    with_valgrind="valgrind"
+        --python)
+                    with_python="ON"
                     shift
         ;;
-        --spack-reinstall)
-                    spack_reinstall=1
+        --python-exe)
+                    python_exe="-DPython_EXECUTABLE=$2"
                     shift
         ;;
         --spack-dev)
@@ -51,6 +42,14 @@ while [[ $# -gt 0 ]]; do
         --spack-home)
                     spack_home="$2"
                     shift
+                    shift
+        ;;
+        --spack-reinstall)
+                    spack_reinstall=1
+                    shift
+        ;;
+        --valgrind)
+                    with_valgrind="valgrind"
                     shift
         ;;
         *)
