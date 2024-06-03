@@ -48,6 +48,7 @@ unit-tests:
     - export LD_LIBRARY_PATH="`pwd`/install;$LD_LIBRARY_PATH"
     - echo $LD_LIBRARY_PATH
     - ls install
+    - ldd lib/coek/test/runner
     - make test
   allow_failure: true
   rules:
