@@ -45,6 +45,7 @@ unit-tests:
   script:
     - source /root/.profile
     - cd _build
+    - export LD_LIBRARY_PATH="`pwd`/install;$LD_LIBRARY_PATH"
     - make test
   allow_failure: true
   rules:
