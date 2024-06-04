@@ -67,6 +67,16 @@ echo "SPACK_HOME=${SPACK_HOME}"
 if [[ "${spack_reinstall}" -eq 1 ]]; then
     \rm -Rf ${SPACK_HOME}
 fi
+if [[ "$spack_dev" -eq 0 ]]; then
+    \rm -Rf _spack_tpls
+    git clone https://github.com/or-fusion/or-fusion-spack-repo.git _spack_tpls
+else
+    git clone git@github.com:or-fusion/or-fusion-spack-repo.git _spack_tpls
+    cd _spack_tpls
+    git checkout dev
+    git pull
+    cd ..
+fi
 \rm -Rf _build
 #
 # Configure gurobi
@@ -94,17 +104,16 @@ else
     echo ""
     echo "Installing Coek dependencies using Spack"
     echo ""
-    if [[ "$spack_dev" -eq 0 ]]; then
-        git clone https://github.com/or-fusion/spack.git ${SPACK_HOME}
-    else
-        git clone git@github.com:or-fusion/spack.git ${SPACK_HOME}
-    fi
+    git clone https://github.com/spack/spack.git ${SPACK_HOME}
     . ${SPACK_HOME}/share/spack/setup-env.sh
+    spack repo add _spack_tpls/repo
+    spack repo list
     spack env create coekenv
     spack env activate coekenv
     spack add asl cppad fmt rapidjson catch2 highs $with_valgrind
     spack install
     spack env deactivate
+    spack repo remove _spack_tpls/repo
 fi
 if test -d ${SPACK_HOME}; then
     export SPACK_HOME=$(cd ${SPACK_HOME}; pwd)
