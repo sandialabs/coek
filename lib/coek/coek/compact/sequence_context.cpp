@@ -64,7 +64,8 @@ ConcreteSet SequenceContext::index_set() const
         return repn->context[0].index_set * repn->context[1].index_set;
     else {
         auto tmp = repn->context[0].index_set * repn->context[1].index_set;
-        for (size_t i = 2; i < repn->context.size(); i++) tmp *= repn->context[i].index_set;
+        for (size_t i = 2; i < repn->context.size(); i++)
+            tmp *= repn->context[i].index_set;
         return tmp;
     }
 }

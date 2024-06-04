@@ -5,7 +5,7 @@
 #include "visitor.hpp"
 #include "visitor_fns.hpp"
 #include "../util/cast_utils.hpp"
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
 #    include "compact_terms.hpp"
 #endif
 
@@ -98,9 +98,21 @@ void visit_MonomialTerm(const expr_pointer_t& expr, VariableData& data)
 void visit_InequalityTerm(const expr_pointer_t& expr, VariableData& data)
 {
     auto tmp = safe_pointer_cast<InequalityTerm>(expr);
-    if (tmp->lower) visit_expression(tmp->lower, data);
+    if (tmp->lower)
+        visit_expression(tmp->lower, data);
     visit_expression(tmp->body, data);
-    if (tmp->upper) visit_expression(tmp->upper, data);
+    if (tmp->upper)
+        visit_expression(tmp->upper, data);
+}
+
+void visit_StrictInequalityTerm(const expr_pointer_t& expr, VariableData& data)
+{
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr);
+    if (tmp->lower)
+        visit_expression(tmp->lower, data);
+    visit_expression(tmp->body, data);
+    if (tmp->upper)
+        visit_expression(tmp->upper, data);
 }
 
 void visit_EqualityTerm(const expr_pointer_t& expr, VariableData& data)
@@ -129,7 +141,8 @@ void visit_PlusTerm(const expr_pointer_t& expr, VariableData& data)
     auto tmp = safe_pointer_cast<PlusTerm>(expr);
     auto& vec = *(tmp->data);
     auto n = tmp->num_expressions();
-    for (size_t i = 0; i < n; i++) visit_expression(vec[i], data);
+    for (size_t i = 0; i < n; i++)
+        visit_expression(vec[i], data);
 }
 
 // clang-format off
@@ -185,6 +198,7 @@ void visit_expression(const expr_pointer_t& expr, VariableData& data)
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);
@@ -238,7 +252,8 @@ void find_vars_and_params_debug(
 {
     num_visits = 0;
     // GCOVR_EXCL_START
-    if (not expr) return;
+    if (not expr)
+        return;
     // GCOVR_EXCL_STOP
 
     VariableData data(vars, fixed_vars, params, visited_subexpressions);
@@ -254,7 +269,8 @@ void find_vars_and_params(const expr_pointer_t& expr,
                           std::set<std::shared_ptr<SubExpressionTerm>>& visited_subexpressions)
 {
     // GCOVR_EXCL_START
-    if (not expr) return;
+    if (not expr)
+        return;
     // GCOVR_EXCL_STOP
 
     VariableData data(vars, fixed_vars, params, visited_subexpressions);

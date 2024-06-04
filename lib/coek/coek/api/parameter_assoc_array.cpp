@@ -36,7 +36,9 @@ void ParameterAssocArrayRepn::value(double value)
 {
     parameter_template.value(value);
     if (values.size() > 0) {
-        for (auto& var : values) var.value(value);
+        Expression e(value);
+        for (auto& var : values)
+            var.value(e);
     }
 }
 
@@ -44,7 +46,8 @@ void ParameterAssocArrayRepn::value(const Expression& value)
 {
     parameter_template.value(value);
     if (values.size() > 0) {
-        for (auto& var : values) var.value(value);
+        for (auto& var : values)
+            var.value(value);
     }
 }
 
@@ -54,7 +57,8 @@ void ParameterAssocArrayRepn::name(const std::string& name)
     if (values.size() > 0) {
         // If the string is empty, then we reset the names of all variables
         if (name.size() == 0) {
-            for (auto& var : values) var.name(name);
+            for (auto& var : values)
+                var.name(name);
         }
         // Otherwise, we re-generate the names
         else
@@ -108,7 +112,8 @@ expr_pointer_t get_concrete_param(ParameterRefTerm& paramref)
     }
 
     IndexVector& tmp = param->tmp;
-    for (size_t i = 0; i < index.size(); i++) tmp[i] = index[i];
+    for (size_t i = 0; i < index.size(); i++)
+        tmp[i] = index[i];
 
     Expression e = param->index(tmp);
     return e.repn;

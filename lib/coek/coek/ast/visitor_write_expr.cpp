@@ -4,7 +4,7 @@
 #include "value_terms.hpp"
 #include "visitor.hpp"
 #include "visitor_fns.hpp"
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
 #    include "compact_terms.hpp"
 #endif
 #include "coek/util/cast_utils.hpp"
@@ -48,7 +48,7 @@ void visit_VariableTerm(const expr_pointer_t& expr, std::ostream& ostr)
     }
 }
 
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
 void visit_ParameterRefTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
     auto tmp = safe_pointer_cast<ParameterRefTerm>(expr);
@@ -93,7 +93,8 @@ void visit_VariableRefTerm(const expr_pointer_t& expr, std::ostream& ostr)
 void visit_MonomialTerm(const expr_pointer_t& expr, std::ostream& ostr)
 {
     auto tmp = safe_pointer_cast<MonomialTerm>(expr);
-    if (!(tmp->coef == 1.0)) ostr << tmp->coef << "*";
+    if (!(tmp->coef == 1.0))
+        ostr << tmp->coef << "*";
     visit_expression(tmp->var, ostr);
 }
 
@@ -102,17 +103,25 @@ void visit_InequalityTerm(const expr_pointer_t& expr, std::ostream& ostr)
     auto tmp = safe_pointer_cast<InequalityTerm>(expr);
     if (tmp->lower) {
         visit_expression(tmp->lower, ostr);
-        if (tmp->strict)
-            ostr << " < ";
-        else
-            ostr << " <= ";
+        ostr << " <= ";
     }
     visit_expression(tmp->body, ostr);
     if (tmp->upper) {
-        if (tmp->strict)
-            ostr << " < ";
-        else
-            ostr << " <= ";
+        ostr << " <= ";
+        visit_expression(tmp->upper, ostr);
+    }
+}
+
+void visit_StrictInequalityTerm(const expr_pointer_t& expr, std::ostream& ostr)
+{
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr);
+    if (tmp->lower) {
+        visit_expression(tmp->lower, ostr);
+        ostr << " < ";
+    }
+    visit_expression(tmp->body, ostr);
+    if (tmp->upper) {
+        ostr << " < ";
         visit_expression(tmp->upper, ostr);
     }
 }
@@ -261,13 +270,14 @@ void visit_expression(const expr_pointer_t& expr, std::ostream& ostr)
         VISIT_CASE(ParameterTerm);
         VISIT_CASE(IndexParameterTerm);
         VISIT_CASE(VariableTerm);
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(ParameterRefTerm);
         VISIT_CASE(VariableRefTerm);
 #endif
 
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);

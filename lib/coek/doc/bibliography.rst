@@ -10,3 +10,5 @@ Bibliography
 .. [Poek] https://github.com/or-fusion/poek
 
 .. [Pyomo] https://github.com/Pyomo/pyomo
+
+.. [Spack] https://spack.io/

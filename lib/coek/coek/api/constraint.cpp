@@ -10,7 +10,7 @@
 namespace coek {
 
 #ifdef COEK_WITH_COMPACT_MODEL
-std::shared_ptr<ConstraintTerm> convert_con_template(std::shared_ptr<ConstraintTerm> con);
+std::shared_ptr<ConstraintTerm> convert_con_template(const std::shared_ptr<ConstraintTerm>& con);
 #endif
 
 //
@@ -29,7 +29,13 @@ Constraint& Constraint::operator=(const Constraint& expr)
     return *this;
 }
 
-unsigned int Constraint::id() const { return repn->index; }
+bool Constraint::active() const { return repn->active; }
+
+void Constraint::activate() { repn->active = true; }
+
+void Constraint::deactivate() { repn->active = false; }
+
+size_t Constraint::id() const { return repn->index; }
 
 bool Constraint::is_inequality() const { return repn->is_inequality(); }
 
@@ -568,8 +574,11 @@ Constraint operator==(const Expression& lhs, const Expression& rhs)
 Constraint inequality(const Expression& lower, const Expression& body, const Expression& upper,
                       bool strict)
 {
-    std::shared_ptr<ConstraintTerm> tmp
-        = CREATE_POINTER(InequalityTerm, lower.repn, body.repn, upper.repn, strict);
+    std::shared_ptr<ConstraintTerm> tmp;
+    if (strict)
+        tmp = CREATE_POINTER(StrictInequalityTerm, lower.repn, body.repn, upper.repn);
+    else
+        tmp = CREATE_POINTER(InequalityTerm, lower.repn, body.repn, upper.repn);
     return tmp;
 }
 

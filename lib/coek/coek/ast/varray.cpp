@@ -48,7 +48,8 @@ void initialize_index_map(std::vector<size_t>& dimen, std::vector<size_t>& tmp, 
 
 std::string LocalIndexedVariableTerm::get_name()
 {
-    if (varray->name == "") return get_simple_name();
+    if (varray->name == "")
+        return get_simple_name();
 
     if (varray->order.size() == 0) {
         return varray->name + "[" + std::to_string(varray_index) + "]";
@@ -59,7 +60,8 @@ std::string LocalIndexedVariableTerm::get_name()
         for (std::size_t i = 0; i < varray->order.size(); i++) {
             size_t val = total / varray->order[i];
             total -= val * varray->order[i];
-            if (i > 0) index_str += ", ";
+            if (i > 0)
+                index_str += ", ";
             index_str += std::to_string(val);
         }
 
@@ -78,7 +80,8 @@ PythonVariableArray::PythonVariableArray(std::vector<size_t>& _dimen, std::strin
     //  Initialize variable array
     //
     size_t n = 1;
-    for (auto it = dimen.begin(); it != dimen.end(); ++it) n *= *it;
+    for (auto it = dimen.begin(); it != dimen.end(); ++it)
+        n *= *it;
     name = _name;
     initialize(n, init, lb, ub, binary, integer, fixed);
     //
@@ -110,8 +113,10 @@ PythonVariableArray::PythonVariableArray(size_t n, std::string _name, double lb,
 void PythonVariableArray::initialize(size_t n, double lb, double ub, double init, bool binary,
                                      bool integer, bool fixed)
 {
-    if (std::isnan(lb)) lb = -COEK_INFINITY;
-    if (std::isnan(ub)) ub = COEK_INFINITY;
+    if (std::isnan(lb))
+        lb = -COEK_INFINITY;
+    if (std::isnan(ub))
+        ub = COEK_INFINITY;
 
     variables.resize(n);
     for (size_t i = 0; i < n; i++) {

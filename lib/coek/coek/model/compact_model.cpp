@@ -31,6 +31,10 @@ CompactModel::CompactModel(const CompactModel& other) { repn = other.repn; }
 
 CompactModel::~CompactModel() {}
 
+std::string CompactModel::name() const { return repn->name; }
+
+void CompactModel::name(const std::string& name) { repn->name = name; }
+
 Variable CompactModel::add_variable()
 {
     Variable tmp;
@@ -63,63 +67,46 @@ Variable& CompactModel::add_variable(Variable&& var)
 
 void CompactModel::add_variable(PythonVariableArray& varray)
 {
-    repn->variables.insert(repn->variables.end(), varray.variables.begin(), varray.variables.end());
+    for (auto& var : varray.variables)
+        repn->variables.push_back(var);
+    // repn->variables.insert(repn->variables.end(), varray.variables.begin(),
+    // varray.variables.end());
     repn->variable_names.insert(repn->variable_names.end(), varray.variables.size(), "");
 }
 
 VariableMap& CompactModel::add_variable(VariableMap& vars)
 {
-    repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
+    for (auto& var : vars)
+        repn->variables.push_back(var);
+    // repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
     repn->variable_names.insert(repn->variable_names.end(), vars.size(), "");
-    /*
-    auto end = vars.end();
-    for (auto it=vars.begin(); it != end; ++it) {
-        repn->variables.push_back(*it);
-        repn->variable_names.push_back("");
-        }
-    */
     return vars;
 }
 
 VariableMap& CompactModel::add_variable(VariableMap&& vars)
 {
-    repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
+    for (auto& var : vars)
+        repn->variables.push_back(var);
+    // repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
     repn->variable_names.insert(repn->variable_names.end(), vars.size(), "");
-    /*
-    auto end = vars.end();
-    for (auto it=vars.begin(); it != end; ++it) {
-        repn->variables.push_back(*it);
-        repn->variable_names.push_back("");
-        }
-    */
     return vars;
 }
 
 VariableArray& CompactModel::add_variable(VariableArray& vars)
 {
-    repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
+    for (auto& var : vars)
+        repn->variables.push_back(var);
+    // repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
     repn->variable_names.insert(repn->variable_names.end(), vars.size(), "");
-    /*
-    auto end = vars.end();
-    for (auto it=vars.begin(); it != end; ++it) {
-        repn->variables.push_back(*it);
-        repn->variable_names.push_back("");
-        }
-    */
     return vars;
 }
 
 VariableArray& CompactModel::add_variable(VariableArray&& vars)
 {
-    repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
+    for (auto& var : vars)
+        repn->variables.push_back(var);
+    // repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
     repn->variable_names.insert(repn->variable_names.end(), vars.size(), "");
-    /*
-    auto end = vars.end();
-    for (auto it=vars.begin(); it != end; ++it) {
-        repn->variables.push_back(*it);
-        repn->variable_names.push_back("");
-        }
-    */
     return vars;
 }
 

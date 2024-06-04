@@ -1,3 +1,6 @@
+import poek as pk
+
+import pyomo.environ as pyo
 from pyomo.core.base.component import ActiveComponentData
 from pyomo.core.base.indexed_component import ActiveIndexedComponent
 from pyomo.core.base.constraint import _ConstraintData
@@ -99,7 +102,12 @@ class _GeneralConstraintData(_ConstraintData):
                 elif expr[2] is None:
                     self._pe = expr[0] <= expr[1]
                 else:
-                    raise NotImplementedError("Ranged inequalities are not supported yet")
+                    # This is a hack to detect if a pyomo_coek variable is being used
+                    if hasattr(expr[1], "_pe"):
+                        self._pe = pk.inequality(expr[0], expr[1]._pe, expr[2])
+                    else:
+                        self._pe = pk.inequality(expr[0], expr[1], expr[2])
+                    # raise NotImplementedError("Ranged inequalities are not supported yet")
             else:
                 raise ValueError(
                     f"expected 2 or 3 arguments for tuple expressions; got {len(expr)}"
@@ -140,7 +148,7 @@ class Constraint(ActiveIndexedComponent):
         else:
             self.rule = Initializer(_init)
 
-        kwargs.setdefault("ctype", Constraint)
+        kwargs.setdefault("ctype", pyo.Constraint)
         ActiveIndexedComponent.__init__(self, *args, **kwargs)
 
     def construct(self, data=None):

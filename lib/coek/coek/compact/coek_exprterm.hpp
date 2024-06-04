@@ -16,7 +16,6 @@ class SumExpressionTerm : public BaseExpressionTerm {
 
     bool is_expression() const { return false; }
 
-    void accept(Visitor& v) { v.visit(*this); }
     term_id id() { return SumExpressionTerm_id; }
 };
 

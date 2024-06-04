@@ -1,7 +1,6 @@
 
 find_package(Catch2 REQUIRED)
 add_library(Catch INTERFACE)
-target_include_directories(Catch INTERFACE ${CMAKE_INSTALL_PREFIX}/include)
 
 if (with_fmtlib)
     find_package(fmt REQUIRED)
@@ -9,33 +8,42 @@ endif()
 
 
 SET(sources
-    runner.cpp
-    test_model.cpp
-    test_visitor_simplify.cpp
-    test_visitor_mutable.cpp
-    test_visitor_writer.cpp
-    test_visitor_quadexpr.cpp
-    test_visitor_nlpexpr.cpp
-    test_visitor_symdiff.cpp
-    test_visitor_findvarparam.cpp
-    test_visitor_eval.cpp
-    test_testsolver.cpp
-    test_examples.cpp
-    test_writers.cpp
-    test_readers.cpp
-    test_sets.cpp
-    test_indexed.cpp
-    test_var.cpp
-    test_param.cpp
-    test_expr.cpp
-    test_obj.cpp
-    test_con.cpp
-    test_subexpression.cpp
-    test_autograd_unknown.cpp
-    test_autograd_all.cpp
-    test_sequence.cpp
+    smoke/test_model.cpp
+    smoke/test_visitor_simplify.cpp
+    smoke/test_visitor_mutable.cpp
+    smoke/test_visitor_writer.cpp
+    smoke/test_visitor_quadexpr.cpp
+    smoke/test_visitor_nlpexpr.cpp
+    smoke/test_visitor_symdiff.cpp
+    smoke/test_visitor_findvarparam.cpp
+    smoke/test_visitor_eval.cpp
+    smoke/test_testsolver.cpp
+    smoke/test_writers.cpp
+    smoke/test_readers.cpp
+    smoke/test_sets.cpp
+    smoke/test_indexed.cpp
+    smoke/test_var.cpp
+    smoke/test_param.cpp
+    smoke/test_expr.cpp
+    smoke/test_obj.cpp
+    smoke/test_con.cpp
+    smoke/test_subexpression.cpp
+    smoke/test_autograd_unknown.cpp
+    smoke/test_autograd_all.cpp
+    smoke/test_util_sequence.cpp
     mt_funcs.cpp
+    solver/test_examples.cpp
+    solver/test_gurobi.cpp
+    solver/test_highs.cpp
+    solver/test_ipopt.cpp
+    solver/TestModels.cpp
    )
+
+if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
+    list(APPEND sources
+        smoke/test_util_DataPortal.cpp
+        )
+endif()
 
 set(coek_test_libraries)
 
@@ -43,14 +51,14 @@ set(coek_test_libraries)
 if(with_cppad)
   MESSAGE("-- Building Test with AD:        CppAd")
   list(APPEND sources
-    test_autograd_cppad.cpp)
+    smoke/test_autograd_cppad.cpp)
 endif()
 
 # ASL LIBRARY
 if(with_asl)
   MESSAGE("-- Building Test with AD:        ASL")
   list(APPEND sources
-    test_autograd_asl.cpp)
+    smoke/test_autograd_asl.cpp)
 endif()
 
 # Thread tests
@@ -68,7 +76,7 @@ enable_testing()
 
 # runner
 add_executable(runner ${sources})
-TARGET_LINK_LIBRARIES(runner PUBLIC coek coekexamples Catch2::Catch2 ${coek_link_libraries} ${coek_test_libraries})
+TARGET_LINK_LIBRARIES(runner PUBLIC coek coekexamples Catch2::Catch2WithMain ${coek_link_libraries} ${coek_test_libraries})
 TARGET_COMPILE_OPTIONS(runner PUBLIC ${coek_compile_options})
 target_compile_definitions(runner PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 
@@ -81,6 +89,12 @@ add_executable(jpof_demo jpof_demo.cpp)
 TARGET_LINK_LIBRARIES(jpof_demo PUBLIC coek ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(jpof_demo PUBLIC ${coek_compile_options})
 target_compile_definitions(jpof_demo PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
+
+# coek_micro_test
+add_executable(coek_micro_test coek_micro_test.cpp)
+TARGET_LINK_LIBRARIES(coek_micro_test PUBLIC coek ${coek_link_libraries})
+TARGET_COMPILE_OPTIONS(coek_micro_test PUBLIC ${coek_compile_options})
+target_compile_definitions(coek_micro_test PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 
 
 # testing

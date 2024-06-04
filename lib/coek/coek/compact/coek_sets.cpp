@@ -82,7 +82,8 @@ AbstractSet::AbstractSet(size_t dim)
 {
     if (dim == 0)
         throw std::runtime_error("Cannot declare an abstract set with less than one dimension.");
-    if (dim == 1) repn = std::make_shared<ast::FiniteSimpleSet<set_types>>();
+    if (dim == 1)
+        repn = std::make_shared<ast::FiniteSimpleSet<set_types>>();
 }
 
 AbstractSet::AbstractSet(const SetRepn& _repn) : SetCore(_repn) {}

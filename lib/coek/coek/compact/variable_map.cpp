@@ -30,6 +30,8 @@ class VariableMapRepn : public VariableAssocArrayRepn {
         cache.resize((size() + 1) * (dim() + 1));
     }
 
+    virtual ~VariableMapRepn() {}
+
     void setup();
 
     // TODO - evaluate whether it is reasonable to use const_cast here
@@ -46,7 +48,8 @@ void VariableMapRepn::generate_names()
     // then we do not try to generate names.  The default/simple
     // variable names will be used.
     auto name = variable_template.name();
-    if (name == "") return;
+    if (name == "")
+        return;
 
     setup();
 
@@ -54,7 +57,8 @@ void VariableMapRepn::generate_names()
     std::vector<int> x_data(_dim);
     IndexVector x(&(x_data[0]), _dim);
     for (auto& indices : concrete_set) {
-        for (size_t j = 0; j < _dim; j++) x[j] = indices[j];
+        for (size_t j = 0; j < _dim; j++)
+            x[j] = indices[j];
         if (indices.size() == 1) {
             auto tmp = indices[0];
             values[index[x]].name(name + "[" + std::to_string(tmp) + "]");
@@ -81,7 +85,8 @@ void VariableMapRepn::setup()
         size_t i = 0;
         for (auto& vec : concrete_set) {
             auto x = cache.alloc(_dim);
-            for (size_t j = 0; j < _dim; j++) x[j] = vec[j];
+            for (size_t j = 0; j < _dim; j++)
+                x[j] = vec[j];
             index[x] = i++;
         }
     }
@@ -118,7 +123,8 @@ Variable VariableMap::index(const IndexVector& args)
     if (curr == _repn->index.end()) {
         std::string err = "Unknown index value: " + _repn->variable_template.name() + "[";
         for (size_t i = 0; i < args.size(); i++) {
-            if (i > 0) err += ",";
+            if (i > 0)
+                err += ",";
             err += std::to_string(args[i]);
         }
         err += "]";
@@ -229,7 +235,8 @@ VariableMap& Model::add_variable(VariableMap& vars)
         vars.generate_names();
     else if (repn->name_generation_policy == Model::NameGeneration::lazy)
         repn->variable_maps.push_back(vars);
-    for (auto& var : vars.repn->values) add_variable(var);
+    for (auto& var : vars.repn->values)
+        add_variable(var);
     return vars;
 }
 

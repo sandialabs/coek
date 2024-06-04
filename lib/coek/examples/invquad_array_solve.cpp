@@ -7,8 +7,7 @@ void invquad_array_solve()
     coek::Model m;
 
     size_t N = 10;
-    auto p = coek::parameter("p", N);
-    for (auto& param : p) param.value(0.5);
+    auto p = coek::parameter("p", N).value(0.5);
 
     // Initialize variables and add them to the model
     auto x = coek::variable("x", N).bounds(-10, 10).value(0.0);
@@ -16,7 +15,8 @@ void invquad_array_solve()
 
     // Create objective and add it to the model
     auto e = coek::expression();
-    for (size_t i : coek::range(N)) e -= (x(i) - p(i)) * (x(i) - p(i));
+    for (size_t i : coek::range(N))
+        e -= (x(i) - p(i)) * (x(i) - p(i));
     m.add_objective(e);
 
     // Optimize the model

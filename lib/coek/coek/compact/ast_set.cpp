@@ -20,15 +20,20 @@ class DefaultProductSetIteratorRepn : public SetIteratorRepnBase<std::vector<set
                                   bool _done = false)
         : ref(_ref), indices(_indices), done(_done)
     {
-        if (indices.size() != ref->dim()) throw std::runtime_error("Bad number of indices");
-        if (!done) initialize();
+        if (indices.size() != ref->dim())
+            throw std::runtime_error("Bad number of indices");
+        if (!done)
+            initialize();
     }
 
     DefaultProductSetIteratorRepn(ProductSet* _ref, bool _done = false) : ref(_ref), done(_done)
     {
         indices.resize(ref->dim());
-        if (!done) initialize();
+        if (!done)
+            initialize();
     }
+
+    virtual ~DefaultProductSetIteratorRepn() {}
 
     void initialize()
     {
@@ -44,7 +49,8 @@ class DefaultProductSetIteratorRepn : public SetIteratorRepnBase<std::vector<set
 
     void next()
     {
-        if (done) return;
+        if (done)
+            return;
 
         size_t i_ = 0;
         while (i_ < curr.size()) {
@@ -169,13 +175,15 @@ std::shared_ptr<SetIteratorRepnBase<std::vector<set_types>>> ProductSet::end_NDi
 
 void ProductSet::initialize()
 {
-    for (auto it = simple_sets.begin(); it != simple_sets.end(); ++it) (*it)->initialize();
+    for (auto it = simple_sets.begin(); it != simple_sets.end(); ++it)
+        (*it)->initialize();
 }
 
 size_t ProductSet::size()
 {
     size_t _size = 1;
-    for (auto it = simple_sets.begin(); it != simple_sets.end(); ++it) _size *= (*it)->size();
+    for (auto it = simple_sets.begin(); it != simple_sets.end(); ++it)
+        _size *= (*it)->size();
     return _size;
 }
 
@@ -249,7 +257,8 @@ bool ProductSet::contains(const std::vector<set_types>& arg)
     auto ait = arg.begin();
     for (auto it = simple_sets.begin(); it != simple_sets.end(); ++it) {
         const set_types tmp = *ait;
-        if (not(*it)->contains_any(tmp)) return false;
+        if (not(*it)->contains_any(tmp))
+            return false;
 #if 0
     const set_types* tmp = &*ait;
     if (auto pval = std::get_if<int>(tmp)) {
@@ -296,6 +305,8 @@ class FiniteProductSetIteratorRepn : public SetIteratorRepnBase<std::vector<set_
     {
     }
 
+    virtual ~FiniteProductSetIteratorRepn() {}
+
     void next() { iterator++; }
 
     bool equals(const SetIteratorRepnBase<std::vector<set_types>>* repn) const
@@ -340,7 +351,8 @@ void FiniteProductSet::add_unique(const std::vector<set_types>& arg)
 
 std::any FiniteProductSet::value(size_t i)
 {
-    if (not this->initialized) throw std::runtime_error("Getting value() of uninitialized set.");
+    if (not this->initialized)
+        throw std::runtime_error("Getting value() of uninitialized set.");
     if (i >= data.size())
         throw std::runtime_error(std::string("Requested set index that is too large: i=")
                                  + std::to_string(i) + std::string(" size=")
@@ -360,14 +372,17 @@ ProductSetUnion::ProductSetUnion(const std::shared_ptr<ProductSet>& _lhs,
 
 void ProductSetUnion::initialize()
 {
-    if (this->initialized) return;
+    if (this->initialized)
+        return;
 
     lhs->initialize();
-    for (auto it = lhs->begin(); it != lhs->end(); ++it) this->add_unique(*it);
+    for (auto it = lhs->begin(); it != lhs->end(); ++it)
+        this->add_unique(*it);
 
     rhs->initialize();
     for (auto it = rhs->begin(); it != rhs->end(); ++it) {
-        if (not this->contains(*it)) this->add_unique(*it);
+        if (not this->contains(*it))
+            this->add_unique(*it);
     }
 
     this->initialized = true;
@@ -386,18 +401,21 @@ ProductSetIntersection::ProductSetIntersection(const std::shared_ptr<ProductSet>
 
 void ProductSetIntersection::initialize()
 {
-    if (this->initialized) return;
+    if (this->initialized)
+        return;
 
     lhs->initialize();
     rhs->initialize();
     if (lhs->size() <= rhs->size()) {
         for (auto it = lhs->begin(); it != lhs->end(); ++it) {
-            if (rhs->contains(*it)) this->add_unique(*it);
+            if (rhs->contains(*it))
+                this->add_unique(*it);
         }
     }
     else {
         for (auto it = rhs->begin(); it != rhs->end(); ++it) {
-            if (lhs->contains(*it)) this->add_unique(*it);
+            if (lhs->contains(*it))
+                this->add_unique(*it);
         }
     }
 
@@ -417,13 +435,15 @@ ProductSetDifference::ProductSetDifference(const std::shared_ptr<ProductSet>& _l
 
 void ProductSetDifference::initialize()
 {
-    if (this->initialized) return;
+    if (this->initialized)
+        return;
 
     lhs->initialize();
     rhs->initialize();
 
     for (auto it = lhs->begin(); it != lhs->end(); ++it) {
-        if (not rhs->contains(*it)) this->add_unique(*it);
+        if (not rhs->contains(*it))
+            this->add_unique(*it);
     }
 
     this->initialized = true;
@@ -442,16 +462,19 @@ ProductSetSymmetricDifference::ProductSetSymmetricDifference(
 
 void ProductSetSymmetricDifference::initialize()
 {
-    if (this->initialized) return;
+    if (this->initialized)
+        return;
 
     lhs->initialize();
     rhs->initialize();
 
     for (auto it = lhs->begin(); it != lhs->end(); ++it) {
-        if (not rhs->contains(*it)) this->add_unique(*it);
+        if (not rhs->contains(*it))
+            this->add_unique(*it);
     }
     for (auto it = rhs->begin(); it != rhs->end(); ++it) {
-        if (not lhs->contains(*it)) this->add_unique(*it);
+        if (not lhs->contains(*it))
+            this->add_unique(*it);
     }
 
     this->initialized = true;

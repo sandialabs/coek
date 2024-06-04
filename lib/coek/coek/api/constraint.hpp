@@ -59,8 +59,15 @@ class Constraint {
 
     Constraint expand();
 
+    /** \returns the active state */
+    bool active() const;
+    /** Sets the active state to true */
+    void activate();
+    /** Sets the active state to false */
+    void deactivate();
+
     /** \returns the unique integer constraint ID */
-    unsigned int id() const;
+    size_t id() const;
 
     /** \returns a list representation of the constraint */
     std::list<std::string> to_list() const;

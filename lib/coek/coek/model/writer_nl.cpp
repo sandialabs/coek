@@ -21,8 +21,8 @@
 #include "../ast/value_terms.hpp"
 #include "../ast/visitor.hpp"
 #include "../ast/visitor_fns.hpp"
-#include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek/api/expression_visitor.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/model/model.hpp"
@@ -46,7 +46,8 @@ namespace {
 template <class RETURNTYPE, class TYPE, class TYPE2>
 RETURNTYPE _max(TYPE v1, TYPE2 v2)
 {
-    if (v1 < v2) return static_cast<RETURNTYPE>(v2);
+    if (v1 < v2)
+        return static_cast<RETURNTYPE>(v2);
     return static_cast<RETURNTYPE>(v1);
 }
 
@@ -69,6 +70,7 @@ void visit_expression(const expr_pointer_t& expr, VisitorType& data)
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);
@@ -208,22 +210,36 @@ inline void visit_MonomialTerm(const expr_pointer_t& expr, OStreamVisitorData& d
 inline void visit_InequalityTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
 {
     auto tmp = safe_pointer_cast<InequalityTerm>(expr).get();
-    if (tmp->lower and tmp->upper) data.ostr << "o21" << '\n';  // and
+    if (tmp->lower and tmp->upper)
+        data.ostr << "o21" << '\n';  // and
 
     if (tmp->lower) {
-        if (tmp->strict)
-            data.ostr << "o22" << '\n';  // lt
-        else
-            data.ostr << "o23" << '\n';  // le
+        data.ostr << "o23" << '\n';  // le
         visit_expression(tmp->lower, data);
         visit_expression(tmp->body, data);
     }
 
     if (tmp->upper) {
-        if (tmp->strict)
-            data.ostr << "o22" << '\n';  // lt
-        else
-            data.ostr << "o23" << '\n';  // le
+        data.ostr << "o23" << '\n';  // le
+        visit_expression(tmp->body, data);
+        visit_expression(tmp->upper, data);
+    }
+}
+
+inline void visit_StrictInequalityTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
+{
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr).get();
+    if (tmp->lower and tmp->upper)
+        data.ostr << "o21" << '\n';  // and
+
+    if (tmp->lower) {
+        data.ostr << "o22" << '\n';  // lt
+        visit_expression(tmp->lower, data);
+        visit_expression(tmp->body, data);
+    }
+
+    if (tmp->upper) {
+        data.ostr << "o22" << '\n';  // lt
         visit_expression(tmp->body, data);
         visit_expression(tmp->upper, data);
     }
@@ -268,7 +284,8 @@ inline void visit_PlusTerm(const expr_pointer_t& expr, OStreamVisitorData& data)
     else {
         data.ostr << "o54\n" << tmp->n << '\n';
         auto it = tmp->data->begin();
-        for (size_t i = 0; i < tmp->n; ++i, ++it) visit_expression(*it, data);
+        for (size_t i = 0; i < tmp->n; ++i, ++it)
+            visit_expression(*it, data);
     }
 }
 
@@ -397,22 +414,36 @@ inline void visit_MonomialTerm(const expr_pointer_t& expr, FMTVisitorData& data)
 inline void visit_InequalityTerm(const expr_pointer_t& expr, FMTVisitorData& data)
 {
     auto tmp = safe_pointer_cast<InequalityTerm>(expr).get();
-    if (tmp->lower and tmp->upper) data.ostr.print("o21\n");  // and
+    if (tmp->lower and tmp->upper)
+        data.ostr.print("o21\n");  // and
 
     if (tmp->lower) {
-        if (tmp->strict)
-            data.ostr.print("o22\n");  // lt
-        else
-            data.ostr.print("o23\n");  // le
+        data.ostr.print("o23\n");  // le
         visit_expression(tmp->lower, data);
         visit_expression(tmp->body, data);
     }
 
     if (tmp->upper) {
-        if (tmp->strict)
-            data.ostr.print("o22\n");  // lt
-        else
-            data.ostr.print("o23\n");  // le
+        data.ostr.print("o23\n");  // le
+        visit_expression(tmp->body, data);
+        visit_expression(tmp->upper, data);
+    }
+}
+
+inline void visit_StrictInequalityTerm(const expr_pointer_t& expr, FMTVisitorData& data)
+{
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr).get();
+    if (tmp->lower and tmp->upper)
+        data.ostr.print("o21\n");  // and
+
+    if (tmp->lower) {
+        data.ostr.print("o22\n");  // lt
+        visit_expression(tmp->lower, data);
+        visit_expression(tmp->body, data);
+    }
+
+    if (tmp->upper) {
+        data.ostr.print("o22\n");  // lt
         visit_expression(tmp->body, data);
         visit_expression(tmp->upper, data);
     }
@@ -455,7 +486,8 @@ inline void visit_PlusTerm(const expr_pointer_t& expr, FMTVisitorData& data)
     else {
         data.ostr.print(fmt::format(_fmtstr_o54, tmp->n));
         auto it = tmp->data->begin();
-        for (size_t i = 0; i < tmp->n; ++i, ++it) visit_expression(*it, data);
+        for (size_t i = 0; i < tmp->n; ++i, ++it)
+            visit_expression(*it, data);
     }
 }
 
@@ -533,14 +565,16 @@ void print_expr(std::ostream& ostr, const MutableNLPExpr& repn,
     bool quadratic = repn.quadratic_coefs.size() > 0;
 
     double cval = repn.constval->eval();
-    if (not nonlinear) cval += repn.nonlinear->eval();
+    if (not nonlinear)
+        cval += repn.nonlinear->eval();
 
     std::map<std::pair<size_t, size_t>, double> term;
     if (quadratic) {
         for (size_t i = 0; i < repn.quadratic_coefs.size(); ++i) {
             size_t lhs = varmap.at(repn.quadratic_lvars[i]->index);
             size_t rhs = varmap.at(repn.quadratic_rvars[i]->index);
-            if (rhs < lhs) std::swap(lhs, rhs);
+            if (rhs < lhs)
+                std::swap(lhs, rhs);
             auto key = std::pair<size_t, size_t>(lhs, rhs);
             auto it = term.find(key);
             if (it != term.end())
@@ -552,9 +586,12 @@ void print_expr(std::ostream& ostr, const MutableNLPExpr& repn,
 
     // Compute the number of terms in the sum
     size_t ctr = 0;
-    if (objective and (fabs(cval) > EPSILON)) ++ctr;
-    if (nonlinear) ++ctr;
-    if (quadratic) ctr += term.size();
+    if (objective and (fabs(cval) > EPSILON))
+        ++ctr;
+    if (nonlinear)
+        ++ctr;
+    if (quadratic)
+        ctr += term.size();
 
     // Write the sum header
     if (ctr == 0)
@@ -598,14 +635,16 @@ void print_expr(fmt::ostream& ostr, const MutableNLPExpr& repn,
     bool quadratic = repn.quadratic_coefs.size() > 0;
 
     double cval = repn.constval->eval();
-    if (not nonlinear) cval += repn.nonlinear->eval();
+    if (not nonlinear)
+        cval += repn.nonlinear->eval();
 
     std::map<std::pair<ITYPE, ITYPE>, double> term;
     if (quadratic) {
         for (size_t i = 0; i < repn.quadratic_coefs.size(); ++i) {
             ITYPE lhs = varmap.at(repn.quadratic_lvars[i]->index);
             ITYPE rhs = varmap.at(repn.quadratic_rvars[i]->index);
-            if (rhs < lhs) std::swap(lhs, rhs);
+            if (rhs < lhs)
+                std::swap(lhs, rhs);
             auto key = std::pair<ITYPE, ITYPE>(lhs, rhs);
 
             auto it = term.find(key);
@@ -618,9 +657,12 @@ void print_expr(fmt::ostream& ostr, const MutableNLPExpr& repn,
 
     // Compute the number of terms in the sum
     size_t ctr = 0;
-    if (objective and (fabs(cval) > EPSILON)) ++ctr;
-    if (nonlinear) ++ctr;
-    if (quadratic) ctr += term.size();
+    if (objective and (fabs(cval) > EPSILON))
+        ++ctr;
+    if (nonlinear)
+        ++ctr;
+    if (quadratic)
+        ctr += term.size();
 
     // Write the sum header
     if (ctr == 0)
@@ -705,10 +747,10 @@ class NLWriter {
 void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap,
                                std::map<size_t, size_t>& invconmap)
 {
-    o_expr.resize(model.repn->objectives.size());
-    c_expr.resize(model.repn->constraints.size());
-    r.resize(model.repn->constraints.size());
-    rval.resize(2 * model.repn->constraints.size());
+    o_expr.resize(model.num_active_objectives());
+    c_expr.resize(model.num_active_constraints());
+    r.resize(c_expr.size());
+    rval.resize(2 * c_expr.size());
 
     std::map<std::shared_ptr<SubExpressionTerm>, expr_pointer_t> simplified_subexpressions;
 
@@ -723,6 +765,9 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
             nnz_gradient = 0;
             size_t ctr = 0;
             for (auto& obj : model.repn->objectives) {
+                if (not obj.active())
+                    continue;
+
                 to_MutableNLPExpr(simplify_expr(obj.repn, simplified_subexpressions), o_expr[ctr]);
                 if ((o_expr[ctr].quadratic_coefs.size() > 0)
                     or (not o_expr[ctr].nonlinear->is_constant()))
@@ -769,10 +814,11 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
         // Constraints
         {
             size_t ctr = 0;
-            for (auto jt = model.repn->constraints.begin(); jt != model.repn->constraints.end();
-                 ++jt, ++ctr) {
+            for (auto& Con : model.repn->constraints) {
+                if (not Con.active())
+                    continue;
+
                 auto& Expr = c_expr[ctr];
-                auto& Con = *jt;
 
                 invconmap[ctr] = Con.id();
 
@@ -855,6 +901,8 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
 
                 // Add Jacobian terms for each constraint
                 nnz_Jacobian += curr_vars.size();
+
+                ++ctr;
             }
 
             for (auto& lv : all_linear_vars) {
@@ -933,8 +981,10 @@ void NLWriter::collect_nl_data(Model& model, std::map<size_t, size_t>& invvarmap
         else if (var.is_integer())
             num_linear_integer_vars++;
 
-        if (nonlinear_vars_obj.find(vid) != nonlinear_vars_obj.end()) continue;
-        if (nonlinear_vars_con.find(vid) != nonlinear_vars_con.end()) continue;
+        if (nonlinear_vars_obj.find(vid) != nonlinear_vars_obj.end())
+            continue;
+        if (nonlinear_vars_con.find(vid) != nonlinear_vars_con.end())
+            continue;
 
         if (var.is_binary())
             linear_vars_b.insert(vid);
@@ -1129,7 +1179,8 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
             ctr = 0;
             for (auto it = vars.begin(); it != vars.end(); ++it, ++ctr) {
                 auto tmp = varobj[*it].value();
-                if (not std::isnan(tmp)) values[ctr] = tmp;
+                if (not std::isnan(tmp))
+                    values[ctr] = tmp;
             }
             ostr << "x" << values.size() << '\n';
             if (values.size() > 0) {
@@ -1142,12 +1193,11 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
         // "r" section - bounds on constraints
         //
 
-        if (model.repn->constraints.size() > 0) {
+        if (r.size() > 0) {
             ostr << "r\n";
             ctr = 0;
-            for (auto it = model.repn->constraints.begin(); it != model.repn->constraints.end();
-                 ++it, ++ctr) {
-                switch (r[ctr]) {
+            for (auto val : r) {
+                switch (val) {
                     case 0:
                         ostr << "0 ";
                         format(ostr, rval[2 * ctr]);
@@ -1171,8 +1221,12 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
                         ostr << "4 ";
                         format(ostr, rval[2 * ctr]);
                         break;
+                    default:
+                        // ERROR
+                        break;
                 };
                 ostr << '\n';
+                ++ctr;
             }
         }
 
@@ -1180,8 +1234,8 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
         // "b" section - bounds on variables
         //
         ostr << "b\n";
-        for (auto it = vars.begin(); it != vars.end(); ++it) {
-            auto var = varobj[*it];
+        for (auto& var_ : vars) {
+            auto var = varobj[var_];
             double lb = var.lower();
             double ub = var.upper();
             if (lb == -COEK_INFINITY) {
@@ -1236,7 +1290,8 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
         // "J" section - Jacobian sparsity, linear terms
         //
         for (size_t i = 0; i < J.size(); ++i) {
-            if (J[i].size() == 0) continue;
+            if (J[i].size() == 0)
+                continue;
             ostr << "J" << i << " " << J[i].size() << '\n';
             for (auto it = J[i].begin(); it != J[i].end(); ++it) {
                 ostr << it->first << " " << it->second << '\n';
@@ -1247,7 +1302,8 @@ void NLWriter::write_ostream(Model& model, const std::string& fname)
         // "G" section - Gradient sparsity, linear terms
         //
         for (size_t i = 0; i < G.size(); ++i) {
-            if (G[i].size() == 0) continue;
+            if (G[i].size() == 0)
+                continue;
             ostr << "G" << i << " " << G[i].size() << '\n';
             for (auto it = G[i].begin(); it != G[i].end(); ++it) {
                 ostr << it->first << " " << it->second << '\n';
@@ -1370,7 +1426,7 @@ void NLWriter::write_fmtlib(Model& model, const std::string& fname)
     // "r" section - bounds on constraints
     //
     CALI_MARK_BEGIN("r");
-    if (model.repn->constraints.size() > 0) {
+    if (r.size() > 0) {
         constexpr auto _fmtstr_r0 = FMT_COMPILE("0 {} {}\n");
         constexpr auto _fmtstr_r1 = FMT_COMPILE("1 {}\n");
         constexpr auto _fmtstr_r2 = FMT_COMPILE("2 {}\n");
@@ -1396,6 +1452,9 @@ void NLWriter::write_fmtlib(Model& model, const std::string& fname)
                     // GCOVR_EXCL_STOP
                 case 4:
                     ostr.print(fmt::format(_fmtstr_r4, rval[2 * ctr]));  // FORMAT
+                    break;
+                default:
+                    // ERROR
                     break;
             };
         }
@@ -1467,7 +1526,8 @@ void NLWriter::write_fmtlib(Model& model, const std::string& fname)
         constexpr auto _fmtstr_J = FMT_COMPILE("J{} {}\n");
         int ctr = 0;
         for (auto jt = J.begin(); jt != J.end(); ++ctr, ++jt) {
-            if (jt->size() == 0) continue;
+            if (jt->size() == 0)
+                continue;
             ostr.print(fmt::format(_fmtstr_J, ctr,
                                    jt->size()));  // << "J" << i << " " << J[i].size() << '\n';
             for (auto it = jt->begin(); it != jt->end(); ++it) {
@@ -1484,7 +1544,8 @@ void NLWriter::write_fmtlib(Model& model, const std::string& fname)
     constexpr auto _fmtstr_G = FMT_COMPILE("G{} {}\n");
     CALI_MARK_BEGIN("G");
     for (size_t i = 0; i < G.size(); ++i) {
-        if (G[i].size() == 0) continue;
+        if (G[i].size() == 0)
+            continue;
         ostr.print(
             fmt::format(_fmtstr_G, i, G[i].size()));  // << "G" << i << " " << G[i].size() << '\n';
         for (auto it = G[i].begin(); it != G[i].end(); ++it) {

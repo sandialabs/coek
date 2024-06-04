@@ -5,6 +5,7 @@
 #include "../ast/expr_terms.hpp"
 #include "../ast/value_terms.hpp"
 #include "../ast/visitor_fns.hpp"
+#include "coek/api/expression.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/model/model.hpp"
@@ -37,7 +38,8 @@ void CppAD_Repn::set_variables(std::vector<double>& x)
     assert(x.size() == currx.size());
     auto cit = currx.begin();
     auto xit = x.begin();
-    for (; cit != currx.end(); ++cit, ++xit) *cit = *xit;
+    for (; cit != currx.end(); ++cit, ++xit)
+        *cit = *xit;
 
     invalid_fc = true;
 }
@@ -45,7 +47,8 @@ void CppAD_Repn::set_variables(std::vector<double>& x)
 void CppAD_Repn::set_variables(const double* x, size_t n)
 {
     assert(n == currx.size());
-    for (size_t i = 0; i < n; i++) currx[i] = x[i];
+    for (size_t i = 0; i < n; i++)
+        currx[i] = x[i];
 
     invalid_fc = true;
 }
@@ -96,7 +99,8 @@ void CppAD_Repn::compute_df(double& f, std::vector<double>& df, size_t i)
     fcw[i] = 1;
     auto dy = ADfc.Reverse(1, fcw);
     fcw[i] = 0;
-    for (size_t j = 0; j < df.size(); j++) df[j] = dy[j];
+    for (size_t j = 0; j < df.size(); j++)
+        df[j] = dy[j];
 }
 
 void CppAD_Repn::compute_c(std::vector<double>& c)
@@ -106,7 +110,8 @@ void CppAD_Repn::compute_c(std::vector<double>& c)
         fc_cache = ADfc.Forward(0, currx);
         invalid_fc = false;
     }
-    for (size_t i = 0; i < c.size(); i++) c[i] = fc_cache[nf + i];
+    for (size_t i = 0; i < c.size(); i++)
+        c[i] = fc_cache[nf + i];
 }
 
 void CppAD_Repn::compute_dc(std::vector<double>& dc, size_t i)
@@ -121,7 +126,8 @@ void CppAD_Repn::compute_dc(std::vector<double>& dc, size_t i)
     fcw[nf + i] = 1;
     auto dy = ADfc.Reverse(1, fcw);
     fcw[nf + i] = 0;
-    for (size_t j = 0; j < dc.size(); j++) dc[j] = dy[j];
+    for (size_t j = 0; j < dc.size(); j++)
+        dc[j] = dy[j];
 }
 
 void CppAD_Repn::compute_H(std::vector<double>& w, std::vector<double>& H)
@@ -182,7 +188,8 @@ void CppAD_Repn::compute_J(std::vector<double>& J)
         if (nx < nc) {
             // Forward
             std::vector<double> x1(nx), fg1(nf + nc);
-            for (size_t j = 0; j < nx; j++) x1[j] = 0.0;
+            for (size_t j = 0; j < nx; j++)
+                x1[j] = 0.0;
             // index in col_order_jac_ of next entry
             size_t ell = 0;
             size_t k = jac_col_order[ell];
@@ -197,7 +204,8 @@ void CppAD_Repn::compute_J(std::vector<double>& J)
                     CPPAD_ASSERT_UNKNOWN(i >= nf)
                     J[k] = fg1[i];
                     ell++;
-                    if (ell < nk) k = jac_col_order[ell];
+                    if (ell < nk)
+                        k = jac_col_order[ell];
                 }
                 x1[j] = 0.0;
             }
@@ -207,7 +215,8 @@ void CppAD_Repn::compute_J(std::vector<double>& J)
             size_t nfc = nf + nc;
             // user reverse mode
             std::vector<double> w(nfc), dw(nx);
-            for (size_t i = 0; i < nfc; i++) w[i] = 0.0;
+            for (size_t i = 0; i < nfc; i++)
+                w[i] = 0.0;
             // index in jac_row of next entry
             size_t k = 0;
             size_t nk = jac_row.size();
@@ -242,7 +251,8 @@ void CppAD_Repn::create_CppAD_function()
     // Create the CppAD function
     //
     std::unordered_map<VariableRepn, size_t> _used_variables;
-    for (auto& it : used_variables) _used_variables[it.second] = it.first;
+    for (auto& it : used_variables)
+        _used_variables[it.second] = it.first;
 
     std::vector<CppAD::AD<double> > ADvars(nx);
     std::vector<CppAD::AD<double> > ADrange(nf + nc);
@@ -257,29 +267,37 @@ void CppAD_Repn::create_CppAD_function()
 
             size_t nb = 0;
             for (auto& it : model.repn->objectives) {
-                build_expression(simplify_expr(it.repn, cache), ADvars, ADrange[nb],
-                                 _used_variables);
-                nb++;
+                if (it.active()) {
+                    build_expression(simplify_expr(it.repn, cache), ADvars, ADrange[nb],
+                                     _used_variables);
+                    nb++;
+                }
             }
 
             nb = 0;
             for (auto& it : model.repn->constraints) {
-                build_expression(simplify_expr(it.repn, cache), ADvars, ADrange[nf + nb],
-                                 _used_variables);
-                nb++;
+                if (it.active()) {
+                    build_expression(simplify_expr(it.repn, cache), ADvars, ADrange[nf + nb],
+                                     _used_variables);
+                    nb++;
+                }
             }
         }
         else {
             size_t nb = 0;
             for (auto& it : model.repn->objectives) {
-                build_expression(it.repn, ADvars, ADrange[nb], _used_variables);
-                nb++;
+                if (it.active()) {
+                    build_expression(it.repn, ADvars, ADrange[nb], _used_variables);
+                    nb++;
+                }
             }
 
             nb = 0;
             for (auto& it : model.repn->constraints) {
-                build_expression(it.repn, ADvars, ADrange[nf + nb], _used_variables);
-                nb++;
+                if (it.active()) {
+                    build_expression(it.repn, ADvars, ADrange[nf + nb], _used_variables);
+                    nb++;
+                }
             }
         }
     }
@@ -298,8 +316,11 @@ void CppAD_Repn::initialize()
     //
     find_used_variables();
     nx = used_variables.size();
-    nf = model.repn->objectives.size();
-    nc = model.repn->constraints.size();
+    nf = model.num_active_objectives();
+    nc = model.num_active_constraints();
+
+    if (nx == 0)
+        return;
 
     create_CppAD_function();
 
@@ -368,10 +389,12 @@ void CppAD_Repn::initialize()
 
                 // fill in the corresponding columns of total_sparsity
                 for (size_t i = 0; i < nf; i++) {
-                    for (size_t j = 0; j < nx; j++) jac_pattern[i * nx + j] = 0;
+                    for (size_t j = 0; j < nx; j++)
+                        jac_pattern[i * nx + j] = 0;
                 }
                 for (size_t i = nf; i < nfc; i++) {
-                    for (size_t j = 0; j < nx; j++) jac_pattern[i * nx + j] = s[i * nx + j];
+                    for (size_t j = 0; j < nx; j++)
+                        jac_pattern[i * nx + j] = s[i * nx + j];
                 }
 #endif
             }
@@ -411,16 +434,20 @@ void CppAD_Repn::initialize()
                 CppAD::vectorBool r(nfc * nfc);  //, s(nx * nc);
 
                 // R is the identity matrix
-                for (size_t i = 0; i < nfc * nfc; i++) r[i] = false;
-                for (size_t i = nf; i < nfc; i++) r[i * nfc + i] = true;
+                for (size_t i = 0; i < nfc * nfc; i++)
+                    r[i] = false;
+                for (size_t i = nf; i < nfc; i++)
+                    r[i * nfc + i] = true;
                 auto s = ADfc.RevSparseJac(nfc, r);
 
                 // fill in correspoding rows of total sparsity
                 for (size_t i = 0; i < nf; i++) {
-                    for (size_t j = 0; j < nx; j++) jac_pattern[i * nx + j] = 0;
+                    for (size_t j = 0; j < nx; j++)
+                        jac_pattern[i * nx + j] = 0;
                 }
                 for (size_t i = nf; i < nfc; i++) {
-                    for (size_t j = 0; j < nx; j++) jac_pattern[i * nx + j] = s[i * nx + j];
+                    for (size_t j = 0; j < nx; j++)
+                        jac_pattern[i * nx + j] = s[i * nx + j];
                 }
 #endif
             }
@@ -518,14 +545,17 @@ void CppAD_Repn::initialize()
         bool transpose = true;
         // sparsity pattern for range space of function
         CppAD::vectorBool s(nfc);
-        for (size_t i = 0; i < nfc; i++) s[i] = true;
+        for (size_t i = 0; i < nfc; i++)
+            s[i] = true;
         auto h = ADfc.RevSparseHes(nx, s, transpose);
 
         // fill in the corresponding columns of total_sparsity
         for (size_t i = 0; i < nx; i++) {
-            for (size_t j = 0; j <= i; j++) hes_pattern[i * nx + j] = h[i * nx + j];
+            for (size_t j = 0; j <= i; j++)
+                hes_pattern[i * nx + j] = h[i * nx + j];
             // TODO - Why is CppAD looking at the pattern in a non-symmetric manner?
-            for (size_t j = i + 1; j < nx; j++) hes_pattern[i * nx + j] = 0;
+            for (size_t j = i + 1; j < nx; j++)
+                hes_pattern[i * nx + j] = 0;
         }
 #endif
         //
@@ -556,19 +586,25 @@ void CppAD_Repn::initialize()
         }
     }
 
-    if (sparse_JH) hes_work.color_method = "cppad.symmetric";
+    if (sparse_JH)
+        hes_work.color_method = "cppad.symmetric";
 
     reset();
 }
 
 void CppAD_Repn::reset(void)
 {
+    if (nx == 0)
+        return;
+
     //
     // Initialize the CppAD dynamic parameters
     //
     if (not simplify_expressions) {
-        for (auto& it : fixed_variables) dynamic_param_vals[it.second] = it.first->value->eval();
-        for (auto& it : parameters) dynamic_param_vals[it.second] = it.first->value->eval();
+        for (auto& it : fixed_variables)
+            dynamic_param_vals[it.second] = it.first->value->eval();
+        for (auto& it : parameters)
+            dynamic_param_vals[it.second] = it.first->value->eval();
         ADfc.new_dynamic(dynamic_param_vals);
     }
     else {
@@ -589,6 +625,19 @@ void CppAD_Repn::reset(void)
     set_variables(currx);
 }
 
+bool CppAD_Repn::get_option(const std::string& option, bool& value) const
+{
+    if (option == "sparse_JH") {
+        value = sparse_JH;
+        return true;
+    }
+    else if (option == "simplify_expressions") {
+        value = simplify_expressions;
+        return true;
+    }
+    return false;
+}
+
 bool CppAD_Repn::get_option(const std::string& option, int& value) const
 {
     if (option == "sparse_JH") {
@@ -600,6 +649,14 @@ bool CppAD_Repn::get_option(const std::string& option, int& value) const
         return true;
     }
     return false;
+}
+
+void CppAD_Repn::set_option(const std::string& option, bool value)
+{
+    if (option == "sparse_JH")
+        sparse_JH = value;
+    else if (option == "simplify_expressions")
+        simplify_expressions = value;
 }
 
 void CppAD_Repn::set_option(const std::string& option, int value)
@@ -627,16 +684,16 @@ class VisitorData {
     std::map<ParameterRepn, size_t>& parameters;
     std::vector<CppAD::AD<double> >& dynamic_params;
 
-    VisitorData(std::vector<CppAD::AD<double> >& _ADvars,
-                std::unordered_map<VariableRepn, size_t>& _used_variables,
-                std::map<VariableRepn, size_t>& _fixed_variables,
-                std::map<ParameterRepn, size_t>& _parameters,
-                std::vector<CppAD::AD<double> >& _dynamic_params)
-        : ADvars(_ADvars),
-          used_variables(_used_variables),
-          fixed_variables(_fixed_variables),
-          parameters(_parameters),
-          dynamic_params(_dynamic_params)
+    VisitorData(std::vector<CppAD::AD<double> >& ADvars_,
+                std::unordered_map<VariableRepn, size_t>& used_variables_,
+                std::map<VariableRepn, size_t>& fixed_variables_,
+                std::map<ParameterRepn, size_t>& parameters_,
+                std::vector<CppAD::AD<double> >& dynamic_params_)
+        : ADvars(ADvars_),
+          used_variables(used_variables_),
+          fixed_variables(fixed_variables_),
+          parameters(parameters_),
+          dynamic_params(dynamic_params_)
     {
     }
 };
@@ -646,7 +703,8 @@ void visit_expression(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
 void visit_ConstantTerm(expr_pointer_t& expr, VisitorData& /*data*/, CppAD::AD<double>& ans)
 {
     auto tmp = std::dynamic_pointer_cast<ConstantTerm>(expr);
-    if (tmp->value != 0) ans += tmp->value;
+    if (tmp->value != 0)
+        ans += tmp->value;
 }
 
 void visit_ParameterTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>& ans)
@@ -681,6 +739,7 @@ void visit_MonomialTerm(expr_pointer_t& expr, VisitorData& data, CppAD::AD<doubl
     }
 
 FROM_BODY(InequalityTerm)
+FROM_BODY(StrictInequalityTerm)
 FROM_BODY(EqualityTerm)
 FROM_BODY(ObjectiveTerm)
 
@@ -813,6 +872,7 @@ void visit_expression(expr_pointer_t& expr, VisitorData& data, CppAD::AD<double>
         VISIT_CASE(VariableTerm);
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(NegateTerm);

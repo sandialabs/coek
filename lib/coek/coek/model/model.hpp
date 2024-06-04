@@ -66,6 +66,11 @@ class Model {
     /** Constructs an empty optimization model */
     Model();
 
+    /** Get the name of the model */
+    std::string name() const;
+    /** Set the name of the model */
+    void name(const std::string& name);
+
 #if __cpp_lib_variant
     ParameterArray& add_parameter(ParameterArray& param);
     ParameterArray& add(ParameterArray& param);
@@ -140,6 +145,8 @@ class Model {
     //
     /** \returns the number of objecives in the model */
     size_t num_objectives() const;
+    /** \returns the number of active objecives in the model */
+    size_t num_active_objectives() const;
     /** \returns a list of objective names in the model */
     std::set<std::string> objective_names();
 
@@ -175,6 +182,8 @@ class Model {
     //
     /** \returns the number of constraints in the model */
     size_t num_constraints() const;
+    /** \returns the number of constraints in the model */
+    size_t num_active_constraints() const;
     /** \returns a list of constraint names in the model */
     std::set<std::string> constraint_names();
 
@@ -271,9 +280,9 @@ class Model {
     void write(const std::string& filename, std::map<size_t, size_t>& varmap,
                std::map<size_t, size_t>& conmap);
     /** Print the equations in the model to \c std::cout */
-    void print_equations() const;
+    void print_equations(bool active = true) const;
     /** Print the equations in the model to the specified output stream */
-    void print_equations(std::ostream& ostr) const;
+    void print_equations(std::ostream& ostr, bool active = true) const;
     /** Print the values in the model to \c std::cout */
     void print_values();
     /** Print the values in the model to the specified output stream */

@@ -6,7 +6,7 @@
 #include "value_terms.hpp"
 #include "visitor.hpp"
 #include "visitor_fns.hpp"
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
 #    include "compact_terms.hpp"
 #endif
 #include "coek/util/cast_utils.hpp"
@@ -47,7 +47,7 @@ void visit_VariableTerm(const expr_pointer_t& expr, std::list<std::string>& repr
     repr.push_back(sstr.str());
 }
 
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
 void visit_ParameterRefTerm(const expr_pointer_t& expr, std::list<std::string>& repr)
 {
     auto tmp = safe_pointer_cast<ParameterRefTerm>(expr);
@@ -70,11 +70,7 @@ void visit_MonomialTerm(const expr_pointer_t& expr, std::list<std::string>& repr
     auto tmp = safe_pointer_cast<MonomialTerm>(expr);
     repr.push_back("[");
     repr.push_back("*");
-    {
-        std::stringstream sstr;
-        sstr << tmp->coef;
-        repr.push_back(sstr.str());
-    }
+    repr.push_back(std::to_string(tmp->coef));
     if (tmp->var->name.size() == 0) {
         // WEH - It's hard to test this logic, since the variable index is dynamically generated
         // GCOVR_EXCL_START
@@ -93,10 +89,24 @@ void visit_InequalityTerm(const expr_pointer_t& expr, std::list<std::string>& re
 {
     auto tmp = safe_pointer_cast<InequalityTerm>(expr);
     repr.push_back("[");
-    if (tmp->strict)
-        repr.push_back("<");
+    repr.push_back("<=");
+    if (tmp->lower)
+        visit_expression(tmp->lower, repr);
     else
-        repr.push_back("<=");
+        repr.push_back("-Inf");
+    visit_expression(tmp->body, repr);
+    if (tmp->upper)
+        visit_expression(tmp->upper, repr);
+    else
+        repr.push_back("Inf");
+    repr.push_back("]");
+}
+
+void visit_StrictInequalityTerm(const expr_pointer_t& expr, std::list<std::string>& repr)
+{
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr);
+    repr.push_back("[");
+    repr.push_back("<");
     if (tmp->lower)
         visit_expression(tmp->lower, repr);
     else
@@ -163,7 +173,8 @@ void visit_PlusTerm(const expr_pointer_t& expr, std::list<std::string>& repr)
     repr.push_back("[");
     repr.push_back("+");
     std::vector<expr_pointer_t>& vec = *(tmp->data);
-    for (size_t i = 0; i < tmp->num_expressions(); i++) visit_expression(vec[i], repr);
+    for (size_t i = 0; i < tmp->num_expressions(); i++)
+        visit_expression(vec[i], repr);
     repr.push_back("]");
 }
 
@@ -262,12 +273,13 @@ void visit_expression(const expr_pointer_t& expr, std::list<std::string>& repr)
         VISIT_CASE(ParameterTerm);
         VISIT_CASE(IndexParameterTerm);
         VISIT_CASE(VariableTerm);
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(VariableRefTerm);
         VISIT_CASE(ParameterRefTerm);
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);

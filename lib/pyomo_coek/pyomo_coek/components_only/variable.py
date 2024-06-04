@@ -1,4 +1,8 @@
+from typing import overload
+
 import poek as pk
+
+import pyomo.environ as pyo
 from pyomo.core.base.component import ComponentData, ModelComponentFactory
 from pyomo.common.modeling import NOTSET
 from pyomo.core.staleflag import StaleFlagManager
@@ -17,6 +21,8 @@ from pyomo.core.base.set import Binary, Reals, Integers, Any, GlobalSetBase
 from pyomo.common.collections import ComponentMap
 from weakref import ref as weakref_ref
 from pyomo.common.deprecation import deprecation_warning
+from pyomo.core.expr import current as EXPR
+from pyomo.core.expr.numvalue import NumericValue
 from pyomo.core.expr.numvalue import native_types
 import types
 from pyomo.core.base.misc import apply_indexed_rule, apply_parameterized_indexed_rule
@@ -39,18 +45,20 @@ _rev_domain_map[pk.VariableTypes.Integers] = Integers
 
 class _GeneralVarData(ComponentData):
 
-    __slots__ = ("_stale", "_pe")
+    __slots__ = ("_stale", "_pe", "_is_none")
 
     def __init__(self, component=None):
         super().__init__(component=component)
         self._stale = 0  # True
         self._pe = pk.variable_single()
+        self._is_none = True
 
     @classmethod
     def copy(cls, src, poek_var, index):
         self = cls.__new__(cls)
         self._component = src._component
         self._pe = poek_var
+        self._is_none = src._is_none
         self._stale = src._stale
         self._index = index
         return self
@@ -138,16 +146,36 @@ class _GeneralVarData(ComponentData):
     def __call__(self, exception=True):
         return self.value
 
+    def reset_value(self):
+        self._is_none = False
+        self._stale = StaleFlagManager.get_flag(self._stale)
+
     def set_value(self, val, skip_validation=False):
+        if val is None:
+            self._is_none = True
+            return
+        self._is_none = False
         self._pe.value = val
         self._stale = StaleFlagManager.get_flag(self._stale)
 
     @property
     def value(self):
+        if self._is_none:
+            return None
         return self._pe.value
 
     @value.setter
     def value(self, val):
+        self.set_value(val)
+
+    @property
+    def _value(self):
+        if self._is_none:
+            return None
+        return self._pe.value
+
+    @value.setter
+    def _value(self, val):
         self.set_value(val)
 
     @property
@@ -278,7 +306,7 @@ class Var(IndexedComponent):
 
     def __init__(self, *args, **kwargs):
         self._rule_init = Initializer(
-            self._pop_from_kwargs("Var", kwargs, ("rule", "initialize"), 0)
+            self._pop_from_kwargs("Var", kwargs, ("rule", "initialize"), None)
         )
         self._rule_domain = Initializer(
             self._pop_from_kwargs("Var", kwargs, ("domain", "within"), Reals)
@@ -289,7 +317,7 @@ class Var(IndexedComponent):
         if self._units is not None:
             self._units = units.get_units(self._units)
 
-        kwargs.setdefault("ctype", Var)
+        kwargs.setdefault("ctype", pyo.Var)
         IndexedComponent.__init__(self, *args, **kwargs)
 
         if self.is_indexed():
@@ -310,9 +338,9 @@ class Var(IndexedComponent):
             _bounds_arg, treat_sequences_as_mappings=treat_bounds_sequences_as_mappings
         )
 
-    def flag_as_stale(self):
-        for v in self._data.values():
-            v.stale = True
+    # def flag_as_stale(self):
+    # for v in self._data.values():
+    #    v.stale = True
 
     def get_values(self, include_fixed_values=True):
         if include_fixed_values:
@@ -505,6 +533,15 @@ class ScalarVar(_GeneralVarData, Var):
         Var.__init__(self, *args, **kwd)
         self._index = UnindexedComponent_set
 
+    @property
+    def _name(self):
+        return self._pe.get_name()
+
+    @_name.setter
+    def _name(self, val):
+        if val is not None:
+            self._pe.set_name(val)
+
 
 @disable_methods(_VARDATA_API)
 class AbstractScalarVar(ScalarVar):
@@ -661,19 +698,27 @@ class _ImplicitAny(Any.__class__):
 
 class _ParamData(ComponentData):
 
-    __slots__ = ("_pe",)
+    __slots__ = ("_pe", "_is_none")
 
     def __init__(self, component):
         super().__init__(component=component)
         self._pe = pk.parameter_single()
+        self._is_none = False
 
     def clear(self):
         self.value = 0
+        self._is_none = False
 
     def set_value(self, value, idx=NOTSET):
+        if value is None:
+            self._is_none = True
+            return
         self._pe.value = value
+        self._is_none = False
 
     def __call__(self, exception=True):
+        if self._is_none:
+            return None
         return self._pe.value
 
     @property
@@ -682,6 +727,14 @@ class _ParamData(ComponentData):
 
     @value.setter
     def value(self, val):
+        self.set_value(val)
+
+    @property
+    def _value(self):
+        return self()
+
+    @value.setter
+    def _value(self, val):
         self.set_value(val)
 
     @property
@@ -779,14 +832,14 @@ class Param(IndexedComponent):
         self.domain = self._pop_from_kwargs("Param", kwd, ("domain", "within"))
         self._validate = kwd.pop("validate", None)
         self._mutable = kwd.pop("mutable", Param.DefaultMutable)
-        self._default_val = kwd.pop("default", 0)
+        self._default_val = kwd.pop("default", None)
         self._dense_initialize = kwd.pop("initialize_as_dense", False)
         self._units = kwd.pop("units", None)
         if self._units is not None:
             self._units = units.get_units(self._units)
             self._mutable = True
 
-        kwd.setdefault("ctype", Param)
+        kwd.setdefault("ctype", pyo.Param)
         IndexedComponent.__init__(self, *args, **kwd)
 
         if self.domain is None:
@@ -1220,7 +1273,9 @@ class Param(IndexedComponent):
             # the domain.
             #
             val = self._default_val
-            if type(val) in native_types and val not in self.domain:
+            if type(val) in native_types and val is not None and val not in self.domain:
+                # print("HERE", type(val) in native_types, val not in self.domain, type(self.domain))
+                # self.domain.pprint()
                 raise ValueError(
                     "Default value (%s) is not valid for Param %s domain %s"
                     % (str(val), self.name, self.domain.name)
@@ -1306,8 +1361,8 @@ class Param(IndexedComponent):
 
 class ScalarParam(_ParamData, Param):
     def __init__(self, *args, **kwds):
-        Param.__init__(self, *args, **kwds)
         _ParamData.__init__(self, component=self)
+        Param.__init__(self, *args, **kwds)
         self._index = UnindexedComponent_index
 
     #
@@ -1340,6 +1395,15 @@ class ScalarParam(_ParamData, Param):
                 "the Param has been constructed (there is currently no "
                 "value to return)." % (self.name,)
             )
+
+    @property
+    def _name(self):
+        return self._pe.get_name()
+
+    @_name.setter
+    def _name(self, val):
+        if val is not None:
+            self._pe.set_name(val)
 
     def set_value(self, value, index=NOTSET):
         if index is NOTSET:
@@ -1384,6 +1448,470 @@ class IndexedParam(Param):
                 memo[id(obj)] = obj.__class__.__new__(obj.__class__)
 
 
+class _GeneralExpressionData(NumericValue, ComponentData):
+
+    __slots__ = ("_pe",)
+
+    EXPRESSION_SYSTEM = EXPR.common.ExpressionType.NUMERIC
+    PRECEDENCE = 0
+    ASSOCIATIVITY = EXPR.common.OperatorAssociativity.NON_ASSOCIATIVE
+
+    def __init__(self, expr=None, component=None):
+        if expr is None:
+            self._pe = expr
+        elif expr.is_variable_type():
+            self._pe = expr._pe
+        else:
+            self._pe = expr
+        # Inlining ComponentData.__init__
+        #    ComponentData.__init__(self, component)
+        self._component = weakref_ref(component) if (component is not None) else None
+        self._index = NOTSET
+
+    #
+    # Interface
+    #
+
+    def __call__(self, exception=True):
+        """Compute the value of this expression."""
+        if self.expr is None:
+            return None
+        return self.expr(exception=exception)
+
+    def is_named_expression_type(self):
+        """A boolean indicating whether this in a named expression."""
+        return True
+
+    def is_expression_type(self, expression_system=None):
+        """A boolean indicating whether this in an expression."""
+        return expression_system is None or expression_system == self.EXPRESSION_SYSTEM
+
+    def arg(self, index):
+        if index < 0 or index >= 1:
+            raise KeyError("Invalid index for expression argument: %d" % index)
+        return self.expr
+
+    @property
+    def _args_(self):
+        return (self.expr,)
+
+    @property
+    def args(self):
+        return (self.expr,)
+
+    def nargs(self):
+        return 1
+
+    def _to_string(self, values, verbose, smap):
+        if verbose:
+            return "%s{%s}" % (str(self), values[0])
+        if self.expr is None:
+            return "%s{None}" % str(self)
+        return values[0]
+
+    def clone(self):
+        """Return a clone of this expression (no-op)."""
+        return self
+
+    def _apply_operation(self, result):
+        # This "expression" is a no-op wrapper, so just return the inner
+        # result
+        return result[0]
+
+    def polynomial_degree(self):
+        """A tuple of subexpressions involved in this expressions operation."""
+        return self.expr.polynomial_degree()
+
+    def _compute_polynomial_degree(self, result):
+        return result[0]
+
+    def _is_fixed(self, values):
+        return values[0]
+
+    def is_constant(self):
+        """A boolean indicating whether this expression is constant."""
+        return False
+
+    def is_fixed(self):
+        """A boolean indicating whether this expression is fixed."""
+        return self._pi is None or self._pe.is_fixed()
+
+    # _ExpressionData should never return False because
+    # they can store subexpressions that contain variables
+    def is_potentially_variable(self):
+        return True
+
+    @property
+    def expr(self):
+        return self._pe
+
+    @expr.setter
+    def expr(self, val):
+        self._pe = val
+
+    def set_value(self, expr):
+        if expr is None:
+            raise ValueError(_rule_returned_none_error % (self.name,))
+        elif type(expr) in [int, float]:
+            self._pe = expr
+        elif expr.is_variable_type():
+            self._pe = expr._pe
+        else:
+            self._pe = expr
+
+    def __add__(self, other):
+        return self._pe + _other_operand_map[type(other)](other)
+
+    def __radd__(self, other):
+        return _other_operand_map[type(other)](other) + self._pe
+
+    def __sub__(self, other):
+        return self._pe - _other_operand_map[type(other)](other)
+
+    def __rsub__(self, other):
+        return _other_operand_map[type(other)](other) - self._pe
+
+    def __mul__(self, other):
+        return self._pe * _other_operand_map[type(other)](other)
+
+    def __rmul__(self, other):
+        return _other_operand_map[type(other)](other) * self._pe
+
+    def __neg__(self):
+        return -self._pe
+
+    def __truediv__(self, other):
+        return self._pe / _other_operand_map[type(other)](other)
+
+    def __rtruediv__(self, other):
+        return _other_operand_map[type(other)](other) / self._pe
+
+    def __div__(self, other):
+        return self._pe / _other_operand_map[type(other)](other)
+
+    def __rdiv__(self, other):
+        return _other_operand_map[type(other)](other) / self._pe
+
+    def __pow__(self, other):
+        func, other = _var_pow_map[type(other)](other)
+        return func(self._pe, other)
+        # return self._pe ** _other_operand_map[type(other)](other)
+
+    def __rpow__(self, other):
+        return _other_operand_map[type(other)](other) ** self._pe
+
+    def __pos__(self):
+        return self
+
+    def __ge__(self, other):
+        return self._pe >= _other_operand_map[type(other)](other)
+
+    def __le__(self, other):
+        return self._pe <= _other_operand_map[type(other)](other)
+
+    def __eq__(self, other):
+        func, other = _var_eq_map[type(other)](other)
+        return func(self._pe, other)
+        # return self._pe == _other_operand_map[type(other)](other)
+
+    def is_numeric_type(self):
+        return True
+
+
+@ModelComponentFactory.register("Expressions that are minimized or maximized.")
+class Expression(IndexedComponent):
+    """
+    This modeling component defines an objective expression.
+
+    Note that this is a subclass of NumericValue to allow
+    objectives to be used as part of expressions.
+
+    Constructor arguments:
+        expr
+            A Pyomo expression for this objective
+        rule
+            A function that is used to construct objective expressions
+        name
+            A name for this component
+        doc
+            A text string describing this component
+
+    Public class attributes:
+        doc
+            A text string describing this component
+        name
+            A name for this component
+        active
+            A boolean that is true if this component will be used to construct
+            a model instance
+        rule
+            The rule used to initialize the objective(s)
+
+    Private class attributes:
+        _constructed
+            A boolean that is true if this component has been constructed
+        _data
+            A dictionary from the index set to component data objects
+        _index
+            The set of valid indices
+        _implicit_subsets
+            A tuple of set objects that represents the index set
+        _model
+            A weakref to the model that owns this component
+        _parent
+            A weakref to the parent block that owns this component
+        _type
+            The class type for the derived subclass
+    """
+
+    _ComponentDataClass = _GeneralExpressionData
+    NoExpression = IndexedComponent.Skip
+
+    def __new__(cls, *args, **kwds):
+        if cls != Expression:
+            return super(Expression, cls).__new__(cls)
+        if not args or (args[0] is UnindexedComponent_set and len(args) == 1):
+            return ScalarExpression.__new__(ScalarExpression)
+        else:
+            return IndexedExpression.__new__(IndexedExpression)
+
+    @overload
+    def __init__(self, *indexes, expr=None, rule=None, name=None, doc=None):
+        ...
+
+    def __init__(self, *args, **kwargs):
+        _init = tuple(
+            _arg
+            for _arg in (kwargs.pop("rule", None), kwargs.pop("expr", None))
+            if _arg is not None
+        )
+        if len(_init) == 1:
+            _init = _init[0]
+        elif not _init:
+            _init = None
+        else:
+            raise ValueError(
+                "Duplicate initialization: Expression() only " "accepts one of 'rule=' and 'expr='"
+            )
+
+        kwargs.setdefault("ctype", pyo.Expression)
+        IndexedComponent.__init__(self, *args, **kwargs)
+
+        self.rule = Initializer(_init)
+
+    def construct(self, data=None):
+        """
+        Construct the expression(s) for this objective.
+        """
+        if self._constructed:
+            return
+        self._constructed = True
+
+        timer = ConstructionTimer(self)
+        if is_debug_set(logger):
+            logger.debug("Constructing objective %s" % (self.name))
+
+        rule = self.rule
+        try:
+            # We do not (currently) accept data for constructing Expressions
+            index = None
+            assert data is None
+
+            if rule is None:
+                # If there is no rule, then we are immediately done.
+                return
+
+            if rule.constant() and self.is_indexed():
+                raise IndexError(
+                    "Expression '%s': Cannot initialize multiple indices "
+                    "of an objective with a single expression" % (self.name,)
+                )
+
+            block = self.parent_block()
+            if rule.contains_indices():
+                # The index is coming in externally; we need to validate it
+                for index in rule.indices():
+                    ans = self.__setitem__(index, rule(block, index))
+            elif not self.index_set().isfinite():
+                # If the index is not finite, then we cannot iterate
+                # over it.  Since the rule doesn't provide explicit
+                # indices, then there is nothing we can do (the
+                # assumption is that the user will trigger specific
+                # indices to be created at a later time).
+                pass
+            else:
+                # Bypass the index validation and create the member directly
+                for index in self.index_set():
+                    ans = self._setitem_when_not_present(index, rule(block, index))
+        except Exception:
+            err = sys.exc_info()[1]
+            logger.error(
+                "Rule failed when generating expression for "
+                "Expression %s with index %s:\n%s: %s"
+                % (self.name, str(index), type(err).__name__, err)
+            )
+            raise
+        finally:
+            timer.report()
+
+    def _getitem_when_not_present(self, index):
+        if self.rule is None:
+            raise KeyError(index)
+
+        block = self.parent_block()
+        obj = self._setitem_when_not_present(index, self.rule(block, index))
+        if obj is None:
+            raise KeyError(index)
+
+        return obj
+
+    def _pprint(self):
+        """
+        Return data that will be printed for this component.
+        """
+        return (
+            [
+                ("Size", len(self)),
+                ("Index", self._index_set if self.is_indexed() else None),
+            ],
+            self._data.items(),
+            ("Expression",),
+            lambda k, v: [v.expr],
+        )
+
+    def display(self, prefix="", ostream=None):
+        """Provide a verbose display of this object"""
+        if not self.active:
+            return
+        tab = "    "
+        if ostream is None:
+            ostream = sys.stdout
+        ostream.write(prefix + self.local_name + " : ")
+        ostream.write(
+            ", ".join(
+                "%s=%s" % (k, v)
+                for k, v in [
+                    ("Size", len(self)),
+                    ("Index", self._index_set if self.is_indexed() else None),
+                ]
+            )
+        )
+
+        ostream.write("\n")
+        tabular_writer(
+            ostream,
+            prefix + tab,
+            ((k, v) for k, v in self._data.items() if v.active),
+            ("Value",),
+            lambda k, v: [
+                value(v),
+            ],
+        )
+
+
+class ScalarExpression(_GeneralExpressionData, Expression):
+    """
+    ScalarExpression is the implementation representing a single,
+    non-indexed objective.
+    """
+
+    def __init__(self, *args, **kwd):
+        _GeneralExpressionData.__init__(self, expr=None, component=self)
+        Expression.__init__(self, *args, **kwd)
+        self._index = UnindexedComponent_index
+
+    #
+    # Since this class derives from Component and
+    # Component.__getstate__ just packs up the entire __dict__ into
+    # the state dict, we do not need to define the __getstate__ or
+    # __setstate__ methods.  We just defer to the super() get/set
+    # state.  Since all of our get/set state methods rely on super()
+    # to traverse the MRO, this will automatically pick up both the
+    # Component and Data base classes.
+    #
+
+    #
+    # Override abstract interface methods to first check for
+    # construction
+    #
+
+    @property
+    def expr(self):
+        """Access the expression of this expression."""
+        if self._constructed:
+            if len(self._data) == 0:
+                raise ValueError(
+                    "Accessing the expression of ScalarExpression "
+                    "'%s' before the Expression has been assigned."
+                    "There is currently nothing to access." % (self.name)
+                )
+            return _GeneralExpressionData.expr.fget(self)
+        raise ValueError(
+            "Accessing the expression of objective '%s' "
+            "before the Expression has been constructed (there "
+            "is currently no value to return)." % (self.name)
+        )
+
+    @expr.setter
+    def expr(self, expr):
+        """Set the expression of this objective."""
+        self.set_value(expr)
+
+    #
+    # Singleton objectives are strange in that we want them to be
+    # both be constructed but have len() == 0 when not initialized with
+    # anything (at least according to the unit tests that are
+    # currently in place). So during initialization only, we will
+    # treat them as "indexed" objects where things like
+    # Expression.Skip are managed. But after that they will behave
+    # like _ExpressionData objects where set_value does not handle
+    # Expression.Skip but expects a valid expression or None
+    #
+
+    def clear(self):
+        self._data = {}
+
+    def set_value(self, expr):
+        """Set the expression of this objective."""
+        if not self._constructed:
+            raise ValueError(
+                "Setting the value of objective '%s' "
+                "before the Expression has been constructed (there "
+                "is currently no object to set)." % (self.name)
+            )
+        if not self._data:
+            self._data[None] = self
+        return super().set_value(expr)
+
+    #
+    # Leaving this method for backward compatibility reasons.
+    # (probably should be removed)
+    #
+    def add(self, index, expr):
+        """Add an expression with a given index."""
+        if index is not None:
+            raise ValueError(
+                "ScalarExpression object '%s' does not accept "
+                "index values other than None. Invalid value: %s" % (self.name, index)
+            )
+        self.set_value(expr)
+        return self
+
+
+class IndexedExpression(Expression):
+
+    #
+    # Leaving this method for backward compatibility reasons
+    #
+    # Note: Beginning after Pyomo 5.2 this method will now validate that
+    # the index is in the underlying index set (through 5.2 the index
+    # was not checked).
+    #
+    def add(self, index, expr):
+        """Add an objective with a given index."""
+        return self.__setitem__(index, expr)
+
+
 def _get_other_operand_float(operand):
     return operand
 
@@ -1403,6 +1931,8 @@ _other_operand_map[_GeneralVarData] = _get_other_operand_var
 _other_operand_map[ScalarVar] = _get_other_operand_var
 _other_operand_map[_ParamData] = _get_other_operand_var
 _other_operand_map[ScalarParam] = _get_other_operand_var
+_other_operand_map[_GeneralExpressionData] = _get_other_operand_var
+_other_operand_map[ScalarExpression] = _get_other_operand_var
 _other_operand_map[pk.expression] = _get_other_operand_poek_expr
 
 
@@ -1429,6 +1959,8 @@ _var_pow_map[_GeneralVarData] = _get_var_pow_func_var
 _var_pow_map[ScalarVar] = _get_var_pow_func_var
 _var_pow_map[_ParamData] = _get_var_pow_func_param
 _var_pow_map[ScalarParam] = _get_var_pow_func_param
+_var_pow_map[_GeneralExpressionData] = _get_var_pow_func_var
+_var_pow_map[ScalarExpression] = _get_var_pow_func_var
 _var_pow_map[pk.expression] = _get_var_pow_func_expr
 
 
@@ -1455,4 +1987,6 @@ _var_eq_map[_GeneralVarData] = _get_var_eq_func_var
 _var_eq_map[ScalarVar] = _get_var_eq_func_var
 _var_eq_map[_ParamData] = _get_var_eq_func_param
 _var_eq_map[ScalarParam] = _get_var_eq_func_param
+_var_eq_map[_GeneralExpressionData] = _get_var_eq_func_var
+_var_eq_map[ScalarExpression] = _get_var_eq_func_var
 _var_eq_map[pk.expression] = _get_var_eq_func_expr

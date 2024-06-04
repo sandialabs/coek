@@ -8,7 +8,7 @@
 #include "visitor.hpp"
 #include "visitor_fns.hpp"
 #include "../util/cast_utils.hpp"
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
 #    include "compact_terms.hpp"
 #endif
 
@@ -57,7 +57,7 @@ void visit_VariableTerm(const expr_pointer_t& /*expr*/, PartialData& data)
     data.partial = ONECONST;
 }
 
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
 void visit_ParameterRefTerm(const expr_pointer_t& /*expr*/, PartialData& data)
 {
     data.partial = ZEROCONST;
@@ -81,6 +81,8 @@ void visit_MonomialTerm(const expr_pointer_t& expr, PartialData& data)
 }
 
 void visit_InequalityTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
+
+void visit_StrictInequalityTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
 
 void visit_EqualityTerm(const expr_pointer_t& /*expr*/, PartialData& /*data*/) {}
 
@@ -279,6 +281,7 @@ expr_pointer_t compute_partial(const expr_pointer_t& expr, size_t i, PartialData
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);
@@ -342,13 +345,15 @@ void symbolic_diff_all(const expr_pointer_t& root,
 
     else if (root->is_variable()) {
         auto tmp = std::dynamic_pointer_cast<VariableTerm>(root);
-        if (!tmp->fixed) diff[tmp] = ONECONST;
+        if (!tmp->fixed)
+            diff[tmp] = ONECONST;
         return;
     }
 
     else if (root->is_monomial()) {
         auto tmp = std::dynamic_pointer_cast<MonomialTerm>(root);
-        if (!tmp->var->fixed) diff[tmp->var] = CREATE_POINTER(ConstantTerm, tmp->coef);
+        if (!tmp->var->fixed)
+            diff[tmp->var] = CREATE_POINTER(ConstantTerm, tmp->coef);
         return;
     }
 

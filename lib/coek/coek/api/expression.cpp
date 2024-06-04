@@ -9,18 +9,18 @@
 namespace coek {
 
 #ifdef COEK_WITH_COMPACT_MODEL
-expr_pointer_t convert_expr_template(expr_pointer_t expr);
+expr_pointer_t convert_expr_template(const expr_pointer_t& expr);
 #endif
 
 //
 // Parameter
 //
 
-Parameter::Parameter() { repn = CREATE_POINTER(ParameterTerm); }
+Parameter::Parameter() { repn = std::make_shared<ParameterTerm>(); }
 
 Parameter::Parameter(const std::string& name)
 {
-    repn = CREATE_POINTER(ParameterTerm);
+    repn = std::make_shared<ParameterTerm>();
     repn->name = name;
 }
 
@@ -76,7 +76,8 @@ IndexParameter::IndexParameter(const IndexParameter& expr) : repn(expr.repn) {}
 
 IndexParameter& IndexParameter::operator=(const IndexParameter& expr)
 {
-    repn = expr.repn;
+    if (this != &expr)
+        repn = expr.repn;
     return *this;
 }
 
@@ -224,6 +225,12 @@ Variable& Variable::fix(double value)
     return *this;
 }
 
+Variable& Variable::fix()
+{
+    repn->fixed = true;
+    return *this;
+}
+
 Variable& Variable::fixed(bool _flag)
 {
     repn->fixed = _flag;
@@ -240,7 +247,7 @@ Variable& Variable::name(const std::string& name)
 
 std::string Variable::name() const { return repn->get_name(); }
 
-unsigned int Variable::id() const { return repn->index; }
+size_t Variable::id() const { return repn->index; }
 
 Variable& Variable::within(VariableTypes vtype)
 {
@@ -343,7 +350,8 @@ Expression Expression::diff(const Variable& var) const
     std::map<std::shared_ptr<VariableTerm>, expr_pointer_t> ans;
     symbolic_diff_all(repn, ans);
     Expression e;
-    if (ans.find(var.repn) != ans.end()) e = ans[var.repn];
+    if (ans.find(var.repn) != ans.end())
+        e = ans[var.repn];
     return e;
 }
 
@@ -1012,14 +1020,16 @@ Expression affine_expression(const std::vector<double>& coef, const std::vector<
     Expression e(offset);
     auto cit = coef.begin();
     auto vit = var.begin();
-    for (; vit != var.end(); ++vit, ++cit) e += (*cit) * (*vit);
+    for (; vit != var.end(); ++vit, ++cit)
+        e += (*cit) * (*vit);
     return e;
 }
 
 Expression affine_expression(const std::vector<Variable>& var, double offset)
 {
     Expression e(offset);
-    for (auto& v : var) e += v;
+    for (auto& v : var)
+        e += v;
     return e;
 }
 

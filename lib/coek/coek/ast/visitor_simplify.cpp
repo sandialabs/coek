@@ -6,11 +6,9 @@
 #include "visitor.hpp"
 #include "visitor_fns.hpp"
 #include "../util/cast_utils.hpp"
-/*
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
 #    include "compact_terms.hpp"
 #endif
-*/
 
 namespace coek {
 
@@ -25,7 +23,7 @@ class VisitorData {
     bool is_value;
 
     VisitorData(std::map<std::shared_ptr<SubExpressionTerm>, expr_pointer_t>& _subexpr_value)
-        : subexpr_value(_subexpr_value)
+        : subexpr_value(_subexpr_value), last_value(0.0), is_value(true)
     {
     }
 };
@@ -127,6 +125,18 @@ void visit_InequalityTerm(const expr_pointer_t& expr, VisitorData& data)
             tmp->lower, std::make_shared<ConstantTerm>(data.last_value), tmp->upper);
     else
         data.last_expr = std::make_shared<InequalityTerm>(tmp->lower, data.last_expr, tmp->upper);
+}
+
+void visit_StrictInequalityTerm(const expr_pointer_t& expr, VisitorData& data)
+{
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr);
+    visit_expression(tmp->body, data);
+    if (data.is_value)
+        // TODO - ignore constraints with a constant body
+        data.last_expr = std::make_shared<StrictInequalityTerm>(
+            tmp->lower, std::make_shared<ConstantTerm>(data.last_value), tmp->upper);
+    else
+        data.last_expr = std::make_shared<StrictInequalityTerm>(tmp->lower, data.last_expr, tmp->upper);
 }
 
 void visit_EqualityTerm(const expr_pointer_t& expr, VisitorData& data)
@@ -297,7 +307,7 @@ void visit_IfThenElseTerm(const expr_pointer_t& expr, VisitorData& data)
     auto tmp = safe_pointer_cast<IfThenElseTerm>(expr);
     visit_expression(tmp->cond_expr, data);
     if (data.is_value) {
-        if (data.last_value)
+        if (data.last_value > (1.0 - 1e-7))
             visit_expression(tmp->then_expr, data);
         else
             visit_expression(tmp->else_expr, data);
@@ -351,7 +361,8 @@ void visit_PowTerm(const expr_pointer_t& expr, VisitorData& data)
     auto tmp = safe_pointer_cast<PowTerm>(expr);
     visit_expression(tmp->lhs, data);
     if (data.is_value) {
-        if ((data.last_value == 0.0) or (data.last_value == 1.0)) return;
+        if ((data.last_value == 0.0) or (data.last_value == 1.0))
+            return;
 
         double val = data.last_value;
         visit_expression(tmp->rhs, data);
@@ -384,6 +395,12 @@ void visit_PowTerm(const expr_pointer_t& expr, VisitorData& data)
     }
 }
 
+void visit_SumExpressionTerm(const expr_pointer_t& expr, VisitorData& data)
+{
+    data.last_expr = expr;
+    data.is_value = false;
+}
+
 #define VISIT_CASE(TERM) \
     case TERM##_id:      \
         return visit_##TERM(expr, data);
@@ -401,6 +418,7 @@ void visit_expression(const expr_pointer_t& expr, VisitorData& data)
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);
@@ -429,6 +447,7 @@ void visit_expression(const expr_pointer_t& expr, VisitorData& data)
         VISIT_CASE(ACoshTerm);
         VISIT_CASE(ATanhTerm);
         VISIT_CASE(PowTerm);
+        VISIT_CASE(SumExpressionTerm);
 
         // GCOVR_EXCL_START
         default:
@@ -446,7 +465,8 @@ expr_pointer_t simplify_expr(
     std::map<std::shared_ptr<SubExpressionTerm>, expr_pointer_t>& subexpr_value)
 {
     // GCOVR_EXCL_START
-    if (not expr) return expr;
+    if (not expr)
+        return expr;
     // GCOVR_EXCL_STOP
 
     VisitorData data(subexpr_value);

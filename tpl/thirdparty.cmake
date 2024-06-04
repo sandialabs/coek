@@ -9,15 +9,15 @@
 # endif()
 
 add_revision(catch2
-  SRC Catch2-2.13.6
-  URL "https://github.com/catchorg/Catch2/archive/refs/tags/v2.13.6.tar.gz"
-  URL_HASH SHA256=48dfbb77b9193653e4e72df9633d2e0383b9b625a47060759668480fdf24fbd4
+  SRC Catch2-3.4.0
+  URL "https://github.com/catchorg/Catch2/archive/refs/tags/v3.4.0.tar.gz"
+  URL_HASH SHA256=122928b814b75717316c71af69bd2b43387643ba076a6ec16e7882bfb2dfacbb
   )
 
 add_revision(cppad
-  SRC CppAD-20220000.5
-  URL "https://github.com/coin-or/CppAD/archive/refs/tags/20220000.5.tar.gz"
-  URL_HASH SHA256=9fb4562f6169855eadcd86ac4671593d1c0edf97bb6ce7cbb28e19af2bfc165e
+  SRC CppAD-20240000.4
+  URL "https://github.com/coin-or/CppAD/archive/refs/tags/20240000.4.tar.gz"
+  URL_HASH SHA256=0dfc1e30b32d5dd3086ee3adb6d2746a019e9d670b644c4d5ec1df3c35dd1fe5
   )
 
 add_revision(fmtlib

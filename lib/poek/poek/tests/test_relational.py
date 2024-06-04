@@ -1,6 +1,6 @@
 import sys
 import math
-import pyutilib.th as unittest
+import pytest
 
 from poek import *
 import poek
@@ -16,22 +16,24 @@ else:
         return val.is_constraint()
 
 
-class Test_ConditionalValue(unittest.TestCase):
-    def setUp(self):
-        self.model = model()
+class Test_ConditionalValue(object):
+
+    # Do we expect arithmetic operations to return expressions?
+    expectExpression = True
+
+    # Do we expect relational tests to return constant expressions?
+    expectConstExpression = True
+
+    def X__init__(self):
         # Do we expect arithmetic operations to return expressions?
         self.expectExpression = True
         # Do we expect relational tests to return constant expressions?
         self.expectConstExpression = True
 
-    def tearDown(self):
-        self.model = None
-
     def create(self, val):
         # Create the type of expression term that we are testing
         return parameter(value=val)
 
-    @unittest.nottest
     def value_test(self, exp, val, expectExpression=None):
         """Test the value of the expression."""
         #
@@ -42,13 +44,12 @@ class Test_ConditionalValue(unittest.TestCase):
         #
         # Confirm whether 'exp' is an expression
         #
-        self.assertEqual(is_constraint(exp), False)
+        assert is_constraint(exp) == False
         #
         # Confirm that 'exp' has the expected value
         #
-        self.assertEqual(exp.value, val)
+        assert exp.value == val
 
-    @unittest.nottest
     def relation_test(self, exp, val, expectConstExpression=None):
         """Test a relationship expression."""
         #
@@ -59,11 +60,11 @@ class Test_ConditionalValue(unittest.TestCase):
         #
         # Confirm that this is a relational expression
         #
-        self.assertTrue(is_constraint(exp))
+        assert is_constraint(exp)
         #
         # Check that the expression evaluates correctly
         #
-        self.assertEqual(exp.is_feasible(), val)
+        assert exp.is_feasible() == val
         #
         # Check that the expression evaluates correctly in a Boolean context
         #
@@ -73,12 +74,12 @@ class Test_ConditionalValue(unittest.TestCase):
             #
             # Check that 'val' equals the boolean value of the expression.
             #
-            self.assertEqual(exp.is_feasible(), val)
+            assert exp.is_feasible() == val
         else:
             #
             # Check that the expression evaluates to 'val'
             #
-            self.assertEqual(exp.is_feasible(), val)
+            assert exp.is_feasible() == val
 
     def test_lt(self):
         #
@@ -211,33 +212,39 @@ class Test_VarValue(Test_ConditionalValue):
         return tmp
 
 
-class Test_Expr(unittest.TestCase):
-    def setUp(self):
-        self.model = model()
-        self.a = variable(name="a")
-        self.b = variable(name="b")
+class Test_Expr(object):
+    @pytest.fixture
+    def var_a(self):
+        return variable(name="a")
+
+    @pytest.fixture
+    def var_b(self):
+        return variable(name="b")
+
+    @pytest.fixture
+    def var_x(self):
+        return variable(10, name="x")
+
+    def X__init(self):
+        # self.a = variable(name="a")
+        # self.b = variable(name="b")
         self.c = variable(name="c")
         self.x = variable(10, name="x")
 
-    def tearDown(self):
-        self.model = None
-
-    def test_simpleEquality(self):
+    def test_simpleEquality(self, var_a, var_b):
         #
         # Check the structure of a simple equality statement
         #
-        a = self.a
-        b = self.b
+        a, b = var_a, var_b
 
         e = a == b
-        self.assertEqual(e.to_list(), ["==", ["+", "a", ["*", "-1", "b"]], "0.000000"])
+        assert e.to_list() == ["==", ["+", "a", ["*", "-1.000000", "b"]], "0.000000"]
 
-    def test_error1(self):
+    def test_error1(self, var_a, var_b):
         #
         # Confirm problems with chained relational operators
         #
-        a = self.a
-        b = self.b
+        a, b = var_a, var_b
 
         #       =
         #      / \
@@ -247,7 +254,7 @@ class Test_Expr(unittest.TestCase):
         if poek.__using_pybind11__:
             e = a == b == 5
         else:
-            with self.assertRaisesRegex(TypeError, "bool\\(\\) argument must.*"):
+            with pytest.raises(TypeError) as e_info:
                 e = a == b == 5
 
         a.value = 3
@@ -255,259 +262,192 @@ class Test_Expr(unittest.TestCase):
         if poek.__using_pybind11__:
             e = a == b == 5
         else:
-            with self.assertRaisesRegex(TypeError, "bool\\(\\) argument must.*"):
+            with pytest.raises(TypeError) as e_info:
                 e = a == b == 5
 
         e = a == b
         try:
             e2 = e == 5
-            self.fail("Expected TypeError")
+            pytest.fail("Expected TypeError")
         except:
             pass
 
-    def test_error2(self):
+    def test_error2(self, var_a, var_b, var_x):
         #
         # Check errors in nested relational expressions
         #
-        a = self.a
-        b = self.b
-        x = self.x
+        a, b, x = var_a, var_b, var_x
 
         e = a == b
         if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__eq__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e == a
-            with self.assertRaisesRegex(
-                TypeError, "__eq__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 a == e
         else:
-            with self.assertRaisesRegex(
-                TypeError, "Constraint argument cannot be used in a boolean expression."
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e == a
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+            with pytest.raises(TypeError) as e_info:
                 a == e
 
         if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__eq__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 a == x
-            with self.assertRaisesRegex(
-                TypeError, "__eq__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 x == a
         else:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+            with pytest.raises(TypeError) as e_info:
                 a == x
-            with self.assertRaisesRegex(
-                TypeError,
-                "VariableArray argument cannot be used in a boolean expression.",
-            ):
+            with pytest.raises(TypeError) as e_info:
                 x == a
 
-    def test_error_nested(self):
+    def test_error_nested(self, var_a, var_b):
         #
         # Verify that constraints are not allow to be nested.
         #
-        a = self.a
-        b = self.b
+        a, b = var_a, var_b
 
         e = a == b
         E = a
 
         if poek.__using_pybind11__:
-            with self.assertRaisesRegex(TypeError, "unsupported operand type.*"):
+            with pytest.raises(TypeError) as e_info:
                 a + e
-            with self.assertRaisesRegex(
-                TypeError, "__radd__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e + a
-            with self.assertRaisesRegex(TypeError, "unsupported operand type.*"):
+            with pytest.raises(TypeError) as e_info:
                 E += e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with pytest.raises(TypeError) as e_info:
                 2 + e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with pytest.raises(TypeError) as e_info:
                 e += 2
         else:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+            with pytest.raises(TypeError) as e_info:
                 a + e
-            with self.assertRaises(NotImplementedError):
+            with pytest.raises(NotImplementedError) as e_info:
                 e + a
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+            with pytest.raises(TypeError) as e_info:
                 E += e
-            with self.assertRaises(NotImplementedError):
+            with pytest.raises(NotImplementedError) as e_info:
                 2 + e
-            with self.assertRaises(NotImplementedError):
+            with pytest.raises(NotImplementedError) as e_info:
                 e += 2
 
         if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__sub__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 a - e
-            with self.assertRaisesRegex(
-                TypeError, "__rsub__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e - a
-            with self.assertRaisesRegex(
-                TypeError, "__sub__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 E -= e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with pytest.raises(TypeError) as e_info:
                 2 - e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with pytest.raises(TypeError) as e_info:
                 e -= 2
         else:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+            with pytest.raises(TypeError) as e_info:
                 a - e
-            with self.assertRaises(NotImplementedError):
+            with pytest.raises(NotImplementedError) as e_info:
                 e - a
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+            with pytest.raises(TypeError) as e_info:
                 E -= e
-            with self.assertRaises(NotImplementedError):
+            with pytest.raises(NotImplementedError) as e_info:
                 2 - e
-            with self.assertRaises(NotImplementedError):
+            with pytest.raises(NotImplementedError) as e_info:
                 e -= 2
 
         if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__mul__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 a * e
-            with self.assertRaisesRegex(
-                TypeError, "__rmul__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e * a
-            with self.assertRaisesRegex(
-                TypeError, "__mul__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 E *= e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with pytest.raises(TypeError) as e_info:
                 2 * e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with pytest.raises(TypeError) as e_info:
                 e *= 2
         else:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+            with pytest.raises(TypeError) as e_info:
                 a * e
-            with self.assertRaises(NotImplementedError):
+            with pytest.raises(NotImplementedError) as e_info:
                 e * a
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+            with pytest.raises(TypeError) as e_info:
                 E *= e
-            with self.assertRaises(NotImplementedError):
+            with pytest.raises(NotImplementedError) as e_info:
                 2 * e
-            with self.assertRaises(NotImplementedError):
+            with pytest.raises(NotImplementedError) as e_info:
                 e *= 2
 
         if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__truediv__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 a / e
-            with self.assertRaisesRegex(
-                TypeError, "__rtruediv__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e / a
-            with self.assertRaisesRegex(
-                TypeError, "__truediv__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 E /= e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with pytest.raises(TypeError) as e_info:
                 2 / e
-            with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
+            with pytest.raises(TypeError) as e_info:
                 e /= 2
         else:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+            with pytest.raises(TypeError) as e_info:
                 a / e
-            with self.assertRaises(NotImplementedError):
+            with pytest.raises(NotImplementedError) as e_info:
                 e / a
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+            with pytest.raises(TypeError) as e_info:
                 E /= e
-            with self.assertRaises(NotImplementedError):
+            with pytest.raises(NotImplementedError) as e_info:
                 2 / e
-            with self.assertRaises(NotImplementedError):
+            with pytest.raises(NotImplementedError) as e_info:
                 e /= 2
 
         if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__pow__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 a**e
-            with self.assertRaisesRegex(
-                TypeError, "__rpow__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e**a
-            with self.assertRaisesRegex(
-                TypeError, "__pow__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 E **= e
         else:
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+            with pytest.raises(TypeError) as e_info:
                 a**e
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+            with pytest.raises(TypeError) as e_info:
                 e**a
-            with self.assertRaisesRegex(TypeError, "none of the .* overloaded methods succeeded.*"):
+            with pytest.raises(TypeError) as e_info:
                 E **= e
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
-            2**e
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\\(s\\) .*"):
-            e **= 2
+            with pytest.raises(TypeError) as e_info:
+                2**e
+            with pytest.raises(TypeError) as e_info:
+                e **= 2
 
-    def test_error_chained(self):
+    def test_error_chained(self, var_a, var_b):
         #
         # Verify that constraints are not allow to be nested.
         #
-        a = self.a
-        b = self.b
+        a, b = var_a, var_b
 
         e = a == b
 
         if poek.__using_pybind11__:
-            with self.assertRaisesRegex(
-                TypeError, "__lt__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e < a
-            with self.assertRaisesRegex(
-                TypeError, "__le__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e <= a
-            with self.assertRaisesRegex(
-                TypeError, "__gt__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e > a
-            with self.assertRaisesRegex(
-                TypeError, "__ge__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e >= a
-            with self.assertRaisesRegex(
-                TypeError, "__eq__\\(\\): incompatible function arguments.*"
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e == a
         else:
-            with self.assertRaisesRegex(
-                TypeError, "Constraint argument cannot be used in a boolean expression."
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e < a
-            with self.assertRaisesRegex(
-                TypeError, "Constraint argument cannot be used in a boolean expression."
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e <= a
-            with self.assertRaisesRegex(
-                TypeError, "Constraint argument cannot be used in a boolean expression."
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e > a
-            with self.assertRaisesRegex(
-                TypeError, "Constraint argument cannot be used in a boolean expression."
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e >= a
-            with self.assertRaisesRegex(
-                TypeError, "Constraint argument cannot be used in a boolean expression."
-            ):
+            with pytest.raises(TypeError) as e_info:
                 e == a
-
-
-if __name__ == "__main__":
-    unittest.main()

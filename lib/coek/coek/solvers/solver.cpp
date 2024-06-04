@@ -1,6 +1,6 @@
 #include "coek/solvers/solver.hpp"
-#include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
 #include "coek/solvers/solver_repn.hpp"
 
@@ -10,78 +10,93 @@ namespace coek {
 // Solver
 //
 
-void Solver::initialize(std::string name)
+void Solver::initialize(std::string name_)
 {
-    std::shared_ptr<SolverRepn> tmp(create_solver(name, *this));
+    std::shared_ptr<SolverRepn> tmp(create_solver(name_, *this));
     repn = tmp;
+    name = name_;
 }
 
 bool Solver::available() const { return repn.get(); }
 
-int Solver::solve(Model& model) { return repn->solve(model); }
+std::shared_ptr<SolverResults> Solver::solve(Model& model)
+{
+    if (not repn.get()) {
+        auto res = std::make_shared<SolverResults>();
+        res->solver_name = name;
+        res->termination_condition = TerminationCondition::solver_not_available;
+        return res;
+    }
+    return repn->solve(model);
+}
 
 void Solver::load(Model& model) { repn->load(model); }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-int Solver::solve(CompactModel& model) { return repn->solve(model); }
+std::shared_ptr<SolverResults> Solver::solve(CompactModel& model)
+{
+    if (not repn.get()) {
+        auto res = std::make_shared<SolverResults>();
+        res->solver_name = name;
+        res->termination_condition = TerminationCondition::solver_not_available;
+        return res;
+    }
+    return repn->solve(model);
+}
 
 void Solver::load(CompactModel& model) { repn->load(model); }
 #endif
 
-int Solver::resolve() { return repn->resolve(); }
+std::shared_ptr<SolverResults> Solver::resolve()
+{
+    if (not repn.get()) {
+        auto res = std::make_shared<SolverResults>();
+        res->solver_name = name;
+        res->termination_condition = TerminationCondition::solver_not_available;
+        return res;
+    }
+    return repn->resolve();
+}
 
 void Solver::reset() { repn->reset(); }
-
-bool Solver::error_status() const
-{
-    if (not repn.get()) return true;
-    return repn->error_occurred;
-}
-int Solver::error_code() const
-{
-    if (not repn.get()) return -1;
-    return repn->error_code;
-}
-std::string Solver::error_message() const
-{
-    if (not repn.get()) return "Error constructing solver.";
-    return repn->error_message;
-}
 
 //
 // NLPSolver
 //
 
-void NLPSolver::initialize(std::string name)
+void NLPSolver::initialize(std::string name_)
 {
-    std::shared_ptr<NLPSolverRepn> tmp(create_nlpsolver(name, *this));
+    std::shared_ptr<NLPSolverRepn> tmp(create_nlpsolver(name_, *this));
     repn = tmp;
+    name = name_;
 }
 
 bool NLPSolver::available() const { return repn.get() && repn->available(); }
 
-int NLPSolver::solve(NLPModel& model) { return repn->solve(model); }
+std::shared_ptr<SolverResults> NLPSolver::solve(NLPModel& model)
+{
+    if (not repn.get() or not repn->available()) {
+        auto res = std::make_shared<SolverResults>();
+        res->solver_name = name;
+        res->termination_condition = TerminationCondition::solver_not_available;
+        return res;
+    }
+    return repn->solve(model);
+}
 
 void NLPSolver::load(NLPModel& model) { repn->load(model); }
 
-int NLPSolver::resolve(bool reset_nlpmodel) { return repn->resolve(reset_nlpmodel); }
+std::shared_ptr<SolverResults> NLPSolver::resolve(bool reset_nlpmodel)
+{
+    if (not repn.get() or not repn->available()) {
+        auto res = std::make_shared<SolverResults>();
+        res->solver_name = name;
+        res->termination_condition = TerminationCondition::solver_not_available;
+        return res;
+    }
+    return repn->resolve(reset_nlpmodel);
+}
 
 void NLPSolver::reset() { repn->reset(); }
-
-bool NLPSolver::error_status() const
-{
-    if (not repn.get()) return true;
-    return repn->error_occurred;
-}
-int NLPSolver::error_code() const
-{
-    if (not repn.get()) return -1;
-    return repn->error_code;
-}
-std::string NLPSolver::error_message() const
-{
-    if (not repn.get()) return "Error constructing solver.";
-    return repn->error_message;
-}
 
 }  // namespace coek

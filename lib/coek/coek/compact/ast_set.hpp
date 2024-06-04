@@ -53,7 +53,8 @@ class BaseSetExpression {
 
     virtual bool empty()
     {
-        if (!initialized) throw std::runtime_error("Testing empty() on uninitialized set.");
+        if (!initialized)
+            throw std::runtime_error("Testing empty() on uninitialized set.");
         return size() == 0;
     }
 
@@ -324,10 +325,13 @@ class FiniteSetIteratorRepn : public SetIteratorRepnBase<TYPE> {
     {
     }
 
+    virtual ~FiniteSetIteratorRepn() {}
+
     void next()
     {
         iterator++;
-        if (iterator != end_iterator) set_element_value(index, *iterator);
+        if (iterator != end_iterator)
+            set_element_value(index, *iterator);
     }
 
     bool equals(const SetIteratorRepnBase<TYPE>* repn) const
@@ -379,10 +383,13 @@ class FiniteNDSetIteratorRepn : public SetIteratorRepnBase<std::vector<set_types
         vec.resize(1);
     }
 
+    virtual ~FiniteNDSetIteratorRepn() {}
+
     void next()
     {
         iterator++;
-        if (iterator != end) set_element_value(index, *iterator);
+        if (iterator != end)
+            set_element_value(index, *iterator);
     }
 
     bool equals(const SetIteratorRepnBase<std::vector<set_types>>* repn) const
@@ -495,7 +502,8 @@ class FiniteSimpleSet : public SimpleSet<TYPE> {
                                      + std::to_string(i) + std::string(" size=")
                                      + std::to_string(data.size()));
         arg = data[i];
-        if (index.repn) index.value(data[i]);
+        if (index.repn)
+            index.value(data[i]);
     }
 };
 
@@ -516,14 +524,17 @@ class SimpleSetUnion : public FiniteSimpleSet<TYPE> {
 
     void initialize()
     {
-        if (this->initialized) return;
+        if (this->initialized)
+            return;
 
         lhs->initialize();
-        for (auto it = lhs->begin(); it != lhs->end(); ++it) this->add_unique(*it);
+        for (auto it = lhs->begin(); it != lhs->end(); ++it)
+            this->add_unique(*it);
 
         rhs->initialize();
         for (auto it = rhs->begin(); it != rhs->end(); ++it) {
-            if (not this->contains(*it)) this->add_unique(*it);
+            if (not this->contains(*it))
+                this->add_unique(*it);
         }
 
         this->initialized = true;
@@ -548,18 +559,21 @@ class SimpleSetIntersection : public FiniteSimpleSet<TYPE> {
 
     void initialize()
     {
-        if (this->initialized) return;
+        if (this->initialized)
+            return;
 
         lhs->initialize();
         rhs->initialize();
         if (lhs->size() <= rhs->size()) {
             for (auto it = lhs->begin(); it != lhs->end(); ++it) {
-                if (rhs->contains(*it)) this->add_unique(*it);
+                if (rhs->contains(*it))
+                    this->add_unique(*it);
             }
         }
         else {
             for (auto it = rhs->begin(); it != rhs->end(); ++it) {
-                if (lhs->contains(*it)) this->add_unique(*it);
+                if (lhs->contains(*it))
+                    this->add_unique(*it);
             }
         }
 
@@ -585,13 +599,15 @@ class SimpleSetDifference : public FiniteSimpleSet<TYPE> {
 
     void initialize()
     {
-        if (this->initialized) return;
+        if (this->initialized)
+            return;
 
         lhs->initialize();
         rhs->initialize();
 
         for (auto it = lhs->begin(); it != lhs->end(); ++it) {
-            if (not rhs->contains(*it)) this->add_unique(*it);
+            if (not rhs->contains(*it))
+                this->add_unique(*it);
         }
 
         this->initialized = true;
@@ -616,7 +632,8 @@ class SimpleSetSymmetricDifference : public FiniteSimpleSet<TYPE> {
 
     void initialize()
     {
-        if (this->initialized) return;
+        if (this->initialized)
+            return;
 
         lhs->initialize();
         rhs->initialize();
@@ -625,12 +642,14 @@ class SimpleSetSymmetricDifference : public FiniteSimpleSet<TYPE> {
         for (auto it = lhs->begin(); it != lhs->end(); ++it) {
             // TYPE tmp = *it;
             // std::cout << "RHS " << tmp << " " << rhs->contains(tmp) << std::endl;
-            if (not rhs->contains(*it)) this->add_unique(*it);
+            if (not rhs->contains(*it))
+                this->add_unique(*it);
         }
         for (auto it = rhs->begin(); it != rhs->end(); ++it) {
             // TYPE tmp = *it;
             // std::cout << "LHS " << tmp << " " << lhs->contains(tmp) << std::endl;
-            if (not lhs->contains(*it)) this->add_unique(*it);
+            if (not lhs->contains(*it))
+                this->add_unique(*it);
         }
 
         this->initialized = true;
@@ -653,8 +672,10 @@ class ListSet : public FiniteSimpleSet<TYPE> {
 
     void initialize()
     {
-        if (this->initialized) return;
-        for (auto it = raw.begin(); it != raw.end(); ++it) this->add_unique(*it);
+        if (this->initialized)
+            return;
+        for (auto it = raw.begin(); it != raw.end(); ++it)
+            this->add_unique(*it);
         this->initialized = true;
     }
 };
@@ -669,8 +690,10 @@ class SetSet : public FiniteSimpleSet<TYPE> {
 
     void initialize()
     {
-        if (this->initialized) return;
-        for (auto it = raw.begin(); it != raw.end(); ++it) this->add_unique(*it);
+        if (this->initialized)
+            return;
+        for (auto it = raw.begin(); it != raw.end(); ++it)
+            this->add_unique(*it);
         this->initialized = true;
     }
 };
@@ -685,9 +708,11 @@ class VectorSet : public FiniteSimpleSet<TYPE> {
 
     void initialize()
     {
-        if (this->initialized) return;
+        if (this->initialized)
+            return;
         for (auto it = raw.begin(); it != raw.end(); ++it) {
-            if (!this->contains(*it)) this->add_unique(*it);
+            if (!this->contains(*it))
+                this->add_unique(*it);
         }
         this->initialized = true;
     }
@@ -718,10 +743,13 @@ class RangeSetIteratorRepn : public SetIteratorRepnBase<TYPE> {
         _value = start;
     }
 
+    virtual ~RangeSetIteratorRepn() {}
+
     void next()
     {
         _value += step;
-        if (index.repn) index.value(_value);
+        if (index.repn)
+            index.value(_value);
         count++;
     }
 
@@ -768,10 +796,13 @@ class RangeNDSetIteratorRepn : public SetIteratorRepnBase<std::vector<set_types>
         vec.resize(1);
     }
 
+    virtual ~RangeNDSetIteratorRepn() {}
+
     void next()
     {
         _value += step;
-        if (index.repn) index.value(_value);
+        if (index.repn)
+            index.value(_value);
         count++;
     }
 
@@ -807,8 +838,10 @@ inline size_t compute_nelements(int start, int stop, int step)
 
 inline bool contains_value(int value, int start, int stop, int step)
 {
-    if ((value < start) or (value > stop)) return false;
-    if ((value - start) % step > 0) return false;
+    if ((value < start) or (value > stop))
+        return false;
+    if ((value - start) % step > 0)
+        return false;
     return true;
 }
 
@@ -892,7 +925,8 @@ class RangeSet : public SimpleSet<TYPE> {
                                      + std::to_string(nelements));
         TYPE ans = start + step * static_cast<TYPE>(i);
         arg = ans;
-        if (index.repn) index.value(ans);
+        if (index.repn)
+            index.value(ans);
     }
 };
 

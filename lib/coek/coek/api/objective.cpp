@@ -7,7 +7,7 @@
 
 namespace coek {
 
-Objective::Objective() { repn = CREATE_POINTER(ObjectiveTerm, ZEROCONST, true); }
+Objective::Objective() { repn = std::make_shared<ObjectiveTerm>(); }
 
 Objective::Objective(const ObjectiveRepn& _repn) : repn(_repn) {}
 
@@ -19,7 +19,13 @@ Objective& Objective::operator=(const Objective& expr)
     return *this;
 }
 
-unsigned int Objective::id() const { return repn->index; }
+bool Objective::active() const { return repn->active; }
+
+void Objective::activate() { repn->active = true; }
+
+void Objective::deactivate() { repn->active = false; }
+
+size_t Objective::id() const { return repn->index; }
 
 double Objective::value() const { return repn->eval(); }
 

@@ -34,10 +34,12 @@ int main(int argc, char** argv)
 
     vector<vector<coek::Variable> > y(m + 1, vector<coek::Variable>(n + 1));
     for (size_t i = 0; i <= m; i++)
-        for (size_t j = 0; j <= n; j++) y[i][j] = model.add_variable().bounds(0, 1).value(0);
+        for (size_t j = 0; j <= n; j++)
+            y[i][j] = model.add_variable().bounds(0, 1).value(0);
 
     vector<coek::Variable> u(m + 1);
-    for (size_t i = 1; i <= m; i++) u[i] = model.add_variable().bounds(-1, 1).value(0);
+    for (size_t i = 1; i <= m; i++)
+        u[i] = model.add_variable().bounds(-1, 1).value(0);
 
     // OBJECTIVE
     // First term
@@ -50,7 +52,8 @@ int main(int argc, char** argv)
 
     // Second term
     coek::Expression term2;
-    for (size_t i = 1; i <= m - 1; i++) term2 += 2 * u[i] * u[i];
+    for (size_t i = 1; i <= m - 1; i++)
+        term2 += 2 * u[i] * u[i];
     term2 += u[m] * u[m];
 
     model.add_objective(0.25 * dx * term1 + W * a * dt * term2);

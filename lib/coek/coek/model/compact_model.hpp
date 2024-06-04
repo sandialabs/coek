@@ -26,6 +26,11 @@ class CompactModel {
     CompactModel(const CompactModel& other);
     ~CompactModel();
 
+    /** Get the name of the model */
+    std::string name() const;
+    /** Set the name of the model */
+    void name(const std::string& name);
+
     /** Create a variable and add it to the model with standard arguments.
      *
      * This specifies an unbounded,

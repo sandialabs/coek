@@ -31,6 +31,9 @@ class IndexVector {
 
     IndexVector& operator=(const IndexVector& other)
     {
+        if (this == &other)
+            return *this;
+
         len = other.len;
         data = other.data;
         return *this;
@@ -44,7 +47,8 @@ class IndexVector {
 
     bool operator<(const IndexVector& other) const
     {
-        if (len == 1) return data[0] < other.data[0];
+        if (len == 1)
+            return data[0] < other.data[0];
 
         for (size_t i = 0; i < len; i++) {
             if (data[i] < other.data[i])
@@ -67,7 +71,8 @@ class IndexVector {
         vecdata_t* _other = other.data;
 
         for (; curr != end; ++curr, ++_other) {
-            if (*curr != *_other) return false;
+            if (*curr != *_other)
+                return false;
         }
         return true;
     }
@@ -88,7 +93,8 @@ class IndexVectorCache {
 
     ~IndexVectorCache()
     {
-        if (len) delete[] data;
+        if (len)
+            delete[] data;
     }
 
     void resize(size_t _len)
@@ -110,7 +116,8 @@ class IndexVectorCache {
     IndexVector clone(const IndexVector& x)
     {
         auto tmp = alloc(x.size());
-        for (size_t i = 0; i < x.size(); ++i) tmp[i] = x[i];
+        for (size_t i = 0; i < x.size(); ++i)
+            tmp[i] = x[i];
         return tmp;
     }
 };
@@ -125,7 +132,9 @@ struct hash<coek::IndexVector> {
 
 inline std::ostream& operator<<(std::ostream& ostr, const coek::IndexVector& vec)
 {
-    for (size_t i = 0; i < vec.size(); i++) ostr << vec[i] << " ";
+    for (size_t i = 0; i < vec.size(); i++) {
+        ostr << vec[i] << " ";
+    }
     return ostr;
 }
 

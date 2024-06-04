@@ -54,7 +54,8 @@ class BinaryTerm : public ExpressionTerm {
     size_t num_expressions() const { return 2; }
     expr_pointer_t expression(size_t i)
     {
-        if (i == 0) return lhs;
+        if (i == 0)
+            return lhs;
         return rhs;
     }
 };
@@ -84,10 +85,10 @@ class NAryPrefixTerm : public ExpressionTerm {
 
 class SubExpressionTerm : public UnaryTerm {
    public:
-    static unsigned int count;
+    static size_t count;
 
    public:
-    unsigned int index;
+    size_t index;
     std::string name;
 
    public:
@@ -134,7 +135,8 @@ class PlusTerm : public NAryPrefixTerm {
         // NOTE: Must limit this loop to 0..n-1.  The value 'n' defines the
         //      number of terms in the shared prefix term that are used here.
         double ans = 0;
-        for (size_t i = 0; i < n; i++) ans += (*data)[i]->_eval();
+        for (size_t i = 0; i < n; i++)
+            ans += (*data)[i]->_eval();
         return ans;
     }
 
@@ -245,7 +247,10 @@ class IfThenElseTerm : public ExpressionTerm {
     IfThenElseTerm(const expr_pointer_t& _cond, const expr_pointer_t& _then,
                    const expr_pointer_t& _else);
 
-    double _eval() const { return cond_expr->_eval() ? then_expr->_eval() : else_expr->_eval(); }
+    double _eval() const
+    {
+        return cond_expr->_eval() > (1.0 - 1e-7) ? then_expr->_eval() : else_expr->_eval();
+    }
 
     term_id id() { return IfThenElseTerm_id; }
 
@@ -265,9 +270,9 @@ class IfThenElseTerm : public ExpressionTerm {
 //
 class DefinedValueTerm : public BaseExpressionTerm {
    public:
-    unsigned int index = 0;
+    size_t index = 0;
 
-    DefinedValueTerm(unsigned int _index) : index(_index) {}
+    DefinedValueTerm(size_t _index) : index(_index) {}
 
     bool is_expression() const { return true; }
 

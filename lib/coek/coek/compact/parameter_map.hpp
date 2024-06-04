@@ -87,7 +87,8 @@ class ParameterMap : public ParameterAssocArray {
         const ARGTYPES&... args)
     {
         const size_t nargs = count_args(args...);
-        if (dim() != nargs) index_error(nargs);
+        if (dim() != nargs)
+            index_error(nargs);
         collect_refargs(static_cast<size_t>(0), args...);
         return create_paramref(reftmp);
     }
@@ -97,21 +98,24 @@ class ParameterMap : public ParameterAssocArray {
         const ARGTYPES&... args)
     {
         const size_t nargs = count_args(args...);
-        if (dim() != nargs) index_error(nargs);
+        if (dim() != nargs)
+            index_error(nargs);
         collect_args(static_cast<size_t>(0), args...);
         return index(tmp);
     }
 
     Parameter operator()(int i)
     {
-        if (dim() != 1) index_error(1);
+        if (dim() != 1)
+            index_error(1);
         tmp[0] = i;
         return index(tmp);
     }
 
     Parameter operator()(int i, int j)
     {
-        if (dim() != 2) index_error(2);
+        if (dim() != 2)
+            index_error(2);
         tmp[0] = i;
         tmp[1] = j;
         return index(tmp);
@@ -119,7 +123,7 @@ class ParameterMap : public ParameterAssocArray {
 
    public:
     explicit ParameterMap(const ConcreteSet& arg);
-    ~ParameterMap() {}
+    virtual ~ParameterMap() {}
 
     /** Set the initial parameter value. \returns the parameter object. */
     ParameterMap& value(double value);

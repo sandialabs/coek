@@ -19,6 +19,7 @@ from pyomo.core.base.set import Binary, Reals, Integers, Any, GlobalSetBase
 from pyomo.common.collections import ComponentMap
 from pyomo.core.expr.numvalue import nonpyomo_leaf_types, native_types
 from pyomo.core.expr import logical_expr
+from pyomo.core.expr import relational_expr
 from pyomo.common.deprecation import deprecation_warning
 from weakref import ref as weakref_ref
 from pyomo.common.deprecation import deprecation_warning
@@ -1631,7 +1632,7 @@ class LinearExpression(ExpressionBase, numeric_expr.LinearExpression):
         )
 
 
-class InequalityExpression(BinaryExpression, logical_expr.InequalityExpression):
+class InequalityExpression(BinaryExpression, relational_expr.InequalityExpression):
     __slots__ = ("_pe",)
     func = operator.le
 
@@ -1640,7 +1641,7 @@ class InequalityExpression(BinaryExpression, logical_expr.InequalityExpression):
         self._strict = strict
 
 
-class EqualityExpression(BinaryExpression, logical_expr.EqualityExpression):
+class EqualityExpression(BinaryExpression, relational_expr.EqualityExpression):
     __slots__ = ("_pe",)
     func = operator.eq
 

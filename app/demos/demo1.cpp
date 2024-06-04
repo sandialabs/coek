@@ -24,7 +24,6 @@ coek::Model knapsack(size_t N)
     
     auto model = coek::Model();
 
-#if __cpp_lib_variant
     auto x = coek::variable(N).bounds(0, 1).value(0);
     model.add(x);
     
@@ -37,7 +36,6 @@ coek::Model knapsack(size_t N)
     auto con = coek::expression();
     for (size_t n : coek::range(N)) con += w[n] * x(n);
     model.add(con <= W);
-#endif
 
     return model;
 }
@@ -58,29 +56,29 @@ int main(int argc, char* argv[])
     if (solver_name == "gurobi") {
         coek::Solver solver;
         solver.initialize(solver_name);
-        if (not solver.available()) {
-            std::cout << "ERROR - solver '" << solver_name << "' is not available" << std::endl;
-            std::cout << "MESSAGE - " << solver.error_message() << std::endl;
-            return 2;
-        }
-        //solver.set_option("OutputFlag", debug);
+        //solver.set_option("OutputFlag", 1);
         //solver.set_option("TimeLimit", 0.0);
 
-        solver.solve(model);
+        auto res = solver.solve(model);
+        if (not check_optimal_termination(res)) {
+            std::cout << "ERROR - failed to execute solver '" << solver_name << "'" << std::endl;
+            std::cout << "MESSAGE - " << res->error_message << std::endl;
+            return 2;
+        }
     }
     else if (solver_name == "ipopt") {
         coek::NLPModel nlpmodel(model, "cppad");
         coek::NLPSolver solver;
         solver.initialize(solver_name);
-        if (not solver.available()) {
-            std::cout << "ERROR - solver '" << solver_name << "' is not available" << std::endl;
-            std::cout << "MESSAGE - " << solver.error_message() << std::endl;
-            return 2;
-        }
         //solver.set_option("max_iter", 1);
         //solver.set_option("print_level", 1);
 
-        solver.solve(nlpmodel);
+        auto res = solver.solve(nlpmodel);
+        if (not check_optimal_termination(res)) {
+            std::cout << "ERROR - failed to execute solver '" << solver_name << "'" << std::endl;
+            std::cout << "MESSAGE - " << res->error_message << std::endl;
+            return 2;
+        }
     }
 
     return 0;

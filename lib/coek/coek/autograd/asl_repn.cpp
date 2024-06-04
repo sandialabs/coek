@@ -8,9 +8,9 @@
 #include "coek/ast/value_terms.hpp"
 
 // AMPL includes
-#include "asl.h"
-#include "asl_pfgh.h"
-#include "getstub.h"
+#include "asl/asl.h"
+#include "asl/asl_pfgh.h"
+#include "asl/getstub.h"
 #ifdef range
 #    undef range
 #endif
@@ -64,7 +64,8 @@ void ASL_Repn::set_variables(std::vector<double>& x) { set_variables(&(x[0]), x.
 void ASL_Repn::set_variables(const double* x, size_t n)
 {
     assert(n == currx.size());
-    for (size_t i = 0; i < n; i++) currx[i] = x[i];
+    for (size_t i = 0; i < n; i++)
+        currx[i] = x[i];
 
     objval_called_with_current_x_ = false;
     conval_called_with_current_x_ = false;
@@ -103,8 +104,8 @@ void ASL_Repn::get_J_nonzeros(std::vector<size_t>& jrow, std::vector<size_t>& jc
     size_t curr_nz = 0;
     for (size_t i : coek::range(nc)) {
         for (cgrad* cg = Cgrad[i]; cg; cg = cg->next) {
-            jrow[cg->goff] = i;
-            jcol[cg->goff] = cg->varno;
+            jrow[static_cast<size_t>(cg->goff)] = i;
+            jcol[static_cast<size_t>(cg->goff)] = static_cast<size_t>(cg->varno);
             curr_nz++;
         }
     }
@@ -121,9 +122,10 @@ void ASL_Repn::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hc
     hcol.resize(nnz_lag_h);
     size_t curr_nz = 0;
     for (size_t i : coek::range(nx)) {
-        for (size_t j = sputinfo->hcolstarts[i]; j < sputinfo->hcolstarts[i + 1]; j++) {
+        for (size_t j = static_cast<size_t>(sputinfo->hcolstarts[i]);
+             j < static_cast<size_t>(sputinfo->hcolstarts[i + 1]); j++) {
             hrow[curr_nz] = i;
-            hcol[curr_nz] = sputinfo->hrownos[j];
+            hcol[curr_nz] = static_cast<size_t>(sputinfo->hrownos[j]);
             curr_nz++;
         }
     }
@@ -170,7 +172,8 @@ void ASL_Repn::compute_df(double& f, std::vector<double>& df, size_t i)
 
     if (nf == 0) {
         f = 0.0;
-        for (double& df_x : df) df_x = 0.0;
+        for (double& df_x : df)
+            df_x = 0.0;
     }
     else {
         f = compute_f(i);
@@ -193,11 +196,13 @@ void ASL_Repn::compute_c(std::vector<double>& c)
             conval_called_with_current_x_ = true;
         else {
             conval_called_with_current_x_ = false;
-            for (size_t i : coek::range(nc)) c[i] = nan("");
+            for (size_t i : coek::range(nc))
+                c[i] = nan("");
             return;
         }
     }
-    for (size_t i : coek::range(nc)) c[i] = c_cache[i];
+    for (size_t i : coek::range(nc))
+        c[i] = c_cache[i];
 }
 
 void ASL_Repn::compute_dc(std::vector<double>& dc, size_t i)
@@ -205,10 +210,11 @@ void ASL_Repn::compute_dc(std::vector<double>& dc, size_t i)
     assert(dc.size() == nx);
 
     ASL_pfgh* asl = asl_;
-    congrd(i, &(currx[0]), &(dc[0]), (fint*)nerror_);
+    congrd(static_cast<int>(i), &(currx[0]), &(dc[0]), (fint*)nerror_);
     nerror_ok = check_asl_status(nerror_);
     if (not nerror_ok) {
-        for (size_t j : coek::indices(dc)) dc[j] = nan("");
+        for (size_t j : coek::indices(dc))
+            dc[j] = nan("");
     }
 }
 
@@ -247,8 +253,9 @@ void ASL_Repn::initialize()
     alloc_asl();
     ASL_pfgh* asl = asl_;
 
-    // Must have at least one continuous variable.
-    assert(n_var > 0);
+    if (nx == 0)
+        return;
+
     // API does not support discrete variables
     assert((nbv == 0 && niv == 0 && nlvbi == 0 && nlvci == 0 && nlvoi == 0));
     // API does not support complementary constraints
@@ -272,11 +279,6 @@ void ASL_Repn::initialize()
     //
     // Resize and initialize the ASL_Repn data
     //
-    nx = static_cast<size_t>(n_var);
-    nf = static_cast<size_t>(n_obj);
-    nc = static_cast<size_t>(n_con);
-    nnz_jac_g = static_cast<size_t>(nzc);
-
     currx.resize(nx);
     xlb.resize(nx);
     xub.resize(nx);
@@ -304,7 +306,8 @@ void ASL_Repn::reset(void)
 
 bool ASL_Repn::check_asl_status(void* nerror)
 {
-    if (nerror == NULL || *((fint*)nerror) == 0) return true;
+    if (nerror == NULL || *((fint*)nerror) == 0)
+        return true;
 
     std::cerr << "Error in an ASL evaluation." << std::endl;
     std::cerr << "nerror = " << *((fint*)nerror) << std::endl;
@@ -335,7 +338,8 @@ void ASL_Repn::alloc_asl()
         std::map<size_t, size_t> invconmap;  // Ignore
         write_nl_problem(model, fname, invvarmap, invconmap);
         std::map<size_t, size_t> tmpvarmap;  // Var ID -> Coek index
-        for (auto& it : used_variables) tmpvarmap[it.second->index] = it.first;
+        for (auto& it : used_variables)
+            tmpvarmap[it.second->index] = it.first;
         for (auto& it : invvarmap)
             varmap[it.first] = tmpvarmap[it.second];  // ASL index -> Coek -> index
     }
@@ -345,18 +349,24 @@ void ASL_Repn::alloc_asl()
     return_nofile = 1;  // A hack to prevent the ASL from calling exit()
     FILE* nlfile = jac0dim(&(fname[0]), static_cast<fint>(fname.length()));
     if (!nlfile) {
-        throw std::runtime_error(
-            "ASL_Repn::alloc_asl - Cannot create ASL interface for model with no variables.");
+        // The model has no variables, but we don't treat this as an error here.
+        nx = 0;
+        return;
     }
+    nx = static_cast<size_t>(n_var);
+    nf = static_cast<size_t>(n_obj);
+    nc = static_cast<size_t>(n_con);
+    nnz_jac_g = static_cast<size_t>(nzc);
+
     //
     // allocate space for data read in by pfgh_read()
     //
-    X0 = new real[n_var];
-    LUv = new real[2 * n_var];
-    // Uvx = new real[n_var];
-    LUrhs = new real[n_con];
-    Urhsx = new real[n_con];
-    havex0 = new char[n_var];
+    X0 = new real[static_cast<size_t>(n_var)];
+    LUv = new real[2 * static_cast<size_t>(n_var)];
+    // Uvx = new real[static_cast<size_t>(n_var)];
+    LUrhs = new real[static_cast<size_t>(n_con)];
+    Urhsx = new real[static_cast<size_t>(n_con)];
+    havex0 = new char[static_cast<size_t>(n_var)];
     //
     // Load model expressions
     //
@@ -364,12 +374,14 @@ void ASL_Repn::alloc_asl()
     //
     // Close and remove the file
     //
-    if (remove_nl_file) remove(fname.c_str());
+    if (remove_nl_file)
+        remove(fname.c_str());
 
     //
     // No errors, so return
     //
-    if ((retcode == ASL_readerr_none) or (retcode == ASL_readerr_nonlin)) return;
+    if ((retcode == ASL_readerr_none) or (retcode == ASL_readerr_nonlin))
+        return;
 
     free_asl();
     if (retcode == ASL_readerr_nofile)
@@ -458,10 +470,10 @@ void ASL_Repn::call_hesset()
     nnz_lag_h = static_cast<size_t>(sphsetup(-1, coeff_obj, mult_supplied, uptri));
 }
 
-bool ASL_Repn::get_option(const std::string& option, std::string& value) const
+bool ASL_Repn::get_option(const std::string& option, bool& value) const
 {
-    if (option == "temp_directory") {
-        value = temp_directory;
+    if (option == "remove_nl_file") {
+        value = remove_nl_file;
         return true;
     }
     return false;
@@ -476,14 +488,31 @@ bool ASL_Repn::get_option(const std::string& option, int& value) const
     return false;
 }
 
-void ASL_Repn::set_option(const std::string& option, const std::string value)
+bool ASL_Repn::get_option(const std::string& option, std::string& value) const
 {
-    if (option == "temp_directory") temp_directory = value;
+    if (option == "temp_directory") {
+        value = temp_directory;
+        return true;
+    }
+    return false;
+}
+
+void ASL_Repn::set_option(const std::string& option, bool value)
+{
+    if (option == "remove_nl_file")
+        remove_nl_file = value;
 }
 
 void ASL_Repn::set_option(const std::string& option, int value)
 {
-    if (option == "remove_nl_file") remove_nl_file = value;
+    if (option == "remove_nl_file")
+        remove_nl_file = (value == 1);
+}
+
+void ASL_Repn::set_option(const std::string& option, const std::string& value)
+{
+    if (option == "temp_directory")
+        temp_directory = value;
 }
 
 }  // namespace coek

@@ -3,6 +3,7 @@
 #include "../ast/compact_terms.hpp"
 #include "../ast/constraint_terms.hpp"
 #include "../ast/expr_terms.hpp"
+#include "../util/cast_utils.hpp"
 #include "coek/api/expression.hpp"
 #include "coek_exprterm.hpp"
 
@@ -11,92 +12,163 @@ namespace coek {
 expr_pointer_t get_concrete_var(VariableRefTerm& varref);
 expr_pointer_t get_concrete_param(ParameterRefTerm& paramref);
 
-namespace visitors {
+namespace convert_expr_visitor {
 
-expr_pointer_t visit_expression(expr_pointer_t expr);
-expr_pointer_t visit(SumExpressionTerm&);
+expr_pointer_t visit_expression(const expr_pointer_t& expr);
+expr_pointer_t visit_SumExpressionTerm(const expr_pointer_t& expr);
 
-expr_pointer_t visit(IndexParameterTerm& arg)
+// ConstantTerm ignored
+
+// ParameterTerm ignored
+
+expr_pointer_t visit_IndexParameterTerm(const expr_pointer_t& expr)
 {
+    auto tmp = safe_pointer_cast<IndexParameterTerm>(expr);
+
     //  TODO - embed this logic in the IndexParameterTerm class
-    if (arg.type == 1)
-        return CREATE_POINTER(ConstantTerm, arg.double_value);
-    else if (arg.type == 2)
-        return CREATE_POINTER(ConstantTerm, arg.int_value);
+    if (tmp->type == 1)
+        return std::make_shared<ConstantTerm>(tmp->double_value);
+    else if (tmp->type == 2)
+        return std::make_shared<ConstantTerm>(tmp->int_value);
     else
         throw std::runtime_error(
             "Unexpected index parameter in an expression being converted, with a non-numeric "
             "value.");
 }
 
-expr_pointer_t visit(VariableRefTerm& arg) { return get_concrete_var(arg); }
-
-expr_pointer_t visit(ParameterRefTerm& arg) { return get_concrete_param(arg); }
-
-expr_pointer_t visit(InequalityTerm& arg)
+expr_pointer_t visit_ParameterRefTerm(const expr_pointer_t& expr)
 {
-    auto lower = arg.lower ? visit_expression(arg.lower) : 0;
-    auto body = visit_expression(arg.body);
-    auto upper = arg.upper ? visit_expression(arg.upper) : 0;
-    return CREATE_POINTER(InequalityTerm, lower, body, upper);
+    auto tmp = safe_pointer_cast<ParameterRefTerm>(expr);
+    return get_concrete_param(*tmp);
 }
 
-expr_pointer_t visit(EqualityTerm& arg)
+expr_pointer_t visit_VariableRefTerm(const expr_pointer_t& expr)
 {
-    auto body = visit_expression(arg.body);
-    auto lower = visit_expression(arg.lower);
-    return CREATE_POINTER(EqualityTerm, body, lower);
+    auto tmp = safe_pointer_cast<VariableRefTerm>(expr);
+    return get_concrete_var(*tmp);
 }
 
-expr_pointer_t visit(ObjectiveTerm& arg)
+expr_pointer_t visit_ObjectiveTerm(const expr_pointer_t& expr)
 {
-    auto body = visit_expression(arg.body);
-    return CREATE_POINTER(ObjectiveTerm, body, arg.sense);
+    auto tmp = safe_pointer_cast<ObjectiveTerm>(expr);
+    auto body = visit_expression(tmp->body);
+    if (body->id() == tmp->id())
+        return expr;
+    return std::make_shared<ObjectiveTerm>(body, tmp->sense);
 }
 
-expr_pointer_t visit(SubExpressionTerm& arg) { return visit_expression(arg.body); }
-
-expr_pointer_t visit(NegateTerm& arg)
+expr_pointer_t visit_InequalityTerm(const expr_pointer_t& expr)
 {
-    auto curr = visit_expression(arg.body);
-    return CREATE_POINTER(NegateTerm, curr);
+    auto tmp = safe_pointer_cast<InequalityTerm>(expr);
+    auto lower = tmp->lower ? visit_expression(tmp->lower) : tmp->lower;
+    auto body = visit_expression(tmp->body);
+    auto upper = tmp->upper ? visit_expression(tmp->upper) : tmp->upper;
+    if ((not tmp->lower or (lower->id() == tmp->lower->id())) and (body->id() == tmp->body->id())
+        and (not tmp->upper or (upper->id() == tmp->upper->id())))
+        return expr;
+    return std::make_shared<InequalityTerm>(lower, body, upper);
 }
 
-expr_pointer_t visit(PlusTerm& arg)
+expr_pointer_t visit_StrictInequalityTerm(const expr_pointer_t& expr)
 {
-    auto lhs = visit_expression((*(arg.data))[0]);
-    auto curr = visit_expression((*(arg.data))[1]);
-    curr = CREATE_POINTER(PlusTerm, lhs, curr, false);
-    if (arg.n == 2) return curr;
+    auto tmp = safe_pointer_cast<StrictInequalityTerm>(expr);
+    auto lower = tmp->lower ? visit_expression(tmp->lower) : tmp->lower;
+    auto body = visit_expression(tmp->body);
+    auto upper = tmp->upper ? visit_expression(tmp->upper) : tmp->upper;
+    if ((not tmp->lower or (lower->id() == tmp->lower->id())) and (body->id() == tmp->body->id())
+        and (not tmp->upper or (upper->id() == tmp->upper->id())))
+        return expr;
+    return std::make_shared<StrictInequalityTerm>(lower, body, upper);
+}
 
-    auto _curr = std::dynamic_pointer_cast<PlusTerm>(curr);
+expr_pointer_t visit_EqualityTerm(const expr_pointer_t& expr)
+{
+    auto tmp = safe_pointer_cast<EqualityTerm>(expr);
+    return std::make_shared<EqualityTerm>(visit_expression(tmp->body),
+                                          visit_expression(tmp->lower));
+}
 
-    for (size_t i = 2; i < arg.num_expressions(); i++) {
-        curr = visit_expression((*(arg.data))[i]);
-        _curr->push_back(curr);
+expr_pointer_t visit_SubExpressionTerm(const expr_pointer_t& expr)
+{
+    auto tmp = safe_pointer_cast<SubExpressionTerm>(expr);
+    return visit_expression(tmp->body);
+}
+
+expr_pointer_t visit_NegateTerm(const expr_pointer_t& expr)
+{
+    auto tmp = safe_pointer_cast<NegateTerm>(expr);
+    auto body = visit_expression(tmp->body);
+    if (body->id() == tmp->body->id())
+        return expr;
+    return std::make_shared<NegateTerm>(body);
+}
+
+expr_pointer_t visit_PlusTerm(const expr_pointer_t& expr)
+{
+    auto tmp = safe_pointer_cast<PlusTerm>(expr);
+
+    auto data = *(tmp->data);
+    auto lhs = visit_expression(data[0]);
+    auto curr = visit_expression(data[1]);
+    if (tmp->n == 2) {
+        if ((lhs->id() == data[0]->id()) and (curr->id() == data[1]->id()))
+            return expr;
+        return std::make_shared<PlusTerm>(lhs, curr, false);
     }
+
+    auto _curr = std::make_shared<PlusTerm>(lhs, curr, false);
+    bool flag = (lhs->id() == data[0]->id()) and (curr->id() == data[1]->id());
+
+    for (size_t i = 2; i < tmp->num_expressions(); i++) {
+        auto curr = visit_expression(data[i]);
+        _curr->push_back(curr);
+        flag = flag and (curr->id() == data[i]->id());
+    }
+    if (flag)
+        return expr;
     return _curr;
 }
 
-expr_pointer_t visit(TimesTerm& arg)
+expr_pointer_t visit_TimesTerm(const expr_pointer_t& expr)
 {
-    auto lhs = visit_expression(arg.lhs);
-    auto rhs = visit_expression(arg.rhs);
-    return CREATE_POINTER(TimesTerm, lhs, rhs);
+    auto tmp = safe_pointer_cast<TimesTerm>(expr);
+    auto lhs = visit_expression(tmp->lhs);
+    auto rhs = visit_expression(tmp->rhs);
+    if ((lhs->id() == tmp->lhs->id()) and (rhs->id() == tmp->rhs->id()))
+        return expr;
+    return std::make_shared<TimesTerm>(lhs, rhs);
 }
 
-expr_pointer_t visit(DivideTerm& arg)
+expr_pointer_t visit_DivideTerm(const expr_pointer_t& expr)
 {
-    auto lhs = visit_expression(arg.lhs);
-    auto rhs = visit_expression(arg.rhs);
-    return CREATE_POINTER(DivideTerm, lhs, rhs);
+    auto tmp = safe_pointer_cast<DivideTerm>(expr);
+    auto lhs = visit_expression(tmp->lhs);
+    auto rhs = visit_expression(tmp->rhs);
+    if ((lhs->id() == tmp->lhs->id()) and (rhs->id() == tmp->rhs->id()))
+        return expr;
+    return std::make_shared<DivideTerm>(lhs, rhs);
 }
 
-#define UNARY_VISITOR(TERM)                     \
-    expr_pointer_t visit(TERM& arg)             \
-    {                                           \
-        auto curr = visit_expression(arg.body); \
-        return CREATE_POINTER(TERM, curr);      \
+expr_pointer_t visit_IfThenElseTerm(const expr_pointer_t& expr)
+{
+    auto tmp = safe_pointer_cast<IfThenElseTerm>(expr);
+    auto cond_expr = visit_expression(tmp->cond_expr);
+    auto then_expr = visit_expression(tmp->then_expr);
+    auto else_expr = visit_expression(tmp->else_expr);
+    if ((cond_expr->id() == tmp->cond_expr->id()) and (then_expr->id() == tmp->then_expr->id())
+        and (else_expr->id() == tmp->else_expr->id()))
+        return expr;
+    return std::make_shared<IfThenElseTerm>(cond_expr, then_expr, else_expr);
+}
+
+#define UNARY_VISITOR(TERM)                                 \
+    expr_pointer_t visit_##TERM(const expr_pointer_t& expr) \
+    {                                                       \
+        auto tmp = safe_pointer_cast<TERM>(expr);           \
+        auto body = visit_expression(tmp->body);            \
+        if (body->id() == tmp->body->id())                  \
+            return expr;                                    \
+        return std::make_shared<TERM>(body);                \
     }
 
 UNARY_VISITOR(AbsTerm)
@@ -119,18 +191,21 @@ UNARY_VISITOR(ASinhTerm)
 UNARY_VISITOR(ACoshTerm)
 UNARY_VISITOR(ATanhTerm)
 
-expr_pointer_t visit(PowTerm& arg)
+expr_pointer_t visit_PowTerm(const expr_pointer_t& expr)
 {
-    auto lhs = visit_expression(arg.lhs);
-    auto rhs = visit_expression(arg.rhs);
-    return CREATE_POINTER(PowTerm, lhs, rhs);
+    auto tmp = safe_pointer_cast<PowTerm>(expr);
+    auto lhs = visit_expression(tmp->lhs);
+    auto rhs = visit_expression(tmp->rhs);
+    if ((lhs->id() == tmp->lhs->id()) and (rhs->id() == tmp->rhs->id()))
+        return expr;
+    return std::make_shared<PowTerm>(lhs, rhs);
 }
 
 #define VISIT_CASE(TERM) \
     case TERM##_id:      \
-        return visit(*std::dynamic_pointer_cast<TERM>(expr));
+        return visit_##TERM(expr);
 
-expr_pointer_t visit_expression(expr_pointer_t expr)
+expr_pointer_t visit_expression(const expr_pointer_t& expr)
 {
     switch (expr->id()) {
         case ConstantTerm_id:
@@ -139,10 +214,15 @@ expr_pointer_t visit_expression(expr_pointer_t expr)
         case MonomialTerm_id:
             return expr;
 
+            // VISIT_CASE(ConstantTerm);
+            // VISIT_CASE(ParameterTerm);
             VISIT_CASE(IndexParameterTerm);
+            // VISIT_CASE(VariableTerm);
             VISIT_CASE(VariableRefTerm);
             VISIT_CASE(ParameterRefTerm);
+            // VISIT_CASE(MonomialTerm);
             VISIT_CASE(InequalityTerm);
+            VISIT_CASE(StrictInequalityTerm);
             VISIT_CASE(EqualityTerm);
             VISIT_CASE(ObjectiveTerm);
             VISIT_CASE(SubExpressionTerm);
@@ -150,6 +230,7 @@ expr_pointer_t visit_expression(expr_pointer_t expr)
             VISIT_CASE(PlusTerm);
             VISIT_CASE(TimesTerm);
             VISIT_CASE(DivideTerm);
+            VISIT_CASE(IfThenElseTerm);
             VISIT_CASE(AbsTerm);
             VISIT_CASE(CeilTerm);
             VISIT_CASE(FloorTerm);
@@ -171,34 +252,36 @@ expr_pointer_t visit_expression(expr_pointer_t expr)
             VISIT_CASE(ATanhTerm);
             VISIT_CASE(PowTerm);
             VISIT_CASE(SumExpressionTerm);
+
+        // GCOVR_EXCL_START
+        default:
+            throw std::runtime_error(
+                "Error in convert_expr or convert_con visitor!  Visiting unexpected expression "
+                "term "
+                + std::to_string(expr->id()));
+            // GCOVR_EXCL_STOP
     };
 
     return 0;
 }
 
-}  // namespace visitors
+}  // namespace convert_expr_visitor
 
-expr_pointer_t convert_expr_template(expr_pointer_t expr)
+expr_pointer_t convert_expr_template(const expr_pointer_t& expr)
 {
-    if (expr == 0) throw std::runtime_error("Unexpected null expression");
+    if (expr == 0)
+        throw std::runtime_error("Unexpected null expression");
 
-    return visitors::visit_expression(expr);
+    return convert_expr_visitor::visit_expression(expr);
 }
 
-std::shared_ptr<ConstraintTerm> convert_con_template(std::shared_ptr<ConstraintTerm> expr)
+std::shared_ptr<ConstraintTerm> convert_con_template(const std::shared_ptr<ConstraintTerm>& expr)
 {
-    if (expr == 0) throw std::runtime_error("Unexpected null constraint");
+    if (expr == 0)
+        throw std::runtime_error("Unexpected null constraint");
 
-    auto curr = visitors::visit_expression(expr->body);
-    if (expr->is_equality()) {
-        auto lower = expr->lower ? visitors::visit_expression(expr->lower) : 0;
-        return CREATE_POINTER(EqualityTerm, curr, lower);
-    }
-    else {
-        auto lower = expr->lower ? visitors::visit_expression(expr->lower) : 0;
-        auto upper = expr->upper ? visitors::visit_expression(expr->upper) : 0;
-        return CREATE_POINTER(InequalityTerm, lower, curr, upper);
-    }
+    auto ans = convert_expr_visitor::visit_expression(expr);
+    return safe_pointer_cast<ConstraintTerm>(ans);
 }
 
 }  // namespace coek

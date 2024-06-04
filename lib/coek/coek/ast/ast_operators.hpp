@@ -13,7 +13,8 @@ namespace coek {
 inline expr_pointer_t plus_(const expr_pointer_t& lhs, const expr_pointer_t& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == ZeroConstant) tmp = rhs;
+    if (lhs == ZeroConstant)
+        tmp = rhs;
     /* WEH - Not seen in practice
     if (rhs == ZEROCONST)
     if (lhs->is_constant() and (lhs->eval() == 0))
@@ -236,17 +237,9 @@ expr_pointer_t times(int lhs, const RHS& rhs)
 inline expr_pointer_t divide_(const expr_pointer_t& lhs, const expr_pointer_t& rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == ZEROCONST)
+    if ((lhs == ZEROCONST)
+        or (lhs->is_constant() and (safe_pointer_cast<ConstantTerm>(lhs)->value == 0)))
         tmp = ZEROCONST;
-    else if (lhs->is_constant() and (safe_pointer_cast<ConstantTerm>(lhs)->value == 0))
-        tmp = ZEROCONST;
-    /* WEH - Not used in practice
-    if (rhs == ONECONST)
-    if (rhs == NEGATIVEONECONST)
-    if (rhs == ZEROCONST)
-    if (rhs->is_constant()) {
-    if (lhs->is_constant() and rhs->is_constant()) {
-    */
     else
         tmp = CREATE_POINTER(DivideTerm, lhs, rhs);
     return tmp;
@@ -261,7 +254,8 @@ expr_pointer_t divide(const LHS& lhs, const RHS& rhs)
 template <typename LHS>
 expr_pointer_t divide(const LHS& lhs, double rhs)
 {
-    if (rhs == 0.0) throw std::domain_error("Division by zero.");
+    if (rhs == 0.0)
+        throw std::domain_error("Division by zero.");
     expr_pointer_t tmp;
     if (rhs == 1.0)
         tmp = lhs;
@@ -284,7 +278,8 @@ expr_pointer_t divide(double lhs, const RHS& rhs)
 template <typename LHS>
 expr_pointer_t divide(const LHS& lhs, int rhs)
 {
-    if (rhs == 0) throw std::domain_error("Division by zero.");
+    if (rhs == 0)
+        throw std::domain_error("Division by zero.");
 
     expr_pointer_t tmp;
     if (rhs == 1)
@@ -400,15 +395,26 @@ inline std::shared_ptr<ConstraintTerm> less_than(const expr_pointer_t& lhs,
                                                  const expr_pointer_t& rhs, bool strict)
 {
     std::shared_ptr<ConstraintTerm> tmp;
-    if (lhs->non_variable)
+    if (lhs->non_variable) {
         // lower=lhs, body=rhs
-        tmp = CREATE_POINTER(InequalityTerm, lhs, rhs, 0, strict);
-    else if (rhs->non_variable)
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, lhs, rhs, 0);
+        else
+            tmp = CREATE_POINTER(InequalityTerm, lhs, rhs, 0);
+    }
+    else if (rhs->non_variable) {
         // body=lhs, upper=rhs
-        tmp = CREATE_POINTER(InequalityTerm, 0, lhs, rhs, strict);
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, 0, lhs, rhs);
+        else
+            tmp = CREATE_POINTER(InequalityTerm, 0, lhs, rhs);
+    }
     else {
         // body=lhs-rhs, upper=ZERO
-        tmp = CREATE_POINTER(InequalityTerm, 0, minus(lhs, rhs), ZEROCONST, strict);
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, 0, minus(lhs, rhs), ZEROCONST);
+        else
+            tmp = CREATE_POINTER(InequalityTerm, 0, minus(lhs, rhs), ZEROCONST);
     }
     return tmp;
 }
@@ -416,40 +422,72 @@ inline std::shared_ptr<ConstraintTerm> less_than(const expr_pointer_t& lhs,
 inline std::shared_ptr<ConstraintTerm> less_than(const expr_pointer_t& lhs, int rhs, bool strict)
 {
     std::shared_ptr<ConstraintTerm> tmp;
-    if (rhs == 0)
-        tmp = CREATE_POINTER(InequalityTerm, 0, lhs, ZEROCONST, strict);
-    else
-        tmp = CREATE_POINTER(InequalityTerm, 0, lhs, CREATE_POINTER(ConstantTerm, rhs), strict);
+    if (rhs == 0) {
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, 0, lhs, ZEROCONST);
+        else
+            tmp = CREATE_POINTER(InequalityTerm, 0, lhs, ZEROCONST);
+    }
+    else {
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, 0, lhs, CREATE_POINTER(ConstantTerm, rhs));
+        else
+            tmp = CREATE_POINTER(InequalityTerm, 0, lhs, CREATE_POINTER(ConstantTerm, rhs));
+    }
     return tmp;
 }
 
 inline std::shared_ptr<ConstraintTerm> less_than(const expr_pointer_t& lhs, double rhs, bool strict)
 {
     std::shared_ptr<ConstraintTerm> tmp;
-    if (rhs == 0.0)
-        tmp = CREATE_POINTER(InequalityTerm, 0, lhs, ZEROCONST, strict);
-    else
-        tmp = CREATE_POINTER(InequalityTerm, 0, lhs, CREATE_POINTER(ConstantTerm, rhs), strict);
+    if (rhs == 0.0) {
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, 0, lhs, ZEROCONST);
+        else
+            tmp = CREATE_POINTER(InequalityTerm, 0, lhs, ZEROCONST);
+    }
+    else {
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, 0, lhs, CREATE_POINTER(ConstantTerm, rhs));
+        else
+            tmp = CREATE_POINTER(InequalityTerm, 0, lhs, CREATE_POINTER(ConstantTerm, rhs));
+    }
     return tmp;
 }
 
 inline std::shared_ptr<ConstraintTerm> less_than(int lhs, const expr_pointer_t& rhs, bool strict)
 {
     std::shared_ptr<ConstraintTerm> tmp;
-    if (lhs == 0)
-        tmp = CREATE_POINTER(InequalityTerm, ZEROCONST, rhs, 0, strict);
-    else
-        tmp = CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, 0, strict);
+    if (lhs == 0) {
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, ZEROCONST, rhs, 0);
+        else
+            tmp = CREATE_POINTER(InequalityTerm, ZEROCONST, rhs, 0);
+    }
+    else {
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, 0);
+        else
+            tmp = CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, 0);
+    }
     return tmp;
 }
 
 inline std::shared_ptr<ConstraintTerm> less_than(double lhs, const expr_pointer_t& rhs, bool strict)
 {
     std::shared_ptr<ConstraintTerm> tmp;
-    if (lhs == 0)
-        tmp = CREATE_POINTER(InequalityTerm, ZEROCONST, rhs, 0, strict);
-    else
-        tmp = CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, 0, strict);
+    if (lhs == 0) {
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, ZEROCONST, rhs, 0);
+        else
+            tmp = CREATE_POINTER(InequalityTerm, ZEROCONST, rhs, 0);
+    }
+    else {
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, 0);
+        else
+            tmp = CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, 0);
+    }
     return tmp;
 }
 
@@ -509,7 +547,7 @@ inline expr_pointer_t if_then_else(const expr_pointer_t& cond_expr, const expr_p
                                    const expr_pointer_t& else_expr)
 {
     if (cond_expr->is_constant()) {
-        if (cond_expr->eval())
+        if (cond_expr->eval() > (1.0 - 1e-7))
             return then_expr;
         else
             return else_expr;

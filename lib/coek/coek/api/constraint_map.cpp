@@ -1,3 +1,4 @@
+#include "coek/api/expression.hpp"
 #ifdef COEK_WITH_COMPACT_MODEL
 #    include "coek/api/constraint.hpp"
 #    include "coek/api/objective.hpp"
@@ -19,14 +20,16 @@ void Model::add_constraint(ConstraintMap& cons)
         cons.generate_names();
     else if (repn->name_generation_policy == Model::NameGeneration::lazy)
         repn->constraint_maps.push_back(cons);
-    for (auto& con : cons.repn->value) add_constraint(con.second);
+    for (auto& con : cons.repn->value)
+        add_constraint(con.second);
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
 void CompactModel::add_constraint(ConstraintMap& cons)
 {
     // TODO - name management here
-    for (auto& con : cons.repn->value) add_constraint(con.second);
+    for (auto& con : cons.repn->value)
+        add_constraint(con.second);
 }
 #endif
 

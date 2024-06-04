@@ -5,10 +5,9 @@
 #include "coek_sets.hpp"
 #include "sequence_context.hpp"
 #include "objective_sequence.hpp"
+#include "visitor_exprtemplate.hpp"
 
 namespace coek {
-
-expr_pointer_t convert_expr_template(expr_pointer_t expr);
 
 //
 // ObjectiveSequenceRepn
@@ -95,16 +94,20 @@ class ObjectiveSeqIteratorRepn {
 
     bool operator==(const ObjectiveSeqIteratorRepn* other) const
     {
-        if (done != other->done) return false;
-        if (done) return true;
+        if (done != other->done)
+            return false;
+        if (done)
+            return true;
         // BAD - Other comparisons here?
         return true;
     }
 
     bool operator!=(const ObjectiveSeqIteratorRepn* other) const
     {
-        if (done == other->done) return false;
-        if (other->done) return true;
+        if (done == other->done)
+            return false;
+        if (other->done)
+            return true;
         // BAD - Other comparisons here?
         return true;
     }

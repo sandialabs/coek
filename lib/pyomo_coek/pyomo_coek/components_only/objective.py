@@ -3,6 +3,7 @@ import logging
 from weakref import ref as weakref_ref
 from typing import overload
 
+import pyomo.environ as pyo
 from pyomo.common.log import is_debug_set
 from pyomo.common.modeling import NOTSET
 from pyomo.common.deprecation import RenamedClass
@@ -63,7 +64,9 @@ class _GeneralObjectiveData(ActiveComponentData):
     def set_value(self, expr):
         if expr is None:
             raise ValueError(_rule_returned_none_error % (self.name,))
-        if expr.is_variable_type():
+        elif type(expr) in [int, float]:
+            self._pe = expr
+        elif expr.is_variable_type():
             self._pe = expr._pe
         else:
             self._pe = expr
@@ -174,7 +177,7 @@ class Objective(ActiveIndexedComponent):
                 "Duplicate initialization: Objective() only " "accepts one of 'rule=' and 'expr='"
             )
 
-        kwargs.setdefault("ctype", Objective)
+        kwargs.setdefault("ctype", pyo.Objective)
         ActiveIndexedComponent.__init__(self, *args, **kwargs)
 
         self.rule = Initializer(_init)
@@ -308,6 +311,23 @@ class ScalarObjective(_GeneralObjectiveData, Objective):
         _GeneralObjectiveData.__init__(self, expr=None, component=self)
         Objective.__init__(self, *args, **kwd)
         self._index = UnindexedComponent_index
+
+    def __call__(self, exception=True):
+        if self._constructed:
+            if len(self._data) == 0:
+                raise ValueError(
+                    "Evaluating the expression of ScalarObjective "
+                    "'%s' before the Objective has been assigned "
+                    "a sense or expression (there is currently "
+                    "no value to return)." % (self.name)
+                )
+            # WEH - What does fget do???
+            return value(_GeneralObjectiveData.expr.fget(self))
+        raise ValueError(
+            "Evaluating the expression of objective '%s' "
+            "before the Objective has been constructed (there "
+            "is currently no value to return)." % (self.name)
+        )
 
     #
     # Since this class derives from Component and

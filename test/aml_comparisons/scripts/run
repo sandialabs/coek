@@ -125,6 +125,7 @@ def test_writer(
         os.mkdir("results/writer/" + subdir)
 
     print("")
+    print("")
     print("TESTING ARGUMENTS")
     print("  test_type:  " + test_type)
     print("  models:     " + " ".join(models))
@@ -133,7 +134,6 @@ def test_writer(
     print("  subdir:     " + subdir)
     print("  timeout:    " + str(timeout))
     print("  ntrials:    " + str(ntrials))
-    print("")
 
     for model in models:
         config_name = None
@@ -208,8 +208,8 @@ def test_writer(
                             )
                         else:
                             print(
-                                ". ERROR {}: rc={} output='{}'".format(
-                                    timefile, p.returncode, results
+                                ". ERROR (test_writer) {}:\n\tcmd={} rc={} output='{}'".format(
+                                    timefile, " ".join(run), p.returncode, results
                                 )
                             )
                             if os.path.exists(timefile):
@@ -218,7 +218,7 @@ def test_writer(
                     except subprocess.TimeoutExpired:
                         os.killpg(os.getpgid(p.pid), signal.SIGTERM)
                         errors.append(timefile)
-                        print(". TIMEOUT {} cmd={}".format(timefile, " ".join(run)))
+                        print(". TIMEOUT (test_writer) {} cmd={}".format(timefile, " ".join(run)))
                         with open(timefile, "w") as OUTPUT:
                             OUTPUT.write("timeout {}".format(timeout))
 
@@ -242,6 +242,7 @@ def test_solve0(
         os.mkdir("results/solve0/" + subdir)
 
     print("")
+    print("")
     print("TESTING ARGUMENTS")
     print("  test_type:  " + test_type)
     print("  models:     " + " ".join(models))
@@ -250,7 +251,6 @@ def test_solve0(
     print("  subdir:     " + subdir)
     print("  timeout:    " + str(timeout))
     print("  ntrials:    " + str(ntrials))
-    print("")
 
     for model in models:
         config_name = None
@@ -313,14 +313,14 @@ def test_solve0(
                         if p.returncode == 0:
                             print(". OK {}: rc={}".format(timefile, p.returncode))
                         else:
-                            print(". ERROR {}: rc={}".format(timefile, p.returncode))
+                            print(". ERROR (test_solve0) {}:\n\tcmd={} rc={}".format(timefile, " ".join(run), p.returncode))
                             if os.path.exists(timefile):
                                 os.remove(timefile)
                             errors.append(timefile)
                     except subprocess.TimeoutExpired:
                         os.killpg(os.getpgid(p.pid), signal.SIGTERM)
                         errors.append(timefile)
-                        print(". TIMEOUT {} cmd={}".format(timefile, " ".join(run)))
+                        print(". TIMEOUT (test_solve0) {} cmd={}".format(timefile, " ".join(run)))
                         with open(timefile, "w") as OUTPUT:
                             OUTPUT.write("timeout {}".format(timeout))
 
@@ -337,22 +337,10 @@ if __name__ == "__main__":
     else:
         ntrials = 1
 
-    build_dir = None
-    if os.path.exists("coek/coek_writer"):
-        build_dir = "."
-    elif os.path.exists(
-        os.path.join(currdir, "../../../build/test/aml_comparisons/coek/coek_writer")
-    ):
-        build_dir = os.path.join(currdir, "../../../build")
-    if build_dir is None:
-        print("Cannot find Coek build directory")
-        print(
-            os.path.join(
-                currdir, "../../../build/test/aml_comparisons/coek/coek_writer"
-            )
-        )
+    if not os.path.exists("test/aml_comparisons/coek/coek_writer"):
+        print("Must execute 'run' in the coek build directory")
         sys.exit(1)
-    build_dir = os.path.abspath(build_dir)
+    build_dir = os.path.abspath(".")
 
     errors = []
 
@@ -363,6 +351,15 @@ if __name__ == "__main__":
             solvers=["gurobi"],
             executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_solve0"),
             subdir="coek",
+            ntrials=ntrials,
+            errors=errors,
+        )
+        test_solve0(
+            test_type="small",
+            models=all_gurobi_models,
+            solvers=["gurobi"],
+            executable=os.path.join(build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"),
+            subdir="gurobi",
             ntrials=ntrials,
             errors=errors,
         )

@@ -21,15 +21,18 @@ void knapsack_scalar(coek::Model& model, size_t N)
     }
 
     std::vector<coek::Variable> x(N);
-    for (size_t n = 0; n < N; n++) model.add(x[n].bounds(0, 1).value(0));
+    for (size_t n = 0; n < N; n++)
+        model.add(x[n].bounds(0, 1).value(0));
 
     // obj
     coek::Expression obj;
-    for (size_t n = 0; n < N; n++) obj += v[n] * x[n];
+    for (size_t n = 0; n < N; n++)
+        obj += v[n] * x[n];
     model.add_objective(obj);
 
     // con
     coek::Expression con;
-    for (size_t n = 0; n < N; n++) con += w[n] * x[n];
+    for (size_t n = 0; n < N; n++)
+        con += w[n] * x[n];
     model.add(con <= W);
 }

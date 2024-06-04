@@ -92,14 +92,15 @@ class RangeSet : public IndexSet {
     unsigned int N;
 
    public:
-    RangeSet(unsigned int _N, std::shared_ptr<IndexVariable> i) : N(_N) { index.push_back(i); }
+    RangeSet(unsigned int N_, std::shared_ptr<IndexVariable> i) : N(N_) { index.push_back(i); }
 
     void reset() { i = 0; }
 
     bool next()
     {
         i++;
-        if (i == N) return false;
+        if (i == N)
+            return false;
         index[0]->set_value(i);
         return true;
     }

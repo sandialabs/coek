@@ -1,13 +1,12 @@
 #include "constraint_sequence.hpp"
 
-#include "coek/api/constraint.hpp"
 #include "coek/api/expression.hpp"
+#include "coek/api/constraint.hpp"
 #include "coek_sets.hpp"
 #include "sequence_context.hpp"
+#include "visitor_exprtemplate.hpp"
 
 namespace coek {
-
-std::shared_ptr<ConstraintTerm> convert_con_template(std::shared_ptr<ConstraintTerm> expr);
 
 //
 // ConstraintSequenceRepn
@@ -88,16 +87,20 @@ class ConstraintSeqIteratorRepn {
 
     bool operator==(const ConstraintSeqIteratorRepn* other) const
     {
-        if (done != other->done) return false;
-        if (done) return true;
+        if (done != other->done)
+            return false;
+        if (done)
+            return true;
         // BAD - Other comparisons here?
         return true;
     }
 
     bool operator!=(const ConstraintSeqIteratorRepn* other) const
     {
-        if (done == other->done) return false;
-        if (other->done) return true;
+        if (done == other->done)
+            return false;
+        if (other->done)
+            return true;
         // BAD - Other comparisons here?
         return true;
     }

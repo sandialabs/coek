@@ -4,6 +4,8 @@
 SET(sources
     util/index_vector.cpp
     util/option_cache.cpp
+    util/tictoc.cpp
+    util/string_utils.cpp
     ast/base_terms.cpp
     ast/constraint_terms.cpp
     ast/value_terms.cpp
@@ -30,8 +32,10 @@ SET(sources
     model/writer_lp.cpp
     model/writer_nl.cpp
     model/reader_jpof.cpp
+    solvers/solver_results.cpp
     solvers/solver.cpp
     solvers/solver_repn.cpp
+    solvers/create_solver.cpp
     solvers/testsolver.cpp
     autograd/autograd.cpp
     abstract/expr_rule.cpp
@@ -45,6 +49,7 @@ if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
         api/variable_array.cpp
         api/constraint_map.cpp
         api/subexpression_map.cpp
+        util/DataPortal.cpp
         )
 endif()
 
@@ -64,12 +69,19 @@ if(with_compact)
         )
 endif()
 
+# Dynamic linking options
+list(APPEND sources util/loadlib.cpp)
+if(WIN32)
+else()
+    list(APPEND coek_compile_options -DUSING_DL)
+    list(APPEND coek_link_libraries dl)
+endif()
+
 # fmtlib LIBRARY
 if(with_fmtlib)
     find_package(fmt REQUIRED)
     list(APPEND coek_compile_options -DWITH_FMTLIB -Wextra -Wconversion -Wpedantic -Wsign-conversion)
     list(APPEND coek_link_libraries fmt::fmt)
-    list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
 # Caliper LIBRARY
@@ -83,7 +95,7 @@ endif()
 if(with_rapidjson)
     find_package(RapidJSON REQUIRED)
     list(APPEND coek_compile_options -DWITH_RAPIDJSON)
-    list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
+    #list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
 # gcov
@@ -108,25 +120,29 @@ endif()
 
 # CppAD LIBRARY
 if(with_cppad)
+    find_package(CppAD REQUIRED)
     list(APPEND sources
                 autograd/cppad_repn.cpp)
     list(APPEND coek_compile_options "-DWITH_CPPAD")
-    list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
+    list(APPEND coek_link_libraries ${CPPAD_LIBRARIES})
+    #list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
 # ASL LIBRARY
 if(with_asl)
+    find_package(ampl-asl REQUIRED)
     list(APPEND sources
                 autograd/asl_repn.cpp)
     list(APPEND coek_compile_options "-DWITH_ASL")
-    list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include/asl)
-    list(APPEND coek_link_directories ${CMAKE_INSTALL_PREFIX}/lib)
+    #list(APPEND coek_include_directories ${CMAKE_INSTALL_PREFIX}/include/asl)
+    #list(APPEND coek_link_directories ${CMAKE_INSTALL_PREFIX}/lib)
     if (${with_openmp})
-        list(APPEND coek_link_libraries asl-mt)
+        get_property(asllib TARGET asl-mt PROPERTY IMPORTED_LOCATION_RELEASE)
         list(APPEND coek_link_libraries OpenMP::OpenMP_CXX)
     else()
-        list(APPEND coek_link_libraries asl)
+        get_property(asllib TARGET asl PROPERTY IMPORTED_LOCATION_RELEASE)
     endif()
+    list(APPEND coek_link_libraries ${asllib})
 endif()
 
 #
@@ -139,27 +155,25 @@ endif()
 if(with_gurobi)
     list(APPEND sources
                 solvers/gurobi/gurobi.cpp)
-    #if(NOT "$ENV{GUROBI_HOME}" STREQUAL "")
-    #    MESSAGE("-- GUROBI_HOME $ENV{GUROBI_HOME}")
-    #    list(APPEND coek_link_directories $ENV{GUROBI_HOME}/lib)
-    #else()
-    #    MESSAGE("-- GUROBI_HOME Not provided")
-    #endif()
     list(APPEND coek_compile_options -DWITH_GUROBI)
     list(APPEND coek_link_libraries ${GUROBI_CXX_LIBRARY} ${GUROBI_LIBRARY})
     list(APPEND coek_include_directories ${GUROBI_INCLUDE_DIRS})
-#gurobi_g++5.2 gurobi90)
+endif()
+
+#
+# HIGHS LIBRARY
+#
+if(with_highs)
+    find_package(highs REQUIRED)
+    list(APPEND sources
+                solvers/highs/highs.cpp)
+    list(APPEND coek_compile_options -DWITH_HIGHS)
+    list(APPEND coek_link_libraries highs::highs)
 endif()
 
 #
 # IPOPT LIBRARY
 #
-if(WIN32)
-else()
-    list(APPEND coek_compile_options -DUSING_DL)
-    list(APPEND coek_link_libraries dl)
-endif()
-list(APPEND sources solvers/loadlib.cpp)
 list(APPEND sources
         solvers/ipopt/ipopt_capi.cpp
         solvers/ipopt/ipopt_solver.cpp)
@@ -177,7 +191,7 @@ list(APPEND sources
 # Build object library
 #
 # this is the "object library" target: compiles the sources only once
-if (build_shared_libs)
+if (BUILD_SHARED_LIBS)
     add_library(coek SHARED ${sources})
     message("-- Building shared libcoek library")
     set_target_properties(coek PROPERTIES POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
@@ -194,10 +208,10 @@ target_include_directories(coek
                            "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
                            )
 target_include_directories(coek
-                           PUBLIC
+                           PRIVATE
                            ${coek_include_directories})
-target_link_libraries(coek PUBLIC ${coek_link_libraries})
-target_link_directories(coek PUBLIC ${coek_link_directories})
+target_link_libraries(coek PRIVATE ${coek_link_libraries})
+target_link_directories(coek PRIVATE ${coek_link_directories})
 set_property(TARGET coek PROPERTY INTERFACE_LINK_LIBRARIES ${coek_link_libraries})
 
 #if (WIN32)
@@ -228,6 +242,9 @@ install(FILES
         util/template_utils.hpp
         util/sequence.hpp
         util/option_cache.hpp
+        util/DataPortal.hpp
+        util/tictoc.hpp
+        util/io_utils.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/util
         )
 install(FILES
@@ -235,6 +252,7 @@ install(FILES
         api/subexpression_map.hpp
         api/constants.hpp
         api/constraint.hpp
+        api/exceptions.hpp
         api/expression.hpp
         api/expression_visitor.hpp
         api/intrinsic_fn.hpp
@@ -266,6 +284,7 @@ install(FILES
         )
 install(FILES
         solvers/solver.hpp
+        solvers/solver_results.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/solvers
         )
 

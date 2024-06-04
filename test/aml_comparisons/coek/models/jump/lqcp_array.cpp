@@ -20,8 +20,8 @@ void lqcp_array(coek::Model& model, size_t n)
     // double h2 = dx*dx;
     double a = 0.001;
 
-    auto y = model.add(coek::variable("y", {m + 1, n + 1})).bounds(0, 1).value(0);
-    auto u = model.add(coek::variable("u", m + 1)).bounds(-1, 1).value(0);
+    auto y = model.add(coek::variable("y", {m + 1, n + 1}).bounds(0, 1).value(0));
+    auto u = model.add(coek::variable("u", m + 1).bounds(-1, 1).value(0));
 
     // OBJECTIVE
     // First term
@@ -33,7 +33,8 @@ void lqcp_array(coek::Model& model, size_t n)
 
     // Second term
     auto term2 = coek::expression();
-    for (size_t i : coek::sequence<size_t>(1, m - 1)) term2 += 2 * u(i) * u(i);
+    for (size_t i : coek::sequence<size_t>(1, m - 1))
+        term2 += 2 * u(i) * u(i);
     term2 += u(m) * u(m);
 
     model.add_objective(0.25 * dx * term1 + 0.25 * a * dt * term2);
@@ -51,12 +52,14 @@ void lqcp_array(coek::Model& model, size_t n)
 
     // IC
     auto ic = coek::constraint("ic", n + 1);
-    for (size_t j : coek::sequence<size_t>(0, n)) ic(j) = y(0, j) == 0;
+    for (size_t j : coek::sequence<size_t>(0, n))
+        ic(j) = y(0, j) == 0;
     model.add(ic);
 
     // BC
     auto bc1 = coek::constraint("bc1", m + 1);
-    for (size_t i : coek::sequence<size_t>(1, m)) bc1(i) = y(i, 2) - 4 * y(i, 1) + 3 * y(i, 0) == 0;
+    for (size_t i : coek::sequence<size_t>(1, m))
+        bc1(i) = y(i, 2) - 4 * y(i, 1) + 3 * y(i, 0) == 0;
     model.add(bc1);
 
     auto bc2 = coek::constraint("bc2", m + 1);

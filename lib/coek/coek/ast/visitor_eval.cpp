@@ -5,7 +5,7 @@
 #include "visitor.hpp"
 #include "visitor_fns.hpp"
 #include "../util/cast_utils.hpp"
-#if __cpp_lib_variant
+#ifdef COEK_WITH_COMPACT_MODEL
 #    include "compact_terms.hpp"
 #endif
 
@@ -93,6 +93,7 @@ double visit_MonomialTerm(const expr_pointer_t& expr, VariableData& data)
 
 // clang-format off
 FROM_BODY(InequalityTerm)
+FROM_BODY(StrictInequalityTerm)
 FROM_BODY(EqualityTerm)
 FROM_BODY(ObjectiveTerm)
 // clang-format on
@@ -122,7 +123,8 @@ double visit_PlusTerm(const expr_pointer_t& expr, VariableData& data)
     auto& vec = *(tmp->data);
     auto n = tmp->num_expressions();
     double value = 0.0;
-    for (size_t i = 0; i < n; i++) value += visit_expression(vec[i], data);
+    for (size_t i = 0; i < n; i++)
+        value += visit_expression(vec[i], data);
     return value;
 }
 
@@ -130,7 +132,8 @@ double visit_TimesTerm(const expr_pointer_t& expr, VariableData& data)
 {
     auto tmp = safe_pointer_cast<TimesTerm>(expr);
     double lhs = visit_expression(tmp->lhs, data);
-    if (lhs == 0.0) return 0.0;
+    if (lhs == 0.0)
+        return 0.0;
     return lhs * visit_expression(tmp->rhs, data);
 }
 
@@ -138,14 +141,15 @@ double visit_DivideTerm(const expr_pointer_t& expr, VariableData& data)
 {
     auto tmp = safe_pointer_cast<DivideTerm>(expr);
     double lhs = visit_expression(tmp->lhs, data);
-    if (lhs == 0.0) return 0.0;
+    if (lhs == 0.0)
+        return 0.0;
     return lhs / visit_expression(tmp->rhs, data);
 }
 
 double visit_IfThenElseTerm(const expr_pointer_t& expr, VariableData& data)
 {
     auto tmp = safe_pointer_cast<IfThenElseTerm>(expr);
-    if (visit_expression(tmp->cond_expr, data))
+    if (visit_expression(tmp->cond_expr, data) > (1.0 - 1e-7))
         return visit_expression(tmp->then_expr, data);
     else
         return visit_expression(tmp->else_expr, data);
@@ -204,6 +208,7 @@ double visit_expression(const expr_pointer_t& expr, VariableData& data)
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
+        VISIT_CASE(StrictInequalityTerm);
         VISIT_CASE(EqualityTerm);
         VISIT_CASE(ObjectiveTerm);
         VISIT_CASE(SubExpressionTerm);
@@ -251,7 +256,8 @@ double evaluate_expr_debug(const expr_pointer_t& expr,
 {
     num_visits = 0;
     // GCOVR_EXCL_START
-    if (not expr) return 0.0;
+    if (not expr)
+        return 0.0;
     // GCOVR_EXCL_STOP
 
     VariableData data(subexpr_value);
@@ -265,7 +271,8 @@ double evaluate_expr(const expr_pointer_t& expr,
                      std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value)
 {
     // GCOVR_EXCL_START
-    if (not expr) return 0.0;
+    if (not expr)
+        return 0.0;
     // GCOVR_EXCL_STOP
 
     VariableData data(subexpr_value);
@@ -275,7 +282,8 @@ double evaluate_expr(const expr_pointer_t& expr,
 double evaluate_expr(const expr_pointer_t& expr)
 {
     // GCOVR_EXCL_START
-    if (not expr) return 0.0;
+    if (not expr)
+        return 0.0;
     // GCOVR_EXCL_STOP
 
     std::map<std::shared_ptr<SubExpressionTerm>, double> subexpr_value;
@@ -287,7 +295,8 @@ double evaluate_expr(const BaseExpressionTerm* expr,
                      std::map<std::shared_ptr<SubExpressionTerm>, double>& subexpr_value)
 {
     // GCOVR_EXCL_START
-    if (not expr) return 0.0;
+    if (not expr)
+        return 0.0;
     // GCOVR_EXCL_STOP
 
     struct DeleterFunc {

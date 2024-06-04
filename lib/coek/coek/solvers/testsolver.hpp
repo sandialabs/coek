@@ -8,10 +8,10 @@ class TestSolver : public SolverRepn {
    public:
     TestSolver() : SolverRepn() {}
 
-    int resolve();
-    int solve(Model&);
+    std::shared_ptr<SolverResults> resolve();
+    std::shared_ptr<SolverResults> solve(Model&);
 #ifdef COEK_WITH_COMPACT_MODEL
-    int solve(CompactModel&);
+    std::shared_ptr<SolverResults> solve(CompactModel&);
 #endif
 };
 

@@ -1,13 +1,13 @@
 #include "expression_sequence.hpp"
 
+#include "coek/util/cast_utils.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/compact/coek_exprterm.hpp"
 #include "coek_sets.hpp"
 #include "sequence_context.hpp"
+#include "visitor_exprtemplate.hpp"
 
 namespace coek {
-
-expr_pointer_t convert_expr_template(expr_pointer_t expr);
 
 //
 // ExpressionSequenceRepn
@@ -81,16 +81,20 @@ class ExpressionSeqIteratorRepn {
 
     bool operator==(const ExpressionSeqIteratorRepn* other) const
     {
-        if (done != other->done) return false;
-        if (done) return true;
+        if (done != other->done)
+            return false;
+        if (done)
+            return true;
         // BAD - Other comparisons here?
         return true;
     }
 
     bool operator!=(const ExpressionSeqIteratorRepn* other) const
     {
-        if (done == other->done) return false;
-        if (other->done) return true;
+        if (done == other->done)
+            return false;
+        if (other->done)
+            return true;
         // BAD - Other comparisons here?
         return true;
     }
@@ -175,12 +179,13 @@ const ExpressionSeqIterator ExpressionSequence::end() const
     return ExpressionSeqIterator(repn.get(), true);
 }
 
-namespace visitors {
+namespace convert_expr_visitor {
 
-expr_pointer_t visit(SumExpressionTerm& arg)
+expr_pointer_t visit_SumExpressionTerm(const expr_pointer_t& expr)
 {
-    auto it = arg.seq.begin();
-    if (it == arg.seq.end()) {
+    auto tmp = safe_pointer_cast<SumExpressionTerm>(expr);
+    auto it = tmp->seq.begin();
+    if (it == tmp->seq.end()) {
         return ZEROCONST;
     }
 
@@ -188,7 +193,7 @@ expr_pointer_t visit(SumExpressionTerm& arg)
     {
         Expression e = *it;
         ++it;
-        for (; it != arg.seq.end(); ++it) {
+        for (; it != tmp->seq.end(); ++it) {
             e += *it;
         }
         curr = e.repn;
@@ -196,7 +201,7 @@ expr_pointer_t visit(SumExpressionTerm& arg)
     return curr;
 }
 
-}  // namespace visitors
+}  // namespace convert_expr_visitor
 
 //
 // Sum

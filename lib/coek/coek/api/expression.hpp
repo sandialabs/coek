@@ -241,6 +241,8 @@ class Variable {
     Variable& fixed(bool flag);
     /** Set the variable value and declare the variable fixed. \returns the variable object. */
     Variable& fix(double value);
+    /** Set the variable value and declare the variable fixed. \returns the variable object. */
+    Variable& fix();
     /** \returns \c true if the variable is fixed */
     bool fixed() const;
 
@@ -261,7 +263,7 @@ class Variable {
     bool is_integer() const;
 
     /** \returns the unique integer variable ID */
-    unsigned int id() const;
+    size_t id() const;
 
     /** \returns \c false because this is not a constant expression */
     bool is_constant() const { return false; }
