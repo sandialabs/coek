@@ -1,4 +1,8 @@
+from typing import overload
+
 import poek as pk
+
+import pyomo.environ as pyo
 from pyomo.core.base.component import ComponentData, ModelComponentFactory
 from pyomo.common.modeling import NOTSET
 from pyomo.core.staleflag import StaleFlagManager
@@ -17,6 +21,8 @@ from pyomo.core.base.set import Binary, Reals, Integers, Any, GlobalSetBase
 from pyomo.common.collections import ComponentMap
 from weakref import ref as weakref_ref
 from pyomo.common.deprecation import deprecation_warning
+from pyomo.core.expr import current as EXPR
+from pyomo.core.expr.numvalue import NumericValue
 from pyomo.core.expr.numvalue import native_types
 import types
 from pyomo.core.base.misc import apply_indexed_rule, apply_parameterized_indexed_rule
@@ -39,18 +45,20 @@ _rev_domain_map[pk.VariableTypes.Integers] = Integers
 
 class _GeneralVarData(ComponentData):
 
-    __slots__ = ("_stale", "_pe")
+    __slots__ = ("_stale", "_pe", "_is_none")
 
     def __init__(self, component=None):
         super().__init__(component=component)
         self._stale = 0  # True
         self._pe = pk.variable_single()
+        self._is_none = True
 
     @classmethod
     def copy(cls, src, poek_var, index):
         self = cls.__new__(cls)
         self._component = src._component
         self._pe = poek_var
+        self._is_none = src._is_none
         self._stale = src._stale
         self._index = index
         return self
@@ -143,11 +151,17 @@ class _GeneralVarData(ComponentData):
         self._stale = StaleFlagManager.get_flag(self._stale)
 
     def set_value(self, val, skip_validation=False):
+        if val is None:
+            self._is_none = True
+            return
+        self._is_none = False
         self._pe.value = val
         self._stale = StaleFlagManager.get_flag(self._stale)
 
     @property
     def value(self):
+        if self._is_none:
+            return None
         return self._pe.value
 
     @value.setter
@@ -292,7 +306,7 @@ class Var(IndexedComponent):
 
     def __init__(self, *args, **kwargs):
         self._rule_init = Initializer(
-            self._pop_from_kwargs("Var", kwargs, ("rule", "initialize"), 0)
+            self._pop_from_kwargs("Var", kwargs, ("rule", "initialize"), None)
         )
         self._rule_domain = Initializer(
             self._pop_from_kwargs("Var", kwargs, ("domain", "within"), Reals)
@@ -303,7 +317,7 @@ class Var(IndexedComponent):
         if self._units is not None:
             self._units = units.get_units(self._units)
 
-        kwargs.setdefault("ctype", Var)
+        kwargs.setdefault("ctype", pyo.Var)
         IndexedComponent.__init__(self, *args, **kwargs)
 
         if self.is_indexed():
@@ -818,14 +832,14 @@ class Param(IndexedComponent):
         self.domain = self._pop_from_kwargs("Param", kwd, ("domain", "within"))
         self._validate = kwd.pop("validate", None)
         self._mutable = kwd.pop("mutable", Param.DefaultMutable)
-        self._default_val = kwd.pop("default", 0)
+        self._default_val = kwd.pop("default", None)
         self._dense_initialize = kwd.pop("initialize_as_dense", False)
         self._units = kwd.pop("units", None)
         if self._units is not None:
             self._units = units.get_units(self._units)
             self._mutable = True
 
-        kwd.setdefault("ctype", Param)
+        kwd.setdefault("ctype", pyo.Param)
         IndexedComponent.__init__(self, *args, **kwd)
 
         if self.domain is None:
@@ -1347,8 +1361,8 @@ class Param(IndexedComponent):
 
 class ScalarParam(_ParamData, Param):
     def __init__(self, *args, **kwds):
-        Param.__init__(self, *args, **kwds)
         _ParamData.__init__(self, component=self)
+        Param.__init__(self, *args, **kwds)
         self._index = UnindexedComponent_index
 
     #
@@ -1917,6 +1931,8 @@ _other_operand_map[_GeneralVarData] = _get_other_operand_var
 _other_operand_map[ScalarVar] = _get_other_operand_var
 _other_operand_map[_ParamData] = _get_other_operand_var
 _other_operand_map[ScalarParam] = _get_other_operand_var
+_other_operand_map[_GeneralExpressionData] = _get_other_operand_var
+_other_operand_map[ScalarExpression] = _get_other_operand_var
 _other_operand_map[pk.expression] = _get_other_operand_poek_expr
 
 
@@ -1943,6 +1959,8 @@ _var_pow_map[_GeneralVarData] = _get_var_pow_func_var
 _var_pow_map[ScalarVar] = _get_var_pow_func_var
 _var_pow_map[_ParamData] = _get_var_pow_func_param
 _var_pow_map[ScalarParam] = _get_var_pow_func_param
+_var_pow_map[_GeneralExpressionData] = _get_var_pow_func_var
+_var_pow_map[ScalarExpression] = _get_var_pow_func_var
 _var_pow_map[pk.expression] = _get_var_pow_func_expr
 
 
@@ -1969,4 +1987,6 @@ _var_eq_map[_GeneralVarData] = _get_var_eq_func_var
 _var_eq_map[ScalarVar] = _get_var_eq_func_var
 _var_eq_map[_ParamData] = _get_var_eq_func_param
 _var_eq_map[ScalarParam] = _get_var_eq_func_param
+_var_eq_map[_GeneralExpressionData] = _get_var_eq_func_var
+_var_eq_map[ScalarExpression] = _get_var_eq_func_var
 _var_eq_map[pk.expression] = _get_var_eq_func_expr

@@ -361,9 +361,20 @@ TEST_CASE("elementary_constraint", "[smoke]")
         WHEN("v < v")
         {
             auto e = v < v;
-            static std::list<std::string> baseline = {
-                "[", "<", "-Inf", "[", "+", "v", "[", "*", "-1", "v", "]", "]", std::to_string(0.0),
-                "]"};
+            static std::list<std::string> baseline = {"[",
+                                                      "<",
+                                                      "-Inf",
+                                                      "[",
+                                                      "+",
+                                                      "v",
+                                                      "[",
+                                                      "*",
+                                                      std::to_string(-1.0),
+                                                      "v",
+                                                      "]",
+                                                      "]",
+                                                      std::to_string(0.0),
+                                                      "]"};
             REQUIRE(e.to_list() == baseline);
         }
 
@@ -669,7 +680,7 @@ TEST_CASE("elementary_constraint", "[smoke]")
                                                       "v",
                                                       "[",
                                                       "*",
-                                                      "-1",
+                                                      std::to_string(-1.0),
                                                       "v",
                                                       "]",
                                                       "]",
@@ -934,8 +945,10 @@ TEST_CASE("elementary_constraint", "[smoke]")
         WHEN("v == v")
         {
             auto e = v == v;
-            static std::list<std::string> baseline = {
-                "[", "==", "[", "+", "v", "[", "*", "-1", "v", "]", "]", std::to_string(0.0), "]"};
+            static std::list<std::string> baseline = {"[", "==", "[", "+",
+                                                      "v", "[",  "*", std::to_string(-1.0),
+                                                      "v", "]",  "]", std::to_string(0.0),
+                                                      "]"};
             REQUIRE(e.to_list() == baseline);
         }
 
@@ -1185,9 +1198,20 @@ TEST_CASE("elementary_constraint", "[smoke]")
         WHEN("v > v")
         {
             auto e = v > v;
-            static std::list<std::string> baseline = {
-                "[", "<", "-Inf", "[", "+", "v", "[", "*", "-1", "v", "]", "]", std::to_string(0.0),
-                "]"};
+            static std::list<std::string> baseline = {"[",
+                                                      "<",
+                                                      "-Inf",
+                                                      "[",
+                                                      "+",
+                                                      "v",
+                                                      "[",
+                                                      "*",
+                                                      std::to_string(-1.0),
+                                                      "v",
+                                                      "]",
+                                                      "]",
+                                                      std::to_string(0.0),
+                                                      "]"};
             REQUIRE(e.to_list() == baseline);
         }
 
@@ -1445,7 +1469,7 @@ TEST_CASE("elementary_constraint", "[smoke]")
                                                       "v",
                                                       "[",
                                                       "*",
-                                                      "-1",
+                                                      std::to_string(-1.0),
                                                       "v",
                                                       "]",
                                                       "]",
