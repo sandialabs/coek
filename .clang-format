@@ -2,7 +2,7 @@
   BasedOnStyle: Google
   AlignTrailingComments: 'true'
   AllowAllArgumentsOnNextLine: 'true'
-  AllowAllParametersOfDeclarationOnNextLine: 'true'
+  AllowAllParametersOfDeclarationOnNextLine: 'false'
   AllowShortLoopsOnASingleLine : 'false'
   AllowShortIfStatementsOnASingleLine: 'false'
   AlwaysBreakTemplateDeclarations: 'Yes'

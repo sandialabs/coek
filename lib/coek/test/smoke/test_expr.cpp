@@ -152,7 +152,7 @@ TEST_CASE("model_monomial", "[smoke]")
     {
         auto v = coek::variable("v").lower(0).upper(0).value(0);
         coek::Expression e = 2 * v;
-        static std::list<std::string> baseline = {"[", "*", std::to_string(2.0), "v", "]"};
+        static std::list<std::string> baseline = {"[", "*", "2", "v", "]"};
         REQUIRE(e.to_list() == baseline);
     }
 
@@ -186,7 +186,7 @@ TEST_CASE("model_monomial", "[smoke]")
     {
         auto v = coek::variable("v").lower(0).upper(0).value(0);
         coek::Expression e = 2.0 * v;
-        static std::list<std::string> baseline = {"[", "*", std::to_string(2.0), "v", "]"};
+        static std::list<std::string> baseline = {"[", "*", "2", "v", "]"};
         REQUIRE(e.to_list() == baseline);
     }
 
@@ -838,7 +838,7 @@ TEST_CASE("model_unary_expression", "[smoke]")
             auto v = coek::variable("v").lower(0).upper(1).value(2);
             coek::Expression e;
             e = -v;
-            static std::list<std::string> baseline = {"[", "*", std::to_string(-1.0), "v", "]"};
+            static std::list<std::string> baseline = {"[", "*", "-1", "v", "]"};
             REQUIRE(e.to_list() == baseline);
             REQUIRE(e.value() == -2);
         }
@@ -883,7 +883,7 @@ TEST_CASE("model_add_expression", "[smoke]")
                 coek::Expression e = e1 + e2;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "a", "b", "[", "*", std::to_string(2.0), "a", "]", "]"};
+                    = {"[", "+", "a", "b", "[", "*", "2", "a", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
         }
@@ -1442,7 +1442,7 @@ TEST_CASE("model_add_expression", "[smoke]")
                 coek::Expression e = a * 5 + b;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "[", "*", std::to_string(5.0), "a", "]", "b", "]"};
+                    = {"[", "+", "[", "*", "5", "a", "]", "b", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1451,7 +1451,7 @@ TEST_CASE("model_add_expression", "[smoke]")
                 coek::Expression e = b + a * 5;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "b", "[", "*", std::to_string(5.0), "a", "]", "]"};
+                    = {"[", "+", "b", "[", "*", "5", "a", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1460,8 +1460,7 @@ TEST_CASE("model_add_expression", "[smoke]")
                 coek::Expression e = a * 5 + (b + c);
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "[", "*", std::to_string(5.0), "a", "]", "[", "+",
-                       "b", "c", "]", "]"};
+                    = {"[", "+", "[", "*", "5", "a", "]", "[", "+", "b", "c", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1470,7 +1469,7 @@ TEST_CASE("model_add_expression", "[smoke]")
                 coek::Expression e = (b + c) + a * 5;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "b", "c", "[", "*", std::to_string(5.0), "a", "]", "]"};
+                    = {"[", "+", "b", "c", "[", "*", "5", "a", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
         }
@@ -1494,8 +1493,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
         {
             coek::Expression e = a - b;
 
-            static std::list<std::string> baseline
-                = {"[", "+", "a", "[", "*", std::to_string(-1.0), "b", "]", "]"};
+            static std::list<std::string> baseline = {"[", "+", "a", "[", "*", "-1", "b", "]", "]"};
             REQUIRE(e.to_list() == baseline);
             REQUIRE(e.value() == -2);
         }
@@ -1505,7 +1503,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
             coek::Expression e = 5 - 2 * a;
 
             static std::list<std::string> baseline
-                = {"[", "+", std::to_string(5.0), "[", "*", std::to_string(-2.0), "a", "]", "]"};
+                = {"[", "+", std::to_string(5.0), "[", "*", "-2", "a", "]", "]"};
             REQUIRE(e.to_list() == baseline);
         }
 
@@ -1515,8 +1513,8 @@ TEST_CASE("model_minus_expression", "[smoke]")
             {
                 coek::Expression e = 5 - a;
 
-                static std::list<std::string> baseline = {
-                    "[", "+", std::to_string(5.0), "[", "*", std::to_string(-1.0), "a", "]", "]"};
+                static std::list<std::string> baseline
+                    = {"[", "+", std::to_string(5.0), "[", "*", "-1", "a", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1524,8 +1522,8 @@ TEST_CASE("model_minus_expression", "[smoke]")
             {
                 coek::Expression e = 5.0 - a;
 
-                static std::list<std::string> baseline = {
-                    "[", "+", std::to_string(5.0), "[", "*", std::to_string(-1.0), "a", "]", "]"};
+                static std::list<std::string> baseline
+                    = {"[", "+", std::to_string(5.0), "[", "*", "-1", "a", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1569,8 +1567,8 @@ TEST_CASE("model_minus_expression", "[smoke]")
             {
                 coek::Expression e = 5 - E;
 
-                static std::list<std::string> baseline = {
-                    "[", "+", std::to_string(5.0), "[", "*", std::to_string(-1.0), "b", "]", "]"};
+                static std::list<std::string> baseline
+                    = {"[", "+", std::to_string(5.0), "[", "*", "-1", "b", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1578,8 +1576,8 @@ TEST_CASE("model_minus_expression", "[smoke]")
             {
                 coek::Expression e = 5.0 - E;
 
-                static std::list<std::string> baseline = {
-                    "[", "+", std::to_string(5.0), "[", "*", std::to_string(-1.0), "b", "]", "]"};
+                static std::list<std::string> baseline
+                    = {"[", "+", std::to_string(5.0), "[", "*", "-1", "b", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
         }
@@ -1607,7 +1605,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
                 coek::Expression e = a - a;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "a", "[", "*", std::to_string(-1.0), "a", "]", "]"};
+                    = {"[", "+", "a", "[", "*", "-1", "a", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1632,7 +1630,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
                 coek::Expression e = a - E;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "a", "[", "*", std::to_string(-1.0), "b", "]", "]"};
+                    = {"[", "+", "a", "[", "*", "-1", "b", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
         }
@@ -1660,7 +1658,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
                 coek::Expression e = z - a;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "z", "[", "*", std::to_string(-1.0), "a", "]", "]"};
+                    = {"[", "+", "z", "[", "*", "-1", "a", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1685,7 +1683,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
                 coek::Expression e = z - E;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "z", "[", "*", std::to_string(-1.0), "b", "]", "]"};
+                    = {"[", "+", "z", "[", "*", "-1", "b", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
         }
@@ -1713,7 +1711,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
                 coek::Expression e = Z - a;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "Z", "[", "*", std::to_string(-1.0), "a", "]", "]"};
+                    = {"[", "+", "Z", "[", "*", "-1", "a", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1738,7 +1736,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
                 coek::Expression e = Z - E;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "Z", "[", "*", std::to_string(-1.0), "b", "]", "]"};
+                    = {"[", "+", "Z", "[", "*", "-1", "b", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
         }
@@ -1766,7 +1764,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
                 coek::Expression e = E - a;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "b", "[", "*", std::to_string(-1.0), "a", "]", "]"};
+                    = {"[", "+", "b", "[", "*", "-1", "a", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1791,7 +1789,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
                 coek::Expression e = E - E;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "b", "[", "*", std::to_string(-1.0), "b", "]", "]"};
+                    = {"[", "+", "b", "[", "*", "-1", "b", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
         }
@@ -1802,9 +1800,8 @@ TEST_CASE("model_minus_expression", "[smoke]")
             {
                 coek::Expression e = (a - b) - 5;
 
-                static std::list<std::string> baseline = {
-                    "[", "+", "a", "[", "*", std::to_string(-1.0), "b", "]", std::to_string(-5.0),
-                    "]"};
+                static std::list<std::string> baseline
+                    = {"[", "+", "a", "[", "*", "-1", "b", "]", std::to_string(-5.0), "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1812,9 +1809,12 @@ TEST_CASE("model_minus_expression", "[smoke]")
             {
                 coek::Expression e = 5 - (a - b);
 
-                static std::list<std::string> baseline
-                    = {"[", "+", std::to_string(5.0),  "[", "-", "[", "+", "a",
-                       "[", "*", std::to_string(-1.0), "b", "]", "]", "]", "]"};
+                static std::list<std::string> baseline = {"[", "+",  std::to_string(5.0),
+                                                          "[", "-",  "[",
+                                                          "+", "a",  "[",
+                                                          "*", "-1", "b",
+                                                          "]", "]",  "]",
+                                                          "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1822,20 +1822,8 @@ TEST_CASE("model_minus_expression", "[smoke]")
             {
                 coek::Expression e = (a - b) - c;
 
-                static std::list<std::string> baseline = {"[",
-                                                          "+",
-                                                          "a",
-                                                          "[",
-                                                          "*",
-                                                          std::to_string(-1.0),
-                                                          "b",
-                                                          "]",
-                                                          "[",
-                                                          "*",
-                                                          std::to_string(-1.0),
-                                                          "c",
-                                                          "]",
-                                                          "]"};
+                static std::list<std::string> baseline
+                    = {"[", "+", "a", "[", "*", "-1", "b", "]", "[", "*", "-1", "c", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1844,9 +1832,8 @@ TEST_CASE("model_minus_expression", "[smoke]")
                 coek::Expression e = (a - b) - (c - d);
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "a", "[", "*", std::to_string(-1.0), "b", "]", "[", "-",
-                       "[", "+", "c", "[", "*", std::to_string(-1.0), "d", "]", "]", "]",
-                       "]"};
+                    = {"[", "+", "a", "[", "*",  "-1", "b", "]", "[", "-", "[",
+                       "+", "c", "[", "*", "-1", "d",  "]", "]", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
         }
@@ -1857,9 +1844,8 @@ TEST_CASE("model_minus_expression", "[smoke]")
             {
                 coek::Expression e = a * 5 - b;
 
-                static std::list<std::string> baseline = {"[", "+", "[", "*", std::to_string(5.0),
-                                                          "a", "]", "[", "*", std::to_string(-1.0),
-                                                          "b", "]", "]"};
+                static std::list<std::string> baseline
+                    = {"[", "+", "[", "*", "5", "a", "]", "[", "*", "-1", "b", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1868,7 +1854,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
                 coek::Expression e = b - a * 5;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "b", "[", "*", std::to_string(-5.0), "a", "]", "]"};
+                    = {"[", "+", "b", "[", "*", "-5", "a", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1877,8 +1863,8 @@ TEST_CASE("model_minus_expression", "[smoke]")
                 coek::Expression e = a * 5 - (b - c);
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "[", "*", std::to_string(5.0),  "a", "]", "[", "-", "[",
-                       "+", "b", "[", "*", std::to_string(-1.0), "c", "]", "]", "]", "]"};
+                    = {"[", "+", "[", "*", "5",  "a", "]", "[", "-", "[",
+                       "+", "b", "[", "*", "-1", "c", "]", "]", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1886,20 +1872,8 @@ TEST_CASE("model_minus_expression", "[smoke]")
             {
                 coek::Expression e = (b - c) - a * 5;
 
-                static std::list<std::string> baseline = {"[",
-                                                          "+",
-                                                          "b",
-                                                          "[",
-                                                          "*",
-                                                          std::to_string(-1.0),
-                                                          "c",
-                                                          "]",
-                                                          "[",
-                                                          "*",
-                                                          std::to_string(-5.0),
-                                                          "a",
-                                                          "]",
-                                                          "]"};
+                static std::list<std::string> baseline
+                    = {"[", "+", "b", "[", "*", "-1", "c", "]", "[", "*", "-5", "a", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
         }
@@ -1915,7 +1889,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
             {
                 coek::Expression e = 0 - a;
 
-                static std::list<std::string> baseline = {"[", "*", std::to_string(-1.0), "a", "]"};
+                static std::list<std::string> baseline = {"[", "*", "-1", "a", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1923,7 +1897,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
             {
                 coek::Expression e = 0.0 - a;
 
-                static std::list<std::string> baseline = {"[", "*", std::to_string(-1.0), "a", "]"};
+                static std::list<std::string> baseline = {"[", "*", "-1", "a", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1963,7 +1937,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
             {
                 coek::Expression e = 0 - E;
 
-                static std::list<std::string> baseline = {"[", "*", std::to_string(-1.0), "a", "]"};
+                static std::list<std::string> baseline = {"[", "*", "-1", "a", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -1971,7 +1945,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
             {
                 coek::Expression e = 0.0 - E;
 
-                static std::list<std::string> baseline = {"[", "*", std::to_string(-1.0), "a", "]"};
+                static std::list<std::string> baseline = {"[", "*", "-1", "a", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -2058,7 +2032,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
                 coek::Expression e = q - a;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "q", "[", "*", std::to_string(-1.0), "a", "]", "]"};
+                    = {"[", "+", "q", "[", "*", "-1", "a", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -2066,8 +2040,8 @@ TEST_CASE("model_minus_expression", "[smoke]")
             {
                 coek::Expression e = 0 * q - a;
 
-                static std::list<std::string> baseline = {
-                    "[", "+", std::to_string(0.0), "[", "*", std::to_string(-1.0), "a", "]", "]"};
+                static std::list<std::string> baseline
+                    = {"[", "+", std::to_string(0.0), "[", "*", "-1", "a", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -2084,7 +2058,7 @@ TEST_CASE("model_minus_expression", "[smoke]")
                 coek::Expression e = Q - a;
 
                 static std::list<std::string> baseline
-                    = {"[", "+", "Q", "[", "*", std::to_string(-1.0), "a", "]", "]"};
+                    = {"[", "+", "Q", "[", "*", "-1", "a", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
         }
@@ -2141,7 +2115,7 @@ TEST_CASE("model_neg_expression", "[smoke]")
         {
             coek::Expression e = -5 * v;
 
-            static std::list<std::string> baseline = {"[", "*", std::to_string(-5.0), "v", "]"};
+            static std::list<std::string> baseline = {"[", "*", "-5", "v", "]"};
             REQUIRE(e.to_list() == baseline);
         }
     }
@@ -2175,7 +2149,7 @@ TEST_CASE("model_mul_expression", "[smoke]")
             {
                 coek::Expression e = 5 * a;
 
-                static std::list<std::string> baseline = {"[", "*", std::to_string(5.0), "a", "]"};
+                static std::list<std::string> baseline = {"[", "*", "5", "a", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -2183,7 +2157,7 @@ TEST_CASE("model_mul_expression", "[smoke]")
             {
                 coek::Expression e = 5.0 * a;
 
-                static std::list<std::string> baseline = {"[", "*", std::to_string(5.0), "a", "]"};
+                static std::list<std::string> baseline = {"[", "*", "5", "a", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -2242,7 +2216,7 @@ TEST_CASE("model_mul_expression", "[smoke]")
             {
                 coek::Expression e = a * 5;
 
-                static std::list<std::string> baseline = {"[", "*", std::to_string(5.0), "a", "]"};
+                static std::list<std::string> baseline = {"[", "*", "5", "a", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -2250,7 +2224,7 @@ TEST_CASE("model_mul_expression", "[smoke]")
             {
                 coek::Expression e = a * 5.0;
 
-                static std::list<std::string> baseline = {"[", "*", std::to_string(5.0), "a", "]"};
+                static std::list<std::string> baseline = {"[", "*", "5", "a", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -2518,7 +2492,7 @@ TEST_CASE("model_mul_expression", "[smoke]")
                 coek::Expression e = (3 * b) * 5;
 
                 static std::list<std::string> baseline
-                    = {"[", "*", "[", "*", std::to_string(3.0), "b", "]", std::to_string(5.0), "]"};
+                    = {"[", "*", "[", "*", "3", "b", "]", std::to_string(5.0), "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -2536,7 +2510,7 @@ TEST_CASE("model_mul_expression", "[smoke]")
                 coek::Expression e = 5 * (3 * b);
 
                 static std::list<std::string> baseline
-                    = {"[", "*", std::to_string(5.0), "[", "*", std::to_string(3.0), "b", "]", "]"};
+                    = {"[", "*", std::to_string(5.0), "[", "*", "3", "b", "]", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -2554,7 +2528,7 @@ TEST_CASE("model_mul_expression", "[smoke]")
                 coek::Expression e = (3 * b) * c;
 
                 static std::list<std::string> baseline
-                    = {"[", "*", "[", "*", std::to_string(3.0), "b", "]", "c", "]"};
+                    = {"[", "*", "[", "*", "3", "b", "]", "c", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -3018,7 +2992,7 @@ TEST_CASE("model_div_expression", "[smoke]")
             {
                 coek::Expression e = a / 5;
 
-                static std::list<std::string> baseline = {"[", "*", std::to_string(0.2), "a", "]"};
+                static std::list<std::string> baseline = {"[", "*", "0.2", "a", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -3026,7 +3000,7 @@ TEST_CASE("model_div_expression", "[smoke]")
             {
                 coek::Expression e = a / 5.0;
 
-                static std::list<std::string> baseline = {"[", "*", std::to_string(0.2), "a", "]"};
+                static std::list<std::string> baseline = {"[", "*", "0.2", "a", "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 
@@ -3223,7 +3197,7 @@ TEST_CASE("model_div_expression", "[smoke]")
                 coek::Expression e = (3 * b) / 5;
 
                 static std::list<std::string> baseline
-                    = {"[", "/", "[", "*", std::to_string(3.0), "b", "]", std::to_string(5.0), "]"};
+                    = {"[", "/", "[", "*", "3", "b", "]", std::to_string(5.0), "]"};
                 REQUIRE(e.to_list() == baseline);
             }
 

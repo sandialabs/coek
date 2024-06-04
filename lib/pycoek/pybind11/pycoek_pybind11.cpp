@@ -12,7 +12,6 @@
 #include <typeinfo>
 
 #include "coek/coek.hpp"
-#include "coek/ast/value_terms.hpp"
 
 namespace py = pybind11;
 
@@ -857,15 +856,12 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def(py::init<>())
         .def(py::init<const std::string&>())
         .def("get_name", [](const coek::Parameter& x) { return x.name(); })
-        .def("set_name", [](coek::Parameter& x, const std::string& name) { x.name(name); })
         .def_property_readonly("name", [](const coek::Parameter& x) { return x.name(); })
         .def("set_value", [](coek::Parameter& x, double val) { x.value(val); })
         .def_property(
             "value", [](const coek::Parameter& x) { return x.value(); },
             [](coek::Parameter& x, double val) { x.value(val); })
         .def("is_constraint", [](const coek::Parameter&) { return false; })
-        .def("is_expression_type", [](const coek::Parameter&) { return false; })
-        .def("is_potentially_variable", [](const coek::Parameter&) { return false; })
 
         .def("__neg__", [](const coek::Parameter& x) { return -x; })
         .def("__pos__", [](const coek::Parameter& x) { return +x; })
@@ -972,7 +968,6 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     py::class_<coek::IndexParameter>(m, "index")
         .def(py::init<const std::string&>())
         .def("get_name", [](const coek::IndexParameter& x) { return x.name(); })
-        .def("set_name", [](coek::IndexParameter& x, const std::string& name) { x.name(name); })
         .def("get_value",
              [](const coek::IndexParameter& x) {
                  double value = 0;
@@ -983,8 +978,6 @@ PYBIND11_MODULE(pycoek_pybind11, m)
              })
         .def("set_value", [](coek::IndexParameter& x, double value) { x.value(value); })
         .def("is_constraint", [](const coek::IndexParameter&) { return false; })
-        .def("is_expression_type", [](const coek::IndexParameter&) { return false; })
-        .def("is_potentially_variable", [](const coek::IndexParameter&) { return false; })
 
         .def("__neg__", [](const coek::IndexParameter& x) { return -x; })
         .def("__pos__", [](const coek::IndexParameter& x) { return +x; })
@@ -1121,12 +1114,11 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     //
     py::class_<coek::Variable>(m, "variable_single")
         .def(py::init<>())
-#if 1
-        // TODO - Check with Mike
+#if 0
+    // TODO - Check with Mike
         .def(py::init<const coek::VariableRepn&>())
 #endif
         .def("get_name", [](const coek::Variable& x) { return x.name(); })
-        .def("set_name", [](coek::Variable& x, const std::string& name) { x.name(name); })
         .def_property_readonly("name", [](const coek::Variable& x) { return x.name(); })
         .def_property(
             "value", [](const coek::Variable& x) { return x.value(); },
@@ -1144,14 +1136,11 @@ PYBIND11_MODULE(pycoek_pybind11, m)
             "within", [](const coek::Variable& x) { return x.within(); },
             [](coek::Variable& x, coek::VariableTypes value) { x.within(value); })
         .def_property_readonly("id", &coek::Variable::id)
-#if 1
+#if 0
         // TODO - Check with Mike
-        //.def_readonly("repn", coek::Variable::repn)
-        .def_property_readonly("repn", [](const coek::Variable& x) { return x.repn; })
+        .def_readonly("repn", &coek::Variable::repn)
 #endif
         .def("is_constraint", [](const coek::Variable&) { return false; })
-        .def("is_expression_type", [](const coek::Variable&) { return true; })
-        .def("is_potentially_variable", [](const coek::Variable&) { return true; })
         .def("is_continuous", [](const coek::Variable& x) { return x.is_continuous(); })
         .def("is_integer", [](const coek::Variable& x) { return x.is_integer(); })
         .def("is_binary", [](const coek::Variable& x) { return x.is_binary(); })
@@ -1288,8 +1277,6 @@ PYBIND11_MODULE(pycoek_pybind11, m)
                                        return py::cast<std::string>(x.name());
                                })
         .def("is_constraint", [](const coek::VariableArray&) { return false; })
-        .def("is_expression_type", [](const coek::VariableArray&) { return false; })
-        .def("is_potentially_variable", [](const coek::VariableArray&) { return false; })
         .def("generate_names", [](coek::VariableArray& x) { return x.generate_names(); })
         .def(
             "__iter__",
@@ -1369,8 +1356,6 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def(py::init<coek::Variable&>())
         .def_property_readonly("value", &coek::Expression::value)
         .def("is_constraint", [](const coek::Expression&) { return false; })
-        .def("is_expression_type", [](const coek::Expression&) { return true; })
-        .def("is_potentially_variable", [](const coek::Expression&) { return true; })
         .def("is_numeric_type", [](const coek::Expression&) { return true; })
         .def("__call__", &coek::expression_eval, py::arg("exception") = false)
         .def("is_variable_type", [](const coek::Expression&) { return false; })
@@ -1712,7 +1697,6 @@ PYBIND11_MODULE(pycoek_pybind11, m)
             "name", [](coek::Constraint& c) { return std::string("C") + std::to_string(c.id()); })
         .def("is_feasible", &coek::Constraint::is_feasible)
         .def("is_constraint", [](const coek::Constraint&) { return true; })
-        .def("is_expression_type", [](const coek::Constraint&) { return false; })
         .def("__eq__",
              []() {
                  throw std::runtime_error("Cannot create a constraint from a boolean expression.");
@@ -1764,11 +1748,9 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def("is_constant", &coek::QuadraticExpr::is_constant)
         .def("is_linear", &coek::QuadraticExpr::is_linear)
         .def("is_quadratic", &coek::QuadraticExpr::is_quadratic);
-#endif
 
-#if 1
     py::class_<coek::VariableTerm>(m, "VariableTerm")
-        .def_readonly("index", &coek::VariableTerm::index);
+	.def_readonly("index", &coek::VariableTerm::index);
 #endif
 
     //
@@ -2186,7 +2168,6 @@ PYBIND11_MODULE(pycoek_pybind11, m)
             return v;
         });
 
-    // (#, Expression, #)
     m.def("inequality", [](int lower, const coek::Expression& body, int upper) {
         return inequality(lower, body, upper);
     });
@@ -2196,8 +2177,6 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     m.def("inequality",
           [](const coek::Expression lower, const coek::Expression& body,
              const coek::Expression upper) { return inequality(lower, body, upper); });
-
-    // (#, Expression, #, strict)
     m.def("inequality", [](int lower, const coek::Expression& body, int upper, bool strict) {
         return inequality(lower, body, upper, strict);
     });
@@ -2207,8 +2186,6 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     m.def("inequality", [](const coek::Expression lower, const coek::Expression& body,
                            const coek::Expression upper,
                            bool strict) { return inequality(lower, body, upper, strict); });
-
-    // (#, Variable, #)
     m.def("inequality", [](int lower, const coek::Variable& body, int upper) {
         return inequality(lower, body, upper);
     });
@@ -2221,8 +2198,6 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     m.def("inequality", [](int lower, const coek::Variable& body, int upper, bool strict) {
         return inequality(lower, body, upper, strict);
     });
-
-    // (#, Variable, #, strict)
     m.def("inequality", [](double lower, const coek::Variable& body, double upper, bool strict) {
         return inequality(lower, body, upper, strict);
     });

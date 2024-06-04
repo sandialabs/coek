@@ -1,6 +1,3 @@
-import poek as pk
-
-import pyomo.environ as pyo
 from pyomo.core.base.component import ActiveComponentData
 from pyomo.core.base.indexed_component import ActiveIndexedComponent
 from pyomo.core.base.constraint import _ConstraintData
@@ -148,7 +145,7 @@ class Constraint(ActiveIndexedComponent):
         else:
             self.rule = Initializer(_init)
 
-        kwargs.setdefault("ctype", pyo.Constraint)
+        kwargs.setdefault("ctype", Constraint)
         ActiveIndexedComponent.__init__(self, *args, **kwargs)
 
     def construct(self, data=None):
