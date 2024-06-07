@@ -116,7 +116,7 @@ else
     spack repo list
     spack env create $spack_env
     spack env activate $spack_env
-    spack add asl cppad fmt rapidjson catch2 highs $with_valgrind
+    spack add asl fmt rapidjson catch2 highs $with_valgrind
     spack install
     spack env deactivate
     spack repo remove _spack_tpls/repo
@@ -132,7 +132,7 @@ echo "Building Coek"
 echo ""
 mkdir _build
 cd _build
-cmake -DCMAKE_PREFIX_PATH=${SPACK_HOME}/var/spack/environments/${spack_env}/.spack-env/view -Dwith_debug=${debug} -Dwith_python=${with_python} $python_exe -Dwith_gurobi=$with_gurobi -Dwith_highs=ON -Dwith_cppad=ON -Dwith_fmtlib=ON -Dwith_rapidjson=ON -Dwith_catch2=ON -Dwith_tests=ON -Dwith_asl=ON -Dwith_openmp=OFF ..
+cmake -DCMAKE_PREFIX_PATH=${SPACK_HOME}/var/spack/environments/${spack_env}/.spack-env/view -Dwith_debug=${debug} -Dwith_python=${with_python} $python_exe -Dwith_gurobi=$with_gurobi -Dwith_highs=ON -Dwith_cppad=OFF -Dwith_fmtlib=ON -Dwith_rapidjson=ON -Dwith_catch2=ON -Dwith_tests=ON -Dwith_asl=ON -Dwith_openmp=OFF ..
 make -j20
 make install
 
