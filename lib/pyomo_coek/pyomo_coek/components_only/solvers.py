@@ -220,7 +220,7 @@ class HybridSolver(Solver):
 
 
 class Gurobi(HybridSolver):
-    name = "appsi_coek_gurobi"
+    name = "coek_gurobi"
 
     def __init__(self):
         super().__init__("gurobi")
