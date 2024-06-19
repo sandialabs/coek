@@ -73,15 +73,21 @@ echo "SPACK_HOME=${SPACK_HOME}"
 if [[ "${spack_reinstall}" -eq 1 ]]; then
     \rm -Rf ${SPACK_HOME}
 fi
-if [[ "$spack_dev" -eq 0 ]]; then
-    \rm -Rf _spack_tpls
-    git clone https://github.com/or-fusion/or-fusion-spack-repo.git _spack_tpls
-else
-    git clone git@github.com:or-fusion/or-fusion-spack-repo.git _spack_tpls
+if test -d _spack_tpls; then
     cd _spack_tpls
-    git checkout dev
     git pull
     cd ..
+else
+    if [[ "$spack_dev" -eq 0 ]]; then
+        \rm -Rf _spack_tpls
+        git clone https://github.com/or-fusion/or-fusion-spack-repo.git _spack_tpls
+    else
+        git clone git@github.com:or-fusion/or-fusion-spack-repo.git _spack_tpls
+        cd _spack_tpls
+        git checkout dev
+        git pull
+        cd ..
+    fi
 fi
 \rm -Rf _build
 #
@@ -112,10 +118,13 @@ else
     echo ""
     git clone https://github.com/spack/spack.git ${SPACK_HOME}
     . ${SPACK_HOME}/share/spack/setup-env.sh
+    echo "Adding _spack_tpls"
+    spack repo remove _spack_tpls/repo | true
     spack repo add _spack_tpls/repo
     spack repo list
     spack env create $spack_env
     spack env activate $spack_env
+    spack compiler find
     spack add asl fmt rapidjson catch2 highs $with_valgrind
     spack install
     spack env deactivate
