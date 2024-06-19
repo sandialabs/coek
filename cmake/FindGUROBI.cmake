@@ -40,7 +40,7 @@ find_library(
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         find_library(
             GUROBI_CXX_LIBRARY
-            NAMES gurobi_g++5.2
+            NAMES gurobi_g++5.2 gurobi_g++8.5
             HINTS ${GUROBI_DIR} $ENV{GUROBI_HOME}
             PATH_SUFFIXES lib)
     else()
