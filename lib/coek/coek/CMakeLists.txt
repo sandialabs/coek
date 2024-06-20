@@ -153,6 +153,7 @@ endif()
 # GUROBI LIBRARY
 #
 if(with_gurobi)
+    find_package(GUROBI REQUIRED)
     list(APPEND sources
                 solvers/gurobi/gurobi.cpp)
     list(APPEND coek_compile_options -DWITH_GUROBI)

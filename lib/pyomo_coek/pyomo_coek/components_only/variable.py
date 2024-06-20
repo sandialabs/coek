@@ -17,7 +17,29 @@ import logging
 from pyomo.common.timing import ConstructionTimer
 from pyomo.common.log import is_debug_set
 import sys
-from pyomo.core.base.set import Binary, Reals, Integers, Any, GlobalSetBase
+
+from pyomo.core.base.set import GlobalSetBase
+from pyomo.core.base.set_types import  \
+    Reals, \
+    PositiveReals, \
+    NonPositiveReals, \
+    NegativeReals, \
+    NonNegativeReals, \
+    Integers, \
+    PositiveIntegers, \
+    NonPositiveIntegers, \
+    NegativeIntegers, \
+    NonNegativeIntegers, \
+    Boolean, \
+    Binary, \
+    Any, \
+    AnyWithNone, \
+    EmptySet, \
+    UnitInterval, \
+    PercentFraction, \
+    RealInterval, \
+    IntegerInterval
+
 from pyomo.common.collections import ComponentMap
 from weakref import ref as weakref_ref
 from pyomo.common.deprecation import deprecation_warning
@@ -33,9 +55,20 @@ logger = logging.getLogger(__name__)
 
 
 _domain_map = ComponentMap()
-_domain_map[Binary] = pk.VariableTypes.Binary
 _domain_map[Reals] = pk.VariableTypes.Reals
+_domain_map[PositiveReals] = pk.VariableTypes.Reals
+_domain_map[NonPositiveReals] = pk.VariableTypes.Reals
+_domain_map[NegativeReals] = pk.VariableTypes.Reals
+_domain_map[NonNegativeReals] = pk.VariableTypes.Reals
 _domain_map[Integers] = pk.VariableTypes.Integers
+_domain_map[PositiveIntegers] = pk.VariableTypes.Integers
+_domain_map[NonPositiveIntegers] = pk.VariableTypes.Integers
+_domain_map[NegativeIntegers] = pk.VariableTypes.Integers
+_domain_map[NonNegativeIntegers] = pk.VariableTypes.Integers
+_domain_map[Binary] = pk.VariableTypes.Binary
+_domain_map[Boolean] = pk.VariableTypes.Binary
+_domain_map[UnitInterval] = pk.VariableTypes.Reals
+_domain_map[PercentFraction] = pk.VariableTypes.Reals
 
 _rev_domain_map = dict()
 _rev_domain_map[pk.VariableTypes.Binary] = Binary
@@ -185,6 +218,26 @@ class _GeneralVarData(ComponentData):
     @domain.setter
     def domain(self, val):
         self._pe.within = _domain_map[val]
+        if val == PositiveReals:
+            self.bounds = (0,None)
+        elif val == NonPositiveReals:
+            self.bounds = (None,0)
+        elif val == NegativeReals:
+            self.bounds = (None,0)
+        elif val == NonNegativeReals:
+            self.bounds = (0,None)
+        elif val == PositiveIntegers:
+            self.bounds = (1,None)
+        elif val == NonPositiveIntegers:
+            self.bounds = (None,0)
+        elif val == NegativeIntegers:
+            self.bounds = (None,-1)
+        elif val == NonNegativeIntegers:
+            self.bounds = (0,None)
+        elif val == UnitInterval:
+            self.bounds = (0,1)
+        elif val == PercentFraction:
+            self.bounds = (0,1)
 
     @property
     def lower(self):
@@ -420,6 +473,7 @@ class Var(IndexedComponent):
                 # (constant portions of) every VarData so as to not
                 # repeat all the domain/bounds validation.
                 try:
+                    self.index_set().construct()
                     ref = self._getitem_when_not_present(next(iter(self.index_set())))
                 except StopIteration:
                     # Empty index!

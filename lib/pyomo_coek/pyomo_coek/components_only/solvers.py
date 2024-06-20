@@ -7,8 +7,8 @@ from pyomo.contrib.appsi.base import (
     SolutionLoader,
     Results,
     Solver,
-    SolverFactory,
 )
+from pyomo.opt import SolverFactory
 from munch import Munch
 import poek as pk
 from typing import Tuple, Dict
@@ -157,7 +157,9 @@ class HybridSolver(Solver):
             res.best_feasible_objective = self._poek_nlp_model.get_objective().value
         return res
 
-    def solve(self, model: _BlockData, timer: HierarchicalTimer = None) -> Results:
+    def solve(self, model: _BlockData, options=None, timer: HierarchicalTimer = None) -> Results:
+        if options is None:
+            options = {}
         if timer is None:
             timer = HierarchicalTimer()
 
@@ -179,10 +181,14 @@ class HybridSolver(Solver):
             nlp = pk.nlp_model(pm, "cppad")
             self._poek_nlp_model = nlp
             self._set_options()
+            for key, option in options.items():
+                self._opt.set_option(key, option)
             _res = self._opt.solve(nlp)
         else:
             self._opt = pk.solver(self._solver_name)
             self._set_options()
+            for key, option in options.items():
+                self._opt.set_option(key, option)
             _res = self._opt.solve(pm)
         timer.stop("coek solve")
 
@@ -201,6 +207,7 @@ class HybridSolver(Solver):
         res = Results()
         res.solution_loader = self.solution_loader
         res.termination_condition = poek2pyomo_termination_condition[_res.termination_condition]
+        res.message = _res.error_message
         res.solution_status = poek2pyomo_solution_status[_res.solution_status]
         if pk.check_optimal_termination(_res):
             res.best_feasible_objective = _res.objective_value
@@ -220,7 +227,7 @@ class HybridSolver(Solver):
 
 
 class Gurobi(HybridSolver):
-    name = "appsi_coek_gurobi"
+    name = "coek_gurobi"
 
     def __init__(self):
         super().__init__("gurobi")

@@ -7,7 +7,25 @@ from .solvers import Gurobi, Ipopt
 from .linear_expression import LinearExpression
 from pyomo.core.base.block import Block
 from pyomo.core.base.PyomoModel import ConcreteModel
-from pyomo.core.base.set import RangeSet, Binary, Set, Reals, NonNegativeReals, Any
+from pyomo.core.base.set import RangeSet, \
+    Reals, \
+    PositiveReals, \
+    NonPositiveReals, \
+    NegativeReals, \
+    NonNegativeReals, \
+    Integers, \
+    PositiveIntegers, \
+    NonPositiveIntegers, \
+    NegativeIntegers, \
+    NonNegativeIntegers, \
+    Boolean, \
+    Binary, \
+    Any, \
+    AnyWithNone, \
+    EmptySet, \
+    UnitInterval, \
+    PercentFraction
+
 from pyomo.core.base.objective import minimize, maximize
 from pyomo.opt.base.solvers import SolverFactory
 from pyomo.opt import SolutionStatus, TerminationCondition
