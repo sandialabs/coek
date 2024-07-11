@@ -70,6 +70,8 @@ class HybridSolver(Solver):
         self.solution_loader = MySolutionLoader(None, None, None, None)
 
     def available(self):
+        if self._opt is None:
+            return self.Availability.NotFound
         if self._opt.available:
             return self.Availability.FullLicense
         else:
