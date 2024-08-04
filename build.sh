@@ -6,6 +6,7 @@
 # This uses Spack to install third-party dependencies in the `_spack` directory.
 #
 clang=0
+compact="OFF"
 debug="OFF"
 python_exe=""
 spack_dev=0
@@ -19,11 +20,15 @@ with_valgrind=""
 while [[ $# -gt 0 ]]; do
     case $1 in
         --help)
-                    echo "build.sh [--help] [--clang] [--debug] [--python] [--python-exe <file>] [--scip] [--spack-dev] [--spack-env <env>] [--spack-home <dir>] [--spack-reinstall] [--valgrind]"
+                    echo "build.sh [--help] [--clang] [--compact] [--debug] [--python] [--python-exe <file>] [--scip] [--spack-dev] [--spack-env <env>] [--spack-home <dir>] [--spack-reinstall] [--valgrind]"
                     exit 
         ;;
         --clang)
                     clang=1
+                    shift
+        ;;
+        --compact)
+                    compact="ON"
                     shift
         ;;
         --debug)
@@ -148,7 +153,7 @@ echo "Building Coek"
 echo ""
 mkdir _build
 cd _build
-cmake -DCMAKE_PREFIX_PATH=${SPACK_HOME}/var/spack/environments/${spack_env}/.spack-env/view -Dwith_debug=${debug} -Dwith_python=${with_python} $python_exe -Dwith_gurobi=$with_gurobi -Dwith_highs=ON -Dwith_cppad=OFF -Dwith_fmtlib=ON -Dwith_rapidjson=ON -Dwith_catch2=ON -Dwith_tests=ON -Dwith_asl=ON -Dwith_openmp=OFF ..
+cmake -DCMAKE_PREFIX_PATH=${SPACK_HOME}/var/spack/environments/${spack_env}/.spack-env/view -Dwith_debug=${debug} -Dwith_python=${with_python} -Dwith_pybind11=${with_python} $python_exe -Dwith_gurobi=$with_gurobi -Dwith_highs=ON -Dwith_cppad=OFF -Dwith_fmtlib=ON -Dwith_rapidjson=ON -Dwith_catch2=ON -Dwith_tests=ON -Dwith_asl=ON -Dwith_openmp=OFF -Dwith_compact=${compact} ..
 make -j20
 make install
 
