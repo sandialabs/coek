@@ -1,5 +1,7 @@
 #pragma once
 
+#include <type_traits>
+
 namespace coek {
 
 template <class TYPE>
@@ -37,7 +39,7 @@ class IndexedComponentRepn_multiarray : public IndexedComponentRepn<TYPE> {
     {
         for (size_t i = 0; i < this->_dim; ++i) {
             size_t tmp = static_cast<size_t>(args[i]);
-            if ((tmp < 0) or (tmp >= shape[i]))
+            if (tmp >= shape[i])
                 return false;
         }
         return true;
