@@ -7,7 +7,7 @@ from .solvers import Gurobi, Ipopt
 from .linear_expression import LinearExpression
 from pyomo.core.base.block import Block
 from pyomo.core.base.PyomoModel import ConcreteModel
-from pyomo.core.base.set import RangeSet, \
+from pyomo.core.base.set import Set, RangeSet, \
     Reals, \
     PositiveReals, \
     NonPositiveReals, \

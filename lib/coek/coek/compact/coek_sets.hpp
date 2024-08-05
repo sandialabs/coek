@@ -270,6 +270,21 @@ ConcreteSet SetOf(const std::initializer_list<int>& arg);
 // ConcreteSet SetOf(const std::initializer_list<std::string>& arg);
 
 ConcreteSet RangeSet(int start, int stop, int step = 1);
+
+template <typename StartType>
+ConcreteSet RangeSet(const StartType& start, const Expression& stop, int step = 1)
+{
+    int stop_ = static_cast<int>(stop.value());
+    return RangeSet(start, stop_, step);
+}
+
+template <typename StopType>
+ConcreteSet RangeSet(const Expression& start, const StopType& stop, int step = 1)
+{
+    int start_ = static_cast<int>(start.value());
+    return RangeSet(start_, stop, step);
+}
+
 // ConcreteSet RangeSet(double start, double stop, double step=1.0);
 
 }  // namespace coek

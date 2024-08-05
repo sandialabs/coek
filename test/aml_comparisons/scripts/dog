@@ -17,6 +17,7 @@ from tabulate import tabulate
 
 all_problems = ["lqcp", "fac", "nqueens", "pmedian", "knapsack"]
 baseline_problems = dict(
+    coek=set(["lqcp-array", "fac-array", "nqueens-array", "pmedian-array", "knapsack-array"]),
     gurobi=set(["lqcp", "fac", "nqueens-scalar", "pmedian-scalar", "knapsack-scalar"]),
     pyomo=set(["lqcp", "fac", "nqueens", "pmedian", "knapsack"]),
 )
@@ -150,6 +151,10 @@ def collect_writer_summary(directory):
     for suffix in ["lp", "nl"]:
         data, cols = collect_writer(ans["raw"], suffix, all_problems)
         if suffix == "lp":
+            print("Analyzing {} with baseline coek".format(suffix))
+            ans["suffix"][suffix]["coek"] = compute_statistics(
+                data, cols, "coek", baseline_problems["coek"]
+            )
             print("Analyzing {} with baseline pyomo".format(suffix))
             ans["suffix"][suffix]["pyomo"] = compute_statistics(
                 data, cols, "pyomo", baseline_problems["pyomo"]
@@ -159,6 +164,10 @@ def collect_writer_summary(directory):
                 data, cols, "gurobi", baseline_problems["gurobi"]
             )
         elif suffix == "nl":
+            print("Analyzing {} with baseline coek".format(suffix))
+            ans["suffix"][suffix]["coek"] = compute_statistics(
+                data, cols, "coek", baseline_problems["coek"]
+            )
             print("Analyzing {} with baseline pyomo".format(suffix))
             ans["suffix"][suffix]["pyomo"] = compute_statistics(
                 data, cols, "pyomo", baseline_problems["pyomo"]
@@ -172,7 +181,7 @@ def collect_solve0_summary(directory):
     ans["raw"] = load_results(os.path.join(directory, "solve0"))
     ans["baseline"] = {}
     data, cols = collect_solve0(ans["raw"], all_problems)
-    for baseline in ["pyomo", "gurobi"]:
+    for baseline in ["coek", "pyomo", "gurobi"]:
         print("Analyzing with baseline {}".format(baseline))
         ans["baseline"][baseline] = compute_statistics(
             data, cols, baseline, baseline_problems[baseline]
