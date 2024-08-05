@@ -137,7 +137,7 @@ else
     spack env create $spack_env
     spack env activate $spack_env
     spack compiler find
-    spack add asl fmt rapidjson catch2 highs $with_valgrind $with_scip
+    spack add asl fmt@8.0.1 rapidjson catch2 highs $with_valgrind $with_scip
     spack install
     spack env deactivate
     spack repo remove `pwd`/_spack_tpls/repo
