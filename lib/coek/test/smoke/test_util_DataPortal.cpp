@@ -4,6 +4,24 @@
 #include "catch2/catch_test_macros.hpp"
 #include "coek/util/DataPortal.hpp"
 
+TEST_CASE("DP_misc", "[smoke]")
+{
+    SECTION("contains")
+    {
+        auto dp = coek::DataPortal();
+        dp.load_from_json_string(R"(
+{
+"A": {
+    "set_type": "i",
+    "data": [1, 2, 3]
+    }
+}
+)");
+    REQUIRE(dp.contains("A") == true);
+    REQUIRE(dp.contains("unknown") == false);
+    }
+}
+
 TEST_CASE("get_DP_set", "[smoke]")
 {
     SECTION("error1")

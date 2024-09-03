@@ -23,14 +23,15 @@ class DataPortalRepn {
 
     using ParameterTypes = std::variant<StringType, IntegerType, DoubleType, TupleValueType>;
 
-    std::map<std::string, ParameterTypes> parameter_data;
-    std::map<std::string, std::map<KeyTypes, ParameterTypes>> indexed_parameter_data;
-
     using StringSetType = std::set<std::string>;
     using IntegerSetType = std::set<int>;
     using DoubleSetType = std::set<double>;
     using TupleSetType = std::set<TupleValueType>;
     using SetTypes = std::variant<StringSetType, IntegerSetType, DoubleSetType, TupleSetType>;
+
+   public:
+    std::map<std::string, ParameterTypes> parameter_data;
+    std::map<std::string, std::map<KeyTypes, ParameterTypes>> indexed_parameter_data;
 
     std::map<std::string, SetTypes> set_data;
     std::map<std::string, std::map<KeyTypes, SetTypes>> indexed_set_data;
@@ -49,6 +50,8 @@ class DataPortalRepn {
 
     void save_to_file(const std::string& filename, unsigned int indent = 0);
     std::string to_string(unsigned int indent = 0);
+
+    bool contains(const std::string& name);
 
     //
     // GET methods
@@ -759,6 +762,9 @@ class DataPortal {
         When the indent option is specified, the output is a human
         readable JSON format. */
     std::string to_string(unsigned int indent = 0) { return repn->to_string(indent); }
+
+    /** Returns true if the dataportal contains the specified data. */
+    bool contains(const std::string& name) { return repn->contains(name); }
 
     //
     // GET methods
