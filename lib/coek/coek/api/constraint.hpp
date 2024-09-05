@@ -35,12 +35,18 @@ class Constraint {
 
     Constraint& operator=(const Constraint& arg);
 
+    /** Set the constraint */
+    Constraint& expr(const Constraint& body);
+    /** \returns the constraint */
+    Constraint expr() const;
+
     /** \returns \c true if this is an inequality constraint */
     bool is_inequality() const;
     /** \returns \c true if this is an equality constraint */
     bool is_equality() const;
     /** \returns \c true if the constraint is feasible */
     bool is_feasible() const;
+
 
     /** \returns the expression for the constraint lower bound */
     Expression lower() const;

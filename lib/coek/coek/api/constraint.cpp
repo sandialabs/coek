@@ -29,6 +29,12 @@ Constraint& Constraint::operator=(const Constraint& expr)
     return *this;
 }
 
+Constraint& Constraint::expr(const Constraint& expr)
+{ repn = expr.repn; return *this; }
+
+Constraint Constraint::expr() const
+{ return *this; }
+
 bool Constraint::active() const { return repn->active; }
 
 void Constraint::activate() { repn->active = true; }
