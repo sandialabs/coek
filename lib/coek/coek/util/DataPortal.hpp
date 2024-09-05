@@ -51,7 +51,7 @@ class DataPortalRepn {
     void save_to_file(const std::string& filename, unsigned int indent = 0);
     std::string to_string(unsigned int indent = 0);
 
-    bool contains(const std::string& name);
+    bool contains(const std::string& name) const;
 
     //
     // GET methods
@@ -764,7 +764,7 @@ class DataPortal {
     std::string to_string(unsigned int indent = 0) { return repn->to_string(indent); }
 
     /** Returns true if the dataportal contains the specified data. */
-    bool contains(const std::string& name) { return repn->contains(name); }
+    bool contains(const std::string& name) const { return repn->contains(name); }
 
     //
     // GET methods

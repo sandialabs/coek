@@ -732,7 +732,7 @@ std::string DataPortalRepn::to_string(unsigned int indent)
 #endif
 }
 
-bool DataPortalRepn::contains(const std::string& name)
+bool DataPortalRepn::contains(const std::string& name) const
 {
 #if __cplusplus >= 202002L
     return parameter_data.contains(name) || indexed_parameter_data.contains(name) || set_data.contains(name) || indexed_set_data.contains(name);
