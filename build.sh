@@ -130,8 +130,13 @@ else
     echo ""
     git clone https://github.com/spack/spack.git ${SPACK_HOME}
     . ${SPACK_HOME}/share/spack/setup-env.sh
-    echo "Adding _spack_tpls"
+    echo ""
+    echo "Removing _spack_tpls"
+    echo ""
     spack repo remove `pwd`/_spack_tpls/repo | true
+    echo ""
+    echo "Adding _spack_tpls"
+    echo ""
     spack repo add `pwd`/_spack_tpls/repo
     spack repo list
     spack env create $spack_env
@@ -145,7 +150,9 @@ else
 fi
 if test -d ${SPACK_HOME}; then
     export SPACK_HOME=$(cd ${SPACK_HOME}; pwd)
+    echo ""
     echo "SPACK_HOME=${SPACK_HOME}"
+    echo ""
 fi
 #
 # Install coek
