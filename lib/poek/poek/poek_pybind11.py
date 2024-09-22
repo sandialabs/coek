@@ -67,6 +67,15 @@ def print_equations(self, ostream=None):
 
 setattr(model, "print_equations", print_equations)
 
+def print_values(self, ostream=None):
+    if ostream is None:
+        self.print_values_()
+    else:
+        ostream.write( self.print_values_(0) );
+    return ostream
+
+setattr(model, "print_values", print_values)
+
 def constraint_is_numeric_type(self, *args, **kwds):
     return True
 
