@@ -17,6 +17,20 @@ def test_model1():
     m.add_constraint(v1 > 1)
     m.add_constraint(v1 == 3 * v2 - 3)
 
+    #m.print_equations()
+    ostr = StringIO()
+    m.print_equations(ostr)
+    assert ostr.getvalue() == """MODEL
+  Objectives
+    0:  min( 1 + - (v1 + v2) + (3)*(v1 + v2) + (v1 + v2)*(v1 + v2) + v3 )
+  Constraints
+    0:  (v1)*(v1) + 1 + -3*v2 <= 0
+    1:  3*v2 + - (pow(v1, 2)) <= 0
+    2:  1 < v2
+    3:  1 < v1
+    4:  v1 + - (3*v2 + -3) == 0
+"""
+
     nlp = nlp_model(m, "cppad")
     assert nlp.num_variables() == 3
     assert nlp.num_objectives() == 1

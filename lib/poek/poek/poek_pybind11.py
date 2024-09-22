@@ -1,6 +1,7 @@
 #
 # Pull-in Pybind11 wrappers
 #
+from io import StringIO
 from pycoek_pybind11 import variable_, parameter_single, variable_array
 from pycoek_pybind11 import *
 from .func import quicksum, prod, seq
@@ -57,6 +58,14 @@ def model_variable(self, *args, **kwds):
 
 setattr(model, "add_variable", model_variable)
 
+def print_equations(self, ostream=None):
+    if ostream is None:
+        self.print_equations_()
+    else:
+        ostream.write( self.print_equations_(0) );
+    return ostream
+
+setattr(model, "print_equations", print_equations)
 
 def constraint_is_numeric_type(self, *args, **kwds):
     return True
