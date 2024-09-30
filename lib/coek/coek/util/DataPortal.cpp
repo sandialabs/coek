@@ -239,7 +239,7 @@ void load_param_data(T& obj, DataPortalRepn::ParameterTypes& param_variant,
             // Double parameter
             //
             if (obj.IsInt())
-                param_variant = obj.GetInt();
+                param_variant = static_cast<double>(obj.GetInt());
             else if (obj.IsDouble())
                 param_variant = obj.GetDouble();
             else
