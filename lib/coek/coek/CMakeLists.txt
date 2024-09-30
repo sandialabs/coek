@@ -272,6 +272,10 @@ install(FILES
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/util
         )
 install(FILES
+        ast/assoc_array_base.hpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/ast
+        )
+install(FILES
         api/constraint_map.hpp
         api/subexpression_map.hpp
         api/constants.hpp
