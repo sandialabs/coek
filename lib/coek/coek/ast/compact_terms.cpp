@@ -1,4 +1,6 @@
 #include "compact_terms.hpp"
+#include "../api/parameter_assoc_array_repn.hpp"
+#include "../api/variable_assoc_array_repn.hpp"
 
 namespace coek {
 
@@ -7,13 +9,13 @@ namespace coek {
 //
 
 ParameterRefTerm::ParameterRefTerm(const std::vector<refarg_types>& _indices,
-                                   const std::string& _name, void* _param)
+                                   const std::string& _name, std::shared_ptr<ParameterAssocArrayRepn>& _param)
     : indices(_indices), name(_name), param(_param)
 {
 }
 
 expr_pointer_t create_paramref(const std::vector<refarg_types>& indices, const std::string& name,
-                               void* param)
+                               std::shared_ptr<ParameterAssocArrayRepn>& param)
 {
     return CREATE_POINTER(ParameterRefTerm, indices, name, param);
 }
@@ -23,13 +25,13 @@ expr_pointer_t create_paramref(const std::vector<refarg_types>& indices, const s
 //
 
 VariableRefTerm::VariableRefTerm(const std::vector<refarg_types>& _indices,
-                                 const std::string& _name, void* _var)
+                                 const std::string& _name, std::shared_ptr<VariableAssocArrayRepn>& _var)
     : indices(_indices), name(_name), var(_var)
 {
 }
 
 expr_pointer_t create_varref(const std::vector<refarg_types>& indices, const std::string& name,
-                             void* var)
+                             std::shared_ptr<VariableAssocArrayRepn>& var)
 {
     return CREATE_POINTER(VariableRefTerm, indices, name, var);
 }

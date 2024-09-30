@@ -1,12 +1,10 @@
 #include <coek/util/index_vector.hpp>
 
-typedef typename coek::IndexVector::vecdata_t vecdata_t;
-
 namespace std {
-vecdata_t hash<coek::IndexVector>::operator()(const coek::IndexVector& a) const
+coek::IndexVector::value_type hash<coek::IndexVector>::operator()(const coek::IndexVector& a) const
 {
-    hash<vecdata_t> hasher;
-    vecdata_t h = static_cast<vecdata_t>(a.size());
+    hash<coek::IndexVector::value_type> hasher;
+    coek::IndexVector::value_type h = static_cast<coek::IndexVector::value_type>(a.size());
     size_t a_size = a.size();
     for (size_t i = 0; i < a_size; ++i) {
         // From Boost

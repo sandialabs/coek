@@ -7,8 +7,6 @@
 
 namespace coek {
 
-expr_pointer_t create_varref(const std::vector<refarg_types>& indices, const std::string& name,
-                             void* var);
 
 //
 // VariableAssocArrayRepn
@@ -16,16 +14,24 @@ expr_pointer_t create_varref(const std::vector<refarg_types>& indices, const std
 
 VariableAssocArrayRepn::VariableAssocArrayRepn() {}
 
-void VariableAssocArrayRepn::resize_index_vectors(IndexVector& tmp,
-                                                  std::vector<refarg_types>& reftmp)
+void VariableAssocArrayRepn::resize_index_vectors(IndexVector& tmp_,
+                                                  std::vector<refarg_types>& reftmp_)
 {
-    tmp = cache.alloc(dim());
-    reftmp.resize(dim());
+    auto dim_ = dim();
+    #ifdef CUSTOM_INDEXVECTOR
+    tmp_ = cache.alloc(dim_);
+    tmp = cache.alloc(dim_);
+    #else
+    tmp_.resize(dim_);
+    tmp.resize(dim_);
+    #endif
+    reftmp_.resize(dim_);
+    reftmp.resize(dim_);
 }
 
-void VariableAssocArrayRepn::setup()
+void VariableAssocArrayRepn::expand()
 {
-    if (first_setup) {
+    if (first_expand) {
         auto vtype = variable_template.within();
         bool binary = (vtype == Boolean) or (vtype == Binary);
         bool integer = vtype == Integers;
@@ -35,10 +41,11 @@ void VariableAssocArrayRepn::setup()
             = std::make_shared<ConstantTerm>(variable_template.upper_expression().expand().value());
         auto value
             = std::make_shared<ConstantTerm>(variable_template.value_expression().expand().value());
-        for (size_t i = 0; i < size(); i++) {
+        auto size_ = size();
+        for (size_t i = 0; i < size_; i++) {
             values.emplace_back(CREATE_POINTER(VariableTerm, lower, upper, value, binary, integer));
         }
-        first_setup = false;
+        first_expand = false;
     }
 }
 
@@ -180,14 +187,20 @@ size_t VariableAssocArray::size() const { return get_repn()->size(); }
 
 size_t VariableAssocArray::dim() const { return get_repn()->dim(); }
 
+void VariableAssocArray::expand() { return get_repn()->expand(); }
+
 std::vector<Variable>::iterator VariableAssocArray::begin() { return get_repn()->values.begin(); }
 
 std::vector<Variable>::iterator VariableAssocArray::end() { return get_repn()->values.end(); }
 
 #ifdef COEK_WITH_COMPACT_MODEL
+expr_pointer_t create_varref(const std::vector<refarg_types>& indices, const std::string& name,
+                             std::shared_ptr<VariableAssocArrayRepn>& var);
+
 Expression VariableAssocArray::create_varref(const std::vector<refarg_types>& args)
 {
-    return coek::create_varref(args, get_repn()->variable_template.name(), this);
+    auto repn = get_repn();
+    return coek::create_varref(args, get_repn()->variable_template.name(), repn);
 }
 #endif
 
@@ -198,7 +211,8 @@ Expression VariableAssocArray::create_varref(const std::vector<refarg_types>& ar
 #ifdef COEK_WITH_COMPACT_MODEL
 expr_pointer_t get_concrete_var(VariableRefTerm& varref)
 {
-    VariableAssocArray* var = static_cast<VariableAssocArray*>(varref.var);
+    //VariableAssocArray* var = static_cast<VariableAssocArray*>(varref.var);
+    auto var = std::dynamic_pointer_cast<VariableAssocArrayRepn>(varref.var);
 
     std::vector<int> index;
     for (auto& reftmp : varref.indices) {

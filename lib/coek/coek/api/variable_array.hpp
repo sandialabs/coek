@@ -14,8 +14,8 @@ class VariableArrayRepn;
 class VariableArray : public VariableAssocArray {
    public:
     std::shared_ptr<VariableArrayRepn> repn;
-    VariableAssocArrayRepn* get_repn();
-    const VariableAssocArrayRepn* get_repn() const;
+    std::shared_ptr<VariableAssocArrayRepn> get_repn();
+    const std::shared_ptr<VariableAssocArrayRepn> get_repn() const;
 
     Variable index(const IndexVector& args);
     void index_error(size_t i);

@@ -12,23 +12,34 @@ class ParameterArrayRepn : public ParameterAssocArrayRepn {
     size_t _size;
 
    public:
-    ParameterArrayRepn(size_t n) : shape({n}), _size(n) { cache.resize((size() + 1) * 2); }
+    ParameterArrayRepn(size_t n) : shape({n}), _size(n) 
+    {
+    #ifdef CUSTOM_INDEXVECTOR
+    cache.resize(2 * (size() + 1) * 2);
+    #endif
+    }
 
     ParameterArrayRepn(const std::vector<size_t>& _shape) : shape(_shape), _size(1)
     {
         for (auto n : shape)
             _size *= n;
-        cache.resize((size() + 1) * (dim() + 1));
+        #ifdef CUSTOM_INDEXVECTOR
+        cache.resize(2 * (size() + 1) * (dim() + 1));
+        #endif
     }
 
     ParameterArrayRepn(const std::initializer_list<size_t>& _shape) : shape(_shape), _size(1)
     {
         for (auto n : shape)
             _size *= n;
-        cache.resize((size() + 1) * (dim() + 1));
+        #ifdef CUSTOM_INDEXVECTOR
+        cache.resize(2 * (size() + 1) * (dim() + 1));
+        #endif
     }
 
     virtual ~ParameterArrayRepn() {}
+
+    Parameter index(const IndexVector& args);
 
     size_t dim() { return shape.size(); }
 
@@ -72,7 +83,7 @@ void ParameterArrayRepn::generate_names()
     if (name.size() == 0)
         return;
 
-    setup();
+    expand();
 
     size_t ctr = 0;
     for (auto& param : values)
@@ -101,15 +112,18 @@ ParameterArray::ParameterArray(const std::initializer_list<size_t>& shape)
     repn->resize_index_vectors(tmp, reftmp);
 }
 
-ParameterAssocArrayRepn* ParameterArray::get_repn() { return repn.get(); }
+std::shared_ptr<ParameterAssocArrayRepn> ParameterArray::get_repn() { return repn; }
 
 Parameter ParameterArray::index(const IndexVector& args)
+{ return repn->index(args); }
+
+Parameter ParameterArrayRepn::index(const IndexVector& args)
 {
-    auto _repn = repn.get();
-    auto& shape = _repn->shape;
+    //auto _repn = repn.get();
+    //auto& shape = _repn->shape;
     assert(args.size() == shape.size());
 
-    _repn->setup();
+    expand();
 
     // We know that the args[i] values are nonnegative b.c. we have asserted that while
     // processing these arguments
@@ -120,7 +134,7 @@ Parameter ParameterArray::index(const IndexVector& args)
     if (ndx > size()) {
         // TODO - Can't we do better than this check?  Do we check if each index is in the correct
         // range?
-        std::string err = "Unknown index value: " + _repn->parameter_template.name() + "[";
+        std::string err = "Unknown index value: " + parameter_template.name() + "[";
         for (size_t i = 0; i < args.size(); i++) {
             if (i > 0)
                 err += ",";
@@ -130,7 +144,7 @@ Parameter ParameterArray::index(const IndexVector& args)
         throw std::runtime_error(err);
     }
 
-    return _repn->values[ndx];
+    return values[ndx];
 }
 
 void ParameterArray::index_error(size_t i)
@@ -181,7 +195,7 @@ ParameterArray parameter(const std::initializer_list<size_t>& shape)
 
 ParameterArray& Model::add_parameter(ParameterArray& params)
 {
-    params.repn->setup();
+    params.repn->expand();
     if (repn->name_generation_policy == Model::NameGeneration::eager)
         params.generate_names();
     else if (repn->name_generation_policy == Model::NameGeneration::lazy)

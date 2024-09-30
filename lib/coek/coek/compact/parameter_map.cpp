@@ -12,18 +12,22 @@ namespace coek {
 class ParameterMapRepn : public ParameterAssocArrayRepn {
    public:
     ConcreteSet concrete_set;
-    std::unordered_map<IndexVector, size_t> index;
+    std::unordered_map<IndexVector, size_t> index_map;
     bool names_generated = false;
 
    public:
     ParameterMapRepn(const ConcreteSet& _arg) : concrete_set(_arg)
     {
+        #ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
+        #endif
     }
 
     virtual ~ParameterMapRepn() {}
 
-    void setup();
+    Parameter index(const IndexVector& args);
+
+    void expand();
 
     size_t dim() { return concrete_set.dim(); }
 
@@ -43,17 +47,21 @@ void ParameterMapRepn::generate_names()
     if (name == "")
         return;
 
-    setup();
+    expand();
 
     size_t _dim = dim();
+    #ifdef CUSTOM_INDEXVECTOR
     std::vector<int> x_data(_dim);
     IndexVector x(&(x_data[0]), _dim);
+    #else
+    IndexVector x(_dim);
+    #endif
     for (auto& indices : concrete_set) {
         for (size_t j = 0; j < _dim; j++)
             x[j] = indices[j];
         if (indices.size() == 1) {
             auto tmp = indices[0];
-            values[index[x]].name(name + "[" + std::to_string(tmp) + "]");
+            values[index_map[x]].name(name + "[" + std::to_string(tmp) + "]");
         }
         else {
             std::string _name = name + "[";
@@ -63,23 +71,27 @@ void ParameterMapRepn::generate_names()
                 auto tmp = indices[j];
                 _name += "," + std::to_string(tmp);
             }
-            values[index[x]].name(_name + "]");
+            values[index_map[x]].name(_name + "]");
         }
     }
 }
 
-void ParameterMapRepn::setup()
+void ParameterMapRepn::expand()
 {
-    if (first_setup) {
-        ParameterAssocArrayRepn::setup();
+    if (first_expand) {
+        ParameterAssocArrayRepn::expand();
 
         size_t _dim = dim();
         size_t i = 0;
         for (auto& vec : concrete_set) {
+            #ifdef CUSTOM_INDEXVECTOR
             auto x = cache.alloc(_dim);
+            #else
+            IndexVector x(_dim);
+            #endif
             for (size_t j = 0; j < _dim; j++)
                 x[j] = vec[j];
-            index[x] = i++;
+            index_map[x] = i++;
         }
     }
 }
@@ -94,18 +106,25 @@ ParameterMap::ParameterMap(const ConcreteSet& arg)
     repn->resize_index_vectors(tmp, reftmp);
 }
 
-ParameterAssocArrayRepn* ParameterMap::get_repn() { return repn.get(); }
+std::shared_ptr<ParameterAssocArrayRepn> ParameterMap::get_repn() { return repn; }
+const std::shared_ptr<ParameterAssocArrayRepn> ParameterMap::get_repn() const { return repn; }
 
 Parameter ParameterMap::index(const IndexVector& args)
+{ return repn->index(args); }
+
+Parameter ParameterMapRepn::index(const IndexVector& args)
 {
     assert(dim() == args.size());
+    expand();
 
-    auto _repn = repn.get();
-    _repn->setup();
+    //std::cerr << "HERE " << index_map.size() << std::endl;
+    //std::cerr << "HERE " << args << std::endl;
+    //for (auto& [k,v]:index_map)
+    //    std::cerr << "HERE " << k << " " << v << std::endl;
 
-    auto curr = _repn->index.find(tmp);
-    if (curr == _repn->index.end()) {
-        std::string err = "Unknown index value: " + _repn->parameter_template.name() + "[";
+    auto curr = index_map.find(args);
+    if (curr == index_map.end()) {
+        std::string err = "Unknown index value: " + parameter_template.name() + "[";
         for (size_t i = 0; i < args.size(); i++) {
             if (i > 0)
                 err += ",";
@@ -114,7 +133,7 @@ Parameter ParameterMap::index(const IndexVector& args)
         err += "]";
         throw std::runtime_error(err);
     }
-    return _repn->values[curr->second];
+    return values[curr->second];
 }
 
 void ParameterMap::index_error(size_t i)
@@ -158,7 +177,7 @@ ParameterMap parameter(const ConcreteSet& arg) { return ParameterMap(arg); }
 
 ParameterMap& Model::add_parameter(ParameterMap& params)
 {
-    params.repn->setup();
+    params.repn->expand();
     if (repn->name_generation_policy == Model::NameGeneration::eager)
         params.generate_names();
     else if (repn->name_generation_policy == Model::NameGeneration::lazy)

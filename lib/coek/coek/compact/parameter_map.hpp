@@ -11,7 +11,8 @@ class ParameterMapRepn;
 class ParameterMap : public ParameterAssocArray {
    public:
     std::shared_ptr<ParameterMapRepn> repn;
-    ParameterAssocArrayRepn* get_repn();
+    std::shared_ptr<ParameterAssocArrayRepn> get_repn();
+    const std::shared_ptr<ParameterAssocArrayRepn> get_repn() const;
 
     Parameter index(const IndexVector& args);
     void index_error(size_t i);

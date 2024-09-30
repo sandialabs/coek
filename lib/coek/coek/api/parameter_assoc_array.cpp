@@ -13,22 +13,30 @@ namespace coek {
 
 ParameterAssocArrayRepn::ParameterAssocArrayRepn() { parameter_template.name("p"); }
 
-void ParameterAssocArrayRepn::resize_index_vectors(IndexVector& tmp,
-                                                   std::vector<refarg_types>& reftmp)
+void ParameterAssocArrayRepn::resize_index_vectors(IndexVector& tmp_,
+                                                   std::vector<refarg_types>& reftmp_)
 {
-    tmp = cache.alloc(dim());
-    reftmp.resize(dim());
+    auto dim_ = dim();
+    #ifdef CUSTOM_INDEXVECTOR
+    tmp = cache.alloc(dim_);
+    tmp_ = cache.alloc(dim_);
+    #else
+    tmp.resize(dim_);
+    tmp_.resize(dim_);
+    #endif
+    reftmp.resize(dim_);
+    reftmp_.resize(dim_);
 }
 
-void ParameterAssocArrayRepn::setup()
+void ParameterAssocArrayRepn::expand()
 {
-    if (first_setup) {
+    if (first_expand) {
         auto value = std::make_shared<ConstantTerm>(
             parameter_template.value_expression().expand().value());
         for (size_t i = 0; i < size(); i++) {
             values.emplace_back(CREATE_POINTER(ParameterTerm, value));
         }
-        first_setup = false;
+        first_expand = false;
     }
 }
 
@@ -80,11 +88,12 @@ std::vector<Parameter>::iterator ParameterAssocArray::end() { return get_repn()-
 
 #ifdef COEK_WITH_COMPACT_MODEL
 expr_pointer_t create_paramref(const std::vector<refarg_types>& indices, const std::string& name,
-                               void* var);
+                               std::shared_ptr<ParameterAssocArrayRepn>& var);
 
 Expression ParameterAssocArray::create_paramref(const std::vector<refarg_types>& args)
 {
-    return coek::create_paramref(args, get_repn()->parameter_template.name(), this);
+    auto repn = get_repn();
+    return coek::create_paramref(args, repn->parameter_template.name(), repn);
 }
 #endif
 
@@ -95,11 +104,13 @@ Expression ParameterAssocArray::create_paramref(const std::vector<refarg_types>&
 #ifdef COEK_WITH_COMPACT_MODEL
 expr_pointer_t get_concrete_param(ParameterRefTerm& paramref)
 {
-    ParameterAssocArray* param = static_cast<ParameterAssocArray*>(paramref.param);
+    //* param = static_cast<ParameterAssocArray*>(paramref.param);
+    auto param = std::dynamic_pointer_cast<ParameterAssocArrayRepn>(paramref.param);
 
     std::vector<int> index;
-    for (auto it = paramref.indices.begin(); it != paramref.indices.end(); ++it) {
-        refarg_types& reftmp = *it;
+    //for (auto it = paramref.indices.begin(); it != paramref.indices.end(); ++it) {
+    //    refarg_types& reftmp = *it;
+    for (auto& reftmp : paramref.indices) {
         if (auto ival = std::get_if<int>(&reftmp))
             index.push_back(*ival);
         else {

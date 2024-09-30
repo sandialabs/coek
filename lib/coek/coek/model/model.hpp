@@ -71,6 +71,7 @@ class Model {
     /** Set the name of the model */
     void name(const std::string& name);
 
+    Parameter& add_parameter(Parameter& param);
 #if __cpp_lib_variant
     ParameterArray& add_parameter(ParameterArray& param);
     ParameterArray& add(ParameterArray& param);

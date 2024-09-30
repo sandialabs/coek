@@ -129,11 +129,15 @@ class CompactModelRepn {
    public:
     std::string name;
     std::vector<std::variant<Objective, ObjectiveSequence>> objectives;
-    std::vector<std::string> objective_names;
     std::vector<std::variant<Constraint, ConstraintSequence>> constraints;
+    std::vector<std::variant<Variable, VariableSequence, VariableMap, VariableArray>> variables;
+    std::vector<std::variant<Parameter, ParameterMap, ParameterArray>> parameters;
+
+    std::vector<std::string> objective_names;
     std::vector<std::string> constraint_names;
-    std::vector<std::variant<Variable, VariableSequence>> variables;
     std::vector<std::string> variable_names;
+    std::vector<std::string> parameter_names;
+
     std::map<std::string, std::variant<CompactVariableMap, ObjectiveMap, CompactConstraintMap>>
         mapped_data;
 };

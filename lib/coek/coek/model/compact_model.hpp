@@ -31,6 +31,15 @@ class CompactModel {
     /** Set the name of the model */
     void name(const std::string& name);
 
+    Parameter& add_parameter(Parameter& param);
+    Parameter& add(Parameter& param);
+    ParameterArray& add_parameter(ParameterArray& param);
+    ParameterArray& add(ParameterArray& param);
+    ParameterArray& add(ParameterArray&& param);
+    ParameterMap& add_parameter(ParameterMap& param);
+    ParameterMap& add(ParameterMap& param);
+    ParameterMap& add(ParameterMap&& param);
+
     /** Create a variable and add it to the model with standard arguments.
      *
      * This specifies an unbounded,
@@ -58,10 +67,8 @@ class CompactModel {
 
     Variable& add(Variable& var) { return add_variable(var); }
     Variable& add(Variable&& var) { return add_variable(var); }
-
     VariableMap& add(VariableMap& var) { return add_variable(var); }
     VariableMap& add(VariableMap&& var) { return add_variable(var); }
-
     VariableArray& add(VariableArray& var) { return add_variable(var); }
     VariableArray& add(VariableArray&& var) { return add_variable(var); }
 

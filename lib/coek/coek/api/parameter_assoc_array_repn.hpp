@@ -17,16 +17,21 @@ typedef std::variant<int, expr_pointer_t> refarg_types;
 
 class ParameterAssocArrayRepn {
    public:
+    #ifdef CUSTOM_INDEXVECTOR
     IndexVectorCache cache;
+    #endif
     std::vector<Parameter> values;
     Parameter parameter_template;
 
-    bool first_setup = true;
+    IndexVector tmp;
+    std::vector<refarg_types> reftmp;
+
+    bool first_expand = true;
 
    public:
     ParameterAssocArrayRepn();
 
-    virtual void setup();
+    virtual void expand();
     virtual void generate_names() = 0;
 
     virtual size_t dim() = 0;
@@ -41,6 +46,12 @@ class ParameterAssocArrayRepn {
 
     /** Set the name of the variable. */
     void name(const std::string& name);
+
+    virtual Parameter index(const IndexVector& args) = 0;
+
+#ifdef COEK_WITH_COMPACT_MODEL
+    Expression create_paramref(const std::vector<refarg_types>& indices);
+#endif
 };
 
 }  // namespace coek

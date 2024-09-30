@@ -268,6 +268,9 @@ class Variable {
     /** \returns \c false because this is not a constant expression */
     bool is_constant() const { return false; }
 
+    /** \returns an expanded Variable */
+    Variable expand();
+
     /**
      * \name Stream operator
      *

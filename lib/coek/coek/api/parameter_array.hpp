@@ -14,7 +14,7 @@ class ParameterArrayRepn;
 class ParameterArray : public ParameterAssocArray {
    public:
     std::shared_ptr<ParameterArrayRepn> repn;
-    ParameterAssocArrayRepn* get_repn();
+    std::shared_ptr<ParameterAssocArrayRepn> get_repn();
 
     Parameter index(const IndexVector& args);
     void index_error(size_t i);
