@@ -113,7 +113,7 @@ class IndexVectorCache {
 
     IndexVector alloc(size_t _len)
     {
-        std::cout << "HERE" << curr << " " << _len << " " << len << std::endl;
+        //std::cout << "HERE" << curr << " " << _len << " " << len << std::endl;
         assert((curr + _len + 1) <= len);
         auto tmp = data + curr;
         *tmp = static_cast<value_type>(_len);

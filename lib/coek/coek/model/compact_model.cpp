@@ -250,7 +250,7 @@ Model CompactModel::expand()
         }
     }
 
-    std::cerr << "VARIABLES " << repn->variables.size() << std::endl;
+    //std::cerr << "VARIABLES " << repn->variables.size() << std::endl;
     for (auto& val : repn->variables) {
         if (auto eval = std::get_if<Variable>(&val)) {
             auto var = eval->expand();
@@ -258,7 +258,7 @@ Model CompactModel::expand()
         }
         else if (auto eval = std::get_if<VariableSequence>(&val)) {
             for (auto jt = eval->begin(); jt != eval->end(); ++jt) {
-                std::cerr << "VARIABLE " << jt->name() << std::endl;
+                //std::cerr << "VARIABLE " << jt->name() << std::endl;
                 Expression lb = jt->lower_expression().expand();
                 jt->lower(lb.value());
                 Expression ub = jt->upper_expression().expand();
@@ -269,12 +269,12 @@ Model CompactModel::expand()
             }
         }
         else if (auto eval = std::get_if<VariableMap>(&val)) {
-            std::cerr << "VARIABLEMAP " << eval->size() << std::endl;
+            //std::cerr << "VARIABLEMAP " << eval->size() << std::endl;
             eval->expand();
             model.add_variable(*eval);
         }
         else if (auto eval = std::get_if<VariableArray>(&val)) {
-            std::cerr << "VARIABLEARRAY " << eval->size() << std::endl;
+            //std::cerr << "VARIABLEARRAY " << eval->size() << std::endl;
             eval->expand();
             model.add_variable(*eval);
         }
