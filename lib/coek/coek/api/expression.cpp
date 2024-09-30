@@ -8,10 +8,6 @@
 
 namespace coek {
 
-#ifdef COEK_WITH_COMPACT_MODEL
-expr_pointer_t convert_expr_template(const expr_pointer_t& expr);
-#endif
-
 //
 // Parameter
 //
@@ -371,11 +367,7 @@ Expression Expression::diff(const Variable& var) const
 
 Expression Expression::expand()
 {
-#ifdef COEK_WITH_COMPACT_MODEL
-    return convert_expr_template(repn);
-#else
-    return *this;
-#endif
+    return expand_expr(repn);
 }
 
 std::ostream& operator<<(std::ostream& ostr, const Expression& arg)

@@ -1,12 +1,9 @@
-#include "coek/model/compact_model.hpp"
 
-#include "../ast/varray.hpp"
-#include "../util/string_utils.hpp"
+#include "coek/util/string_utils.hpp"
+#include "coek/ast/varray.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
-// #ifdef COEK_WITH_COMPACT_MODEL
-// #include "coek/compact/coek_exprterm.hpp"
-// #endif
+#include "coek/model/compact_model.hpp"
 #include "model_repn.hpp"
 
 namespace coek {

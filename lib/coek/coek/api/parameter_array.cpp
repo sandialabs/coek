@@ -1,5 +1,5 @@
+#include "coek/ast/value_terms.hpp"
 #include "coek/api/parameter_array.hpp"
-
 #include "coek/api/parameter_assoc_array_repn.hpp"
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
@@ -39,7 +39,7 @@ class ParameterArrayRepn : public ParameterAssocArrayRepn {
 
     virtual ~ParameterArrayRepn() {}
 
-    Parameter index(const IndexVector& args);
+    std::shared_ptr<ParameterTerm> index(const IndexVector& args);
 
     size_t dim() { return shape.size(); }
 
@@ -79,7 +79,7 @@ void ParameterArrayRepn::generate_names()
     // If no name has been provided to this array object,
     // then we do not try to generate names.  The default/simple
     // parameter names will be used.
-    std::string name = parameter_template.name();
+    std::string name = value_template.name();
     if (name.size() == 0)
         return;
 
@@ -117,7 +117,7 @@ std::shared_ptr<ParameterAssocArrayRepn> ParameterArray::get_repn() { return rep
 Parameter ParameterArray::index(const IndexVector& args)
 { return repn->index(args); }
 
-Parameter ParameterArrayRepn::index(const IndexVector& args)
+std::shared_ptr<ParameterTerm> ParameterArrayRepn::index(const IndexVector& args)
 {
     //auto _repn = repn.get();
     //auto& shape = _repn->shape;
@@ -134,7 +134,7 @@ Parameter ParameterArrayRepn::index(const IndexVector& args)
     if (ndx > size()) {
         // TODO - Can't we do better than this check?  Do we check if each index is in the correct
         // range?
-        std::string err = "Unknown index value: " + parameter_template.name() + "[";
+        std::string err = "Unknown index value: " + value_template.name() + "[";
         for (size_t i = 0; i < args.size(); i++) {
             if (i > 0)
                 err += ",";
@@ -144,13 +144,13 @@ Parameter ParameterArrayRepn::index(const IndexVector& args)
         throw std::runtime_error(err);
     }
 
-    return values[ndx];
+    return values[ndx].repn;
 }
 
 void ParameterArray::index_error(size_t i)
 {
     auto _repn = repn.get();
-    std::string err = "Unexpected index value: " + _repn->parameter_template.name() + " is an "
+    std::string err = "Unexpected index value: " + _repn->value_template.name() + " is an "
                       + std::to_string(tmp.size()) + "-D parameter array but is being indexed with "
                       + std::to_string(i) + " indices.";
     throw std::runtime_error(err);

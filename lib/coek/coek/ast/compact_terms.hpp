@@ -6,11 +6,9 @@
 
 #include "base_terms.hpp"
 #include "value_terms.hpp"
+#include "assoc_array_base.hpp"
 
 namespace coek {
-
-class ParameterAssocArrayRepn;
-class VariableAssocArrayRepn;
 
 typedef std::variant<int, expr_pointer_t> refarg_types;
 
@@ -18,28 +16,32 @@ class ParameterRefTerm : public BaseParameterTerm {
    public:
     std::vector<refarg_types> indices;
     std::string name;
-    std::shared_ptr<ParameterAssocArrayRepn> param;
+    std::shared_ptr<AssocArrayBase<ParameterTerm>> param;
 
    public:
     ParameterRefTerm(const std::vector<refarg_types>& _indices, const std::string& _name,
-                     std::shared_ptr<ParameterAssocArrayRepn>& _param);
+                     std::shared_ptr<AssocArrayBase<ParameterTerm>>& _param);
 
     double _eval() const { throw std::runtime_error("Cannot evaluate a ParameterRefTerm"); }
     term_id id() { return ParameterRefTerm_id; }
+
+    expr_pointer_t get_concrete_parameter();
 };
 
 class VariableRefTerm : public BaseVariableTerm {
    public:
     std::vector<refarg_types> indices;
     std::string name;
-    std::shared_ptr<VariableAssocArrayRepn> var;
+    std::shared_ptr<AssocArrayBase<VariableTerm>> var;
 
    public:
     VariableRefTerm(const std::vector<refarg_types>& _indices, const std::string& _name,
-                    std::shared_ptr<VariableAssocArrayRepn>& _var);
+                    std::shared_ptr<AssocArrayBase<VariableTerm>>& _var);
 
     double _eval() const { throw std::runtime_error("Cannot evaluate a VariableRefTerm"); }
     term_id id() { return VariableRefTerm_id; }
+
+    expr_pointer_t get_concrete_variable();
 };
 
 class SetRefTerm : public BaseExpressionTerm {

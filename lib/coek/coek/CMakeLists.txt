@@ -6,10 +6,19 @@ SET(sources
     util/option_cache.cpp
     util/tictoc.cpp
     util/string_utils.cpp
+    )
+if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
+    list(APPEND sources
+        util/DataPortal.cpp
+        )
+endif()
+
+list(APPEND sources
     ast/base_terms.cpp
     ast/constraint_terms.cpp
     ast/value_terms.cpp
     ast/expr_terms.cpp
+    ast/visitor_expand.cpp
     ast/visitor_to_list.cpp
     ast/visitor_write_expr.cpp
     ast/visitor_to_MutableNLPExpr.cpp
@@ -20,18 +29,44 @@ SET(sources
     ast/visitor_simplify.cpp
     ast/visitor_eval.cpp
     #ast/varray.cpp
+    )
+if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
+    list(APPEND sources
+        ast/compact_terms.cpp
+        )
+endif()
+
+list(APPEND sources
     api/constants.cpp
     api/expression.cpp
     api/expression_visitor.cpp
     api/objective.cpp
     api/constraint.cpp
     api/intrinsic_fn.cpp
+    )
+if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
+    list(APPEND sources
+        api/parameter_assoc_array_repn.cpp
+        api/parameter_assoc_array.cpp
+        api/parameter_array.cpp
+        api/variable_assoc_array_repn.cpp
+        api/variable_assoc_array.cpp
+        api/variable_array.cpp
+        api/constraint_map.cpp
+        api/subexpression_map.cpp
+        )
+endif()
+
+list(APPEND sources
     model/model.cpp
     model/compact_model.cpp
     model/nlp_model.cpp
     model/writer_lp.cpp
     model/writer_nl.cpp
     model/reader_jpof.cpp
+    )
+
+list(APPEND sources
     solvers/solver_results.cpp
     solvers/solver.cpp
     solvers/solver_repn.cpp
@@ -40,18 +75,6 @@ SET(sources
     autograd/autograd.cpp
     abstract/expr_rule.cpp
    )
-if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
-    list(APPEND sources
-        ast/compact_terms.cpp
-        api/parameter_assoc_array.cpp
-        api/parameter_array.cpp
-        api/variable_assoc_array.cpp
-        api/variable_array.cpp
-        api/constraint_map.cpp
-        api/subexpression_map.cpp
-        util/DataPortal.cpp
-        )
-endif()
 
 if(with_compact)
     list(APPEND sources

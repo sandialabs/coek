@@ -25,7 +25,7 @@ class ParameterMapRepn : public ParameterAssocArrayRepn {
 
     virtual ~ParameterMapRepn() {}
 
-    Parameter index(const IndexVector& args);
+    std::shared_ptr<ParameterTerm> index(const IndexVector& args);
 
     void expand();
 
@@ -43,7 +43,7 @@ void ParameterMapRepn::generate_names()
     // If no name has been provided to this map object,
     // then we do not try to generate names.  The default/simple
     // parameter names will be used.
-    auto name = parameter_template.name();
+    auto name = value_template.name();
     if (name == "")
         return;
 
@@ -112,7 +112,7 @@ const std::shared_ptr<ParameterAssocArrayRepn> ParameterMap::get_repn() const { 
 Parameter ParameterMap::index(const IndexVector& args)
 { return repn->index(args); }
 
-Parameter ParameterMapRepn::index(const IndexVector& args)
+std::shared_ptr<ParameterTerm> ParameterMapRepn::index(const IndexVector& args)
 {
     assert(dim() == args.size());
     expand();
@@ -124,7 +124,7 @@ Parameter ParameterMapRepn::index(const IndexVector& args)
 
     auto curr = index_map.find(args);
     if (curr == index_map.end()) {
-        std::string err = "Unknown index value: " + parameter_template.name() + "[";
+        std::string err = "Unknown index value: " + value_template.name() + "[";
         for (size_t i = 0; i < args.size(); i++) {
             if (i > 0)
                 err += ",";
@@ -133,13 +133,13 @@ Parameter ParameterMapRepn::index(const IndexVector& args)
         err += "]";
         throw std::runtime_error(err);
     }
-    return values[curr->second];
+    return values[curr->second].repn;
 }
 
 void ParameterMap::index_error(size_t i)
 {
     auto _repn = repn.get();
-    std::string err = "Unexpected index value: " + _repn->parameter_template.name() + " is an "
+    std::string err = "Unexpected index value: " + _repn->value_template.name() + " is an "
                       + std::to_string(tmp.size()) + "-D parameter map but is being indexed with "
                       + std::to_string(i) + " indices.";
     throw std::runtime_error(err);

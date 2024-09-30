@@ -9,9 +9,6 @@
 
 namespace coek {
 
-expr_pointer_t get_concrete_var(VariableRefTerm& varref);
-expr_pointer_t get_concrete_param(ParameterRefTerm& paramref);
-
 namespace convert_expr_visitor {
 
 expr_pointer_t visit_expression(const expr_pointer_t& expr);
@@ -39,13 +36,13 @@ expr_pointer_t visit_IndexParameterTerm(const expr_pointer_t& expr)
 expr_pointer_t visit_ParameterRefTerm(const expr_pointer_t& expr)
 {
     auto tmp = safe_pointer_cast<ParameterRefTerm>(expr);
-    return get_concrete_param(*tmp);
+    return tmp->get_concrete_parameter();
 }
 
 expr_pointer_t visit_VariableRefTerm(const expr_pointer_t& expr)
 {
     auto tmp = safe_pointer_cast<VariableRefTerm>(expr);
-    return get_concrete_var(*tmp);
+    return tmp->get_concrete_variable();
 }
 
 expr_pointer_t visit_ObjectiveTerm(const expr_pointer_t& expr)

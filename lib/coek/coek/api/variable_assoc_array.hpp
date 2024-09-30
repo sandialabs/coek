@@ -20,7 +20,6 @@ class VariableAssocArray {
 
     void expand();
 
-    virtual Variable index(const IndexVector& args) = 0;
 #ifdef COEK_WITH_COMPACT_MODEL
     Expression create_varref(const std::vector<refarg_types>& indices);
 #endif

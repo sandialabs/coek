@@ -36,14 +36,14 @@ class VariableMapRepn : public VariableAssocArrayRepn {
 
     virtual ~VariableMapRepn() {}
 
-    Variable index(const IndexVector& args);
+    std::shared_ptr<VariableTerm> index(const IndexVector& args);
 
     void expand();
 
     // TODO - evaluate whether it is reasonable to use const_cast here
-    size_t dim() const { return const_cast<ConcreteSet&>(concrete_set).dim(); }
+    size_t dim() { return const_cast<ConcreteSet&>(concrete_set).dim(); }
 
-    size_t size() const { return const_cast<ConcreteSet&>(concrete_set).size(); }
+    size_t size() { return const_cast<ConcreteSet&>(concrete_set).size(); }
 
     void generate_names();
 };
@@ -53,7 +53,7 @@ void VariableMapRepn::generate_names()
     // If no name has been provided to this map object,
     // then we do not try to generate names.  The default/simple
     // variable names will be used.
-    auto name = variable_template.name();
+    auto name = value_template.name();
     if (name == "")
         return;
 
@@ -134,7 +134,7 @@ const std::shared_ptr<VariableAssocArrayRepn> VariableMap::get_repn() const { re
 Variable VariableMap::index(const IndexVector& args)
 { return repn->index(args); }
 
-Variable VariableMapRepn::index(const IndexVector& args)
+std::shared_ptr<VariableTerm> VariableMapRepn::index(const IndexVector& args)
 {
     assert(dim() == args.size());
 
@@ -143,7 +143,7 @@ Variable VariableMapRepn::index(const IndexVector& args)
 
     auto curr = index_map.find(args);
     if (curr == index_map.end()) {
-        std::string err = "Unknown index value: " + variable_template.name() + "[";
+        std::string err = "Unknown index value: " + value_template.name() + "[";
         for (size_t i = 0; i < args.size(); i++) {
             if (i > 0)
                 err += ",";
@@ -152,13 +152,13 @@ Variable VariableMapRepn::index(const IndexVector& args)
         err += "]";
         throw std::runtime_error(err);
     }
-    return values[curr->second];
+    return values[curr->second].repn;
 }
 
 void VariableMap::index_error(size_t i)
 {
     auto _repn = repn.get();
-    std::string err = "Unexpected index value: " + _repn->variable_template.name() + " is an "
+    std::string err = "Unexpected index value: " + _repn->value_template.name() + " is an "
                       + std::to_string(tmp.size()) + "-D variable map but is being indexed with "
                       + std::to_string(i) + " indices.";
     throw std::runtime_error(err);
