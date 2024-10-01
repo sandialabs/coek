@@ -24,9 +24,9 @@ typedef std::variant<int, expr_pointer_t> refarg_types;
 template <class TYPE>
 class IndexedComponentRepn {
    public:
-    #ifdef CUSTOM_INDEXVECTOR
+#ifdef CUSTOM_INDEXVECTOR
     IndexVectorCache cache;
-    #endif
+#endif
     std::map<IndexVector, TYPE> value;
     size_t _dim;
     std::string _name;
@@ -40,11 +40,11 @@ class IndexedComponentRepn {
 
     void resize_index_vectors(IndexVector& tmp, std::vector<refarg_types>& reftmp)
     {
-        #ifdef CUSTOM_INDEXVECTOR
-        tmp = cache.alloc(2*dim());
-        #else
+#ifdef CUSTOM_INDEXVECTOR
+        tmp = cache.alloc(2 * dim());
+#else
         tmp.resize(dim());
-        #endif
+#endif
         reftmp.resize(dim());
     }
 

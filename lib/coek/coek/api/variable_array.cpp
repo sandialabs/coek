@@ -12,29 +12,29 @@ class VariableArrayRepn : public VariableAssocArrayRepn {
     size_t _size;
 
    public:
-    VariableArrayRepn(size_t n) : shape({n}), _size(n) 
+    VariableArrayRepn(size_t n) : shape({n}), _size(n)
     {
-        #ifdef CUSTOM_INDEXVECTOR
+#ifdef CUSTOM_INDEXVECTOR
         cache.resize(2 * (size() + 1) * 2);
-        #endif
+#endif
     }
 
     VariableArrayRepn(const std::vector<size_t>& _shape) : shape(_shape), _size(1)
     {
         for (auto n : shape)
             _size *= n;
-        #ifdef CUSTOM_INDEXVECTOR
+#ifdef CUSTOM_INDEXVECTOR
         cache.resize(2 * (size() + 1) * (dim() + 1));
-        #endif
+#endif
     }
 
     VariableArrayRepn(const std::initializer_list<size_t>& _shape) : shape(_shape), _size(1)
     {
         for (auto n : shape)
             _size *= n;
-        #ifdef CUSTOM_INDEXVECTOR
+#ifdef CUSTOM_INDEXVECTOR
         cache.resize(2 * (size() + 1) * (dim() + 1));
-        #endif
+#endif
     }
 
     virtual ~VariableArrayRepn() {}
@@ -123,13 +123,12 @@ VariableArray::VariableArray(const std::initializer_list<size_t>& shape)
 std::shared_ptr<VariableAssocArrayRepn> VariableArray::get_repn() { return repn; }
 const std::shared_ptr<VariableAssocArrayRepn> VariableArray::get_repn() const { return repn; }
 
-Variable VariableArray::index(const IndexVector& args)
-{ return repn->index(args); }
+Variable VariableArray::index(const IndexVector& args) { return repn->index(args); }
 
 std::shared_ptr<VariableTerm> VariableArrayRepn::index(const IndexVector& args)
 {
-    //auto _repn = repn.get();
-    //auto& shape = _repn->shape;
+    // auto _repn = repn.get();
+    // auto& shape = _repn->shape;
     assert(args.size() == shape.size());
 
     expand();

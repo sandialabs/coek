@@ -136,7 +136,8 @@ void visit_StrictInequalityTerm(const expr_pointer_t& expr, VisitorData& data)
         data.last_expr = std::make_shared<StrictInequalityTerm>(
             tmp->lower, std::make_shared<ConstantTerm>(data.last_value), tmp->upper);
     else
-        data.last_expr = std::make_shared<StrictInequalityTerm>(tmp->lower, data.last_expr, tmp->upper);
+        data.last_expr
+            = std::make_shared<StrictInequalityTerm>(tmp->lower, data.last_expr, tmp->upper);
 }
 
 void visit_EqualityTerm(const expr_pointer_t& expr, VisitorData& data)

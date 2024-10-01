@@ -6,7 +6,7 @@
 #include <map>
 #include <iostream>
 #ifndef CUSTOM_INDEXVECTOR
-#include <vector>
+#    include <vector>
 #endif
 
 namespace coek {
@@ -107,13 +107,13 @@ class IndexVectorCache {
         assert(len == 0);
         len = _len;
         if (data)
-            delete [] data;
+            delete[] data;
         data = new value_type[len];
     }
 
     IndexVector alloc(size_t _len)
     {
-        //std::cout << "HERE" << curr << " " << _len << " " << len << std::endl;
+        // std::cout << "HERE" << curr << " " << _len << " " << len << std::endl;
         assert((curr + _len + 1) <= len);
         auto tmp = data + curr;
         *tmp = static_cast<value_type>(_len);

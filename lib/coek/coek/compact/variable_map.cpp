@@ -22,16 +22,16 @@ class VariableMapRepn : public VariableAssocArrayRepn {
    public:
     VariableMapRepn(const ConcreteSet& _arg) : concrete_set(_arg)
     {
-        #ifdef CUSTOM_INDEXVECTOR
+#ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
-        #endif
+#endif
     }
 
     VariableMapRepn(const SequenceContext& _arg) : concrete_set(_arg.index_set())
     {
-        #ifdef CUSTOM_INDEXVECTOR
+#ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
-        #endif
+#endif
     }
 
     virtual ~VariableMapRepn() {}
@@ -60,12 +60,12 @@ void VariableMapRepn::generate_names()
     expand();
 
     size_t _dim = dim();
-    #ifdef CUSTOM_INDEXVECTOR
+#ifdef CUSTOM_INDEXVECTOR
     std::vector<int> x_data(_dim);
     IndexVector x(&(x_data[0]), _dim);
-    #else
+#else
     IndexVector x(_dim);
-    #endif
+#endif
     for (auto& indices : concrete_set) {
         for (size_t j = 0; j < _dim; j++)
             x[j] = indices[j];
@@ -93,21 +93,21 @@ void VariableMapRepn::expand()
 
         size_t _dim = dim();
         size_t i = 0;
-        #ifdef CUSTOM_INDEXVECTOR
+#ifdef CUSTOM_INDEXVECTOR
         for (auto& vec : concrete_set) {
             auto x = cache.alloc(_dim);
             for (size_t j = 0; j < _dim; j++)
                 x[j] = vec[j];
             index_map[x] = i++;
         }
-        #else
+#else
         IndexVector x(_dim);
         for (auto& vec : concrete_set) {
             for (size_t j = 0; j < _dim; j++)
                 x[j] = vec[j];
             index_map[x] = i++;
         }
-        #endif
+#endif
     }
 }
 
@@ -131,14 +131,13 @@ std::shared_ptr<VariableAssocArrayRepn> VariableMap::get_repn() { return repn; }
 
 const std::shared_ptr<VariableAssocArrayRepn> VariableMap::get_repn() const { return repn; }
 
-Variable VariableMap::index(const IndexVector& args)
-{ return repn->index(args); }
+Variable VariableMap::index(const IndexVector& args) { return repn->index(args); }
 
 std::shared_ptr<VariableTerm> VariableMapRepn::index(const IndexVector& args)
 {
     assert(dim() == args.size());
 
-    //auto _repn = repn.get();
+    // auto _repn = repn.get();
     expand();
 
     auto curr = index_map.find(args);

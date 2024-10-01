@@ -32,20 +32,15 @@ std::string CompactModel::name() const { return repn->name; }
 
 void CompactModel::name(const std::string& name) { repn->name = name; }
 
-Parameter& CompactModel::add(Parameter& params)
-{ return add_parameter(params); }
+Parameter& CompactModel::add(Parameter& params) { return add_parameter(params); }
 
-ParameterArray& CompactModel::add(ParameterArray&& params)
-{ return add_parameter(params); }
+ParameterArray& CompactModel::add(ParameterArray&& params) { return add_parameter(params); }
 
-ParameterArray& CompactModel::add(ParameterArray& params)
-{ return add_parameter(params); }
+ParameterArray& CompactModel::add(ParameterArray& params) { return add_parameter(params); }
 
-ParameterMap& CompactModel::add(ParameterMap& params)
-{ return add_parameter(params); }
+ParameterMap& CompactModel::add(ParameterMap& params) { return add_parameter(params); }
 
-ParameterMap& CompactModel::add(ParameterMap&& params)
-{ return add_parameter(params); }
+ParameterMap& CompactModel::add(ParameterMap&& params) { return add_parameter(params); }
 
 Parameter& CompactModel::add_parameter(Parameter& param)
 {
@@ -63,10 +58,10 @@ ParameterArray& CompactModel::add_parameter(ParameterArray& params)
 
 ParameterMap& CompactModel::add_parameter(ParameterMap& params)
 {
-#if 0
+#    if 0
     for (auto& param : params)
         repn->parameters.push_back(param);
-#endif
+#    endif
     repn->parameters.push_back(params);
     repn->parameter_names.insert(repn->parameter_names.end(), params.size(), "");
     return params;
@@ -133,11 +128,11 @@ VariableArray& CompactModel::add_variable(VariableArray& vars)
 
 VariableArray& CompactModel::add_variable(VariableArray&& vars)
 {
-#if 0
+#    if 0
     for (auto& var : vars)
         repn->variables.push_back(var);
     // repn->variables.insert(repn->variables.end(), vars.begin(), vars.end());
-#endif
+#    endif
     repn->variables.push_back(vars);
     repn->variable_names.push_back("");
     return vars;
@@ -247,7 +242,7 @@ Model CompactModel::expand()
         }
     }
 
-    //std::cerr << "VARIABLES " << repn->variables.size() << std::endl;
+    // std::cerr << "VARIABLES " << repn->variables.size() << std::endl;
     for (auto& val : repn->variables) {
         if (auto eval = std::get_if<Variable>(&val)) {
             auto var = eval->expand();
@@ -255,7 +250,7 @@ Model CompactModel::expand()
         }
         else if (auto eval = std::get_if<VariableSequence>(&val)) {
             for (auto jt = eval->begin(); jt != eval->end(); ++jt) {
-                //std::cerr << "VARIABLE " << jt->name() << std::endl;
+                // std::cerr << "VARIABLE " << jt->name() << std::endl;
                 Expression lb = jt->lower_expression().expand();
                 jt->lower(lb.value());
                 Expression ub = jt->upper_expression().expand();
@@ -266,12 +261,12 @@ Model CompactModel::expand()
             }
         }
         else if (auto eval = std::get_if<VariableMap>(&val)) {
-            //std::cerr << "VARIABLEMAP " << eval->size() << std::endl;
+            // std::cerr << "VARIABLEMAP " << eval->size() << std::endl;
             eval->expand();
             model.add_variable(*eval);
         }
         else if (auto eval = std::get_if<VariableArray>(&val)) {
-            //std::cerr << "VARIABLEARRAY " << eval->size() << std::endl;
+            // std::cerr << "VARIABLEARRAY " << eval->size() << std::endl;
             eval->expand();
             model.add_variable(*eval);
         }

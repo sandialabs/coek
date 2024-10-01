@@ -18,9 +18,9 @@ class ParameterMapRepn : public ParameterAssocArrayRepn {
    public:
     ParameterMapRepn(const ConcreteSet& _arg) : concrete_set(_arg)
     {
-        #ifdef CUSTOM_INDEXVECTOR
+#ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
-        #endif
+#endif
     }
 
     virtual ~ParameterMapRepn() {}
@@ -50,12 +50,12 @@ void ParameterMapRepn::generate_names()
     expand();
 
     size_t _dim = dim();
-    #ifdef CUSTOM_INDEXVECTOR
+#ifdef CUSTOM_INDEXVECTOR
     std::vector<int> x_data(_dim);
     IndexVector x(&(x_data[0]), _dim);
-    #else
+#else
     IndexVector x(_dim);
-    #endif
+#endif
     for (auto& indices : concrete_set) {
         for (size_t j = 0; j < _dim; j++)
             x[j] = indices[j];
@@ -84,11 +84,11 @@ void ParameterMapRepn::expand()
         size_t _dim = dim();
         size_t i = 0;
         for (auto& vec : concrete_set) {
-            #ifdef CUSTOM_INDEXVECTOR
+#ifdef CUSTOM_INDEXVECTOR
             auto x = cache.alloc(_dim);
-            #else
+#else
             IndexVector x(_dim);
-            #endif
+#endif
             for (size_t j = 0; j < _dim; j++)
                 x[j] = vec[j];
             index_map[x] = i++;
@@ -109,18 +109,17 @@ ParameterMap::ParameterMap(const ConcreteSet& arg)
 std::shared_ptr<ParameterAssocArrayRepn> ParameterMap::get_repn() { return repn; }
 const std::shared_ptr<ParameterAssocArrayRepn> ParameterMap::get_repn() const { return repn; }
 
-Parameter ParameterMap::index(const IndexVector& args)
-{ return repn->index(args); }
+Parameter ParameterMap::index(const IndexVector& args) { return repn->index(args); }
 
 std::shared_ptr<ParameterTerm> ParameterMapRepn::index(const IndexVector& args)
 {
     assert(dim() == args.size());
     expand();
 
-    //std::cerr << "HERE " << index_map.size() << std::endl;
-    //std::cerr << "HERE " << args << std::endl;
-    //for (auto& [k,v]:index_map)
-    //    std::cerr << "HERE " << k << " " << v << std::endl;
+    // std::cerr << "HERE " << index_map.size() << std::endl;
+    // std::cerr << "HERE " << args << std::endl;
+    // for (auto& [k,v]:index_map)
+    //     std::cerr << "HERE " << k << " " << v << std::endl;
 
     auto curr = index_map.find(args);
     if (curr == index_map.end()) {

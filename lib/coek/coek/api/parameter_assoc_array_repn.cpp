@@ -3,16 +3,14 @@
 
 namespace coek {
 
-ParameterAssocArrayRepn::ParameterAssocArrayRepn()
-{
-value_template.name("p");
-}
+ParameterAssocArrayRepn::ParameterAssocArrayRepn() { value_template.name("p"); }
 
 void ParameterAssocArrayRepn::expand()
 {
     if (first_expand) {
-        auto value = std::make_shared<ConstantTerm>( value_template.value_expression().expand().value() );
-            //expand_expr(value_template.->value)->eval());
+        auto value
+            = std::make_shared<ConstantTerm>(value_template.value_expression().expand().value());
+        // expand_expr(value_template.->value)->eval());
         for (size_t i = 0; i < size(); i++) {
             values.emplace_back(CREATE_POINTER(ParameterTerm, value));
         }
@@ -54,4 +52,4 @@ void ParameterAssocArrayRepn::name(const std::string& name)
     }
 }
 
-}
+}  // namespace coek

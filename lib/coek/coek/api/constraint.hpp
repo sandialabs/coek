@@ -47,7 +47,6 @@ class Constraint {
     /** \returns \c true if the constraint is feasible */
     bool is_feasible() const;
 
-
     /** \returns the expression for the constraint lower bound */
     Expression lower() const;
     /** \returns the expression for the constraint body */

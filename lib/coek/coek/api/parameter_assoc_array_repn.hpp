@@ -9,12 +9,10 @@ class ParameterTerm;
 
 class ParameterAssocArrayRepn : public AssocArrayBase<ParameterTerm> {
    public:
-
     std::vector<Parameter> values;
     Parameter value_template;
 
    public:
-
     ParameterAssocArrayRepn();
 
     virtual void expand();

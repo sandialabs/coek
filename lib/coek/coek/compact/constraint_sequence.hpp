@@ -42,7 +42,8 @@ class ConstraintSequence {
    public:
     ConstraintSequence(const std::shared_ptr<ConstraintSequenceRepn>& _repn);
     ConstraintSequence(const SequenceContext& context, const Constraint& con);
-    ConstraintSequence(const std::string& name, const SequenceContext& context, const Constraint& con);
+    ConstraintSequence(const std::string& name, const SequenceContext& context,
+                       const Constraint& con);
     ConstraintSequence(const std::string& name, const SequenceContext& context);
 
     ConstraintSequence& expr(const Constraint& con);

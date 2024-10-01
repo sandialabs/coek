@@ -15,4 +15,4 @@ expr_pointer_t expand_expr(const expr_pointer_t& repn)
 #endif
 }
 
-} // namespace coek
+}  // namespace coek

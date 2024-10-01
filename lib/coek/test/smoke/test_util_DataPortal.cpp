@@ -17,8 +17,8 @@ TEST_CASE("DP_misc", "[smoke]")
     }
 }
 )");
-    REQUIRE(dp.contains("A") == true);
-    REQUIRE(dp.contains("unknown") == false);
+        REQUIRE(dp.contains("A") == true);
+        REQUIRE(dp.contains("unknown") == false);
     }
 }
 

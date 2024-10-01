@@ -9,12 +9,10 @@ class VariableTerm;
 
 class VariableAssocArrayRepn : public AssocArrayBase<VariableTerm> {
    public:
-
     std::vector<Variable> values;
     Variable value_template;
 
    public:
-
     VariableAssocArrayRepn();
 
     virtual void expand();
@@ -55,7 +53,6 @@ class VariableAssocArrayRepn : public AssocArrayBase<VariableTerm> {
 #ifdef COEK_WITH_COMPACT_MODEL
     expr_pointer_t create_varref(const std::vector<refarg_types>& indices);
 #endif
-
 };
 
 }  // namespace coek

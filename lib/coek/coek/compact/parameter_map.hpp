@@ -131,13 +131,13 @@ class ParameterMap : public ParameterAssocArray {
     /** Set the initial parameter value. \returns the parameter object. */
     ParameterMap& value(const Expression& value);
     template <typename KeyType, typename ValueType>
-    ParameterMap& value(const std::map<KeyType,ValueType>& values)
-        {
-        for (auto& [key,value]: values) {
+    ParameterMap& value(const std::map<KeyType, ValueType>& values)
+    {
+        for (auto& [key, value] : values) {
             this->operator()(key).value(value);
-            }
-        return *this;
         }
+        return *this;
+    }
 
     /** Set the name of the parameter. \returns the parameter object */
     ParameterMap& name(const std::string& name);

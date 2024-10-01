@@ -735,11 +735,14 @@ std::string DataPortalRepn::to_string(unsigned int indent)
 bool DataPortalRepn::contains(const std::string& name) const
 {
 #if __cplusplus >= 202002L
-    return parameter_data.contains(name) || indexed_parameter_data.contains(name) || set_data.contains(name) || indexed_set_data.contains(name);
+    return parameter_data.contains(name) || indexed_parameter_data.contains(name)
+           || set_data.contains(name) || indexed_set_data.contains(name);
 #else
-    return parameter_data.count(name) + indexed_parameter_data.count(name) + set_data.count(name) + indexed_set_data.count(name) > 0;
+    return parameter_data.count(name) + indexed_parameter_data.count(name) + set_data.count(name)
+               + indexed_set_data.count(name)
+           > 0;
 #endif
-return false;
+    return false;
 }
 
 }  // namespace coek

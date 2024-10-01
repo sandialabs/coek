@@ -89,7 +89,7 @@ void VariableAssocArrayRepn::bounds(double lb, double ub)
         coek::Expression lower(lb);
         coek::Expression upper(ub);
         for (auto& var : values)
-            var.bounds(lower,upper);
+            var.bounds(lower, upper);
     }
 }
 
@@ -99,7 +99,7 @@ void VariableAssocArrayRepn::bounds(const Expression& lb, double ub)
     if (values.size() > 0) {
         coek::Expression upper(ub);
         for (auto& var : values)
-            var.bounds(lb,upper);
+            var.bounds(lb, upper);
     }
 }
 
@@ -109,7 +109,7 @@ void VariableAssocArrayRepn::bounds(double lb, const Expression& ub)
     if (values.size() > 0) {
         coek::Expression lower(lb);
         for (auto& var : values)
-            var.bounds(lower,ub);
+            var.bounds(lower, ub);
     }
 }
 
@@ -155,4 +155,4 @@ void VariableAssocArrayRepn::within(VariableTypes vtype)
     }
 }
 
-}
+}  // namespace coek

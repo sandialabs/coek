@@ -108,11 +108,10 @@ class InequalityTerm : public ConstraintTerm {
     term_id id() { return InequalityTerm_id; }
 };
 
-class StrictInequalityTerm : public ConstraintTerm
-{
-public:
+class StrictInequalityTerm : public ConstraintTerm {
+   public:
     StrictInequalityTerm(const expr_pointer_t& lower, const expr_pointer_t& body,
-                   const expr_pointer_t& upper)
+                         const expr_pointer_t& upper)
         : ConstraintTerm(lower, body, upper)
     {
     }

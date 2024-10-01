@@ -1908,17 +1908,18 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         //.def("write", [](coek::Model& m, const std::string& s, std::map<int,int>& varmap,
         // std::map<int,int>& conmap){m.write(s,varmap,conmap);})
         .def("print_equations_", [](coek::Model& m) { m.print_equations(); })
-        .def("print_equations_", [](coek::Model& m, bool) {
-                    std::stringstream ostr;
-                    m.print_equations(ostr);
-                    return ostr.str();
-                    })
+        .def("print_equations_",
+             [](coek::Model& m, bool) {
+                 std::stringstream ostr;
+                 m.print_equations(ostr);
+                 return ostr.str();
+             })
         .def("print_values_", [](coek::Model& m) { m.print_values(); })
         .def("print_values_", [](coek::Model& m, bool) {
-                    std::stringstream ostr;
-                    m.print_values(ostr);
-                    return ostr.str();
-                    });
+            std::stringstream ostr;
+            m.print_values(ostr);
+            return ostr.str();
+        });
 
     //
     // Functions for Compact Expressions

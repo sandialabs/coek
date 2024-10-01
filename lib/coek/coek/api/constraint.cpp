@@ -30,10 +30,12 @@ Constraint& Constraint::operator=(const Constraint& expr)
 }
 
 Constraint& Constraint::expr(const Constraint& expr)
-{ repn = expr.repn; return *this; }
+{
+    repn = expr.repn;
+    return *this;
+}
 
-Constraint Constraint::expr() const
-{ return *this; }
+Constraint Constraint::expr() const { return *this; }
 
 bool Constraint::active() const { return repn->active; }
 

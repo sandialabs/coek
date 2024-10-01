@@ -281,11 +281,11 @@ bool Variable::is_integer() const { return repn->integer; }
 Variable Variable::expand()
 {
 #ifdef COEK_WITH_COMPACT_MODEL
-    auto var = Variable().
-        lower( this->lower_expression().expand() ).
-        upper( this->upper_expression().expand() ).
-        value( this->value_expression().expand() ).
-        within( this->within() );
+    auto var = Variable()
+                   .lower(this->lower_expression().expand())
+                   .upper(this->upper_expression().expand())
+                   .value(this->value_expression().expand())
+                   .within(this->within());
     return var;
 #else
     return *this;
@@ -365,10 +365,7 @@ Expression Expression::diff(const Variable& var) const
     return e;
 }
 
-Expression Expression::expand()
-{
-    return expand_expr(repn);
-}
+Expression Expression::expand() { return expand_expr(repn); }
 
 std::ostream& operator<<(std::ostream& ostr, const Expression& arg)
 {
