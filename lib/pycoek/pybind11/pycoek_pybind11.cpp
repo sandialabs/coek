@@ -307,23 +307,24 @@ void parse_varargs(py::kwargs kwargs, const char* name, TYPE& lb, TYPE _default)
     }
 }
 
-template <typename T>
-class VecKeyIterator : public T {
+class VecKeyIterator {
    public:
     int curr;
 
-    VecKeyIterator() : T() { curr = -1; }
-    VecKeyIterator(T iter) : T(iter) { curr = -1; }
-    int* operator->()
-    {
-        curr++;
-        return &curr;
+    explicit VecKeyIterator(int curr_=0) : curr(curr_) {}
+
+    const int* operator->() const
+    { return &curr; }
+    int operator*() const
+    { return curr; }
+    VecKeyIterator& operator++() {
+        ++curr;
+        std::cout << "here " << curr << std::endl;
+        return *this;
     }
-    int& operator*()
-    {
-        curr++;
-        return curr;
-    }
+    bool operator==(const VecKeyIterator& other) {
+            std::cout << "here x " << (curr == other.curr) << std::endl;
+            return curr == other.curr; }
 };
 
 #if 0
@@ -1274,12 +1275,11 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def("__getitem__", [](coek::VariableArray& va, int i) { return va(i); })
         .def("__getitem__",
              [](coek::VariableArray& va, std::vector<int>& index) {
-                 coek::IndexVector::vecdata_t* data
-                     = new coek::IndexVector::vecdata_t[index.size()];
+                 /*coek::IndexVector::value_type* data = new coek::IndexVector::value_type[index.size()];
                  coek::IndexVector tmp(data, index.size());
                  for (size_t i = 0; i < index.size(); ++i)
-                     tmp[i] = static_cast<size_t>(index[i]);
-                 return va.index(tmp);
+                     tmp[i] = index[i];*/
+                 return va.index(index);
              })
         .def_property_readonly("name",
                                [](coek::VariableArray& x) -> py::object {
@@ -1295,14 +1295,8 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def(
             "__iter__",
             [](const coek::VariableArray& va) {
-                typedef coek::VecKeyIterator<std::vector<coek::Variable>::const_iterator> vec_key_t;
-                return py::make_iterator(vec_key_t(va.cbegin()), vec_key_t(va.cend()));
-                /*
-                if (va.dim() == 0)
-                     return py::make_iterator(vec_key_t(va.begin()), vec_key_t(va.end()));
-                else
-                     return py::make_iterator(va.indexed_begin(), va.indexed_end());
-                */
+                typedef coek::VecKeyIterator vec_key_t;
+                return py::make_iterator(vec_key_t(), vec_key_t(va.size()));
             },
             py::keep_alive<0, 1>());
 
