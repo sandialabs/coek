@@ -104,7 +104,7 @@ if [[ "$with_spack" -eq 1 ]]; then
     else
         if [[ "$spack_dev" -eq 0 ]]; then
             \rm -Rf _spack_tpls
-            git clone https://github.com/or-fusion/or-fusion-spack-repo.git _spack_tpls
+            git clone --depth 1 https://github.com/or-fusion/or-fusion-spack-repo.git _spack_tpls
         else
             git clone git@github.com:or-fusion/or-fusion-spack-repo.git _spack_tpls
             cd _spack_tpls
@@ -139,7 +139,7 @@ if [[ "$with_spack" -eq 1 ]]; then
         echo ""
         echo "Installing Coek dependencies using Spack"
         echo ""
-        git clone https://github.com/spack/spack.git ${SPACK_HOME}
+        git clone --depth 1 https://github.com/spack/spack.git ${SPACK_HOME}
         . ${SPACK_HOME}/share/spack/setup-env.sh
         echo ""
         echo "Removing _spack_tpls"
@@ -150,11 +150,11 @@ if [[ "$with_spack" -eq 1 ]]; then
         echo ""
         spack repo add `pwd`/_spack_tpls/repo
         spack repo list
-        spack env create $spack_env
-        spack env activate $spack_env
         spack external find
         spack compiler find
         spack add asl fmt@8.0.1 rapidjson catch2 highs $with_valgrind $with_scip
+        spack env create $spack_env
+        spack env activate $spack_env
         spack install
         spack env deactivate
         spack repo remove `pwd`/_spack_tpls/repo
