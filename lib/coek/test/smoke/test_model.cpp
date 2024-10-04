@@ -203,11 +203,11 @@ TEST_CASE("model_names", "[smoke]")
 
         REQUIRE(m.name_generation() == coek::Model::NameGeneration::simple);
 #if __cpp_lib_variant
-        REQUIRE(m.repn->parameter_arrays.size() == 0);
-        REQUIRE(m.repn->variable_arrays.size() == 0);
+        REQUIRE(m.repn->parameter_arrays.size() == 2);
+        REQUIRE(m.repn->variable_arrays.size() == 2);
 #    ifdef COEK_WITH_COMPACT_MODEL
-        REQUIRE(m.repn->parameter_maps.size() == 0);
-        REQUIRE(m.repn->variable_maps.size() == 0);
+        REQUIRE(m.repn->parameter_maps.size() == 2);
+        REQUIRE(m.repn->variable_maps.size() == 2);
 #    endif
         REQUIRE(m.repn->constraint_maps.size() == 0);
 #endif
@@ -379,11 +379,11 @@ TEST_CASE("model_names", "[smoke]")
 
         REQUIRE(m.name_generation() == coek::Model::NameGeneration::eager);
 #if __cpp_lib_variant
-        REQUIRE(m.repn->parameter_arrays.size() == 0);
-        REQUIRE(m.repn->variable_arrays.size() == 0);
+        REQUIRE(m.repn->parameter_arrays.size() == 2);
+        REQUIRE(m.repn->variable_arrays.size() == 2);
 #    ifdef COEK_WITH_COMPACT_MODEL
-        REQUIRE(m.repn->parameter_maps.size() == 0);
-        REQUIRE(m.repn->variable_maps.size() == 0);
+        REQUIRE(m.repn->parameter_maps.size() == 2);
+        REQUIRE(m.repn->variable_maps.size() == 2);
 #    endif
         REQUIRE(m.repn->constraint_maps.size() == 0);
 #endif
