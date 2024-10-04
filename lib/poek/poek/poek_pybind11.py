@@ -2,7 +2,7 @@
 # Pull-in Pybind11 wrappers
 #
 from io import StringIO
-from pycoek_pybind11 import variable_, parameter_single, variable_array
+from pycoek_pybind11 import variable_, parameter_, variable_array
 from pycoek_pybind11 import *
 from .func import quicksum, prod, seq
 
@@ -17,11 +17,17 @@ except:
 
 
 class parameter(object):
-    def __new__(cls, *args, value=None):
-        p = parameter_single(*args)
-        if value is not None:
-            p.value = value
-        return p
+    def __new__(cls, *args, **kwds):
+        #p = parameter_single(*args)
+        #if value is not None:
+        #    p.value = value
+        #return p
+        if len(args) == 0 or args[0] == 1 or type(args[0]) == str:
+            return parameter_(**kwds)
+        if len(args) == 1:
+            return parameter_(args[0], **kwds)
+        else:
+            raise RuntimeError("Variables only have one argument")
 
 
 class variable(object):
@@ -57,6 +63,7 @@ def model_variable(self, *args, **kwds):
 
 
 setattr(model, "add_variable", model_variable)
+setattr(compact_model, "add_variable", model_variable)
 
 def print_equations(self, ostream=None):
     if ostream is None:
