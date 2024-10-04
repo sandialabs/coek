@@ -146,10 +146,7 @@ void VariableAssocArrayRepn::name(const std::string& name)
     }
 }
 
-std::string VariableAssocArrayRepn::name()
-{
-return value_template.name();
-}
+std::string VariableAssocArrayRepn::name() { return value_template.name(); }
 
 void VariableAssocArrayRepn::within(VariableTypes vtype)
 {

@@ -39,7 +39,7 @@ expr_pointer_t ParameterRefTerm::get_concrete_parameter()
 }
 
 expr_pointer_t create_ref(const std::vector<refarg_types>& indices, const std::string& name,
-                               std::shared_ptr<AssocArrayBase<ParameterTerm>> param)
+                          std::shared_ptr<AssocArrayBase<ParameterTerm>> param)
 {
     return CREATE_POINTER(ParameterRefTerm, indices, name, param);
 }
@@ -80,7 +80,7 @@ expr_pointer_t VariableRefTerm::get_concrete_variable()
 }
 
 expr_pointer_t create_ref(const std::vector<refarg_types>& indices, const std::string& name,
-                             std::shared_ptr<AssocArrayBase<VariableTerm>> var)
+                          std::shared_ptr<AssocArrayBase<VariableTerm>> var)
 {
     return CREATE_POINTER(VariableRefTerm, indices, name, var);
 }

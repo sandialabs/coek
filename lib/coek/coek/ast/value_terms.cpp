@@ -6,7 +6,7 @@
 
 namespace coek {
 
-//void xyz();
+// void xyz();
 
 namespace {
 

@@ -152,7 +152,6 @@ class ParameterArray : public ParameterAssocArray {
     ParameterArray& name(const std::string& name);
     /** Get the name of the parameter. \returns the parameter string name */
     std::string name() const;
-
 };
 
 ParameterArray parameter(size_t n);

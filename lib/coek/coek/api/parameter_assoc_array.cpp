@@ -15,7 +15,7 @@ std::vector<Parameter>::iterator ParameterAssocArray::end() { return get_repn()-
 
 #ifdef COEK_WITH_COMPACT_MODEL
 expr_pointer_t create_ref(const std::vector<refarg_types>& indices, const std::string& name,
-                               std::shared_ptr<AssocArrayBase<ParameterTerm>> var);
+                          std::shared_ptr<AssocArrayBase<ParameterTerm>> var);
 
 Expression ParameterAssocArray::create_ref(const std::vector<refarg_types>& args)
 {

@@ -58,13 +58,14 @@ class Model {
     static const double inf;
 
     /** The different policies for name generation. */
-    enum NameGeneration { 
+    enum NameGeneration {
         // Use default names like X[#] for variables
-        simple, 
+        simple,
         // Generate names when a name is requested
-        lazy, 
+        lazy,
         // Generate names when objects are created
-        eager };
+        eager
+    };
 
     std::shared_ptr<ModelRepn> repn;
 

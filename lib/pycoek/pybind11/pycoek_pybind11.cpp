@@ -311,20 +311,21 @@ class VecKeyIterator {
    public:
     int curr;
 
-    explicit VecKeyIterator(int curr_=0) : curr(curr_) {}
+    explicit VecKeyIterator(int curr_ = 0) : curr(curr_) {}
 
-    const int* operator->() const
-    { return &curr; }
-    int operator*() const
-    { return curr; }
-    VecKeyIterator& operator++() {
+    const int* operator->() const { return &curr; }
+    int operator*() const { return curr; }
+    VecKeyIterator& operator++()
+    {
         ++curr;
-        //std::cout << "here " << curr << std::endl;
+        // std::cout << "here " << curr << std::endl;
         return *this;
     }
-    bool operator==(const VecKeyIterator& other) {
-            //std::cout << "here x " << (curr == other.curr) << std::endl;
-            return curr == other.curr; }
+    bool operator==(const VecKeyIterator& other)
+    {
+        // std::cout << "here x " << (curr == other.curr) << std::endl;
+        return curr == other.curr;
+    }
 };
 
 #if 0
@@ -1365,9 +1366,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def("__len__", [](coek::ParameterArray& va) { return va.size(); })
         .def("__getitem__", [](coek::ParameterArray& va, int i) { return va(i); })
         .def("__getitem__",
-             [](coek::ParameterArray& va, std::vector<int>& index) {
-                 return va.index(index);
-             })
+             [](coek::ParameterArray& va, std::vector<int>& index) { return va.index(index); })
         .def_property_readonly("name",
                                [](coek::ParameterArray& x) -> py::object {
                                    if (x.name().size() == 0)
@@ -1397,10 +1396,9 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def("__getitem__", [](coek::VariableArray& va, int i) { return va(i); })
         .def("__getitem__",
              [](coek::VariableArray& va, std::vector<int>& index) {
-                 /*coek::IndexVector::value_type* data = new coek::IndexVector::value_type[index.size()];
-                 coek::IndexVector tmp(data, index.size());
-                 for (size_t i = 0; i < index.size(); ++i)
-                     tmp[i] = index[i];*/
+                 /*coek::IndexVector::value_type* data = new
+                 coek::IndexVector::value_type[index.size()]; coek::IndexVector tmp(data,
+                 index.size()); for (size_t i = 0; i < index.size(); ++i) tmp[i] = index[i];*/
                  return va.index(index);
              })
         .def_property_readonly("name",
@@ -1430,10 +1428,9 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def("__len__", [](coek::ParameterMap& x) { return x.size(); })
         .def("__getitem__",
              [](coek::ParameterMap& x, py::args args) {
-                 return coek::Array_getitem<coek::ParameterMap,coek::Parameter>(x, args);
+                 return coek::Array_getitem<coek::ParameterMap, coek::Parameter>(x, args);
              })
-        .def("generate_names", [](coek::ParameterMap& x) { return x.generate_names(); })
-        ;
+        .def("generate_names", [](coek::ParameterMap& x) { return x.generate_names(); });
 #endif
 
     //
@@ -1444,7 +1441,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def("__len__", [](const coek::VariableMap& x) { return x.size(); })
         .def("__getitem__",
              [](coek::VariableMap& x, py::args args) {
-                 return coek::Array_getitem<coek::VariableMap,coek::Variable>(x, args);
+                 return coek::Array_getitem<coek::VariableMap, coek::Variable>(x, args);
              })
         .def("generate_names", [](coek::VariableMap& x) { return x.generate_names(); })
         //.def_property_readonly("name", [](coek::VariableMap& x) -> py::object {
@@ -1456,7 +1453,8 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     m.def("RangeSet",
           [](int start, int stop, int step = 1) { return coek::RangeSet(start, stop, step); });
     m.def("RangeSet", [](int start, int stop) { return coek::RangeSet(start, stop); });
-    m.def("RangeSet", [](int start, coek::Expression& stop) { return coek::RangeSet(start, stop); });
+    m.def("RangeSet",
+          [](int start, coek::Expression& stop) { return coek::RangeSet(start, stop); });
 
 #    if 0
     m.def("VariableMap",[](const coek::ConcreteSet& arg, double lb=-COEK_INFINITY, double ub=COEK_INFINITY, double value=0.0) {return coek::variable(arg).bounds(lb, ub).value(value);});
@@ -2062,12 +2060,16 @@ PYBIND11_MODULE(pycoek_pybind11, m)
                  return ostr.str();
              })
         .def("print_values_", [](coek::Model& m) { m.print_values(); })
-        .def("print_values_", [](coek::Model& m, bool) {
-            std::stringstream ostr;
-            m.print_values(ostr);
-            return ostr.str();
-        })
-        .def("generate_names", [](coek::Model& m) { m.name_generation(coek::Model::NameGeneration::eager); m.generate_names();});
+        .def("print_values_",
+             [](coek::Model& m, bool) {
+                 std::stringstream ostr;
+                 m.print_values(ostr);
+                 return ostr.str();
+             })
+        .def("generate_names", [](coek::Model& m) {
+            m.name_generation(coek::Model::NameGeneration::eager);
+            m.generate_names();
+        });
 
     //
     // Functions for Compact Expressions
@@ -2119,7 +2121,8 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     //
     py::class_<coek::CompactModel>(m, "compact_model")
         .def(py::init<>())
-        .def("add_parameter", [](coek::CompactModel& m, coek::Parameter& v) { return m.add_parameter(v); })
+        .def("add_parameter",
+             [](coek::CompactModel& m, coek::Parameter& v) { return m.add_parameter(v); })
         .def("add_parameter", [](coek::CompactModel& m, coek::ParameterArray& v) { m.add(v); })
         .def("add_parameter", [](coek::CompactModel& m, coek::ParameterMap& v) { m.add(v); })
         .def("add_variable_", [](coek::CompactModel& m, coek::Variable& v) { m.add_variable(v); })
@@ -2157,8 +2160,13 @@ PYBIND11_MODULE(pycoek_pybind11, m)
 
         .def("add_constraint",
              [](coek::CompactModel& m, const coek::Constraint& c) { return m.add_constraint(c); })
-        .def("add_constraint", [](coek::CompactModel& m, const coek::Constraint& c, const coek::SequenceContext& context) {return m.add_constraint(c, context);})
-        .def("add_constraint", [](coek::CompactModel& m, const std::string& name, const coek::Constraint& c, const coek::SequenceContext& context) {return m.add_constraint(name, c, context);})
+        .def("add_constraint",
+             [](coek::CompactModel& m, const coek::Constraint& c,
+                const coek::SequenceContext& context) { return m.add_constraint(c, context); })
+        .def(
+            "add_constraint",
+            [](coek::CompactModel& m, const std::string& name, const coek::Constraint& c,
+               const coek::SequenceContext& context) { return m.add_constraint(name, c, context); })
 
         //.def("write", [](coek::CompactModel& m, const std::string& s, std::map<int,int>& varmap,
         // std::map<int,int>& conmap){m.write(s,varmap,conmap);})

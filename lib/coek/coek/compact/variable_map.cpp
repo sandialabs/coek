@@ -10,7 +10,7 @@
 
 namespace coek {
 
-//void xyz();
+// void xyz();
 
 //
 // VariableMapRepn
@@ -52,10 +52,10 @@ class VariableMapRepn : public VariableAssocArrayRepn {
 
 void VariableMapRepn::generate_names()
 {
-    //xyz();
-    // If no name has been provided to this map object,
-    // then we do not try to generate names.  The default/simple
-    // variable names will be used.
+    // xyz();
+    //  If no name has been provided to this map object,
+    //  then we do not try to generate names.  The default/simple
+    //  variable names will be used.
     auto name = value_template.name();
     if (name == "")
         return;
@@ -238,10 +238,7 @@ VariableMap& VariableMap::name(const std::string& name)
     return *this;
 }
 
-std::string VariableMap::name()
-{
-    return repn->name();
-}
+std::string VariableMap::name() { return repn->name(); }
 
 VariableMap& VariableMap::within(VariableTypes vtype)
 {

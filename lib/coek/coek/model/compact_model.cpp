@@ -212,7 +212,7 @@ void CompactModel::add(ConstraintSequence&& seq) { repn->constraints.push_back(s
 
 Model CompactModel::expand()
 {
-    //std::cout << "CompactModel::expand()" << std::endl;
+    // std::cout << "CompactModel::expand()" << std::endl;
     Model model;
 
     for (auto& val : repn->parameters) {
@@ -221,7 +221,7 @@ Model CompactModel::expand()
             //      of this parameter within all expressions?
             Expression value = eval->value_expression().expand();
             eval->value(value.value());
-            //model.add_parameter(*eval);
+            // model.add_parameter(*eval);
         }
         else if (auto eval = std::get_if<ParameterMap>(&val)) {
             for (auto param : *eval) {
@@ -241,7 +241,7 @@ Model CompactModel::expand()
         }
     }
 
-    //std::cout << "VARIABLES " << repn->variables.size() << std::endl;
+    // std::cout << "VARIABLES " << repn->variables.size() << std::endl;
     for (auto& val : repn->variables) {
         if (auto eval = std::get_if<Variable>(&val)) {
             auto var = eval->expand();
@@ -260,12 +260,12 @@ Model CompactModel::expand()
             }
         }
         else if (auto eval = std::get_if<VariableMap>(&val)) {
-            //std::cout << "VARIABLE_MAP " << eval->name() << " " << eval->size() << std::endl;
+            // std::cout << "VARIABLE_MAP " << eval->name() << " " << eval->size() << std::endl;
             eval->expand();
             model.add_variable(*eval);
         }
         else if (auto eval = std::get_if<VariableArray>(&val)) {
-            //std::cerr << "VARIABLE_ARRAY " << eval->name() << " " << eval->size() << std::endl;
+            // std::cerr << "VARIABLE_ARRAY " << eval->name() << " " << eval->size() << std::endl;
             eval->expand();
             model.add_variable(*eval);
         }

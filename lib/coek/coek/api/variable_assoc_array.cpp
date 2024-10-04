@@ -17,7 +17,7 @@ std::vector<Variable>::iterator VariableAssocArray::end() { return get_repn()->v
 
 #ifdef COEK_WITH_COMPACT_MODEL
 expr_pointer_t create_ref(const std::vector<refarg_types>& indices, const std::string& name,
-                             std::shared_ptr<AssocArrayBase<VariableTerm>> var);
+                          std::shared_ptr<AssocArrayBase<VariableTerm>> var);
 
 Expression VariableAssocArray::create_ref(const std::vector<refarg_types>& args)
 {
