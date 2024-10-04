@@ -26,7 +26,7 @@ class ParameterAssocArrayRepn : public AssocArrayBase<ParameterTerm> {
     void name(const std::string& name);
 
 #ifdef COEK_WITH_COMPACT_MODEL
-    expr_pointer_t create_paramref(const std::vector<refarg_types>& indices);
+    expr_pointer_t create_ref(const std::vector<refarg_types>& indices);
 #endif
 };
 

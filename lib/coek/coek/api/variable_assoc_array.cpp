@@ -16,13 +16,13 @@ std::vector<Variable>::iterator VariableAssocArray::begin() { return get_repn()-
 std::vector<Variable>::iterator VariableAssocArray::end() { return get_repn()->values.end(); }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-expr_pointer_t create_varref(const std::vector<refarg_types>& indices, const std::string& name,
+expr_pointer_t create_ref(const std::vector<refarg_types>& indices, const std::string& name,
                              std::shared_ptr<AssocArrayBase<VariableTerm>> var);
 
-Expression VariableAssocArray::create_varref(const std::vector<refarg_types>& args)
+Expression VariableAssocArray::create_ref(const std::vector<refarg_types>& args)
 {
     auto repn = get_repn();
-    return coek::create_varref(args, get_repn()->value_template.name(), repn);
+    return coek::create_ref(args, get_repn()->value_template.name(), repn);
 }
 #endif
 

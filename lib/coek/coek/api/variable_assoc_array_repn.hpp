@@ -46,12 +46,14 @@ class VariableAssocArrayRepn : public AssocArrayBase<VariableTerm> {
 
     /** Set the name of the variable. \returns the variable object */
     void name(const std::string& name);
+    /** Get the name of the variable. */
+    std::string name();
 
     /** Set the variable type. \returns the variable object */
     void within(VariableTypes vtype);
 
 #ifdef COEK_WITH_COMPACT_MODEL
-    expr_pointer_t create_varref(const std::vector<refarg_types>& indices);
+    expr_pointer_t create_ref(const std::vector<refarg_types>& indices);
 #endif
 };
 

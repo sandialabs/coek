@@ -16,6 +16,8 @@
 
 namespace coek {
 
+//void xyz(){}
+
 //
 // Model
 //
@@ -75,6 +77,10 @@ Model::Model() { repn = std::make_shared<ModelRepn>(); }
 std::string Model::name() const { return repn->name; }
 
 void Model::name(const std::string& name) { repn->name = name; }
+
+// NOTE:  THESE TWO METHODS DO NOT STORE SINGLETON PARAMETERS ON THE MODEL
+Parameter& Model::add_parameter(Parameter& param) { return param; }
+Parameter& Model::add(Parameter& param) { return param; }
 
 #if __cpp_lib_variant
 ParameterArray& Model::add(ParameterArray& param) { return add_parameter(param); }
@@ -320,8 +326,9 @@ std::map<std::string, Constraint>& Model::get_constraints_by_name()
 
 void Model::generate_names()
 {
-    if (repn->name_generation_policy == Model::NameGeneration::lazy) {
-#if __cpp_lib_variant
+    //std::cout << "MODEL generate_names()" << std::endl;
+    if (repn->name_generation_policy != Model::NameGeneration::simple) {
+        //std::cout << "NOT SIMPLE " << repn->parameter_arrays.size() << " " << repn->variable_arrays.size() << " " << repn->parameter_maps.size() << " " << repn->variable_maps.size() << std::endl;
         for (auto& parray : repn->parameter_arrays)
             parray.generate_names();
         for (auto& varray : repn->variable_arrays)
@@ -329,12 +336,13 @@ void Model::generate_names()
 #    ifdef COEK_WITH_COMPACT_MODEL
         for (auto& pmap : repn->parameter_maps)
             pmap.generate_names();
-        for (auto& vmap : repn->variable_maps)
+        for (auto& vmap : repn->variable_maps) {
+            //std::cout << "Var " << vmap.name() << std::endl;
             vmap.generate_names();
+            }
 #    endif
         for (auto& cmap : repn->constraint_maps)
             cmap.generate_names();
-#endif
     }
 
     repn->variables_by_name.clear();

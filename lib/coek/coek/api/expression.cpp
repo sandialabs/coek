@@ -282,9 +282,11 @@ Variable Variable::expand()
 {
 #ifdef COEK_WITH_COMPACT_MODEL
     auto var = Variable()
+                   .name(this->name())
                    .lower(this->lower_expression().expand())
                    .upper(this->upper_expression().expand())
                    .value(this->value_expression().expand())
+                   .fixed(this->fixed())
                    .within(this->within());
     return var;
 #else

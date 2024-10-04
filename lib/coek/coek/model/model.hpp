@@ -58,7 +58,13 @@ class Model {
     static const double inf;
 
     /** The different policies for name generation. */
-    enum NameGeneration { simple, lazy, eager };
+    enum NameGeneration { 
+        // Use default names like X[#] for variables
+        simple, 
+        // Generate names when a name is requested
+        lazy, 
+        // Generate names when objects are created
+        eager };
 
     std::shared_ptr<ModelRepn> repn;
 
@@ -72,6 +78,7 @@ class Model {
     void name(const std::string& name);
 
     Parameter& add_parameter(Parameter& param);
+    Parameter& add(Parameter& param);
 #if __cpp_lib_variant
     ParameterArray& add_parameter(ParameterArray& param);
     ParameterArray& add(ParameterArray& param);

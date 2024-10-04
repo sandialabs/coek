@@ -91,7 +91,7 @@ class ParameterMap : public ParameterAssocArray {
         if (dim() != nargs)
             index_error(nargs);
         collect_refargs(static_cast<size_t>(0), args...);
-        return create_paramref(reftmp);
+        return create_ref(reftmp);
     }
 
     template <typename... ARGTYPES>

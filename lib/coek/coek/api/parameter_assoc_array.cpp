@@ -5,22 +5,22 @@
 
 namespace coek {
 
-size_t ParameterAssocArray::size() { return get_repn()->size(); }
+size_t ParameterAssocArray::size() const { return get_repn()->size(); }
 
-size_t ParameterAssocArray::dim() { return get_repn()->dim(); }
+size_t ParameterAssocArray::dim() const { return get_repn()->dim(); }
 
 std::vector<Parameter>::iterator ParameterAssocArray::begin() { return get_repn()->values.begin(); }
 
 std::vector<Parameter>::iterator ParameterAssocArray::end() { return get_repn()->values.end(); }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-expr_pointer_t create_paramref(const std::vector<refarg_types>& indices, const std::string& name,
+expr_pointer_t create_ref(const std::vector<refarg_types>& indices, const std::string& name,
                                std::shared_ptr<AssocArrayBase<ParameterTerm>> var);
 
-Expression ParameterAssocArray::create_paramref(const std::vector<refarg_types>& args)
+Expression ParameterAssocArray::create_ref(const std::vector<refarg_types>& args)
 {
     auto repn = get_repn();
-    return coek::create_paramref(args, repn->value_template.name(), repn);
+    return coek::create_ref(args, repn->value_template.name(), repn);
 }
 #endif
 

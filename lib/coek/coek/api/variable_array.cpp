@@ -280,8 +280,7 @@ VariableArray& Model::add_variable(VariableArray& vars)
     vars.expand();
     if (repn->name_generation_policy == Model::NameGeneration::eager)
         vars.generate_names();
-    else if (repn->name_generation_policy == Model::NameGeneration::lazy)
-        repn->variable_arrays.push_back(vars);
+    repn->variable_arrays.push_back(vars);
     for (auto& var : vars.repn->values)
         add_variable(var);
     return vars;

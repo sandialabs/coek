@@ -114,6 +114,8 @@ ParameterArray::ParameterArray(const std::initializer_list<size_t>& shape)
 
 std::shared_ptr<ParameterAssocArrayRepn> ParameterArray::get_repn() { return repn; }
 
+const std::shared_ptr<ParameterAssocArrayRepn> ParameterArray::get_repn() const { return repn; }
+
 Parameter ParameterArray::index(const IndexVector& args) { return repn->index(args); }
 
 std::shared_ptr<ParameterTerm> ParameterArrayRepn::index(const IndexVector& args)
@@ -179,6 +181,8 @@ ParameterArray& ParameterArray::name(const std::string& name)
     return *this;
 }
 
+std::string ParameterArray::name() const { return repn->value_template.repn->name; }
+
 //
 // OTHER
 //
@@ -197,8 +201,7 @@ ParameterArray& Model::add_parameter(ParameterArray& params)
     params.repn->expand();
     if (repn->name_generation_policy == Model::NameGeneration::eager)
         params.generate_names();
-    else if (repn->name_generation_policy == Model::NameGeneration::lazy)
-        repn->parameter_arrays.push_back(params);
+    repn->parameter_arrays.push_back(params);
     return params;
 }
 

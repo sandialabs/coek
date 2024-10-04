@@ -212,10 +212,10 @@ void CompactModel::add(ConstraintSequence&& seq) { repn->constraints.push_back(s
 
 Model CompactModel::expand()
 {
+    //std::cout << "CompactModel::expand()" << std::endl;
     Model model;
 
     for (auto& val : repn->parameters) {
-        /*
         if (auto eval = std::get_if<Parameter>(&val)) {
             // NOTE: Are we expanding this parameter in place?  Do we need to create a copy
             //      of this parameter within all expressions?
@@ -223,8 +223,7 @@ Model CompactModel::expand()
             eval->value(value.value());
             //model.add_parameter(*eval);
         }
-        else */
-        if (auto eval = std::get_if<ParameterMap>(&val)) {
+        else if (auto eval = std::get_if<ParameterMap>(&val)) {
             for (auto param : *eval) {
                 // NOTE: Are we changing the values of these maps in place?
                 Expression value = param.value_expression().expand();
@@ -242,7 +241,7 @@ Model CompactModel::expand()
         }
     }
 
-    // std::cerr << "VARIABLES " << repn->variables.size() << std::endl;
+    //std::cout << "VARIABLES " << repn->variables.size() << std::endl;
     for (auto& val : repn->variables) {
         if (auto eval = std::get_if<Variable>(&val)) {
             auto var = eval->expand();
@@ -261,12 +260,12 @@ Model CompactModel::expand()
             }
         }
         else if (auto eval = std::get_if<VariableMap>(&val)) {
-            // std::cerr << "VARIABLEMAP " << eval->size() << std::endl;
+            //std::cout << "VARIABLE_MAP " << eval->name() << " " << eval->size() << std::endl;
             eval->expand();
             model.add_variable(*eval);
         }
         else if (auto eval = std::get_if<VariableArray>(&val)) {
-            // std::cerr << "VARIABLEARRAY " << eval->size() << std::endl;
+            //std::cerr << "VARIABLE_ARRAY " << eval->name() << " " << eval->size() << std::endl;
             eval->expand();
             model.add_variable(*eval);
         }

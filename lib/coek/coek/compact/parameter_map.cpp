@@ -179,8 +179,7 @@ ParameterMap& Model::add_parameter(ParameterMap& params)
     params.repn->expand();
     if (repn->name_generation_policy == Model::NameGeneration::eager)
         params.generate_names();
-    else if (repn->name_generation_policy == Model::NameGeneration::lazy)
-        repn->parameter_maps.push_back(params);
+    repn->parameter_maps.push_back(params);
     return params;
 }
 
