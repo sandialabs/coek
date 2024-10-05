@@ -46,6 +46,9 @@ list(APPEND sources
     )
 if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
     list(APPEND sources
+        api/data_assoc_array_repn.cpp
+        api/data_assoc_array.cpp
+        api/data_array.cpp
         api/parameter_assoc_array_repn.cpp
         api/parameter_assoc_array.cpp
         api/parameter_array.cpp
@@ -86,6 +89,7 @@ if(with_compact)
         compact/ast_set.cpp
         compact/coek_sets.cpp
         #compact/coek_indexed.cpp
+        compact/data_map.cpp
         compact/parameter_map.cpp
         compact/variable_map.cpp
         compact/visitor_exprtemplate.cpp
@@ -286,6 +290,9 @@ install(FILES
         api/intrinsic_fn.hpp
         api/indexed_container.hpp
         api/objective.hpp
+        api/data_array.hpp
+        api/data_assoc_array.hpp
+        api/data_assoc_array_repn.hpp
         api/parameter_array.hpp
         api/parameter_assoc_array.hpp
         api/parameter_assoc_array_repn.hpp
@@ -300,6 +307,7 @@ install(FILES
         compact/expression_sequence.hpp
         compact/objective_sequence.hpp
         compact/sequence_context.hpp
+        compact/data_map.hpp
         compact/parameter_map.hpp
         compact/variable_map.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/compact

@@ -12,6 +12,22 @@ namespace coek {
 
 typedef std::variant<int, expr_pointer_t> refarg_types;
 
+class DataRefTerm : public BaseParameterTerm {
+   public:
+    std::vector<refarg_types> indices;
+    std::string name;
+    std::shared_ptr<AssocArrayBase<ConstantTerm>> data;
+
+   public:
+    DataRefTerm(const std::vector<refarg_types>& _indices, const std::string& _name,
+                     std::shared_ptr<AssocArrayBase<ConstantTerm>>& _data);
+
+    double _eval() const { throw std::runtime_error("Cannot evaluate a DataRefTerm"); }
+    term_id id() { return DataRefTerm_id; }
+
+    expr_pointer_t get_concrete_data();
+};
+
 class ParameterRefTerm : public BaseParameterTerm {
    public:
     std::vector<refarg_types> indices;

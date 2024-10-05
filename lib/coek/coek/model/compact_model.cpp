@@ -32,6 +32,40 @@ std::string CompactModel::name() const { return repn->name; }
 
 void CompactModel::name(const std::string& name) { repn->name = name; }
 
+// Data
+
+//Parameter& CompactModel::add(Parameter& params) { return add_parameter(params); }
+
+DataArray& CompactModel::add(DataArray&& data) { return add_data(data); }
+
+DataArray& CompactModel::add(DataArray& data) { return add_data(data); }
+
+DataMap& CompactModel::add(DataMap& data) { return add_data(data); }
+
+DataMap& CompactModel::add(DataMap&& data) { return add_data(data); }
+
+#if 0
+Parameter& CompactModel::add_data(Parameter& data)
+{
+    repn->data.push_back(data);
+    return data;
+}
+#endif
+
+DataArray& CompactModel::add_data(DataArray& data)
+{
+    repn->data.push_back(data);
+    return data;
+}
+
+DataMap& CompactModel::add_data(DataMap& data)
+{
+    repn->data.push_back(data);
+    return data;
+}
+
+// Parameter
+
 Parameter& CompactModel::add(Parameter& params) { return add_parameter(params); }
 
 ParameterArray& CompactModel::add(ParameterArray&& params) { return add_parameter(params); }
@@ -58,14 +92,12 @@ ParameterArray& CompactModel::add_parameter(ParameterArray& params)
 
 ParameterMap& CompactModel::add_parameter(ParameterMap& params)
 {
-#    if 0
-    for (auto& param : params)
-        repn->parameters.push_back(param);
-#    endif
     repn->parameters.push_back(params);
     repn->parameter_names.insert(repn->parameter_names.end(), params.size(), "");
     return params;
 }
+
+// Variable
 
 Variable CompactModel::add_variable()
 {
@@ -215,6 +247,41 @@ Model CompactModel::expand()
     // std::cout << "CompactModel::expand()" << std::endl;
     Model model;
 
+    for (auto& val : repn->data) {
+        #if 0
+        if (auto eval = std::get_if<Parameter>(&val)) {
+            // NOTE: Are we expanding this data in place?  Do we need to create a copy
+            //      of this parameter within all expressions?
+            Expression value = eval->value_expression().expand();
+            eval->value(value.value());
+            // model.add_parameter(*eval);
+        }
+        else 
+        #endif
+        if (auto eval = std::get_if<DataMap>(&val)) {
+            eval->expand();
+            #if 0
+            for (auto data : *eval) {
+                // NOTE: Are we changing the values of these maps in place?
+                Expression value = data.value_expression().expand();
+                data.value(value.value());
+            }
+            #endif
+            model.repn->data_maps.push_back(*eval);
+        }
+        else if (auto eval = std::get_if<DataArray>(&val)) {
+            eval->expand();
+            #if 0
+            for (auto data : *eval) {
+                // NOTE: Are we changing the values of these maps in place?
+                Expression value = data.value_expression().expand();
+                data.value(value.value());
+            }
+            #endif
+            model.repn->data_arrays.push_back(*eval);
+        }
+    }
+
     for (auto& val : repn->parameters) {
         if (auto eval = std::get_if<Parameter>(&val)) {
             // NOTE: Are we expanding this parameter in place?  Do we need to create a copy
@@ -224,6 +291,7 @@ Model CompactModel::expand()
             // model.add_parameter(*eval);
         }
         else if (auto eval = std::get_if<ParameterMap>(&val)) {
+            eval->expand();
             for (auto param : *eval) {
                 // NOTE: Are we changing the values of these maps in place?
                 Expression value = param.value_expression().expand();
@@ -232,6 +300,7 @@ Model CompactModel::expand()
             model.repn->parameter_maps.push_back(*eval);
         }
         else if (auto eval = std::get_if<ParameterArray>(&val)) {
+            eval->expand();
             for (auto param : *eval) {
                 // NOTE: Are we changing the values of these maps in place?
                 Expression value = param.value_expression().expand();

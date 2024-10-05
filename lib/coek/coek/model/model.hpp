@@ -25,10 +25,12 @@ class Expression;
 class Objective;
 class Constraint;
 #ifdef COEK_WITH_COMPACT_MODEL
+class DataMap;
 class ParameterMap;
 class VariableMap;
 #endif
 #if __cpp_lib_variant
+class DataArray;
 class ParameterArray;
 class VariableArray;
 class ConstraintMap;
@@ -77,6 +79,17 @@ class Model {
     std::string name() const;
     /** Set the name of the model */
     void name(const std::string& name);
+
+#if __cpp_lib_variant
+    DataArray& add_data(DataArray& data);
+    DataArray& add(DataArray& data);
+    DataArray& add(DataArray&& data);
+#endif
+#ifdef COEK_WITH_COMPACT_MODEL
+    DataMap& add_data(DataMap& data);
+    DataMap& add(DataMap& data);
+    DataMap& add(DataMap&& data);
+#endif
 
     Parameter& add_parameter(Parameter& param);
     Parameter& add(Parameter& param);

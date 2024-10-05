@@ -78,14 +78,20 @@ std::string Model::name() const { return repn->name; }
 
 void Model::name(const std::string& name) { repn->name = name; }
 
+DataArray& Model::add(DataArray& data) { return add_data(data); }
+DataArray& Model::add(DataArray&& data) { return add_data(data); }
+
+#ifdef COEK_WITH_COMPACT_MODEL
+DataMap& Model::add(DataMap& data) { return add_data(data); }
+DataMap& Model::add(DataMap&& data) { return add_data(data); }
+#endif
+
 // NOTE:  THESE TWO METHODS DO NOT STORE SINGLETON PARAMETERS ON THE MODEL
 Parameter& Model::add_parameter(Parameter& param) { return param; }
 Parameter& Model::add(Parameter& param) { return param; }
 
-#if __cpp_lib_variant
 ParameterArray& Model::add(ParameterArray& param) { return add_parameter(param); }
 ParameterArray& Model::add(ParameterArray&& param) { return add_parameter(param); }
-#endif
 
 #ifdef COEK_WITH_COMPACT_MODEL
 ParameterMap& Model::add(ParameterMap& param) { return add_parameter(param); }
