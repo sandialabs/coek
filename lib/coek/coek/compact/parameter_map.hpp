@@ -1,6 +1,7 @@
 #pragma once
 
 #include "coek/api/parameter_assoc_array.hpp"
+#include "coek/compact/sequence_context.hpp"
 #include "coek/util/template_utils.hpp"
 #include "coek_sets.hpp"
 
@@ -124,6 +125,7 @@ class ParameterMap : public ParameterAssocArray {
 
    public:
     explicit ParameterMap(const ConcreteSet& arg);
+    explicit ParameterMap(const SequenceContext& arg);
     virtual ~ParameterMap() {}
 
     /** Set the initial parameter value. \returns the parameter object. */
@@ -151,6 +153,18 @@ inline ParameterMap parameter(const std::string& name, const ConcreteSet& arg)
     return parameter(arg).name(name);
 }
 inline ParameterMap parameter_map(const std::string& name, const ConcreteSet& arg)
+{
+    return parameter(arg).name(name);
+}
+
+ParameterMap parameter(const SequenceContext& arg);
+inline ParameterMap parameter_map(const SequenceContext& arg) { return parameter(arg); }
+
+inline ParameterMap parameter(const std::string& name, const SequenceContext& arg)
+{
+    return parameter(arg).name(name);
+}
+inline ParameterMap parameter_map(const std::string& name, const SequenceContext& arg)
 {
     return parameter(arg).name(name);
 }

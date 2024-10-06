@@ -1,9 +1,9 @@
-#include "coek/compact/parameter_map.hpp"
-
 #include <unordered_map>
 
-#include "coek/api/parameter_assoc_array_repn.hpp"
 #include "coek/ast/compact_terms.hpp"
+#include "coek/api/parameter_assoc_array_repn.hpp"
+#include "coek/compact/coek_sets.hpp"
+#include "coek/compact/parameter_map.hpp"
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
 
@@ -17,6 +17,13 @@ class ParameterMapRepn : public ParameterAssocArrayRepn {
 
    public:
     ParameterMapRepn(const ConcreteSet& _arg) : concrete_set(_arg)
+    {
+#ifdef CUSTOM_INDEXVECTOR
+        cache.resize((size() + 1) * (dim() + 1));
+#endif
+    }
+
+    ParameterMapRepn(const SequenceContext& _arg) : concrete_set(_arg.index_set())
     {
 #ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
@@ -106,6 +113,12 @@ ParameterMap::ParameterMap(const ConcreteSet& arg)
     repn->resize_index_vectors(tmp, reftmp);
 }
 
+ParameterMap::ParameterMap(const SequenceContext& arg)
+{
+    repn = std::make_shared<ParameterMapRepn>(arg);
+    repn->resize_index_vectors(tmp, reftmp);
+}
+
 std::shared_ptr<ParameterAssocArrayRepn> ParameterMap::get_repn() { return repn; }
 const std::shared_ptr<ParameterAssocArrayRepn> ParameterMap::get_repn() const { return repn; }
 
@@ -173,6 +186,8 @@ ParameterMap& ParameterMap::name(const std::string& name)
 //
 
 ParameterMap parameter(const ConcreteSet& arg) { return ParameterMap(arg); }
+
+ParameterMap parameter(const SequenceContext& arg) { return ParameterMap(arg); }
 
 ParameterMap& Model::add_parameter(ParameterMap& params)
 {

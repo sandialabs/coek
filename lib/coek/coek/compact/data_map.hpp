@@ -1,6 +1,7 @@
 #pragma once
 
 #include "coek/api/data_assoc_array.hpp"
+#include "coek/compact/sequence_context.hpp"
 #include "coek/util/template_utils.hpp"
 #include "coek_sets.hpp"
 
@@ -122,6 +123,7 @@ class DataMap : public DataAssocArray {
 
    public:
     explicit DataMap(const ConcreteSet& arg);
+    explicit DataMap(const SequenceContext& arg);
     virtual ~DataMap() {}
 
     /** Set the initial data value. \returns the data object. */
@@ -149,6 +151,18 @@ inline DataMap data(const std::string& name, const ConcreteSet& arg)
     return data(arg).name(name);
 }
 inline DataMap data_map(const std::string& name, const ConcreteSet& arg)
+{
+    return data(arg).name(name);
+}
+
+DataMap data(const SequenceContext& arg);
+inline DataMap data_map(const SequenceContext& arg) { return data(arg); }
+
+inline DataMap data(const std::string& name, const SequenceContext& arg)
+{
+    return data(arg).name(name);
+}
+inline DataMap data_map(const std::string& name, const SequenceContext& arg)
 {
     return data(arg).name(name);
 }

@@ -1,4 +1,3 @@
-
 #include <unordered_map>
 
 #include "coek/api/variable_assoc_array_repn.hpp"

@@ -10,6 +10,7 @@
 #include "coek/ast/base_terms.hpp"
 #include "coek/ast/value_terms.hpp"
 #include "coek/util/string_utils.hpp"
+#include "coek/compact/coek_sets.hpp"
 #include "coek/model/model_repn.hpp"
 #include "coek/coek.hpp"
 

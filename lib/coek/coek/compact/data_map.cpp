@@ -1,9 +1,9 @@
-#include "coek/compact/data_map.hpp"
-
 #include <unordered_map>
 
-#include "coek/api/data_assoc_array_repn.hpp"
 #include "coek/ast/compact_terms.hpp"
+#include "coek/api/data_assoc_array_repn.hpp"
+#include "coek/compact/coek_sets.hpp"
+#include "coek/compact/data_map.hpp"
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
 
@@ -16,6 +16,13 @@ class DataMapRepn : public DataAssocArrayRepn {
 
    public:
     DataMapRepn(const ConcreteSet& _arg) : concrete_set(_arg)
+    {
+#ifdef CUSTOM_INDEXVECTOR
+        cache.resize((size() + 1) * (dim() + 1));
+#endif
+    }
+
+    DataMapRepn(const SequenceContext& _arg) : concrete_set(_arg.index_set())
     {
 #ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
@@ -60,6 +67,12 @@ void DataMapRepn::expand()
 //
 
 DataMap::DataMap(const ConcreteSet& arg)
+{
+    repn = std::make_shared<DataMapRepn>(arg);
+    repn->resize_index_vectors(tmp, reftmp);
+}
+
+DataMap::DataMap(const SequenceContext& arg)
 {
     repn = std::make_shared<DataMapRepn>(arg);
     repn->resize_index_vectors(tmp, reftmp);
@@ -130,6 +143,8 @@ DataMap& DataMap::name(const std::string& name)
 //
 
 DataMap data(const ConcreteSet& arg) { return DataMap(arg); }
+
+DataMap data(const SequenceContext& arg) { return DataMap(arg); }
 
 DataMap& Model::add_data(DataMap& data)
 {
