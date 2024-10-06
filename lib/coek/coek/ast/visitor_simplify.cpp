@@ -78,13 +78,19 @@ void visit_VariableTerm(const expr_pointer_t& expr, VisitorData& data)
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
+void visit_VariableRefTerm(const expr_pointer_t& expr, VisitorData& data)
+{
+    data.last_expr = expr;
+    data.is_value = false;
+}
+
 void visit_ParameterRefTerm(const expr_pointer_t& expr, VisitorData& data)
 {
     data.last_expr = expr;
     data.is_value = false;
 }
 
-void visit_VariableRefTerm(const expr_pointer_t& expr, VisitorData& data)
+void visit_DataRefTerm(const expr_pointer_t& expr, VisitorData& data)
 {
     data.last_expr = expr;
     data.is_value = false;
@@ -416,6 +422,7 @@ void visit_expression(const expr_pointer_t& expr, VisitorData& data)
 #ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(VariableRefTerm);
         VISIT_CASE(ParameterRefTerm);
+        VISIT_CASE(DataRefTerm);
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);

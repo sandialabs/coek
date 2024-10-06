@@ -153,6 +153,8 @@ class Parameter {
 
 Parameter parameter();
 Parameter parameter(const std::string& name);
+Parameter data();
+Parameter data(const std::string& name);
 
 // Index Parameter
 class IndexParameter {

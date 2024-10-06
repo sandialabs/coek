@@ -33,16 +33,22 @@ expr_pointer_t visit_IndexParameterTerm(const expr_pointer_t& expr)
             "value.");
 }
 
+expr_pointer_t visit_VariableRefTerm(const expr_pointer_t& expr)
+{
+    auto tmp = safe_pointer_cast<VariableRefTerm>(expr);
+    return tmp->get_concrete_variable();
+}
+
 expr_pointer_t visit_ParameterRefTerm(const expr_pointer_t& expr)
 {
     auto tmp = safe_pointer_cast<ParameterRefTerm>(expr);
     return tmp->get_concrete_parameter();
 }
 
-expr_pointer_t visit_VariableRefTerm(const expr_pointer_t& expr)
+expr_pointer_t visit_DataRefTerm(const expr_pointer_t& expr)
 {
-    auto tmp = safe_pointer_cast<VariableRefTerm>(expr);
-    return tmp->get_concrete_variable();
+    auto tmp = safe_pointer_cast<DataRefTerm>(expr);
+    return tmp->get_concrete_data();
 }
 
 expr_pointer_t visit_ObjectiveTerm(const expr_pointer_t& expr)
@@ -217,6 +223,7 @@ expr_pointer_t visit_expression(const expr_pointer_t& expr)
             // VISIT_CASE(VariableTerm);
             VISIT_CASE(VariableRefTerm);
             VISIT_CASE(ParameterRefTerm);
+            VISIT_CASE(DataRefTerm);
             // VISIT_CASE(MonomialTerm);
             VISIT_CASE(InequalityTerm);
             VISIT_CASE(StrictInequalityTerm);

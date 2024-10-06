@@ -76,6 +76,18 @@ void visit(std::shared_ptr<VariableRefTerm>& /*expr*/, QuadraticExpr& /*repn*/,
 {
     throw std::runtime_error("Unexpected variable reference.");
 }
+
+void visit(std::shared_ptr<ParameterRefTerm>& /*expr*/, QuadraticExpr& /*repn*/,
+           double /*multiplier*/)
+{
+    throw std::runtime_error("Unexpected parameter reference.");
+}
+
+void visit(std::shared_ptr<DataRefTerm>& /*expr*/, QuadraticExpr& /*repn*/,
+           double /*multiplier*/)
+{
+    throw std::runtime_error("Unexpected data reference.");
+}
 #endif
 
 void visit(std::shared_ptr<MonomialTerm>& expr, QuadraticExpr& repn, double multiplier)
@@ -369,6 +381,8 @@ void visit_expression(const expr_pointer_t& expr, QuadraticExpr& repn, double mu
         VISIT_CASE(VariableTerm);
 #ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(VariableRefTerm);
+        VISIT_CASE(ParameterRefTerm);
+        VISIT_CASE(DataRefTerm);
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);

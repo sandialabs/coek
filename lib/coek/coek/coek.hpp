@@ -17,6 +17,7 @@
 #include "coek/api/objective.hpp"
 #ifdef __cpp_lib_variant
 #    include "coek/api/parameter_array.hpp"
+#    include "coek/api/data_array.hpp"
 #    include "coek/api/variable_array.hpp"
 #    include "coek/api/constraint_map.hpp"
 #    include "coek/api/subexpression_map.hpp"
@@ -31,6 +32,7 @@
 #    include "coek/compact/expression_sequence.hpp"
 #    include "coek/compact/objective_sequence.hpp"
 #    include "coek/compact/parameter_map.hpp"
+#    include "coek/compact/data_map.hpp"
 #    include "coek/compact/sequence_context.hpp"
 #    include "coek/compact/variable_map.hpp"
 #    include "coek/model/compact_model.hpp"

@@ -56,6 +56,10 @@ Parameter parameter() { return Parameter(); }
 
 Parameter parameter(const std::string& name) { return Parameter(name); }
 
+Parameter data() { return Parameter(); }
+
+Parameter data(const std::string& name) { return Parameter(name); }
+
 //
 // IndexParameter
 //
