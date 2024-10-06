@@ -152,9 +152,9 @@ if [[ "$with_spack" -eq 1 ]]; then
         spack repo list
         spack external find
         spack compiler find
-        spack add asl fmt@8.0.1 rapidjson catch2 highs $with_valgrind $with_scip
         spack env create $spack_env
         spack env activate $spack_env
+        spack add asl fmt@8.0.1 rapidjson catch2 highs $with_valgrind $with_scip
         spack install
         spack env deactivate
         spack repo remove `pwd`/_spack_tpls/repo
