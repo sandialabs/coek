@@ -20,7 +20,7 @@ class DataRefTerm : public BaseParameterTerm {
 
    public:
     DataRefTerm(const std::vector<refarg_types>& _indices, const std::string& _name,
-                     std::shared_ptr<AssocArrayBase<ConstantTerm>>& _data);
+                std::shared_ptr<AssocArrayBase<ConstantTerm>>& _data);
 
     double _eval() const { throw std::runtime_error("Cannot evaluate a DataRefTerm"); }
     term_id id() { return DataRefTerm_id; }

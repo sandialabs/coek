@@ -158,15 +158,9 @@ DataArray data(const std::initializer_list<size_t>& shape);
 
 inline DataArray data_array(size_t n) { return data(n); }
 inline DataArray data_array(const std::vector<size_t>& shape) { return data(shape); }
-inline DataArray data_array(const std::initializer_list<size_t>& shape)
-{
-    return data(shape);
-}
+inline DataArray data_array(const std::initializer_list<size_t>& shape) { return data(shape); }
 
-inline DataArray data(const std::string& name, size_t n)
-{
-    return data(n).name(name);
-}
+inline DataArray data(const std::string& name, size_t n) { return data(n).name(name); }
 inline DataArray data(const std::string& name, const std::vector<size_t>& shape)
 {
     return data(shape).name(name);
@@ -176,16 +170,12 @@ inline DataArray data(const std::string& name, const std::initializer_list<size_
     return data(shape).name(name);
 }
 
-inline DataArray data_array(const std::string& name, size_t n)
-{
-    return data(n).name(name);
-}
+inline DataArray data_array(const std::string& name, size_t n) { return data(n).name(name); }
 inline DataArray data_array(const std::string& name, const std::vector<size_t>& shape)
 {
     return data(shape).name(name);
 }
-inline DataArray data_array(const std::string& name,
-                                      const std::initializer_list<size_t>& shape)
+inline DataArray data_array(const std::string& name, const std::initializer_list<size_t>& shape)
 {
     return data(shape).name(name);
 }

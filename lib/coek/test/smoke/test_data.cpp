@@ -254,9 +254,9 @@ TEST_CASE("1D_data_map", "[smoke]")
             auto v = coek::data();
             coek::Expression f = v;
             auto e = dats(1);
-            //REQUIRE(e.name() == "dats[1]");
-            // auto it = e.to_list().begin();
-            // REQUIRE_THAT( *it, Catch::Matchers::StartsWith("dats") );
+            // REQUIRE(e.name() == "dats[1]");
+            //  auto it = e.to_list().begin();
+            //  REQUIRE_THAT( *it, Catch::Matchers::StartsWith("dats") );
         }
 
         WHEN("index3")
@@ -321,7 +321,7 @@ TEST_CASE("1D_data_array", "[smoke]")
             for (size_t i = 0; i < 4; i++)
                 REQUIRE(dats(i).value() == 2);
         }
-        #if 0
+#    if 0
         WHEN("value - q")
         {
             auto dats = coek::data(4);
@@ -331,7 +331,7 @@ TEST_CASE("1D_data_array", "[smoke]")
             for (size_t i = 0; i < 4; i++)
                 REQUIRE(dats(i).value() == 2 + (int)i);
         }
-        #endif
+#    endif
         WHEN("value all - q")
         {
             auto dats = coek::data(4);
@@ -347,7 +347,7 @@ TEST_CASE("1D_data_array", "[smoke]")
             for (size_t i = 0; i < 4; i++)
                 REQUIRE(dats(i).value() == 5);
         }
-        #if 0
+#    if 0
         WHEN("name")
         {
             auto dats = coek::data(4);
@@ -366,7 +366,7 @@ TEST_CASE("1D_data_array", "[smoke]")
             for (int i = 0; i < 4; i++)
                 REQUIRE(dats(i).name()[0] == 'P');
         }
-        #endif
+#    endif
     }
 
     SECTION("int_vector_dim")
@@ -392,14 +392,14 @@ TEST_CASE("1D_data_array", "[smoke]")
                 REQUIRE(dats(i).value() == 1);
         }
 
-        #if 0
+#    if 0
         WHEN("name")
         {
             auto dats = coek::data(dim).name("v");
             for (int i = 0; i < 4; i++)
                 REQUIRE(dats(i).name() == "v[" + std::to_string(i) + "]");
         }
-        #endif
+#    endif
     }
 
     SECTION("int_initializer_list")
@@ -423,14 +423,14 @@ TEST_CASE("1D_data_array", "[smoke]")
                 REQUIRE(dats(i).value() == 1);
         }
 
-        #if 0
+#    if 0
         WHEN("name")
         {
             auto dats = coek::data({4}).name("v");
             for (int i = 0; i < 4; i++)
                 REQUIRE(dats(i).name() == "v[" + std::to_string(i) + "]");
         }
-        #endif
+#    endif
     }
 }
 #endif
@@ -509,7 +509,7 @@ TEST_CASE("2D_data_map", "[smoke]")
             REQUIRE(typeid(dats(i, j)).name() == typeid(coek::Expression).name());
         }
 
-        #if 0
+#    if 0
         WHEN("index2")
         {
             auto e = dats(1, 2);
@@ -517,7 +517,7 @@ TEST_CASE("2D_data_map", "[smoke]")
             // auto it = e.to_list().begin();
             // REQUIRE_THAT( *it, Catch::Matchers::StartsWith("dats") );
         }
-        #endif
+#    endif
 
         WHEN("index3")
         {
@@ -589,7 +589,7 @@ TEST_CASE("2D_data_array", "[smoke]")
                                 "indexed with 1 indices.");
         }
 
-        #if 0
+#    if 0
         WHEN("name")
         {
             std::vector<size_t> dim{4, 3};
@@ -599,7 +599,7 @@ TEST_CASE("2D_data_array", "[smoke]")
                     REQUIRE(dats(i, j).name()
                             == "v[" + std::to_string(i) + "," + std::to_string(j) + "]");
         }
-        #endif
+#    endif
     }
 
     SECTION("int_initializer_list")
@@ -632,7 +632,7 @@ TEST_CASE("2D_data_array", "[smoke]")
                                 "indexed with 1 indices.");
         }
 
-        #if 0
+#    if 0
         WHEN("name")
         {
             auto dats = coek::data({4, 3}).name("v");
@@ -641,7 +641,7 @@ TEST_CASE("2D_data_array", "[smoke]")
                     REQUIRE(dats(i, j).name()
                             == "v[" + std::to_string(i) + "," + std::to_string(j) + "]");
         }
-        #endif
+#    endif
     }
 }
 
@@ -693,7 +693,7 @@ TEST_CASE("3D_data_array", "[smoke]")
                                 "indexed with 1 indices.");
         }
 
-        #if 0
+#    if 0
         WHEN("name")
         {
             std::vector<size_t> dim{5, 4, 3};
@@ -705,7 +705,7 @@ TEST_CASE("3D_data_array", "[smoke]")
                                 == "v[" + std::to_string(i) + "," + std::to_string(j) + ","
                                        + std::to_string(k) + "]");
         }
-        #endif
+#    endif
     }
 
     SECTION("int_initializer_list")
@@ -738,7 +738,7 @@ TEST_CASE("3D_data_array", "[smoke]")
                                 "indexed with 1 indices.");
         }
 
-        #if 0
+#    if 0
         WHEN("name")
         {
             auto dats = coek::data({5, 4, 3}).name("v");
@@ -749,7 +749,7 @@ TEST_CASE("3D_data_array", "[smoke]")
                                 == "v[" + std::to_string(i) + "," + std::to_string(j) + ","
                                        + std::to_string(k) + "]");
         }
-        #endif
+#    endif
     }
 }
 #endif

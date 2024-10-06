@@ -33,8 +33,7 @@ std::ostream& operator<<(std::ostream& ostr, Model& arg)
 }
 
 // GCOVR_EXCL_START
-void Model::print_equations(bool active)
-{ print_equations(std::cout, active); }
+void Model::print_equations(bool active) { print_equations(std::cout, active); }
 
 void Model::print_values() { print_values(std::cout); }
 // GCOVR_EXCL_STOP

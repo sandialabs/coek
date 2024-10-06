@@ -9,9 +9,15 @@ size_t DataAssocArray::size() const { return get_repn()->size(); }
 
 size_t DataAssocArray::dim() const { return get_repn()->dim(); }
 
-std::vector<std::shared_ptr<ConstantTerm>>::iterator DataAssocArray::begin() { return get_repn()->values.begin(); }
+std::vector<std::shared_ptr<ConstantTerm>>::iterator DataAssocArray::begin()
+{
+    return get_repn()->values.begin();
+}
 
-std::vector<std::shared_ptr<ConstantTerm>>::iterator DataAssocArray::end() { return get_repn()->values.end(); }
+std::vector<std::shared_ptr<ConstantTerm>>::iterator DataAssocArray::end()
+{
+    return get_repn()->values.end();
+}
 
 void DataAssocArray::expand() { return get_repn()->expand(); }
 

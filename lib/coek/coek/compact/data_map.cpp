@@ -83,8 +83,8 @@ const std::shared_ptr<DataAssocArrayRepn> DataMap::get_repn() const { return rep
 
 Expression DataMap::index(const IndexVector& args)
 {
-Expression tmp(repn->index(args));
-return tmp;
+    Expression tmp(repn->index(args));
+    return tmp;
 }
 
 std::shared_ptr<ConstantTerm> DataMapRepn::index(const IndexVector& args)

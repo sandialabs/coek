@@ -100,8 +100,8 @@ const std::shared_ptr<DataAssocArrayRepn> DataArray::get_repn() const { return r
 
 Expression DataArray::index(const IndexVector& args)
 {
-Expression tmp(repn->index(args));
-return tmp;
+    Expression tmp(repn->index(args));
+    return tmp;
 }
 
 std::shared_ptr<ConstantTerm> DataArrayRepn::index(const IndexVector& args)
@@ -171,10 +171,7 @@ DataArray data(size_t n) { return DataArray(n); }
 
 DataArray data(const std::vector<size_t>& shape) { return DataArray(shape); }
 
-DataArray data(const std::initializer_list<size_t>& shape)
-{
-    return DataArray(shape);
-}
+DataArray data(const std::initializer_list<size_t>& shape) { return DataArray(shape); }
 
 DataArray& Model::add_data(DataArray& data)
 {

@@ -34,7 +34,7 @@ void CompactModel::name(const std::string& name) { repn->name = name; }
 
 // Data
 
-//Parameter& CompactModel::add(Parameter& params) { return add_parameter(params); }
+// Parameter& CompactModel::add(Parameter& params) { return add_parameter(params); }
 
 DataArray& CompactModel::add(DataArray&& data) { return add_data(data); }
 
@@ -44,13 +44,13 @@ DataMap& CompactModel::add(DataMap& data) { return add_data(data); }
 
 DataMap& CompactModel::add(DataMap&& data) { return add_data(data); }
 
-#if 0
+#    if 0
 Parameter& CompactModel::add_data(Parameter& data)
 {
     repn->data.push_back(data);
     return data;
 }
-#endif
+#    endif
 
 DataArray& CompactModel::add_data(DataArray& data)
 {
@@ -248,7 +248,7 @@ Model CompactModel::expand()
     Model model;
 
     for (auto& val : repn->data) {
-        #if 0
+#    if 0
         if (auto eval = std::get_if<Parameter>(&val)) {
             // NOTE: Are we expanding this data in place?  Do we need to create a copy
             //      of this parameter within all expressions?
@@ -256,28 +256,28 @@ Model CompactModel::expand()
             eval->value(value.value());
             // model.add_parameter(*eval);
         }
-        else 
-        #endif
+        else
+#    endif
         if (auto eval = std::get_if<DataMap>(&val)) {
             eval->expand();
-            #if 0
+#    if 0
             for (auto data : *eval) {
                 // NOTE: Are we changing the values of these maps in place?
                 Expression value = data.value_expression().expand();
                 data.value(value.value());
             }
-            #endif
+#    endif
             model.repn->data_maps.push_back(*eval);
         }
         else if (auto eval = std::get_if<DataArray>(&val)) {
             eval->expand();
-            #if 0
+#    if 0
             for (auto data : *eval) {
                 // NOTE: Are we changing the values of these maps in place?
                 Expression value = data.value_expression().expand();
                 data.value(value.value());
             }
-            #endif
+#    endif
             model.repn->data_arrays.push_back(*eval);
         }
     }
@@ -310,7 +310,7 @@ Model CompactModel::expand()
         }
     }
 
-    //std::cout << "VARIABLES " << repn->variables.size() << std::endl;
+    // std::cout << "VARIABLES " << repn->variables.size() << std::endl;
     for (auto& val : repn->variables) {
         if (auto eval = std::get_if<Variable>(&val)) {
             auto var = eval->expand();
@@ -329,9 +329,9 @@ Model CompactModel::expand()
             }
         }
         else if (auto eval = std::get_if<VariableMap>(&val)) {
-            //std::cout << "VARIABLE_MAP- " << eval->name() << " " << eval->size() << std::endl;
+            // std::cout << "VARIABLE_MAP- " << eval->name() << " " << eval->size() << std::endl;
             eval->expand();
-            //std::cout << "VARIABLE_MAP+ " << eval->name() << " " << eval->size() << std::endl;
+            // std::cout << "VARIABLE_MAP+ " << eval->name() << " " << eval->size() << std::endl;
             model.add_variable(*eval);
         }
         else if (auto eval = std::get_if<VariableArray>(&val)) {

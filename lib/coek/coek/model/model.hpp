@@ -312,7 +312,7 @@ class Model {
 
     friend std::ostream& operator<<(std::ostream& ostr, Model& arg);
 
-    void generate_names(bool force=false);
+    void generate_names(bool force = false);
     void name_generation(Model::NameGeneration value);
     Model::NameGeneration name_generation();
 };

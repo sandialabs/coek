@@ -115,8 +115,7 @@ void visit(std::shared_ptr<ParameterRefTerm>& /*expr*/, MutableNLPExpr& /*repn*/
     throw std::runtime_error("Unexpected parameter reference.");
 }
 
-void visit(std::shared_ptr<DataRefTerm>& /*expr*/, MutableNLPExpr& /*repn*/,
-           double /*multiplier*/)
+void visit(std::shared_ptr<DataRefTerm>& /*expr*/, MutableNLPExpr& /*repn*/, double /*multiplier*/)
 {
     throw std::runtime_error("Unexpected data reference.");
 }

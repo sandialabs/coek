@@ -31,8 +31,8 @@ class CompactModel {
     /** Set the name of the model */
     void name(const std::string& name);
 
-    //Parameter& add_parameter(Parameter& param);
-    //Parameter& add(Parameter& param);
+    // Parameter& add_parameter(Parameter& param);
+    // Parameter& add(Parameter& param);
     DataArray& add_data(DataArray& data);
     DataArray& add(DataArray& data);
     DataArray& add(DataArray&& data);

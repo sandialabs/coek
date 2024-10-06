@@ -7,9 +7,8 @@ namespace coek {
 // DataRefTerm
 //
 
-DataRefTerm::DataRefTerm(const std::vector<refarg_types>& _indices,
-                                   const std::string& _name,
-                                   std::shared_ptr<AssocArrayBase<ConstantTerm>>& _data)
+DataRefTerm::DataRefTerm(const std::vector<refarg_types>& _indices, const std::string& _name,
+                         std::shared_ptr<AssocArrayBase<ConstantTerm>>& _data)
     : indices(_indices), name(_name), data(_data)
 {
 }

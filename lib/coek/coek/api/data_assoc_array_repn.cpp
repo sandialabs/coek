@@ -9,7 +9,8 @@ void DataAssocArrayRepn::expand()
 {
     if (first_expand) {
         for (size_t i = 0; i < size(); i++) {
-            values.emplace_back(CREATE_POINTER(ConstantTerm, value_template.value_expression().expand().value()));
+            values.emplace_back(
+                CREATE_POINTER(ConstantTerm, value_template.value_expression().expand().value()));
         }
         first_expand = false;
     }
@@ -33,9 +34,6 @@ void DataAssocArrayRepn::value(const Expression& expr)
     }
 }
 
-void DataAssocArrayRepn::name(const std::string& name)
-{
-    value_template.name(name);
-}
+void DataAssocArrayRepn::name(const std::string& name) { value_template.name(name); }
 
 }  // namespace coek
