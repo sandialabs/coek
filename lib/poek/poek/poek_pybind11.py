@@ -16,6 +16,20 @@ except:
     ConcreteSet = _DummyConcreteSet
 
 
+class data(object):
+    def __new__(cls, *args, **kwds):
+        #p = parameter_single(*args)
+        #if value is not None:
+        #    p.value = value
+        #return p
+        if len(args) == 0 or args[0] == 1 or type(args[0]) == str:
+            return data_(**kwds)
+        if len(args) == 1:
+            return data_(args[0], **kwds)
+        else:
+            raise RuntimeError("Data values only have one argument")
+
+
 class parameter(object):
     def __new__(cls, *args, **kwds):
         #p = parameter_single(*args)
@@ -27,7 +41,7 @@ class parameter(object):
         if len(args) == 1:
             return parameter_(args[0], **kwds)
         else:
-            raise RuntimeError("Variables only have one argument")
+            raise RuntimeError("Parameters only have one argument")
 
 
 class variable(object):

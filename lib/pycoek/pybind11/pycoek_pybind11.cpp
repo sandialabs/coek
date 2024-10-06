@@ -632,6 +632,13 @@ ParameterMap parameter_fn(coek::ConcreteSet& index_set, py::kwargs kwargs)
     set_kwargs_parammap(tmp, kwargs);
     return tmp;
 }
+
+DataMap data_fn(coek::ConcreteSet& index_set, py::kwargs kwargs)
+{
+    DataMap tmp(index_set);
+    set_kwargs_parammap(tmp, kwargs);
+    return tmp;
+}
 #endif
 
 VariableArray variable_fn(std::vector<int>& dimen, py::kwargs kwargs)
@@ -686,6 +693,35 @@ ParameterArray parameter_fn(int n, py::kwargs kwargs)
 }
 
 Parameter parameter_fn(py::kwargs kwargs)
+{
+    Parameter tmp;
+    set_param_kwargs(tmp, kwargs);
+    return tmp;
+}
+
+ParameterArray data_fn(std::vector<int>& dimen, py::kwargs kwargs)
+{
+    std::vector<size_t> _dimen(dimen.size());
+    for (size_t i = 0; i < dimen.size(); ++i) {
+        assert(dimen[i] >= 0);
+        _dimen[i] = static_cast<size_t>(dimen[i]);
+    }
+    ParameterArray tmp(_dimen);
+    set_param_kwargs(tmp, kwargs);
+    return tmp;
+}
+
+ParameterArray data_fn(int n, py::kwargs kwargs)
+{
+    if (n < 0)
+        throw std::invalid_argument("Cannot initialize data array with negative length");
+
+    ParameterArray tmp(static_cast<size_t>(n));
+    set_param_kwargs(tmp, kwargs);
+    return tmp;
+}
+
+Parameter data_fn(py::kwargs kwargs)
 {
     Parameter tmp;
     set_param_kwargs(tmp, kwargs);
@@ -830,12 +866,20 @@ PYBIND11_MODULE(pycoek_pybind11, m)
           [](std::vector<int>& dimen, py::kwargs kw) { return coek::parameter_fn(dimen, kw); });
     m.def("parameter_", [](py::kwargs kw) { return coek::parameter_fn(kw); });
 
+    m.def("data_", [](int n, py::kwargs kw) { return coek::data_fn(n, kw); });
+    m.def("data_",
+          [](std::vector<int>& dimen, py::kwargs kw) { return coek::data_fn(dimen, kw); });
+    m.def("data_", [](py::kwargs kw) { return coek::data_fn(kw); });
+
 #ifdef COEK_WITH_COMPACT_MODEL
     m.def("variable_", [](coek::ConcreteSet& index_set, py::kwargs kw) {
         return coek::variable_fn(index_set, kw);
     });
     m.def("parameter_", [](coek::ConcreteSet& index_set, py::kwargs kw) {
         return coek::parameter_fn(index_set, kw);
+    });
+    m.def("data_", [](coek::ConcreteSet& index_set, py::kwargs kw) {
+        return coek::data_fn(index_set, kw);
     });
 #endif
     m.def("affine_expression", [](std::vector<double>& coef, std::vector<coek::Variable>& var,
@@ -1359,6 +1403,33 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         ;
 
     //
+    // DataArray
+    //
+    py::class_<coek::DataArray>(m, "data_array")
+        .def(py::init<>())
+        .def("__len__", [](coek::DataArray& va) { return va.size(); })
+        .def("__getitem__", [](coek::DataArray& va, int i) { return va(i); })
+        .def("__getitem__",
+             [](coek::DataArray& va, std::vector<int>& index) { return va.index(index); })
+        .def_property_readonly("name",
+                               [](coek::DataArray& x) -> py::object {
+                                   if (x.name().size() == 0)
+                                       return py::cast<std::string>("D");
+                                   else
+                                       return py::cast<std::string>(x.name());
+                               })
+        .def("is_constraint", [](const coek::DataArray&) { return false; })
+        .def("is_expression_type", [](const coek::DataArray&) { return false; })
+        .def("is_potentially_variable", [](const coek::DataArray&) { return false; })
+        .def(
+            "__iter__",
+            [](const coek::DataArray& va) {
+                typedef coek::VecKeyIterator vec_key_t;
+                return py::make_iterator(vec_key_t(), vec_key_t(va.size()));
+            },
+            py::keep_alive<0, 1>());
+
+    //
     // ParameterArray
     //
     py::class_<coek::ParameterArray>(m, "parameter_array")
@@ -1370,7 +1441,7 @@ PYBIND11_MODULE(pycoek_pybind11, m)
         .def_property_readonly("name",
                                [](coek::ParameterArray& x) -> py::object {
                                    if (x.name().size() == 0)
-                                       return py::cast<std::string>("X");
+                                       return py::cast<std::string>("P");
                                    else
                                        return py::cast<std::string>(x.name());
                                })
@@ -1419,6 +1490,18 @@ PYBIND11_MODULE(pycoek_pybind11, m)
                 return py::make_iterator(vec_key_t(), vec_key_t(va.size()));
             },
             py::keep_alive<0, 1>());
+
+    //
+    // DataMap
+    //
+#ifdef COEK_WITH_COMPACT_MODEL
+    py::class_<coek::DataMap>(m, "data_map")
+        .def("__len__", [](coek::DataMap& x) { return x.size(); })
+        .def("__getitem__",
+             [](coek::DataMap& x, py::args args) {
+                 return coek::Array_getitem<coek::DataMap, coek::Expression>(x, args);
+             });
+#endif
 
     //
     // ParameterMap
@@ -2001,9 +2084,11 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     //
     py::class_<coek::Model>(m, "model")
         .def(py::init<>())
+        .def("add_data", [](coek::Model& m, coek::DataArray& v) { m.add(v); })
         .def("add_parameter", [](coek::Model& m, coek::Parameter& v) { return m.add_parameter(v); })
         .def("add_parameter", [](coek::Model& m, coek::ParameterArray& v) { m.add(v); })
 #ifdef COEK_WITH_COMPACT_MODEL
+        .def("add_data", [](coek::Model& m, coek::DataMap& v) { m.add(v); })
         .def("add_parameter", [](coek::Model& m, coek::ParameterMap& v) { m.add(v); })
 #endif
         .def("add_variable_", [](coek::Model& m, coek::Variable& v) { return m.add_variable(v); })
@@ -2121,8 +2206,9 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     //
     py::class_<coek::CompactModel>(m, "compact_model")
         .def(py::init<>())
-        .def("add_parameter",
-             [](coek::CompactModel& m, coek::Parameter& v) { return m.add_parameter(v); })
+        .def("add_data", [](coek::CompactModel& m, coek::DataArray& v) { m.add(v); })
+        .def("add_data", [](coek::CompactModel& m, coek::DataMap& v) { m.add(v); })
+        .def("add_parameter", [](coek::CompactModel& m, coek::Parameter& v) { return m.add_parameter(v); })
         .def("add_parameter", [](coek::CompactModel& m, coek::ParameterArray& v) { m.add(v); })
         .def("add_parameter", [](coek::CompactModel& m, coek::ParameterMap& v) { m.add(v); })
         .def("add_variable_", [](coek::CompactModel& m, coek::Variable& v) { m.add_variable(v); })
