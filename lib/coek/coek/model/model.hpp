@@ -302,17 +302,17 @@ class Model {
     void write(const std::string& filename, std::map<size_t, size_t>& varmap,
                std::map<size_t, size_t>& conmap);
     /** Print the equations in the model to \c std::cout */
-    void print_equations(bool active = true) const;
+    void print_equations(bool active = true);
     /** Print the equations in the model to the specified output stream */
-    void print_equations(std::ostream& ostr, bool active = true) const;
+    void print_equations(std::ostream& ostr, bool active = true);
     /** Print the values in the model to \c std::cout */
     void print_values();
     /** Print the values in the model to the specified output stream */
     void print_values(std::ostream& ostr);
 
-    friend std::ostream& operator<<(std::ostream& ostr, const Model& arg);
+    friend std::ostream& operator<<(std::ostream& ostr, Model& arg);
 
-    void generate_names();
+    void generate_names(bool force=false);
     void name_generation(Model::NameGeneration value);
     Model::NameGeneration name_generation();
 };
@@ -320,7 +320,7 @@ class Model {
 //
 // operator<<
 //
-std::ostream& operator<<(std::ostream& ostr, const Model& arg);
+std::ostream& operator<<(std::ostream& ostr, Model& arg);
 
 /**
  * Read a problem from a JPOF file

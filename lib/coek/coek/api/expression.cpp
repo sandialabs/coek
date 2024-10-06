@@ -285,17 +285,11 @@ bool Variable::is_integer() const { return repn->integer; }
 Variable Variable::expand()
 {
 #ifdef COEK_WITH_COMPACT_MODEL
-    auto var = Variable()
-                   .name(this->name())
-                   .lower(this->lower_expression().expand())
-                   .upper(this->upper_expression().expand())
-                   .value(this->value_expression().expand())
-                   .fixed(this->fixed())
-                   .within(this->within());
-    return var;
-#else
-    return *this;
+                   lower(this->lower_expression().expand());
+                   upper(this->upper_expression().expand());
+                   value(this->value_expression().expand());
 #endif
+    return *this;
 }
 
 std::ostream& operator<<(std::ostream& ostr, const Variable& arg)

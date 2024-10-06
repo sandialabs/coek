@@ -310,7 +310,7 @@ Model CompactModel::expand()
         }
     }
 
-    // std::cout << "VARIABLES " << repn->variables.size() << std::endl;
+    //std::cout << "VARIABLES " << repn->variables.size() << std::endl;
     for (auto& val : repn->variables) {
         if (auto eval = std::get_if<Variable>(&val)) {
             auto var = eval->expand();
@@ -329,8 +329,9 @@ Model CompactModel::expand()
             }
         }
         else if (auto eval = std::get_if<VariableMap>(&val)) {
-            // std::cout << "VARIABLE_MAP " << eval->name() << " " << eval->size() << std::endl;
+            //std::cout << "VARIABLE_MAP- " << eval->name() << " " << eval->size() << std::endl;
             eval->expand();
+            //std::cout << "VARIABLE_MAP+ " << eval->name() << " " << eval->size() << std::endl;
             model.add_variable(*eval);
         }
         else if (auto eval = std::get_if<VariableArray>(&val)) {

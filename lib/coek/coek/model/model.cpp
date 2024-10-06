@@ -26,20 +26,24 @@ const bool Model::minimize = true;
 const bool Model::maximize = false;
 const double Model::inf = COEK_INFINITY;
 
-std::ostream& operator<<(std::ostream& ostr, const Model& arg)
+std::ostream& operator<<(std::ostream& ostr, Model& arg)
 {
     arg.print_equations(ostr);
     return ostr;
 }
 
 // GCOVR_EXCL_START
-void Model::print_equations(bool active) const { print_equations(std::cout, active); }
+void Model::print_equations(bool active)
+{ print_equations(std::cout, active); }
 
 void Model::print_values() { print_values(std::cout); }
 // GCOVR_EXCL_STOP
 
-void Model::print_equations(std::ostream& ostr, bool active) const
+void Model::print_equations(std::ostream& ostr, bool active)
 {
+    if (repn->variables_by_name.size() < repn->variables.size())
+        generate_names(true);
+
     ostr << "MODEL" << std::endl;
     size_t ctr = 0;
     ostr << "  Objectives" << std::endl;
@@ -60,7 +64,7 @@ void Model::print_equations(std::ostream& ostr, bool active) const
 void Model::print_values(std::ostream& ostr)
 {
     if (repn->variables_by_name.size() < repn->variables.size())
-        generate_names();
+        generate_names(true);
     ostr << "Model Variables: " << repn->variables_by_name.size() << "\n";
     ostr << "   (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n";
     size_t ctr = 0;
@@ -330,10 +334,10 @@ std::map<std::string, Constraint>& Model::get_constraints_by_name()
     return repn->constraints_by_name;
 }
 
-void Model::generate_names()
+void Model::generate_names(bool force)
 {
     // std::cout << "MODEL generate_names()" << std::endl;
-    if (repn->name_generation_policy != Model::NameGeneration::simple) {
+    if (force or (repn->name_generation_policy != Model::NameGeneration::simple)) {
         // std::cout << "NOT SIMPLE " << repn->parameter_arrays.size() << " " <<
         // repn->variable_arrays.size() << " " << repn->parameter_maps.size() << " " <<
         // repn->variable_maps.size() << std::endl;
