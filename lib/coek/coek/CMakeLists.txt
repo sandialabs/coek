@@ -83,6 +83,7 @@ if(with_compact)
     list(APPEND sources
         compact/sequence_context.cpp
         compact/expression_sequence.cpp
+        compact/index_sequence.cpp
         compact/variable_sequence.cpp
         compact/objective_sequence.cpp
         compact/constraint_sequence.cpp

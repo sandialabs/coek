@@ -4,6 +4,7 @@
 #include "coek/ast/compact_terms.hpp"
 #include "coek/compact/coek_sets.hpp"
 #include "coek/compact/variable_map.hpp"
+#include "coek/compact/index_sequence.hpp"
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
 
@@ -17,19 +18,22 @@ namespace coek {
 
 class VariableMapRepn : public VariableAssocArrayRepn {
    public:
+    SequenceContext context;
+    ConcreteSet index_set;
+    IndexSequence index_sequence;
     std::unordered_map<IndexVector, size_t> index_map;
-    ConcreteSet concrete_set;
 
    public:
-    VariableMapRepn(const ConcreteSet& _arg) : concrete_set(_arg)
+    VariableMapRepn(const ConcreteSet& _arg) : context(_arg), index_set(_arg), index_sequence(context)
     {
 #ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
 #endif
     }
 
-    VariableMapRepn(const SequenceContext& _arg) : concrete_set(_arg.index_set())
+    VariableMapRepn(const SequenceContext& _arg) : context(_arg), index_sequence(context)
     {
+        index_set = context.index_set();
 #ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
 #endif
@@ -42,9 +46,9 @@ class VariableMapRepn : public VariableAssocArrayRepn {
     void expand();
 
     // TODO - evaluate whether it is reasonable to use const_cast here
-    size_t dim() { return const_cast<ConcreteSet&>(concrete_set).dim(); }
+    size_t dim() { return index_set.dim(); }
 
-    size_t size() { return const_cast<ConcreteSet&>(concrete_set).size(); }
+    size_t size() { return index_set.size(); }
 
     void generate_names();
 };
@@ -68,7 +72,7 @@ void VariableMapRepn::generate_names()
 #else
     IndexVector x(_dim);
 #endif
-    for (auto& indices : concrete_set) {
+    for (auto& indices : index_set) {
         for (size_t j = 0; j < _dim; j++)
             x[j] = indices[j];
         if (indices.size() == 1) {
@@ -91,25 +95,32 @@ void VariableMapRepn::generate_names()
 void VariableMapRepn::expand()
 {
     if (first_expand) {
-        VariableAssocArrayRepn::expand();
+        first_expand = false;
+        //VariableAssocArrayRepn::expand();
 
         size_t _dim = dim();
-        size_t i = 0;
-#ifdef CUSTOM_INDEXVECTOR
-        for (auto& vec : concrete_set) {
-            auto x = cache.alloc(_dim);
-            for (size_t j = 0; j < _dim; j++)
-                x[j] = vec[j];
-            index_map[x] = i++;
-        }
-#else
         IndexVector x(_dim);
-        for (auto& vec : concrete_set) {
+        size_t i = 0;
+
+        auto it = index_sequence.begin();
+        auto end = index_sequence.end();
+        while (it != end) {
+            auto vtype = value_template.within();
+            bool binary = (vtype == Boolean) or (vtype == Binary);
+            bool integer = vtype == Integers;
+            auto lower = std::make_shared<ConstantTerm>(value_template.lower_expression().expand().value());
+            auto upper = std::make_shared<ConstantTerm>(value_template.upper_expression().expand().value());
+            auto value = std::make_shared<ConstantTerm>(value_template.value_expression().expand().value());
+            values.emplace_back(CREATE_POINTER(VariableTerm, lower, upper, value, binary, integer));
+
+            auto& vec = *it;
+            assert(vec.size() == _dim);
             for (size_t j = 0; j < _dim; j++)
-                x[j] = vec[j];
+                vec[j].get_value(x[j]);
             index_map[x] = i++;
-        }
-#endif
+            ++it;
+            }
+        assert(index_map.size() == index_set.size());
     }
 }
 

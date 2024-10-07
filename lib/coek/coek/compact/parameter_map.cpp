@@ -4,6 +4,7 @@
 #include "coek/api/parameter_assoc_array_repn.hpp"
 #include "coek/compact/coek_sets.hpp"
 #include "coek/compact/parameter_map.hpp"
+#include "coek/compact/index_sequence.hpp"
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
 
@@ -11,20 +12,24 @@ namespace coek {
 
 class ParameterMapRepn : public ParameterAssocArrayRepn {
    public:
-    ConcreteSet concrete_set;
+    SequenceContext context;
+    ConcreteSet index_set;
+    IndexSequence index_sequence;
     std::unordered_map<IndexVector, size_t> index_map;
     bool names_generated = false;
 
    public:
-    ParameterMapRepn(const ConcreteSet& _arg) : concrete_set(_arg)
+    ParameterMapRepn(const ConcreteSet& _arg) : context(_arg), index_set(_arg), index_sequence(context)
     {
 #ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
 #endif
     }
 
-    ParameterMapRepn(const SequenceContext& _arg) : concrete_set(_arg.index_set())
+    //ParameterMapRepn(const SequenceContext& _arg) : concrete_set(_arg.index_set())
+    ParameterMapRepn(const SequenceContext& _arg) : context(_arg), index_sequence(context)
     {
+        index_set = context.index_set();
 #ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
 #endif
@@ -36,9 +41,9 @@ class ParameterMapRepn : public ParameterAssocArrayRepn {
 
     void expand();
 
-    size_t dim() { return concrete_set.dim(); }
+    size_t dim() { return index_set.dim(); }
 
-    size_t size() { return concrete_set.size(); }
+    size_t size() { return index_set.size(); }
 
     std::string get_name(size_t index);
 
@@ -63,7 +68,7 @@ void ParameterMapRepn::generate_names()
 #else
     IndexVector x(_dim);
 #endif
-    for (auto& indices : concrete_set) {
+    for (auto& indices : index_set) {
         for (size_t j = 0; j < _dim; j++)
             x[j] = indices[j];
         if (indices.size() == 1) {
@@ -86,20 +91,27 @@ void ParameterMapRepn::generate_names()
 void ParameterMapRepn::expand()
 {
     if (first_expand) {
-        ParameterAssocArrayRepn::expand();
+        first_expand = false;
+        //ParameterAssocArrayRepn::expand();
 
         size_t _dim = dim();
+        IndexVector x(_dim);
         size_t i = 0;
-        for (auto& vec : concrete_set) {
-#ifdef CUSTOM_INDEXVECTOR
-            auto x = cache.alloc(_dim);
-#else
-            IndexVector x(_dim);
-#endif
+
+        auto it = index_sequence.begin();
+        auto end = index_sequence.end();
+        while (it != end) {
+            auto expr = value_template.value_expression().expand();
+            values.emplace_back(CREATE_POINTER(ParameterTerm, CREATE_POINTER(ConstantTerm, expr.value())));
+
+            auto& vec = *it;
+            assert(vec.size() == _dim);
             for (size_t j = 0; j < _dim; j++)
-                x[j] = vec[j];
+                vec[j].get_value(x[j]);
             index_map[x] = i++;
-        }
+            ++it;
+            }
+        assert(index_map.size() == index_set.size());
     }
 }
 

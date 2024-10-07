@@ -15,22 +15,29 @@ namespace coek {
 Context::Context(const std::vector<IndexParameter>& _indices) : indices(_indices) {}
 
 //
-// SequenceContextRepn
-//
-
-class SequenceContextRepn {
-   public:
-    std::vector<Context> context;
-};
-
-//
 // SequenceContext
 //
 
 SequenceContext::SequenceContext(const std::shared_ptr<SequenceContextRepn>& _repn) : repn(_repn) {}
 
+SequenceContext::SequenceContext(const ConcreteSet& _index_set)
+{
+    repn = std::make_shared<SequenceContextRepn>();
+    std::vector<IndexParameter> indices;
+    ConcreteSet tmp = _index_set;
+    for (size_t i=0; i<tmp.dim(); ++i) {
+        std::string name = "_i"+std::to_string(repn->dim+i);
+        indices.emplace_back( set_element(name) );
+        }
+    repn->context.emplace_back(indices);
+    Context& curr = repn->context.back();
+    curr.index_set = tmp;
+    repn->dim += indices.size();
+}
+
 SequenceContext SequenceContext::In(const ConcreteSet& _index_set)
 {
+    // TODO - Error check that index set dim equals the # of index parameters
     Context& curr = repn->context.back();
     curr.index_set = _index_set;
     return repn;
@@ -75,6 +82,7 @@ Context& SequenceContext::operator[](size_t i) { return repn->context[i]; }
 SequenceContext SequenceContext::Forall(const std::vector<IndexParameter>& indices)
 {
     repn->context.emplace_back(indices);
+    repn->dim += indices.size();
     return repn;
 }
 
@@ -86,6 +94,7 @@ SequenceContext Forall(const std::vector<IndexParameter>& indices)
 {
     auto repn = std::make_shared<SequenceContextRepn>();
     repn->context.emplace_back(indices);
+    repn->dim += indices.size();
     return repn;
 }
 
