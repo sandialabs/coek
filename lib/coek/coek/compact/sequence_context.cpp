@@ -25,10 +25,10 @@ SequenceContext::SequenceContext(const ConcreteSet& _index_set)
     repn = std::make_shared<SequenceContextRepn>();
     std::vector<IndexParameter> indices;
     ConcreteSet tmp = _index_set;
-    for (size_t i=0; i<tmp.dim(); ++i) {
-        std::string name = "_i"+std::to_string(repn->dim+i);
-        indices.emplace_back( set_element(name) );
-        }
+    for (size_t i = 0; i < tmp.dim(); ++i) {
+        std::string name = "_i" + std::to_string(repn->dim + i);
+        indices.emplace_back(set_element(name));
+    }
     repn->context.emplace_back(indices);
     Context& curr = repn->context.back();
     curr.index_set = tmp;

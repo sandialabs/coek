@@ -5,7 +5,7 @@
 #include "coek/compact/coek_exprterm.hpp"
 #include "coek_sets.hpp"
 #include "sequence_context.hpp"
-//#include "visitor_exprtemplate.hpp"
+// #include "visitor_exprtemplate.hpp"
 
 namespace coek {
 
@@ -18,7 +18,7 @@ class IndexSequenceRepn {
     SequenceContext context;
 
    public:
-    IndexSequenceRepn(const SequenceContext& context_) : context(context_) { }
+    IndexSequenceRepn(const SequenceContext& context_) : context(context_) {}
 };
 
 //
@@ -30,7 +30,7 @@ class IndexSeqIteratorRepn {
     IndexSequenceRepn* seq;
     std::vector<SetIterator> context_iter;
     size_t ncontexts;
-    //Index converted_expr;
+    // Index converted_expr;
     std::vector<IndexParameter> indices;
     bool done;
 
@@ -45,12 +45,12 @@ class IndexSeqIteratorRepn {
         done = end;
         if (!done) {
             // Collect indices
-            for (auto& context: seq->context.repn->context) {
-                for (auto& iparam: context.indices)
+            for (auto& context : seq->context.repn->context) {
+                for (auto& iparam : context.indices)
                     indices.push_back(iparam);
             }
-            //std::cout << "HERE " << indices.size() << std::endl;
-            //std::cout << "HERE " << _seq->context.repn->dim << std::endl;
+            // std::cout << "HERE " << indices.size() << std::endl;
+            // std::cout << "HERE " << _seq->context.repn->dim << std::endl;
             assert(indices.size() == _seq->context.repn->dim);
 
             // Setup context iters
@@ -62,7 +62,7 @@ class IndexSeqIteratorRepn {
                 Context& curr = seq->context[i];
                 *it = curr.index_set.begin(curr.indices);
             }
-            //converted_expr = convert_expr_template(seq->expression_template.repn);
+            // converted_expr = convert_expr_template(seq->expression_template.repn);
         }
         ncontexts = context_iter.size();
     }
@@ -82,8 +82,8 @@ class IndexSeqIteratorRepn {
         }
         if (i_ == ncontexts)
             done = true;
-        //else
-        //    converted_expr = convert_expr_template(seq->expression_template.repn);
+        // else
+        //     converted_expr = convert_expr_template(seq->expression_template.repn);
     }
 
     bool operator==(const IndexSeqIteratorRepn* other) const
@@ -144,46 +144,28 @@ bool IndexSeqIterator::operator!=(const IndexSeqIterator& other) const
 
 IndexSeqIterator::reference IndexSeqIterator::operator*() { return repn->operator*(); }
 
-IndexSeqIterator::const_reference IndexSeqIterator::operator*() const
-{
-    return repn->operator*();
-}
+IndexSeqIterator::const_reference IndexSeqIterator::operator*() const { return repn->operator*(); }
 
 IndexSeqIterator::pointer IndexSeqIterator::operator->() { return repn->operator->(); }
 
-IndexSeqIterator::const_pointer IndexSeqIterator::operator->() const
-{
-    return repn->operator->();
-}
+IndexSeqIterator::const_pointer IndexSeqIterator::operator->() const { return repn->operator->(); }
 
 //
 // IndexSequence
 //
-IndexSequence::IndexSequence(const std::shared_ptr<IndexSequenceRepn>& _repn)
-    : repn(_repn)
-{
-}
+IndexSequence::IndexSequence(const std::shared_ptr<IndexSequenceRepn>& _repn) : repn(_repn) {}
 
 IndexSequence::IndexSequence(const SequenceContext& context_)
 {
     repn = std::make_shared<IndexSequenceRepn>(context_);
 }
 
-IndexSeqIterator IndexSequence::begin()
-{
-    return IndexSeqIterator(repn.get(), false);
-}
+IndexSeqIterator IndexSequence::begin() { return IndexSeqIterator(repn.get(), false); }
 
 IndexSeqIterator IndexSequence::end() { return IndexSeqIterator(repn.get(), true); }
 
-const IndexSeqIterator IndexSequence::begin() const
-{
-    return IndexSeqIterator(repn.get(), false);
-}
+const IndexSeqIterator IndexSequence::begin() const { return IndexSeqIterator(repn.get(), false); }
 
-const IndexSeqIterator IndexSequence::end() const
-{
-    return IndexSeqIterator(repn.get(), true);
-}
+const IndexSeqIterator IndexSequence::end() const { return IndexSeqIterator(repn.get(), true); }
 
 }  // namespace coek

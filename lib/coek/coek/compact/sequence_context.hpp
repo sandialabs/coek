@@ -42,9 +42,8 @@ class Context {
 class SequenceContextRepn {
    public:
     std::vector<Context> context;
-    size_t dim=0;
+    size_t dim = 0;
 };
-
 
 class SequenceContext {
    public:

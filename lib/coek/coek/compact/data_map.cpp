@@ -27,7 +27,7 @@ class DataMapRepn : public DataAssocArrayRepn {
 
     DataMapRepn(const SequenceContext& _arg) : context(_arg), index_sequence(context)
     {
-    index_set = context.index_set();
+        index_set = context.index_set();
 #ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
 #endif
@@ -50,7 +50,7 @@ void DataMapRepn::expand()
 {
     if (first_expand) {
         first_expand = false;
-        //DataAssocArrayRepn::expand();
+        // DataAssocArrayRepn::expand();
 
         size_t _dim = dim();
         IndexVector x(_dim);
@@ -68,9 +68,9 @@ void DataMapRepn::expand()
                 vec[j].get_value(x[j]);
             index_map[x] = i++;
             ++it;
-            }
-        assert(index_map.size() == index_set.size());
         }
+        assert(index_map.size() == index_set.size());
+    }
 }
 
 //

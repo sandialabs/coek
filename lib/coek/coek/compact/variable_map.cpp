@@ -24,7 +24,8 @@ class VariableMapRepn : public VariableAssocArrayRepn {
     std::unordered_map<IndexVector, size_t> index_map;
 
    public:
-    VariableMapRepn(const ConcreteSet& _arg) : context(_arg), index_set(_arg), index_sequence(context)
+    VariableMapRepn(const ConcreteSet& _arg)
+        : context(_arg), index_set(_arg), index_sequence(context)
     {
 #ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
@@ -96,7 +97,7 @@ void VariableMapRepn::expand()
 {
     if (first_expand) {
         first_expand = false;
-        //VariableAssocArrayRepn::expand();
+        // VariableAssocArrayRepn::expand();
 
         size_t _dim = dim();
         IndexVector x(_dim);
@@ -108,9 +109,12 @@ void VariableMapRepn::expand()
             auto vtype = value_template.within();
             bool binary = (vtype == Boolean) or (vtype == Binary);
             bool integer = vtype == Integers;
-            auto lower = std::make_shared<ConstantTerm>(value_template.lower_expression().expand().value());
-            auto upper = std::make_shared<ConstantTerm>(value_template.upper_expression().expand().value());
-            auto value = std::make_shared<ConstantTerm>(value_template.value_expression().expand().value());
+            auto lower = std::make_shared<ConstantTerm>(
+                value_template.lower_expression().expand().value());
+            auto upper = std::make_shared<ConstantTerm>(
+                value_template.upper_expression().expand().value());
+            auto value = std::make_shared<ConstantTerm>(
+                value_template.value_expression().expand().value());
             values.emplace_back(CREATE_POINTER(VariableTerm, lower, upper, value, binary, integer));
 
             auto& vec = *it;
@@ -119,7 +123,7 @@ void VariableMapRepn::expand()
                 vec[j].get_value(x[j]);
             index_map[x] = i++;
             ++it;
-            }
+        }
         assert(index_map.size() == index_set.size());
     }
 }

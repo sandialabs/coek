@@ -19,14 +19,15 @@ class ParameterMapRepn : public ParameterAssocArrayRepn {
     bool names_generated = false;
 
    public:
-    ParameterMapRepn(const ConcreteSet& _arg) : context(_arg), index_set(_arg), index_sequence(context)
+    ParameterMapRepn(const ConcreteSet& _arg)
+        : context(_arg), index_set(_arg), index_sequence(context)
     {
 #ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
 #endif
     }
 
-    //ParameterMapRepn(const SequenceContext& _arg) : concrete_set(_arg.index_set())
+    // ParameterMapRepn(const SequenceContext& _arg) : concrete_set(_arg.index_set())
     ParameterMapRepn(const SequenceContext& _arg) : context(_arg), index_sequence(context)
     {
         index_set = context.index_set();
@@ -92,7 +93,7 @@ void ParameterMapRepn::expand()
 {
     if (first_expand) {
         first_expand = false;
-        //ParameterAssocArrayRepn::expand();
+        // ParameterAssocArrayRepn::expand();
 
         size_t _dim = dim();
         IndexVector x(_dim);
@@ -102,7 +103,8 @@ void ParameterMapRepn::expand()
         auto end = index_sequence.end();
         while (it != end) {
             auto expr = value_template.value_expression().expand();
-            values.emplace_back(CREATE_POINTER(ParameterTerm, CREATE_POINTER(ConstantTerm, expr.value())));
+            values.emplace_back(
+                CREATE_POINTER(ParameterTerm, CREATE_POINTER(ConstantTerm, expr.value())));
 
             auto& vec = *it;
             assert(vec.size() == _dim);
@@ -110,7 +112,7 @@ void ParameterMapRepn::expand()
                 vec[j].get_value(x[j]);
             index_map[x] = i++;
             ++it;
-            }
+        }
         assert(index_map.size() == index_set.size());
     }
 }
