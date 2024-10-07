@@ -1,5 +1,6 @@
 
 #include "coek/util/string_utils.hpp"
+#include "coek/util/io_utils.hpp"
 #include "coek/ast/varray.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/objective.hpp"
@@ -196,6 +197,8 @@ Objective& CompactModel::add(Objective&& obj)
     return obj;
 }
 
+// Constraint
+
 Constraint CompactModel::add_constraint(const Constraint& expr)
 {
     repn->constraints.push_back(expr);
@@ -221,9 +224,9 @@ Constraint& CompactModel::add(Constraint&& expr)
     return expr;
 }
 
-#    if __cpp_lib_variant
+void CompactModel::add_constraint(ConstraintMap& cons) { repn->constraints.push_back(cons); }
+
 void CompactModel::add(ConstraintMap& expr) { add_constraint(expr); }
-#    endif
 
 void CompactModel::add_constraint(const Constraint& expr, const SequenceContext& context)
 {
@@ -241,6 +244,8 @@ void CompactModel::add_constraint(const std::string& name, const Constraint& exp
 void CompactModel::add(ConstraintSequence& seq) { repn->constraints.push_back(seq); }
 
 void CompactModel::add(ConstraintSequence&& seq) { repn->constraints.push_back(seq); }
+
+// Expand
 
 Model CompactModel::expand()
 {
@@ -359,11 +364,16 @@ Model CompactModel::expand()
             Constraint c = cval->expand();
             model.repn->constraints.push_back(c);
         }
-        else {
-            auto& seq = std::get<ConstraintSequence>(val);
-            for (auto jt = seq.begin(); jt != seq.end(); ++jt) {
+        else if (auto seq = std::get_if<ConstraintSequence>(&val)) {
+            // std::cout << "HERE " << std::endl;
+            for (auto jt = seq->begin(); jt != seq->end(); ++jt) {
+                // std::cout << *jt << std::endl;
+                // std::cout << jt->to_list() << std::endl;
                 model.repn->constraints.push_back(*jt);
             }
+        }
+        else if (auto eval = std::get_if<ConstraintMap>(&val)) {
+            model.add_constraint(*eval);
         }
     }
     return model;

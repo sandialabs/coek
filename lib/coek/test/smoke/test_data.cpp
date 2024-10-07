@@ -263,7 +263,7 @@ TEST_CASE("1D_data_map", "[smoke]")
         {
             auto i = coek::set_element("i");
             auto e = dats(i);
-            static std::list<std::string> baseline = {"dats[i]"};
+            static std::list<std::string> baseline = {"~dats[i]"};
             REQUIRE(e.to_list() == baseline);
         }
 
@@ -271,7 +271,7 @@ TEST_CASE("1D_data_map", "[smoke]")
         {
             auto i = coek::set_element("i");
             auto e = dats(i + 1);
-            static std::list<std::string> baseline = {"dats[i + 1]"};
+            static std::list<std::string> baseline = {"~dats[i + 1]"};
             REQUIRE(e.to_list() == baseline);
         }
     }
@@ -524,7 +524,7 @@ TEST_CASE("2D_data_map", "[smoke]")
             auto i = coek::set_element("i");
             auto j = coek::set_element("j");
             auto e = dats(i, j);
-            static std::list<std::string> baseline = {"dats[i,j]"};
+            static std::list<std::string> baseline = {"~dats[i,j]"};
             REQUIRE(e.to_list() == baseline);
         }
 
@@ -533,7 +533,7 @@ TEST_CASE("2D_data_map", "[smoke]")
             auto i = coek::set_element("i");
             auto j = coek::set_element("j");
             auto e = dats(i + 1, j - 1);
-            static std::list<std::string> baseline = {"dats[i + 1,j + -1]"};
+            static std::list<std::string> baseline = {"~dats[i + 1,j + -1]"};
             REQUIRE(e.to_list() == baseline);
         }
     }

@@ -210,7 +210,7 @@ TEST_CASE("model_names", "[smoke]")
         REQUIRE(m.repn->parameter_maps.size() == 2);
         REQUIRE(m.repn->variable_maps.size() == 2);
 #    endif
-        REQUIRE(m.repn->constraint_maps.size() == 0);
+        REQUIRE(m.repn->constraint_maps.size() == 4);
 #endif
 
         REQUIRE(coek::starts_with(p.name(), "p"));
@@ -386,7 +386,7 @@ TEST_CASE("model_names", "[smoke]")
         REQUIRE(m.repn->parameter_maps.size() == 2);
         REQUIRE(m.repn->variable_maps.size() == 2);
 #    endif
-        REQUIRE(m.repn->constraint_maps.size() == 0);
+        REQUIRE(m.repn->constraint_maps.size() == 4);
 #endif
 
         REQUIRE(p.name() == "p");

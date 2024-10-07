@@ -53,7 +53,7 @@ void visit_VariableRefTerm(const expr_pointer_t& expr, std::list<std::string>& r
     auto tmp = safe_pointer_cast<VariableRefTerm>(expr);
     std::stringstream sstr;
     write_expr(tmp, sstr);
-    repr.push_back(sstr.str());
+    repr.push_back("~" + sstr.str());
 }
 
 void visit_ParameterRefTerm(const expr_pointer_t& expr, std::list<std::string>& repr)
@@ -61,7 +61,7 @@ void visit_ParameterRefTerm(const expr_pointer_t& expr, std::list<std::string>& 
     auto tmp = safe_pointer_cast<ParameterRefTerm>(expr);
     std::stringstream sstr;
     write_expr(tmp, sstr);
-    repr.push_back(sstr.str());
+    repr.push_back("~" + sstr.str());
 }
 
 void visit_DataRefTerm(const expr_pointer_t& expr, std::list<std::string>& repr)
@@ -69,7 +69,7 @@ void visit_DataRefTerm(const expr_pointer_t& expr, std::list<std::string>& repr)
     auto tmp = safe_pointer_cast<DataRefTerm>(expr);
     std::stringstream sstr;
     write_expr(tmp, sstr);
-    repr.push_back(sstr.str());
+    repr.push_back("~" + sstr.str());
 }
 #endif
 

@@ -124,19 +124,19 @@ inline void visit_IndexParameterTerm(const expr_pointer_t&, TYPE&)
 template <class TYPE>
 inline void visit_VariableRefTerm(const expr_pointer_t&, TYPE&)
 {
-    throw std::runtime_error("Cannot write an NL file using an abstract expression!");
+    throw std::runtime_error("Cannot write an NL file using an abstract variable expression!");
 }
 
 template <class TYPE>
 inline void visit_ParameterRefTerm(const expr_pointer_t&, TYPE&)
 {
-    throw std::runtime_error("Cannot write an NL file using an abstract expression!");
+    throw std::runtime_error("Cannot write an NL file using an abstract parameter expression!");
 }
 
 template <class TYPE>
 inline void visit_DataRefTerm(const expr_pointer_t&, TYPE&)
 {
-    throw std::runtime_error("Cannot write an NL file using an abstract expression!");
+    throw std::runtime_error("Cannot write an NL file using an abstract data expression!");
 }
 #endif
 
