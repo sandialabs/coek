@@ -139,106 +139,88 @@ TEST_CASE("model_names", "[smoke]")
 #endif
 
     auto p = coek::parameter("p");
-#if __cpp_lib_variant
     auto q = coek::parameter("q", 10);
     auto r = coek::parameter("r", {10, 10});
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
     auto qq = coek::parameter("qq", I);
     auto rr = coek::parameter("rr", I * I);
-#    endif
 #endif
 
     auto x = coek::variable("x");
-#if __cpp_lib_variant
     auto y = coek::variable("y", 10);
     auto z = coek::variable("z", {10, 10});
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
     auto yy = coek::variable("yy", I);
     auto zz = coek::variable("zz", I * I);
-#    endif
 #endif
 
     auto c = coek::constraint("c", x == 1);
-#if __cpp_lib_variant
     auto d = coek::constraint("d", 10);
     d(0) = x == 1;
     auto e = coek::constraint("e", {10, 10});
     e(0, 0) = x == 1;
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
     auto dd = coek::constraint("dd", I);
     dd(0) = x == 1;
     auto ee = coek::constraint("ee", I * I);
     ee(0, 0) = x == 1;
-#    endif
 #endif
 
     SECTION("simple")
     {
         // m.add(p);
-#if __cpp_lib_variant
         m.add(q);
         m.add(r);
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         m.add(qq);
         m.add(rr);
-#    endif
 #endif
         m.add(x);
-#if __cpp_lib_variant
         m.add(y);
         m.add(z);
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         m.add(yy);
         m.add(zz);
-#    endif
 #endif
         m.add(c);
-#if __cpp_lib_variant
         m.add(d);
         m.add(e);
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         m.add(dd);
         m.add(ee);
-#    endif
 #endif
 
         REQUIRE(m.name_generation() == coek::Model::NameGeneration::simple);
-#if __cpp_lib_variant
         REQUIRE(m.repn->parameter_arrays.size() == 2);
         REQUIRE(m.repn->variable_arrays.size() == 2);
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(m.repn->parameter_maps.size() == 2);
         REQUIRE(m.repn->variable_maps.size() == 2);
-#    endif
         REQUIRE(m.repn->constraint_maps.size() == 4);
+#else
+        REQUIRE(m.repn->constraint_maps.size() == 2);
 #endif
 
         REQUIRE(coek::starts_with(p.name(), "p"));
-#if __cpp_lib_variant
         REQUIRE(coek::starts_with(q(0).name(), "P"));
         REQUIRE(coek::starts_with(r(0, 0).name(), "P"));
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(coek::starts_with(qq(0).name(), "P"));
         REQUIRE(coek::starts_with(rr(0, 0).name(), "P"));
-#    endif
 #endif
         REQUIRE(coek::starts_with(x.name(), "x"));
-#if __cpp_lib_variant
         REQUIRE(coek::starts_with(y(0).name(), "X"));
         REQUIRE(coek::starts_with(z(0, 0).name(), "X"));
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(coek::starts_with(yy(0).name(), "X"));
         REQUIRE(coek::starts_with(zz(0, 0).name(), "X"));
-#    endif
 #endif
         REQUIRE(coek::starts_with(c.name(), "c"));
-#if __cpp_lib_variant
         REQUIRE(coek::starts_with(d(0).name(), "C"));
         REQUIRE(coek::starts_with(e(0, 0).name(), "C"));
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(coek::starts_with(dd(0).name(), "C"));
         REQUIRE(coek::starts_with(ee(0, 0).name(), "C"));
-#    endif
 #endif
     }
 
@@ -246,104 +228,84 @@ TEST_CASE("model_names", "[smoke]")
     {
         m.name_generation(coek::Model::NameGeneration::lazy);
         // m.add(p);
-#if __cpp_lib_variant
         m.add(q);
         m.add(r);
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         m.add(qq);
         m.add(rr);
-#    endif
 #endif
         m.add(x);
-#if __cpp_lib_variant
         m.add(y);
         m.add(z);
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         m.add(yy);
         m.add(zz);
-#    endif
 #endif
         m.add(c);
-#if __cpp_lib_variant
         m.add(d);
         m.add(e);
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         m.add(dd);
         m.add(ee);
-#    endif
 #endif
 
         REQUIRE(m.name_generation() == coek::Model::NameGeneration::lazy);
-#if __cpp_lib_variant
         REQUIRE(m.repn->parameter_arrays.size() == 2);
         REQUIRE(m.repn->variable_arrays.size() == 2);
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(m.repn->parameter_maps.size() == 2);
         REQUIRE(m.repn->variable_maps.size() == 2);
-#    endif
-#    ifdef COEK_WITH_COMPACT_MODEL
+#endif
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(m.repn->constraint_maps.size() == 4);
-#    else
+#else
         REQUIRE(m.repn->constraint_maps.size() == 2);
-#    endif
 #endif
 
         REQUIRE(coek::starts_with(p.name(), "p"));
-#if __cpp_lib_variant
         REQUIRE(coek::starts_with(q(0).name(), "P"));
         REQUIRE(coek::starts_with(r(0, 0).name(), "P"));
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(coek::starts_with(qq(0).name(), "P"));
         REQUIRE(coek::starts_with(rr(0, 0).name(), "P"));
-#    endif
 #endif
         REQUIRE(coek::starts_with(x.name(), "x"));
-#if __cpp_lib_variant
         REQUIRE(coek::starts_with(y(0).name(), "X"));
         REQUIRE(coek::starts_with(z(0, 0).name(), "X"));
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(coek::starts_with(yy(0).name(), "X"));
         REQUIRE(coek::starts_with(zz(0, 0).name(), "X"));
-#    endif
 #endif
         REQUIRE(coek::starts_with(c.name(), "c"));
-#if __cpp_lib_variant
         REQUIRE(coek::starts_with(d(0).name(), "C"));
         REQUIRE(coek::starts_with(e(0, 0).name(), "C"));
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(coek::starts_with(dd(0).name(), "C"));
         REQUIRE(coek::starts_with(ee(0, 0).name(), "C"));
-#    endif
 #endif
 
         m.generate_names();
 
         REQUIRE(p.name() == "p");
-#if __cpp_lib_variant
         REQUIRE(q(0).name() == "q[0]");
         REQUIRE(r(0, 0).name() == "r[0,0]");
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(qq(0).name() == "qq[0]");
         REQUIRE(rr(0, 0).name() == "rr[0,0]");
-#    endif
 #endif
         REQUIRE(x.name() == "x");
-#if __cpp_lib_variant
         REQUIRE(y(0).name() == "y[0]");
         REQUIRE(z(0, 0).name() == "z[0,0]");
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(yy(0).name() == "yy[0]");
         REQUIRE(zz(0, 0).name() == "zz[0,0]");
-#    endif
 #endif
         REQUIRE(c.name() == "c");
-#if __cpp_lib_variant
         REQUIRE(d(0).name() == "d[0]");
         REQUIRE(e(0, 0).name() == "e[0,0]");
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(dd(0).name() == "dd[0]");
         REQUIRE(ee(0, 0).name() == "ee[0,0]");
-#    endif
 #endif
     }
 
@@ -351,70 +313,58 @@ TEST_CASE("model_names", "[smoke]")
     {
         m.name_generation(coek::Model::NameGeneration::eager);
         // m.add(p);
-#if __cpp_lib_variant
         m.add(q);
         m.add(r);
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         m.add(qq);
         m.add(rr);
-#    endif
 #endif
         m.add(x);
-#if __cpp_lib_variant
         m.add(y);
         m.add(z);
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         m.add(yy);
         m.add(zz);
-#    endif
 #endif
         m.add(c);
-#if __cpp_lib_variant
         m.add(d);
         m.add(e);
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         m.add(dd);
         m.add(ee);
-#    endif
 #endif
 
         REQUIRE(m.name_generation() == coek::Model::NameGeneration::eager);
-#if __cpp_lib_variant
         REQUIRE(m.repn->parameter_arrays.size() == 2);
         REQUIRE(m.repn->variable_arrays.size() == 2);
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(m.repn->parameter_maps.size() == 2);
         REQUIRE(m.repn->variable_maps.size() == 2);
-#    endif
         REQUIRE(m.repn->constraint_maps.size() == 4);
+#else
+        REQUIRE(m.repn->constraint_maps.size() == 2);
 #endif
 
         REQUIRE(p.name() == "p");
-#if __cpp_lib_variant
         REQUIRE(q(0).name() == "q[0]");
         REQUIRE(r(0, 0).name() == "r[0,0]");
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(qq(0).name() == "qq[0]");
         REQUIRE(rr(0, 0).name() == "rr[0,0]");
-#    endif
 #endif
         REQUIRE(x.name() == "x");
-#if __cpp_lib_variant
         REQUIRE(y(0).name() == "y[0]");
         REQUIRE(z(0, 0).name() == "z[0,0]");
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(yy(0).name() == "yy[0]");
         REQUIRE(zz(0, 0).name() == "zz[0,0]");
-#    endif
 #endif
         REQUIRE(c.name() == "c");
-#if __cpp_lib_variant
         REQUIRE(d(0).name() == "d[0]");
         REQUIRE(e(0, 0).name() == "e[0,0]");
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         REQUIRE(dd(0).name() == "dd[0]");
         REQUIRE(ee(0, 0).name() == "ee[0,0]");
-#    endif
 #endif
     }
 }
