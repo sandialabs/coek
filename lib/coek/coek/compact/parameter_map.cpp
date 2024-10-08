@@ -1,5 +1,6 @@
 #include <unordered_map>
 
+#include "coek/util/io_utils.hpp"
 #include "coek/ast/compact_terms.hpp"
 #include "coek/api/parameter_assoc_array_repn.hpp"
 #include "coek/compact/coek_sets.hpp"
@@ -27,7 +28,6 @@ class ParameterMapRepn : public ParameterAssocArrayRepn {
 #endif
     }
 
-    // ParameterMapRepn(const SequenceContext& _arg) : concrete_set(_arg.index_set())
     ParameterMapRepn(const SequenceContext& _arg) : context(_arg), index_sequence(context)
     {
         index_set = context.index_set();
@@ -92,8 +92,8 @@ void ParameterMapRepn::generate_names()
 void ParameterMapRepn::expand()
 {
     if (first_expand) {
+        // std::cout << "HERE - Expanding " << value_template.name() << std::endl;
         first_expand = false;
-        // ParameterAssocArrayRepn::expand();
 
         size_t _dim = dim();
         IndexVector x(_dim);

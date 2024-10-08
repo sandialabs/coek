@@ -46,6 +46,14 @@ Parameter& Parameter::name(const std::string& name)
     return *this;
 }
 
+Parameter Parameter::expand()
+{
+#ifdef COEK_WITH_COMPACT_MODEL
+    value(this->value_expression().expand());
+#endif
+    return *this;
+}
+
 std::ostream& operator<<(std::ostream& ostr, const Parameter& arg)
 {
     write_expr(arg.repn, ostr);

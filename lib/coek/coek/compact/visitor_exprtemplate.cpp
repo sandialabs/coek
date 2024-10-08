@@ -30,7 +30,8 @@ expr_pointer_t visit_IndexParameterTerm(const expr_pointer_t& expr)
     else
         throw std::runtime_error(
             "Unexpected index parameter in an expression being converted, with a non-numeric "
-            "value.");
+            "value: "
+            + tmp->name);
 }
 
 expr_pointer_t visit_VariableRefTerm(const expr_pointer_t& expr)

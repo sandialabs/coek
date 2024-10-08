@@ -140,6 +140,9 @@ class Parameter {
     /** \returns \c false because this is not a contant */
     bool is_constant() const { return false; }
 
+    /** \returns an expanded Parameter */
+    Parameter expand();
+
     /**
      * \name Stream operator
      *

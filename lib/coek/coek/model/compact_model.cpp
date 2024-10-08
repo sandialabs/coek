@@ -257,8 +257,7 @@ Model CompactModel::expand()
         if (auto eval = std::get_if<Parameter>(&val)) {
             // NOTE: Are we expanding this data in place?  Do we need to create a copy
             //      of this parameter within all expressions?
-            Expression value = eval->value_expression().expand();
-            eval->value(value.value());
+            eval->expand();
             // model.add_parameter(*eval);
         }
         else
@@ -287,15 +286,16 @@ Model CompactModel::expand()
         }
     }
 
+    // std::cout << "Expanding parameters " << repn->parameters.size() << std::endl;
     for (auto& val : repn->parameters) {
         if (auto eval = std::get_if<Parameter>(&val)) {
-            // NOTE: Are we expanding this parameter in place?  Do we need to create a copy
-            //      of this parameter within all expressions?
-            Expression value = eval->value_expression().expand();
-            eval->value(value.value());
-            // model.add_parameter(*eval);
+            // std::cout << "Parameter " << eval->name() << std::endl;
+            //  NOTE: We are expanding this parameter in place so we do not need to create a copy
+            //       of this parameter within all expressions
+            eval->expand();
         }
         else if (auto eval = std::get_if<ParameterMap>(&val)) {
+            // std::cout << "HERE x" << std::endl;
             eval->expand();
             for (auto param : *eval) {
                 // NOTE: Are we changing the values of these maps in place?
@@ -305,6 +305,7 @@ Model CompactModel::expand()
             model.repn->parameter_maps.push_back(*eval);
         }
         else if (auto eval = std::get_if<ParameterArray>(&val)) {
+            // std::cout << "HERE y" << std::endl;
             eval->expand();
             for (auto param : *eval) {
                 // NOTE: Are we changing the values of these maps in place?

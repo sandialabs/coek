@@ -293,18 +293,46 @@ py::list to_nested_list(std::list<std::string>::iterator& it, std::list<std::str
     return tmp;
 }
 
-template <typename TYPE>
-void parse_varargs(py::kwargs kwargs, const char* name, TYPE& lb, TYPE _default)
+bool parse_varargs(py::kwargs kwargs, const char* name, bool _default)
 {
-    lb = _default;
+    bool ans(_default);
     try {
-        auto _lb = kwargs[name];
-        if (_lb.is_none())
-            return;
-        lb = _lb.cast<TYPE>();
+        auto _val = kwargs[name];
+        if (_val.is_none())
+            return ans;
+        try {
+            ans = _val.cast<double>();
+        }
+        catch (std::exception& err) {
+        }
     }
     catch (std::exception& err) {
     }
+    return ans;
+}
+
+coek::Expression parse_varargs(py::kwargs kwargs, const char* name, double _default)
+{
+    coek::Expression ans(_default);
+    try {
+        auto _val = kwargs[name];
+        if (_val.is_none())
+            return ans;
+        try {
+            double val = _val.cast<double>();
+            return coek::Expression(val);
+        }
+        catch (std::exception& err) {
+        }
+        try {
+            return _val.cast<Expression>();
+        }
+        catch (std::exception& err) {
+        }
+    }
+    catch (std::exception& err) {
+    }
+    return ans;
 }
 
 class VecKeyIterator {
@@ -509,14 +537,12 @@ VariableArray* variable_fn(int n, py::kwargs kwargs)
 template <class TYPE>
 void set_kwargs(TYPE& var, py::kwargs kwargs)
 {
-    double lb, ub, value;
-    bool binary, integer, fixed;
-    parse_varargs<double>(kwargs, "lb", lb, -COEK_INFINITY);
-    parse_varargs<double>(kwargs, "ub", ub, COEK_INFINITY);
-    parse_varargs<double>(kwargs, "value", value, NAN);
-    parse_varargs<bool>(kwargs, "binary", binary, false);
-    parse_varargs<bool>(kwargs, "integer", integer, false);
-    parse_varargs<bool>(kwargs, "fixed", fixed, false);
+    auto lb = parse_varargs(kwargs, "lb", -COEK_INFINITY);
+    auto ub = parse_varargs(kwargs, "ub", COEK_INFINITY);
+    auto value = parse_varargs(kwargs, "value", NAN);
+    auto binary = parse_varargs(kwargs, "binary", false);
+    auto integer = parse_varargs(kwargs, "integer", false);
+    auto fixed = parse_varargs(kwargs, "fixed", false);
 
     try {
         var.value(value).bounds(lb, ub).fixed(fixed);
@@ -542,8 +568,7 @@ void set_kwargs(TYPE& var, py::kwargs kwargs)
 template <class TYPE>
 void set_param_kwargs(TYPE& param, py::kwargs kwargs)
 {
-    double value;
-    parse_varargs<double>(kwargs, "value", value, NAN);
+    auto value = parse_varargs(kwargs, "value", NAN);
 
     try {
         param.value(value);
@@ -566,13 +591,11 @@ void set_param_kwargs(TYPE& param, py::kwargs kwargs)
 template <class TYPE>
 void set_kwargs_varmap(TYPE& var, py::kwargs kwargs)
 {
-    double lb, ub, value;
-    bool binary, integer;
-    parse_varargs<double>(kwargs, "lb", lb, -COEK_INFINITY);
-    parse_varargs<double>(kwargs, "ub", ub, COEK_INFINITY);
-    parse_varargs<double>(kwargs, "value", value, NAN);
-    parse_varargs<bool>(kwargs, "binary", binary, false);
-    parse_varargs<bool>(kwargs, "integer", integer, false);
+    auto lb = parse_varargs(kwargs, "lb", -COEK_INFINITY);
+    auto ub = parse_varargs(kwargs, "ub", COEK_INFINITY);
+    auto value = parse_varargs(kwargs, "value", NAN);
+    auto binary = parse_varargs(kwargs, "binary", false);
+    auto integer = parse_varargs(kwargs, "integer", false);
     // parse_varargs<bool>(kwargs, "fixed", fixed, false);
 
     try {
@@ -603,11 +626,17 @@ VariableMap variable_fn(coek::ConcreteSet& index_set, py::kwargs kwargs)
     return tmp;
 }
 
+VariableMap variable_fn(coek::SequenceContext& context, py::kwargs kwargs)
+{
+    VariableMap tmp(context);
+    set_kwargs_varmap(tmp, kwargs);
+    return tmp;
+}
+
 template <class TYPE>
 void set_kwargs_parammap(TYPE& param, py::kwargs kwargs)
 {
-    double value;
-    parse_varargs<double>(kwargs, "value", value, NAN);
+    auto value = parse_varargs(kwargs, "value", NAN);
 
     try {
         param.value(value);
@@ -633,9 +662,23 @@ ParameterMap parameter_fn(coek::ConcreteSet& index_set, py::kwargs kwargs)
     return tmp;
 }
 
+ParameterMap parameter_fn(coek::SequenceContext& context, py::kwargs kwargs)
+{
+    ParameterMap tmp(context);
+    set_kwargs_parammap(tmp, kwargs);
+    return tmp;
+}
+
 DataMap data_fn(coek::ConcreteSet& index_set, py::kwargs kwargs)
 {
     DataMap tmp(index_set);
+    set_kwargs_parammap(tmp, kwargs);
+    return tmp;
+}
+
+DataMap data_fn(coek::SequenceContext& context, py::kwargs kwargs)
+{
+    DataMap tmp(context);
     set_kwargs_parammap(tmp, kwargs);
     return tmp;
 }
@@ -874,11 +917,19 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     m.def("variable_", [](coek::ConcreteSet& index_set, py::kwargs kw) {
         return coek::variable_fn(index_set, kw);
     });
+    m.def("variable_", [](coek::SequenceContext& context, py::kwargs kw) {
+        return coek::variable_fn(context, kw);
+    });
+    m.def("parameter_", [](coek::SequenceContext& contxt, py::kwargs kw) {
+        return coek::parameter_fn(contxt, kw);
+    });
     m.def("parameter_", [](coek::ConcreteSet& index_set, py::kwargs kw) {
         return coek::parameter_fn(index_set, kw);
     });
     m.def("data_",
           [](coek::ConcreteSet& index_set, py::kwargs kw) { return coek::data_fn(index_set, kw); });
+    m.def("data_",
+          [](coek::SequenceContext& context, py::kwargs kw) { return coek::data_fn(context, kw); });
 #endif
     m.def("affine_expression", [](std::vector<double>& coef, std::vector<coek::Variable>& var,
                                   double offset) { return affine_expression(coef, var, offset); });
