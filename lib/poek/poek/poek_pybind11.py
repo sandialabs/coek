@@ -77,7 +77,10 @@ def model_variable(self, *args, **kwds):
 
 
 setattr(model, "add_variable", model_variable)
-setattr(compact_model, "add_variable", model_variable)
+try:
+    setattr(compact_model, "add_variable", model_variable)
+except:
+    pass
 
 def print_equations(self, ostream=None):
     if ostream is None:
