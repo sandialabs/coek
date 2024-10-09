@@ -654,6 +654,7 @@ using tuple_of = typename tuple_n<I, T>::template type<>;
             std::map<tuple_of<N, int>, double> values; \
             dp.get(name, values);                      \
             params.value(values);                      \
+            return;                                    \
         }
 
 // params.value(values);
@@ -666,6 +667,7 @@ void initialize(TYPE& params, coek::DataPortal& dp, const std::string& name)
         std::map<int, double> values;
         dp.get(name, values);
         params.value(values);
+        return;
     }
     NARRY_DATA(2)
     NARRY_DATA(3)
@@ -683,7 +685,7 @@ void set_kwargs_parammap(TYPE& param, py::kwargs kwargs)
 {
     try {
         if (kwargs.contains("data_portal")) {
-            auto dp_ = kwargs["name"];
+            auto dp_ = kwargs["data_portal"];
             auto dp = dp_.cast<coek::DataPortal>();
             auto key = kwargs["value"].cast<py::str>();
             initialize(param, dp, key);
