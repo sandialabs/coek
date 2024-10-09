@@ -128,20 +128,46 @@ class DataMap : public DataAssocArray {
 
     /** Set the initial data value. \returns the data object. */
     DataMap& value(double value);
+
     /** Set the initial data value. \returns the data object. */
     DataMap& value(const Expression& value);
+
     template <typename KeyType, typename ValueType>
-    DataMap& value(const std::map<KeyType, ValueType>& values)
-    {
-        for (auto& [key, value] : values) {
-            this->operator()(key).value(value);
-        }
-        return *this;
-    }
+    DataMap& value(const std::map<KeyType, ValueType>& values_);
 
     /** Set the name of the data. \returns the data object */
     DataMap& name(const std::string& name);
 };
+
+template <typename KeyType, typename ValueType>
+inline DataMap& DataMap::value(const std::map<KeyType, ValueType>& /*values_*/)
+{
+    /*
+    WEH - See comment below.
+
+    for (auto& [key, value] : values_) {
+        copy_tuple_to_vector(key, tmp);
+        index(tmp).value(value);
+    }
+    */
+    return *this;
+}
+
+template <>
+inline DataMap& DataMap::value(const std::map<int, double>& /*values_*/)
+{
+    /*
+    if (dim() != 1)
+        index_error(1);
+    WEH - We can't replace the value of the expression, and if we
+            add a new constant, then that won't replace an existing constant.
+    for (auto& [key, value] : values_) {
+        tmp[0] = key;
+        index(tmp).value(Expression(value));
+    }
+    */
+    return *this;
+}
 
 DataMap data(const ConcreteSet& arg);
 inline DataMap data_map(const ConcreteSet& arg) { return data(arg); }

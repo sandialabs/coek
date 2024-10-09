@@ -14,6 +14,7 @@
 
 #include "coek/coek.hpp"
 #include "coek/ast/value_terms.hpp"
+#include "coek/util/DataPortal.hpp"
 
 namespace py = pybind11;
 
@@ -568,10 +569,10 @@ void set_kwargs(TYPE& var, py::kwargs kwargs)
 template <class TYPE>
 void set_param_kwargs(TYPE& param, py::kwargs kwargs)
 {
-    auto value = parse_varargs(kwargs, "value", NAN);
-
     try {
+        auto value = parse_varargs(kwargs, "value", NAN);
         param.value(value);
+
         if (kwargs.contains("name")) {
             auto _name = kwargs["name"];
             if (not _name.is_none()) {
@@ -633,13 +634,65 @@ VariableMap variable_fn(coek::SequenceContext& context, py::kwargs kwargs)
     return tmp;
 }
 
+template <size_t I, typename T>
+struct tuple_n {
+    template <typename... Args>
+    using type = typename tuple_n<I - 1, T>::template type<T, Args...>;
+};
+
+template <typename T>
+struct tuple_n<0, T> {
+    template <typename... Args>
+    using type = std::tuple<Args...>;
+};
+template <size_t I, typename T>
+using tuple_of = typename tuple_n<I, T>::template type<>;
+
+#    define NARRY_DATA(N)                              \
+        else if (dim == N)                             \
+        {                                              \
+            std::map<tuple_of<N, int>, double> values; \
+            dp.get(name, values);                      \
+            params.value(values);                      \
+        }
+
+// params.value(values);
+
+template <typename TYPE>
+void initialize(TYPE& params, coek::DataPortal& dp, const std::string& name)
+{
+    auto dim = params.dim();
+    if (dim == 1) {
+        std::map<int, double> values;
+        dp.get(name, values);
+        params.value(values);
+    }
+    NARRY_DATA(2)
+    NARRY_DATA(3)
+    NARRY_DATA(4)
+    NARRY_DATA(5)
+    NARRY_DATA(6)
+    NARRY_DATA(7)
+    NARRY_DATA(8)
+
+    throw std::runtime_error("Data dimension is too big: " + std::to_string(dim));
+}
+
 template <class TYPE>
 void set_kwargs_parammap(TYPE& param, py::kwargs kwargs)
 {
-    auto value = parse_varargs(kwargs, "value", NAN);
-
     try {
-        param.value(value);
+        if (kwargs.contains("data_portal")) {
+            auto dp_ = kwargs["name"];
+            auto dp = dp_.cast<coek::DataPortal>();
+            auto key = kwargs["value"].cast<py::str>();
+            initialize(param, dp, key);
+        }
+        else {
+            auto value = parse_varargs(kwargs, "value", NAN);
+            param.value(value);
+        }
+
         if (kwargs.contains("name")) {
             auto _name = kwargs["name"];
             if (not _name.is_none()) {
@@ -895,7 +948,9 @@ PYBIND11_MODULE(pycoek_pybind11, m)
 
     m.attr("inf") = COEK_INFINITY;
 
-    // m.def("stop_here",coek::stop_here);
+    // m.def("initialize", [](coek::ParameterMap& params, coek::DataPortal& dp, const std::string&
+    // name){return coek::initialize(params, dp,name);});
+    //  m.def("stop_here",coek::stop_here);
     m.def("to_string", [](int v) { return std::to_string(v); });
     m.def("to_string", [](double v) { return std::to_string(v); });
 
@@ -1037,6 +1092,17 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     m.def("expression_ge_param", &coek::expression_ge_param);
     m.def("expression_ge_var", &coek::expression_ge_var);
     m.def("expression_ge_expression", &coek::expression_ge_expression);
+
+    //
+    // DataPortal
+    //
+    py::class_<coek::DataPortal>(m, "DataPortal")
+        .def(py::init<>())
+        .def("load_from_file",
+             [](coek::DataPortal& dp, const std::string& filename) { dp.load_from_file(filename); })
+        .def("contains",
+             [](coek::DataPortal& dp, const std::string& name) { return dp.contains(name); })
+        .def("clear", [](coek::DataPortal& dp) { return dp.clear(); });
 
     //
     // Parameter

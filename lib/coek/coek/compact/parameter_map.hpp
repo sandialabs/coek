@@ -3,6 +3,7 @@
 #include "coek/api/parameter_assoc_array.hpp"
 #include "coek/compact/sequence_context.hpp"
 #include "coek/util/template_utils.hpp"
+#include "coek/util/tuple_utils.hpp"
 #include "coek_sets.hpp"
 
 namespace coek {
@@ -130,20 +131,38 @@ class ParameterMap : public ParameterAssocArray {
 
     /** Set the initial parameter value. \returns the parameter object. */
     ParameterMap& value(double value);
+
     /** Set the initial parameter value. \returns the parameter object. */
     ParameterMap& value(const Expression& value);
+
     template <typename KeyType, typename ValueType>
-    ParameterMap& value(const std::map<KeyType, ValueType>& values)
-    {
-        for (auto& [key, value] : values) {
-            this->operator()(key).value(value);
-        }
-        return *this;
-    }
+    ParameterMap& value(const std::map<KeyType, ValueType>& values_);
 
     /** Set the name of the parameter. \returns the parameter object */
     ParameterMap& name(const std::string& name);
 };
+
+template <typename KeyType, typename ValueType>
+inline ParameterMap& ParameterMap::value(const std::map<KeyType, ValueType>& values_)
+{
+    for (auto& [key, value] : values_) {
+        copy_tuple_to_vector(key, tmp);
+        index(tmp).value(value);
+    }
+    return *this;
+}
+
+template <>
+inline ParameterMap& ParameterMap::value(const std::map<int, double>& values_)
+{
+    if (dim() != 1)
+        index_error(1);
+    for (auto& [key, value] : values_) {
+        tmp[0] = key;
+        index(tmp).value(value);
+    }
+    return *this;
+}
 
 ParameterMap parameter(const ConcreteSet& arg);
 inline ParameterMap parameter_map(const ConcreteSet& arg) { return parameter(arg); }
