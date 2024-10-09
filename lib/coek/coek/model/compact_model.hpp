@@ -154,6 +154,7 @@ class CompactModel {
     void add(ConstraintSequence& seq);
     void add(ConstraintSequence&& seq);
 
+    Model expand_data();
     Model expand();
 
     void write(const std::string& filename);

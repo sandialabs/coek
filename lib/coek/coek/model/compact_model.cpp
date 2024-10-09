@@ -247,9 +247,8 @@ void CompactModel::add(ConstraintSequence&& seq) { repn->constraints.push_back(s
 
 // Expand
 
-Model CompactModel::expand()
+Model CompactModel::expand_data()
 {
-    // std::cout << "CompactModel::expand()" << std::endl;
     Model model;
 
     for (auto& val : repn->data) {
@@ -315,6 +314,14 @@ Model CompactModel::expand()
             model.repn->parameter_arrays.push_back(*eval);
         }
     }
+
+    return model;
+}
+
+Model CompactModel::expand()
+{
+    // std::cout << "CompactModel::expand()" << std::endl;
+    auto model = expand_data();
 
     // std::cout << "VARIABLES " << repn->variables.size() << std::endl;
     for (auto& val : repn->variables) {
