@@ -52,4 +52,6 @@ void ParameterAssocArrayRepn::name(const std::string& name)
     }
 }
 
+std::string ParameterAssocArrayRepn::name() { return value_template.name(); }
+
 }  // namespace coek

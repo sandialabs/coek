@@ -19,6 +19,7 @@
 
 #include "../ast/value_terms.hpp"
 #include "../ast/visitor_fns.hpp"
+#include "coek/util/io_utils.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/expression_visitor.hpp"
@@ -250,6 +251,7 @@ void LPWriter::print_objectives(StreamType& ostr, CompactModel& model)
     for (auto& val : model.repn->objectives) {
         if (auto eval = std::get_if<Objective>(&val)) {
             auto obj = objective().expr(eval->expr().expand()).sense(eval->sense());
+            // std::cout << "HERE obj " << obj.to_list() << std::endl;
             print_objective(ostr, obj);
             ++n_obj;
         }
@@ -300,8 +302,8 @@ void LPWriter::print_constraints(StreamType& ostr, CompactModel& model)
             }
         }
         else if (auto cval = std::get_if<ConstraintMap>(&val)) {
-            //for (auto jt=cval->begin(); jt != cval->end(); ++jt) {
-            for (auto& [k,v] : *cval) {
+            // for (auto jt=cval->begin(); jt != cval->end(); ++jt) {
+            for (auto& [k, v] : *cval) {
                 invconmap[v.id()] = ctr;
                 print_constraint(ostr, v, ctr);
                 ++ctr;
@@ -320,6 +322,7 @@ void LPWriter::collect_variables(Model& model)
     size_t ctr = 0;
     for (auto& it : model.repn->variables) {
         vid[it.id()] = ctr;
+        // invvarmap[ctr] = ctr;        WEH - Is this the right value?
         invvarmap[ctr] = it.id();
         ++ctr;
 
@@ -352,28 +355,29 @@ void LPWriter::collect_variables(CompactModel& model)
                            .value(value.value())
                            .within(eval->within());
             variables.push_back(tmp);
+            vid[tmp.id()] = ctr;
+            // vid[eval->id()] = ctr;
+            invvarmap[ctr] = variables.size();
+            ++ctr;
+
             if (tmp.is_binary())
                 bvars[vid[tmp.id()]] = tmp.repn;
             if (tmp.is_integer())
                 ivars[vid[tmp.id()]] = tmp.repn;
-
-            vid[eval->id()] = ctr;
-            invvarmap[ctr] = variables.size();
-            ++ctr;
         }
         else if (auto eval = std::get_if<VariableSequence>(&val)) {
             for (auto& jt : *eval) {
                 if (jt.fixed())
                     continue;
                 variables.push_back(jt);
+                vid[jt.id()] = ctr;
+                invvarmap[ctr] = variables.size();
+                ++ctr;
+
                 if (jt.is_binary())
                     bvars[vid[jt.id()]] = jt.repn;
                 if (jt.is_integer())
                     ivars[vid[jt.id()]] = jt.repn;
-
-                vid[jt.id()] = ctr;
-                invvarmap[ctr] = variables.size();
-                ++ctr;
             }
         }
         else if (auto eval = std::get_if<VariableMap>(&val)) {
@@ -382,14 +386,16 @@ void LPWriter::collect_variables(CompactModel& model)
                 if (jt.fixed())
                     continue;
                 variables.push_back(jt);
+                vid[jt.id()] = ctr;
+                invvarmap[ctr] = variables.size();
+                ++ctr;
+                // std::cout << "HELP " << jt.name() << " " << jt.is_binary() << " " <<
+                // jt.is_integer() << std::endl;
+
                 if (jt.is_binary())
                     bvars[vid[jt.id()]] = jt.repn;
                 if (jt.is_integer())
                     ivars[vid[jt.id()]] = jt.repn;
-
-                vid[jt.id()] = ctr;
-                invvarmap[ctr] = variables.size();
-                ++ctr;
             }
         }
         else if (auto eval = std::get_if<VariableArray>(&val)) {
@@ -398,14 +404,14 @@ void LPWriter::collect_variables(CompactModel& model)
                 if (jt.fixed())
                     continue;
                 variables.push_back(jt);
+                vid[jt.id()] = ctr;
+                invvarmap[ctr] = variables.size();
+                ++ctr;
+
                 if (jt.is_binary())
                     bvars[vid[jt.id()]] = jt.repn;
                 if (jt.is_integer())
                     ivars[vid[jt.id()]] = jt.repn;
-
-                vid[jt.id()] = ctr;
-                invvarmap[ctr] = variables.size();
-                ++ctr;
             }
         }
     }

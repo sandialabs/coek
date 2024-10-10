@@ -657,8 +657,6 @@ using tuple_of = typename tuple_n<I, T>::template type<>;
             return;                                    \
         }
 
-// params.value(values);
-
 template <typename TYPE>
 void initialize(TYPE& params, coek::DataPortal& dp, const std::string& name)
 {
@@ -684,6 +682,14 @@ template <class TYPE>
 void set_kwargs_parammap(TYPE& param, py::kwargs kwargs)
 {
     try {
+        if (kwargs.contains("name")) {
+            auto _name = kwargs["name"];
+            if (not _name.is_none()) {
+                auto name = _name.cast<py::str>();
+                param.name(name);
+            }
+        }
+
         if (kwargs.contains("data_portal")) {
             auto dp_ = kwargs["data_portal"];
             auto dp = dp_.cast<coek::DataPortal>();
@@ -693,14 +699,6 @@ void set_kwargs_parammap(TYPE& param, py::kwargs kwargs)
         else {
             auto value = parse_varargs(kwargs, "value", NAN);
             param.value(value);
-        }
-
-        if (kwargs.contains("name")) {
-            auto _name = kwargs["name"];
-            if (not _name.is_none()) {
-                auto name = _name.cast<py::str>();
-                param.name(name);
-            }
         }
     }
     catch (std::exception& err) {

@@ -149,6 +149,8 @@ DataMap& DataMap::name(const std::string& name)
     return *this;
 }
 
+std::string DataMap::name() { return repn->name(); }
+
 //
 // OTHER
 //

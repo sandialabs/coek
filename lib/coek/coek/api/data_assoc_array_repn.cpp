@@ -36,4 +36,6 @@ void DataAssocArrayRepn::value(const Expression& expr)
 
 void DataAssocArrayRepn::name(const std::string& name) { value_template.name(name); }
 
+std::string DataAssocArrayRepn::name() { return value_template.name(); }
+
 }  // namespace coek

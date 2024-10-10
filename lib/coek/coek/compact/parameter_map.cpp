@@ -146,20 +146,20 @@ std::shared_ptr<ParameterTerm> ParameterMapRepn::index(const IndexVector& args)
     // std::cerr << "HERE " << index_map.size() << std::endl;
     // std::cerr << "HERE " << args << std::endl;
     // for (auto& [k,v]:index_map)
-    //     std::cerr << "HERE " << k << " " << v << std::endl;
+    // std::cerr << "HERE " << k << " " << v << std::endl;
 
     auto curr = index_map.find(args);
-    if (curr == index_map.end()) {
-        std::string err = "Unknown index value: " + value_template.name() + "[";
-        for (size_t i = 0; i < args.size(); i++) {
-            if (i > 0)
-                err += ",";
-            err += std::to_string(args[i]);
-        }
-        err += "]";
-        throw std::runtime_error(err);
+    if (curr != index_map.end())
+        return values[curr->second].repn;
+
+    std::string err = "Unknown index value: " + value_template.name() + "[";
+    for (size_t i = 0; i < args.size(); i++) {
+        if (i > 0)
+            err += ",";
+        err += std::to_string(args[i]);
     }
-    return values[curr->second].repn;
+    err += "]";
+    throw std::runtime_error(err);
 }
 
 void ParameterMap::index_error(size_t i)
@@ -194,6 +194,8 @@ ParameterMap& ParameterMap::name(const std::string& name)
     repn->name(name);
     return *this;
 }
+
+std::string ParameterMap::name() { return repn->name(); }
 
 //
 // OTHER

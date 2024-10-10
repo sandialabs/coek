@@ -137,6 +137,9 @@ class DataMap : public DataAssocArray {
 
     /** Set the name of the data. \returns the data object */
     DataMap& name(const std::string& name);
+
+    /** Get the name of the data. \returns a string. */
+    std::string name();
 };
 
 template <typename KeyType, typename ValueType>

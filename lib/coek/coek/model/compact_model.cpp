@@ -294,8 +294,8 @@ Model CompactModel::expand_data()
             eval->expand();
         }
         else if (auto eval = std::get_if<ParameterMap>(&val)) {
-            // std::cout << "HERE x" << std::endl;
             eval->expand();
+            // std::cout << "HERE param " << eval->name() << " " << eval->size() << std::endl;
             for (auto param : *eval) {
                 // NOTE: Are we changing the values of these maps in place?
                 Expression value = param.value_expression().expand();

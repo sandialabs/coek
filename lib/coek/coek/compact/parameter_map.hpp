@@ -138,8 +138,11 @@ class ParameterMap : public ParameterAssocArray {
     template <typename KeyType, typename ValueType>
     ParameterMap& value(const std::map<KeyType, ValueType>& values_);
 
-    /** Set the name of the parameter. \returns the parameter object */
+    /** Set the name of the parameter. \returns the parameter object. */
     ParameterMap& name(const std::string& name);
+
+    /** Get the name of the parameter. \returns a string. */
+    std::string name();
 };
 
 template <typename KeyType, typename ValueType>
