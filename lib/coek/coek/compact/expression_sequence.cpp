@@ -213,4 +213,11 @@ Expression Sum(const SequenceContext& context, const Expression& expr)
     return ans;
 }
 
+Expression Sum(const Expression& expr, const SequenceContext& context)
+{
+    ExpressionSequence seq(context, expr);
+    Expression ans(CREATE_POINTER(SumExpressionTerm, seq));
+    return ans;
+}
+
 }  // namespace coek

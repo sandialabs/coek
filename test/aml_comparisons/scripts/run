@@ -44,7 +44,8 @@ config = {
     "srosenbr": {"small": ["10"], "medium": ["1000"], "big": ["100000"]},
 }
 
-all_coek_models = [
+all_models = {
+"coek": [
     "knapsack-array",
     "knapsack-scalar",
     "nqueens-array",
@@ -57,17 +58,17 @@ all_coek_models = [
     "lqcp-scalar",
     # "lqcp-map",
     # "lqcp-compact"         Problem constructing this model
-]
+],
 
-all_gurobi_models = [
+"gurobi": [
     "knapsack-scalar",
     "nqueens-scalar",
     "pmedian-scalar",
     "lqcp",
     "fac",
-]
+],
 
-all_poek_models = [
+"poek": [
     "fac",
     "fac-affine",
     "knapsack",
@@ -78,9 +79,9 @@ all_poek_models = [
     "nqueens-affine",
     "pmedian",
     "pmedian-affine",
-]
+],
 
-all_pyomo_models = [
+"pyomo": [
     "fac",
     "fac-linear",
     "knapsack",
@@ -92,6 +93,12 @@ all_pyomo_models = [
     "pmedian",
     "pmedian-linear",
 ]
+}
+
+all_coek_models = all_models["coek"]
+all_gurobi_models = all_models["gurobi"]
+all_poek_models = all_models["poek"]
+all_pyomo_models = all_models["pyomo"]
 
 all_hybrid_components_only_models = list(all_pyomo_models)
 
@@ -344,7 +351,42 @@ if __name__ == "__main__":
 
     errors = []
 
-    if sys.argv[1] == "dev":
+    if ':' in sys.argv[1]:
+        args = sys.argv[1].split(':')
+        if args[1] == "solve0":
+            amls = ['coek','poek','pyomo','gurobi']
+            for aml in amls:
+                if aml in ['coek','gurobi']:
+                    executable = os.path.join(build_dir, f"test/aml_comparisons/{aml}/{aml}_solve0")
+                else:
+                    executable = os.path.join(build_dir, f"../test/aml_comparisons/{aml}/{aml}_solve0")
+                test_solve0(
+                    test_type=args[0],
+                    models=all_models[aml],
+                    solvers=["gurobi"],
+                    executable=executable,
+                    subdir=aml,
+                    ntrials=ntrials,
+                    errors=errors,
+                )
+        elif args[1] == "lp_writer":
+            amls = ['coek','poek','pyomo','gurobi']
+            for aml in amls:
+                if aml in ['coek','gurobi']:
+                    executable = os.path.join(build_dir, f"test/aml_comparisons/{aml}/{aml}_writer")
+                else:
+                    executable = os.path.join(build_dir, f"../test/aml_comparisons/{aml}/{aml}_writer")
+                test_writer(
+                    test_type=args[0],
+                    models=all_models[aml],
+                    suffixes=["lp"],
+                    executable=executable,
+                    subdir=aml,
+                    ntrials=ntrials,
+                    errors=errors,
+                )
+
+    elif sys.argv[1] == "dev":
         test_solve0(
             test_type="small",
             models=all_coek_models,
@@ -832,7 +874,10 @@ if __name__ == "__main__":
 
     print("")
     print("")
-    print("COLLECTED ERRORS")
-    for err in errors:
-        print(" ", err)
+    if len(errors) == 0:
+        print("NO ERRORS!")
+    else:
+        print("COLLECTED ERRORS")
+        for err in errors:
+            print(" ", err)
     print("")

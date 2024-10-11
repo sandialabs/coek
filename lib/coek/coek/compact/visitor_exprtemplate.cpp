@@ -9,9 +9,6 @@
 
 namespace coek {
 
-expr_pointer_t get_concrete_var(VariableRefTerm& varref);
-expr_pointer_t get_concrete_param(ParameterRefTerm& paramref);
-
 namespace convert_expr_visitor {
 
 expr_pointer_t visit_expression(const expr_pointer_t& expr);
@@ -33,26 +30,34 @@ expr_pointer_t visit_IndexParameterTerm(const expr_pointer_t& expr)
     else
         throw std::runtime_error(
             "Unexpected index parameter in an expression being converted, with a non-numeric "
-            "value.");
-}
-
-expr_pointer_t visit_ParameterRefTerm(const expr_pointer_t& expr)
-{
-    auto tmp = safe_pointer_cast<ParameterRefTerm>(expr);
-    return get_concrete_param(*tmp);
+            "value: "
+            + tmp->name);
 }
 
 expr_pointer_t visit_VariableRefTerm(const expr_pointer_t& expr)
 {
     auto tmp = safe_pointer_cast<VariableRefTerm>(expr);
-    return get_concrete_var(*tmp);
+    auto ans = tmp->get_concrete_variable();
+    return tmp->get_concrete_variable();
+}
+
+expr_pointer_t visit_ParameterRefTerm(const expr_pointer_t& expr)
+{
+    auto tmp = safe_pointer_cast<ParameterRefTerm>(expr);
+    return tmp->get_concrete_parameter();
+}
+
+expr_pointer_t visit_DataRefTerm(const expr_pointer_t& expr)
+{
+    auto tmp = safe_pointer_cast<DataRefTerm>(expr);
+    return tmp->get_concrete_data();
 }
 
 expr_pointer_t visit_ObjectiveTerm(const expr_pointer_t& expr)
 {
     auto tmp = safe_pointer_cast<ObjectiveTerm>(expr);
     auto body = visit_expression(tmp->body);
-    if (body->id() == tmp->id())
+    if (body == tmp)
         return expr;
     return std::make_shared<ObjectiveTerm>(body, tmp->sense);
 }
@@ -63,8 +68,8 @@ expr_pointer_t visit_InequalityTerm(const expr_pointer_t& expr)
     auto lower = tmp->lower ? visit_expression(tmp->lower) : tmp->lower;
     auto body = visit_expression(tmp->body);
     auto upper = tmp->upper ? visit_expression(tmp->upper) : tmp->upper;
-    if ((not tmp->lower or (lower->id() == tmp->lower->id())) and (body->id() == tmp->body->id())
-        and (not tmp->upper or (upper->id() == tmp->upper->id())))
+    if ((not tmp->lower or (lower == tmp->lower)) and (body == tmp->body)
+        and (not tmp->upper or (upper == tmp->upper)))
         return expr;
     return std::make_shared<InequalityTerm>(lower, body, upper);
 }
@@ -75,8 +80,8 @@ expr_pointer_t visit_StrictInequalityTerm(const expr_pointer_t& expr)
     auto lower = tmp->lower ? visit_expression(tmp->lower) : tmp->lower;
     auto body = visit_expression(tmp->body);
     auto upper = tmp->upper ? visit_expression(tmp->upper) : tmp->upper;
-    if ((not tmp->lower or (lower->id() == tmp->lower->id())) and (body->id() == tmp->body->id())
-        and (not tmp->upper or (upper->id() == tmp->upper->id())))
+    if ((not tmp->lower or (lower == tmp->lower)) and (body == tmp->body)
+        and (not tmp->upper or (upper == tmp->upper)))
         return expr;
     return std::make_shared<StrictInequalityTerm>(lower, body, upper);
 }
@@ -98,7 +103,7 @@ expr_pointer_t visit_NegateTerm(const expr_pointer_t& expr)
 {
     auto tmp = safe_pointer_cast<NegateTerm>(expr);
     auto body = visit_expression(tmp->body);
-    if (body->id() == tmp->body->id())
+    if (body == tmp->body)
         return expr;
     return std::make_shared<NegateTerm>(body);
 }
@@ -111,18 +116,18 @@ expr_pointer_t visit_PlusTerm(const expr_pointer_t& expr)
     auto lhs = visit_expression(data[0]);
     auto curr = visit_expression(data[1]);
     if (tmp->n == 2) {
-        if ((lhs->id() == data[0]->id()) and (curr->id() == data[1]->id()))
+        if ((lhs == data[0]) and (curr == data[1]))
             return expr;
         return std::make_shared<PlusTerm>(lhs, curr, false);
     }
 
     auto _curr = std::make_shared<PlusTerm>(lhs, curr, false);
-    bool flag = (lhs->id() == data[0]->id()) and (curr->id() == data[1]->id());
+    bool flag = (lhs == data[0]) and (curr == data[1]);
 
     for (size_t i = 2; i < tmp->num_expressions(); i++) {
         auto curr = visit_expression(data[i]);
         _curr->push_back(curr);
-        flag = flag and (curr->id() == data[i]->id());
+        flag = flag and (curr == data[i]);
     }
     if (flag)
         return expr;
@@ -134,7 +139,7 @@ expr_pointer_t visit_TimesTerm(const expr_pointer_t& expr)
     auto tmp = safe_pointer_cast<TimesTerm>(expr);
     auto lhs = visit_expression(tmp->lhs);
     auto rhs = visit_expression(tmp->rhs);
-    if ((lhs->id() == tmp->lhs->id()) and (rhs->id() == tmp->rhs->id()))
+    if ((lhs == tmp->lhs) and (rhs == tmp->rhs))
         return expr;
     return std::make_shared<TimesTerm>(lhs, rhs);
 }
@@ -144,7 +149,7 @@ expr_pointer_t visit_DivideTerm(const expr_pointer_t& expr)
     auto tmp = safe_pointer_cast<DivideTerm>(expr);
     auto lhs = visit_expression(tmp->lhs);
     auto rhs = visit_expression(tmp->rhs);
-    if ((lhs->id() == tmp->lhs->id()) and (rhs->id() == tmp->rhs->id()))
+    if ((lhs == tmp->lhs) and (rhs == tmp->rhs))
         return expr;
     return std::make_shared<DivideTerm>(lhs, rhs);
 }
@@ -155,8 +160,8 @@ expr_pointer_t visit_IfThenElseTerm(const expr_pointer_t& expr)
     auto cond_expr = visit_expression(tmp->cond_expr);
     auto then_expr = visit_expression(tmp->then_expr);
     auto else_expr = visit_expression(tmp->else_expr);
-    if ((cond_expr->id() == tmp->cond_expr->id()) and (then_expr->id() == tmp->then_expr->id())
-        and (else_expr->id() == tmp->else_expr->id()))
+    if ((cond_expr == tmp->cond_expr) and (then_expr == tmp->then_expr)
+        and (else_expr == tmp->else_expr))
         return expr;
     return std::make_shared<IfThenElseTerm>(cond_expr, then_expr, else_expr);
 }
@@ -166,7 +171,7 @@ expr_pointer_t visit_IfThenElseTerm(const expr_pointer_t& expr)
     {                                                       \
         auto tmp = safe_pointer_cast<TERM>(expr);           \
         auto body = visit_expression(tmp->body);            \
-        if (body->id() == tmp->body->id())                  \
+        if (body == tmp->body)                              \
             return expr;                                    \
         return std::make_shared<TERM>(body);                \
     }
@@ -196,7 +201,7 @@ expr_pointer_t visit_PowTerm(const expr_pointer_t& expr)
     auto tmp = safe_pointer_cast<PowTerm>(expr);
     auto lhs = visit_expression(tmp->lhs);
     auto rhs = visit_expression(tmp->rhs);
-    if ((lhs->id() == tmp->lhs->id()) and (rhs->id() == tmp->rhs->id()))
+    if ((lhs == tmp->lhs) and (rhs == tmp->rhs))
         return expr;
     return std::make_shared<PowTerm>(lhs, rhs);
 }
@@ -220,6 +225,7 @@ expr_pointer_t visit_expression(const expr_pointer_t& expr)
             // VISIT_CASE(VariableTerm);
             VISIT_CASE(VariableRefTerm);
             VISIT_CASE(ParameterRefTerm);
+            VISIT_CASE(DataRefTerm);
             // VISIT_CASE(MonomialTerm);
             VISIT_CASE(InequalityTerm);
             VISIT_CASE(StrictInequalityTerm);

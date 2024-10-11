@@ -1,9 +1,8 @@
-
 #include "coek/ast/value_terms.hpp"
+#include "coek/api/variable_array.hpp"
 #include "coek/api/variable_assoc_array_repn.hpp"
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
-#include "coek/api/variable_array.hpp"
 
 namespace coek {
 
@@ -13,37 +12,38 @@ class VariableArrayRepn : public VariableAssocArrayRepn {
     size_t _size;
 
    public:
-    VariableArrayRepn(size_t n) : shape({n}), _size(n) { cache.resize((size() + 1) * 2); }
+    VariableArrayRepn(size_t n) : shape({n}), _size(n)
+    {
+#ifdef CUSTOM_INDEXVECTOR
+        cache.resize(2 * (size() + 1) * 2);
+#endif
+    }
 
     VariableArrayRepn(const std::vector<size_t>& _shape) : shape(_shape), _size(1)
     {
         for (auto n : shape)
             _size *= n;
-        cache.resize((size() + 1) * (dim() + 1));
+#ifdef CUSTOM_INDEXVECTOR
+        cache.resize(2 * (size() + 1) * (dim() + 1));
+#endif
     }
-
-    /*
-        VariableArrayRepn(const std::vector<int>& _shape) : _size(1)
-        {
-            shape.resize(_shape.size());
-            for (size_t i = 0; i < shape.size(); ++i) shape[i] = static_cast<size_t>(_shape[i]);
-            for (auto n : shape) _size *= n;
-            cache.resize((size() + 1) * (dim() + 1));
-        }
-    */
 
     VariableArrayRepn(const std::initializer_list<size_t>& _shape) : shape(_shape), _size(1)
     {
         for (auto n : shape)
             _size *= n;
-        cache.resize((size() + 1) * (dim() + 1));
+#ifdef CUSTOM_INDEXVECTOR
+        cache.resize(2 * (size() + 1) * (dim() + 1));
+#endif
     }
 
     virtual ~VariableArrayRepn() {}
 
-    size_t dim() const { return shape.size(); }
+    std::shared_ptr<VariableTerm> index(const IndexVector& args);
 
-    size_t size() const { return _size; }
+    size_t dim() { return shape.size(); }
+
+    size_t size() { return _size; }
 
     std::string get_name(std::string name, size_t index);
 
@@ -79,11 +79,11 @@ void VariableArrayRepn::generate_names()
     // If no name has been provided to this array object,
     // then we do not try to generate names.  The default/simple
     // variable names will be used.
-    std::string name = variable_template.name();
+    std::string name = value_template.name();
     if (name == "")
         return;
 
-    setup();
+    expand();
 
     size_t ctr = 0;
     for (auto& var : values)
@@ -120,17 +120,18 @@ VariableArray::VariableArray(const std::initializer_list<size_t>& shape)
     repn->resize_index_vectors(tmp, reftmp);
 }
 
-VariableAssocArrayRepn* VariableArray::get_repn() { return repn.get(); }
+std::shared_ptr<VariableAssocArrayRepn> VariableArray::get_repn() { return repn; }
+const std::shared_ptr<VariableAssocArrayRepn> VariableArray::get_repn() const { return repn; }
 
-const VariableAssocArrayRepn* VariableArray::get_repn() const { return repn.get(); }
+Variable VariableArray::index(const IndexVector& args) { return repn->index(args); }
 
-Variable VariableArray::index(const IndexVector& args)
+std::shared_ptr<VariableTerm> VariableArrayRepn::index(const IndexVector& args)
 {
-    auto _repn = repn.get();
-    auto& shape = _repn->shape;
+    // auto _repn = repn.get();
+    // auto& shape = _repn->shape;
     assert(args.size() == shape.size());
 
-    _repn->setup();
+    expand();
 
     // We know that the args[i] values are nonnegative b.c. we have asserted that while
     // processing these arguments
@@ -139,7 +140,7 @@ Variable VariableArray::index(const IndexVector& args)
         ndx = ndx * shape[i] + static_cast<size_t>(args[i]);
 
     if (ndx > size()) {
-        std::string err = "Unknown index value: " + _repn->variable_template.name() + "[";
+        std::string err = "Unknown index value: " + value_template.name() + "[";
         for (size_t i = 0; i < args.size(); i++) {
             if (i > 0)
                 err += ",";
@@ -149,13 +150,13 @@ Variable VariableArray::index(const IndexVector& args)
         throw std::runtime_error(err);
     }
 
-    return _repn->values[ndx];
+    return values[ndx].repn;
 }
 
 void VariableArray::index_error(size_t i)
 {
     auto _repn = repn.get();
-    std::string err = "Unexpected index value: " + _repn->variable_template.name() + " is an "
+    std::string err = "Unexpected index value: " + _repn->value_template.name() + " is an "
                       + std::to_string(tmp.size()) + "-D variable array but is being indexed with "
                       + std::to_string(i) + " indices.";
     throw std::runtime_error(err);
@@ -163,7 +164,7 @@ void VariableArray::index_error(size_t i)
 
 VariableArray::const_iterator VariableArray::cbegin() const noexcept
 {
-    repn->setup();
+    repn->expand();
     return repn->values.begin();
 }
 
@@ -171,7 +172,7 @@ VariableArray::const_iterator VariableArray::cend() const noexcept { return repn
 
 VariableArray::iterator VariableArray::begin() noexcept
 {
-    repn->setup();
+    repn->expand();
     return repn->values.begin();
 }
 
@@ -251,12 +252,12 @@ VariableArray& VariableArray::fixed(bool value)
 
 VariableArray& VariableArray::name(const std::string& name)
 {
-    repn->variable_template.name(name);
+    repn->value_template.name(name);
     repn->name(name);
     return *this;
 }
 
-std::string VariableArray::name() const { return repn->variable_template.repn->name; }
+std::string VariableArray::name() const { return repn->value_template.repn->name; }
 
 VariableArray& VariableArray::within(VariableTypes vtype)
 {
@@ -276,11 +277,10 @@ VariableArray variable(const std::initializer_list<size_t>& shape) { return Vari
 
 VariableArray& Model::add_variable(VariableArray& vars)
 {
-    vars.repn->setup();
+    vars.expand();
     if (repn->name_generation_policy == Model::NameGeneration::eager)
         vars.generate_names();
-    else if (repn->name_generation_policy == Model::NameGeneration::lazy)
-        repn->variable_arrays.push_back(vars);
+    repn->variable_arrays.push_back(vars);
     for (auto& var : vars.repn->values)
         add_variable(var);
     return vars;

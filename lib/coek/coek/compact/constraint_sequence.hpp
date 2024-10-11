@@ -44,6 +44,9 @@ class ConstraintSequence {
     ConstraintSequence(const SequenceContext& context, const Constraint& con);
     ConstraintSequence(const std::string& name, const SequenceContext& context,
                        const Constraint& con);
+    ConstraintSequence(const std::string& name, const SequenceContext& context);
+
+    ConstraintSequence& expr(const Constraint& con);
 
     ConstraintSeqIterator begin();
     ConstraintSeqIterator end();
@@ -61,6 +64,12 @@ inline ConstraintSequence constraint(const std::string& name, const Constraint& 
                                      const SequenceContext& context)
 {
     ConstraintSequence seq(name, context, expr);
+    return seq;
+}
+
+inline ConstraintSequence constraint(const std::string& name, const SequenceContext& context)
+{
+    ConstraintSequence seq(name, context);
     return seq;
 }
 

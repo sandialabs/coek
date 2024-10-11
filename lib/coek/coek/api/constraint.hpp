@@ -35,6 +35,11 @@ class Constraint {
 
     Constraint& operator=(const Constraint& arg);
 
+    /** Set the constraint */
+    Constraint& expr(const Constraint& body);
+    /** \returns the constraint */
+    Constraint expr() const;
+
     /** \returns \c true if this is an inequality constraint */
     bool is_inequality() const;
     /** \returns \c true if this is an equality constraint */

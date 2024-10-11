@@ -43,17 +43,31 @@ def var_v():
 
 @pytest.fixture
 def param_p():
-    return variable(name="p", value=0)
+    return parameter(name="p", value=0)
 
 
 @pytest.fixture
 def param_q():
-    return variable(name="q", value=0)
+    return parameter(name="q", value=0)
 
 
 @pytest.fixture
 def param_r():
-    return variable(name="r", value=1)
+    return parameter(name="r", value=1)
+
+@pytest.fixture
+def data_d1():
+    return data(name="d1", value=0)
+
+
+@pytest.fixture
+def param_d2():
+    return data(name="d2", value=0)
+
+
+@pytest.fixture
+def param_d3():
+    return data(name="d3", value=1)
 
 
 #
@@ -94,6 +108,31 @@ def test_constraint_value():
     if numpy_available:
         z = np.int32(3)
         e = p < z
+
+
+def test_data1_value():
+    p = data(value=-1)
+    assert p.value == -1
+    p.value = 3
+    assert p.value == 3
+
+
+def test_data_float():
+    p = data(value=-1)
+    with pytest.raises(TypeError) as einfo:
+        float(p)
+    if numpy_available:
+        z = np.float32(-1)
+        p = data(value=z)
+
+
+def test_data_int():
+    p = data(value=-1)
+    with pytest.raises(TypeError) as einfo:
+        int(p)
+    if numpy_available:
+        z = np.int32(-1)
+        p = data(value=z)
 
 
 def test_param1_value():
@@ -644,12 +683,26 @@ def test_paramDiff(var_a, param_p):
 
     e = a - p
     #
-    assert e.to_list() == ["+", "a", ["*", "-1.000000", "p"]]
+    assert e.to_list() == ["+", "a", ["-", "p"]]
 
     # p - a
     e = p - a
     #
     assert e.to_list() == ["+", "p", ["*", "-1.000000", "a"]]
+
+
+def test_dataDiff(var_a, data_d1):
+    # a - p
+    a, d1 = var_a, data_d1
+
+    e = a - d1
+    #
+    assert e.to_list() == ["+", "a", ["-", "d1"]]
+
+    # d1 - a
+    e = d1 - a
+    #
+    assert e.to_list() == ["+", "d1", ["*", "-1.000000", "a"]]
 
 
 def test_termDiff(var_a):
@@ -764,13 +817,13 @@ def test_negation_param(param_p):
 
     e = -p
     #
-    assert e.to_list() == ["*", "-1.000000", "p"]
+    assert e.to_list() == ["-", "p"]
 
     e = -e
     #
-    # TODO: Can we detect negations of negations?
+    # TODO: Identify negations of negations
     #
-    assert e.to_list() == ["*", "1.000000", "p"]
+    assert e.to_list() == ["-", ["-", "p"]]
 
 
 def test_negation_terms(param_p, var_v):
@@ -780,10 +833,10 @@ def test_negation_terms(param_p, var_v):
     p, v = param_p, var_v
 
     e = -p * v
-    assert e.to_list() == ["*", ["*", "-1.000000", "p"], "v"]
+    assert e.to_list() == ["*", ["-", "p"], "v"]
 
     e = -e
-    assert e.to_list() == ["-", ["*", ["*", "-1.000000", "p"], "v"]]
+    assert e.to_list() == ["-", ["*", ["-", "p"], "v"]]
     #
     if True:
         e = -5 * v
@@ -833,7 +886,7 @@ def test_trivialDiff(var_a, param_p):
 
         # 0 - p
         e = 0 - p
-        assert e.to_list() == ["*", "-1.000000", "p"]
+        assert e.to_list() == ["-", "p"]
 
         # 0 - 5*a
         e = 0 - 5 * a
@@ -878,7 +931,7 @@ def test_trivialDiff(var_a, param_p):
 
         # z - p
         e = 0 - p
-        assert e.to_list() == ["*", "-1.000000", "p"]
+        assert e.to_list() == ["-", "p"]
 
         z = np.float32(0.0)
         e = a - z

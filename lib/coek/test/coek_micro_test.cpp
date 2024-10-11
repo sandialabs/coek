@@ -98,21 +98,29 @@ int main(int argc, char** argv)
 
     else if (n == 2) {
         coek::Parameter p;
-        std::cout << "sizeof Parameter=" << sizeof(coek::Parameter) << " repn=" << sizeof(p.repn) << " ParameterTerm=" << sizeof(coek::ParameterTerm) << std::endl;
+        std::cout << "sizeof Parameter=" << sizeof(coek::Parameter) << " repn=" << sizeof(p.repn)
+                  << " ParameterTerm=" << sizeof(coek::ParameterTerm) << std::endl;
 
         coek::IndexParameter ip;
-        std::cout << "sizeof IndexParameter=" << sizeof(coek::IndexParameter) << " repn=" << sizeof(ip.repn) << " IndexParameterTerm=" << sizeof(coek::IndexParameterTerm) << std::endl;
+        std::cout << "sizeof IndexParameter=" << sizeof(coek::IndexParameter)
+                  << " repn=" << sizeof(ip.repn)
+                  << " IndexParameterTerm=" << sizeof(coek::IndexParameterTerm) << std::endl;
 
         coek::Variable v;
-        std::cout << "sizeof Variable=" << sizeof(coek::Variable) << " repn=" << sizeof(v.repn) << " VariableTerm=" << sizeof(coek::VariableTerm) << std::endl;
+        std::cout << "sizeof Variable=" << sizeof(coek::Variable) << " repn=" << sizeof(v.repn)
+                  << " VariableTerm=" << sizeof(coek::VariableTerm) << std::endl;
 
         coek::Objective o;
-        std::cout << "sizeof Objective=" << sizeof(coek::Objective) << " repn=" << sizeof(o.repn) << " ObjectiveTerm=" << sizeof(coek::ObjectiveTerm) << std::endl;
+        std::cout << "sizeof Objective=" << sizeof(coek::Objective) << " repn=" << sizeof(o.repn)
+                  << " ObjectiveTerm=" << sizeof(coek::ObjectiveTerm) << std::endl;
 
         coek::Constraint c;
-        std::cout << "sizeof Constraint=" << sizeof(coek::Constraint) << " repn=" << sizeof(c.repn) << " ConstraintTerm=" << sizeof(coek::ConstraintTerm) << std::endl;
-        std::cout << "sizeof Constraint=" << sizeof(coek::Constraint) << " repn=" << sizeof(c.repn) << " InequalityTerm=" << sizeof(coek::InequalityTerm) << std::endl;
-        std::cout << "sizeof Constraint=" << sizeof(coek::Constraint) << " repn=" << sizeof(c.repn) << " EqualityTerm=" << sizeof(coek::EqualityTerm) << std::endl;
+        std::cout << "sizeof Constraint=" << sizeof(coek::Constraint) << " repn=" << sizeof(c.repn)
+                  << " ConstraintTerm=" << sizeof(coek::ConstraintTerm) << std::endl;
+        std::cout << "sizeof Constraint=" << sizeof(coek::Constraint) << " repn=" << sizeof(c.repn)
+                  << " InequalityTerm=" << sizeof(coek::InequalityTerm) << std::endl;
+        std::cout << "sizeof Constraint=" << sizeof(coek::Constraint) << " repn=" << sizeof(c.repn)
+                  << " EqualityTerm=" << sizeof(coek::EqualityTerm) << std::endl;
     }
 
     return 0;

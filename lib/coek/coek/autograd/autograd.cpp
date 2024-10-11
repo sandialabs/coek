@@ -111,7 +111,7 @@ double NLPModelRepn::get_constraint_upper(size_t i)
     return model.get_constraint(i).upper().value();
 }
 
-void NLPModelRepn::print_equations(std::ostream& ostr) const
+void NLPModelRepn::print_equations(std::ostream& ostr)
 {
     ostr << "NLPModel:" << std::endl;
     ostr << "  variables:         " << num_variables() << std::endl;
@@ -127,7 +127,7 @@ void NLPModelRepn::print_equations(std::ostream& ostr) const
     ostr << std::endl;
 }
 
-void NLPModelRepn::print_values(std::ostream& ostr) const
+void NLPModelRepn::print_values(std::ostream& ostr)
 {
     ostr << "Model Variables: " << num_variables() << "\n";
     ostr << "   (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n";

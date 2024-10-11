@@ -1,14 +1,16 @@
-
 #include <unordered_map>
 
 #include "coek/api/variable_assoc_array_repn.hpp"
 #include "coek/ast/compact_terms.hpp"
 #include "coek/compact/coek_sets.hpp"
 #include "coek/compact/variable_map.hpp"
+#include "coek/compact/index_sequence.hpp"
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
 
 namespace coek {
+
+// void xyz();
 
 //
 // VariableMapRepn
@@ -16,52 +18,67 @@ namespace coek {
 
 class VariableMapRepn : public VariableAssocArrayRepn {
    public:
-    std::unordered_map<IndexVector, size_t> index;
-    ConcreteSet concrete_set;
+    SequenceContext context;
+    ConcreteSet index_set;
+    IndexSequence index_sequence;
+    std::unordered_map<IndexVector, size_t> index_map;
 
    public:
-    VariableMapRepn(const ConcreteSet& _arg) : concrete_set(_arg)
+    VariableMapRepn(const ConcreteSet& _arg)
+        : context(_arg), index_set(_arg), index_sequence(context)
     {
+#ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
+#endif
     }
 
-    VariableMapRepn(const SequenceContext& _arg) : concrete_set(_arg.index_set())
+    VariableMapRepn(const SequenceContext& _arg) : context(_arg), index_sequence(context)
     {
+        index_set = context.index_set();
+#ifdef CUSTOM_INDEXVECTOR
         cache.resize((size() + 1) * (dim() + 1));
+#endif
     }
 
     virtual ~VariableMapRepn() {}
 
-    void setup();
+    std::shared_ptr<VariableTerm> index(const IndexVector& args);
+
+    void expand();
 
     // TODO - evaluate whether it is reasonable to use const_cast here
-    size_t dim() const { return const_cast<ConcreteSet&>(concrete_set).dim(); }
+    size_t dim() { return index_set.dim(); }
 
-    size_t size() const { return const_cast<ConcreteSet&>(concrete_set).size(); }
+    size_t size() { return index_set.size(); }
 
     void generate_names();
 };
 
 void VariableMapRepn::generate_names()
 {
-    // If no name has been provided to this map object,
-    // then we do not try to generate names.  The default/simple
-    // variable names will be used.
-    auto name = variable_template.name();
+    // xyz();
+    //  If no name has been provided to this map object,
+    //  then we do not try to generate names.  The default/simple
+    //  variable names will be used.
+    auto name = value_template.name();
     if (name == "")
         return;
 
-    setup();
+    expand();
 
     size_t _dim = dim();
+#ifdef CUSTOM_INDEXVECTOR
     std::vector<int> x_data(_dim);
     IndexVector x(&(x_data[0]), _dim);
-    for (auto& indices : concrete_set) {
+#else
+    IndexVector x(_dim);
+#endif
+    for (auto& indices : index_set) {
         for (size_t j = 0; j < _dim; j++)
             x[j] = indices[j];
         if (indices.size() == 1) {
             auto tmp = indices[0];
-            values[index[x]].name(name + "[" + std::to_string(tmp) + "]");
+            values[index_map[x]].name(name + "[" + std::to_string(tmp) + "]");
         }
         else {
             std::string _name = name + "[";
@@ -71,24 +88,43 @@ void VariableMapRepn::generate_names()
                 auto tmp = indices[j];
                 _name += "," + std::to_string(tmp);
             }
-            values[index[x]].name(_name + "]");
+            values[index_map[x]].name(_name + "]");
         }
     }
 }
 
-void VariableMapRepn::setup()
+void VariableMapRepn::expand()
 {
-    if (first_setup) {
-        VariableAssocArrayRepn::setup();
+    if (first_expand) {
+        first_expand = false;
+        // VariableAssocArrayRepn::expand();
 
         size_t _dim = dim();
+        IndexVector x(_dim);
         size_t i = 0;
-        for (auto& vec : concrete_set) {
-            auto x = cache.alloc(_dim);
+
+        auto it = index_sequence.begin();
+        auto end = index_sequence.end();
+        while (it != end) {
+            auto vtype = value_template.within();
+            bool binary = (vtype == Boolean) or (vtype == Binary);
+            bool integer = vtype == Integers;
+            auto lower = std::make_shared<ConstantTerm>(
+                value_template.lower_expression().expand().value());
+            auto upper = std::make_shared<ConstantTerm>(
+                value_template.upper_expression().expand().value());
+            auto value = std::make_shared<ConstantTerm>(
+                value_template.value_expression().expand().value());
+            values.emplace_back(CREATE_POINTER(VariableTerm, lower, upper, value, binary, integer));
+
+            auto& vec = *it;
+            assert(vec.size() == _dim);
             for (size_t j = 0; j < _dim; j++)
-                x[j] = vec[j];
-            index[x] = i++;
+                vec[j].get_value(x[j]);
+            index_map[x] = i++;
+            ++it;
         }
+        assert(index_map.size() == index_set.size());
     }
 }
 
@@ -108,20 +144,22 @@ VariableMap::VariableMap(const SequenceContext& arg)
     repn->resize_index_vectors(tmp, reftmp);
 }
 
-VariableAssocArrayRepn* VariableMap::get_repn() { return repn.get(); }
+std::shared_ptr<VariableAssocArrayRepn> VariableMap::get_repn() { return repn; }
 
-const VariableAssocArrayRepn* VariableMap::get_repn() const { return repn.get(); }
+const std::shared_ptr<VariableAssocArrayRepn> VariableMap::get_repn() const { return repn; }
 
-Variable VariableMap::index(const IndexVector& args)
+Variable VariableMap::index(const IndexVector& args) { return repn->index(args); }
+
+std::shared_ptr<VariableTerm> VariableMapRepn::index(const IndexVector& args)
 {
     assert(dim() == args.size());
 
-    auto _repn = repn.get();
-    _repn->setup();
+    // auto _repn = repn.get();
+    expand();
 
-    auto curr = _repn->index.find(tmp);
-    if (curr == _repn->index.end()) {
-        std::string err = "Unknown index value: " + _repn->variable_template.name() + "[";
+    auto curr = index_map.find(args);
+    if (curr == index_map.end()) {
+        std::string err = "Unknown index value: " + value_template.name() + "[";
         for (size_t i = 0; i < args.size(); i++) {
             if (i > 0)
                 err += ",";
@@ -130,13 +168,13 @@ Variable VariableMap::index(const IndexVector& args)
         err += "]";
         throw std::runtime_error(err);
     }
-    return _repn->values[curr->second];
+    return values[curr->second].repn;
 }
 
 void VariableMap::index_error(size_t i)
 {
     auto _repn = repn.get();
-    std::string err = "Unexpected index value: " + _repn->variable_template.name() + " is an "
+    std::string err = "Unexpected index value: " + _repn->value_template.name() + " is an "
                       + std::to_string(tmp.size()) + "-D variable map but is being indexed with "
                       + std::to_string(i) + " indices.";
     throw std::runtime_error(err);
@@ -214,6 +252,8 @@ VariableMap& VariableMap::name(const std::string& name)
     return *this;
 }
 
+std::string VariableMap::name() { return repn->name(); }
+
 VariableMap& VariableMap::within(VariableTypes vtype)
 {
     repn->within(vtype);
@@ -230,11 +270,10 @@ VariableMap variable(const SequenceContext& arg) { return VariableMap(arg); }
 
 VariableMap& Model::add_variable(VariableMap& vars)
 {
-    vars.repn->setup();
+    vars.repn->expand();
     if (repn->name_generation_policy == Model::NameGeneration::eager)
         vars.generate_names();
-    else if (repn->name_generation_policy == Model::NameGeneration::lazy)
-        repn->variable_maps.push_back(vars);
+    repn->variable_maps.push_back(vars);
     for (auto& var : vars.repn->values)
         add_variable(var);
     return vars;

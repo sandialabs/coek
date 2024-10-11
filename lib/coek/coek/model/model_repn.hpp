@@ -8,6 +8,7 @@
 #include "coek/api/constraint.hpp"
 #if __cpp_lib_variant
 #    include <variant>
+#    include "coek/api/data_array.hpp"
 #    include "coek/api/parameter_array.hpp"
 #    include "coek/api/variable_array.hpp"
 #    include "coek/api/constraint_map.hpp"
@@ -17,6 +18,7 @@
 #    include "coek/compact/variable_sequence.hpp"
 #    include "coek/compact/objective_sequence.hpp"
 #    include "coek/compact/constraint_sequence.hpp"
+#    include "coek/compact/data_map.hpp"
 #    include "coek/compact/parameter_map.hpp"
 #    include "coek/compact/variable_map.hpp"
 #endif
@@ -34,9 +36,11 @@ class ModelRepn {
     std::vector<Variable> variables;
 
 #if __cpp_lib_variant
+    std::vector<DataArray> data_arrays;
     std::vector<ParameterArray> parameter_arrays;
     std::vector<VariableArray> variable_arrays;
 #    ifdef COEK_WITH_COMPACT_MODEL
+    std::vector<DataMap> data_maps;
     std::vector<ParameterMap> parameter_maps;
     std::vector<VariableMap> variable_maps;
 #    endif
@@ -129,11 +133,16 @@ class CompactModelRepn {
    public:
     std::string name;
     std::vector<std::variant<Objective, ObjectiveSequence>> objectives;
+    std::vector<std::variant<Constraint, ConstraintMap, ConstraintSequence>> constraints;
+    std::vector<std::variant<Variable, VariableSequence, VariableMap, VariableArray>> variables;
+    std::vector<std::variant<DataMap, DataArray>> data;
+    std::vector<std::variant<Parameter, ParameterMap, ParameterArray>> parameters;
+
     std::vector<std::string> objective_names;
-    std::vector<std::variant<Constraint, ConstraintSequence>> constraints;
     std::vector<std::string> constraint_names;
-    std::vector<std::variant<Variable, VariableSequence>> variables;
     std::vector<std::string> variable_names;
+    std::vector<std::string> parameter_names;
+
     std::map<std::string, std::variant<CompactVariableMap, ObjectiveMap, CompactConstraintMap>>
         mapped_data;
 };

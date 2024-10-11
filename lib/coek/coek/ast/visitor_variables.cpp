@@ -75,12 +75,17 @@ void visit_VariableTerm(const expr_pointer_t& expr, VariableData& data)
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
+void visit_VariableRefTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/)
+{
+    throw std::runtime_error("Attempting to find variables in an abstract expression!");
+}
+
 void visit_ParameterRefTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/)
 {
     throw std::runtime_error("Attempting to find variables in an abstract expression!");
 }
 
-void visit_VariableRefTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/)
+void visit_DataRefTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/)
 {
     throw std::runtime_error("Attempting to find variables in an abstract expression!");
 }
@@ -195,6 +200,7 @@ void visit_expression(const expr_pointer_t& expr, VariableData& data)
 #ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(VariableRefTerm);
         VISIT_CASE(ParameterRefTerm);
+        VISIT_CASE(DataRefTerm);
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);

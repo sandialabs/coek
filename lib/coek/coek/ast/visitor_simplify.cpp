@@ -78,13 +78,19 @@ void visit_VariableTerm(const expr_pointer_t& expr, VisitorData& data)
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
+void visit_VariableRefTerm(const expr_pointer_t& expr, VisitorData& data)
+{
+    data.last_expr = expr;
+    data.is_value = false;
+}
+
 void visit_ParameterRefTerm(const expr_pointer_t& expr, VisitorData& data)
 {
     data.last_expr = expr;
     data.is_value = false;
 }
 
-void visit_VariableRefTerm(const expr_pointer_t& expr, VisitorData& data)
+void visit_DataRefTerm(const expr_pointer_t& expr, VisitorData& data)
 {
     data.last_expr = expr;
     data.is_value = false;
@@ -136,7 +142,8 @@ void visit_StrictInequalityTerm(const expr_pointer_t& expr, VisitorData& data)
         data.last_expr = std::make_shared<StrictInequalityTerm>(
             tmp->lower, std::make_shared<ConstantTerm>(data.last_value), tmp->upper);
     else
-        data.last_expr = std::make_shared<StrictInequalityTerm>(tmp->lower, data.last_expr, tmp->upper);
+        data.last_expr
+            = std::make_shared<StrictInequalityTerm>(tmp->lower, data.last_expr, tmp->upper);
 }
 
 void visit_EqualityTerm(const expr_pointer_t& expr, VisitorData& data)
@@ -415,6 +422,7 @@ void visit_expression(const expr_pointer_t& expr, VisitorData& data)
 #ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(VariableRefTerm);
         VISIT_CASE(ParameterRefTerm);
+        VISIT_CASE(DataRefTerm);
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);

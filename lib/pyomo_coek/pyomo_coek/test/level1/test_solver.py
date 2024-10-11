@@ -6,6 +6,7 @@ import pytest
 
 def test_available1(pyomo_module):
     opt = pyomo_module.SolverFactory("bad_pyomo_solvername")
+    # TODO - resolve this inconsistency in the API
     assert not opt.available(False)
 
 
@@ -27,7 +28,7 @@ def test_gurobi(pyomo_module):
     m.o = pyomo_module.Objective(expr=m.x0 + m.x1)
 
     opt = pyomo_module.SolverFactory("coek_gurobi")
-    if opt.available(False):
+    if opt.available():
         res = opt.solve(m)
         pyo.check_optimal_termination(m)
 
@@ -39,6 +40,6 @@ def test_ipopt(pyomo_module):
     m.o = pyomo_module.Objective(expr=m.x0 + m.x1)
 
     opt = pyomo_module.SolverFactory("coek_ipopt")
-    if opt.available(False):
+    if opt.available():
         res = opt.solve(m)
         pyo.check_optimal_termination(m)

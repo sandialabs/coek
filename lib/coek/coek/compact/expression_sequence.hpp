@@ -49,4 +49,6 @@ class ExpressionSequence {
 };
 
 Expression Sum(const SequenceContext& context, const Expression& expr);
+Expression Sum(const Expression& expr, const SequenceContext& context);
+
 }  // namespace coek

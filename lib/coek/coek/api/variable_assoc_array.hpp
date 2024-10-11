@@ -6,8 +6,8 @@ namespace coek {
 
 class VariableAssocArray {
    public:
-    virtual VariableAssocArrayRepn* get_repn() = 0;
-    virtual const VariableAssocArrayRepn* get_repn() const = 0;
+    virtual std::shared_ptr<VariableAssocArrayRepn> get_repn() = 0;
+    virtual const std::shared_ptr<VariableAssocArrayRepn> get_repn() const = 0;
     IndexVector tmp;
     std::vector<refarg_types> reftmp;
 
@@ -18,9 +18,10 @@ class VariableAssocArray {
     size_t size() const;
     size_t dim() const;
 
-    virtual Variable index(const IndexVector& args) = 0;
+    void expand();
+
 #ifdef COEK_WITH_COMPACT_MODEL
-    Expression create_varref(const std::vector<refarg_types>& indices);
+    Expression create_ref(const std::vector<refarg_types>& indices);
 #endif
 };
 

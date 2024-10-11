@@ -14,7 +14,8 @@ class ParameterArrayRepn;
 class ParameterArray : public ParameterAssocArray {
    public:
     std::shared_ptr<ParameterArrayRepn> repn;
-    ParameterAssocArrayRepn* get_repn();
+    std::shared_ptr<ParameterAssocArrayRepn> get_repn();
+    const std::shared_ptr<ParameterAssocArrayRepn> get_repn() const;
 
     Parameter index(const IndexVector& args);
     void index_error(size_t i);
@@ -104,7 +105,7 @@ class ParameterArray : public ParameterAssocArray {
         if (dim() != nargs)
             index_error(nargs);
         collect_refargs(static_cast<size_t>(0), args...);
-        return create_paramref(reftmp);
+        return create_ref(reftmp);
     }
 #endif
 
@@ -149,6 +150,8 @@ class ParameterArray : public ParameterAssocArray {
 
     /** Set the name of the parameter. \returns the parameter object */
     ParameterArray& name(const std::string& name);
+    /** Get the name of the parameter. \returns the parameter string name */
+    std::string name() const;
 };
 
 ParameterArray parameter(size_t n);
