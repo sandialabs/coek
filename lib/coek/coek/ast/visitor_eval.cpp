@@ -70,6 +70,13 @@ double visit_VariableTerm(const expr_pointer_t& expr, VariableData& data)
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
+double visit_VariableRefTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/)
+{
+    throw std::runtime_error(
+        "Cannot evaluate an expression that contains a VariableRefTerm. This is an abstract "
+        "expression!");
+}
+
 double visit_ParameterRefTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/)
 {
     throw std::runtime_error(
@@ -77,10 +84,10 @@ double visit_ParameterRefTerm(const expr_pointer_t& /*expr*/, VariableData& /*da
         "expression!");
 }
 
-double visit_VariableRefTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/)
+double visit_DataRefTerm(const expr_pointer_t& /*expr*/, VariableData& /*data*/)
 {
     throw std::runtime_error(
-        "Cannot evaluate an expression that contains a VariableRefTerm. This is an abstract "
+        "Cannot evaluate an expression that contains a DataRefTerm. This is an abstract "
         "expression!");
 }
 #endif
@@ -205,6 +212,7 @@ double visit_expression(const expr_pointer_t& expr, VariableData& data)
 #ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(VariableRefTerm);
         VISIT_CASE(ParameterRefTerm);
+        VISIT_CASE(DataRefTerm);
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);

@@ -1,5 +1,5 @@
+#include "coek/ast/value_terms.hpp"
 #include "coek/api/parameter_array.hpp"
-
 #include "coek/api/parameter_assoc_array_repn.hpp"
 #include "coek/model/model.hpp"
 #include "coek/model/model_repn.hpp"
@@ -12,23 +12,34 @@ class ParameterArrayRepn : public ParameterAssocArrayRepn {
     size_t _size;
 
    public:
-    ParameterArrayRepn(size_t n) : shape({n}), _size(n) { cache.resize((size() + 1) * 2); }
+    ParameterArrayRepn(size_t n) : shape({n}), _size(n)
+    {
+#ifdef CUSTOM_INDEXVECTOR
+        cache.resize(2 * (size() + 1) * 2);
+#endif
+    }
 
     ParameterArrayRepn(const std::vector<size_t>& _shape) : shape(_shape), _size(1)
     {
         for (auto n : shape)
             _size *= n;
-        cache.resize((size() + 1) * (dim() + 1));
+#ifdef CUSTOM_INDEXVECTOR
+        cache.resize(2 * (size() + 1) * (dim() + 1));
+#endif
     }
 
     ParameterArrayRepn(const std::initializer_list<size_t>& _shape) : shape(_shape), _size(1)
     {
         for (auto n : shape)
             _size *= n;
-        cache.resize((size() + 1) * (dim() + 1));
+#ifdef CUSTOM_INDEXVECTOR
+        cache.resize(2 * (size() + 1) * (dim() + 1));
+#endif
     }
 
     virtual ~ParameterArrayRepn() {}
+
+    std::shared_ptr<ParameterTerm> index(const IndexVector& args);
 
     size_t dim() { return shape.size(); }
 
@@ -68,11 +79,11 @@ void ParameterArrayRepn::generate_names()
     // If no name has been provided to this array object,
     // then we do not try to generate names.  The default/simple
     // parameter names will be used.
-    std::string name = parameter_template.name();
+    std::string name = value_template.name();
     if (name.size() == 0)
         return;
 
-    setup();
+    expand();
 
     size_t ctr = 0;
     for (auto& param : values)
@@ -101,15 +112,19 @@ ParameterArray::ParameterArray(const std::initializer_list<size_t>& shape)
     repn->resize_index_vectors(tmp, reftmp);
 }
 
-ParameterAssocArrayRepn* ParameterArray::get_repn() { return repn.get(); }
+std::shared_ptr<ParameterAssocArrayRepn> ParameterArray::get_repn() { return repn; }
 
-Parameter ParameterArray::index(const IndexVector& args)
+const std::shared_ptr<ParameterAssocArrayRepn> ParameterArray::get_repn() const { return repn; }
+
+Parameter ParameterArray::index(const IndexVector& args) { return repn->index(args); }
+
+std::shared_ptr<ParameterTerm> ParameterArrayRepn::index(const IndexVector& args)
 {
-    auto _repn = repn.get();
-    auto& shape = _repn->shape;
+    // auto _repn = repn.get();
+    // auto& shape = _repn->shape;
     assert(args.size() == shape.size());
 
-    _repn->setup();
+    expand();
 
     // We know that the args[i] values are nonnegative b.c. we have asserted that while
     // processing these arguments
@@ -120,7 +135,7 @@ Parameter ParameterArray::index(const IndexVector& args)
     if (ndx > size()) {
         // TODO - Can't we do better than this check?  Do we check if each index is in the correct
         // range?
-        std::string err = "Unknown index value: " + _repn->parameter_template.name() + "[";
+        std::string err = "Unknown index value: " + value_template.name() + "[";
         for (size_t i = 0; i < args.size(); i++) {
             if (i > 0)
                 err += ",";
@@ -130,13 +145,13 @@ Parameter ParameterArray::index(const IndexVector& args)
         throw std::runtime_error(err);
     }
 
-    return _repn->values[ndx];
+    return values[ndx].repn;
 }
 
 void ParameterArray::index_error(size_t i)
 {
     auto _repn = repn.get();
-    std::string err = "Unexpected index value: " + _repn->parameter_template.name() + " is an "
+    std::string err = "Unexpected index value: " + _repn->value_template.name() + " is an "
                       + std::to_string(tmp.size()) + "-D parameter array but is being indexed with "
                       + std::to_string(i) + " indices.";
     throw std::runtime_error(err);
@@ -166,6 +181,8 @@ ParameterArray& ParameterArray::name(const std::string& name)
     return *this;
 }
 
+std::string ParameterArray::name() const { return repn->value_template.repn->name; }
+
 //
 // OTHER
 //
@@ -181,11 +198,10 @@ ParameterArray parameter(const std::initializer_list<size_t>& shape)
 
 ParameterArray& Model::add_parameter(ParameterArray& params)
 {
-    params.repn->setup();
+    params.repn->expand();
     if (repn->name_generation_policy == Model::NameGeneration::eager)
         params.generate_names();
-    else if (repn->name_generation_policy == Model::NameGeneration::lazy)
-        repn->parameter_arrays.push_back(params);
+    repn->parameter_arrays.push_back(params);
     return params;
 }
 

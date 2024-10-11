@@ -58,17 +58,22 @@ void visit_VariableTerm(const expr_pointer_t& /*expr*/, PartialData& data)
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-void visit_ParameterRefTerm(const expr_pointer_t& /*expr*/, PartialData& data)
-{
-    data.partial = ZEROCONST;
-}
-
 //
 // We assume for now that a user cannot differentiate with respect to an referenced
 // variable.  It's not clear that we can infer whether two referenced variables are the same,
 // given that they may be indexed by equations.
 //
 void visit_VariableRefTerm(const expr_pointer_t& /*expr*/, PartialData& data)
+{
+    data.partial = ZEROCONST;
+}
+
+void visit_ParameterRefTerm(const expr_pointer_t& /*expr*/, PartialData& data)
+{
+    data.partial = ZEROCONST;
+}
+
+void visit_DataRefTerm(const expr_pointer_t& /*expr*/, PartialData& data)
 {
     data.partial = ZEROCONST;
 }
@@ -278,6 +283,7 @@ expr_pointer_t compute_partial(const expr_pointer_t& expr, size_t i, PartialData
 #ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(VariableRefTerm);
         VISIT_CASE(ParameterRefTerm);
+        VISIT_CASE(DataRefTerm);
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);

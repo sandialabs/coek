@@ -12,8 +12,8 @@ class VariableMapRepn;
 class VariableMap : public VariableAssocArray {
    public:
     std::shared_ptr<VariableMapRepn> repn;
-    VariableAssocArrayRepn* get_repn();
-    const VariableAssocArrayRepn* get_repn() const;
+    std::shared_ptr<VariableAssocArrayRepn> get_repn();
+    const std::shared_ptr<VariableAssocArrayRepn> get_repn() const;
 
     Variable index(const IndexVector& args);
     void index_error(size_t i);
@@ -92,7 +92,7 @@ class VariableMap : public VariableAssocArray {
         if (dim() != nargs)
             index_error(nargs);
         collect_refargs(static_cast<size_t>(0), args...);
-        return create_varref(reftmp);
+        return create_ref(reftmp);
     }
 
     template <typename... ARGTYPES>
@@ -154,6 +154,8 @@ class VariableMap : public VariableAssocArray {
 
     /** Set the name of the variable. \returns the variable object */
     VariableMap& name(const std::string& name);
+    /** Get the name of the variable. */
+    std::string name();
 
     /** Set the variable type. \returns the variable object */
     VariableMap& within(VariableTypes vtype);

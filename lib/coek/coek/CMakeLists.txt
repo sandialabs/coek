@@ -6,10 +6,19 @@ SET(sources
     util/option_cache.cpp
     util/tictoc.cpp
     util/string_utils.cpp
+    )
+if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
+    list(APPEND sources
+        util/DataPortal.cpp
+        )
+endif()
+
+list(APPEND sources
     ast/base_terms.cpp
     ast/constraint_terms.cpp
     ast/value_terms.cpp
     ast/expr_terms.cpp
+    ast/visitor_expand.cpp
     ast/visitor_to_list.cpp
     ast/visitor_write_expr.cpp
     ast/visitor_to_MutableNLPExpr.cpp
@@ -20,18 +29,47 @@ SET(sources
     ast/visitor_simplify.cpp
     ast/visitor_eval.cpp
     #ast/varray.cpp
+    )
+if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
+    list(APPEND sources
+        ast/compact_terms.cpp
+        )
+endif()
+
+list(APPEND sources
     api/constants.cpp
     api/expression.cpp
     api/expression_visitor.cpp
     api/objective.cpp
     api/constraint.cpp
     api/intrinsic_fn.cpp
+    )
+if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
+    list(APPEND sources
+        api/data_assoc_array_repn.cpp
+        api/data_assoc_array.cpp
+        api/data_array.cpp
+        api/parameter_assoc_array_repn.cpp
+        api/parameter_assoc_array.cpp
+        api/parameter_array.cpp
+        api/variable_assoc_array_repn.cpp
+        api/variable_assoc_array.cpp
+        api/variable_array.cpp
+        api/constraint_map.cpp
+        api/subexpression_map.cpp
+        )
+endif()
+
+list(APPEND sources
     model/model.cpp
     model/compact_model.cpp
     model/nlp_model.cpp
     model/writer_lp.cpp
     model/writer_nl.cpp
     model/reader_jpof.cpp
+    )
+
+list(APPEND sources
     solvers/solver_results.cpp
     solvers/solver.cpp
     solvers/solver_repn.cpp
@@ -40,29 +78,19 @@ SET(sources
     autograd/autograd.cpp
     abstract/expr_rule.cpp
    )
-if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
-    list(APPEND sources
-        ast/compact_terms.cpp
-        api/parameter_assoc_array.cpp
-        api/parameter_array.cpp
-        api/variable_assoc_array.cpp
-        api/variable_array.cpp
-        api/constraint_map.cpp
-        api/subexpression_map.cpp
-        util/DataPortal.cpp
-        )
-endif()
 
 if(with_compact)
     list(APPEND sources
         compact/sequence_context.cpp
         compact/expression_sequence.cpp
+        compact/index_sequence.cpp
         compact/variable_sequence.cpp
         compact/objective_sequence.cpp
         compact/constraint_sequence.cpp
         compact/ast_set.cpp
         compact/coek_sets.cpp
         #compact/coek_indexed.cpp
+        compact/data_map.cpp
         compact/parameter_map.cpp
         compact/variable_map.cpp
         compact/visitor_exprtemplate.cpp
@@ -246,7 +274,12 @@ install(FILES
         util/DataPortal.hpp
         util/tictoc.hpp
         util/io_utils.hpp
+        util/tuple_utils.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/util
+        )
+install(FILES
+        ast/assoc_array_base.hpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/ast
         )
 install(FILES
         api/constraint_map.hpp
@@ -259,6 +292,9 @@ install(FILES
         api/intrinsic_fn.hpp
         api/indexed_container.hpp
         api/objective.hpp
+        api/data_array.hpp
+        api/data_assoc_array.hpp
+        api/data_assoc_array_repn.hpp
         api/parameter_array.hpp
         api/parameter_assoc_array.hpp
         api/parameter_assoc_array_repn.hpp
@@ -273,6 +309,7 @@ install(FILES
         compact/expression_sequence.hpp
         compact/objective_sequence.hpp
         compact/sequence_context.hpp
+        compact/data_map.hpp
         compact/parameter_map.hpp
         compact/variable_map.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/coek/compact

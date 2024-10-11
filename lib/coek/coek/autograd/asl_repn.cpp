@@ -136,9 +136,9 @@ void ASL_Repn::get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hc
 
 bool ASL_Repn::column_major_hessian() { return false; }
 
-void ASL_Repn::print_equations(std::ostream& ostr) const { NLPModelRepn::print_equations(ostr); }
+void ASL_Repn::print_equations(std::ostream& ostr) { NLPModelRepn::print_equations(ostr); }
 
-void ASL_Repn::print_values(std::ostream& ostr) const { NLPModelRepn::print_values(ostr); }
+void ASL_Repn::print_values(std::ostream& ostr) { NLPModelRepn::print_values(ostr); }
 
 // TODO - Should COEK capture errors and return an error flag?
 // TODO - Generalize caching for multiple objectives

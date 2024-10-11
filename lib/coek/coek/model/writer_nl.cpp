@@ -67,6 +67,7 @@ void visit_expression(const expr_pointer_t& expr, VisitorType& data)
 #if __cpp_lib_variant
         VISIT_CASE(VariableRefTerm);
         VISIT_CASE(ParameterRefTerm);
+        VISIT_CASE(DataRefTerm);
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);
@@ -121,15 +122,21 @@ inline void visit_IndexParameterTerm(const expr_pointer_t&, TYPE&)
 
 #if __cpp_lib_variant
 template <class TYPE>
-inline void visit_ParameterRefTerm(const expr_pointer_t&, TYPE&)
+inline void visit_VariableRefTerm(const expr_pointer_t&, TYPE&)
 {
-    throw std::runtime_error("Cannot write an NL file using an abstract expression!");
+    throw std::runtime_error("Cannot write an NL file using an abstract variable expression!");
 }
 
 template <class TYPE>
-inline void visit_VariableRefTerm(const expr_pointer_t&, TYPE&)
+inline void visit_ParameterRefTerm(const expr_pointer_t&, TYPE&)
 {
-    throw std::runtime_error("Cannot write an NL file using an abstract expression!");
+    throw std::runtime_error("Cannot write an NL file using an abstract parameter expression!");
+}
+
+template <class TYPE>
+inline void visit_DataRefTerm(const expr_pointer_t&, TYPE&)
+{
+    throw std::runtime_error("Cannot write an NL file using an abstract data expression!");
 }
 #endif
 

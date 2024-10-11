@@ -9,7 +9,6 @@ namespace coek {
 class IndexParameter;
 class ConcreteSet;
 class Constraint;
-class SequenceContextRepn;
 
 /** Collect template arguments. */
 inline void collect_index_parameters(std::vector<IndexParameter>& indices,
@@ -40,12 +39,19 @@ class Context {
     Context(const std::vector<IndexParameter>& _indices);
 };
 
+class SequenceContextRepn {
+   public:
+    std::vector<Context> context;
+    size_t dim = 0;
+};
+
 class SequenceContext {
    public:
     std::shared_ptr<SequenceContextRepn> repn;
 
    public:
     SequenceContext(const std::shared_ptr<SequenceContextRepn>& _repn);
+    explicit SequenceContext(const ConcreteSet& _index_set);
     SequenceContext In(const ConcreteSet& _index_set);
     SequenceContext ST(const Constraint& con);
     SequenceContext Where(const Constraint& con);

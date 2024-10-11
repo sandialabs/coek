@@ -1,7 +1,9 @@
 #pragma once
 
 #include "coek/api/parameter_assoc_array.hpp"
+#include "coek/compact/sequence_context.hpp"
 #include "coek/util/template_utils.hpp"
+#include "coek/util/tuple_utils.hpp"
 #include "coek_sets.hpp"
 
 namespace coek {
@@ -11,7 +13,8 @@ class ParameterMapRepn;
 class ParameterMap : public ParameterAssocArray {
    public:
     std::shared_ptr<ParameterMapRepn> repn;
-    ParameterAssocArrayRepn* get_repn();
+    std::shared_ptr<ParameterAssocArrayRepn> get_repn();
+    const std::shared_ptr<ParameterAssocArrayRepn> get_repn() const;
 
     Parameter index(const IndexVector& args);
     void index_error(size_t i);
@@ -90,7 +93,7 @@ class ParameterMap : public ParameterAssocArray {
         if (dim() != nargs)
             index_error(nargs);
         collect_refargs(static_cast<size_t>(0), args...);
-        return create_paramref(reftmp);
+        return create_ref(reftmp);
     }
 
     template <typename... ARGTYPES>
@@ -123,16 +126,46 @@ class ParameterMap : public ParameterAssocArray {
 
    public:
     explicit ParameterMap(const ConcreteSet& arg);
+    explicit ParameterMap(const SequenceContext& arg);
     virtual ~ParameterMap() {}
 
     /** Set the initial parameter value. \returns the parameter object. */
     ParameterMap& value(double value);
+
     /** Set the initial parameter value. \returns the parameter object. */
     ParameterMap& value(const Expression& value);
 
-    /** Set the name of the parameter. \returns the parameter object */
+    template <typename KeyType, typename ValueType>
+    ParameterMap& value(const std::map<KeyType, ValueType>& values_);
+
+    /** Set the name of the parameter. \returns the parameter object. */
     ParameterMap& name(const std::string& name);
+
+    /** Get the name of the parameter. \returns a string. */
+    std::string name();
 };
+
+template <typename KeyType, typename ValueType>
+inline ParameterMap& ParameterMap::value(const std::map<KeyType, ValueType>& values_)
+{
+    for (auto& [key, value] : values_) {
+        copy_tuple_to_vector(key, tmp);
+        index(tmp).value(value);
+    }
+    return *this;
+}
+
+template <>
+inline ParameterMap& ParameterMap::value(const std::map<int, double>& values_)
+{
+    if (dim() != 1)
+        index_error(1);
+    for (auto& [key, value] : values_) {
+        tmp[0] = key;
+        index(tmp).value(value);
+    }
+    return *this;
+}
 
 ParameterMap parameter(const ConcreteSet& arg);
 inline ParameterMap parameter_map(const ConcreteSet& arg) { return parameter(arg); }
@@ -142,6 +175,18 @@ inline ParameterMap parameter(const std::string& name, const ConcreteSet& arg)
     return parameter(arg).name(name);
 }
 inline ParameterMap parameter_map(const std::string& name, const ConcreteSet& arg)
+{
+    return parameter(arg).name(name);
+}
+
+ParameterMap parameter(const SequenceContext& arg);
+inline ParameterMap parameter_map(const SequenceContext& arg) { return parameter(arg); }
+
+inline ParameterMap parameter(const std::string& name, const SequenceContext& arg)
+{
+    return parameter(arg).name(name);
+}
+inline ParameterMap parameter_map(const std::string& name, const SequenceContext& arg)
 {
     return parameter(arg).name(name);
 }

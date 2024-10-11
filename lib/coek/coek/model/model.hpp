@@ -25,10 +25,12 @@ class Expression;
 class Objective;
 class Constraint;
 #ifdef COEK_WITH_COMPACT_MODEL
+class DataMap;
 class ParameterMap;
 class VariableMap;
 #endif
 #if __cpp_lib_variant
+class DataArray;
 class ParameterArray;
 class VariableArray;
 class ConstraintMap;
@@ -58,7 +60,14 @@ class Model {
     static const double inf;
 
     /** The different policies for name generation. */
-    enum NameGeneration { simple, lazy, eager };
+    enum NameGeneration {
+        // Use default names like X[#] for variables
+        simple,
+        // Generate names when a name is requested
+        lazy,
+        // Generate names when objects are created
+        eager
+    };
 
     std::shared_ptr<ModelRepn> repn;
 
@@ -71,6 +80,19 @@ class Model {
     /** Set the name of the model */
     void name(const std::string& name);
 
+#if __cpp_lib_variant
+    DataArray& add_data(DataArray& data);
+    DataArray& add(DataArray& data);
+    DataArray& add(DataArray&& data);
+#endif
+#ifdef COEK_WITH_COMPACT_MODEL
+    DataMap& add_data(DataMap& data);
+    DataMap& add(DataMap& data);
+    DataMap& add(DataMap&& data);
+#endif
+
+    Parameter& add_parameter(Parameter& param);
+    Parameter& add(Parameter& param);
 #if __cpp_lib_variant
     ParameterArray& add_parameter(ParameterArray& param);
     ParameterArray& add(ParameterArray& param);
@@ -280,17 +302,17 @@ class Model {
     void write(const std::string& filename, std::map<size_t, size_t>& varmap,
                std::map<size_t, size_t>& conmap);
     /** Print the equations in the model to \c std::cout */
-    void print_equations(bool active = true) const;
+    void print_equations(bool active = true);
     /** Print the equations in the model to the specified output stream */
-    void print_equations(std::ostream& ostr, bool active = true) const;
+    void print_equations(std::ostream& ostr, bool active = true);
     /** Print the values in the model to \c std::cout */
     void print_values();
     /** Print the values in the model to the specified output stream */
     void print_values(std::ostream& ostr);
 
-    friend std::ostream& operator<<(std::ostream& ostr, const Model& arg);
+    friend std::ostream& operator<<(std::ostream& ostr, Model& arg);
 
-    void generate_names();
+    void generate_names(bool force = false);
     void name_generation(Model::NameGeneration value);
     Model::NameGeneration name_generation();
 };
@@ -298,7 +320,7 @@ class Model {
 //
 // operator<<
 //
-std::ostream& operator<<(std::ostream& ostr, const Model& arg);
+std::ostream& operator<<(std::ostream& ostr, Model& arg);
 
 /**
  * Read a problem from a JPOF file

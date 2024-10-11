@@ -47,8 +47,8 @@ class NLPModelRepn {
     virtual double get_constraint_lower(size_t i);
     virtual double get_constraint_upper(size_t i);
 
-    virtual void print_equations(std::ostream& ostr) const = 0;
-    virtual void print_values(std::ostream& ostr) const = 0;
+    virtual void print_equations(std::ostream& ostr) = 0;
+    virtual void print_values(std::ostream& ostr) = 0;
 
     virtual double compute_f(size_t i) = 0;
     virtual void compute_df(double& f, std::vector<double>& df, size_t i) = 0;

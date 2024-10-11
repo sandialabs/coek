@@ -24,6 +24,7 @@ SET(sources
     smoke/test_indexed.cpp
     smoke/test_var.cpp
     smoke/test_param.cpp
+    smoke/test_data.cpp
     smoke/test_expr.cpp
     smoke/test_obj.cpp
     smoke/test_con.cpp

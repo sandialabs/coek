@@ -5,8 +5,13 @@
 #include <cstddef>
 #include <map>
 #include <iostream>
+#ifndef CUSTOM_INDEXVECTOR
+#    include <vector>
+#endif
 
 namespace coek {
+
+#ifdef CUSTOM_INDEXVECTOR
 
 // class BaseExpressionTerm;
 class IndexVectorCache;
@@ -16,16 +21,16 @@ class IndexVectorCache;
 
 class IndexVector {
    public:
-    typedef int vecdata_t;
+    typedef int value_type;
     size_t len;
-    vecdata_t* data;
+    value_type* data;
 
    public:
     IndexVector() : len(0), data(0) {}
 
-    explicit IndexVector(vecdata_t* _data) : len(static_cast<size_t>(_data[0])), data(_data + 1) {}
+    explicit IndexVector(value_type* _data) : len(static_cast<size_t>(_data[0])), data(_data + 1) {}
 
-    explicit IndexVector(vecdata_t* _data, size_t _len) : len(_len), data(_data) {}
+    explicit IndexVector(value_type* _data, size_t _len) : len(_len), data(_data) {}
 
     IndexVector(const IndexVector& other) : len(other.len), data(other.data) {}
 
@@ -41,9 +46,9 @@ class IndexVector {
 
     size_t size() const { return len; }
 
-    vecdata_t& operator[](size_t i) { return data[i]; }
+    value_type& operator[](size_t i) { return data[i]; }
 
-    const vecdata_t& operator[](size_t i) const { return data[i]; }
+    const value_type& operator[](size_t i) const { return data[i]; }
 
     bool operator<(const IndexVector& other) const
     {
@@ -66,9 +71,9 @@ class IndexVector {
         else if (len == 2) {
             return (data[0] == other.data[0]) and (data[1] == other.data[1]);
         }
-        vecdata_t* curr = data;
-        vecdata_t* end = data + len;
-        vecdata_t* _other = other.data;
+        value_type* curr = data;
+        value_type* end = data + len;
+        value_type* _other = other.data;
 
         for (; curr != end; ++curr, ++_other) {
             if (*curr != *_other)
@@ -80,20 +85,20 @@ class IndexVector {
 
 class IndexVectorCache {
    public:
-    typedef typename IndexVector::vecdata_t vecdata_t;
+    typedef typename IndexVector::value_type value_type;
     size_t len;
-    vecdata_t* data;
+    value_type* data;
     size_t curr;
 
    public:
     IndexVectorCache() : len(0), data(0), curr(0) {}
-    IndexVectorCache(size_t _len) : len(_len), curr(0) { data = new vecdata_t[len]; }
+    IndexVectorCache(size_t _len) : len(_len), curr(0) { data = new value_type[len]; }
 
     IndexVectorCache(const IndexVectorCache& other) = delete;
 
     ~IndexVectorCache()
     {
-        if (len)
+        if (data)
             delete[] data;
     }
 
@@ -101,14 +106,17 @@ class IndexVectorCache {
     {
         assert(len == 0);
         len = _len;
-        data = new vecdata_t[len];
+        if (data)
+            delete[] data;
+        data = new value_type[len];
     }
 
     IndexVector alloc(size_t _len)
     {
+        // std::cout << "HERE" << curr << " " << _len << " " << len << std::endl;
         assert((curr + _len + 1) <= len);
         auto tmp = data + curr;
-        *tmp = static_cast<vecdata_t>(_len);
+        *tmp = static_cast<value_type>(_len);
         curr += _len + 1;
         return IndexVector(tmp);
     }
@@ -122,12 +130,17 @@ class IndexVectorCache {
     }
 };
 
+#else
+
+using IndexVector = std::vector<int>;
+
+#endif
 }  // namespace coek
 
 namespace std {
 template <>
 struct hash<coek::IndexVector> {
-    coek::IndexVector::vecdata_t operator()(const coek::IndexVector& a) const;
+    coek::IndexVector::value_type operator()(const coek::IndexVector& a) const;
 };
 
 inline std::ostream& operator<<(std::ostream& ostr, const coek::IndexVector& vec)

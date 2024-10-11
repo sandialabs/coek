@@ -140,6 +140,9 @@ class Parameter {
     /** \returns \c false because this is not a contant */
     bool is_constant() const { return false; }
 
+    /** \returns an expanded Parameter */
+    Parameter expand();
+
     /**
      * \name Stream operator
      *
@@ -153,6 +156,8 @@ class Parameter {
 
 Parameter parameter();
 Parameter parameter(const std::string& name);
+Parameter data();
+Parameter data(const std::string& name);
 
 // Index Parameter
 class IndexParameter {
@@ -267,6 +272,9 @@ class Variable {
 
     /** \returns \c false because this is not a constant expression */
     bool is_constant() const { return false; }
+
+    /** \returns an expanded Variable */
+    Variable expand();
 
     /**
      * \name Stream operator
