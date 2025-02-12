@@ -130,10 +130,14 @@ void add_gurobi_constraint(GRBModel* gmodel, Constraint& con, std::unordered_map
 
 GurobiSolver::~GurobiSolver()
 {
-    if (gmodel)
+    if (gmodel) {
         delete gmodel;
-    if (env)
+        gmodel = 0;
+    }
+    if (env) {
         delete env;
+        env = 0;
+    }
 }
 
 void GurobiSolver::set_gurobi_options()
