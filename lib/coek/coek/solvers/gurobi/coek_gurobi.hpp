@@ -13,7 +13,7 @@ class GurobiSolver : public SolverRepn {
     std::shared_ptr<SolverResults> results;
 
    public:
-    GurobiSolver() : SolverRepn() {}
+    GurobiSolver() : SolverRepn(), env(0), gmodel(0) {}
     ~GurobiSolver();
 
     std::shared_ptr<SolverResults> resolve();
