@@ -100,7 +100,7 @@ target_compile_definitions(coek_micro_test PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT
 
 # testing
 add_custom_target(test_coek
-    COMMAND ${CMAKE_CTEST_COMMAND})
+    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
 add_custom_target(test_coek_verbose
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
 add_custom_target(test_coek_memcheck
