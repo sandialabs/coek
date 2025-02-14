@@ -101,7 +101,7 @@ TEST_CASE("gurobi_checks", "[solvers][gurobi]")
     }
     else {
         // GCOVR_EXCL_START
-        SECTION("simplelp1")
+        SECTION("simplelp1 - missing license")
         {
             auto test = test::model("simplelp1");
             auto m = test->model;
