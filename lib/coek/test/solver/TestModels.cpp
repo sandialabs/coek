@@ -10,56 +10,56 @@ bool TestModel::check_results(coek::Model& model, std::shared_ptr<coek::SolverRe
                               double tol)
 {
     try {
-    if (results->termination_condition
-        != coek::TerminationCondition::convergence_criteria_satisfied) {
-        // GCOVR_EXCL_START
-        std::cout << fmt::format(
-            "TEST ERROR: Unexpected termination condition ({} != {})",
-            to_string(results->termination_condition),
-            to_string(coek::TerminationCondition::convergence_criteria_satisfied))
-                  << std::endl;
-        std::cout << to_string(*results, 4) << std::endl;
-        return false;
-        // GCOVR_EXCL_STOP
-    }
-
-    std::vector<double> primal;
-    for (auto& v : model.get_variables())
-        primal.push_back(v.value());
-    if (primal_solution.size() != primal.size()) {
-        // GCOVR_EXCL_START
-        std::cout << "TEST ERROR: Difference in number of primal variables" << std::endl;
-        std::cout << "\t" << primal << std::endl;
-        std::cout << "\t" << primal_solution << std::endl;
-        std::cout << to_string(*results, 4) << std::endl;
-        return false;
-        // GCOVR_EXCL_STOP
-    }
-
-    for (size_t i = 0; i < primal.size(); i++) {
-        if (std::fabs(primal[i] - primal_solution[i]) > tol) {
+        if (results->termination_condition
+            != coek::TerminationCondition::convergence_criteria_satisfied) {
             // GCOVR_EXCL_START
-            std::cout << fmt::format("TEST ERROR: Difference primal solution at {} ({} != {})", i,
-                                     primal[i], primal_solution[i])
+            std::cout << fmt::format(
+                "TEST ERROR: Unexpected termination condition ({} != {})",
+                to_string(results->termination_condition),
+                to_string(coek::TerminationCondition::convergence_criteria_satisfied))
                       << std::endl;
+            std::cout << to_string(*results, 4) << std::endl;
+            return false;
+            // GCOVR_EXCL_STOP
+        }
+
+        std::vector<double> primal;
+        for (auto& v : model.get_variables())
+            primal.push_back(v.value());
+        if (primal_solution.size() != primal.size()) {
+            // GCOVR_EXCL_START
+            std::cout << "TEST ERROR: Difference in number of primal variables" << std::endl;
             std::cout << "\t" << primal << std::endl;
             std::cout << "\t" << primal_solution << std::endl;
             std::cout << to_string(*results, 4) << std::endl;
             return false;
             // GCOVR_EXCL_STOP
         }
-    }
 
-    if (std::fabs(results->objective_value - optimal_objective) / (optimal_objective + 1e-7)
-        > tol) {
-        // GCOVR_EXCL_START
-        std::cout << fmt::format("TEST ERROR: Unexpected objective values ({} != {})",
-                                 results->objective_value, optimal_objective)
-                  << std::endl;
-        std::cout << to_string(*results, 4) << std::endl;
-        return false;
-        // GCOVR_EXCL_STOP
-    }
+        for (size_t i = 0; i < primal.size(); i++) {
+            if (std::fabs(primal[i] - primal_solution[i]) > tol) {
+                // GCOVR_EXCL_START
+                std::cout << fmt::format("TEST ERROR: Difference primal solution at {} ({} != {})",
+                                         i, primal[i], primal_solution[i])
+                          << std::endl;
+                std::cout << "\t" << primal << std::endl;
+                std::cout << "\t" << primal_solution << std::endl;
+                std::cout << to_string(*results, 4) << std::endl;
+                return false;
+                // GCOVR_EXCL_STOP
+            }
+        }
+
+        if (std::fabs(results->objective_value - optimal_objective) / (optimal_objective + 1e-7)
+            > tol) {
+            // GCOVR_EXCL_START
+            std::cout << fmt::format("TEST ERROR: Unexpected objective values ({} != {})",
+                                     results->objective_value, optimal_objective)
+                      << std::endl;
+            std::cout << to_string(*results, 4) << std::endl;
+            return false;
+            // GCOVR_EXCL_STOP
+        }
     }
     catch (const std::exception& e) {
         std::cout << "Unexpected exception: " << e.what() << std::endl;
