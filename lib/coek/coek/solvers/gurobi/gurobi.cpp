@@ -189,6 +189,7 @@ void GurobiSolver::pre_solve()
         catch (GRBException e) {
             license_status = gurobi_license_status::error;
             results->termination_condition = TerminationCondition::license_problems;
+            results->error_message = "Gurobi Error: Caught gurobi exception creating environment - " + e.getMessage();
         }
         if (available())
             gmodel = new GRBModel(*env);

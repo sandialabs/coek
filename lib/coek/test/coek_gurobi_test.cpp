@@ -132,8 +132,11 @@ int main()
             auto m = test->model;
             assert(m.name() == "simplelp1");
             auto res = solver.solve(m);
-            assert((res->termination_condition == coek::TerminationCondition::solver_not_available)
-                   or (res->termination_condition == coek::TerminationCondition::license_problems));
+            auto ok = (res->termination_condition == coek::TerminationCondition::solver_not_available)
+                   or (res->termination_condition == coek::TerminationCondition::license_problems);
+            std::cout << "Unexpected termination condition: " << coek::to_string(res->termination_condition) << std::endl;
+            std::cout << "Error message: " << res->error_message << std::endl;
+            assert(ok == true);
         }
     }
 }
