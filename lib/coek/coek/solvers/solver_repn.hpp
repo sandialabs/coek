@@ -84,6 +84,8 @@ class SolverRepn : public SolverCache, public OptionCache {
     virtual std::shared_ptr<SolverResults> resolve() = 0;
 
     void find_updated_coefs();
+
+    virtual bool available() { return true; }
 };
 
 SolverRepn* create_solver(std::string& name, OptionCache& options);
