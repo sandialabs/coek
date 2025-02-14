@@ -325,7 +325,7 @@ TEST_CASE("gurobi_examples", "[solvers][gurobi]")
     }
     else {
         // GCOVR_EXCL_START
-        SECTION("simplelp1")
+        SECTION("simplelp1 - missing license")
         {
             auto m = simplelp1();
             auto res = solver.solve(m);
