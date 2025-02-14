@@ -44,8 +44,8 @@ std::string to_string(TerminationCondition tc)
         case TerminationCondition::interrupted:
             return "interrupted";
 
-        case TerminationCondition::licensing_problems:
-            return "licensing_problems";
+        case TerminationCondition::license_problems:
+            return "license_problems";
 
         case TerminationCondition::solver_not_available:
             return "solver_not_available";

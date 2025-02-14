@@ -140,6 +140,24 @@ GurobiSolver::~GurobiSolver()
     }
 }
 
+bool GurobiSolver::available()
+{
+    if (license_status == gurobi_license_status::available)
+        return true;
+
+    try {
+        auto _env = new GRBEnv(true);
+        _env->start();
+        license_status = gurobi_license_status::available;
+        delete _env;
+    }
+    catch (GRBException e) {
+        license_status = gurobi_license_status::error;
+    }
+
+    return license_status == gurobi_license_status::available;
+}
+
 void GurobiSolver::set_gurobi_options()
 {
     // All options are converted to strings for Gurobi
@@ -161,12 +179,19 @@ void GurobiSolver::pre_solve()
     results->tic();
 
     if (initial_solve()) {
-        env = new GRBEnv(true);
-        auto it = integer_options().find("OutputFlag");
-        if (it != integer_options().end())
-            env->set(GRB_IntParam_OutputFlag, it->second);
-        env->start();
-        gmodel = new GRBModel(*env);
+        try {
+            env = new GRBEnv(true);
+            auto it = integer_options().find("OutputFlag");
+            if (it != integer_options().end())
+                env->set(GRB_IntParam_OutputFlag, it->second);
+            env->start();
+        }
+        catch (GRBException e) {
+            license_status = gurobi_license_status::error;
+            results->termination_condition = TerminationCondition::license_problems;
+        }
+        if (available())
+            gmodel = new GRBModel(*env);
     }
 }
 
@@ -183,6 +208,9 @@ void GurobiSolver::post_solve()
 std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
 {
     pre_solve();
+    if (not available())
+        return results;
+
     auto _model = model.repn.get();
     results->model_name = _model->name;
 
@@ -281,6 +309,9 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(Model& model)
 std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
 {
     pre_solve();
+    if (not available())
+        return results;
+
     results->model_name = compact_model.name();
 
     // Add Gurobi variables
@@ -395,6 +426,8 @@ std::shared_ptr<SolverResults> GurobiSolver::solve(CompactModel& compact_model)
 std::shared_ptr<SolverResults> GurobiSolver::resolve()
 {
     pre_solve();
+    if (not available())
+        return results;
 
     auto _model = model.repn.get();
     results->model_name = _model->name;

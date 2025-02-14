@@ -12,9 +12,16 @@ class GurobiSolver : public SolverRepn {
     std::unordered_map<size_t, GRBVar> x;
     std::shared_ptr<SolverResults> results;
 
+    enum class gurobi_license_status { available, error, unknown };
+    gurobi_license_status license_status;
+
    public:
-    GurobiSolver() : SolverRepn(), env(0), gmodel(0) {}
+    GurobiSolver() : SolverRepn(), env(0), gmodel(0), license_status(gurobi_license_status::unknown)
+    {
+    }
     ~GurobiSolver();
+
+    bool available();
 
     std::shared_ptr<SolverResults> resolve();
     std::shared_ptr<SolverResults> solve(Model&);

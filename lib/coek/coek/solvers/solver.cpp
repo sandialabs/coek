@@ -17,7 +17,7 @@ void Solver::initialize(std::string name_)
     name = name_;
 }
 
-bool Solver::available() const { return repn.get(); }
+bool Solver::available() { return repn.get() and repn->available(); }
 
 std::shared_ptr<SolverResults> Solver::solve(Model& model)
 {
@@ -71,7 +71,7 @@ void NLPSolver::initialize(std::string name_)
     name = name_;
 }
 
-bool NLPSolver::available() const { return repn.get() && repn->available(); }
+bool NLPSolver::available() { return repn.get() and repn->available(); }
 
 std::shared_ptr<SolverResults> NLPSolver::solve(NLPModel& model)
 {
