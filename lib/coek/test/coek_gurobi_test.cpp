@@ -126,7 +126,7 @@ int main()
     else {
         // SECTION("simplelp1")
         {
-            std::cout << "simplelp1" << std::endl;
+            std::cout << "simplelp1 - license issue" << std::endl;
             auto solver = test_solver();
             auto test = test::model("simplelp1");
             auto m = test->model;

@@ -39,4 +39,5 @@
 #endif
 
 #include "coek/solvers/solver.hpp"
+#include "coek/solvers/solver_results.hpp"
 #include "coek/util/sequence.hpp"

@@ -142,8 +142,8 @@ GurobiSolver::~GurobiSolver()
 
 bool GurobiSolver::available()
 {
-    if (license_status == gurobi_license_status::available)
-        return true;
+    if (license_status != gurobi_license_status::unknown)
+        return license_status == gurobi_license_status::available;
 
     try {
         auto _env = new GRBEnv(true);
