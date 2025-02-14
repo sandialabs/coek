@@ -329,7 +329,10 @@ TEST_CASE("gurobi_examples", "[solvers][gurobi]")
         {
             auto m = simplelp1();
             auto res = solver.solve(m);
-            REQUIRE(res->termination_condition == coek::TerminationCondition::solver_not_available);
+            auto ok
+                = (res->termination_condition == coek::TerminationCondition::solver_not_available)
+                  or (res->termination_condition == coek::TerminationCondition::license_problems);
+            REQUIRE(ok == true);
         }
         // GCOVR_EXCL_STOP
     }

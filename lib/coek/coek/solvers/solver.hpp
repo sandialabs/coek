@@ -32,7 +32,7 @@ class Solver : public OptionCache {
     void initialize(std::string solver);
 
     /** \returns \c true if the solver is available */
-    bool available() const;
+    virtual bool available();
 
     /** Optimize the specified model
      *
@@ -74,7 +74,7 @@ class NLPSolver : public OptionCache {
     void initialize(std::string solver);
 
     /** \returns \c true if the solver is available */
-    bool available() const;
+    bool available();
 
     /** Optimize the specified model
      *

@@ -97,10 +97,16 @@ TARGET_LINK_LIBRARIES(coek_micro_test PUBLIC coek ${coek_link_libraries})
 TARGET_COMPILE_OPTIONS(coek_micro_test PUBLIC ${coek_compile_options})
 target_compile_definitions(coek_micro_test PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 
+# gurobi
+add_executable(gurobi_test coek_gurobi_test.cpp solver/TestModels.cpp)
+TARGET_LINK_LIBRARIES(gurobi_test PUBLIC coek ${coek_link_libraries} ${coek_test_libraries})
+TARGET_COMPILE_OPTIONS(gurobi_test PUBLIC ${coek_compile_options})
+target_compile_definitions(gurobi_test PUBLIC COEK_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/")
+
 
 # testing
 add_custom_target(test_coek
-    COMMAND ${CMAKE_CTEST_COMMAND})
+    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
 add_custom_target(test_coek_verbose
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
 add_custom_target(test_coek_memcheck

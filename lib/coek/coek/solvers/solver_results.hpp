@@ -59,10 +59,10 @@ enum class TerminationCondition {
     // The solver was interrupted while running.
     interrupted,
 
-    // The solver experienced issues with licensing. This could be that no license was found, the
+    // The solver experienced issues with license. This could be that no license was found, the
     // license is of the wrong type for the problem (e.g., problem is too big for type of license),
-    // or there was an issue contacting a licensing server.
-    licensing_problems,
+    // or there was an issue contacting a license server.
+    license_problems,
 
     // The solver cannot be found.  This could be a problem the installation of the solver, the
     // solver link library may not be found, or the solver executable may not be found.

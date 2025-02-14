@@ -37,8 +37,10 @@ TEST_CASE("gurobi_checks", "[solvers][gurobi]")
             auto test = test::model("simplelp1");
             auto m = test->model;
             REQUIRE(m.name() == "simplelp1");
-            auto res = solver.solve(m);
-            REQUIRE(test->check_results(m, res) == true);
+            REQUIRE_NOTHROW([&]() {
+                auto res = solver.solve(m);
+                REQUIRE(test->check_results(m, res) == true);
+            }());
         }
         SECTION("simpleqp1")
         {
@@ -105,7 +107,10 @@ TEST_CASE("gurobi_checks", "[solvers][gurobi]")
             auto m = test->model;
             REQUIRE(m.name() == "simplelp1");
             auto res = solver.solve(m);
-            REQUIRE(res->termination_condition == coek::TerminationCondition::solver_not_available);
+            auto ok
+                = (res->termination_condition == coek::TerminationCondition::solver_not_available)
+                  or (res->termination_condition == coek::TerminationCondition::license_problems);
+            REQUIRE(ok == true);
         }
         // GCOVR_EXCL_STOP
     }
