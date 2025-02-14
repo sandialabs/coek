@@ -9,6 +9,7 @@ namespace test {
 bool TestModel::check_results(coek::Model& model, std::shared_ptr<coek::SolverResults>& results,
                               double tol)
 {
+    try {
     if (results->termination_condition
         != coek::TerminationCondition::convergence_criteria_satisfied) {
         // GCOVR_EXCL_START
@@ -58,6 +59,11 @@ bool TestModel::check_results(coek::Model& model, std::shared_ptr<coek::SolverRe
         std::cout << to_string(*results, 4) << std::endl;
         return false;
         // GCOVR_EXCL_STOP
+    }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Unexpected exception: " << e.what() << std::endl;
+        return false;
     }
 
     return true;
