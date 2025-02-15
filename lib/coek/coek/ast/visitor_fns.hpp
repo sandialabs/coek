@@ -62,4 +62,7 @@ expr_pointer_t simplify_expr(
     const expr_pointer_t& expr,
     std::map<std::shared_ptr<SubExpressionTerm>, expr_pointer_t>& subexpr_value);
 expr_pointer_t simplify_expr(const expr_pointer_t& expr);
+
+expr_pointer_t expand_expr(const expr_pointer_t& expr);
+
 }  // namespace coek

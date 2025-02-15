@@ -33,8 +33,9 @@ def write_csv(source_dir, test_type, increase_build_number):
         gurobi_times[m] = (s, t)
 
     bn_fname = os.path.join(args.dirname, "build_number.txt")
-    if not os.path.exists(args.dirname):
-        os.makedirs(args.dirname)
+    if not os.path.exists(bn_fname):
+        if not os.path.exists(args.dirname):
+            os.makedirs(args.dirname)
         f = open(bn_fname, "w")
         f.write("0")
         f.close()

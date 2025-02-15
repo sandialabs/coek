@@ -1,5 +1,7 @@
 #pragma once
 
+#include <type_traits>
+
 namespace coek {
 
 template <class TYPE>
@@ -10,7 +12,9 @@ class IndexedComponentRepn_multiarray : public IndexedComponentRepn<TYPE> {
    public:
     IndexedComponentRepn_multiarray(size_t n) : IndexedComponentRepn<TYPE>(1), shape({n})
     {
-        this->cache.resize((n + 1) * 2);
+#ifdef CUSTOM_INDEXVECTOR
+        this->cache.resize(2 * (n + 1) * 2);
+#endif
     }
 
     IndexedComponentRepn_multiarray(const std::vector<size_t>& _shape)
@@ -19,7 +23,9 @@ class IndexedComponentRepn_multiarray : public IndexedComponentRepn<TYPE> {
         size_t _size = 1;
         for (auto n : shape)
             _size *= n;
-        this->cache.resize((_size + 1) * (_shape.size() + 1));
+#ifdef CUSTOM_INDEXVECTOR
+        this->cache.resize(2 * (_size + 1) * (_shape.size() + 1));
+#endif
     }
 
     IndexedComponentRepn_multiarray(const std::initializer_list<size_t>& _shape)
@@ -28,7 +34,9 @@ class IndexedComponentRepn_multiarray : public IndexedComponentRepn<TYPE> {
         size_t _size = 1;
         for (auto n : shape)
             _size *= n;
-        this->cache.resize((_size + 1) * (_shape.size() + 1));
+#ifdef CUSTOM_INDEXVECTOR
+        this->cache.resize(2 * (_size + 1) * (_shape.size() + 1));
+#endif
     }
 
     virtual ~IndexedComponentRepn_multiarray() {}
@@ -37,7 +45,7 @@ class IndexedComponentRepn_multiarray : public IndexedComponentRepn<TYPE> {
     {
         for (size_t i = 0; i < this->_dim; ++i) {
             size_t tmp = static_cast<size_t>(args[i]);
-            if ((tmp < 0) or (tmp >= shape[i]))
+            if (tmp >= shape[i])
                 return false;
         }
         return true;
@@ -86,7 +94,9 @@ class IndexedComponentRepn_setindex : public IndexedComponentRepn<TYPE> {
     IndexedComponentRepn_setindex(ConcreteSet& _arg)
         : IndexedComponentRepn<TYPE>(_arg.dim()), concrete_set(_arg)
     {
-        this->cache.resize((this->dim() + 1) * (_arg.size() + 1));
+#    ifdef CUSTOM_INDEXVECTOR
+        this->cache.resize(2 * (this->dim() + 1) * (_arg.size() + 1));
+#    endif
         this->tmp.resize(this->dim());
     }
 
@@ -117,8 +127,12 @@ void IndexedComponentRepn_setindex<TYPE>::generate_names()
         return;
 
     size_t _dim = this->dim();
+#    ifdef CUSTOM_INDEXVECTOR
     std::vector<int> x_data(_dim);
     IndexVector x(&(x_data[0]), _dim);
+#    else
+    IndexVector x(_dim);
+#    endif
     for (auto& indices : concrete_set) {
         for (size_t j = 0; j < _dim; j++)
             x[j] = indices[j];
@@ -207,7 +221,11 @@ TYPE& IndexedComponent_Map<TYPE>::index(const IndexVector& args)
 
     auto curr = this->repn->value.find(args);
     if (curr == this->repn->value.end()) {
+#ifdef CUSTOM_INDEXVECTOR
         auto _args = this->repn->cache.clone(args);
+#else
+        auto& _args = args;
+#endif
         TYPE tmp;
         auto& res = this->repn->value[_args] = tmp;
         return res;

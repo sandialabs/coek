@@ -1,38 +1,21 @@
 #pragma once
 
-#include <cassert>
-#include <string>
-#include <variant>
-#include <vector>
-
+#include "coek/ast/assoc_array_base.hpp"
 #include "coek/api/expression.hpp"
-#include "coek/util/index_vector.hpp"
 
 namespace coek {
 
-class BaseExpressionTerm;
+class VariableTerm;
 
-typedef std::shared_ptr<BaseExpressionTerm> expr_pointer_t;
-typedef std::variant<int, expr_pointer_t> refarg_types;
-
-class VariableAssocArrayRepn {
+class VariableAssocArrayRepn : public AssocArrayBase<VariableTerm> {
    public:
-    IndexVectorCache cache;
     std::vector<Variable> values;
-    Variable variable_template;
-
-    bool first_setup = true;
+    Variable value_template;
 
    public:
     VariableAssocArrayRepn();
 
-    virtual void setup();
-    virtual void generate_names() = 0;
-
-    virtual size_t dim() const = 0;
-    virtual size_t size() const = 0;
-
-    void resize_index_vectors(IndexVector& tmp, std::vector<refarg_types>& reftmp);
+    virtual void expand();
 
     /** Set the initial variable value. \returns the variable object. */
     void value(double value);
@@ -63,9 +46,15 @@ class VariableAssocArrayRepn {
 
     /** Set the name of the variable. \returns the variable object */
     void name(const std::string& name);
+    /** Get the name of the variable. */
+    std::string name();
 
     /** Set the variable type. \returns the variable object */
     void within(VariableTypes vtype);
+
+#ifdef COEK_WITH_COMPACT_MODEL
+    expr_pointer_t create_ref(const std::vector<refarg_types>& indices);
+#endif
 };
 
 }  // namespace coek

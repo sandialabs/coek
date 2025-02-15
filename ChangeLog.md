@@ -4,6 +4,26 @@ Here we list changes of Coek.  More detailed information
 about incremental changes can be found in the [commit
 history](https://github.com/sandialabs/coek/commits).
 
+## 2.1
+
+* Reworked Spack to use the or-fusion-spack-repo to define TPLs
+* coek: Expanded list of domain names used to specify domain and bounds values
+* coek: Updates to gurobi configuration and environment setup logic
+* coek: Removed void* references and used shared pointer references instead
+* coek: Reverted IndexVector to std::vector to resolve memory management issues
+* coek: Refactored assoc_array logic to avoid cross-links within coek
+* coek: Added Data logic, which represents immutable model data that is used in compact expressions
+* coek: Added IndexSequence, which iterates over the IndexParameters associated with a ConcreteSet.  This provides a more generic iterator concept than ExpressionSequence.
+* coek: Reworking map logic to use IndexSequence objects.  
+* coek: Fixes to compact expression walkers.
+* coek: Enabled expand() logic for Parameter's 
+* coek: Fixed bugs with compact LP writer
+* pycoek: Enable setup of data/param/var data with SequenceContext objects
+* pycoek: Expose DataPortal
+* tests: More robust testing scripts
+* tests: Enable comparisons with coek as a baseline
+* tests: Treating Gurobi license issues as warnings
+
 ## 2.0
 
 * Adding support for builds with Spack

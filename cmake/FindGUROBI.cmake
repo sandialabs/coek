@@ -6,7 +6,7 @@ find_path(
 
 find_library(
   GUROBI_LIBRARY
-  NAMES gurobi gurobi81 gurobi90 gurobi95 gurobi100 gurobi110
+  NAMES gurobi gurobi81 gurobi90 gurobi95 gurobi100 gurobi1003 gurobi110 gurobi120
   HINTS ${GUROBI_DIR} $ENV{GUROBI_HOME}
   PATH_SUFFIXES lib)
 
@@ -40,7 +40,7 @@ find_library(
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         find_library(
             GUROBI_CXX_LIBRARY
-            NAMES gurobi_g++5.2
+            NAMES gurobi_g++5.2 gurobi_g++8.5
             HINTS ${GUROBI_DIR} $ENV{GUROBI_HOME}
             PATH_SUFFIXES lib)
     else()

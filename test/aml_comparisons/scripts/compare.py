@@ -26,6 +26,7 @@ def compare(source_dir, test_type):
         for i in os.listdir(args.artifact_dir)
         if os.path.isdir(os.path.join(args.artifact_dir, i))
     ]  # ['dev-private', 'dev-public', 'mt', 'nl2']
+    print("Comparing the following branches: ",branches)
 
     fig_list = list()
     for datadir in branches:
@@ -56,7 +57,12 @@ def compare(source_dir, test_type):
                     ci_commit_title = row.pop("ci_commit_title", "not provided")
                     created_dt = datetime.fromtimestamp(created)
                     xlist.append(created_dt)
-                    y = statistics.mean(float(i) for i in row.values())
+                    data = [float(i) for i in row.values()]
+                    if len(data) == 0:
+                        print("WARNING: Missing runtime data for file "+running_fname)
+                        y = None
+                    else:
+                        y = statistics.mean(data)
                     ylist.append(y)
                     text_list.append(
                         f"test type: {test_type}<br>branch: {branch_name}<br>commit: {ci_commit_title}<br>commit SHA: {ci_commit_sha}<br>date: {created_dt}"

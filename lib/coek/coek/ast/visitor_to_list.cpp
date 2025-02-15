@@ -48,20 +48,28 @@ void visit_VariableTerm(const expr_pointer_t& expr, std::list<std::string>& repr
 }
 
 #ifdef COEK_WITH_COMPACT_MODEL
-void visit_ParameterRefTerm(const expr_pointer_t& expr, std::list<std::string>& repr)
-{
-    auto tmp = safe_pointer_cast<ParameterRefTerm>(expr);
-    std::stringstream sstr;
-    write_expr(tmp, sstr);
-    repr.push_back(sstr.str());
-}
-
 void visit_VariableRefTerm(const expr_pointer_t& expr, std::list<std::string>& repr)
 {
     auto tmp = safe_pointer_cast<VariableRefTerm>(expr);
     std::stringstream sstr;
     write_expr(tmp, sstr);
-    repr.push_back(sstr.str());
+    repr.push_back("~" + sstr.str());
+}
+
+void visit_ParameterRefTerm(const expr_pointer_t& expr, std::list<std::string>& repr)
+{
+    auto tmp = safe_pointer_cast<ParameterRefTerm>(expr);
+    std::stringstream sstr;
+    write_expr(tmp, sstr);
+    repr.push_back("~" + sstr.str());
+}
+
+void visit_DataRefTerm(const expr_pointer_t& expr, std::list<std::string>& repr)
+{
+    auto tmp = safe_pointer_cast<DataRefTerm>(expr);
+    std::stringstream sstr;
+    write_expr(tmp, sstr);
+    repr.push_back("~" + sstr.str());
 }
 #endif
 
@@ -276,6 +284,7 @@ void visit_expression(const expr_pointer_t& expr, std::list<std::string>& repr)
 #ifdef COEK_WITH_COMPACT_MODEL
         VISIT_CASE(VariableRefTerm);
         VISIT_CASE(ParameterRefTerm);
+        VISIT_CASE(DataRefTerm);
 #endif
         VISIT_CASE(MonomialTerm);
         VISIT_CASE(InequalityTerm);

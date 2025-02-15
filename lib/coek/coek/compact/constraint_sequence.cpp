@@ -29,6 +29,11 @@ class ConstraintSequenceRepn {
         : constraint_template(con), context(context_), name(name_)
     {
     }
+
+    ConstraintSequenceRepn(const std::string& name_, const SequenceContext& context_)
+        : context(context_), name(name_)
+    {
+    }
 };
 
 //
@@ -172,6 +177,17 @@ ConstraintSequence::ConstraintSequence(const std::string& name, const SequenceCo
                                        const Constraint& expr)
 {
     repn = std::make_shared<ConstraintSequenceRepn>(name, context_, expr);
+}
+
+ConstraintSequence::ConstraintSequence(const std::string& name, const SequenceContext& context_)
+{
+    repn = std::make_shared<ConstraintSequenceRepn>(name, context_);
+}
+
+ConstraintSequence& ConstraintSequence::expr(const Constraint& expr)
+{
+    repn->constraint_template = expr;
+    return *this;
 }
 
 ConstraintSeqIterator ConstraintSequence::begin()

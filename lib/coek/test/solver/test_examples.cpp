@@ -325,11 +325,21 @@ TEST_CASE("gurobi_examples", "[solvers][gurobi]")
     }
     else {
         // GCOVR_EXCL_START
-        SECTION("simplelp1")
+        SECTION("simplelp1 - missing license")
         {
             auto m = simplelp1();
             auto res = solver.solve(m);
-            REQUIRE(res->termination_condition == coek::TerminationCondition::solver_not_available);
+            auto ok
+                = (res->termination_condition == coek::TerminationCondition::solver_not_available)
+                  or (res->termination_condition == coek::TerminationCondition::license_problems);
+            if (not ok) {
+                std::cout << "WARNING: Unexpected termination condition: " << coek::to_string(res->termination_condition) << std::endl;
+                std::cout << "Error message: " << res->error_message << std::endl;
+                }
+            //
+            // We cannot assume the gurobi license is unavailable b.c. after the call to available(), the license may have been freed up
+            //
+            //REQUIRE(ok == true);
         }
         // GCOVR_EXCL_STOP
     }

@@ -23,14 +23,15 @@ class DataPortalRepn {
 
     using ParameterTypes = std::variant<StringType, IntegerType, DoubleType, TupleValueType>;
 
-    std::map<std::string, ParameterTypes> parameter_data;
-    std::map<std::string, std::map<KeyTypes, ParameterTypes>> indexed_parameter_data;
-
     using StringSetType = std::set<std::string>;
     using IntegerSetType = std::set<int>;
     using DoubleSetType = std::set<double>;
     using TupleSetType = std::set<TupleValueType>;
     using SetTypes = std::variant<StringSetType, IntegerSetType, DoubleSetType, TupleSetType>;
+
+   public:
+    std::map<std::string, ParameterTypes> parameter_data;
+    std::map<std::string, std::map<KeyTypes, ParameterTypes>> indexed_parameter_data;
 
     std::map<std::string, SetTypes> set_data;
     std::map<std::string, std::map<KeyTypes, SetTypes>> indexed_set_data;
@@ -49,6 +50,8 @@ class DataPortalRepn {
 
     void save_to_file(const std::string& filename, unsigned int indent = 0);
     std::string to_string(unsigned int indent = 0);
+
+    bool contains(const std::string& name) const;
 
     //
     // GET methods
@@ -218,26 +221,27 @@ template <size_t N, typename... Ts>
 using NthTypeOf = typename std::tuple_element<N, std::tuple<Ts...>>::type;
 
 template <typename TupleT, typename... ARGTYPES, std::size_t... Indices>
-auto vector_to_tuple_helper(const TupleT& v, std::index_sequence<Indices...>)
+inline auto vector_to_tuple_helper(const TupleT& v, std::index_sequence<Indices...>)
 {
     return std::make_tuple(std::get<NthTypeOf<Indices, ARGTYPES...>>(v[Indices])...);
 }
 
 template <typename TupleT, typename... ARGTYPES>
-std::tuple<ARGTYPES...> DataPortalRepn::convert_to_tuple(const TupleT& v) const
+inline std::tuple<ARGTYPES...> DataPortalRepn::convert_to_tuple(const TupleT& v) const
 {
     return vector_to_tuple_helper<TupleT, ARGTYPES...>(
         v, std::make_index_sequence<sizeof...(ARGTYPES)>());
 }
 
 template <typename TupleT, typename... ARGTYPES, std::size_t... Indices>
-TupleT tuple_to_vector_helper(const std::tuple<ARGTYPES...>& v, std::index_sequence<Indices...>)
+inline TupleT tuple_to_vector_helper(const std::tuple<ARGTYPES...>& v,
+                                     std::index_sequence<Indices...>)
 {
     return TupleT{std::get<Indices>(v)...};
 }
 
 template <typename TupleT, typename... ARGTYPES>
-TupleT DataPortalRepn::convert_from_tuple(const std::tuple<ARGTYPES...>& v) const
+inline TupleT DataPortalRepn::convert_from_tuple(const std::tuple<ARGTYPES...>& v) const
 {
     return tuple_to_vector_helper<TupleT, ARGTYPES...>(
         v, std::make_index_sequence<sizeof...(ARGTYPES)>());
@@ -263,7 +267,7 @@ inline std::string type_name<double>()
 
 // Set data
 template <typename ValueType>
-bool DataPortalRepn::get(const std::string& name, std::set<ValueType>& data) const
+inline bool DataPortalRepn::get(const std::string& name, std::set<ValueType>& data) const
 {
     auto it = set_data.find(name);
     if (it == set_data.end())
@@ -278,7 +282,8 @@ bool DataPortalRepn::get(const std::string& name, std::set<ValueType>& data) con
 
 // Set<tuple<ARGTYPES ...>> data
 template <typename... ARGTYPES>
-bool DataPortalRepn::get(const std::string& name, std::set<std::tuple<ARGTYPES...>>& data) const
+inline bool DataPortalRepn::get(const std::string& name,
+                                std::set<std::tuple<ARGTYPES...>>& data) const
 {
     auto it = set_data.find(name);
     if (it == set_data.end())
@@ -297,7 +302,8 @@ bool DataPortalRepn::get(const std::string& name, std::set<std::tuple<ARGTYPES..
 // Indexed set of simple data, with simple indices
 // Map<KeyType, Set<SetType>>
 template <typename KeyType, typename SetType>
-typename std::enable_if<!is_std_tuple<KeyType>::value && !is_std_tuple<SetType>::value, bool>::type
+inline typename std::enable_if<!is_std_tuple<KeyType>::value && !is_std_tuple<SetType>::value,
+                               bool>::type
 DataPortalRepn::get(const std::string& name, std::map<KeyType, std::set<SetType>>& data) const
 {
     auto it = indexed_set_data.find(name);
@@ -318,7 +324,7 @@ DataPortalRepn::get(const std::string& name, std::map<KeyType, std::set<SetType>
 // Indexed set of simple data, with tuple indices
 // Map<tuple<KEYTYPES...>, Set<SetType>>
 template <typename SetType, typename... KEYTYPES>
-typename std::enable_if<!is_std_tuple<SetType>::value, bool>::type DataPortalRepn::get(
+inline typename std::enable_if<!is_std_tuple<SetType>::value, bool>::type DataPortalRepn::get(
     const std::string& name, std::map<std::tuple<KEYTYPES...>, std::set<SetType>>& data) const
 {
     auto it = indexed_set_data.find(name);
@@ -340,7 +346,7 @@ typename std::enable_if<!is_std_tuple<SetType>::value, bool>::type DataPortalRep
 // Indexed set of tuple data, with simple indices
 // Map<KeyType, Set<std::tuple<SETTYPES...>>>
 template <typename KeyType, typename... SETTYPES>
-typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type DataPortalRepn::get(
+inline typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type DataPortalRepn::get(
     const std::string& name, std::map<KeyType, std::set<std::tuple<SETTYPES...>>>& data) const
 {
     auto it = indexed_set_data.find(name);
@@ -367,7 +373,7 @@ typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type DataPortalRep
 // Indexed set of tuple data, with tuple indices
 // Map<std::tuple<KEYTYPES...>, Set<std::tuple<SETTYPES...>>>
 template <typename... KEYTYPES, typename... SETTYPES>
-bool DataPortalRepn::get(
+inline bool DataPortalRepn::get(
     const std::string& name,
     std::map<std::tuple<KEYTYPES...>, std::set<std::tuple<SETTYPES...>>>& data) const
 {
@@ -395,7 +401,7 @@ bool DataPortalRepn::get(
 // Parameter data
 // TYPE
 template <typename TYPE>
-typename std::enable_if<
+inline typename std::enable_if<
     !is_std_map<TYPE>::value && !is_std_set<TYPE>::value && !is_std_tuple<TYPE>::value, bool>::type
 DataPortalRepn::get(const std::string& name, TYPE& data) const
 {
@@ -411,7 +417,7 @@ DataPortalRepn::get(const std::string& name, TYPE& data) const
 }
 
 template <>
-bool DataPortalRepn::get(const std::string& name, double& data) const
+inline bool DataPortalRepn::get(const std::string& name, double& data) const
 {
     auto it = parameter_data.find(name);
     if (it == parameter_data.end())
@@ -429,7 +435,7 @@ bool DataPortalRepn::get(const std::string& name, double& data) const
 
 // Tuple<VALUETYPES...>
 template <typename... VALUETYPES>
-bool DataPortalRepn::get(const std::string& name, std::tuple<VALUETYPES...>& data) const
+inline bool DataPortalRepn::get(const std::string& name, std::tuple<VALUETYPES...>& data) const
 {
     auto it = parameter_data.find(name);
     if (it == parameter_data.end())
@@ -445,9 +451,9 @@ bool DataPortalRepn::get(const std::string& name, std::tuple<VALUETYPES...>& dat
 // Indexed parameter data with simple indices
 // Map<Key,Value> - Indexed parameter data
 template <typename KeyType, typename ValueType>
-typename std::enable_if<!is_std_tuple<KeyType>::value && !is_std_set<ValueType>::value
-                            && !is_std_tuple<ValueType>::value,
-                        bool>::type
+inline typename std::enable_if<!is_std_tuple<KeyType>::value && !is_std_set<ValueType>::value
+                                   && !is_std_tuple<ValueType>::value,
+                               bool>::type
 DataPortalRepn::get(const std::string& name, std::map<KeyType, ValueType>& data) const
 {
     auto it = indexed_parameter_data.find(name);
@@ -467,8 +473,8 @@ DataPortalRepn::get(const std::string& name, std::map<KeyType, ValueType>& data)
 // Indexed parameter data with tuple indices
 // Map<tuple<KEYTYPES...>,Value> - Indexed parameter data
 template <typename ValueType, typename... KEYTYPES>
-typename std::enable_if<!is_std_set<ValueType>::value && !is_std_tuple<ValueType>::value,
-                        bool>::type
+inline typename std::enable_if<!is_std_set<ValueType>::value && !is_std_tuple<ValueType>::value,
+                               bool>::type
 DataPortalRepn::get(const std::string& name,
                     std::map<std::tuple<KEYTYPES...>, ValueType>& data) const
 {
@@ -490,7 +496,7 @@ DataPortalRepn::get(const std::string& name,
 // Indexed parameter data
 // Map<KeyType,tuple<VALUETYPES...>> - Indexed parameter data
 template <typename KeyType, typename... VALUETYPES>
-typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type DataPortalRepn::get(
+inline typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type DataPortalRepn::get(
     const std::string& name, std::map<KeyType, std::tuple<VALUETYPES...>>& data) const
 {
     auto it = indexed_parameter_data.find(name);
@@ -512,8 +518,9 @@ typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type DataPortalRep
 // Indexed parameter data with tuple indices
 // Map<tuple<KEYTYPES...>,tuple<VALUETYPES...>> - Indexed parameter data
 template <typename... KEYTYPES, typename... VALUETYPES>
-bool DataPortalRepn::get(const std::string& name,
-                         std::map<std::tuple<KEYTYPES...>, std::tuple<VALUETYPES...>>& data) const
+inline bool DataPortalRepn::get(
+    const std::string& name,
+    std::map<std::tuple<KEYTYPES...>, std::tuple<VALUETYPES...>>& data) const
 {
     auto it = indexed_parameter_data.find(name);
     if (it == indexed_parameter_data.end())
@@ -537,7 +544,7 @@ bool DataPortalRepn::get(const std::string& name,
 
 // Set data
 template <typename ValueType>
-bool DataPortalRepn::put(const std::string& name, const std::set<ValueType>& data)
+inline bool DataPortalRepn::put(const std::string& name, const std::set<ValueType>& data)
 {
     set_data[name] = data;
     return true;
@@ -545,7 +552,8 @@ bool DataPortalRepn::put(const std::string& name, const std::set<ValueType>& dat
 
 // Set<tuple<ARGTYPES ...>> data
 template <typename... ARGTYPES>
-bool DataPortalRepn::put(const std::string& name, const std::set<std::tuple<ARGTYPES...>>& data)
+inline bool DataPortalRepn::put(const std::string& name,
+                                const std::set<std::tuple<ARGTYPES...>>& data)
 {
     std::set<TupleValueType> tmp;
 
@@ -560,7 +568,8 @@ bool DataPortalRepn::put(const std::string& name, const std::set<std::tuple<ARGT
 // Indexed set of simple data, with simple indices
 // Map<KeyType, Set<SetType>>
 template <typename KeyType, typename SetType>
-typename std::enable_if<!is_std_tuple<KeyType>::value && !is_std_tuple<SetType>::value, bool>::type
+inline typename std::enable_if<!is_std_tuple<KeyType>::value && !is_std_tuple<SetType>::value,
+                               bool>::type
 DataPortalRepn::put(const std::string& name, const std::map<KeyType, std::set<SetType>>& data)
 {
     std::map<KeyTypes, SetTypes> tmp;
@@ -575,7 +584,7 @@ DataPortalRepn::put(const std::string& name, const std::map<KeyType, std::set<Se
 // Indexed set of simple data, with tuple indices
 // Map<tuple<KEYTYPES...>, Set<SetType>>
 template <typename SetType, typename... KEYTYPES>
-typename std::enable_if<!is_std_tuple<SetType>::value, bool>::type DataPortalRepn::put(
+inline typename std::enable_if<!is_std_tuple<SetType>::value, bool>::type DataPortalRepn::put(
     const std::string& name, const std::map<std::tuple<KEYTYPES...>, std::set<SetType>>& data)
 {
     std::map<KeyTypes, SetTypes> tmp;
@@ -590,7 +599,7 @@ typename std::enable_if<!is_std_tuple<SetType>::value, bool>::type DataPortalRep
 // Indexed set of tuple data, with simple indices
 // Map<KeyType, Set<std::tuple<SETTYPES...>>>
 template <typename KeyType, typename... SETTYPES>
-typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type DataPortalRepn::put(
+inline typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type DataPortalRepn::put(
     const std::string& name, const std::map<KeyType, std::set<std::tuple<SETTYPES...>>>& data)
 {
     std::map<KeyTypes, SetTypes> tmp;
@@ -609,7 +618,7 @@ typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type DataPortalRep
 // Indexed set of tuple data, with tuple indices
 // Map<std::tuple<KEYTYPES...>, Set<std::tuple<SETTYPES...>>>
 template <typename... KEYTYPES, typename... SETTYPES>
-bool DataPortalRepn::put(
+inline bool DataPortalRepn::put(
     const std::string& name,
     const std::map<std::tuple<KEYTYPES...>, std::set<std::tuple<SETTYPES...>>>& data)
 {
@@ -629,7 +638,7 @@ bool DataPortalRepn::put(
 
 // Parameter data
 template <typename TYPE>
-typename std::enable_if<
+inline typename std::enable_if<
     !is_std_map<TYPE>::value && !is_std_set<TYPE>::value && !is_std_tuple<TYPE>::value, bool>::type
 DataPortalRepn::put(const std::string& name, const TYPE& data)
 {
@@ -639,7 +648,7 @@ DataPortalRepn::put(const std::string& name, const TYPE& data)
 }
 
 template <>
-bool DataPortalRepn::put(const std::string& name, const double& data)
+inline bool DataPortalRepn::put(const std::string& name, const double& data)
 {
     parameter_data[name] = data;
 
@@ -647,7 +656,7 @@ bool DataPortalRepn::put(const std::string& name, const double& data)
 }
 
 template <typename... VALUETYPES>
-bool DataPortalRepn::put(const std::string& name, const std::tuple<VALUETYPES...>& data)
+inline bool DataPortalRepn::put(const std::string& name, const std::tuple<VALUETYPES...>& data)
 {
     parameter_data[name] = convert_from_tuple<TupleValueType, VALUETYPES...>(data);
 
@@ -657,9 +666,9 @@ bool DataPortalRepn::put(const std::string& name, const std::tuple<VALUETYPES...
 // Indexed parameter data with simple indices
 // Map<Key,Value> - Indexed parameter data
 template <typename KeyType, typename ValueType>
-typename std::enable_if<!is_std_tuple<KeyType>::value && !is_std_set<ValueType>::value
-                            && !is_std_tuple<ValueType>::value,
-                        bool>::type
+inline typename std::enable_if<!is_std_tuple<KeyType>::value && !is_std_set<ValueType>::value
+                                   && !is_std_tuple<ValueType>::value,
+                               bool>::type
 DataPortalRepn::put(const std::string& name, const std::map<KeyType, ValueType>& data)
 {
     std::map<KeyTypes, ParameterTypes> tmp;
@@ -674,8 +683,8 @@ DataPortalRepn::put(const std::string& name, const std::map<KeyType, ValueType>&
 // Indexed parameter data with tuple indices
 // Map<tuple<KEYTYPES...>,Value> - Indexed parameter data
 template <typename ValueType, typename... KEYTYPES>
-typename std::enable_if<!is_std_set<ValueType>::value && !is_std_tuple<ValueType>::value,
-                        bool>::type
+inline typename std::enable_if<!is_std_set<ValueType>::value && !is_std_tuple<ValueType>::value,
+                               bool>::type
 DataPortalRepn::put(const std::string& name,
                     const std::map<std::tuple<KEYTYPES...>, ValueType>& data)
 {
@@ -691,7 +700,7 @@ DataPortalRepn::put(const std::string& name,
 // Indexed parameter data
 // Map<KeyType,tuple<VALUETYPES...>> - Indexed parameter data
 template <typename KeyType, typename... VALUETYPES>
-typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type DataPortalRepn::put(
+inline typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type DataPortalRepn::put(
     const std::string& name, const std::map<KeyType, std::tuple<VALUETYPES...>>& data)
 {
     std::map<KeyTypes, ParameterTypes> tmp;
@@ -706,8 +715,9 @@ typename std::enable_if<!is_std_tuple<KeyType>::value, bool>::type DataPortalRep
 // Indexed parameter data with tuple indices
 // Map<tuple<KEYTYPES...>,tuple<VALUETYPES...>> - Indexed parameter data
 template <typename... KEYTYPES, typename... VALUETYPES>
-bool DataPortalRepn::put(const std::string& name,
-                         const std::map<std::tuple<KEYTYPES...>, std::tuple<VALUETYPES...>>& data)
+inline bool DataPortalRepn::put(
+    const std::string& name,
+    const std::map<std::tuple<KEYTYPES...>, std::tuple<VALUETYPES...>>& data)
 {
     std::map<KeyTypes, ParameterTypes> tmp;
     auto& tmp_ = indexed_parameter_data[name] = tmp;
@@ -759,6 +769,9 @@ class DataPortal {
         When the indent option is specified, the output is a human
         readable JSON format. */
     std::string to_string(unsigned int indent = 0) { return repn->to_string(indent); }
+
+    /** Returns true if the dataportal contains the specified data. */
+    bool contains(const std::string& name) const { return repn->contains(name); }
 
     //
     // GET methods

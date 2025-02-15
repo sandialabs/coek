@@ -19,6 +19,7 @@
 
 #include "../ast/value_terms.hpp"
 #include "../ast/visitor_fns.hpp"
+#include "coek/util/io_utils.hpp"
 #include "coek/api/expression.hpp"
 #include "coek/api/constraint.hpp"
 #include "coek/api/expression_visitor.hpp"
@@ -166,6 +167,9 @@ void print_repn(fmt::ostream& ostr, const QuadraticExpr& repn,
 
 class LPWriter {
    public:
+#ifdef COEK_WITH_COMPACT_MODEL
+    Model model_handle;
+#endif
     bool one_var_constant;
     std::unordered_map<size_t, size_t> vid;
     std::vector<Variable> variables;
@@ -247,12 +251,12 @@ void LPWriter::print_objectives(StreamType& ostr, CompactModel& model)
     for (auto& val : model.repn->objectives) {
         if (auto eval = std::get_if<Objective>(&val)) {
             auto obj = objective().expr(eval->expr().expand()).sense(eval->sense());
+            // std::cout << "HERE obj " << obj.to_list() << std::endl;
             print_objective(ostr, obj);
             ++n_obj;
         }
-        else {
-            auto& seq = std::get<ObjectiveSequence>(val);
-            for (auto& jt : seq) {
+        else if (auto eval = std::get_if<ObjectiveSequence>(&val)) {
+            for (auto& jt : *eval) {
                 print_objective(ostr, jt);
                 ++n_obj;
             }
@@ -290,11 +294,18 @@ void LPWriter::print_constraints(StreamType& ostr, CompactModel& model)
             print_constraint(ostr, c, ctr);
             ++ctr;
         }
-        else {
-            auto& seq = std::get<ConstraintSequence>(val);
-            for (auto& jt : seq) {
+        else if (auto cval = std::get_if<ConstraintSequence>(&val)) {
+            for (auto& jt : *cval) {
                 invconmap[jt.id()] = ctr;
                 print_constraint(ostr, jt, ctr);
+                ++ctr;
+            }
+        }
+        else if (auto cval = std::get_if<ConstraintMap>(&val)) {
+            // for (auto jt=cval->begin(); jt != cval->end(); ++jt) {
+            for (auto& [k, v] : *cval) {
+                invconmap[v.id()] = ctr;
+                print_constraint(ostr, v, ctr);
                 ++ctr;
             }
         }
@@ -311,6 +322,7 @@ void LPWriter::collect_variables(Model& model)
     size_t ctr = 0;
     for (auto& it : model.repn->variables) {
         vid[it.id()] = ctr;
+        // invvarmap[ctr] = ctr;        WEH - Is this the right value?
         invvarmap[ctr] = it.id();
         ++ctr;
 
@@ -328,6 +340,7 @@ void LPWriter::collect_variables(Model& model)
 #ifdef COEK_WITH_COMPACT_MODEL
 void LPWriter::collect_variables(CompactModel& model)
 {
+    model_handle = model.expand_data();
     size_t ctr = 0;
     for (auto& val : model.repn->variables) {
         if (auto eval = std::get_if<Variable>(&val)) {
@@ -342,29 +355,63 @@ void LPWriter::collect_variables(CompactModel& model)
                            .value(value.value())
                            .within(eval->within());
             variables.push_back(tmp);
+            vid[tmp.id()] = ctr;
+            // vid[eval->id()] = ctr;
+            invvarmap[ctr] = variables.size();
+            ++ctr;
+
             if (tmp.is_binary())
                 bvars[vid[tmp.id()]] = tmp.repn;
             if (tmp.is_integer())
                 ivars[vid[tmp.id()]] = tmp.repn;
-
-            vid[eval->id()] = ctr;
-            invvarmap[ctr] = variables.size();
-            ++ctr;
         }
-        else {
-            auto& seq = std::get<VariableSequence>(val);
-            for (auto& jt : seq) {
+        else if (auto eval = std::get_if<VariableSequence>(&val)) {
+            for (auto& jt : *eval) {
                 if (jt.fixed())
                     continue;
                 variables.push_back(jt);
+                vid[jt.id()] = ctr;
+                invvarmap[ctr] = variables.size();
+                ++ctr;
+
                 if (jt.is_binary())
                     bvars[vid[jt.id()]] = jt.repn;
                 if (jt.is_integer())
                     ivars[vid[jt.id()]] = jt.repn;
-
+            }
+        }
+        else if (auto eval = std::get_if<VariableMap>(&val)) {
+            eval->expand();
+            for (auto& jt : *eval) {
+                if (jt.fixed())
+                    continue;
+                variables.push_back(jt);
                 vid[jt.id()] = ctr;
                 invvarmap[ctr] = variables.size();
                 ++ctr;
+                // std::cout << "HELP " << jt.name() << " " << jt.is_binary() << " " <<
+                // jt.is_integer() << std::endl;
+
+                if (jt.is_binary())
+                    bvars[vid[jt.id()]] = jt.repn;
+                if (jt.is_integer())
+                    ivars[vid[jt.id()]] = jt.repn;
+            }
+        }
+        else if (auto eval = std::get_if<VariableArray>(&val)) {
+            eval->expand();
+            for (auto& jt : *eval) {
+                if (jt.fixed())
+                    continue;
+                variables.push_back(jt);
+                vid[jt.id()] = ctr;
+                invvarmap[ctr] = variables.size();
+                ++ctr;
+
+                if (jt.is_binary())
+                    bvars[vid[jt.id()]] = jt.repn;
+                if (jt.is_integer())
+                    ivars[vid[jt.id()]] = jt.repn;
             }
         }
     }

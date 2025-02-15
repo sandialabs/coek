@@ -86,8 +86,8 @@ class ASL_Repn : public NLPModelRepn {
     void get_H_nonzeros(std::vector<size_t>& hrow, std::vector<size_t>& hcol);
     bool column_major_hessian();
 
-    void print_equations(std::ostream& ostr) const;
-    void print_values(std::ostream& ostr) const;
+    void print_equations(std::ostream& ostr);
+    void print_values(std::ostream& ostr);
 
    public:
     double compute_f(size_t i);

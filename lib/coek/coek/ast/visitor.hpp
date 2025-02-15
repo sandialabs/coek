@@ -45,6 +45,7 @@ enum term_id : unsigned int {
     IfThenElseTerm_id = 108,
     DefinedValueTerm_id = 109,
     StrictInequalityTerm_id = 110,
+    DataRefTerm_id = 111,
 };
 
 }  // namespace coek

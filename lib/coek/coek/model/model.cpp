@@ -16,6 +16,8 @@
 
 namespace coek {
 
+// void xyz(){}
+
 //
 // Model
 //
@@ -24,20 +26,23 @@ const bool Model::minimize = true;
 const bool Model::maximize = false;
 const double Model::inf = COEK_INFINITY;
 
-std::ostream& operator<<(std::ostream& ostr, const Model& arg)
+std::ostream& operator<<(std::ostream& ostr, Model& arg)
 {
     arg.print_equations(ostr);
     return ostr;
 }
 
 // GCOVR_EXCL_START
-void Model::print_equations(bool active) const { print_equations(std::cout, active); }
+void Model::print_equations(bool active) { print_equations(std::cout, active); }
 
 void Model::print_values() { print_values(std::cout); }
 // GCOVR_EXCL_STOP
 
-void Model::print_equations(std::ostream& ostr, bool active) const
+void Model::print_equations(std::ostream& ostr, bool active)
 {
+    if (repn->variables_by_name.size() < repn->variables.size())
+        generate_names(true);
+
     ostr << "MODEL" << std::endl;
     size_t ctr = 0;
     ostr << "  Objectives" << std::endl;
@@ -58,7 +63,7 @@ void Model::print_equations(std::ostream& ostr, bool active) const
 void Model::print_values(std::ostream& ostr)
 {
     if (repn->variables_by_name.size() < repn->variables.size())
-        generate_names();
+        generate_names(true);
     ostr << "Model Variables: " << repn->variables_by_name.size() << "\n";
     ostr << "   (<Index>: <Name> <Value> <LB> <UB> <Fixed>)\n";
     size_t ctr = 0;
@@ -76,10 +81,20 @@ std::string Model::name() const { return repn->name; }
 
 void Model::name(const std::string& name) { repn->name = name; }
 
-#if __cpp_lib_variant
+DataArray& Model::add(DataArray& data) { return add_data(data); }
+DataArray& Model::add(DataArray&& data) { return add_data(data); }
+
+#ifdef COEK_WITH_COMPACT_MODEL
+DataMap& Model::add(DataMap& data) { return add_data(data); }
+DataMap& Model::add(DataMap&& data) { return add_data(data); }
+#endif
+
+// NOTE:  THESE TWO METHODS DO NOT STORE SINGLETON PARAMETERS ON THE MODEL
+Parameter& Model::add_parameter(Parameter& param) { return param; }
+Parameter& Model::add(Parameter& param) { return param; }
+
 ParameterArray& Model::add(ParameterArray& param) { return add_parameter(param); }
 ParameterArray& Model::add(ParameterArray&& param) { return add_parameter(param); }
-#endif
 
 #ifdef COEK_WITH_COMPACT_MODEL
 ParameterMap& Model::add(ParameterMap& param) { return add_parameter(param); }
@@ -318,23 +333,27 @@ std::map<std::string, Constraint>& Model::get_constraints_by_name()
     return repn->constraints_by_name;
 }
 
-void Model::generate_names()
+void Model::generate_names(bool force)
 {
-    if (repn->name_generation_policy == Model::NameGeneration::lazy) {
-#if __cpp_lib_variant
+    // std::cout << "MODEL generate_names()" << std::endl;
+    if (force or (repn->name_generation_policy != Model::NameGeneration::simple)) {
+        // std::cout << "NOT SIMPLE " << repn->parameter_arrays.size() << " " <<
+        // repn->variable_arrays.size() << " " << repn->parameter_maps.size() << " " <<
+        // repn->variable_maps.size() << std::endl;
         for (auto& parray : repn->parameter_arrays)
             parray.generate_names();
         for (auto& varray : repn->variable_arrays)
             varray.generate_names();
-#    ifdef COEK_WITH_COMPACT_MODEL
+#ifdef COEK_WITH_COMPACT_MODEL
         for (auto& pmap : repn->parameter_maps)
             pmap.generate_names();
-        for (auto& vmap : repn->variable_maps)
+        for (auto& vmap : repn->variable_maps) {
+            // std::cout << "Var " << vmap.name() << std::endl;
             vmap.generate_names();
-#    endif
+        }
+#endif
         for (auto& cmap : repn->constraint_maps)
             cmap.generate_names();
-#endif
     }
 
     repn->variables_by_name.clear();

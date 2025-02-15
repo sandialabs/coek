@@ -8,10 +8,6 @@
 
 namespace coek {
 
-#ifdef COEK_WITH_COMPACT_MODEL
-expr_pointer_t convert_expr_template(const expr_pointer_t& expr);
-#endif
-
 //
 // Parameter
 //
@@ -50,6 +46,14 @@ Parameter& Parameter::name(const std::string& name)
     return *this;
 }
 
+Parameter Parameter::expand()
+{
+#ifdef COEK_WITH_COMPACT_MODEL
+    value(this->value_expression().expand());
+#endif
+    return *this;
+}
+
 std::ostream& operator<<(std::ostream& ostr, const Parameter& arg)
 {
     write_expr(arg.repn, ostr);
@@ -59,6 +63,10 @@ std::ostream& operator<<(std::ostream& ostr, const Parameter& arg)
 Parameter parameter() { return Parameter(); }
 
 Parameter parameter(const std::string& name) { return Parameter(name); }
+
+Parameter data() { return Parameter(); }
+
+Parameter data(const std::string& name) { return Parameter(name); }
 
 //
 // IndexParameter
@@ -282,6 +290,16 @@ bool Variable::is_binary() const { return repn->binary; }
 
 bool Variable::is_integer() const { return repn->integer; }
 
+Variable Variable::expand()
+{
+#ifdef COEK_WITH_COMPACT_MODEL
+    lower(this->lower_expression().expand());
+    upper(this->upper_expression().expand());
+    value(this->value_expression().expand());
+#endif
+    return *this;
+}
+
 std::ostream& operator<<(std::ostream& ostr, const Variable& arg)
 {
     write_expr(arg.repn, ostr);
@@ -355,14 +373,7 @@ Expression Expression::diff(const Variable& var) const
     return e;
 }
 
-Expression Expression::expand()
-{
-#ifdef COEK_WITH_COMPACT_MODEL
-    return convert_expr_template(repn);
-#else
-    return *this;
-#endif
-}
+Expression Expression::expand() { return expand_expr(repn); }
 
 std::ostream& operator<<(std::ostream& ostr, const Expression& arg)
 {
