@@ -185,6 +185,7 @@ void GurobiSolver::pre_solve()
             if (it != integer_options().end())
                 env->set(GRB_IntParam_OutputFlag, it->second);
             env->start();
+            license_status = gurobi_license_status::available;
         }
         catch (GRBException e) {
             license_status = gurobi_license_status::error;
@@ -439,6 +440,7 @@ std::shared_ptr<SolverResults> GurobiSolver::resolve()
         if (it != integer_options().end())
             env->set(GRB_IntParam_OutputFlag, it->second);
         env->start();
+        license_status = gurobi_license_status::available;
         gmodel = new GRBModel(*env);
 
         // Add Gurobi variables
