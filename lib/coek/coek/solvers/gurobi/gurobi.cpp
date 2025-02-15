@@ -179,6 +179,7 @@ void GurobiSolver::pre_solve()
     results->tic();
 
     if (initial_solve()) {
+        results->error_message = "Gurobi Error: unknown error in initial setup of gurobi environment";
         try {
             env = new GRBEnv(true);
             auto it = integer_options().find("OutputFlag");
@@ -194,6 +195,9 @@ void GurobiSolver::pre_solve()
         }
         if (available())
             gmodel = new GRBModel(*env);
+    }
+    else {
+        results->error_message = "Gurobi Error: unknown error after an initial solve";
     }
 }
 
