@@ -10,6 +10,18 @@ bool TestModel::check_results(coek::Model& model, std::shared_ptr<coek::SolverRe
                               double tol)
 {
     try {
+        if (results->termination_condition == coek::TerminationCondition::license_problems) {
+            // GCOVR_EXCL_START
+            std::cout << fmt::format(
+                "TEST WARNING: Unexpected license problems ({} != {})",
+                to_string(results->termination_condition),
+                to_string(coek::TerminationCondition::convergence_criteria_satisfied))
+                      << std::endl;
+            std::cout << to_string(*results, 4) << std::endl;
+            return false;
+            }
+            // GCOVR_EXCL_STOP
+
         if (results->termination_condition
             != coek::TerminationCondition::convergence_criteria_satisfied) {
             // GCOVR_EXCL_START
