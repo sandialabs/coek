@@ -35,6 +35,14 @@ if (${with_gprof})
     SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -pg")
 endif()
 
+# coek_build
+add_executable(coek_build build.cpp ${sources})
+TARGET_LINK_LIBRARIES(coek_build PRIVATE coek::coek)
+if (${with_gprof})
+    target_compile_options(coek_build PUBLIC "-pg")
+    SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -pg")
+endif()
+
 # coek_solver0
 add_executable(coek_solve0 solve0.cpp ${sources})
 TARGET_LINK_LIBRARIES(coek_solve0 PRIVATE coek::coek)
