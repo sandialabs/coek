@@ -14,7 +14,9 @@
 
 namespace coek {
 
-#ifdef WITH_RAPIDJSON
+//
+// Locally defined utility functions
+//
 namespace {
 
 template <typename T>
@@ -296,6 +298,11 @@ void load_param_data(T& obj,
         ctr++;
     }
 }
+
+}
+
+#ifdef WITH_RAPIDJSON
+namespace {
 
 //
 // Process JSON file
