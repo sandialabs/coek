@@ -5,6 +5,8 @@
 /build/
 
 _build
+_spack
+_spack_tpls
 /.vs
 /out/build
 __pycache__
