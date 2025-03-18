@@ -1,5 +1,3 @@
-#undef WITH_RAPIDJSON
-
 #include <coek/util/DataPortal.hpp>
 #ifdef WITH_RAPIDJSON
 #    include <rapidjson/document.h>
