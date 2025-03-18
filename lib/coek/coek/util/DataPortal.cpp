@@ -1,3 +1,5 @@
+#undef WITH_RAPIDJSON
+
 #include <coek/util/DataPortal.hpp>
 #ifdef WITH_RAPIDJSON
 #    include <rapidjson/document.h>
@@ -14,7 +16,9 @@
 
 namespace coek {
 
-#ifdef WITH_RAPIDJSON
+//
+// Locally defined utility functions
+//
 namespace {
 
 template <typename T>
@@ -296,6 +300,11 @@ void load_param_data(T& obj,
         ctr++;
     }
 }
+
+}
+
+#ifdef WITH_RAPIDJSON
+namespace {
 
 //
 // Process JSON file
