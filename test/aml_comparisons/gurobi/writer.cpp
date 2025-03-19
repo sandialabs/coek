@@ -49,25 +49,20 @@ int main(int argc, char* argv[])
         }
     }
 
-    GRBEnv env;
-    GRBModel model(env);
+
     try {
+        GRBEnv env;
+        GRBModel model(env);
         create_instance(model, model_name, data);
-    }
-    catch (std::exception& e) {
-        std::cout << "ERROR - " << e.what() << std::endl;
-        return 1;
-    }
-    try {
         model.write(filename);
     }
     catch (std::exception& e) {
-        std::cout << "ERROR - " << e.what() << std::endl;
-        return 2;
+        std::cout << "ERROR writing model to file - " << e.what() << std::endl;
+        return 3;
     }
     catch (GRBException& e) {
-        std::cout << "ERROR - " << e.getMessage() << std::endl;
-        return 3;
+        std::cout << "ERROR writing model to file - " << e.getMessage() << std::endl;
+        return 4;
     }
 
     return 0;
