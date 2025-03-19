@@ -299,7 +299,7 @@ void load_param_data(T& obj,
     }
 }
 
-}
+}  // namespace
 
 #ifdef WITH_RAPIDJSON
 namespace {
