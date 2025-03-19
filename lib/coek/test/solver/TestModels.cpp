@@ -19,8 +19,8 @@ bool TestModel::check_results(coek::Model& model, std::shared_ptr<coek::SolverRe
                       << std::endl;
             std::cout << to_string(*results, 4) << std::endl;
             return false;
-            }
-            // GCOVR_EXCL_STOP
+        }
+        // GCOVR_EXCL_STOP
 
         if (results->termination_condition
             != coek::TerminationCondition::convergence_criteria_satisfied) {

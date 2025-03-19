@@ -179,7 +179,8 @@ void GurobiSolver::pre_solve()
     results->tic();
 
     if (initial_solve()) {
-        results->error_message = "Gurobi Error: unknown error in initial setup of gurobi environment";
+        results->error_message
+            = "Gurobi Error: unknown error in initial setup of gurobi environment";
         try {
             env = new GRBEnv(true);
             auto it = integer_options().find("OutputFlag");
@@ -191,7 +192,8 @@ void GurobiSolver::pre_solve()
         catch (GRBException e) {
             license_status = gurobi_license_status::error;
             results->termination_condition = TerminationCondition::license_problems;
-            results->error_message = "Gurobi Error: Caught gurobi exception creating environment - " + e.getMessage();
+            results->error_message
+                = "Gurobi Error: Caught gurobi exception creating environment - " + e.getMessage();
         }
         if (available())
             gmodel = new GRBModel(*env);
