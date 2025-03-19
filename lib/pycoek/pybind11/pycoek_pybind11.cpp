@@ -1554,16 +1554,10 @@ PYBIND11_MODULE(pycoek_pybind11, m)
     //
     py::class_<coek::VariableArray>(m, "variable_array")
         .def(py::init<>())
-        //.def(py::init<std::vector<int>&, py::kwargs>())
         .def("__len__", [](const coek::VariableArray& va) { return va.size(); })
         .def("__getitem__", [](coek::VariableArray& va, int i) { return va(i); })
         .def("__getitem__",
-             [](coek::VariableArray& va, std::vector<int>& index) {
-                 /*coek::IndexVector::value_type* data = new
-                 coek::IndexVector::value_type[index.size()]; coek::IndexVector tmp(data,
-                 index.size()); for (size_t i = 0; i < index.size(); ++i) tmp[i] = index[i];*/
-                 return va.index(index);
-             })
+             [](coek::VariableArray& va, std::vector<int>& index) { return va.index(index); })
         .def_property_readonly("name",
                                [](coek::VariableArray& x) -> py::object {
                                    if (x.name().size() == 0)
