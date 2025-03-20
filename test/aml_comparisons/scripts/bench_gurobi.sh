@@ -27,9 +27,13 @@ fi
 if [[ "${keep_results}" -eq 0 ]]; then
     \rm -Rf results
 fi
-../test/aml_comparisons/scripts/run bench_coek 3
+echo "RUN bench_coek_and_poek"
+../test/aml_comparisons/scripts/run bench_coek_and_poek 3
+echo "COLLECT"
 ../test/aml_comparisons/scripts/collect
+echo "DOG solve0"
 ../test/aml_comparisons/scripts/dog solve0
+echo "DOG writer"
 ../test/aml_comparisons/scripts/dog writer
 
 if [[ -d /coek_performance_results ]]; then
@@ -42,10 +46,18 @@ else
     echo ""
     python ../test/aml_comparisons/scripts/to_csv.py --dirname results --branch_name "CURRENT" --ci_commit_sha "SHA" --ci_commit_title "TITLE"
     echo "... done."
-    echo ""
-    echo "Comparing results"
-    echo ""
-    python ../test/aml_comparisons/scripts/compare.py --artifact_dir=results --branch_name="CURRENT"
-    echo "... done."
+
+    if [[ -e results/solve0/build_number.txt ]]; then
+        echo ""
+        echo "Comparing results"
+        echo ""
+        python ../test/aml_comparisons/scripts/compare.py --artifact_dir=results --branch_name="CURRENT"
+        echo "... done."
+    else
+        echo ""
+        echo "No results to compare with."
+        echo ""
+        echo "... done."
+    fi
 fi
 
