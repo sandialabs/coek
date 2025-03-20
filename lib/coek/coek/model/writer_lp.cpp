@@ -49,6 +49,7 @@ inline size_t get_vid_value(const std::unordered_map<size_t, size_t>& vid, size_
     if (it != vid.end())
         return it->second;
 #endif
+
     throw std::runtime_error(
         "Model expressions contain variable that is not declared in the model.");
 }
@@ -251,7 +252,6 @@ void LPWriter::print_objectives(StreamType& ostr, CompactModel& model)
     for (auto& val : model.repn->objectives) {
         if (auto eval = std::get_if<Objective>(&val)) {
             auto obj = objective().expr(eval->expr().expand()).sense(eval->sense());
-            // std::cout << "HERE obj " << obj.to_list() << std::endl;
             print_objective(ostr, obj);
             ++n_obj;
         }
@@ -321,19 +321,19 @@ void LPWriter::collect_variables(Model& model)
 {
     size_t ctr = 0;
     for (auto& it : model.repn->variables) {
-        vid[it.id()] = ctr;
-        // invvarmap[ctr] = ctr;        WEH - Is this the right value?
-        invvarmap[ctr] = it.id();
-        ++ctr;
-
         auto v = it.repn;
         if (v->fixed)  // Don't report fixed binary or integer variables
             continue;
+
+        vid[v->index] = ctr;
+        invvarmap[ctr] = v->index;
+
         variables.push_back(it);
         if (v->binary)
-            bvars[vid[v->index]] = v;
+            bvars[ctr] = v;
         if (v->integer)
-            ivars[vid[v->index]] = v;
+            ivars[ctr] = v;
+        ++ctr;
     }
 }
 
@@ -344,8 +344,15 @@ void LPWriter::collect_variables(CompactModel& model)
     size_t ctr = 0;
     for (auto& val : model.repn->variables) {
         if (auto eval = std::get_if<Variable>(&val)) {
-            if (eval->fixed())
+            auto v = eval->repn;
+            if (v->fixed)
                 continue;
+
+            // We use the original variable ID, b.c. we are mapping that to this new variable
+            // in the list
+            vid[eval->id()] = ctr;
+            invvarmap[ctr] = eval->id();    // variables.size() ??
+
             Expression lb = eval->lower_expression().expand();
             Expression ub = eval->upper_expression().expand();
             Expression value = eval->value_expression().expand();
@@ -355,63 +362,64 @@ void LPWriter::collect_variables(CompactModel& model)
                            .value(value.value())
                            .within(eval->within());
             variables.push_back(tmp);
-            vid[tmp.id()] = ctr;
-            // vid[eval->id()] = ctr;
-            invvarmap[ctr] = variables.size();
-            ++ctr;
 
-            if (tmp.is_binary())
-                bvars[vid[tmp.id()]] = tmp.repn;
-            if (tmp.is_integer())
-                ivars[vid[tmp.id()]] = tmp.repn;
+            if (v->binary)
+                bvars[ctr] = tmp.repn;
+            if (v->integer)
+                ivars[ctr] = tmp.repn;
+            ++ctr;
         }
         else if (auto eval = std::get_if<VariableSequence>(&val)) {
             for (auto& jt : *eval) {
-                if (jt.fixed())
+                auto v = jt.repn;
+                if (v->fixed)
                     continue;
-                variables.push_back(jt);
-                vid[jt.id()] = ctr;
-                invvarmap[ctr] = variables.size();
-                ++ctr;
 
-                if (jt.is_binary())
-                    bvars[vid[jt.id()]] = jt.repn;
-                if (jt.is_integer())
-                    ivars[vid[jt.id()]] = jt.repn;
+                vid[v->index] = ctr;
+                invvarmap[ctr] = v->index;
+
+                variables.push_back(jt);
+                if (v->binary)
+                    bvars[ctr] = v;
+                if (v->integer)
+                    ivars[ctr] = v;
+                ++ctr;
             }
         }
         else if (auto eval = std::get_if<VariableMap>(&val)) {
             eval->expand();
             for (auto& jt : *eval) {
-                if (jt.fixed())
+                auto v = jt.repn;
+                if (v->fixed)
                     continue;
-                variables.push_back(jt);
-                vid[jt.id()] = ctr;
-                invvarmap[ctr] = variables.size();
-                ++ctr;
-                // std::cout << "HELP " << jt.name() << " " << jt.is_binary() << " " <<
-                // jt.is_integer() << std::endl;
 
-                if (jt.is_binary())
-                    bvars[vid[jt.id()]] = jt.repn;
-                if (jt.is_integer())
-                    ivars[vid[jt.id()]] = jt.repn;
+                vid[v->index] = ctr;
+                invvarmap[ctr] = v->index;
+
+                variables.push_back(jt);
+                if (v->binary)
+                    bvars[ctr] = v;
+                if (v->integer)
+                    ivars[ctr] = v;
+                ++ctr;
             }
         }
         else if (auto eval = std::get_if<VariableArray>(&val)) {
             eval->expand();
             for (auto& jt : *eval) {
-                if (jt.fixed())
+                auto v = jt.repn;
+                if (v->fixed)
                     continue;
-                variables.push_back(jt);
-                vid[jt.id()] = ctr;
-                invvarmap[ctr] = variables.size();
-                ++ctr;
 
-                if (jt.is_binary())
-                    bvars[vid[jt.id()]] = jt.repn;
-                if (jt.is_integer())
-                    ivars[vid[jt.id()]] = jt.repn;
+                vid[v->index] = ctr;
+                invvarmap[ctr] = v->index;
+
+                variables.push_back(jt);
+                if (v->binary)
+                    bvars[ctr] = v;
+                if (v->integer)
+                    ivars[ctr] = v;
+                ++ctr;
             }
         }
     }
