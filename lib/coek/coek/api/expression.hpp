@@ -86,6 +86,8 @@ Expression operator/(const Variable&, int);
 Expression operator/(const Expression&, int);
 Expression operator/(const Variable&, double);
 Expression operator/(const Expression&, double);
+Expression operator/(const Variable&, size_t);
+Expression operator/(const Expression&, size_t);
 Expression operator/(const Variable&, const Variable&);
 Expression operator/(const Variable&, const Expression&);
 Expression operator/(const Expression&, const Variable&);

@@ -1004,6 +1004,9 @@ Expression operator/(const Variable& lhs, double arg)
 }
 Expression operator/(const Expression& lhs, double arg) { return divide(lhs.repn, arg); }
 
+Expression operator/(const Variable& lhs, size_t arg) { return lhs/static_cast<double>(arg); }
+Expression operator/(const Expression& lhs, size_t arg) { return divide(lhs.repn, static_cast<double>(arg)); }
+
 Expression operator/(const Variable& lhs, const Variable& rhs)
 {
     return divide(lhs.repn, rhs.repn);
