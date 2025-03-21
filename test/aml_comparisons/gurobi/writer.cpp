@@ -49,7 +49,6 @@ int main(int argc, char* argv[])
         }
     }
 
-
     try {
         GRBEnv env;
         GRBModel model(env);
