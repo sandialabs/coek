@@ -16,6 +16,7 @@ class DataMap : public DataAssocArray {
     const std::shared_ptr<DataAssocArrayRepn> get_repn() const;
 
     Expression index(const IndexVector& args);
+    void set_value(const IndexVector& args, double);
     void index_error(size_t i);
 
    public:
@@ -143,32 +144,25 @@ class DataMap : public DataAssocArray {
 };
 
 template <typename KeyType, typename ValueType>
-inline DataMap& DataMap::value(const std::map<KeyType, ValueType>& /*values_*/)
+inline DataMap& DataMap::value(const std::map<KeyType, ValueType>& values_)
 {
-    /*
-    WEH - See comment below.
-
     for (auto& [key, value] : values_) {
         copy_tuple_to_vector(key, tmp);
-        index(tmp).value(value);
+        set_value(tmp, value);
     }
-    */
     return *this;
 }
 
 template <>
-inline DataMap& DataMap::value(const std::map<int, double>& /*values_*/)
+inline DataMap& DataMap::value(const std::map<int, double>& values_)
 {
-    /*
     if (dim() != 1)
         index_error(1);
-    WEH - We can't replace the value of the expression, and if we
-            add a new constant, then that won't replace an existing constant.
+
     for (auto& [key, value] : values_) {
         tmp[0] = key;
-        index(tmp).value(Expression(value));
+        set_value(tmp, value);
     }
-    */
     return *this;
 }
 

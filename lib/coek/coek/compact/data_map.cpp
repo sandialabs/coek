@@ -35,7 +35,12 @@ class DataMapRepn : public DataAssocArrayRepn {
 
     virtual ~DataMapRepn() {}
 
-    std::shared_ptr<ConstantTerm> index(const IndexVector& args);
+    size_t to_values_index(const IndexVector& args);
+
+    std::shared_ptr<ConstantTerm> index(const IndexVector& args)
+    {
+        return values[to_values_index(args)];
+    }
 
     void expand();
 
@@ -98,7 +103,12 @@ Expression DataMap::index(const IndexVector& args)
     return tmp;
 }
 
-std::shared_ptr<ConstantTerm> DataMapRepn::index(const IndexVector& args)
+void DataMap::set_value(const IndexVector& args, double value)
+{
+    repn->values[repn->to_values_index(args)] = CREATE_POINTER(ConstantTerm, value);
+}
+
+size_t DataMapRepn::to_values_index(const IndexVector& args)
 {
     assert(dim() == args.size());
     expand();
@@ -119,7 +129,7 @@ std::shared_ptr<ConstantTerm> DataMapRepn::index(const IndexVector& args)
         err += "]";
         throw std::runtime_error(err);
     }
-    return values[curr->second];
+    return curr->second;
 }
 
 void DataMap::index_error(size_t i)
