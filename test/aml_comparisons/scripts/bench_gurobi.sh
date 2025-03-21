@@ -28,7 +28,8 @@ if [[ "${keep_results}" -eq 0 ]]; then
     \rm -Rf results
 fi
 echo "RUN bench_coek_and_poek"
-../test/aml_comparisons/scripts/run bench_coek_and_poek 3
+#../test/aml_comparisons/scripts/run bench_coek_and_poek 3
+../test/aml_comparisons/scripts/run bench_coek 3
 echo "COLLECT"
 ../test/aml_comparisons/scripts/collect
 echo "DOG solve0"
