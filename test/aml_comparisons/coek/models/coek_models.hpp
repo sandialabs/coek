@@ -27,8 +27,14 @@ void knapsack_compact(coek::CompactModel& model, size_t N);
 #endif
 void knapsack_scalar(coek::Model& model, size_t N);
 void nqueens_array(coek::Model& model, size_t N);
+#ifdef COEK_WITH_COMPACT_MODEL
+void nqueens_compact(coek::CompactModel& model, size_t N);
+#endif
 void nqueens_scalar(coek::Model& model, size_t N);
 void pmedian_array(coek::Model& model, size_t N, size_t P);
+#ifdef COEK_WITH_COMPACT_MODEL
+void pmedian_compact(coek::CompactModel& model, size_t N, size_t P);
+#endif
 void pmedian_scalar(coek::Model& model, size_t N, size_t P);
 
 inline void print_models(std::ostream& os)
@@ -50,8 +56,14 @@ inline void print_models(std::ostream& os)
 #endif
           "  lqcp-scalar N\n"
           "  nqueens-array N\n"
+#ifdef COEK_WITH_COMPACT_MODEL
+          "  nqueens-compact N P\n"
+#endif
           "  nqueens-scalar N\n"
           "  pmedian-array N P\n"
+#ifdef COEK_WITH_COMPACT_MODEL
+          "  pmedian-compact N P\n"
+#endif
           "  pmedian-scalar N P\n";
 }
 
@@ -61,6 +73,53 @@ inline void check_data(const std::string& name, const std::vector<size_t>& data,
         throw std::runtime_error("Expected " + std::to_string(num) + " parameters in model " + name
                                  + " but only have " + std::to_string(data.size()));
 }
+
+#ifdef COEK_WITH_COMPACT_MODEL
+inline bool create_instance(coek::CompactModel& model, const std::string& name,
+                            const std::vector<size_t>& data)
+{
+    if (false) {
+    }
+
+    //
+    // jump
+    //
+    else if (name == "fac-compact") {
+        check_data(name, data, 1);
+        fac_compact(model, data[0]);
+        return true;
+    }
+
+    else if (name == "lqcp-compact") {
+        check_data(name, data, 1);
+        lqcp_compact(model, data[0]);
+        return true;
+    }
+
+    //
+    // misc
+    //
+    else if (name == "knapsack-compact") {
+        check_data(name, data, 1);
+        knapsack_compact(model, data[0]);
+        return true;
+    }
+
+    else if (name == "nqueens-compact") {
+        check_data(name, data, 1);
+        nqueens_compact(model, data[0]);
+        return true;
+    }
+
+    else if (name == "pmedian-compact") {
+        check_data(name, data, 1);
+        pmedian_compact(model, data[0], data[1]);
+        return true;
+    }
+
+    return false;
+}
+#endif
 
 inline bool create_instance(coek::Model& model, const std::string& name,
                             const std::vector<size_t>& data)
@@ -87,13 +146,6 @@ inline bool create_instance(coek::Model& model, const std::string& name,
         return true;
     }
 #ifdef COEK_WITH_COMPACT_MODEL
-    else if (name == "lqcp-compact") {
-        check_data(name, data, 1);
-        coek::CompactModel cmodel;
-        lqcp_compact(cmodel, data[0]);
-        model = cmodel.expand();
-        return true;
-    }
     else if (name == "lqcp-map") {
         check_data(name, data, 1);
         lqcp_map(model, data[0]);
@@ -139,40 +191,17 @@ inline bool create_instance(coek::Model& model, const std::string& name,
         return true;
     }
 
-    return false;
-}
-
 #ifdef COEK_WITH_COMPACT_MODEL
-inline bool create_instance(coek::CompactModel& model, const std::string& name,
-                            const std::vector<size_t>& data)
-{
-    if (false) {
-    }
-
-    //
-    // jump
-    //
-    else if (name == "fac-compact") {
+    else {
         check_data(name, data, 1);
-        fac_compact(model, data[0]);
-        return true;
+        coek::CompactModel cmodel;
+        auto available = create_instance(cmodel, name, data);
+        if (available) {
+            model = cmodel.expand();
+            return true;
+        }
     }
-
-    else if (name == "lqcp-compact") {
-        check_data(name, data, 1);
-        lqcp_compact(model, data[0]);
-        return true;
-    }
-
-    //
-    // misc
-    //
-    else if (name == "knapsack-compact") {
-        check_data(name, data, 1);
-        knapsack_compact(model, data[0]);
-        return true;
-    }
+#endif
 
     return false;
 }
-#endif

@@ -21,7 +21,9 @@ if (CMAKE_CXX_STANDARD GREATER_EQUAL 17)
         models/misc/knapsack_array.cpp
         models/misc/knapsack_compact.cpp
         models/misc/nqueens_array.cpp
+        models/misc/nqueens_compact.cpp
         models/misc/pmedian_array.cpp
+        models/misc/pmedian_compact.cpp
         )
 endif()
 
