@@ -51,18 +51,16 @@ expr_pointer_t plus(const LHS& lhs, double rhs)
         tmp = CREATE_POINTER(PlusTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
     return tmp;
 }
-
-template <typename RHS>
-expr_pointer_t plus(double lhs, const RHS& rhs)
+template <typename LHS>
+expr_pointer_t plus(const LHS& lhs, size_t rhs)
 {
     expr_pointer_t tmp;
-    if (lhs == 0.0)
-        tmp = rhs;
+    if (rhs == 0)
+        tmp = lhs;
     else
-        tmp = CREATE_POINTER(PlusTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, false);
+        tmp = CREATE_POINTER(PlusTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
     return tmp;
 }
-
 template <typename LHS>
 expr_pointer_t plus(const LHS& lhs, int rhs)
 {
@@ -74,6 +72,26 @@ expr_pointer_t plus(const LHS& lhs, int rhs)
     return tmp;
 }
 
+template <typename RHS>
+expr_pointer_t plus(double lhs, const RHS& rhs)
+{
+    expr_pointer_t tmp;
+    if (lhs == 0.0)
+        tmp = rhs;
+    else
+        tmp = CREATE_POINTER(PlusTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, false);
+    return tmp;
+}
+template <typename RHS>
+expr_pointer_t plus(size_t lhs, const RHS& rhs)
+{
+    expr_pointer_t tmp;
+    if (lhs == 0)
+        tmp = rhs;
+    else
+        tmp = CREATE_POINTER(PlusTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, false);
+    return tmp;
+}
 template <typename RHS>
 expr_pointer_t plus(int lhs, const RHS& rhs)
 {
@@ -106,6 +124,17 @@ expr_pointer_t minus(double lhs, const RHS& rhs)
 }
 
 template <typename RHS>
+expr_pointer_t minus(size_t lhs, const RHS& rhs)
+{
+    expr_pointer_t tmp;
+    if (lhs == 0)
+        tmp = rhs->negate(rhs);
+    else
+        tmp = CREATE_POINTER(PlusTerm, CREATE_POINTER(ConstantTerm, lhs), rhs->negate(rhs), false);
+    return tmp;
+}
+
+template <typename RHS>
 expr_pointer_t minus(int lhs, const RHS& rhs)
 {
     expr_pointer_t tmp;
@@ -118,6 +147,15 @@ expr_pointer_t minus(int lhs, const RHS& rhs)
 
 template <typename LHS>
 expr_pointer_t minus(const LHS& lhs, double rhs)
+{
+    // IGNORE, SINCE THIS CASE IS VERY UNCOMMON
+    // if (rhs == 0.0)
+    //    return lhs;
+    return CREATE_POINTER(PlusTerm, lhs, CREATE_POINTER(ConstantTerm, -rhs));
+}
+
+template <typename LHS>
+expr_pointer_t minus(const LHS& lhs, size_t rhs)
 {
     // IGNORE, SINCE THIS CASE IS VERY UNCOMMON
     // if (rhs == 0.0)
@@ -182,6 +220,19 @@ expr_pointer_t times(const LHS& lhs, double rhs)
     return tmp;
 }
 
+template <typename LHS>
+expr_pointer_t times(const LHS& lhs, size_t rhs)
+{
+    expr_pointer_t tmp;
+    if (rhs == 0)
+        tmp = ZEROCONST;
+    else if (rhs == 1)
+        tmp = lhs;
+    else
+        tmp = CREATE_POINTER(TimesTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
+    return tmp;
+}
+
 template <typename RHS>
 expr_pointer_t times(double lhs, const RHS& rhs)
 {
@@ -193,6 +244,19 @@ expr_pointer_t times(double lhs, const RHS& rhs)
     // if (lhs == -1.0)
     //     return rhs->negate(rhs);
 
+    else
+        tmp = CREATE_POINTER(TimesTerm, CREATE_POINTER(ConstantTerm, lhs), rhs);
+    return tmp;
+}
+
+template <typename RHS>
+expr_pointer_t times(size_t lhs, const RHS& rhs)
+{
+    expr_pointer_t tmp;
+    if (lhs == 0)
+        tmp = ZEROCONST;
+    else if (lhs == 1)
+        tmp = rhs;
     else
         tmp = CREATE_POINTER(TimesTerm, CREATE_POINTER(ConstantTerm, lhs), rhs);
     return tmp;
@@ -269,6 +333,30 @@ expr_pointer_t divide(double lhs, const RHS& rhs)
 {
     expr_pointer_t tmp;
     if (lhs == 0.0)
+        tmp = ZEROCONST;
+    else
+        tmp = CREATE_POINTER(DivideTerm, CREATE_POINTER(ConstantTerm, lhs), rhs);
+    return tmp;
+}
+
+template <typename LHS>
+expr_pointer_t divide(const LHS& lhs, size_t rhs)
+{
+    if (rhs == 0)
+        throw std::domain_error("Division by zero.");
+    expr_pointer_t tmp;
+    if (rhs == 1)
+        tmp = lhs;
+    else
+        tmp = CREATE_POINTER(DivideTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
+    return tmp;
+}
+
+template <typename RHS>
+expr_pointer_t divide(size_t lhs, const RHS& rhs)
+{
+    expr_pointer_t tmp;
+    if (lhs == 0)
         tmp = ZEROCONST;
     else
         tmp = CREATE_POINTER(DivideTerm, CREATE_POINTER(ConstantTerm, lhs), rhs);
@@ -455,6 +543,24 @@ inline std::shared_ptr<ConstraintTerm> less_than(const expr_pointer_t& lhs, doub
     return tmp;
 }
 
+inline std::shared_ptr<ConstraintTerm> less_than(const expr_pointer_t& lhs, size_t rhs, bool strict)
+{
+    std::shared_ptr<ConstraintTerm> tmp;
+    if (rhs == 0) {
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, 0, lhs, ZEROCONST);
+        else
+            tmp = CREATE_POINTER(InequalityTerm, 0, lhs, ZEROCONST);
+    }
+    else {
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, 0, lhs, CREATE_POINTER(ConstantTerm, rhs));
+        else
+            tmp = CREATE_POINTER(InequalityTerm, 0, lhs, CREATE_POINTER(ConstantTerm, rhs));
+    }
+    return tmp;
+}
+
 inline std::shared_ptr<ConstraintTerm> less_than(int lhs, const expr_pointer_t& rhs, bool strict)
 {
     std::shared_ptr<ConstraintTerm> tmp;
@@ -474,6 +580,24 @@ inline std::shared_ptr<ConstraintTerm> less_than(int lhs, const expr_pointer_t& 
 }
 
 inline std::shared_ptr<ConstraintTerm> less_than(double lhs, const expr_pointer_t& rhs, bool strict)
+{
+    std::shared_ptr<ConstraintTerm> tmp;
+    if (lhs == 0) {
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, ZEROCONST, rhs, 0);
+        else
+            tmp = CREATE_POINTER(InequalityTerm, ZEROCONST, rhs, 0);
+    }
+    else {
+        if (strict)
+            tmp = CREATE_POINTER(StrictInequalityTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, 0);
+        else
+            tmp = CREATE_POINTER(InequalityTerm, CREATE_POINTER(ConstantTerm, lhs), rhs, 0);
+    }
+    return tmp;
+}
+
+inline std::shared_ptr<ConstraintTerm> less_than(size_t lhs, const expr_pointer_t& rhs, bool strict)
 {
     std::shared_ptr<ConstraintTerm> tmp;
     if (lhs == 0) {
@@ -523,6 +647,16 @@ inline std::shared_ptr<ConstraintTerm> equal(const expr_pointer_t& lhs, double r
     return tmp;
 }
 
+inline std::shared_ptr<ConstraintTerm> equal(const expr_pointer_t& lhs, size_t rhs)
+{
+    std::shared_ptr<ConstraintTerm> tmp;
+    if (rhs == 0)
+        tmp = CREATE_POINTER(EqualityTerm, lhs, ZEROCONST);
+    else
+        tmp = CREATE_POINTER(EqualityTerm, lhs, CREATE_POINTER(ConstantTerm, rhs));
+    return tmp;
+}
+
 inline std::shared_ptr<ConstraintTerm> equal(int lhs, const expr_pointer_t& rhs)
 {
     std::shared_ptr<ConstraintTerm> tmp;
@@ -534,6 +668,16 @@ inline std::shared_ptr<ConstraintTerm> equal(int lhs, const expr_pointer_t& rhs)
 }
 
 inline std::shared_ptr<ConstraintTerm> equal(double lhs, const expr_pointer_t& rhs)
+{
+    std::shared_ptr<ConstraintTerm> tmp;
+    if (lhs == 0)
+        tmp = CREATE_POINTER(EqualityTerm, rhs, ZEROCONST);
+    else
+        tmp = CREATE_POINTER(EqualityTerm, rhs, CREATE_POINTER(ConstantTerm, lhs));
+    return tmp;
+}
+
+inline std::shared_ptr<ConstraintTerm> equal(size_t lhs, const expr_pointer_t& rhs)
 {
     std::shared_ptr<ConstraintTerm> tmp;
     if (lhs == 0)
