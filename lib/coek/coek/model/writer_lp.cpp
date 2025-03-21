@@ -351,7 +351,7 @@ void LPWriter::collect_variables(CompactModel& model)
             // We use the original variable ID, b.c. we are mapping that to this new variable
             // in the list
             vid[eval->id()] = ctr;
-            invvarmap[ctr] = eval->id();    // variables.size() ??
+            invvarmap[ctr] = eval->id();  // variables.size() ??
 
             Expression lb = eval->lower_expression().expand();
             Expression ub = eval->upper_expression().expand();
