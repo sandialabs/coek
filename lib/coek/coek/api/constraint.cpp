@@ -117,8 +117,16 @@ Constraint operator<(double lhs, const IndexParameter& rhs)
 }
 Constraint operator<(double lhs, const Variable& rhs) { return less_than(lhs, rhs.repn, true); }
 Constraint operator<(double lhs, const Expression& rhs) { return less_than(lhs, rhs.repn, true); }
+Constraint operator<(size_t lhs, const Parameter& rhs) { return less_than(lhs, rhs.repn, true); }
+Constraint operator<(size_t lhs, const IndexParameter& rhs)
+{
+    return less_than(lhs, rhs.repn, true);
+}
+Constraint operator<(size_t lhs, const Variable& rhs) { return less_than(lhs, rhs.repn, true); }
+Constraint operator<(size_t lhs, const Expression& rhs) { return less_than(lhs, rhs.repn, true); }
 
 Constraint operator<(const Parameter& lhs, double rhs) { return less_than(lhs.repn, rhs, true); }
+Constraint operator<(const Parameter& lhs, size_t rhs) { return less_than(lhs.repn, rhs, true); }
 Constraint operator<(const Parameter& lhs, int rhs) { return less_than(lhs.repn, rhs, true); }
 Constraint operator<(const Parameter& lhs, const Parameter& rhs)
 {
@@ -141,6 +149,10 @@ Constraint operator<(const IndexParameter& lhs, double rhs)
 {
     return less_than(lhs.repn, rhs, true);
 }
+Constraint operator<(const IndexParameter& lhs, size_t rhs)
+{
+    return less_than(lhs.repn, rhs, true);
+}
 Constraint operator<(const IndexParameter& lhs, int rhs) { return less_than(lhs.repn, rhs, true); }
 Constraint operator<(const IndexParameter& lhs, const Parameter& rhs)
 {
@@ -160,6 +172,7 @@ Constraint operator<(const IndexParameter& lhs, const Expression& rhs)
 }
 
 Constraint operator<(const Variable& lhs, double rhs) { return less_than(lhs.repn, rhs, true); }
+Constraint operator<(const Variable& lhs, size_t rhs) { return less_than(lhs.repn, rhs, true); }
 Constraint operator<(const Variable& lhs, int rhs) { return less_than(lhs.repn, rhs, true); }
 Constraint operator<(const Variable& lhs, const Parameter& rhs)
 {
@@ -179,6 +192,7 @@ Constraint operator<(const Variable& lhs, const Expression& rhs)
 }
 
 Constraint operator<(const Expression& lhs, double rhs) { return less_than(lhs.repn, rhs, true); }
+Constraint operator<(const Expression& lhs, size_t rhs) { return less_than(lhs.repn, rhs, true); }
 Constraint operator<(const Expression& lhs, int rhs) { return less_than(lhs.repn, rhs, true); }
 Constraint operator<(const Expression& lhs, const Parameter& rhs)
 {
@@ -214,8 +228,16 @@ Constraint operator<=(double lhs, const IndexParameter& rhs)
 }
 Constraint operator<=(double lhs, const Variable& rhs) { return less_than(lhs, rhs.repn, false); }
 Constraint operator<=(double lhs, const Expression& rhs) { return less_than(lhs, rhs.repn, false); }
+Constraint operator<=(size_t lhs, const Parameter& rhs) { return less_than(lhs, rhs.repn, false); }
+Constraint operator<=(size_t lhs, const IndexParameter& rhs)
+{
+    return less_than(lhs, rhs.repn, false);
+}
+Constraint operator<=(size_t lhs, const Variable& rhs) { return less_than(lhs, rhs.repn, false); }
+Constraint operator<=(size_t lhs, const Expression& rhs) { return less_than(lhs, rhs.repn, false); }
 
 Constraint operator<=(const Parameter& lhs, double rhs) { return less_than(lhs.repn, rhs, false); }
+Constraint operator<=(const Parameter& lhs, size_t rhs) { return less_than(lhs.repn, rhs, false); }
 Constraint operator<=(const Parameter& lhs, int rhs) { return less_than(lhs.repn, rhs, false); }
 Constraint operator<=(const Parameter& lhs, const Parameter& rhs)
 {
@@ -235,6 +257,10 @@ Constraint operator<=(const Parameter& lhs, const Expression& rhs)
 }
 
 Constraint operator<=(const IndexParameter& lhs, double rhs)
+{
+    return less_than(lhs.repn, rhs, false);
+}
+Constraint operator<=(const IndexParameter& lhs, size_t rhs)
 {
     return less_than(lhs.repn, rhs, false);
 }
@@ -260,6 +286,7 @@ Constraint operator<=(const IndexParameter& lhs, const Expression& rhs)
 }
 
 Constraint operator<=(const Variable& lhs, double rhs) { return less_than(lhs.repn, rhs, false); }
+Constraint operator<=(const Variable& lhs, size_t rhs) { return less_than(lhs.repn, rhs, false); }
 Constraint operator<=(const Variable& lhs, int rhs) { return less_than(lhs.repn, rhs, false); }
 Constraint operator<=(const Variable& lhs, const Parameter& rhs)
 {
@@ -279,6 +306,7 @@ Constraint operator<=(const Variable& lhs, const Expression& rhs)
 }
 
 Constraint operator<=(const Expression& lhs, double rhs) { return less_than(lhs.repn, rhs, false); }
+Constraint operator<=(const Expression& lhs, size_t rhs) { return less_than(lhs.repn, rhs, false); }
 Constraint operator<=(const Expression& lhs, int rhs) { return less_than(lhs.repn, rhs, false); }
 Constraint operator<=(const Expression& lhs, const Parameter& rhs)
 {
@@ -311,8 +339,16 @@ Constraint operator>(double lhs, const IndexParameter& rhs)
 }
 Constraint operator>(double lhs, const Variable& rhs) { return less_than(rhs.repn, lhs, true); }
 Constraint operator>(double lhs, const Expression& rhs) { return less_than(rhs.repn, lhs, true); }
+Constraint operator>(size_t lhs, const Parameter& rhs) { return less_than(rhs.repn, lhs, true); }
+Constraint operator>(size_t lhs, const IndexParameter& rhs)
+{
+    return less_than(rhs.repn, lhs, true);
+}
+Constraint operator>(size_t lhs, const Variable& rhs) { return less_than(rhs.repn, lhs, true); }
+Constraint operator>(size_t lhs, const Expression& rhs) { return less_than(rhs.repn, lhs, true); }
 
 Constraint operator>(const Parameter& lhs, double rhs) { return less_than(rhs, lhs.repn, true); }
+Constraint operator>(const Parameter& lhs, size_t rhs) { return less_than(rhs, lhs.repn, true); }
 Constraint operator>(const Parameter& lhs, int rhs) { return less_than(rhs, lhs.repn, true); }
 Constraint operator>(const Parameter& lhs, const Parameter& rhs)
 {
@@ -335,6 +371,10 @@ Constraint operator>(const IndexParameter& lhs, double rhs)
 {
     return less_than(rhs, lhs.repn, true);
 }
+Constraint operator>(const IndexParameter& lhs, size_t rhs)
+{
+    return less_than(rhs, lhs.repn, true);
+}
 Constraint operator>(const IndexParameter& lhs, int rhs) { return less_than(rhs, lhs.repn, true); }
 Constraint operator>(const IndexParameter& lhs, const Parameter& rhs)
 {
@@ -354,6 +394,7 @@ Constraint operator>(const IndexParameter& lhs, const Expression& rhs)
 }
 
 Constraint operator>(const Variable& lhs, double rhs) { return less_than(rhs, lhs.repn, true); }
+Constraint operator>(const Variable& lhs, size_t rhs) { return less_than(rhs, lhs.repn, true); }
 Constraint operator>(const Variable& lhs, int rhs) { return less_than(rhs, lhs.repn, true); }
 Constraint operator>(const Variable& lhs, const Parameter& rhs)
 {
@@ -373,6 +414,7 @@ Constraint operator>(const Variable& lhs, const Expression& rhs)
 }
 
 Constraint operator>(const Expression& lhs, double rhs) { return less_than(rhs, lhs.repn, true); }
+Constraint operator>(const Expression& lhs, size_t rhs) { return less_than(rhs, lhs.repn, true); }
 Constraint operator>(const Expression& lhs, int rhs) { return less_than(rhs, lhs.repn, true); }
 Constraint operator>(const Expression& lhs, const Parameter& rhs)
 {
@@ -408,8 +450,16 @@ Constraint operator>=(double lhs, const IndexParameter& rhs)
 }
 Constraint operator>=(double lhs, const Variable& rhs) { return less_than(rhs.repn, lhs, false); }
 Constraint operator>=(double lhs, const Expression& rhs) { return less_than(rhs.repn, lhs, false); }
+Constraint operator>=(size_t lhs, const Parameter& rhs) { return less_than(rhs.repn, lhs, false); }
+Constraint operator>=(size_t lhs, const IndexParameter& rhs)
+{
+    return less_than(rhs.repn, lhs, false);
+}
+Constraint operator>=(size_t lhs, const Variable& rhs) { return less_than(rhs.repn, lhs, false); }
+Constraint operator>=(size_t lhs, const Expression& rhs) { return less_than(rhs.repn, lhs, false); }
 
 Constraint operator>=(const Parameter& lhs, double rhs) { return less_than(rhs, lhs.repn, false); }
+Constraint operator>=(const Parameter& lhs, size_t rhs) { return less_than(rhs, lhs.repn, false); }
 Constraint operator>=(const Parameter& lhs, int rhs) { return less_than(rhs, lhs.repn, false); }
 Constraint operator>=(const Parameter& lhs, const Parameter& rhs)
 {
@@ -429,6 +479,10 @@ Constraint operator>=(const Parameter& lhs, const Expression& rhs)
 }
 
 Constraint operator>=(const IndexParameter& lhs, double rhs)
+{
+    return less_than(rhs, lhs.repn, false);
+}
+Constraint operator>=(const IndexParameter& lhs, size_t rhs)
 {
     return less_than(rhs, lhs.repn, false);
 }
@@ -454,6 +508,7 @@ Constraint operator>=(const IndexParameter& lhs, const Expression& rhs)
 }
 
 Constraint operator>=(const Variable& lhs, double rhs) { return less_than(rhs, lhs.repn, false); }
+Constraint operator>=(const Variable& lhs, size_t rhs) { return less_than(rhs, lhs.repn, false); }
 Constraint operator>=(const Variable& lhs, int rhs) { return less_than(rhs, lhs.repn, false); }
 Constraint operator>=(const Variable& lhs, const Parameter& rhs)
 {
@@ -473,6 +528,7 @@ Constraint operator>=(const Variable& lhs, const Expression& rhs)
 }
 
 Constraint operator>=(const Expression& lhs, double rhs) { return less_than(rhs, lhs.repn, false); }
+Constraint operator>=(const Expression& lhs, size_t rhs) { return less_than(rhs, lhs.repn, false); }
 Constraint operator>=(const Expression& lhs, int rhs) { return less_than(rhs, lhs.repn, false); }
 Constraint operator>=(const Expression& lhs, const Parameter& rhs)
 {
@@ -502,8 +558,13 @@ Constraint operator==(double lhs, const Parameter& rhs) { return equal(lhs, rhs.
 Constraint operator==(double lhs, const IndexParameter& rhs) { return equal(lhs, rhs.repn); }
 Constraint operator==(double lhs, const Variable& rhs) { return equal(lhs, rhs.repn); }
 Constraint operator==(double lhs, const Expression& rhs) { return equal(lhs, rhs.repn); }
+Constraint operator==(size_t lhs, const Parameter& rhs) { return equal(lhs, rhs.repn); }
+Constraint operator==(size_t lhs, const IndexParameter& rhs) { return equal(lhs, rhs.repn); }
+Constraint operator==(size_t lhs, const Variable& rhs) { return equal(lhs, rhs.repn); }
+Constraint operator==(size_t lhs, const Expression& rhs) { return equal(lhs, rhs.repn); }
 
 Constraint operator==(const Parameter& lhs, double rhs) { return equal(lhs.repn, rhs); }
+Constraint operator==(const Parameter& lhs, size_t rhs) { return equal(lhs.repn, rhs); }
 Constraint operator==(const Parameter& lhs, int rhs) { return equal(lhs.repn, rhs); }
 Constraint operator==(const Parameter& lhs, const Parameter& rhs)
 {
@@ -523,6 +584,7 @@ Constraint operator==(const Parameter& lhs, const Expression& rhs)
 }
 
 Constraint operator==(const IndexParameter& lhs, double rhs) { return equal(lhs.repn, rhs); }
+Constraint operator==(const IndexParameter& lhs, size_t rhs) { return equal(lhs.repn, rhs); }
 Constraint operator==(const IndexParameter& lhs, int rhs) { return equal(lhs.repn, rhs); }
 Constraint operator==(const IndexParameter& lhs, const Parameter& rhs)
 {
@@ -542,6 +604,7 @@ Constraint operator==(const IndexParameter& lhs, const Expression& rhs)
 }
 
 Constraint operator==(const Variable& lhs, double rhs) { return equal(lhs.repn, rhs); }
+Constraint operator==(const Variable& lhs, size_t rhs) { return equal(lhs.repn, rhs); }
 Constraint operator==(const Variable& lhs, int rhs) { return equal(lhs.repn, rhs); }
 Constraint operator==(const Variable& lhs, const Parameter& rhs)
 {
@@ -561,6 +624,7 @@ Constraint operator==(const Variable& lhs, const Expression& rhs)
 }
 
 Constraint operator==(const Expression& lhs, double rhs) { return equal(lhs.repn, rhs); }
+Constraint operator==(const Expression& lhs, size_t rhs) { return equal(lhs.repn, rhs); }
 Constraint operator==(const Expression& lhs, int rhs) { return equal(lhs.repn, rhs); }
 Constraint operator==(const Expression& lhs, const Parameter& rhs)
 {

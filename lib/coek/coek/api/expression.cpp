@@ -808,11 +808,15 @@ Expression operator+(int lhs, const Variable& rhs) { return plus(lhs, rhs.repn);
 Expression operator+(int lhs, const Expression& rhs) { return plus(lhs, rhs.repn); }
 Expression operator+(double lhs, const Variable& rhs) { return plus(lhs, rhs.repn); }
 Expression operator+(double lhs, const Expression& rhs) { return plus(lhs, rhs.repn); }
+Expression operator+(size_t lhs, const Variable& rhs) { return plus(lhs, rhs.repn); }
+Expression operator+(size_t lhs, const Expression& rhs) { return plus(lhs, rhs.repn); }
 
 Expression operator+(const Variable& lhs, int arg) { return plus(lhs.repn, arg); }
 Expression operator+(const Expression& lhs, int arg) { return plus(lhs.repn, arg); }
 Expression operator+(const Variable& lhs, double arg) { return plus(lhs.repn, arg); }
 Expression operator+(const Expression& lhs, double arg) { return plus(lhs.repn, arg); }
+Expression operator+(const Variable& lhs, size_t arg) { return plus(lhs.repn, arg); }
+Expression operator+(const Expression& lhs, size_t arg) { return plus(lhs.repn, arg); }
 
 Expression operator+(const Variable& lhs, const Variable& rhs)
 {
@@ -841,11 +845,15 @@ Expression operator-(int lhs, const Variable& rhs) { return minus(lhs, rhs.repn)
 Expression operator-(int lhs, const Expression& rhs) { return minus(lhs, rhs.repn); }
 Expression operator-(double lhs, const Variable& rhs) { return minus(lhs, rhs.repn); }
 Expression operator-(double lhs, const Expression& rhs) { return minus(lhs, rhs.repn); }
+Expression operator-(size_t lhs, const Variable& rhs) { return minus(lhs, rhs.repn); }
+Expression operator-(size_t lhs, const Expression& rhs) { return minus(lhs, rhs.repn); }
 
 Expression operator-(const Variable& lhs, int arg) { return plus(lhs.repn, -arg); }
 Expression operator-(const Expression& lhs, int arg) { return plus(lhs.repn, -arg); }
 Expression operator-(const Variable& lhs, double arg) { return plus(lhs.repn, -arg); }
 Expression operator-(const Expression& lhs, double arg) { return plus(lhs.repn, -arg); }
+Expression operator-(const Variable& lhs, size_t arg) { return plus(lhs.repn, -arg); }
+Expression operator-(const Expression& lhs, size_t arg) { return plus(lhs.repn, -arg); }
 
 Expression operator-(const Variable& lhs, const Variable& rhs)
 {
@@ -911,6 +919,28 @@ Expression operator*(double lhs, const Expression& rhs)
         tmp = times(lhs, rhs.repn);
     return tmp;
 }
+Expression operator*(size_t lhs, const Variable& rhs)
+{
+    expr_pointer_t tmp;
+    if (lhs == 0)
+        tmp = ZEROCONST;
+    else if (lhs == 1)
+        tmp = rhs.repn;
+    else
+        tmp = rhs.repn->const_mult(lhs, rhs.repn);
+    return tmp;
+}
+Expression operator*(size_t lhs, const Expression& rhs)
+{
+    expr_pointer_t tmp;
+    if (lhs == 0)
+        tmp = ZEROCONST;
+    else if (lhs == 1)
+        tmp = rhs.repn;
+    else
+        tmp = times(lhs, rhs.repn);
+    return tmp;
+}
 
 Expression operator*(const Variable& lhs, int arg)
 {
@@ -956,6 +986,28 @@ Expression operator*(const Expression& lhs, double arg)
         tmp = times(lhs.repn, arg);
     return tmp;
 }
+Expression operator*(const Variable& lhs, size_t arg)
+{
+    expr_pointer_t tmp;
+    if (arg == 0)
+        tmp = ZEROCONST;
+    else if (arg == 1)
+        tmp = lhs.repn;
+    else
+        tmp = lhs.repn->const_mult(arg, lhs.repn);
+    return tmp;
+}
+Expression operator*(const Expression& lhs, size_t arg)
+{
+    expr_pointer_t tmp;
+    if (arg == 0)
+        tmp = ZEROCONST;
+    else if (arg == 1)
+        tmp = lhs.repn;
+    else
+        tmp = times(lhs.repn, arg);
+    return tmp;
+}
 
 Expression operator*(const Variable& lhs, const Variable& rhs) { return times(lhs.repn, rhs.repn); }
 Expression operator*(const Variable& lhs, const Expression& rhs)
@@ -978,6 +1030,8 @@ Expression operator/(int lhs, const Variable& rhs) { return divide(lhs, rhs.repn
 Expression operator/(int lhs, const Expression& rhs) { return divide(lhs, rhs.repn); }
 Expression operator/(double lhs, const Variable& rhs) { return divide(lhs, rhs.repn); }
 Expression operator/(double lhs, const Expression& rhs) { return divide(lhs, rhs.repn); }
+Expression operator/(size_t lhs, const Variable& rhs) { return divide(lhs, rhs.repn); }
+Expression operator/(size_t lhs, const Expression& rhs) { return divide(lhs, rhs.repn); }
 
 Expression operator/(const Variable& lhs, int arg)
 {
@@ -1003,7 +1057,6 @@ Expression operator/(const Variable& lhs, double arg)
     return tmp;
 }
 Expression operator/(const Expression& lhs, double arg) { return divide(lhs.repn, arg); }
-
 Expression operator/(const Variable& lhs, size_t arg) { return lhs / static_cast<double>(arg); }
 Expression operator/(const Expression& lhs, size_t arg)
 {
