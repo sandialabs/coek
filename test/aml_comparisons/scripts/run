@@ -47,17 +47,21 @@ config = {
 all_models = {
 "coek": [
     "knapsack-array",
+    "knapsack-compact",
     "knapsack-scalar",
     "nqueens-array",
+    "nqueens-compact",
     "nqueens-scalar",
     "pmedian-array",
+    "pmedian-compact",
     "pmedian-scalar",
     "fac-array",
+    "fac-compact",
     "fac-scalar",
     "lqcp-array",
+    "lqcp-compact"        # Problem constructing this model?
+    "lqcp-map",
     "lqcp-scalar",
-    # "lqcp-map",
-    # "lqcp-compact"         Problem constructing this model
 ],
 
 "gurobi": [
@@ -433,6 +437,66 @@ if __name__ == "__main__":
             suffixes=["lp"],
             executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_writer"),
             subdir="coek",
+            ntrials=ntrials,
+            errors=errors,
+        )
+        test_writer(
+            test_type="medium",
+            models=all_gurobi_models,
+            suffixes=["lp"],
+            executable=os.path.join(
+                build_dir, "test/aml_comparisons/gurobi/gurobi_writer"
+            ),
+            subdir="gurobi",
+            ntrials=ntrials,
+            errors=errors,
+        )
+
+    elif sys.argv[1] == "bench_coek_and_poek":
+        test_solve0(
+            test_type="medium",
+            models=all_coek_models,
+            solvers=["gurobi"],
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_solve0"),
+            subdir="coek",
+            ntrials=ntrials,
+            errors=errors,
+        )
+        test_solve0(
+            test_type="medium",
+            models=all_poek_models,
+            solvers=["gurobi"],
+            executable=os.path.join(build_dir, "../test/aml_comparisons/poek/poek_solve0"),
+            subdir="poek",
+            ntrials=ntrials,
+            errors=errors,
+        )
+        test_solve0(
+            test_type="medium",
+            models=all_gurobi_models,
+            solvers=["gurobi"],
+            executable=os.path.join(
+                build_dir, "test/aml_comparisons/gurobi/gurobi_solve0"
+            ),
+            subdir="gurobi",
+            ntrials=ntrials,
+            errors=errors,
+        )
+        test_writer(
+            test_type="medium",
+            models=all_coek_models,
+            suffixes=["lp"],
+            executable=os.path.join(build_dir, "test/aml_comparisons/coek/coek_writer"),
+            subdir="coek",
+            ntrials=ntrials,
+            errors=errors,
+        )
+        test_writer(
+            test_type="medium",
+            models=all_poek_models,
+            suffixes=["lp"],
+            executable=os.path.join(build_dir, "../test/aml_comparisons/poek/poek_writer"),
+            subdir="poek",
             ntrials=ntrials,
             errors=errors,
         )
