@@ -1,6 +1,7 @@
 #include <coek/coek.hpp>
 #include <map>
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void pmedian_compact(coek::CompactModel& model, size_t N, size_t P)
 {
     size_t M = N;  // Customers
@@ -34,3 +35,4 @@ void pmedian_compact(coek::CompactModel& model, size_t N, size_t P)
     model.add(
         coek::constraint("num_facilities", coek::Sum(y(n), coek::Forall(n).In(Locations)) == P));
 }
+#endif

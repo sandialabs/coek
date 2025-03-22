@@ -1,8 +1,8 @@
 #include <cmath>
 #include <coek/coek.hpp>
 #include <cstdlib>
-#include <vector>
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void fac_compact(coek::CompactModel& model, size_t F)
 {
     size_t G = F;
@@ -56,3 +56,4 @@ void fac_compact(coek::CompactModel& model, size_t F)
         r(i, j, f, 0) * r(i, j, f, 0) + r(i, j, f, 1) * r(i, j, f, 1) <= s(i, j, f) * s(i, j, f),
         coek::Forall(i).In(Gp).Forall(j).In(Gp).Forall(f).In(Fset)));
 }
+#endif

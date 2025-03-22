@@ -2,10 +2,10 @@
 #include <functional>
 #include <map>
 #include <random>
-// #include <vector>
 #include <iostream>
 #include <coek/util/io_utils.hpp>
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void knapsack_compact(coek::CompactModel& model, size_t N)
 {
     N *= 1000;
@@ -35,3 +35,4 @@ void knapsack_compact(coek::CompactModel& model, size_t N)
     // con
     model.add(coek::constraint("con", coek::Sum(w(i) * x(i), coek::Forall(i).In(I)) <= W));
 }
+#endif

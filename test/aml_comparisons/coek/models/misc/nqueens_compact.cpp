@@ -2,6 +2,7 @@
 #include <map>
 #include <vector>
 
+#ifdef COEK_WITH_COMPACT_MODEL
 void nqueens_compact(coek::CompactModel& model, size_t N)
 {
     auto Rows = coek::RangeSet(0, N - 1);
@@ -45,3 +46,4 @@ void nqueens_compact(coek::CompactModel& model, size_t N)
             <= 1,
         coek::Forall(i).In(coek::RangeSet(1, N - 2))));
 }
+#endif
