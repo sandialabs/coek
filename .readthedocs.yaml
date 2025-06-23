@@ -6,7 +6,7 @@ conda:
 build:
     os: ubuntu-24.04
     tools:
-        python: 3.13
+        python: "3.13"
     commands:
         - ./doc/build_doc.sh ${SPHINX_PROJECT}
 
